@@ -1,13 +1,34 @@
 import React, { useState } from 'react';
 import { Stethoscope, Plus, Search, CheckCircle, AlertTriangle, X, Trash2, PenTool, ArrowRightLeft, History } from 'lucide-react';
+import EquipmentRegistration from './EquipmentRegistration';
 
 export interface EquipmentItem {
+  // 1. Asset Identification & Classification
   id: string;
   name: string;
   type: string;
-  status: 'Operational' | 'Maintenance' | 'Decommissioned';
-  nextMaintenance: string;
+  modelNumber?: string;
   serialNumber: string;
+  manufacturer?: string;
+
+  // 2. Purchase & Financial Details
+  purchaseDate?: string;
+  costPrice?: number;
+  warrantyExpiryDate?: string;
+  vendor?: string;
+  depreciationRate?: number;
+  depreciationMethod?: string;
+
+  // 3. Location & Operational Status
+  status: 'Operational' | 'Maintenance' | 'Decommissioned';
+  assignedRoom?: string;
+  custodian?: string;
+
+  // 4. Calibration & Preventive Maintenance
+  lastCalibrationDate?: string;
+  nextMaintenance: string; // Next Calibration Due Date
+  maintenanceFrequency?: string;
+  safetyCertification?: string;
 }
 
 export interface EquipmentLog {
@@ -29,18 +50,12 @@ export default function EquipmentManagementModule() {
   const [logs, setLogs] = useState<EquipmentLog[]>([]);
   
   const [activeTab, setActiveTab] = useState<'catalog' | 'logs'>('catalog');
+  const [currentView, setCurrentView] = useState<'list' | 'registration'>('list');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal States
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [maintainEqId, setMaintainEqId] = useState<string | null>(null);
   const [disposeEqId, setDisposeEqId] = useState<string | null>(null);
-
-  // Add Form State
-  const [newName, setNewName] = useState('');
-  const [newType, setNewType] = useState('Diagnostic');
-  const [newSerial, setNewSerial] = useState('');
-  const [newDate, setNewDate] = useState('');
 
   // Derived
   const filteredEq = equipmentList.filter(eq => 
@@ -51,23 +66,14 @@ export default function EquipmentManagementModule() {
   
   const issuesCount = equipmentList.filter(e => e.status === 'Maintenance').length;
 
-  const handleAddEquipment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newName || !newSerial) return;
-
+  const handleAddEquipmentSubmit = (newEqData: Omit<EquipmentItem, 'id'>) => {
     const newEq: EquipmentItem = {
       id: `EQ-${Math.floor(Math.random() * 900) + 100}`,
-      name: newName,
-      type: newType,
-      status: 'Operational',
-      nextMaintenance: newDate || new Date().toISOString().split('T')[0],
-      serialNumber: newSerial
+      ...newEqData
     };
 
     setEquipmentList([...equipmentList, newEq]);
-    setIsAddModalOpen(false);
-    
-    setNewName(''); setNewType('Diagnostic'); setNewSerial(''); setNewDate('');
+    setCurrentView('list');
   };
 
   const handleMaintain = (e: React.FormEvent) => {
@@ -116,15 +122,22 @@ export default function EquipmentManagementModule() {
   return (
     <div className="animate-fadeIn max-w-5xl mx-auto space-y-6">
       
-      {/* Header & Tabs */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200 pb-4 gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Stethoscope className="w-6 h-6 text-[#07B2B2]" />
-            Equipment Management
-          </h2>
-          <p className="text-xs text-slate-500 mt-1">Monitor medical device statuses, maintenance schedules, and calibration logs.</p>
-        </div>
+      {currentView === 'registration' ? (
+        <EquipmentRegistration 
+          onCancel={() => setCurrentView('list')} 
+          onSubmit={handleAddEquipmentSubmit} 
+        />
+      ) : (
+        <>
+          {/* Header & Tabs */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200 pb-4 gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <Stethoscope className="w-6 h-6 text-[#07B2B2]" />
+                Equipment Management
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">Monitor medical device statuses, maintenance schedules, and calibration logs.</p>
+            </div>
         
         <div className="flex gap-2">
           <button 
@@ -184,7 +197,7 @@ export default function EquipmentManagementModule() {
                   />
                 </div>
                 <button 
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => setCurrentView('registration')}
                   className="bg-[#07B2B2] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#058A8A] cursor-pointer shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
@@ -282,48 +295,6 @@ export default function EquipmentManagementModule() {
       )}
 
       {/* --- MODALS --- */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-slideUp">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <Stethoscope className="w-5 h-5 text-[#07B2B2]" />
-                Log New Equipment
-              </h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
-            </div>
-            <form onSubmit={handleAddEquipment} className="p-5 space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600 uppercase">Device Name</label>
-                <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase">Category</label>
-                  <select value={newType} onChange={e => setNewType(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none">
-                    <option>Diagnostic</option>
-                    <option>Sanitization</option>
-                    <option>Furniture</option>
-                    <option>IT Hardware</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase">Serial Number</label>
-                  <input type="text" required value={newSerial} onChange={e => setNewSerial(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none font-mono" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600 uppercase">First Maintenance Date</label>
-                <input type="date" required value={newDate} onChange={e => setNewDate(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-              </div>
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setIsAddModalOpen(false)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg font-bold text-sm cursor-pointer">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 bg-[#07B2B2] text-white hover:bg-[#058A8A] rounded-lg font-bold text-sm shadow-sm cursor-pointer">Save Equipment</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Maintain Modal */}
       {maintainEqId && (
@@ -363,6 +334,8 @@ export default function EquipmentManagementModule() {
         </div>
       )}
 
+        </>
+      )}
     </div>
   );
 }

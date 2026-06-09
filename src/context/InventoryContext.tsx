@@ -2,21 +2,41 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface DrugItem {
   id: string;
-  name: string;
+  name: string; // Brand Name / Trade Name
   category: string;
   currentStock: number;
   minThreshold: number;
-  price: number;
-  drugType?: string; // e.g. Tablet, Syrup, Injection
-  manufacturer?: string;
+  price: number; // Selling Price
+  
+  // 1. Core Drug Identification
+  brandName?: string;
   genericName?: string;
+  manufacturer?: string;
+  // 2. Strength & Form
+  strength?: string;
+  strengthUnit?: string;
+  drugType?: string; // Dosage Form e.g. Tablet, Syrup, Injection
+
+  // 3. Inventory & Packaging Controls
+  packagingType?: string;
+  uom?: string; // Unit of Measurement for dispensing
+  storageConditions?: string;
+  
+  // 4. Clinical & Safety Flags
   isControlledDrug?: boolean;
+  contraindications?: string;
+  pregnancyCategory?: string;
   indications?: string; // Used for which disease
   sideEffects?: string;
   suggestedDosage?: {
     adults?: string;
     children?: string;
   };
+
+  // 5. Pricing & Billing Details
+  costPrice?: number;
+  taxRate?: number;
+  isInsuranceClaimable?: boolean;
 }
 
 export interface InventoryLog {

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Plus, Search, PackagePlus, AlertTriangle, Pill, X, Edit2, Trash2, Trash, Syringe, History, CheckCircle, Info, ShieldAlert } from 'lucide-react';
-import { useInventory } from '../context/InventoryContext';
+import { useInventory, DrugItem } from '../context/InventoryContext';
+import DrugRegistration from './DrugRegistration';
 
 export default function MedicineManagementModule() {
   const { catalog, logs, addDrug, restockDrug, deleteDrug, disposeDrug, useDrugInternally } = useInventory();
   
   // Navigation State
   const [activeTab, setActiveTab] = useState<'catalog' | 'logs'>('catalog');
+  const [currentView, setCurrentView] = useState<'list' | 'registration'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Modals state
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [detailsDrugId, setDetailsDrugId] = useState<string | null>(null);
   const [restockDrugId, setRestockDrugId] = useState<string | null>(null);
   const [restockAmount, setRestockAmount] = useState('100');
@@ -23,21 +24,6 @@ export default function MedicineManagementModule() {
   const [useAmount, setUseAmount] = useState('1');
   const [useReason, setUseReason] = useState('Emergency Treatment');
 
-  // Form State for Add Drug
-  const [newName, setNewName] = useState('');
-  const [newCat, setNewCat] = useState('');
-  const [newStock, setNewStock] = useState('0');
-  const [newThreshold, setNewThreshold] = useState('100');
-  const [newPrice, setNewPrice] = useState('0.00');
-  const [newDrugType, setNewDrugType] = useState('Tablet');
-  const [newManufacturer, setNewManufacturer] = useState('');
-  const [newGenericName, setNewGenericName] = useState('');
-  const [newIsControlled, setNewIsControlled] = useState(false);
-  const [newIndications, setNewIndications] = useState('');
-  const [newSideEffects, setNewSideEffects] = useState('');
-  const [newDosageAdults, setNewDosageAdults] = useState('');
-  const [newDosageChildren, setNewDosageChildren] = useState('');
-
   // Derived State
   const filteredCatalog = catalog.filter(drug => 
     drug.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -47,41 +33,9 @@ export default function MedicineManagementModule() {
   const totalItems = catalog.length;
   const lowStockCount = catalog.filter(d => d.currentStock <= d.minThreshold).length;
 
-  const handleAddDrug = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newName || !newCat) return;
-
-    addDrug({
-      name: newName,
-      category: newCat,
-      currentStock: parseInt(newStock) || 0,
-      minThreshold: parseInt(newThreshold) || 50,
-      price: parseFloat(newPrice) || 0.00,
-      drugType: newDrugType,
-      manufacturer: newManufacturer,
-      genericName: newGenericName,
-      isControlledDrug: newIsControlled,
-      indications: newIndications,
-      sideEffects: newSideEffects,
-      suggestedDosage: { adults: newDosageAdults, children: newDosageChildren }
-    });
-    
-    setIsAddModalOpen(false);
-    
-    // Reset Form
-    setNewName('');
-    setNewCat('');
-    setNewStock('0');
-    setNewThreshold('100');
-    setNewPrice('0.00');
-    setNewDrugType('Tablet');
-    setNewManufacturer('');
-    setNewGenericName('');
-    setNewIsControlled(false);
-    setNewIndications('');
-    setNewSideEffects('');
-    setNewDosageAdults('');
-    setNewDosageChildren('');
+  const handleAddDrugSubmit = (newDrugData: Omit<DrugItem, 'id'>) => {
+    addDrug(newDrugData);
+    setCurrentView('list');
   };
 
   const handleRestock = (e: React.FormEvent) => {
@@ -134,15 +88,22 @@ export default function MedicineManagementModule() {
   return (
     <div className="animate-fadeIn max-w-5xl mx-auto space-y-6">
       
-      {/* Header Area & Tabs */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200 pb-4 gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Pill className="w-6 h-6 text-[#07B2B2]" />
-            Medicine & Inventory Management
-          </h2>
-          <p className="text-xs text-slate-500 mt-1">Track drug catalogs, manage stock thresholds, and handle procurement.</p>
-        </div>
+      {currentView === 'registration' ? (
+        <DrugRegistration 
+          onCancel={() => setCurrentView('list')} 
+          onSubmit={handleAddDrugSubmit} 
+        />
+      ) : (
+        <>
+          {/* Header Area & Tabs */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200 pb-4 gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <Pill className="w-6 h-6 text-[#07B2B2]" />
+                Medicine & Inventory Management
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">Track drug catalogs, manage stock thresholds, and handle procurement.</p>
+            </div>
         
         <div className="flex gap-2">
           <button 
@@ -211,7 +172,7 @@ export default function MedicineManagementModule() {
                 />
               </div>
               <button 
-                onClick={() => setIsAddModalOpen(true)}
+                onClick={() => setCurrentView('registration')}
                 className="bg-[#07B2B2] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#058A8A] cursor-pointer shadow-sm transition-colors"
               >
                 <Plus className="w-4 h-4" />
@@ -401,119 +362,6 @@ export default function MedicineManagementModule() {
 
       {/* -- ALL MODALS -- */}
 
-      {/* Add Drug Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden animate-slideUp flex flex-col max-h-[90vh]">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100 shrink-0">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <Pill className="w-5 h-5 text-[#07B2B2]" />
-                Register New Medication
-              </h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <form onSubmit={handleAddDrug} className="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-6">
-              
-              {/* Basic Details Section */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-bold text-[#07B2B2] border-b border-cyan-100 pb-2">Basic Inventory Info</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Medication Name</label>
-                    <input type="text" required value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" placeholder="e.g. Vitamin C 1000mg" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Category</label>
-                    <input type="text" required value={newCat} onChange={(e) => setNewCat(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" placeholder="e.g. Supplement" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Initial Stock</label>
-                    <input type="number" required min="0" value={newStock} onChange={(e) => setNewStock(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Min Threshold</label>
-                    <input type="number" required min="0" value={newThreshold} onChange={(e) => setNewThreshold(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Unit Price (RM)</label>
-                    <input type="number" required step="0.01" min="0" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" placeholder="0.00" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Pharmacology Section */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-bold text-[#07B2B2] border-b border-cyan-100 pb-2">Pharmacology & Details</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Generic Name</label>
-                    <input type="text" value={newGenericName} onChange={(e) => setNewGenericName(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Manufacturer</label>
-                    <input type="text" value={newManufacturer} onChange={(e) => setNewManufacturer(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Drug Type</label>
-                    <select value={newDrugType} onChange={(e) => setNewDrugType(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]">
-                      <option>Tablet</option>
-                      <option>Capsule</option>
-                      <option>Syrup</option>
-                      <option>Injection</option>
-                      <option>Inhaler</option>
-                      <option>Topical Cream</option>
-                      <option>Drops</option>
-                      <option>Other</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center pt-5">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" checked={newIsControlled} onChange={(e) => setNewIsControlled(e.target.checked)} className="sr-only peer" />
-                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
-                      <span className="ml-3 text-sm font-bold text-slate-700">Is Controlled Substance (Rx)</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase">Indications (Used For)</label>
-                  <input type="text" value={newIndications} onChange={(e) => setNewIndications(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                </div>
-                
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase">Potential Side Effects</label>
-                  <input type="text" value={newSideEffects} onChange={(e) => setNewSideEffects(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Suggested Dosage (Adults)</label>
-                    <input type="text" value={newDosageAdults} onChange={(e) => setNewDosageAdults(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 uppercase">Suggested Dosage (Children)</label>
-                    <input type="text" value={newDosageChildren} onChange={(e) => setNewDosageChildren(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#07B2B2] outline-none" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 flex gap-3 shrink-0">
-                <button type="button" onClick={() => setIsAddModalOpen(false)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg font-bold text-sm transition-colors cursor-pointer">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 bg-[#07B2B2] text-white hover:bg-[#058A8A] rounded-lg font-bold text-sm transition-colors cursor-pointer shadow-sm">Save to Catalog</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Restock Modal */}
       {restockDrugId && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
@@ -662,6 +510,8 @@ export default function MedicineManagementModule() {
         </div>
       )}
 
+        </>
+      )}
     </div>
   );
 }

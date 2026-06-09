@@ -7,6 +7,7 @@ import StaffManagementModule from './StaffManagementModule';
 import MedicineManagementModule from './MedicineManagementModule';
 import EquipmentManagementModule from './EquipmentManagementModule';
 import BillingManagementModule from './BillingManagementModule';
+import ReportsAnalyticsModule from './ReportsAnalyticsModule';
 import SettingsModule from './SettingsModule';
 import { useSettings } from '../context/SettingsContext';
 
@@ -221,33 +222,7 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
           )}
 
           {activeTab === 'reports' && (
-            <div className="animate-fadeIn max-w-5xl mx-auto space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-800">Reports Module</h2>
-                  <p className="text-xs text-slate-500">Generate operational, clinical, and financial analytics reports.</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { title: 'Clinical ICD-10 Demographics', desc: 'Patient diagnosis distribution by month', type: 'Clinical' },
-                  { title: 'Pharmacy Dispensation Log', desc: 'Full audit trail of all dispensed medications', type: 'Inventory' },
-                  { title: 'TPA Reconciliation Report', desc: 'Unpaid and paid claims from insurance panels', type: 'Financial' },
-                  { title: 'MOH NIDCS Weekly Audit', desc: 'Data transmitted to the Ministry of Health', type: 'Compliance' },
-                  { title: 'Staff Performance & Loads', desc: 'Consultation times and patient volume per doctor', type: 'Operational' }
-                ].map((rep, i) => (
-                  <div key={i} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-[#07B2B2] bg-cyan-50 px-2 py-1 rounded">{rep.type}</span>
-                    <h3 className="font-bold text-slate-800 mt-3 group-hover:text-[#07B2B2] transition-colors">{rep.title}</h3>
-                    <p className="text-xs text-slate-500 mt-1">{rep.desc}</p>
-                    <div className="mt-4 flex items-center text-xs font-bold text-[#07B2B2]">
-                      Generate PDF &rarr;
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ReportsAnalyticsModule />
           )}
 
           {activeTab === 'settings' && (
