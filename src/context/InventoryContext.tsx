@@ -8,6 +8,10 @@ export interface DrugItem {
   minThreshold: number;
   price: number; // Selling Price
   
+  // Predictive Supply Chain (AI)
+  expiryDate?: string;
+  consumptionVelocity?: number; // Estimated units sold per week
+  
   // 1. Core Drug Identification
   brandName?: string;
   genericName?: string;
@@ -68,6 +72,8 @@ const DEFAULT_CATALOG: DrugItem[] = [
     currentStock: 1200, 
     minThreshold: 500, 
     price: 0.50,
+    expiryDate: '2026-08-15', // Expiring relatively soon
+    consumptionVelocity: 350,
     drugType: 'Tablet',
     manufacturer: 'PharmaCorp',
     genericName: 'Paracetamol',
@@ -83,6 +89,8 @@ const DEFAULT_CATALOG: DrugItem[] = [
     currentStock: 45, 
     minThreshold: 100, 
     price: 1.20,
+    expiryDate: '2027-11-20',
+    consumptionVelocity: 80,
     drugType: 'Capsule',
     manufacturer: 'MediLife',
     genericName: 'Amoxicillin',
@@ -98,6 +106,8 @@ const DEFAULT_CATALOG: DrugItem[] = [
     currentStock: 300, 
     minThreshold: 200, 
     price: 2.50,
+    expiryDate: '2028-01-10',
+    consumptionVelocity: 150,
     drugType: 'Tablet',
     manufacturer: 'CardioMeds',
     genericName: 'Lisinopril',
@@ -113,6 +123,8 @@ const DEFAULT_CATALOG: DrugItem[] = [
     currentStock: 15, 
     minThreshold: 50, 
     price: 15.00,
+    expiryDate: '2026-07-05', // Expiring very soon!
+    consumptionVelocity: 25,
     drugType: 'Inhaler',
     manufacturer: 'BreatheEasy',
     genericName: 'Salbutamol / Albuterol',
@@ -128,6 +140,8 @@ const DEFAULT_CATALOG: DrugItem[] = [
     currentStock: 200, 
     minThreshold: 100, 
     price: 3.00,
+    expiryDate: '2029-05-15',
+    consumptionVelocity: 10,
     drugType: 'Tablet',
     manufacturer: 'NeuroPharma',
     genericName: 'Diazepam',

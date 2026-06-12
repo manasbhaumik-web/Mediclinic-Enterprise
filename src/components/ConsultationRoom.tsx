@@ -7,7 +7,8 @@ import {
 } from '../data';
 import { 
   History, Stethoscope, Activity, ClipboardList, Pill, Plus, Trash2, 
-  AlertTriangle, Check, FileText, Printer, Clock, Heart, Thermometer, Info, ChevronRight, UserMinus
+  AlertTriangle, Check, FileText, Printer, Clock, Heart, Thermometer, Info, ChevronRight, UserMinus,
+  Mic, MicOff, Bluetooth, Zap, Sparkles
 } from 'lucide-react';
 
 interface ConsultationRoomProps {
@@ -63,6 +64,10 @@ export default function ConsultationRoom({
   const [mcDays, setMcDays] = useState(1);
   const [mcReferenceNo, setMcReferenceNo] = useState('');
   const [mcGenerated, setMcGenerated] = useState(false);
+
+  // Next-Gen Simulations State
+  const [isListening, setIsListening] = useState(false);
+  const [isSyncingVitals, setIsSyncingVitals] = useState(false);
 
   // Populate longitudinal history for active patient
   const patientPastVisits = PREVIOUS_VISITS.filter(v => v.patientId === currentPatient?.id);
@@ -214,6 +219,36 @@ export default function ConsultationRoom({
     };
 
     onConsultationComplete(soapData, mcGenerated, mcDays);
+  };
+
+  // --- Next-Gen Feature Handlers ---
+  const handleVoiceToText = () => {
+    if (isListening) return;
+    setIsListening(true);
+    // Simulate 3 seconds of AI listening and transcribing
+    setTimeout(() => {
+      setSubjective(prev => prev 
+        ? `${prev}\n[AI Transcribed]: Patient reports severe throbbing headache localized to frontal lobe, onset 24 hours ago. Denies nausea, photophobia, or aura.`
+        : `[AI Transcribed]: Patient reports severe throbbing headache localized to frontal lobe, onset 24 hours ago. Denies nausea, photophobia, or aura.`
+      );
+      setIsListening(false);
+    }, 3000);
+  };
+
+  const handleSyncVitals = () => {
+    if (isSyncingVitals) return;
+    setIsSyncingVitals(true);
+    // Simulate Bluetooth sync with hardware IoT
+    setTimeout(() => {
+      setVitals({
+        bpSystolic: 122,
+        bpDiastolic: 78,
+        heartRate: 84,
+        temperature: 37.1,
+        respiratoryRate: 18
+      });
+      setIsSyncingVitals(false);
+    }, 2500);
   };
 
   return (
@@ -435,21 +470,30 @@ export default function ConsultationRoom({
             </button>
           </div>
 
-          {/* TAB 1: SUBJECTIVE FIELD */}
+          {/* TAB 1: SUBJECTIVE (Voice-to-Text Copilot) */}
           {activeTab === 'subjective' && (
-            <div className="space-y-3.5 animate-fadeIn">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-tight mb-1">
-                  {t.symptomsNotes}
-                </label>
-                <textarea
-                  id="soap-subjective-input"
-                  className="w-full text-xs min-h-[140px] px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
-                  value={subjective}
-                  onChange={(e) => setSubjective(e.target.value)}
-                  placeholder="Record symptoms, clinical history, patient complaints, pain scale (0-10), onset duration..."
-                />
+            <div className="space-y-4 animate-fadeIn">
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-slate-500 font-semibold">Record patient complaints, symptoms, and medical history.</p>
+                <button 
+                  onClick={handleVoiceToText}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
+                    isListening 
+                      ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' 
+                      : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 cursor-pointer'
+                  }`}
+                >
+                  {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  {isListening ? 'AI Listening...' : 'AI Voice Dictation'}
+                </button>
               </div>
+              <textarea
+                id="soap-subjective-input"
+                className="w-full text-xs min-h-[140px] px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+                value={subjective}
+                onChange={(e) => setSubjective(e.target.value)}
+                placeholder="Record symptoms, clinical history, patient complaints, pain scale (0-10), onset duration..."
+              />
 
               {/* Malaysia local templates helper */}
               <div>
@@ -472,12 +516,24 @@ export default function ConsultationRoom({
             </div>
           )}
 
-          {/* TAB 2: OBJECTIVE FIELDS (Vitals table with helper alert tags) */}
+          {/* TAB 2: OBJECTIVE (IoT Vitals Integration) */}
           {activeTab === 'objective' && (
-            <div className="space-y-4 animate-fadeIn">
-              <h4 className="text-xs font-bold uppercase text-slate-500 tracking-wide">
-                Patient Clinician Vital Signs Sign-off
-              </h4>
+            <div className="space-y-5 animate-fadeIn">
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-slate-500 font-semibold">Record physical examination and vital signs.</p>
+                <button 
+                  onClick={handleSyncVitals}
+                  disabled={isSyncingVitals}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
+                    isSyncingVitals 
+                      ? 'bg-blue-50 text-blue-500 border-blue-200 animate-pulse' 
+                      : 'bg-[#07B2B2]/10 text-[#07B2B2] border-cyan-200 hover:bg-[#07B2B2]/20 cursor-pointer'
+                  }`}
+                >
+                  <Bluetooth className="w-3.5 h-3.5" />
+                  {isSyncingVitals ? 'Syncing Hardware...' : 'Sync IoT Vitals'}
+                </button>
+              </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
@@ -667,24 +723,22 @@ export default function ConsultationRoom({
 
           {/* TAB 4: PLAN (Prescriptions builder, allergy integration verification flags) */}
           {activeTab === 'plan' && (
-            <div className="space-y-4 animate-fadeIn">
+            <div className="space-y-5 animate-fadeIn relative">
               
-              {/* Allergy alerts flags overlay */}
+              {/* AI DRUG INTERACTION ALERT */}
               {allergyAlerts.length > 0 && (
-                <div id="allergy-alert-banner" className="bg-red-50 border border-red-200 p-3 rounded-lg text-red-800 text-xs space-y-1 animate-pulse">
-                  <span className="font-bold uppercase tracking-wide flex items-center gap-1 text-red-700">
-                    <AlertTriangle className="w-4 h-4 animate-bounce" />
-                    {t.interactionAlert}
-                  </span>
-                  <div className="pl-5 space-y-1 text-[11px] text-slate-700">
-                    {allergyAlerts.map((alert, idx) => (
-                      <p key={idx}>
-                        • Medication <strong>{alert.drugName}</strong> falls under the <strong>{alert.allergyGroup}</strong> group which conflicts with patient allergies.
-                      </p>
-                    ))}
-                    <p className="text-[10px] font-bold text-red-800 uppercase mt-1">
-                      ⚠️ CLINICIAN ALERT: Verify or override with caution under clinical responsibility.
+                <div className="absolute top-0 right-0 left-0 z-10 bg-red-600 text-white p-3 rounded-lg shadow-lg animate-bounce-slow flex items-start gap-3">
+                  <AlertTriangle className="w-6 h-6 shrink-0" />
+                  <div>
+                    <h4 className="font-black text-sm uppercase tracking-wider">CRITICAL: Drug Interaction Detected!</h4>
+                    <p className="text-xs mt-0.5">
+                      Patient has a known allergy history that conflicts with your prescription plan.
                     </p>
+                    <ul className="text-[10px] mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded">
+                      {allergyAlerts.map((alert, idx) => (
+                        <li key={idx}><span className="font-bold">{alert.drugName}</span> belongs to <span className="font-bold underline">{alert.allergyGroup}</span> family.</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               )}
@@ -842,6 +896,29 @@ export default function ConsultationRoom({
 
             </div>
           )}
+        </div>
+
+        {/* AI Smart Summary (New Feature) */}
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3.5 rounded-lg border border-indigo-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Sparkles className="w-12 h-12 text-indigo-500" />
+          </div>
+          <h4 className="text-[10px] font-bold text-indigo-800 uppercase flex items-center gap-1.5 mb-2">
+            <Zap className="w-3.5 h-3.5" /> AI Medical Summary
+          </h4>
+          <ul className="text-xs text-indigo-900 space-y-1.5 pl-4 list-disc marker:text-indigo-300">
+            {currentPatient.drugAllergies.length > 0 ? (
+              <li><strong>Critical:</strong> Known anaphylaxis/allergy to {currentPatient.drugAllergies.join(', ')}.</li>
+            ) : (
+              <li>No known drug allergies (NKDA) on record.</li>
+            )}
+            {patientPastVisits.length > 0 ? (
+              <li>{patientPastVisits.length} prior visits. Most recent diagnosis: <span className="font-mono bg-white/50 px-1 rounded">{patientPastVisits[0].soap.assessment.icdCode}</span>.</li>
+            ) : (
+              <li>First time consultation at this clinic.</li>
+            )}
+            <li>Predictive: High probability of seasonal flu/viral fever based on current demographic trends.</li>
+          </ul>
         </div>
 
         {/* Global form controls and clinical authorization */}

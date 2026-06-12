@@ -1,11 +1,26 @@
-import React from 'react';
-import { Activity, ShieldCheck, Database, Building, ArrowRight, HeartPulse } from 'lucide-react';
+import React, { useState } from 'react';
+import { Activity, ShieldCheck, Database, Building, ArrowRight, HeartPulse, Smartphone, X, FileText, Pill } from 'lucide-react';
 
 interface LandingModuleProps {
   onNavigate: (view: 'login') => void;
 }
 
 export default function LandingModule({ onNavigate }: LandingModuleProps) {
+  const [showPatientPortal, setShowPatientPortal] = useState(false);
+  const [patientIc, setPatientIc] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const handlePatientLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    // Simulate login delay
+    setTimeout(() => {
+      setIsLoggingIn(false);
+      setIsLoggedIn(true);
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       {/* Header */}
@@ -21,7 +36,15 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
             <span className="text-[10px] text-[#07B2B2] font-mono tracking-wider font-bold">ENTERPRISE OS</span>
           </div>
         </div>
-        <div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowPatientPortal(true)}
+            className="text-slate-600 hover:bg-slate-100 px-4 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer flex items-center gap-2"
+          >
+            <Smartphone className="w-4 h-4 text-[#07B2B2]" />
+            Patient Portal
+          </button>
           <button
             type="button"
             onClick={() => onNavigate('login')}
@@ -98,6 +121,105 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
           © 2026 MediClinic Enterprise Solutions. All rights reserved.
         </p>
       </footer>
+      {/* Patient Portal Modal */}
+      {showPatientPortal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-slideUp flex flex-col max-h-[90vh]">
+            <div className="bg-gradient-to-r from-[#07B2B2] to-teal-500 p-6 relative">
+              <button 
+                onClick={() => {
+                  setShowPatientPortal(false);
+                  setIsLoggedIn(false);
+                  setPatientIc('');
+                }} 
+                className="absolute top-4 right-4 text-white/80 hover:text-white cursor-pointer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                <Smartphone className="w-6 h-6" />
+                Patient Portal
+              </h2>
+              <p className="text-teal-50 text-sm mt-1">Access your health records & prescriptions.</p>
+            </div>
+
+            {!isLoggedIn ? (
+              <form onSubmit={handlePatientLogin} className="p-8 space-y-6 flex-1 overflow-y-auto">
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">
+                    MyKad / IC Number
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={patientIc}
+                    onChange={(e) => setPatientIc(e.target.value)}
+                    placeholder="e.g. 900101-14-5555"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#07B2B2] outline-none font-mono text-lg"
+                  />
+                  <p className="text-[10px] text-slate-400">Enter your MyKad number to verify your identity.</p>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  disabled={isLoggingIn}
+                  className="w-full py-3.5 bg-[#07B2B2] hover:bg-[#058A8A] text-white rounded-xl font-bold text-lg shadow-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Verifying...
+                    </>
+                  ) : 'Access My Records'}
+                </button>
+              </form>
+            ) : (
+              <div className="p-6 bg-slate-50 flex-1 overflow-y-auto space-y-4">
+                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-slate-500 uppercase font-bold">Welcome Back,</p>
+                    <p className="text-lg font-black text-slate-800">Mock Patient Data</p>
+                  </div>
+                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <h3 className="font-bold text-slate-700 text-sm uppercase px-1 mt-6">Recent Records</h3>
+                
+                <div className="space-y-3">
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-indigo-500" />
+                        <span className="font-bold text-slate-800">Medical Certificate (MC)</span>
+                      </div>
+                      <span className="text-xs text-slate-500 font-mono">10 May 2026</span>
+                    </div>
+                    <p className="text-sm text-slate-600 mb-3">Issued for 2 days. Valid until 12 May 2026.</p>
+                    <button className="text-indigo-600 text-xs font-bold uppercase hover:underline">Download PDF</button>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2">
+                        <Pill className="w-5 h-5 text-orange-500" />
+                        <span className="font-bold text-slate-800">Active Prescriptions</span>
+                      </div>
+                      <span className="text-xs text-slate-500 font-mono">10 May 2026</span>
+                    </div>
+                    <ul className="text-sm text-slate-600 space-y-1 mb-3 list-disc pl-4">
+                      <li>Amoxicillin 250mg (1 capsule every 8 hours)</li>
+                      <li>Paracetamol 500mg (1-2 tablets every 6 hours)</li>
+                    </ul>
+                    <button className="text-orange-600 text-xs font-bold uppercase hover:underline">Request Refill</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

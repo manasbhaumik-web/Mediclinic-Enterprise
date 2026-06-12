@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Patient, Visit, Language } from './types';
+import { Patient, Visit, Language, UserRole } from './types';
 import { TRANSLATIONS, INITIAL_PATIENTS } from './data';
 import { useFinancials } from './context/FinancialContext';
 
@@ -12,19 +12,36 @@ import MOHDashboard from './components/MOHDashboard';
 import LandingModule from './components/LandingModule';
 import LoginModule from './components/LoginModule';
 import AdminModule from './components/AdminModule';
+import DoctorDashboardModule from './components/DoctorDashboardModule';
 
 // Import icons
 import {
   Building, Users, FolderCheck, Stethoscope, Pill, CreditCard,
   Settings, Menu, LayoutDashboard, Globe, AlertCircle, Wifi, WifiOff,
-  UserCheck, Layers, ChevronRight, Activity, PlusCircle, CheckCircle, Search
+  CheckCircle2, ChevronRight, Activity, X, UserCheck, MapPin, 
+  LogOut, ShieldAlert, FileText, Smartphone, MessageCircle
 } from 'lucide-react';
 
 export default function App() {
   const { recordTransaction } = useFinancials();
   const [appView, setAppView] = useState<'landing' | 'login' | 'suite' | 'admin'>('landing');
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  
   // Navigation Menu Active Page
   const [activeTab, setActiveTab] = useState<'dashboard' | 'registration' | 'consultation' | 'dispensary' | 'billing' | 'reports'>('dashboard');
+
+  const handleLogin = (role: UserRole) => {
+    setUserRole(role);
+    if (role === 'admin' || role === 'hr') {
+      setAppView('admin');
+    } else {
+      setAppView('suite');
+      // Set default tab based on role
+      if (role === 'pharmacist') setActiveTab('dashboard');
+      else if (role === 'doctor') setActiveTab('dashboard');
+      else if (role === 'clerk') setActiveTab('dashboard');
+    }
+  };
 
   // Multi-language active language (EN or BM)
   const [activeLanguage, setActiveLanguage] = useState<Language>('EN');
@@ -159,6 +176,7 @@ export default function App() {
 
   // Registration Form state
   const [isMyKadOpen, setIsMyKadOpen] = useState(false);
+  const [whatsappToast, setWhatsappToast] = useState<string | null>(null);
   const [manualForm, setManualForm] = useState({
     fullName: '',
     icNumber: '',
@@ -373,11 +391,30 @@ export default function App() {
   const cashierQueue = visitsQueue.filter(v => v.status === 'Awaiting Billing');
 
   if (appView === 'landing') return <LandingModule onNavigate={setAppView} />;
-  if (appView === 'login') return <LoginModule onNavigate={setAppView} />;
-  if (appView === 'admin') return <AdminModule onNavigate={setAppView} />;
+  if (appView === 'login') return <LoginModule onLogin={handleLogin} onNavigate={setAppView} />;
+  if (appView === 'admin') return <AdminModule 
+    onNavigate={setAppView} 
+    userRole={userRole as 'admin' | 'hr'} 
+    completedVisits={completedVisits}
+    totalRegisteredCount={patientsList.length}
+    activeLanguage={activeLanguage}
+  />;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800 antialiased">
+      {/* Global Toast for WhatsApp */}
+        {whatsappToast && (
+          <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3">
+            <MessageCircle className="w-5 h-5" />
+            <div>
+              <p className="font-bold text-sm">WhatsApp Sent</p>
+              <p className="text-xs text-emerald-100">{whatsappToast}</p>
+            </div>
+            <button onClick={() => setWhatsappToast(null)} className="ml-4 hover:text-emerald-200">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
       {/* GLOBAL HEADER BAR */}
       <header className="bg-[#07B2B2] text-white px-5 py-3 flex items-center justify-between border-b border-cyan-800 shrink-0 shadow-md">
@@ -442,9 +479,9 @@ export default function App() {
           </div>
 
                     <span className="text-slate-100 hidden sm:inline text-xs font-mono font-medium">
-            Doctor Suite
+            {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)} Suite` : 'Suite'}
           </span>
-          <button type="button" onClick={() => setAppView('landing')} className="text-xs bg-cyan-900/50 hover:bg-red-500/80 text-white px-2 py-1 rounded transition-colors cursor-pointer">Logout</button>
+          <button type="button" onClick={() => { setAppView('landing'); setUserRole(null); }} className="text-xs bg-cyan-900/50 hover:bg-red-500/80 text-white px-2 py-1 rounded transition-colors cursor-pointer">Logout</button>
         </div>
 
       </header>
@@ -455,118 +492,130 @@ export default function App() {
         {/* TOP NAVIGATION (Clinician tools bar) */}
         <nav className="w-full bg-[#069494] text-white flex items-center justify-between border-b border-[#058A8A] shrink-0 px-4 overflow-x-auto custom-scrollbar">
 
-          <div className="flex items-center space-x-2 py-2" id="sidebar-navigation-links">
+          <div className="flex items-center space-x-1 py-2" id="sidebar-navigation-links">
 
-            {/* Dashboard Icon */}
-            <button
-              type="button"
-              id="sidebar-link-dashboard"
-              onClick={() => setActiveTab('dashboard')}
-              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dashboard'
+            {/* Generic Dashboard Icon */}
+            {userRole !== 'doctor' && (
+              <button
+                type="button"
+                id="sidebar-link-dashboard"
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dashboard'
                   ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
                   : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                }`}
-            >
-              <div className="flex items-center gap-2">
-                <LayoutDashboard className="w-4 h-4 text-white" />
-                <span>{t.dashboard}</span>
-              </div>
-            </button>
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4 text-white" />
+                  <span>{t.dashboard}</span>
+                </div>
+              </button>
+            )}
 
             {/* Patient Registration Icon */}
-            <button
-              type="button"
-              id="sidebar-link-registration"
-              onClick={() => setActiveTab('registration')}
-              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'registration'
-                  ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
-                  : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                }`}
-            >
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-white" />
-                <span>{t.patientRegistration}</span>
-              </div>
-            </button>
+            {userRole === 'clerk' && (
+              <button
+                type="button"
+                id="sidebar-link-registration"
+                onClick={() => setActiveTab('registration')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'registration'
+                    ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-white" />
+                  <span>{t.patientRegistration}</span>
+                </div>
+              </button>
+            )}
 
             {/* Consultation CRM Icon */}
-            <button
-              type="button"
-              id="sidebar-link-consultation"
-              onClick={() => setActiveTab('consultation')}
-              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'consultation'
-                  ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
-                  : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                }`}
-            >
-              <div className="flex items-center gap-2">
-                <Stethoscope className="w-4 h-4 text-white" />
-                <span>{t.consultation}</span>
-              </div>
-              {doctorQueue.length > 0 && (
-                <span className="bg-red-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
-                  {doctorQueue.length}
-                </span>
-              )}
-            </button>
+            {userRole === 'doctor' && (
+              <button
+                type="button"
+                id="sidebar-link-consultation"
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dashboard'
+                    ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Stethoscope className="w-4 h-4 text-white" />
+                  <span>My Dashboard</span>
+                </div>
+                {doctorQueue.length > 0 && (
+                  <span className="bg-red-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                    {doctorQueue.length}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* Pharmacy / Dispensary Icon */}
-            <button
-              type="button"
-              id="sidebar-link-dispensary"
-              onClick={() => setActiveTab('dispensary')}
-              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dispensary'
-                  ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
-                  : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                }`}
-            >
-              <div className="flex items-center gap-2">
-                <Pill className="w-4 h-4 text-white" />
-                <span>{t.dispensary}</span>
-              </div>
-              {pharmacyQueue.length > 0 && (
-                <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
-                  {pharmacyQueue.length}
-                </span>
-              )}
-            </button>
+            {userRole === 'pharmacist' && (
+              <button
+                type="button"
+                id="sidebar-link-dispensary"
+                onClick={() => setActiveTab('dispensary')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dispensary'
+                    ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Pill className="w-4 h-4 text-white" />
+                  <span>{t.dispensary}</span>
+                </div>
+                {pharmacyQueue.length > 0 && (
+                  <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                    {pharmacyQueue.length}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* Billing claims receipt ledger icon */}
-            <button
-              type="button"
-              id="sidebar-link-billing"
-              onClick={() => setActiveTab('billing')}
-              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'billing'
-                  ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
-                  : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                }`}
-            >
-              <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-white" />
-                <span>{t.billing}</span>
-              </div>
-              {cashierQueue.length > 0 && (
-                <span className="bg-blue-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
-                  {cashierQueue.length}
-                </span>
-              )}
-            </button>
+            {userRole === 'clerk' && (
+              <button
+                type="button"
+                id="sidebar-link-billing"
+                onClick={() => setActiveTab('billing')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'billing'
+                    ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-white" />
+                  <span>{t.billing}</span>
+                </div>
+                {cashierQueue.length > 0 && (
+                  <span className="bg-blue-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                    {cashierQueue.length}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* Reports Icon */}
-            <button
-              type="button"
-              id="sidebar-link-reports"
-              onClick={() => setActiveTab('reports')}
-              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'reports'
-                  ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
-                  : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                }`}
-            >
-              <div className="flex items-center gap-2">
-                <Building className="w-4 h-4 text-white" />
-                <span>{t.reports}</span>
-              </div>
-            </button>
+            {userRole === 'admin' && (
+              <button
+                type="button"
+                id="sidebar-link-reports"
+                onClick={() => setActiveTab('reports')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'reports'
+                    ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Building className="w-4 h-4 text-white" />
+                  <span>{t.reports}</span>
+                </div>
+              </button>
+            )}
 
           </div>
 
@@ -587,7 +636,19 @@ export default function App() {
         <main className="flex-1 p-5 overflow-y-auto max-h-full">
 
           {/* TAB 1: THE CLINIC OPERATIONS FLOW INDEX / DASHBOARD */}
-          {activeTab === 'dashboard' && (
+          {activeTab === 'dashboard' && userRole === 'doctor' && (
+            <DoctorDashboardModule
+              doctorQueue={doctorQueue}
+              completedVisits={completedVisits}
+              patientsMap={patientsMap}
+              activeLanguage={activeLanguage}
+              activeConsultationVisitId={activeConsultationVisitId}
+              setActiveConsultationVisitId={setActiveConsultationVisitId}
+              onConsultationComplete={handleDoctorSoapSubmit}
+            />
+          )}
+
+          {activeTab === 'dashboard' && userRole !== 'doctor' && (
             <div className="space-y-5 animate-fadeIn">
 
               {/* Promo Banner */}
@@ -625,14 +686,18 @@ export default function App() {
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('consultation')}
-                      className="text-[#07B2B2] hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Route to suite</span>
-                      <ChevronRight className="w-4.5 h-4.5 text-emerald-600" />
-                    </button>
+                    {userRole === 'doctor' ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('dashboard')}
+                        className="text-[#07B2B2] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Route to suite</span>
+                        <ChevronRight className="w-4.5 h-4.5 text-emerald-600" />
+                      </button>
+                    ) : (
+                      <span className="text-slate-400">Doctor Access Only</span>
+                    )}
                   </div>
                 </div>
 
@@ -649,14 +714,18 @@ export default function App() {
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-orange-700">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('dispensary')}
-                      className="hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Route to Dispensary</span>
-                      <ChevronRight className="w-4.5 h-4.5 text-orange-500" />
-                    </button>
+                    {userRole === 'pharmacist' ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('dispensary')}
+                        className="hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Route to Dispensary</span>
+                        <ChevronRight className="w-4.5 h-4.5 text-orange-500" />
+                      </button>
+                    ) : (
+                      <span className="text-slate-400">Pharmacist Access Only</span>
+                    )}
                   </div>
                 </div>
 
@@ -673,14 +742,18 @@ export default function App() {
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-800">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('billing')}
-                      className="hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Route to Billing Desk</span>
-                      <ChevronRight className="w-4.5 h-4.5 text-blue-400" />
-                    </button>
+                    {userRole === 'clerk' ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('billing')}
+                        className="hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Route to Billing Desk</span>
+                        <ChevronRight className="w-4.5 h-4.5 text-blue-400" />
+                      </button>
+                    ) : (
+                      <span className="text-slate-400">Clerk Access Only</span>
+                    )}
                   </div>
                 </div>
 
@@ -956,7 +1029,7 @@ export default function App() {
           )}
 
           {/* TAB 3: THE CONSULTATION ROOM SUITE (SOAP Edit Suite) */}
-          {activeTab === 'consultation' && (
+          {activeTab === 'consultation' && userRole !== 'doctor' && (
             <div className="space-y-4 animate-fadeIn">
 
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
@@ -1016,6 +1089,20 @@ export default function App() {
                               Allergic Alert ({pt.drugAllergies.length})
                             </span>
                           )}
+
+                          <div className="mt-3 pt-2 border-t border-slate-100">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setWhatsappToast(`Notified ${pt.fullName} (${pt.phone}): "You are ${index + 1} slots away."`);
+                                setTimeout(() => setWhatsappToast(null), 4000);
+                              }}
+                              className="flex items-center justify-center gap-1.5 w-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                              Notify via WhatsApp
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
@@ -1069,13 +1156,9 @@ export default function App() {
           )}
 
           {/* TAB 6: MANAGERIAL REPORTS METRICS */}
-          {activeTab === 'reports' && (
+          {activeTab === 'reports' && userRole === 'admin' && (
             <div className="space-y-4 animate-fadeIn">
-              <MOHDashboard
-                completedVisits={completedVisits}
-                totalRegisteredCount={patientsList.length}
-                activeLanguage={activeLanguage}
-              />
+              {/* Removed from here, moved to AdminModule */}
             </div>
           )}
 

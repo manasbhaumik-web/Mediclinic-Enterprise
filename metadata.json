@@ -1,6 +1,5 @@
 {
   "name": "MediClinic Enterprise",
   "description": "High-fidelity Enterprise Clinical Management PWA for Malaysian clinics featuring MyKad scanning simulation, SOAP digital records, a smart drug-drug conflict check dispensary, and MOH dashboard analytics.",
-  "requestFramePermissions": ["camera"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "requestFramePermissions": ["camera"]
 }

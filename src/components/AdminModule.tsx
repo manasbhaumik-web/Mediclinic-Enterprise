@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Users, Stethoscope, Pill, CreditCard, Activity, FileText, Settings, Plus, DollarSign,
-  Building, ShieldAlert, LogOut, Server, Database, Menu, Bell
+  Building, ShieldAlert, LogOut, Server, Database, Menu, Bell, Globe2
 } from 'lucide-react';
 import StaffManagementModule from './StaffManagementModule';
 import MedicineManagementModule from './MedicineManagementModule';
@@ -9,16 +9,28 @@ import EquipmentManagementModule from './EquipmentManagementModule';
 import BillingManagementModule from './BillingManagementModule';
 import ReportsAnalyticsModule from './ReportsAnalyticsModule';
 import SettingsModule from './SettingsModule';
+import MOHDashboard from './MOHDashboard';
 import { useSettings } from '../context/SettingsContext';
+import { Visit, Language } from '../types';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
+  userRole: 'admin' | 'hr';
+  completedVisits?: Visit[];
+  totalRegisteredCount?: number;
+  activeLanguage?: Language;
 }
 
-type AdminTab = 'overview' | 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'settings';
+type AdminTab = 'overview' | 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings';
 
-export default function AdminModule({ onNavigate }: AdminModuleProps) {
-  const [activeTab, setActiveTab] = useState<'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'settings'>('staff');
+export default function AdminModule({ 
+  onNavigate, 
+  userRole, 
+  completedVisits = [], 
+  totalRegisteredCount = 0, 
+  activeLanguage = 'EN' 
+}: AdminModuleProps) {
+  const [activeTab, setActiveTab] = useState<AdminTab>('staff');
   const { settings } = useSettings();
 
   return (
@@ -59,7 +71,7 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
         {/* Admin Navigation Bar */}
         <nav className="w-full bg-[#069494] text-white flex items-center justify-start border-b border-cyan-800 shrink-0 px-4 overflow-x-auto custom-scrollbar">
           <div className="flex items-center space-x-1 py-2">
-            {settings.modules.staff && (
+            {(userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
               <button 
                 onClick={() => setActiveTab('staff')}
                 className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
@@ -73,7 +85,7 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
               </button>
             )}
 
-            {settings.modules.medicine && (
+            {userRole === 'admin' && settings.modules.medicine && (
               <button 
                 onClick={() => setActiveTab('medicine')}
                 className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
@@ -87,7 +99,7 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
               </button>
             )}
 
-            {settings.modules.equipment && (
+            {userRole === 'admin' && settings.modules.equipment && (
               <button 
                 onClick={() => setActiveTab('equipment')}
                 className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
@@ -101,7 +113,7 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
               </button>
             )}
 
-            {settings.modules.billing && (
+            {userRole === 'admin' && settings.modules.billing && (
               <button 
                 onClick={() => setActiveTab('billing')}
                 className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
@@ -115,7 +127,7 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
               </button>
             )}
 
-            {settings.modules.reports && (
+            {userRole === 'admin' && settings.modules.reports && (
               <button 
                 onClick={() => setActiveTab('reports')}
                 className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
@@ -128,18 +140,34 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
                 Reports & Analytics
               </button>
             )}
+
+            {userRole === 'admin' && (
+              <button 
+                onClick={() => setActiveTab('moh')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
+                  activeTab === 'moh' 
+                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+                    : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
+                }`}
+              >
+                <Globe2 className="w-4 h-4 mr-2" />
+                MOH Analysis
+              </button>
+            )}
             
-            <button 
-              onClick={() => setActiveTab('settings')}
-              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                activeTab === 'settings' 
-                  ? 'bg-[#058A8A] text-white shadow font-semibold' 
-                  : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
-              }`}
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </button>
+            {userRole === 'admin' && (
+              <button 
+                onClick={() => setActiveTab('settings')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
+                  activeTab === 'settings' 
+                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+                    : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
+                }`}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </button>
+            )}
           </div>
         </nav>
 
@@ -223,6 +251,20 @@ export default function AdminModule({ onNavigate }: AdminModuleProps) {
 
           {activeTab === 'reports' && (
             <ReportsAnalyticsModule />
+          )}
+
+          {activeTab === 'moh' && (
+            <div className="space-y-4 animate-fadeIn max-w-6xl mx-auto">
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
+                <Globe2 className="w-6 h-6 text-[#07B2B2]" />
+                MOH & Clinic Analysis
+              </h2>
+              <MOHDashboard 
+                completedVisits={completedVisits}
+                totalRegisteredCount={totalRegisteredCount}
+                activeLanguage={activeLanguage}
+              />
+            </div>
           )}
 
           {activeTab === 'settings' && (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, PackagePlus, AlertTriangle, Pill, X, Edit2, Trash2, Trash, Syringe, History, CheckCircle, Info, ShieldAlert } from 'lucide-react';
+import { Plus, Search, PackagePlus, AlertTriangle, Pill, X, Edit2, Trash2, Trash, Syringe, History, CheckCircle, Info, ShieldAlert, Zap, CalendarDays, TrendingDown, ShoppingCart, Sparkles } from 'lucide-react';
 import { useInventory, DrugItem } from '../context/InventoryContext';
 import DrugRegistration from './DrugRegistration';
 
@@ -7,7 +7,7 @@ export default function MedicineManagementModule() {
   const { catalog, logs, addDrug, restockDrug, deleteDrug, disposeDrug, useDrugInternally } = useInventory();
   
   // Navigation State
-  const [activeTab, setActiveTab] = useState<'catalog' | 'logs'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'logs' | 'supply_chain'>('catalog');
   const [currentView, setCurrentView] = useState<'list' | 'registration'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -131,6 +131,17 @@ export default function MedicineManagementModule() {
               <History className="w-4 h-4" />
               Usage Logs
             </div>
+          </button>
+          <button 
+            onClick={() => setActiveTab('supply_chain')}
+            className={`px-4 py-2 rounded-t-lg text-sm font-bold transition-colors flex items-center gap-2 ${
+              activeTab === 'supply_chain' 
+                ? 'bg-indigo-600 text-white' 
+                : 'bg-indigo-50 text-indigo-500 hover:bg-indigo-100'
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            Supply Chain AI
           </button>
         </div>
       </div>
@@ -356,6 +367,89 @@ export default function MedicineManagementModule() {
                   </tbody>
                 </table>
              )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'supply_chain' && (
+        <div className="space-y-6 animate-fadeIn">
+          
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 shadow-sm relative overflow-hidden">
+            <Zap className="absolute -right-4 -bottom-4 w-32 h-32 text-indigo-500/10" />
+            <h3 className="text-indigo-900 font-black text-lg mb-2 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-600" /> AI Supply Chain & Predictive Restocking
+            </h3>
+            <p className="text-sm text-indigo-700 max-w-2xl">
+              MediClinic AI analyzes dispensing velocity and expiration dates to automatically suggest purchase orders (POs) and prevent inventory waste.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Expiry Radar */}
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-orange-50">
+                <h3 className="font-bold text-orange-800 flex items-center gap-2">
+                  <CalendarDays className="w-5 h-5" /> Expiry Radar (90 Days)
+                </h3>
+                <span className="text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded font-bold">Action Required</span>
+              </div>
+              <div className="p-4 flex-1">
+                <div className="space-y-3">
+                  {catalog.filter(d => {
+                    if(!d.expiryDate) return false;
+                    const daysToExpiry = (new Date(d.expiryDate).getTime() - Date.now()) / (1000 * 3600 * 24);
+                    return daysToExpiry < 90 && daysToExpiry > 0;
+                  }).map(drug => (
+                    <div key={drug.id} className="bg-white border border-orange-200 p-3 rounded-lg flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-slate-800 text-sm">{drug.name}</p>
+                        <p className="text-[10px] text-slate-500 font-mono">Stock: {drug.currentStock} units • Expires: {drug.expiryDate}</p>
+                      </div>
+                      <button className="bg-orange-100 text-orange-700 hover:bg-orange-200 px-3 py-1.5 rounded text-xs font-bold transition-colors">
+                        Mark for Return
+                      </button>
+                    </div>
+                  ))}
+                  {catalog.filter(d => d.expiryDate && ((new Date(d.expiryDate).getTime() - Date.now()) / (1000 * 3600 * 24)) < 90).length === 0 && (
+                    <p className="text-sm text-slate-500 text-center py-4">No medications expiring within 90 days.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Smart PO Generator */}
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-indigo-50">
+                <h3 className="font-bold text-indigo-800 flex items-center gap-2">
+                  <TrendingDown className="w-5 h-5" /> Smart PO Suggestions
+                </h3>
+                <span className="text-xs bg-indigo-200 text-indigo-800 px-2 py-0.5 rounded font-bold">AI Suggested</span>
+              </div>
+              <div className="p-4 flex-1">
+                <div className="space-y-3">
+                  {catalog.filter(d => d.consumptionVelocity && d.currentStock < d.consumptionVelocity * 2).map(drug => (
+                    <div key={drug.id} className="bg-white border border-indigo-100 p-3 rounded-lg">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-bold text-slate-800 text-sm">{drug.name}</p>
+                          <p className="text-[10px] text-indigo-600 font-bold bg-indigo-50 inline-block px-1 rounded mt-0.5">
+                            High Velocity: ~{drug.consumptionVelocity} units/week
+                          </p>
+                        </div>
+                        <p className="text-xs font-mono font-bold text-red-500 text-right">
+                          Runout in <br/>{Math.floor(drug.currentStock / (drug.consumptionVelocity! / 7))} days
+                        </p>
+                      </div>
+                      <button className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 rounded text-xs font-bold transition-colors flex justify-center items-center gap-1.5 shadow-sm">
+                        <ShoppingCart className="w-3.5 h-3.5" /> Generate 1-Click PO ({(drug.consumptionVelocity! * 4).toFixed(0)} Units)
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       )}
