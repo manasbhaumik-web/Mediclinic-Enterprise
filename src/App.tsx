@@ -203,6 +203,14 @@ export default function App() {
     return g;
   };
 
+  // Time-based greeting helper
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   // Trigger MyKad OCR simulated fill
   const handleMyKadComplete = (scannedDetails: any) => {
     setManualForm({
@@ -390,15 +398,23 @@ export default function App() {
   const pharmacyQueue = visitsQueue.filter(v => v.status === 'Awaiting Dispensation');
   const cashierQueue = visitsQueue.filter(v => v.status === 'Awaiting Billing');
 
-  if (appView === 'landing') return <LandingModule onNavigate={setAppView} />;
-  if (appView === 'login') return <LoginModule onLogin={handleLogin} onNavigate={setAppView} />;
-  if (appView === 'admin') return <AdminModule 
-    onNavigate={setAppView} 
-    userRole={userRole as 'admin' | 'hr'} 
-    completedVisits={completedVisits}
-    totalRegisteredCount={patientsList.length}
-    activeLanguage={activeLanguage}
-  />;
+  const renderView = () => {
+    if (appView === 'landing') return <LandingModule onNavigate={setAppView} />;
+    if (appView === 'login') return <LoginModule onLogin={handleLogin} onNavigate={setAppView} />;
+    if (appView === 'admin') return <AdminModule 
+      onNavigate={setAppView} 
+      userRole={userRole as 'admin' | 'hr'} 
+      completedVisits={completedVisits}
+      totalRegisteredCount={patientsList.length}
+      activeLanguage={activeLanguage}
+    />;
+    return null;
+  };
+
+  const currentView = renderView();
+  if (currentView) {
+    return currentView;
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800 antialiased">
@@ -495,22 +511,20 @@ export default function App() {
           <div className="flex items-center space-x-1 py-2" id="sidebar-navigation-links">
 
             {/* Generic Dashboard Icon */}
-            {userRole !== 'doctor' && (
-              <button
-                type="button"
-                id="sidebar-link-dashboard"
-                onClick={() => setActiveTab('dashboard')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dashboard'
-                  ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
-                  : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                  }`}
-              >
-                <div className="flex items-center gap-2">
-                  <LayoutDashboard className="w-4 h-4 text-white" />
-                  <span>{t.dashboard}</span>
-                </div>
-              </button>
-            )}
+            <button
+              type="button"
+              id="sidebar-link-dashboard"
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dashboard'
+                ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
+                : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
+                }`}
+            >
+              <div className="flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4 text-white" />
+                <span>{t.dashboard}</span>
+              </div>
+            </button>
 
             {/* Patient Registration Icon */}
             {userRole === 'clerk' && (
@@ -535,15 +549,15 @@ export default function App() {
               <button
                 type="button"
                 id="sidebar-link-consultation"
-                onClick={() => setActiveTab('dashboard')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'dashboard'
+                onClick={() => setActiveTab('consultation')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'consultation'
                     ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
                     : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
                   }`}
               >
                 <div className="flex items-center gap-2">
                   <Stethoscope className="w-4 h-4 text-white" />
-                  <span>My Dashboard</span>
+                  <span>Consultation</span>
                 </div>
                 {doctorQueue.length > 0 && (
                   <span className="bg-red-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
@@ -636,7 +650,7 @@ export default function App() {
         <main className="flex-1 p-5 overflow-y-auto max-h-full">
 
           {/* TAB 1: THE CLINIC OPERATIONS FLOW INDEX / DASHBOARD */}
-          {activeTab === 'dashboard' && userRole === 'doctor' && (
+          {activeTab === 'consultation' && userRole === 'doctor' && (
             <DoctorDashboardModule
               doctorQueue={doctorQueue}
               completedVisits={completedVisits}
@@ -648,7 +662,7 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'dashboard' && userRole !== 'doctor' && (
+          {activeTab === 'dashboard' && (
             <div className="space-y-5 animate-fadeIn">
 
               {/* Promo Banner */}

@@ -11,6 +11,7 @@ interface DoctorDashboardModuleProps {
   activeConsultationVisitId: string | null;
   setActiveConsultationVisitId: (id: string | null) => void;
   onConsultationComplete: (soapData: any, issueMc: boolean, mcDuration: number) => void;
+  doctorName?: string;
 }
 
 export default function DoctorDashboardModule({
@@ -20,9 +21,18 @@ export default function DoctorDashboardModule({
   activeLanguage,
   activeConsultationVisitId,
   setActiveConsultationVisitId,
-  onConsultationComplete
+  onConsultationComplete,
+  doctorName = "Dr. Sarah Jenkins"
 }: DoctorDashboardModuleProps) {
   const [internalTab, setInternalTab] = useState<'queue_consultation' | 'reports'>('queue_consultation');
+
+  // Time-based greeting helper
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   // Compute metrics for reports
   const totalPatientsSeen = completedVisits.length;
@@ -35,7 +45,7 @@ export default function DoctorDashboardModule({
         <div>
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Activity className="w-6 h-6 text-emerald-600" />
-            Doctor's Personal Dashboard
+            {getGreeting()}, {doctorName}
           </h2>
           <p className="text-xs text-slate-500 mt-1">Manage your patient queue, consultations, and track your clinical metrics.</p>
         </div>

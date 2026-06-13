@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Visit, Language, TPAConfig } from '../types';
 import { TRANSLATIONS, TPA_LIST } from '../data';
 import { useSettings } from '../context/SettingsContext';
+import { QRCodeSVG } from 'qrcode.react';
+import { generateInvoicePDF } from '../utils/pdfGenerator';
 import { 
-  CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet, ArrowRight,
-  ClipboardCheck, CheckCircle2, QrCode, Sparkles
+  CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet,
+  ClipboardCheck, CheckCircle2, Sparkles
 } from 'lucide-react';
 
 interface BillingDeskProps {
@@ -42,6 +44,9 @@ export default function BillingDesk({
   // Checkout overlay triggers
   const [activePaymentMethod, setActivePaymentMethod] = useState<'Cash' | 'Credit Card' | 'e-Wallet' | null>(null);
   const [isTngOverlayOpen, setIsTngOverlayOpen] = useState(false);
+  const [receiptWindowData, setReceiptWindowData] = useState<{
+    method: 'Cash' | 'Credit Card' | 'e-Wallet' | 'Panel';
+  } | null>(null);
 
   // Active visit calculation parameters
   const activeVisit = queue.find(v => v.id === selectedVisitId) || queue[0];
@@ -135,6 +140,15 @@ export default function BillingDesk({
 
     const claimAmount = isPanelClaim ? billingBreakdown.panelPaid : 0;
     const paidSum = isPanelClaim ? billingBreakdown.patientCopay : billingBreakdown.grandTotal;
+
+    // Generate Invoice PDF
+    try {
+      // Recreate the activeVisit with the proper grandTotal, as state is dynamic
+      const visitForPdf = { ...activeVisit, totalBill: billingBreakdown.grandTotal, paymentMethod: method };
+      generateInvoicePDF(activePatient, visitForPdf as Visit, isPanelClaim);
+    } catch (err) {
+      console.error("PDF Generation failed", err);
+    }
 
     onPaymentComplete(selectedVisitId, {
       paymentMethod: isPanelClaim && billingBreakdown.patientCopay === 0 ? 'Panel' : method,
@@ -414,7 +428,7 @@ export default function BillingDesk({
                 <button
                   type="button"
                   id="checkout-cash-btn"
-                  onClick={() => executeSettleTransaction('Cash')}
+                  onClick={() => setReceiptWindowData({ method: 'Cash' })}
                   className="bg-[#07B2B2]/90 hover:bg-[#07B2B2] hover:text-white border border-slate-200 text-white font-semibold rounded-lg p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
                 >
                   <DollarSign className="w-5 h-5 text-white" />
@@ -424,7 +438,7 @@ export default function BillingDesk({
                 <button
                   type="button"
                   id="checkout-card-btn"
-                  onClick={() => executeSettleTransaction('Credit Card')}
+                  onClick={() => setReceiptWindowData({ method: 'Credit Card' })}
                   className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold rounded-lg p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
                 >
                   <CreditCard className="w-5 h-5 text-indigo-600" />
@@ -438,7 +452,7 @@ export default function BillingDesk({
                   className="bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-800 font-semibold rounded-lg p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
                 >
                   <Wallet className="w-5 h-5 text-sky-500" />
-                  <span>Touch &apos;n Go</span>
+                  <span>Bank QR Code</span>
                 </button>
               </div>
             </div>
@@ -469,20 +483,25 @@ export default function BillingDesk({
             <div className="bg-[#0052a5] text-white p-4 text-center">
               <h4 className="font-extrabold text-sm tracking-tight uppercase flex items-center justify-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-300" />
-                Touch &apos;n Go PayNow Gateway
+                Bank QR Payment Gateway
               </h4>
-              <span className="text-[10px] text-blue-100 font-mono">PWA Integrated cashless API</span>
+              <span className="text-[10px] text-blue-100 font-mono">DuitNow / Bank QR API</span>
             </div>
 
             {/* Body */}
             <div className="p-6 text-center space-y-4">
               <span className="text-xs text-slate-500 block">
-                Scan transaction bar using your TnG mobile application:
+                Scan transaction QR using your Mobile Banking application:
               </span>
 
-              {/* Simulated QR block */}
-              <div className="w-36 h-36 bg-slate-50 border-2 border-slate-200 rounded mx-auto p-2 flex items-center justify-center animate-pulse">
-                <QrCode className="w-full h-full text-zinc-800" strokeWidth={1} />
+              {/* Dynamic QR block */}
+              <div className="w-40 h-40 bg-white border-2 border-slate-200 rounded mx-auto p-2 flex items-center justify-center">
+                <QRCodeSVG 
+                  value={`duitnow://pay?amount=${billingBreakdown.patientCopay.toFixed(2)}&ref=TNG-CLINIC-${activeVisit.id}`}
+                  size={140}
+                  level={"M"}
+                  includeMargin={false}
+                />
               </div>
 
               {/* Total amount formatted */}
@@ -514,7 +533,7 @@ export default function BillingDesk({
                 id="tng-confirm-payment-btn"
                 onClick={() => {
                   setIsTngOverlayOpen(false);
-                  executeSettleTransaction('e-Wallet');
+                  setReceiptWindowData({ method: 'e-Wallet' });
                 }}
                 className="bg-[#0052a5] text-white font-bold text-xs px-4 py-1.5 rounded hover:bg-blue-800 transition-colors cursor-pointer"
               >
@@ -522,6 +541,54 @@ export default function BillingDesk({
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* RECEIPT WINDOW MODAL */}
+      {receiptWindowData && activePatient && activeVisit && (
+        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 animate-scaleUp p-6 text-center space-y-4">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 uppercase tracking-tight">Payment Successful</h3>
+            <p className="text-sm text-slate-500">Transaction completed via {receiptWindowData.method}</p>
+            
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-left space-y-2 font-mono text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Patient:</span>
+                <span className="font-bold text-slate-700">{activePatient.fullName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Visit ID:</span>
+                <span className="text-slate-700">{activeVisit.id}</span>
+              </div>
+              <div className="flex justify-between border-t border-slate-200 pt-2 mt-2">
+                <span className="text-slate-500">Amount Paid:</span>
+                <span className="font-bold text-[#07B2B2] text-sm">RM{(isPanelClaim ? billingBreakdown.patientCopay : billingBreakdown.grandTotal).toFixed(2)}</span>
+              </div>
+              {isPanelClaim && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Panel Claimed:</span>
+                  <span className="font-bold text-emerald-600">RM{billingBreakdown.panelPaid.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  executeSettleTransaction(receiptWindowData.method);
+                  setReceiptWindowData(null);
+                }}
+                className="flex-1 bg-[#07B2B2] hover:bg-[#058A8A] text-white font-bold px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <ClipboardCheck className="w-5 h-5" />
+                Print Receipt
+              </button>
+            </div>
           </div>
         </div>
       )}

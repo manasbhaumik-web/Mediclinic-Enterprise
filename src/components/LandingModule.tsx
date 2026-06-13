@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Activity, ShieldCheck, Database, Building, ArrowRight, HeartPulse, Smartphone, X, FileText, Pill } from 'lucide-react';
+import { Activity, ShieldCheck, Database, ArrowRight, HeartPulse, Smartphone, X, FileText, Pill, ChevronRight, Stethoscope, Users, CheckCircle2 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface LandingModuleProps {
   onNavigate: (view: 'login') => void;
@@ -22,131 +23,235 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="bg-[#07B2B2] p-2 rounded-lg shadow-sm">
-            <Activity className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col font-sans text-slate-900 overflow-x-hidden selection:bg-cyan-100 selection:text-cyan-900">
+      
+      {/* Minimalist Header */}
+      <header className="fixed w-full top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200 transition-all shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#07B2B2] p-2 rounded-lg">
+              <Activity className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-black text-[#058A8A] tracking-tight uppercase leading-none">
+                MediClinic
+              </h1>
+              <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">
+                Enterprise OS
+              </span>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-slate-800 tracking-tight uppercase leading-none">
-              MediClinic
-            </h1>
-            <span className="text-[10px] text-[#07B2B2] font-mono tracking-wider font-bold">ENTERPRISE OS</span>
+          
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setShowPatientPortal(true)}
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2"
+            >
+              <Smartphone className="w-4 h-4" />
+              Patient Portal
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('login')}
+              className="bg-[#058A8A] hover:bg-[#047171] text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm shadow-[#058A8A]/20 cursor-pointer"
+            >
+              Staff Login
+            </button>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setShowPatientPortal(true)}
-            className="text-slate-600 hover:bg-slate-100 px-4 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer flex items-center gap-2"
-          >
-            <Smartphone className="w-4 h-4 text-[#07B2B2]" />
-            Patient Portal
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate('login')}
-            className="bg-[#07B2B2] hover:bg-[#069494] text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm cursor-pointer"
-          >
-            Staff Portal Login
-          </button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center p-8 md:p-16 text-center animate-fadeIn">
-        <div className="max-w-3xl space-y-8">
-          
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-50 border border-cyan-100 text-cyan-700 text-xs font-bold mb-4 shadow-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#07B2B2]"></span>
-            </span>
-            System Online & Operational v1.1.2
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center max-w-7xl mx-auto px-6 pt-32 pb-20 w-full gap-16 relative z-10">
+        
+        {/* Left Content (Typography focused) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex-1 space-y-8 text-center lg:text-left max-w-2xl"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 text-xs font-bold shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+            System v1.1.2
           </div>
 
-          <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            The Modern Operating System for <span className="text-[#07B2B2]">Clinical Excellence</span>
+          <h2 className="text-5xl md:text-7xl font-black text-[#058A8A] tracking-tighter leading-[1.05]">
+            Clinical Excellence, <br/>
+            <span className="text-slate-400 font-medium">Simplified.</span>
           </h2>
           
-          <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-            Unify your medical practice with an intelligent end-to-end suite. From patient queueing and e-prescriptions to intelligent billing and national health data reporting.
+          <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium">
+            An intelligent, end-to-end medical suite. Seamlessly manage patient queues, EMRs, billing, and national health syncs with an interface that gets out of your way.
           </p>
 
-          <div className="pt-8">
+          <div className="pt-4 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
             <button
               type="button"
               onClick={() => onNavigate('login')}
-              className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-xl text-lg font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 mx-auto cursor-pointer group"
+              className="w-full sm:w-auto bg-[#058A8A] hover:bg-[#047171] text-white px-8 py-4 rounded-xl text-base font-bold transition-all shadow-xl shadow-[#058A8A]/20 flex items-center justify-center gap-2 cursor-pointer group"
             >
               Access Clinical Suite
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
+            <button
+              type="button"
+              onClick={() => setShowPatientPortal(true)}
+              className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-8 py-4 rounded-xl text-base font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Smartphone className="w-5 h-5" />
+              Patient Portal
+            </button>
           </div>
-        </div>
+          
+          <div className="pt-8 flex items-center justify-center lg:justify-start gap-6 text-sm font-semibold text-slate-400">
+            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> ISO 27001</span>
+            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> PDPA Compliant</span>
+            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> MOH NIDCS Sync</span>
+          </div>
+        </motion.div>
 
-        {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 max-w-5xl w-full text-left">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center mb-4 text-[#07B2B2]">
-              <HeartPulse className="w-6 h-6" />
+        {/* Right Graphic - Sharp, Crisp Dashboard Preview */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+          className="flex-1 w-full max-w-lg relative"
+        >
+          {/* Main Solid Panel */}
+          <div className="bg-white rounded-3xl p-8 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] border border-slate-100 relative overflow-hidden">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Overview</p>
+                <h3 className="text-2xl font-black text-[#058A8A] tracking-tight">Active Queue</h3>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-cyan-50 border border-cyan-100 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-[#07B2B2]" />
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-slate-800 mb-2">Advanced Care</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">Complete electronic medical records with intelligent templates, auto-ICD-10 tagging, and real-time alerts.</p>
-          </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-4 text-emerald-600">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-800 mb-2">Secure & Compliant</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">Enterprise-grade security. Compliant with PDPA 2010 and ISO 27001 standards for medical data protection.</p>
-          </div>
+            <div className="space-y-4">
+              <div className="bg-cyan-50/50 rounded-2xl p-4 flex items-center gap-4 border border-cyan-100 group hover:border-[#07B2B2]/30 transition-colors cursor-default">
+                <div className="bg-white p-3 rounded-xl border border-cyan-200 shadow-sm text-[#07B2B2] transition-colors"><Users className="w-5 h-5" /></div>
+                <div>
+                  <p className="text-sm font-bold text-[#058A8A]">12 Patients Waiting</p>
+                  <p className="text-xs text-slate-500 font-medium">Avg wait time: 14 mins</p>
+                </div>
+              </div>
+              
+              <div className="bg-cyan-50/50 rounded-2xl p-4 flex items-center gap-4 border border-cyan-100 group hover:border-[#07B2B2]/30 transition-colors cursor-default">
+                <div className="bg-white p-3 rounded-xl border border-cyan-200 shadow-sm text-[#07B2B2] transition-colors"><Stethoscope className="w-5 h-5" /></div>
+                <div>
+                  <p className="text-sm font-bold text-[#058A8A]">Dr. Sarah Jenkins</p>
+                  <p className="text-xs text-slate-500 font-medium">Consulting Room 1</p>
+                </div>
+              </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4 text-blue-600">
-              <Database className="w-6 h-6" />
+              <div className="bg-cyan-50/50 rounded-2xl p-4 flex items-center gap-4 border border-cyan-100 group hover:border-[#07B2B2]/30 transition-colors cursor-default">
+                <div className="bg-white p-3 rounded-xl border border-cyan-200 shadow-sm text-[#07B2B2] transition-colors"><FileText className="w-5 h-5" /></div>
+                <div>
+                  <p className="text-sm font-bold text-[#058A8A]">Billing & Reports</p>
+                  <p className="text-xs text-slate-500 font-medium">All queues synced to server</p>
+                </div>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-slate-800 mb-2">National Sync</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">Seamless integration with MOH national surveillance boards (NIDCS) for immediate disease reporting.</p>
           </div>
-        </div>
+        </motion.div>
+
       </main>
+
+      {/* Feature Grid - Clean and Minimal */}
+      <div className="max-w-7xl mx-auto px-6 pb-24 w-full relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            {
+              icon: HeartPulse,
+              title: 'Integrated Care',
+              desc: 'Intelligent EMR templates, auto-ICD-10 tagging, and cross-department alerts.'
+            },
+            {
+              icon: ShieldCheck,
+              title: 'Uncompromised Security',
+              desc: 'Bank-grade encryption protocols and full compliance with PDPA frameworks.'
+            },
+            {
+              icon: Database,
+              title: 'Centralized Records',
+              desc: 'Seamless automated sync with national health boards and insurance claims.'
+            }
+          ].map((feature, idx) => (
+            <motion.div 
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group hover:-translate-y-1"
+            >
+              <div className={`w-12 h-12 bg-cyan-50 group-hover:bg-[#07B2B2] transition-colors duration-300 rounded-xl flex items-center justify-center mb-6 text-[#058A8A] group-hover:text-white`}>
+                <feature.icon className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-[#058A8A] mb-3 tracking-tight">{feature.title}</h3>
+              <p className="text-slate-500 leading-relaxed font-medium">{feature.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
       
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center">
-        <p className="text-xs font-mono text-slate-400">
-          © 2026 MediClinic Enterprise Solutions. All rights reserved.
-        </p>
+      <footer className="bg-white border-t border-slate-100 py-10 text-center mt-auto">
+        <div className="flex flex-col items-center gap-2">
+          <Activity className="w-6 h-6 text-slate-300" />
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+            © {new Date().getFullYear()} MediClinic Enterprise OS
+          </p>
+        </div>
       </footer>
-      {/* Patient Portal Modal */}
+
+      {/* Patient Portal Modal - Crisp Minimal Overlay */}
       {showPatientPortal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-slideUp flex flex-col max-h-[90vh]">
-            <div className="bg-gradient-to-r from-[#07B2B2] to-teal-500 p-6 relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm"
+            onClick={() => {
+              setShowPatientPortal(false);
+              setIsLoggedIn(false);
+              setPatientIc('');
+            }}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white w-full max-w-md rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden border border-slate-100 relative z-10 flex flex-col max-h-[90vh]"
+          >
+            <div className="p-8 pb-6 relative border-b border-slate-50">
               <button 
                 onClick={() => {
                   setShowPatientPortal(false);
                   setIsLoggedIn(false);
                   setPatientIc('');
                 }} 
-                className="absolute top-4 right-4 text-white/80 hover:text-white cursor-pointer"
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 bg-slate-50 rounded-full p-2 transition-colors cursor-pointer"
               >
-                <X className="w-6 h-6" />
+                <X className="w-4 h-4" />
               </button>
-              <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                <Smartphone className="w-6 h-6" />
+              <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center mb-6">
+                <Smartphone className="w-5 h-5 text-slate-700" />
+              </div>
+              <h2 className="text-2xl font-black text-[#07B2B2] tracking-tight">
                 Patient Portal
               </h2>
-              <p className="text-teal-50 text-sm mt-1">Access your health records & prescriptions.</p>
+              <p className="text-slate-500 text-sm mt-2 font-medium">Verify your identity to access records.</p>
             </div>
 
             {!isLoggedIn ? (
               <form onSubmit={handlePatientLogin} className="p-8 space-y-6 flex-1 overflow-y-auto">
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">
                     MyKad / IC Number
                   </label>
                   <input 
@@ -155,69 +260,70 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
                     value={patientIc}
                     onChange={(e) => setPatientIc(e.target.value)}
                     placeholder="e.g. 900101-14-5555"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#07B2B2] outline-none font-mono text-lg"
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none font-mono text-lg transition-all placeholder:text-slate-400"
                   />
-                  <p className="text-[10px] text-slate-400">Enter your MyKad number to verify your identity.</p>
                 </div>
                 
                 <button 
                   type="submit" 
                   disabled={isLoggingIn}
-                  className="w-full py-3.5 bg-[#07B2B2] hover:bg-[#058A8A] text-white rounded-xl font-bold text-lg shadow-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  className="w-full py-4 bg-[#058A8A] hover:bg-[#047171] text-white rounded-xl font-bold text-base shadow-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-3 group"
                 >
                   {isLoggingIn ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Verifying...
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Authenticating...
                     </>
-                  ) : 'Access My Records'}
+                  ) : (
+                    <>
+                      Verify Identity
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </button>
               </form>
             ) : (
-              <div className="p-6 bg-slate-50 flex-1 overflow-y-auto space-y-4">
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div className="px-8 pb-8 flex-1 overflow-y-auto space-y-6">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-slate-500 uppercase font-bold">Welcome Back,</p>
-                    <p className="text-lg font-black text-slate-800">Mock Patient Data</p>
+                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-0.5">Authenticated As</p>
+                    <p className="text-base font-black text-[#07B2B2]">Mock Patient Data</p>
                   </div>
-                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
-                    <ShieldCheck className="w-5 h-5" />
+                  <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                    <ShieldCheck className="w-4 h-4" />
                   </div>
                 </div>
 
-                <h3 className="font-bold text-slate-700 text-sm uppercase px-1 mt-6">Recent Records</h3>
-                
-                <div className="space-y-3">
-                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-indigo-500" />
-                        <span className="font-bold text-slate-800">Medical Certificate (MC)</span>
+                <div className="space-y-4">
+                  <h3 className="font-bold text-slate-400 text-xs uppercase tracking-widest px-1">Recent Documents</h3>
+                  
+                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:border-slate-300 transition-colors group cursor-pointer relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-[#07B2B2]" />
+                    <div className="flex justify-between items-start mb-2 pl-2">
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-[#07B2B2]">Medical Certificate</span>
                       </div>
-                      <span className="text-xs text-slate-500 font-mono">10 May 2026</span>
+                      <span className="text-xs text-slate-400 font-mono font-semibold">10 May 2026</span>
                     </div>
-                    <p className="text-sm text-slate-600 mb-3">Issued for 2 days. Valid until 12 May 2026.</p>
-                    <button className="text-indigo-600 text-xs font-bold uppercase hover:underline">Download PDF</button>
+                    <p className="text-sm text-slate-500 mb-3 font-medium pl-2">Issued for 2 days. Valid until 12 May.</p>
+                    <span className="text-slate-900 text-xs font-bold uppercase tracking-wider pl-2 flex items-center gap-1">Download PDF <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" /></span>
                   </div>
 
-                  <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center gap-2">
-                        <Pill className="w-5 h-5 text-orange-500" />
-                        <span className="font-bold text-slate-800">Active Prescriptions</span>
+                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:border-slate-300 transition-colors group cursor-pointer relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-slate-800" />
+                    <div className="flex justify-between items-start mb-2 pl-2">
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-[#07B2B2]">Prescription Refill</span>
                       </div>
-                      <span className="text-xs text-slate-500 font-mono">10 May 2026</span>
+                      <span className="text-xs text-slate-400 font-mono font-semibold">10 May 2026</span>
                     </div>
-                    <ul className="text-sm text-slate-600 space-y-1 mb-3 list-disc pl-4">
-                      <li>Amoxicillin 250mg (1 capsule every 8 hours)</li>
-                      <li>Paracetamol 500mg (1-2 tablets every 6 hours)</li>
-                    </ul>
-                    <button className="text-orange-600 text-xs font-bold uppercase hover:underline">Request Refill</button>
+                    <p className="text-sm text-slate-500 mb-3 font-medium pl-2">Amoxicillin 250mg, Paracetamol 500mg</p>
+                    <span className="text-slate-900 text-xs font-bold uppercase tracking-wider pl-2 flex items-center gap-1">Request <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" /></span>
                   </div>
                 </div>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       )}
     </div>
