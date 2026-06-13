@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
+import {
   Users, Stethoscope, Pill, CreditCard, Activity, FileText, Settings, Plus, DollarSign,
-  Building, ShieldAlert, LogOut, Server, Database, Menu, Bell, Globe2
+  Building, ShieldAlert, LogOut, Server, Database, Menu, Bell, Globe2, TrendingUp
 } from 'lucide-react';
 import StaffManagementModule from './StaffManagementModule';
 import MedicineManagementModule from './MedicineManagementModule';
@@ -10,6 +10,11 @@ import BillingManagementModule from './BillingManagementModule';
 import ReportsAnalyticsModule from './ReportsAnalyticsModule';
 import SettingsModule from './SettingsModule';
 import MOHDashboard from './MOHDashboard';
+import IntegrationsHub from './IntegrationsHub';
+import OperationsHub from './OperationsHub';
+import SecurityHub from './SecurityHub';
+import RevenueCycleHub from './RevenueCycleHub';
+import SystemArchitectureHub from './SystemArchitectureHub';
 import { useSettings } from '../context/SettingsContext';
 import { Visit, Language } from '../types';
 
@@ -21,21 +26,21 @@ interface AdminModuleProps {
   activeLanguage?: Language;
 }
 
-type AdminTab = 'overview' | 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings';
+type AdminTab = 'overview' | 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'architecture';
 
-export default function AdminModule({ 
-  onNavigate, 
-  userRole, 
-  completedVisits = [], 
-  totalRegisteredCount = 0, 
-  activeLanguage = 'EN' 
+export default function AdminModule({
+  onNavigate,
+  userRole,
+  completedVisits = [],
+  totalRegisteredCount = 0,
+  activeLanguage = 'EN'
 }: AdminModuleProps) {
   const [activeTab, setActiveTab] = useState<AdminTab>('staff');
   const { settings } = useSettings();
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased">
-      
+
       {/* Admin Header */}
       <header className="bg-[#07B2B2] text-white px-5 py-3 flex items-center justify-between border-b border-cyan-800 shrink-0 shadow-md">
         <div className="flex items-center gap-3">
@@ -55,7 +60,7 @@ export default function AdminModule({
             <Bell className="w-5 h-5" />
             <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate('landing')}
             className="flex items-center gap-2 bg-cyan-900/50 hover:bg-red-500/80 text-white px-3 py-1.5 rounded-lg border border-cyan-800 transition-colors text-xs font-bold cursor-pointer"
@@ -67,102 +72,148 @@ export default function AdminModule({
       </header>
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        
+
         {/* Admin Navigation Bar */}
         <nav className="w-full bg-[#069494] text-white flex items-center justify-start border-b border-cyan-800 shrink-0 px-4 overflow-x-auto custom-scrollbar">
           <div className="flex items-center space-x-1 py-2">
             {(userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
-              <button 
+              <button
                 onClick={() => setActiveTab('staff')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                  activeTab === 'staff' 
-                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'staff'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
                     : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
-                }`}
+                  }`}
               >
                 <Users className="w-4 h-4 mr-2" />
-                Staff Management
+                Staff
               </button>
             )}
 
             {userRole === 'admin' && settings.modules.medicine && (
-              <button 
+              <button
                 onClick={() => setActiveTab('medicine')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                  activeTab === 'medicine' 
-                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'medicine'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
                     : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
-                }`}
+                  }`}
               >
                 <Pill className="w-4 h-4 mr-2" />
-                Medicine & Inventory
+                Inventory
               </button>
             )}
 
             {userRole === 'admin' && settings.modules.equipment && (
-              <button 
+              <button
                 onClick={() => setActiveTab('equipment')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                  activeTab === 'equipment' 
-                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'equipment'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
                     : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
-                }`}
+                  }`}
               >
                 <Stethoscope className="w-4 h-4 mr-2" />
-                Equipment Maintenance
+                Equipment
               </button>
             )}
 
             {userRole === 'admin' && settings.modules.billing && (
-              <button 
+              <button
                 onClick={() => setActiveTab('billing')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                  activeTab === 'billing' 
-                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'billing'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
                     : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
-                }`}
+                  }`}
               >
                 <DollarSign className="w-4 h-4 mr-2" />
-                Billing Management
+                Billing
               </button>
             )}
 
             {userRole === 'admin' && settings.modules.reports && (
-              <button 
+              <button
                 onClick={() => setActiveTab('reports')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                  activeTab === 'reports' 
-                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'reports'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
                     : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
-                }`}
+                  }`}
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Reports & Analytics
+                Reports
+              </button>
+            )}
+
+            {userRole === 'admin' && (
+              <button
+                onClick={() => setActiveTab('moh')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'moh'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
+                  }`}
+              >
+                <Globe2 className="w-4 h-4 mr-2" />
+                MOH
+              </button>
+            )}
+
+            {userRole === 'admin' && (
+              <button
+                onClick={() => setActiveTab('rcm')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'rcm'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
+                  }`}
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                RCM
               </button>
             )}
 
             {userRole === 'admin' && (
               <button 
-                onClick={() => setActiveTab('moh')}
+                onClick={() => setActiveTab('architecture')}
                 className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                  activeTab === 'moh' 
+                  activeTab === 'architecture' 
                     ? 'bg-[#058A8A] text-white shadow font-semibold' 
                     : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
                 }`}
               >
-                <Globe2 className="w-4 h-4 mr-2" />
-                MOH Analysis
+                <Server className="w-4 h-4 mr-2" />
+                Architecture
               </button>
             )}
-            
+
             {userRole === 'admin' && (
-              <button 
-                onClick={() => setActiveTab('settings')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${
-                  activeTab === 'settings' 
-                    ? 'bg-[#058A8A] text-white shadow font-semibold' 
+              <button
+                onClick={() => setActiveTab('operations')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'operations'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
                     : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
-                }`}
+                  }`}
+              >
+                <Activity className="w-4 h-4 mr-2" />
+                Operations
+              </button>
+            )}
+
+            {userRole === 'admin' && (
+              <button
+                onClick={() => setActiveTab('integrations')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'integrations'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
+                  }`}
+              >
+                <Database className="w-4 h-4 mr-2" />
+                Integrations
+              </button>
+            )}
+
+            {userRole === 'admin' && (
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'settings'
+                    ? 'bg-[#058A8A] text-white shadow font-semibold'
+                    : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
+                  }`}
               >
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
@@ -173,65 +224,6 @@ export default function AdminModule({
 
         {/* Main Content Area */}
         <main className="flex-1 p-5 overflow-y-auto">
-          
-          {activeTab === 'overview' && (
-            <div className="space-y-6 animate-fadeIn max-w-5xl mx-auto">
-              <h2 className="text-xl font-extrabold text-slate-800">System Telemetry</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start justify-between">
-                  <div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Server Uptime</p>
-                    <p className="text-2xl font-black text-slate-800">99.98%</p>
-                  </div>
-                  <div className="bg-green-100 text-green-700 p-2 rounded-lg">
-                    <Server className="w-5 h-5" />
-                  </div>
-                </div>
-                
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start justify-between">
-                  <div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Database Load</p>
-                    <p className="text-2xl font-black text-slate-800">12%</p>
-                  </div>
-                  <div className="bg-cyan-50 text-[#07B2B2] p-2 rounded-lg">
-                    <Database className="w-5 h-5" />
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start justify-between">
-                  <div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Active Sessions</p>
-                    <p className="text-2xl font-black text-slate-800">4</p>
-                  </div>
-                  <div className="bg-amber-100 text-amber-700 p-2 rounded-lg">
-                    <Users className="w-5 h-5" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide mb-4">Audit Logs</h3>
-                <div className="space-y-3 font-mono text-xs text-slate-600">
-                  <div className="flex items-center gap-4 border-b border-slate-100 pb-2">
-                    <span className="text-slate-400">10:45 AM</span>
-                    <span className="text-[#07B2B2] font-bold">INFO</span>
-                    <span>System backup completed successfully (420MB).</span>
-                  </div>
-                  <div className="flex items-center gap-4 border-b border-slate-100 pb-2">
-                    <span className="text-slate-400">09:12 AM</span>
-                    <span className="text-amber-500 font-bold">WARN</span>
-                    <span>High latency detected on NIDCS API gateway endpoint.</span>
-                  </div>
-                  <div className="flex items-center gap-4 border-b border-slate-100 pb-2">
-                    <span className="text-slate-400">08:00 AM</span>
-                    <span className="text-emerald-600 font-bold">AUTH</span>
-                    <span>Dr. Sarah (Staff ID: 101) authenticated successfully.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {activeTab === 'staff' && (
             <StaffManagementModule />
@@ -259,7 +251,7 @@ export default function AdminModule({
                 <Globe2 className="w-6 h-6 text-[#07B2B2]" />
                 MOH & Clinic Analysis
               </h2>
-              <MOHDashboard 
+              <MOHDashboard
                 completedVisits={completedVisits}
                 totalRegisteredCount={totalRegisteredCount}
                 activeLanguage={activeLanguage}
@@ -270,7 +262,27 @@ export default function AdminModule({
           {activeTab === 'settings' && (
             <SettingsModule />
           )}
-          
+
+          {activeTab === 'integrations' && (
+            <IntegrationsHub />
+          )}
+
+          {activeTab === 'operations' && (
+            <OperationsHub />
+          )}
+
+          {activeTab === 'security' && (
+            <SecurityHub />
+          )}
+
+          {activeTab === 'rcm' && (
+            <RevenueCycleHub />
+          )}
+
+          {activeTab === 'architecture' && (
+            <SystemArchitectureHub />
+          )}
+
         </main>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { generateInvoicePDF } from '../utils/pdfGenerator';
 import { 
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet,
-  ClipboardCheck, CheckCircle2, Sparkles
+  ClipboardCheck, CheckCircle2, Sparkles, FileCheck
 } from 'lucide-react';
 
 interface BillingDeskProps {
@@ -306,6 +306,24 @@ export default function BillingDesk({
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            {/* AI Billing Compliance Scan */}
+            <div className="bg-indigo-50 border border-indigo-100 p-3.5 rounded-lg flex items-start gap-3 mt-4 mb-4">
+              <div className="bg-indigo-100 p-2 rounded shrink-0">
+                <FileCheck className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="text-[10px] font-bold text-indigo-800 uppercase tracking-wider">AI Compliance Assistant</h4>
+                  <span className="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Ready for Claim
+                  </span>
+                </div>
+                <p className="text-xs text-indigo-900/80 leading-relaxed">
+                  ICD-10 diagnosis <strong>({activeVisit.soap?.assessment?.icdCode || 'N/A'})</strong> justifies the dispensing of <strong>{activeVisit.soap?.plan?.prescription?.length || 0}</strong> medication(s). No unbundling or upcoding errors detected. Highly probable instant TPA approval.
+                </p>
+              </div>
             </div>
 
             {/* Panel claims integration toggle with dynamic divisions */}

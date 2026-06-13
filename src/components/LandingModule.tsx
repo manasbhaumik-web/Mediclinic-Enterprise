@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ShieldCheck, Database, ArrowRight, HeartPulse, Smartphone, X, FileText, Pill, ChevronRight, Stethoscope, Users, CheckCircle2 } from 'lucide-react';
+import { Activity, ShieldCheck, Database, ArrowRight, HeartPulse, Smartphone, X, FileText, Pill, ChevronRight, Stethoscope, Users, CheckCircle2, Brain, CalendarX, ListOrdered, TrendingUp, AlertTriangle, FileCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface LandingModuleProps {
@@ -29,8 +29,8 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
       <header className="fixed w-full top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200 transition-all shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-[#07B2B2] p-2 rounded-lg">
-              <Activity className="w-5 h-5 text-white" />
+            <div className="bg-cyan-50 p-2.5 rounded-[1rem] border border-cyan-100">
+              <Activity className="w-6 h-6 text-[#07B2B2]" />
             </div>
             <div>
               <h1 className="text-lg font-black text-[#058A8A] tracking-tight uppercase leading-none">
@@ -46,7 +46,7 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
             <button
               type="button"
               onClick={() => setShowPatientPortal(true)}
-              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-5 py-3 rounded-full text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
             >
               <Smartphone className="w-4 h-4" />
               Patient Portal
@@ -54,7 +54,7 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
             <button
               type="button"
               onClick={() => onNavigate('login')}
-              className="bg-[#058A8A] hover:bg-[#047171] text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm shadow-[#058A8A]/20 cursor-pointer"
+              className="bg-[#07B2B2] hover:bg-[#058A8A] text-white px-7 py-3 rounded-full text-sm font-bold transition-all shadow-[0_8px_30px_rgb(7,178,178,0.2)] hover:shadow-[0_8px_30px_rgb(7,178,178,0.3)] cursor-pointer"
             >
               Staff Login
             </button>
@@ -90,7 +90,7 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
             <button
               type="button"
               onClick={() => onNavigate('login')}
-              className="w-full sm:w-auto bg-[#058A8A] hover:bg-[#047171] text-white px-8 py-4 rounded-xl text-base font-bold transition-all shadow-xl shadow-[#058A8A]/20 flex items-center justify-center gap-2 cursor-pointer group"
+              className="w-full sm:w-auto bg-[#07B2B2] hover:bg-[#058A8A] text-white px-8 py-4 rounded-full text-base font-bold transition-all shadow-[0_8px_30px_rgb(7,178,178,0.2)] flex items-center justify-center gap-2 cursor-pointer group"
             >
               Access Clinical Suite
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -98,7 +98,7 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
             <button
               type="button"
               onClick={() => setShowPatientPortal(true)}
-              className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-8 py-4 rounded-xl text-base font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-8 py-4 rounded-full text-base font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
             >
               <Smartphone className="w-5 h-5" />
               Patient Portal
@@ -120,7 +120,7 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
           className="flex-1 w-full max-w-lg relative"
         >
           {/* Main Solid Panel */}
-          <div className="bg-white rounded-3xl p-8 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] border border-slate-100 relative overflow-hidden">
+          <div className="bg-white rounded-[2.5rem] p-10 shadow-[0_12px_60px_-15px_rgba(0,0,0,0.06)] border border-slate-100 relative overflow-hidden">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Overview</p>
@@ -132,27 +132,27 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
             </div>
 
             <div className="space-y-4">
-              <div className="bg-cyan-50/50 rounded-2xl p-4 flex items-center gap-4 border border-cyan-100 group hover:border-[#07B2B2]/30 transition-colors cursor-default">
-                <div className="bg-white p-3 rounded-xl border border-cyan-200 shadow-sm text-[#07B2B2] transition-colors"><Users className="w-5 h-5" /></div>
+              <div className="bg-white rounded-[1.5rem] p-5 flex items-center gap-5 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] group hover:shadow-[0_4px_20px_rgb(0,0,0,0.05)] hover:border-cyan-100 transition-all cursor-default">
+                <div className="bg-cyan-50 p-4 rounded-2xl text-[#07B2B2] transition-colors"><Users className="w-6 h-6" /></div>
                 <div>
                   <p className="text-sm font-bold text-[#058A8A]">12 Patients Waiting</p>
-                  <p className="text-xs text-slate-500 font-medium">Avg wait time: 14 mins</p>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">Avg wait time: 14 mins</p>
                 </div>
               </div>
               
-              <div className="bg-cyan-50/50 rounded-2xl p-4 flex items-center gap-4 border border-cyan-100 group hover:border-[#07B2B2]/30 transition-colors cursor-default">
-                <div className="bg-white p-3 rounded-xl border border-cyan-200 shadow-sm text-[#07B2B2] transition-colors"><Stethoscope className="w-5 h-5" /></div>
+              <div className="bg-white rounded-[1.5rem] p-5 flex items-center gap-5 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] group hover:shadow-[0_4px_20px_rgb(0,0,0,0.05)] hover:border-cyan-100 transition-all cursor-default">
+                <div className="bg-cyan-50 p-4 rounded-2xl text-[#07B2B2] transition-colors"><Stethoscope className="w-6 h-6" /></div>
                 <div>
                   <p className="text-sm font-bold text-[#058A8A]">Dr. Sarah Jenkins</p>
-                  <p className="text-xs text-slate-500 font-medium">Consulting Room 1</p>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">Consulting Room 1</p>
                 </div>
               </div>
 
-              <div className="bg-cyan-50/50 rounded-2xl p-4 flex items-center gap-4 border border-cyan-100 group hover:border-[#07B2B2]/30 transition-colors cursor-default">
-                <div className="bg-white p-3 rounded-xl border border-cyan-200 shadow-sm text-[#07B2B2] transition-colors"><FileText className="w-5 h-5" /></div>
+              <div className="bg-white rounded-[1.5rem] p-5 flex items-center gap-5 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] group hover:shadow-[0_4px_20px_rgb(0,0,0,0.05)] hover:border-cyan-100 transition-all cursor-default">
+                <div className="bg-cyan-50 p-4 rounded-2xl text-[#07B2B2] transition-colors"><FileText className="w-6 h-6" /></div>
                 <div>
                   <p className="text-sm font-bold text-[#058A8A]">Billing & Reports</p>
-                  <p className="text-xs text-slate-500 font-medium">All queues synced to server</p>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">All queues synced to server</p>
                 </div>
               </div>
             </div>
@@ -179,6 +179,36 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
               icon: Database,
               title: 'Centralized Records',
               desc: 'Seamless automated sync with national health boards and insurance claims.'
+            },
+            {
+              icon: CalendarX,
+              title: 'Predictive No-Shows',
+              desc: 'AI algorithm predicting cancellations to optimize scheduling and reduce lost revenue.'
+            },
+            {
+              icon: ListOrdered,
+              title: 'Intelligent Triage',
+              desc: 'Auto-prioritize patients based on symptoms, risk scores, and clinical urgency.'
+            },
+            {
+              icon: TrendingUp,
+              title: 'Outcome Prediction',
+              desc: 'ML models predicting patient outcomes to guide clinical decisions proactively.'
+            },
+            {
+              icon: AlertTriangle,
+              title: 'Medication Alerts',
+              desc: 'Real-time AI detection of complex drug interactions and contraindications.'
+            },
+            {
+              icon: FileCheck,
+              title: 'Billing Assistant',
+              desc: 'AI flagging coding errors and compliance issues before claim submission.'
+            },
+            {
+              icon: Brain,
+              title: 'Readmission Risk',
+              desc: 'Identify high-risk patients post-discharge for early proactive intervention.'
             }
           ].map((feature, idx) => (
             <motion.div 
@@ -187,10 +217,10 @@ export default function LandingModule({ onNavigate }: LandingModuleProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group hover:-translate-y-1"
+              className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 group hover:-translate-y-1"
             >
-              <div className={`w-12 h-12 bg-cyan-50 group-hover:bg-[#07B2B2] transition-colors duration-300 rounded-xl flex items-center justify-center mb-6 text-[#058A8A] group-hover:text-white`}>
-                <feature.icon className="w-6 h-6" />
+              <div className={`w-14 h-14 bg-cyan-50 group-hover:bg-[#07B2B2] transition-colors duration-300 rounded-2xl flex items-center justify-center mb-6 text-[#058A8A] group-hover:text-white`}>
+                <feature.icon className="w-7 h-7" />
               </div>
               <h3 className="text-xl font-bold text-[#058A8A] mb-3 tracking-tight">{feature.title}</h3>
               <p className="text-slate-500 leading-relaxed font-medium">{feature.desc}</p>

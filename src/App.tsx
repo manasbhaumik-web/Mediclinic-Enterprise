@@ -5,10 +5,8 @@ import { useFinancials } from './context/FinancialContext';
 
 // Import modules
 import MyKadScanner from './components/MyKadScanner';
-import ConsultationRoom from './components/ConsultationRoom';
 import DispensaryDashboard from './components/DispensaryDashboard';
 import BillingDesk from './components/BillingDesk';
-import MOHDashboard from './components/MOHDashboard';
 import LandingModule from './components/LandingModule';
 import LoginModule from './components/LoginModule';
 import AdminModule from './components/AdminModule';
@@ -19,7 +17,7 @@ import {
   Building, Users, FolderCheck, Stethoscope, Pill, CreditCard,
   Settings, Menu, LayoutDashboard, Globe, AlertCircle, Wifi, WifiOff,
   CheckCircle2, ChevronRight, Activity, X, UserCheck, MapPin, 
-  LogOut, ShieldAlert, FileText, Smartphone, MessageCircle
+  LogOut, ShieldAlert, FileText, Smartphone, MessageCircle, Network, BarChart3, Mic
 } from 'lucide-react';
 
 export default function App() {
@@ -28,7 +26,7 @@ export default function App() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   
   // Navigation Menu Active Page
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'registration' | 'consultation' | 'dispensary' | 'billing' | 'reports'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'registration' | 'consultation' | 'dispensary' | 'billing'>('dashboard');
 
   const handleLogin = (role: UserRole) => {
     setUserRole(role);
@@ -612,25 +610,6 @@ export default function App() {
                 )}
               </button>
             )}
-
-            {/* Reports Icon */}
-            {userRole === 'admin' && (
-              <button
-                type="button"
-                id="sidebar-link-reports"
-                onClick={() => setActiveTab('reports')}
-                className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'reports'
-                    ? 'bg-[#07B2B2]/90 text-white shadow font-semibold'
-                    : 'text-cyan-50 hover:bg-[#058A8A] hover:text-white'
-                  }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Building className="w-4 h-4 text-white" />
-                  <span>{t.reports}</span>
-                </div>
-              </button>
-            )}
-
           </div>
 
           {/* Navigation bottom clinic status metadata indicator */}
@@ -1042,109 +1021,6 @@ export default function App() {
             </div>
           )}
 
-          {/* TAB 3: THE CONSULTATION ROOM SUITE (SOAP Edit Suite) */}
-          {activeTab === 'consultation' && userRole !== 'doctor' && (
-            <div className="space-y-4 animate-fadeIn">
-
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-                  <div>
-                    <h3 className="text-slate-800 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                      <Stethoscope className="w-4 h-4 text-emerald-600" />
-                      Awaiting consultations doctors queue list
-                    </h3>
-                    <p className="text-[10px] text-slate-400">Select an outpatient registered card to begin clinical soap formulation details.</p>
-                  </div>
-
-                  <span className="text-[10px] font-mono bg-white px-2 py-0.5 border rounded block">
-                    Queue Volume: {doctorQueue.length} Patients Waiting
-                  </span>
-                </div>
-
-                {/* Queue display cards */}
-                {doctorQueue.length === 0 ? (
-                  <div className="bg-white rounded-lg p-8 border text-center text-slate-400">
-                    <span className="text-xs font-semibold block">Queue base is currently peaceful.</span>
-                    <span className="text-[10px] text-slate-400 mt-0.5">Please add or register outpatients first.</span>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 mt-3">
-                    {doctorQueue.map((visit, index) => {
-                      const pt = patientsMap[visit.patientId];
-                      if (!pt) return null;
-                      const isConsulting = activeConsultationVisitId === visit.id;
-
-                      return (
-                        <div
-                          key={visit.id}
-                          onClick={() => setActiveConsultationVisitId(visit.id)}
-                          className={`p-3 rounded-lg border transition-all cursor-pointer text-left ${isConsulting
-                              ? 'border-[#07B2B2] bg-cyan-50/10 ring-2 ring-[#07B2B2]/10'
-                              : 'border-slate-200 bg-white hover:bg-slate-50'
-                            }`}
-                        >
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="bg-[#07B2B2]/10 text-[#07B2B2] text-[9px] font-bold font-mono px-2 py-0.5 rounded-full">
-                              WAITING {index + 1}
-                            </span>
-                            <span className="text-slate-400 font-mono">ID: {pt.id}</span>
-                          </div>
-
-                          <h4 className="text-xs font-extrabold text-[#0a2540] uppercase mt-2 truncate">
-                            {pt.fullName}
-                          </h4>
-
-                          <p className="text-[10px] text-slate-500 mt-1">
-                            Panel: <strong>{pt.panelEmployer}</strong>
-                          </p>
-
-                          {pt.drugAllergies.length > 0 && (
-                            <span className="text-[8px] bg-red-100 text-red-700 font-bold px-1.5 rounded inline-block uppercase mt-1">
-                              Allergic Alert ({pt.drugAllergies.length})
-                            </span>
-                          )}
-
-                          <div className="mt-3 pt-2 border-t border-slate-100">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setWhatsappToast(`Notified ${pt.fullName} (${pt.phone}): "You are ${index + 1} slots away."`);
-                                setTimeout(() => setWhatsappToast(null), 4000);
-                              }}
-                              className="flex items-center justify-center gap-1.5 w-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider"
-                            >
-                              <MessageCircle className="w-3 h-3" />
-                              Notify via WhatsApp
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Consultation editor */}
-              {activeConsultationVisitId ? (
-                <ConsultationRoom
-                  currentPatient={patientsMap[visitsQueue.find(v => v.id === activeConsultationVisitId)?.patientId || '']}
-                  activeLanguage={activeLanguage}
-                  onConsultationComplete={handleDoctorSoapSubmit}
-                  onCancel={() => setActiveConsultationVisitId(null)}
-                />
-              ) : (
-                <div className="bg-white border rounded-xl p-12 text-center text-slate-400">
-                  <Stethoscope className="w-12 h-12 text-slate-200 mx-auto mb-2 animate-bounce-slow" />
-                  <h4 className="font-bold text-slate-700 text-sm">Select Active Patient Queue Card</h4>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Select a patient from the waiting list card selectors above to execute diagnosis validations.
-                  </p>
-                </div>
-              )}
-
-            </div>
-          )}
-
           {/* TAB 4: PHARMACY DISPENSARY DASHBOARD */}
           {activeTab === 'dispensary' && (
             <div className="space-y-4 animate-fadeIn">
@@ -1169,13 +1045,6 @@ export default function App() {
             </div>
           )}
 
-          {/* TAB 6: MANAGERIAL REPORTS METRICS */}
-          {activeTab === 'reports' && userRole === 'admin' && (
-            <div className="space-y-4 animate-fadeIn">
-              {/* Removed from here, moved to AdminModule */}
-            </div>
-          )}
-
         </main>
 
       </div>
@@ -1187,6 +1056,17 @@ export default function App() {
           onClose={() => setIsMyKadOpen(false)}
         />
       )}
+
+      {/* GLOBAL VOICE AI / NLP ASSISTANT */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button 
+          className="bg-[#07B2B2] hover:bg-[#058A8A] text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-105 relative group cursor-pointer border-4 border-white"
+          title="Voice AI Command"
+        >
+          <div className="absolute inset-0 bg-[#07B2B2] rounded-full animate-ping opacity-20"></div>
+          <Mic className="w-6 h-6" />
+        </button>
+      </div>
 
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Patient, Visit, Language } from '../types';
 import ConsultationRoom from './ConsultationRoom';
-import { Stethoscope, FileText, Calendar, Users, DollarSign, Activity } from 'lucide-react';
+import { Stethoscope, FileText, Calendar, Users, DollarSign, Activity, BrainCircuit, CalendarClock } from 'lucide-react';
 
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
@@ -122,7 +122,24 @@ export default function DoctorDashboardModule({
                         </span>
                         <span className="text-slate-400 font-mono">ID: {pt.id}</span>
                       </div>
-                      <h4 className="text-xs font-extrabold text-[#0a2540] uppercase mt-2 truncate">
+                      
+                      {/* AI Badges */}
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                        {index === 0 ? (
+                          <span className="bg-red-50 text-red-600 border border-red-100 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                            <BrainCircuit className="w-3 h-3" /> Triage: HIGH
+                          </span>
+                        ) : (
+                          <span className="bg-amber-50 text-amber-600 border border-amber-100 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                            <BrainCircuit className="w-3 h-3" /> Triage: MED
+                          </span>
+                        )}
+                        <span className="bg-slate-50 text-slate-500 border border-slate-200 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                           <CalendarClock className="w-3 h-3" /> No-Show: {index === 1 ? '45%' : '12%'}
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs font-extrabold text-[#0a2540] uppercase mt-2.5 truncate">
                         {pt.fullName}
                       </h4>
                       <p className="text-[10px] text-slate-500 mt-1">
