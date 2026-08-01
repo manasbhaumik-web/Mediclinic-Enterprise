@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, PackagePlus, AlertTriangle, Pill, X, Edit2, Trash2, Trash, Syringe, History, CheckCircle, Info, ShieldAlert, Zap, CalendarDays, TrendingDown, ShoppingCart, Sparkles } from 'lucide-react';
+import { Plus, Search, PackagePlus, AlertTriangle, Pill, X, Edit2, Trash2, Trash, Syringe, History, CheckCircle, Info, ShieldAlert, Zap, CalendarDays, TrendingDown, ShoppingCart, BrainCircuit } from 'lucide-react';
 import { useInventory, DrugItem } from '../context/InventoryContext';
 import DrugRegistration from './DrugRegistration';
 
@@ -15,6 +15,7 @@ export default function MedicineManagementModule() {
   const [detailsDrugId, setDetailsDrugId] = useState<string | null>(null);
   const [restockDrugId, setRestockDrugId] = useState<string | null>(null);
   const [restockAmount, setRestockAmount] = useState('100');
+  const [restockExpiryDate, setRestockExpiryDate] = useState('');
   
   const [disposeDrugId, setDisposeDrugId] = useState<string | null>(null);
   const [disposeAmount, setDisposeAmount] = useState('1');
@@ -45,10 +46,11 @@ export default function MedicineManagementModule() {
     const amount = parseInt(restockAmount);
     if (isNaN(amount) || amount <= 0) return;
 
-    restockDrug(restockDrugId, amount);
+    restockDrug(restockDrugId, amount, restockExpiryDate || undefined);
 
     setRestockDrugId(null);
     setRestockAmount('100'); // reset default
+    setRestockExpiryDate('');
   };
 
   const handleDispose = (e: React.FormEvent) => {
@@ -233,12 +235,17 @@ export default function MedicineManagementModule() {
                             <span className="font-mono font-bold text-slate-700">{drug.currentStock} Units</span>
                             <span className="text-[10px] text-slate-400">Min: {drug.minThreshold}</span>
                           </div>
-                          <div className="w-full bg-slate-200 rounded-full h-1.5">
+                          <div className="w-full bg-slate-200 rounded-full h-1.5 mb-1">
                             <div 
                               className={`h-1.5 rounded-full ${isLowStock ? 'bg-red-500' : 'bg-[#07B2B2]'}`}
                               style={{ width: `${stockPercentage}%` }}
                             ></div>
                           </div>
+                          {drug.batches && drug.batches.length > 0 && (
+                            <span className="text-[9px] text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded w-fit uppercase">
+                              {drug.batches.filter(b => b.stock > 0).length} Active Batches
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -377,7 +384,7 @@ export default function MedicineManagementModule() {
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 shadow-sm relative overflow-hidden">
             <Zap className="absolute -right-4 -bottom-4 w-32 h-32 text-indigo-500/10" />
             <h3 className="text-indigo-900 font-black text-lg mb-2 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-indigo-600" /> AI Supply Chain & Predictive Restocking
+              <BrainCircuit className="w-5 h-5 text-indigo-600" /> AI Supply Chain & Predictive Restocking
             </h3>
             <p className="text-sm text-indigo-700 max-w-2xl">
               MediClinic AI analyzes dispensing velocity and expiration dates to automatically suggest purchase orders (POs) and prevent inventory waste.
@@ -472,6 +479,13 @@ export default function MedicineManagementModule() {
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-600 uppercase">Amount to Add (Units)</label>
                 <input type="number" required min="1" value={restockAmount} onChange={(e) => setRestockAmount(e.target.value)} className="w-full px-3 py-3 text-lg font-bold border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#07B2B2] outline-none text-center" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-600 uppercase flex justify-between">
+                  <span>Batch Expiry Date</span>
+                  <span className="text-[10px] font-normal text-slate-400">Optional</span>
+                </label>
+                <input type="date" value={restockExpiryDate} onChange={(e) => setRestockExpiryDate(e.target.value)} className="w-full px-3 py-3 font-mono border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#07B2B2] outline-none text-center" />
               </div>
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setRestockDrugId(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg font-bold text-sm transition-colors cursor-pointer">Cancel</button>
@@ -596,6 +610,48 @@ export default function MedicineManagementModule() {
                       </div>
                     </div>
                   </div>
+
+                  {/* FIFO Batch Tracking Table */}
+                  {drug.batches && drug.batches.length > 0 && (
+                    <div className="border border-indigo-100 rounded-xl overflow-hidden mt-4">
+                      <div className="bg-indigo-50 px-4 py-2 border-b border-indigo-100 flex items-center gap-2">
+                        <History className="w-4 h-4 text-indigo-600" />
+                        <h4 className="text-xs font-bold text-indigo-800 uppercase tracking-wide">FIFO Batch Tracking</h4>
+                      </div>
+                      <table className="w-full text-left text-xs bg-white">
+                        <thead className="bg-slate-50 text-[10px] uppercase text-slate-500 font-bold border-b border-slate-100">
+                          <tr>
+                            <th className="px-4 py-2">Batch ID</th>
+                            <th className="px-4 py-2">Stock Level</th>
+                            <th className="px-4 py-2">Expiry Date</th>
+                            <th className="px-4 py-2">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                          {drug.batches.sort((a,b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()).map(batch => {
+                            const isDepleted = batch.stock <= 0;
+                            const isExpiring = new Date(batch.expiryDate).getTime() - Date.now() < 90 * 24 * 60 * 60 * 1000;
+                            return (
+                              <tr key={batch.batchId} className={isDepleted ? 'opacity-40 bg-slate-50/50' : ''}>
+                                <td className="px-4 py-2 font-mono font-bold text-slate-600">{batch.batchId}</td>
+                                <td className="px-4 py-2 font-mono">{batch.stock} units</td>
+                                <td className="px-4 py-2 font-mono">{batch.expiryDate}</td>
+                                <td className="px-4 py-2">
+                                  {isDepleted ? (
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase bg-slate-200 px-1.5 py-0.5 rounded">Depleted</span>
+                                  ) : isExpiring ? (
+                                    <span className="text-[9px] font-bold text-orange-700 uppercase bg-orange-100 px-1.5 py-0.5 rounded">Expiring Soon</span>
+                                  ) : (
+                                    <span className="text-[9px] font-bold text-emerald-700 uppercase bg-emerald-100 px-1.5 py-0.5 rounded">Active</span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
                 </div>
               </div>

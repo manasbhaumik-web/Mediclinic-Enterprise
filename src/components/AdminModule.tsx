@@ -225,27 +225,27 @@ export default function AdminModule({
         {/* Main Content Area */}
         <main className="flex-1 p-5 overflow-y-auto">
 
-          {activeTab === 'staff' && (
+          {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
             <StaffManagementModule />
           )}
 
-          {activeTab === 'medicine' && (
+          {activeTab === 'medicine' && userRole === 'admin' && settings.modules.medicine && (
             <MedicineManagementModule />
           )}
 
-          {activeTab === 'equipment' && (
+          {activeTab === 'equipment' && userRole === 'admin' && settings.modules.equipment && (
             <EquipmentManagementModule />
           )}
 
-          {activeTab === 'billing' && (
+          {activeTab === 'billing' && userRole === 'admin' && settings.modules.billing && (
             <BillingManagementModule />
           )}
 
-          {activeTab === 'reports' && (
+          {activeTab === 'reports' && userRole === 'admin' && settings.modules.reports && (
             <ReportsAnalyticsModule />
           )}
 
-          {activeTab === 'moh' && (
+          {activeTab === 'moh' && userRole === 'admin' && (
             <div className="space-y-4 animate-fadeIn max-w-6xl mx-auto">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
                 <Globe2 className="w-6 h-6 text-[#07B2B2]" />
@@ -259,27 +259,27 @@ export default function AdminModule({
             </div>
           )}
 
-          {activeTab === 'settings' && (
+          {activeTab === 'settings' && userRole === 'admin' && (
             <SettingsModule />
           )}
 
-          {activeTab === 'integrations' && (
+          {activeTab === 'integrations' && userRole === 'admin' && (
             <IntegrationsHub />
           )}
 
-          {activeTab === 'operations' && (
+          {activeTab === 'operations' && userRole === 'admin' && (
             <OperationsHub />
           )}
 
-          {activeTab === 'security' && (
+          {activeTab === 'security' && userRole === 'admin' && (
             <SecurityHub />
           )}
 
-          {activeTab === 'rcm' && (
+          {activeTab === 'rcm' && userRole === 'admin' && (
             <RevenueCycleHub />
           )}
 
-          {activeTab === 'architecture' && (
+          {activeTab === 'architecture' && userRole === 'admin' && (
             <SystemArchitectureHub />
           )}
 

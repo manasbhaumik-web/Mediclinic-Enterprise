@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export interface Transaction {
   id: string;
@@ -18,32 +19,95 @@ interface FinancialContextType {
   markClaimAsPaid: (transactionId: string) => void;
 }
 
-const INITIAL_TRANSACTIONS: Transaction[] = [
-  { id: 'TRX-1001', date: '2026-06-05T09:30:00Z', patientId: 'P004', visitId: 'V-MOCK-101', paymentMethod: 'Cash', paidAmount: 85.00, panelClaimed: 0, status: 'Completed' },
-  { id: 'TRX-1002', date: '2026-06-05T11:15:00Z', patientId: 'P002', visitId: 'V-MOCK-102', paymentMethod: 'Panel', paidAmount: 0, panelClaimed: 120.50, glNumber: 'PM-GL-8912', status: 'Pending Claim' },
-  { id: 'TRX-1003', date: '2026-06-05T14:20:00Z', patientId: 'P005', visitId: 'V-MOCK-103', paymentMethod: 'Credit Card', paidAmount: 210.00, panelClaimed: 0, status: 'Completed' },
-  { id: 'TRX-1004', date: '2026-06-05T16:05:00Z', patientId: 'P003', visitId: 'V-MOCK-104', paymentMethod: 'Panel', paidAmount: 15.00, panelClaimed: 60.00, glNumber: 'MIC-GL-2291', status: 'Claim Paid' },
-];
-
+// Mock transactions are replaced by Supabase DB
 const FinancialContext = createContext<FinancialContextType | undefined>(undefined);
 
 export function FinancialProvider({ children }: { children: ReactNode }) {
-  const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  const recordTransaction = (transactionData: Omit<Transaction, 'id' | 'date' | 'status'>) => {
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const { data, error } = await supabase.from('transactions').select('*').order('date', { ascending: false });
+      if (data && !error) {
+        setTransactions(data.map(t => ({
+          id: t.id,
+          date: t.date,
+          patientId: t.patient_id,
+          visitId: t.visit_id,
+          paymentMethod: t.payment_method,
+          paidAmount: Number(t.paid_amount),
+          panelClaimed: Number(t.panel_claimed),
+          glNumber: t.gl_number,
+          status: t.status
+        })));
+      }
+    };
+
+    fetchTransactions();
+
+    const channel = supabase.channel('financial_sync_' + Math.random().toString(36).substring(2, 9))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+        fetchTransactions();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const recordTransaction = async (transactionData: Omit<Transaction, 'id' | 'date' | 'status'>) => {
+    const status = transactionData.panelClaimed > 0 ? 'Pending Claim' : 'Completed';
+    
+    // For fast UI update
+    const tempId = `TRX-${Date.now()}`;
     const newTrx: Transaction = {
-      id: `TRX-${Math.floor(Math.random() * 9000) + 1000}`,
+      id: tempId,
       date: new Date().toISOString(),
-      status: transactionData.panelClaimed > 0 ? 'Pending Claim' : 'Completed',
+      status,
       ...transactionData
     };
     setTransactions(prev => [newTrx, ...prev]);
+
+    // Insert to DB
+    try {
+      // Find UUID for patient and visit, assuming local IDs might still be used in UI temporarily
+      let patientUuid = null;
+      let visitUuid = null;
+      
+      // If patientId doesn't look like UUID, attempt to resolve it or just send it if it's already a UUID
+      if (transactionData.patientId && transactionData.patientId.length > 20) patientUuid = transactionData.patientId;
+      if (transactionData.visitId && transactionData.visitId.length > 20) visitUuid = transactionData.visitId;
+
+      const { data, error } = await supabase.from('transactions').insert([{
+        patient_id: patientUuid,
+        visit_id: visitUuid,
+        payment_method: transactionData.paymentMethod,
+        paid_amount: transactionData.paidAmount,
+        panel_claimed: transactionData.panelClaimed,
+        gl_number: transactionData.glNumber,
+        status: status,
+        date: new Date().toISOString()
+      }]).select().single();
+
+      if (data) {
+        setTransactions(prev => prev.map(t => t.id === tempId ? { ...t, id: data.id } : t));
+      }
+    } catch (err) {
+      console.error('Failed to record transaction', err);
+    }
   };
 
-  const markClaimAsPaid = (transactionId: string) => {
+  const markClaimAsPaid = async (transactionId: string) => {
     setTransactions(prev => prev.map(trx => 
       trx.id === transactionId ? { ...trx, status: 'Claim Paid' } : trx
     ));
+
+    try {
+      await supabase.from('transactions').update({ status: 'Claim Paid' }).eq('id', transactionId);
+    } catch (err) {
+      console.error('Failed to update claim', err);
+    }
   };
 
   return (

@@ -1,43 +1,47 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from './AuthContext';
+
+export interface DrugBatch {
+  id?: string;
+  batchId: string;
+  stock: number;
+  expiryDate: string;
+}
 
 export interface DrugItem {
   id: string;
-  name: string; // Brand Name / Trade Name
+  name: string;
   category: string;
   currentStock: number;
   minThreshold: number;
-  price: number; // Selling Price
+  price: number;
   
-  // Predictive Supply Chain (AI)
   expiryDate?: string;
-  consumptionVelocity?: number; // Estimated units sold per week
+  batches?: DrugBatch[];
+  consumptionVelocity?: number;
   
-  // 1. Core Drug Identification
   brandName?: string;
   genericName?: string;
   manufacturer?: string;
-  // 2. Strength & Form
   strength?: string;
   strengthUnit?: string;
-  drugType?: string; // Dosage Form e.g. Tablet, Syrup, Injection
+  drugType?: string; 
 
-  // 3. Inventory & Packaging Controls
   packagingType?: string;
-  uom?: string; // Unit of Measurement for dispensing
+  uom?: string; 
   storageConditions?: string;
   
-  // 4. Clinical & Safety Flags
   isControlledDrug?: boolean;
   contraindications?: string;
   pregnancyCategory?: string;
-  indications?: string; // Used for which disease
+  indications?: string; 
   sideEffects?: string;
   suggestedDosage?: {
     adults?: string;
     children?: string;
   };
 
-  // 5. Pricing & Billing Details
   costPrice?: number;
   taxRate?: number;
   isInsuranceClaimable?: boolean;
@@ -55,186 +59,215 @@ export interface InventoryLog {
 
 interface InventoryContextType {
   catalog: DrugItem[];
+  inventory: DrugItem[];
   logs: InventoryLog[];
   addDrug: (drug: Omit<DrugItem, 'id'>) => void;
-  restockDrug: (id: string, amount: number) => void;
+  restockDrug: (id: string, amount: number, expiryDate?: string) => void;
   deleteDrug: (id: string) => void;
   dispenseDrug: (drugName: string, quantity: number) => void;
   disposeDrug: (id: string, amount: number, reason: string) => void;
   useDrugInternally: (id: string, amount: number, reason: string) => void;
 }
 
-const DEFAULT_CATALOG: DrugItem[] = [
-  { 
-    id: 'DRG-001', 
-    name: 'Paracetamol 500mg', 
-    category: 'Analgesics', 
-    currentStock: 1200, 
-    minThreshold: 500, 
-    price: 0.50,
-    expiryDate: '2026-08-15', // Expiring relatively soon
-    consumptionVelocity: 350,
-    drugType: 'Tablet',
-    manufacturer: 'PharmaCorp',
-    genericName: 'Paracetamol',
-    isControlledDrug: false,
-    indications: 'Fever, mild to moderate pain, headache.',
-    sideEffects: 'Rarely nausea or rash. Liver damage in severe overdose.',
-    suggestedDosage: { adults: '1-2 tablets every 4-6 hours', children: 'Not recommended for <12 yrs in this strength' }
-  },
-  { 
-    id: 'DRG-002', 
-    name: 'Amoxicillin 250mg', 
-    category: 'Antibiotics', 
-    currentStock: 45, 
-    minThreshold: 100, 
-    price: 1.20,
-    expiryDate: '2027-11-20',
-    consumptionVelocity: 80,
-    drugType: 'Capsule',
-    manufacturer: 'MediLife',
-    genericName: 'Amoxicillin',
-    isControlledDrug: false,
-    indications: 'Bacterial infections (respiratory, ear, throat).',
-    sideEffects: 'Diarrhea, stomach upset, rash, allergic reactions.',
-    suggestedDosage: { adults: '1 capsule every 8 hours', children: 'Depends on body weight, usually syrup form' }
-  },
-  { 
-    id: 'DRG-003', 
-    name: 'Lisinopril 10mg', 
-    category: 'Cardiovascular', 
-    currentStock: 300, 
-    minThreshold: 200, 
-    price: 2.50,
-    expiryDate: '2028-01-10',
-    consumptionVelocity: 150,
-    drugType: 'Tablet',
-    manufacturer: 'CardioMeds',
-    genericName: 'Lisinopril',
-    isControlledDrug: false,
-    indications: 'Hypertension, heart failure.',
-    sideEffects: 'Dry cough, dizziness, elevated potassium.',
-    suggestedDosage: { adults: '1 tablet daily', children: 'Consult pediatrician' }
-  },
-  { 
-    id: 'DRG-004', 
-    name: 'Salbutamol Inhaler', 
-    category: 'Respiratory', 
-    currentStock: 15, 
-    minThreshold: 50, 
-    price: 15.00,
-    expiryDate: '2026-07-05', // Expiring very soon!
-    consumptionVelocity: 25,
-    drugType: 'Inhaler',
-    manufacturer: 'BreatheEasy',
-    genericName: 'Salbutamol / Albuterol',
-    isControlledDrug: false,
-    indications: 'Asthma, COPD, bronchospasm relief.',
-    sideEffects: 'Tremor, increased heart rate, headache.',
-    suggestedDosage: { adults: '1-2 puffs every 4-6 hours PRN', children: '1-2 puffs every 4-6 hours PRN (with spacer)' }
-  },
-  { 
-    id: 'DRG-005', 
-    name: 'Diazepam 5mg', 
-    category: 'Psychotropics', 
-    currentStock: 200, 
-    minThreshold: 100, 
-    price: 3.00,
-    expiryDate: '2029-05-15',
-    consumptionVelocity: 10,
-    drugType: 'Tablet',
-    manufacturer: 'NeuroPharma',
-    genericName: 'Diazepam',
-    isControlledDrug: true, // Controlled
-    indications: 'Severe anxiety, muscle spasms, alcohol withdrawal.',
-    sideEffects: 'Drowsiness, fatigue, muscle weakness, dependence.',
-    suggestedDosage: { adults: '1 tablet 2-4 times daily', children: 'Contraindicated unless directed by specialist' }
-  }
-];
-
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 export function InventoryProvider({ children }: { children: ReactNode }) {
-  const [catalog, setCatalog] = useState<DrugItem[]>(DEFAULT_CATALOG);
+  const [catalog, setCatalog] = useState<DrugItem[]>([]);
   const [logs, setLogs] = useState<InventoryLog[]>([]);
+  const { user } = useAuth();
 
-  const addDrug = (drugData: Omit<DrugItem, 'id'>) => {
-    const newDrug: DrugItem = {
-      id: `M${Math.floor(Math.random() * 900) + 100}`,
-      ...drugData
+  const fetchInventory = async () => {
+    const { data: invData, error: invErr } = await supabase.from('inventory').select('*, drug_batches(*)');
+    if (invData && !invErr) {
+      const mapped = invData.map((d: any) => ({
+        id: d.id,
+        name: d.drug_name,
+        category: d.category,
+        currentStock: d.stock_level,
+        minThreshold: d.min_threshold,
+        price: Number(d.price),
+        expiryDate: d.expiry_date,
+        drugType: d.drug_type,
+        manufacturer: d.manufacturer,
+        genericName: d.generic_name,
+        isControlledDrug: d.is_controlled_drug,
+        indications: d.indications,
+        sideEffects: d.side_effects,
+        suggestedDosage: d.suggested_dosage,
+        batches: d.drug_batches?.map((b: any) => ({
+          id: b.id,
+          batchId: b.batch_number,
+          stock: b.stock_level,
+          expiryDate: b.expiry_date
+        })) || []
+      }));
+      setCatalog(mapped);
+    }
+  };
+
+  const fetchLogs = async () => {
+    const { data, error } = await supabase.from('inventory_logs').select('*, inventory(drug_name)').order('created_at', { ascending: false });
+    if (data && !error) {
+      setLogs(data.map((l: any) => ({
+        id: l.id,
+        date: l.created_at,
+        drugId: l.inventory_id,
+        drugName: l.inventory?.drug_name || 'Unknown',
+        type: l.type as any,
+        amount: l.amount,
+        reason: l.reason
+      })));
+    }
+  };
+
+  useEffect(() => {
+    fetchInventory();
+    fetchLogs();
+
+    const channel = supabase.channel('inventory_sync_' + Math.random().toString(36).substring(2, 9))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchInventory)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'drug_batches' }, fetchInventory)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, fetchLogs)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-    setCatalog(prev => [...prev, newDrug]);
+  }, []);
+
+  const addDrug = async (drugData: Omit<DrugItem, 'id'>) => {
+    try {
+      await supabase.from('inventory').insert([{
+        drug_name: drugData.name,
+        category: drugData.category,
+        stock_level: drugData.currentStock || 0,
+        min_threshold: drugData.minThreshold,
+        price: drugData.price,
+        drug_type: drugData.drugType,
+        manufacturer: drugData.manufacturer,
+        generic_name: drugData.genericName,
+        is_controlled_drug: drugData.isControlledDrug,
+        indications: drugData.indications,
+        side_effects: drugData.sideEffects,
+        suggested_dosage: drugData.suggestedDosage,
+        expiry_date: drugData.expiryDate
+      }]);
+    } catch (err) {
+      console.error('Add drug error', err);
+    }
   };
 
-  const restockDrug = (id: string, amount: number) => {
-    setCatalog(prev => prev.map(drug => 
-      drug.id === id ? { ...drug, currentStock: drug.currentStock + amount } : drug
-    ));
+  const restockDrug = async (id: string, amount: number, expiryDate?: string) => {
+    const drug = catalog.find(d => d.id === id);
+    if (!drug) return;
+    
+    const newBatchId = `B-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+    const newExpiry = expiryDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    try {
+      await supabase.from('drug_batches').insert([{
+        inventory_id: id,
+        batch_number: newBatchId,
+        stock_level: amount,
+        expiry_date: newExpiry
+      }]);
+
+      await supabase.from('inventory').update({
+        stock_level: drug.currentStock + amount
+      }).eq('id', id);
+
+      await supabase.from('inventory_logs').insert([{
+        inventory_id: id,
+        user_id: user?.id,
+        type: 'Restock',
+        amount: amount,
+        reason: `Batch ${newBatchId} received`
+      }]);
+    } catch (err) {
+      console.error('Restock error', err);
+    }
   };
 
-  const deleteDrug = (id: string) => {
-    setCatalog(prev => prev.filter(drug => drug.id !== id));
+  const deleteDrug = async (id: string) => {
+    try {
+      await supabase.from('inventory').delete().eq('id', id);
+    } catch (err) {
+      console.error('Delete error', err);
+    }
   };
 
-  const dispenseDrug = (drugName: string, quantity: number) => {
-    let matchedDrug: DrugItem | undefined;
-    setCatalog(prev => prev.map(drug => {
-      const isMatch = drug.name.toLowerCase().includes(drugName.toLowerCase()) || 
-                      drugName.toLowerCase().includes(drug.name.toLowerCase());
+  const processFIFODeduction = async (drug: DrugItem, quantityToDeduct: number, reason: string, logType: string) => {
+    if (!drug.batches || drug.batches.length === 0) {
+      // Just deduct main stock
+      await supabase.from('inventory').update({
+        stock_level: Math.max(0, drug.currentStock - quantityToDeduct)
+      }).eq('id', drug.id);
       
-      if (isMatch) {
-        matchedDrug = drug;
-        return { ...drug, currentStock: Math.max(0, drug.currentStock - quantity) };
+      await supabase.from('inventory_logs').insert([{
+        inventory_id: drug.id,
+        user_id: user?.id,
+        type: logType,
+        amount: quantityToDeduct,
+        reason: reason
+      }]);
+      return;
+    }
+
+    let remaining = quantityToDeduct;
+    const sortedBatches = [...drug.batches].sort((a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
+    
+    for (const batch of sortedBatches) {
+      if (remaining <= 0) break;
+      
+      if (batch.stock > 0) {
+        const deductFromBatch = Math.min(batch.stock, remaining);
+        remaining -= deductFromBatch;
+        
+        // Update this batch in Supabase
+        await supabase.from('drug_batches').update({
+          stock_level: batch.stock - deductFromBatch
+        }).eq('id', batch.id);
       }
-      return drug;
-    }));
+    }
+
+    // Update main stock
+    await supabase.from('inventory').update({
+      stock_level: Math.max(0, drug.currentStock - quantityToDeduct)
+    }).eq('id', drug.id);
+
+    // Add log
+    await supabase.from('inventory_logs').insert([{
+      inventory_id: drug.id,
+      user_id: user?.id,
+      type: logType,
+      amount: quantityToDeduct,
+      reason: reason
+    }]);
+  };
+
+  const dispenseDrug = async (drugName: string, quantity: number) => {
+    const matchedDrug = catalog.find(drug => 
+      drug.name.toLowerCase().includes(drugName.toLowerCase()) || 
+      drugName.toLowerCase().includes(drug.name.toLowerCase())
+    );
 
     if (matchedDrug) {
-      setLogs(prev => [{
-        id: `L${Date.now()}`,
-        date: new Date().toISOString().split('T')[0],
-        drugId: matchedDrug!.id,
-        drugName: matchedDrug!.name,
-        type: 'Dispensed',
-        amount: quantity,
-        reason: 'Patient Prescription'
-      }, ...prev]);
+      await processFIFODeduction(matchedDrug, quantity, 'Patient Prescription', 'Dispensed');
     }
   };
 
-  const logDeduction = (id: string, amount: number, reason: string, type: 'Disposal' | 'Internal Use') => {
-    let drugName = '';
-    setCatalog(prev => prev.map(drug => {
-      if (drug.id === id) {
-        drugName = drug.name;
-        return { ...drug, currentStock: Math.max(0, drug.currentStock - amount) };
-      }
-      return drug;
-    }));
-
-    if (drugName) {
-      setLogs(prev => [{
-        id: `L${Date.now()}`,
-        date: new Date().toISOString().split('T')[0],
-        drugId: id,
-        drugName,
-        type,
-        amount,
-        reason
-      }, ...prev]);
-    }
+  const disposeDrug = async (id: string, amount: number, reason: string) => {
+    const drug = catalog.find(d => d.id === id);
+    if (drug) await processFIFODeduction(drug, amount, reason, 'Disposal');
   };
 
-  const disposeDrug = (id: string, amount: number, reason: string) => {
-    logDeduction(id, amount, reason, 'Disposal');
-  };
-
-  const useDrugInternally = (id: string, amount: number, reason: string) => {
-    logDeduction(id, amount, reason, 'Internal Use');
+  const useDrugInternally = async (id: string, amount: number, reason: string) => {
+    const drug = catalog.find(d => d.id === id);
+    if (drug) await processFIFODeduction(drug, amount, reason, 'Internal Use');
   };
 
   return (
-    <InventoryContext.Provider value={{ catalog, logs, addDrug, restockDrug, deleteDrug, dispenseDrug, disposeDrug, useDrugInternally }}>
+    <InventoryContext.Provider value={{ catalog, inventory: catalog, logs, addDrug, restockDrug, deleteDrug, dispenseDrug, disposeDrug, useDrugInternally }}>
       {children}
     </InventoryContext.Provider>
   );

@@ -3,16 +3,20 @@ import {
   Patient, Visit, ICD10Code, PrescriptionItem, Language 
 } from '../types';
 import { 
-  DRUG_CATALOG, ICD10_CATALOG, PREVIOUS_VISITS, TRANSLATIONS 
+  TRANSLATIONS 
 } from '../data';
+import { useInventory } from '../context/InventoryContext';
+import { useAuxiliary } from '../context/AuxiliaryContext';
+import { supabase } from '../lib/supabase';
 import { 
   History, Stethoscope, Activity, ClipboardList, Pill, Plus, Trash2, 
   AlertTriangle, Check, FileText, Printer, Clock, Heart, Thermometer, Info, ChevronRight, UserMinus,
-  Mic, MicOff, Bluetooth, Zap, Sparkles, TrendingUp, Brain, CheckCircle2
+  Mic, MicOff, Bluetooth, Zap, Eye, TrendingUp, Brain, CheckCircle2, TestTube, Share, LineChart, Copy
 } from 'lucide-react';
 
 interface ConsultationRoomProps {
   currentPatient: Patient | null;
+  activeVisit?: Visit | null;
   activeLanguage: Language;
   onConsultationComplete: (soapData: any, issueMc: boolean, mcDuration: number) => void;
   onCancel: () => void;
@@ -20,12 +24,15 @@ interface ConsultationRoomProps {
 
 export default function ConsultationRoom({
   currentPatient,
+  activeVisit,
   activeLanguage,
   onConsultationComplete,
   onCancel
 }: ConsultationRoomProps) {
   // Translate labels
   const t = TRANSLATIONS[activeLanguage];
+  const { inventory } = useInventory();
+  const { icd10Catalog } = useAuxiliary();
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'subjective' | 'objective' | 'assessment' | 'plan'>('subjective');
@@ -45,6 +52,70 @@ export default function ConsultationRoom({
     respiratoryRate: 16
   });
 
+  // Pre-fill vitals and chief complaint from initial triage registration
+  useEffect(() => {
+    if (activeVisit?.soap) {
+      if (activeVisit.soap.subjective) setSubjective(activeVisit.soap.subjective);
+      if (activeVisit.soap.objective) {
+        setVitals({
+          bpSystolic: activeVisit.soap.objective.bpSystolic || 120,
+          bpDiastolic: activeVisit.soap.objective.bpDiastolic || 80,
+          heartRate: activeVisit.soap.objective.heartRate || 72,
+          temperature: activeVisit.soap.objective.temperature || 36.8,
+          respiratoryRate: activeVisit.soap.objective.respiratoryRate || 16
+        });
+      }
+    }
+  }, [activeVisit]);
+
+  // Automated Vitals Abnormality Helper
+  const getVitalsAbnormalities = () => {
+    const alerts: { label: string; value: string; isHigh: boolean; type: string }[] = [];
+    if (vitals.temperature >= 37.5) {
+      alerts.push({
+        label: vitals.temperature >= 38.5 ? '⚠️ High Fever' : '⚠️ Mild Fever',
+        value: `${vitals.temperature}°C`,
+        isHigh: true,
+        type: 'temp'
+      });
+    }
+    if (vitals.bpSystolic >= 130 || vitals.bpDiastolic >= 85) {
+      alerts.push({
+        label: vitals.bpSystolic >= 140 || vitals.bpDiastolic >= 90 ? '⚠️ Stage 2 HTN' : '⚠️ Elevated BP',
+        value: `${vitals.bpSystolic}/${vitals.bpDiastolic} mmHg`,
+        isHigh: true,
+        type: 'bp'
+      });
+    }
+    if (vitals.heartRate >= 100) {
+      alerts.push({
+        label: '⚠️ Tachycardia',
+        value: `${vitals.heartRate} bpm`,
+        isHigh: true,
+        type: 'hr'
+      });
+    } else if (vitals.heartRate > 0 && vitals.heartRate < 60) {
+      alerts.push({
+        label: '⚠️ Bradycardia',
+        value: `${vitals.heartRate} bpm`,
+        isHigh: false,
+        type: 'hr'
+      });
+    }
+    if (vitals.respiratoryRate >= 20) {
+      alerts.push({
+        label: '⚠️ Tachypnea',
+        value: `${vitals.respiratoryRate} bpm`,
+        isHigh: true,
+        type: 'rr'
+      });
+    }
+    return alerts;
+  };
+
+  const vitalsAlerts = getVitalsAbnormalities();
+
+
   // Assessment State
   const [searchICDQuery, setSearchICDQuery] = useState('');
   const [selectedICD, setSelectedICD] = useState<ICD10Code | null>(null);
@@ -58,10 +129,11 @@ export default function ConsultationRoom({
   
   // Drug Alerts & Conflicts State
   const [allergyAlerts, setAllergyAlerts] = useState<{ drugName: string; allergyGroup: string }[]>([]);
+  const [contraindicationAlerts, setContraindicationAlerts] = useState<{ drugName: string; icdCode: string; reason: string }[]>([]);
 
   // MC Generator
   const [isMcModalOpen, setIsMcModalOpen] = useState(false);
-  const [mcDays, setMcDays] = useState(1);
+  const [mcDays, setMcDays] = useState<number | ''>(1);
   const [mcReferenceNo, setMcReferenceNo] = useState('');
   const [mcGenerated, setMcGenerated] = useState(false);
 
@@ -69,8 +141,52 @@ export default function ConsultationRoom({
   const [isListening, setIsListening] = useState(false);
   const [isSyncingVitals, setIsSyncingVitals] = useState(false);
 
+  // Pharmacy Memo
+  const [pharmacyMemo, setPharmacyMemo] = useState('');
+
+  // Referral State
+  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+  const [referralDetails, setReferralDetails] = useState({
+    hospital: '',
+    department: '',
+    reason: ''
+  });
+  const [referralGenerated, setReferralGenerated] = useState(false);
+
+  // Pediatric Calc State
+  const [patientWeight, setPatientWeight] = useState('');
+  const [medConcentration, setMedConcentration] = useState('');
+  const [calculatedDose, setCalculatedDose] = useState<number | null>(null);
+
+  // function for pediatric calculator
+  useEffect(() => {
+    const weight = parseFloat(patientWeight);
+    const conc = parseFloat(medConcentration);
+    if (weight > 0 && conc > 0) {
+      // standard formula e.g. 15mg/kg/dose for paracetamol
+      const doseMg = weight * 15;
+      const volumeMl = doseMg / conc;
+      setCalculatedDose(volumeMl);
+    } else {
+      setCalculatedDose(null);
+    }
+  }, [patientWeight, medConcentration]);
+
   // Populate longitudinal history for active patient
-  const patientPastVisits = PREVIOUS_VISITS.filter(v => v.patientId === currentPatient?.id);
+  const [patientPastVisits, setPatientPastVisits] = useState<Visit[]>([]);
+
+  useEffect(() => {
+    if (currentPatient) {
+      supabase.from('visits')
+        .select('*')
+        .eq('patientId', currentPatient.id)
+        .neq('status', 'Consultation')
+        .order('createdAt', { ascending: false })
+        .then(({ data }) => {
+          if (data) setPatientPastVisits(data as any[]);
+        });
+    }
+  }, [currentPatient]);
 
   // Quick complain suggestions
   const complainTemplateList = [
@@ -84,27 +200,25 @@ export default function ConsultationRoom({
   useEffect(() => {
     if (searchICDQuery.trim() === '') {
       setIcdSuggestions([]);
-    } else {
-      const query = searchICDQuery.toLowerCase();
-      const filtered = ICD10_CATALOG.filter(
-        i => i.code.toLowerCase().includes(query) || i.desc.toLowerCase().includes(query)
+    } else if (searchICDQuery.trim().length > 1) {
+      const filtered = icd10Catalog.filter(
+        (i) => i.code.toLowerCase().includes(searchICDQuery.toLowerCase()) || i.desc.toLowerCase().includes(searchICDQuery.toLowerCase())
       );
       setIcdSuggestions(filtered);
     }
-  }, [searchICDQuery]);
+  }, [searchICDQuery, icd10Catalog]);
 
   // Filter Drug Suggestions
   useEffect(() => {
     if (searchDrugQuery.trim() === '') {
       setDrugSuggestions([]);
-    } else {
-      const query = searchDrugQuery.toLowerCase();
-      const filtered = DRUG_CATALOG.filter(
-        d => d.name.toLowerCase().includes(query) || d.category.toLowerCase().includes(query)
+    } else if (searchDrugQuery.trim().length > 1) {
+      const filtered = inventory.filter(
+        (d) => d.name.toLowerCase().includes(searchDrugQuery.toLowerCase()) && d.currentStock > 0
       );
       setDrugSuggestions(filtered);
     }
-  }, [searchDrugQuery]);
+  }, [searchDrugQuery, inventory]);
 
   // Check Allergies whenever RX list updates
   useEffect(() => {
@@ -112,11 +226,11 @@ export default function ConsultationRoom({
     const alerts: { drugName: string; allergyGroup: string }[] = [];
     
     rxList.forEach(rx => {
-      // Find matching drug in catalog to inspect its allergyGroup
-      const catalogDrug = DRUG_CATALOG.find(d => d.name === rx.drugName);
+      // Find matching drug in catalog to inspect
+      const catalogDrug = inventory.find(d => d.name === rx.drugName);
       if (catalogDrug && catalogDrug.allergyGroup !== 'None') {
         // Is the patient allergic to this group?
-        const isAllergic = currentPatient.drugAllergies.some(
+        const isAllergic = catalogDrug.allergyGroup !== 'None' && currentPatient.drugAllergies.some(
           allergy => allergy.toLowerCase() === catalogDrug.allergyGroup.toLowerCase() ||
                     catalogDrug.allergyGroup.toLowerCase().includes(allergy.toLowerCase()) ||
                     allergy.toLowerCase().includes(catalogDrug.allergyGroup.toLowerCase())
@@ -131,11 +245,72 @@ export default function ConsultationRoom({
     });
 
     setAllergyAlerts(alerts);
-  }, [rxList, currentPatient]);
+  }, [rxList, currentPatient, inventory]);
+
+  // Check Drug-Disease Contraindications whenever rxList or selectedICD changes
+  useEffect(() => {
+    const alerts: { drugName: string; icdCode: string; reason: string }[] = [];
+    if (!selectedICD) {
+      setContraindicationAlerts([]);
+      return;
+    }
+
+    const icdCodeUpper = selectedICD.code.toUpperCase();
+
+    rxList.forEach(rx => {
+      const drugLower = rx.drugName.toLowerCase();
+
+      // Rule 1: Gastritis / Peptic Ulcer (K30, K29, K27) vs NSAIDs / Painkillers
+      if (icdCodeUpper.startsWith('K30') || icdCodeUpper.startsWith('K29') || icdCodeUpper.startsWith('K27')) {
+        if (drugLower.includes('ibuprofen') || drugLower.includes('diclofenac') || drugLower.includes('mefenamic') || drugLower.includes('aspirin') || drugLower.includes('naproxen') || drugLower.includes('ponstan') || drugLower.includes('voltaren')) {
+          alerts.push({
+            drugName: rx.drugName,
+            icdCode: selectedICD.code,
+            reason: `NSAIDs cause gastric mucosal erosion and risk ulceration in Gastritis (${selectedICD.code}).`
+          });
+        }
+      }
+
+      // Rule 2: Asthma (J45, J44) vs Beta-blockers
+      if (icdCodeUpper.startsWith('J45') || icdCodeUpper.startsWith('J44')) {
+        if (drugLower.includes('propranolol') || drugLower.includes('atenolol') || drugLower.includes('carvedilol') || drugLower.includes('metoprolol')) {
+          alerts.push({
+            drugName: rx.drugName,
+            icdCode: selectedICD.code,
+            reason: `Beta-blockers induce bronchospasm in Asthmatic conditions (${selectedICD.code}).`
+          });
+        }
+      }
+
+      // Rule 3: Essential Hypertension (I10) vs Decongestants / Pseudoephedrine
+      if (icdCodeUpper.startsWith('I10')) {
+        if (drugLower.includes('pseudoephedrine') || drugLower.includes('phenylephrine') || drugLower.includes('actifed') || drugLower.includes('decongestant')) {
+          alerts.push({
+            drugName: rx.drugName,
+            icdCode: selectedICD.code,
+            reason: `Sympathomimetic decongestants cause arterial vasoconstriction & BP elevation in Hypertension (${selectedICD.code}).`
+          });
+        }
+      }
+
+      // Rule 4: Diabetes (E11) vs High Corticosteroids
+      if (icdCodeUpper.startsWith('E11')) {
+        if (drugLower.includes('dexamethasone') || drugLower.includes('prednisolone') || drugLower.includes('cortisone')) {
+          alerts.push({
+            drugName: rx.drugName,
+            icdCode: selectedICD.code,
+            reason: `Systemic corticosteroids induce severe hyperglycemia in Type 2 Diabetes (${selectedICD.code}).`
+          });
+        }
+      }
+    });
+
+    setContraindicationAlerts(alerts);
+  }, [rxList, selectedICD]);
 
   if (!currentPatient) {
     return (
-      <div className="bg-white p-12 text-center rounded-xl border border-slate-200">
+      <div className="bg-white p-12 text-center rounded-lg border border-slate-200">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-slate-800">No Patient Loaded</h3>
         <p className="text-slate-500 text-xs mt-1">Please select or register a patient from the patient Registration screen first.</p>
@@ -213,13 +388,41 @@ export default function ConsultationRoom({
       plan: {
         prescription: rxList,
         followUpWeeks: 1,
-        mcDays: mcGenerated ? mcDays : 0,
-        requiresReferral: false
+        mcDays: mcGenerated ? (parseInt(mcDays.toString()) || 1) : 0,
+        requiresReferral: referralGenerated,
+        pharmacyMemo: pharmacyMemo,
+        referralDetails: referralGenerated ? referralDetails : undefined
       }
     };
 
-    onConsultationComplete(soapData, mcGenerated, mcDays);
+    onConsultationComplete(soapData, mcGenerated, parseInt(mcDays.toString()) || 1);
   };
+
+  // SOAP Step Completion Progress
+  const soapSteps = [
+    { key: 'subjective', step: '1', title: 'Subjective', isDone: subjective.trim().length > 0 },
+    { key: 'objective', step: '2', title: 'Objective', isDone: vitals.temperature > 0 },
+    { key: 'assessment', step: '3', title: 'Assessment', isDone: selectedICD !== null },
+    { key: 'plan', step: '4', title: 'Plan (Rx)', isDone: rxList.length > 0 || (clinicalNotes && clinicalNotes.trim().length > 0) }
+  ];
+  const completedStepsCount = soapSteps.filter(s => s.isDone).length;
+  const soapProgressPercent = Math.round((completedStepsCount / 4) * 100);
+
+  // Keyboard Hotkeys: Alt+1..4 for tabs, Ctrl+Enter to submit
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && e.key === '1') { e.preventDefault(); setActiveTab('subjective'); }
+      if (e.altKey && e.key === '2') { e.preventDefault(); setActiveTab('objective'); }
+      if (e.altKey && e.key === '3') { e.preventDefault(); setActiveTab('assessment'); }
+      if (e.altKey && e.key === '4') { e.preventDefault(); setActiveTab('plan'); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleSubmitConsultation();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [subjective, vitals, selectedICD, clinicalNotes, rxList, activeLanguage]);
 
   // --- Next-Gen Feature Handlers ---
   const handleVoiceToText = () => {
@@ -252,41 +455,105 @@ export default function ConsultationRoom({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[500px]">
+    <div className="space-y-4 pb-24 relative animate-fadeIn">
       
-      {/* LEFT COLUMN: Patient Profile Brief & Longitudinal History (35%) */}
-      <div className="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col space-y-4">
+      {/* 📊 1. VISUAL 4-STEP SOAP PROGRESS INDICATOR BAR */}
+      <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 border-l-4 border-l-[#0D9488]">
+        <div className="flex items-center gap-3">
+          <span className="bg-[#0D9488]/10 text-[#0D9488] text-[11px] font-black uppercase px-3 py-1 rounded-full tracking-wider font-mono flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5" />
+            SOAP Progress: {completedStepsCount}/4 ({soapProgressPercent}%)
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
+            Shortcuts: <kbd className="bg-slate-100 border px-1 py-0.5 rounded text-slate-600 font-bold">Alt+1..4</kbd> Switch Tabs | <kbd className="bg-slate-100 border px-1 py-0.5 rounded text-slate-600 font-bold">Ctrl+Enter</kbd> Submit
+          </span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-1 sm:gap-2 flex-1 max-w-xl">
+          {soapSteps.map((stepItem) => {
+            const isActive = activeTab === stepItem.key;
+            return (
+              <button
+                key={stepItem.key}
+                type="button"
+                onClick={() => setActiveTab(stepItem.key as any)}
+                className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                  isActive
+                    ? 'bg-[#0D9488] text-white border-[#0D9488] shadow-xs'
+                    : stepItem.isDone
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                    : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                {stepItem.isDone ? (
+                  <CheckCircle2 className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                ) : (
+                  <span className={`w-4 h-4 rounded-full text-[9px] font-mono flex items-center justify-center font-bold ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
+                  }`}>
+                    {stepItem.step}
+                  </span>
+                )}
+                <span className="truncate">{stepItem.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* MAIN CONTENT GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[500px]">
         
-        {/* Dynamic Patient Card Info */}
-        <div className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between mb-2">
-            <span id="patient-banner-status" className="bg-[#07B2B2]/10 text-[#07B2B2] text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full">
-              In-Consultation
-            </span>
-            <span className="text-[10px] text-slate-400 font-mono">ID: {currentPatient.id}</span>
-          </div>
-          <h4 id="consultation-patient-name" className="text-sm font-semibold text-slate-800 uppercase tracking-tight">{currentPatient.fullName}</h4>
+        {/* LEFT COLUMN: Patient Profile Brief & Longitudinal History (35%) */}
+        <div className="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col space-y-4">
           
-          <div className="grid grid-cols-2 gap-2 mt-2.5 text-xs text-slate-600">
-            <div>
-              <span className="text-slate-400 text-[10px] block uppercase">MyKad IC</span>
-              <strong className="font-mono text-slate-700">{currentPatient.icNumber}</strong>
+          {/* Dynamic Patient Card Info */}
+          <div className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <span id="patient-banner-status" className="bg-[#07B2B2]/10 text-[#07B2B2] text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full">
+                In-Consultation
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">ID: {currentPatient.id}</span>
             </div>
-            <div>
-              <span className="text-slate-400 text-[10px] block uppercase">{t.gender}</span>
-              <strong className="text-slate-700">{currentPatient.gender === 'Male' ? t.male : t.female}</strong>
+            <h4 id="consultation-patient-name" className="text-sm font-semibold text-slate-800 uppercase tracking-tight">{currentPatient.fullName}</h4>
+            
+            <div className="grid grid-cols-2 gap-2 mt-2.5 text-xs text-slate-600">
+              <div>
+                <span className="text-slate-400 text-[10px] block uppercase">MyKad IC</span>
+                <strong className="font-mono text-slate-700">{currentPatient.icNumber}</strong>
+              </div>
+              <div>
+                <span className="text-slate-400 text-[10px] block uppercase">{t.gender}</span>
+                <strong className="text-slate-700">{currentPatient.gender === 'Male' ? t.male : t.female}</strong>
+              </div>
+              <div>
+                <span className="text-slate-400 text-[10px] block uppercase">{t.panelEmployer}</span>
+                <strong className="text-[#07B2B2] truncate block max-w-[120px]" title={currentPatient.panelEmployer}>
+                  {currentPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : currentPatient.panelEmployer}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-400 text-[10px] block uppercase">Date of Birth</span>
+                <strong className="font-mono text-slate-700">{currentPatient.dob}</strong>
+              </div>
             </div>
-            <div>
-              <span className="text-slate-400 text-[10px] block uppercase">{t.panelEmployer}</span>
-              <strong className="text-[#07B2B2] truncate block max-w-[120px]" title={currentPatient.panelEmployer}>
-                {currentPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : currentPatient.panelEmployer}
-              </strong>
-            </div>
-            <div>
-              <span className="text-slate-400 text-[10px] block uppercase">Date of Birth</span>
-              <strong className="font-mono text-slate-700">{currentPatient.dob}</strong>
-            </div>
-          </div>
+
+            {/* 🩸 2. AUTOMATED VITALS ABNORMALITY HIGHLIGHTING IN PATIENT CARD */}
+            {vitalsAlerts.length > 0 && (
+              <div className="mt-3 pt-2.5 border-t border-amber-200 bg-amber-50/70 p-2.5 rounded-lg">
+                <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-amber-600" />
+                  Triage Vitals Alert ({vitalsAlerts.length})
+                </span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {vitalsAlerts.map((alert, idx) => (
+                    <span key={idx} className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                      {alert.label}: <strong className="font-mono text-amber-950">{alert.value}</strong>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
           {/* High-contrast Red Drug Allergy alerts inside patient card */}
           {currentPatient.drugAllergies.length > 0 ? (
@@ -412,7 +679,7 @@ export default function ConsultationRoom({
       </div>
 
       {/* RIGHT COLUMN: Dense SOAP Notes Module & Form Area (65%) */}
-      <div className="lg:col-span-8 bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between">
+      <div className="lg:col-span-8 bg-white border border-slate-200 rounded-lg p-4 flex flex-col justify-between">
         
         <div>
           {/* Section banner name */}
@@ -421,13 +688,13 @@ export default function ConsultationRoom({
               <Stethoscope className="w-4 h-4 text-emerald-600" />
               {t.consultationRoom}
             </h3>
-            <span className="text-[11px] bg-sky-50 text-sky-800 border border-sky-200 px-2.5 py-0.5 rounded font-mono">
+            <span className="text-[11px] bg-sky-50 text-sky-800 border border-sky-200 px-2.5 py-0.5 rounded font-mono shadow-sm">
               ICD-10 Diagnostic Class Enabled
             </span>
           </div>
 
           {/* SOAP Tabs Navigation */}
-          <div className="flex border-b border-slate-200 mb-4 bg-slate-50 p-1.5 rounded-lg gap-1">
+          <div className="flex border-b border-slate-200 mb-4 bg-slate-50 p-1.5 rounded-lg gap-1 shadow-inner">
             <button
               type="button"
               onClick={() => setActiveTab('subjective')}
@@ -489,17 +756,30 @@ export default function ConsultationRoom({
             <div className="space-y-4 animate-fadeIn">
               <div className="flex justify-between items-center">
                 <p className="text-xs text-slate-500 font-semibold">Record patient complaints, symptoms, and medical history.</p>
-                <button 
-                  onClick={handleVoiceToText}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
-                    isListening 
-                      ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' 
-                      : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 cursor-pointer'
-                  }`}
-                >
-                  {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                  {isListening ? 'AI Listening...' : 'AI Voice Dictation'}
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => {
+                      if(patientPastVisits.length > 0) {
+                        setSubjective(patientPastVisits[0].soap.subjective);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    Copy Previous
+                  </button>
+                  <button 
+                    onClick={handleVoiceToText}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
+                      isListening 
+                        ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' 
+                        : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 cursor-pointer'
+                    }`}
+                  >
+                    {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                    {isListening ? 'AI Listening...' : 'AI Voice Dictation'}
+                  </button>
+                </div>
               </div>
               <textarea
                 id="soap-subjective-input"
@@ -535,19 +815,50 @@ export default function ConsultationRoom({
             <div className="space-y-5 animate-fadeIn">
               <div className="flex justify-between items-center">
                 <p className="text-xs text-slate-500 font-semibold">Record physical examination and vital signs.</p>
-                <button 
-                  onClick={handleSyncVitals}
-                  disabled={isSyncingVitals}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
-                    isSyncingVitals 
-                      ? 'bg-blue-50 text-blue-500 border-blue-200 animate-pulse' 
-                      : 'bg-[#07B2B2]/10 text-[#07B2B2] border-cyan-200 hover:bg-[#07B2B2]/20 cursor-pointer'
-                  }`}
-                >
-                  <Bluetooth className="w-3.5 h-3.5" />
-                  {isSyncingVitals ? 'Syncing Hardware...' : 'Sync IoT Vitals'}
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => {
+                      if(patientPastVisits.length > 0) {
+                        setVitals(patientPastVisits[0].soap.objective);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    Copy Previous
+                  </button>
+                  <button 
+                    onClick={handleSyncVitals}
+                    disabled={isSyncingVitals}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
+                      isSyncingVitals 
+                        ? 'bg-blue-50 text-blue-500 border-blue-200 animate-pulse' 
+                        : 'bg-[#07B2B2]/10 text-[#07B2B2] border-cyan-200 hover:bg-[#07B2B2]/20 cursor-pointer'
+                    }`}
+                  >
+                    <Bluetooth className="w-3.5 h-3.5" />
+                    {isSyncingVitals ? 'Syncing Hardware...' : 'Sync IoT Vitals'}
+                  </button>
+                </div>
               </div>
+
+              {/* Vitals Trending Sparkline */}
+              {patientPastVisits.length > 1 && (
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-200 flex items-center justify-between shadow-inner">
+                  <div className="flex items-center gap-2">
+                    <LineChart className="w-4 h-4 text-slate-400" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">BP Trend (Last 3 Visits)</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {patientPastVisits.slice(0,3).map((v, i) => (
+                      <div key={i} className="flex flex-col items-center">
+                        <span className="text-[9px] text-slate-400 font-mono">{v.date.substring(5)}</span>
+                        <span className="text-xs font-bold text-slate-700">{v.soap.objective.bpSystolic}/{v.soap.objective.bpDiastolic}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
@@ -641,7 +952,7 @@ export default function ConsultationRoom({
               </div>
 
               {/* IoT Medical Device Telemetry */}
-              <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm mt-4">
+              <div className="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-sm mt-4">
                 <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                   <Activity className="w-4 h-4" />
                   IoT Medical Device Network
@@ -675,7 +986,7 @@ export default function ConsultationRoom({
               </div>
 
               {/* AR Medical Imaging Support */}
-              <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-200 shadow-sm mt-4">
+              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm mt-4">
                 <h4 className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-2 flex items-center gap-2">
                   <Brain className="w-4 h-4" />
                   Augmented Reality (AR) Overlay
@@ -685,7 +996,7 @@ export default function ConsultationRoom({
                 </p>
                 <div className="flex gap-2">
                   <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-colors flex items-center gap-1 shadow-sm">
-                    <Sparkles className="w-3 h-3" />
+                    <Eye className="w-3 h-3" />
                     Launch AR View (HoloLens)
                   </button>
                   <button className="bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded text-[10px] font-bold transition-colors shadow-sm">
@@ -700,9 +1011,16 @@ export default function ConsultationRoom({
           {activeTab === 'assessment' && (
             <div className="space-y-4 animate-fadeIn">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-tight mb-1">
-                  {t.icd10Search} <span className="text-red-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-tight">
+                    {t.icd10Search} <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    <button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='J06.9')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">URTI (J06.9)</button>
+                    <button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='I10')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">HTN (I10)</button>
+                    <button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='E11.9')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">T2DM (E11.9)</button>
+                  </div>
+                </div>
                 <div className="relative">
                   <input
                     type="text"
@@ -808,6 +1126,41 @@ export default function ConsultationRoom({
                 </div>
               ) : null}
 
+              {/* PEDIATRIC DOSAGE CALCULATOR */}
+              <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
+                <h4 className="text-[10px] font-bold text-blue-800 uppercase flex items-center gap-1.5 mb-2">
+                  <Activity className="w-3.5 h-3.5" /> Pediatric Dosage Calculator (Paracetamol 15mg/kg)
+                </h4>
+                <div className="grid grid-cols-3 gap-3 items-end">
+                  <div>
+                    <label className="block text-[10px] text-slate-500 uppercase">Weight (kg)</label>
+                    <input 
+                      type="number" 
+                      className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none"
+                      value={patientWeight}
+                      onChange={e => setPatientWeight(e.target.value)}
+                      placeholder="e.g. 15"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-slate-500 uppercase">Concentration (mg/ml)</label>
+                    <input 
+                      type="number" 
+                      className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none"
+                      value={medConcentration}
+                      onChange={e => setMedConcentration(e.target.value)}
+                      placeholder="e.g. 250"
+                    />
+                  </div>
+                  <div className="bg-white px-3 py-1.5 rounded border border-blue-200 flex flex-col justify-center h-full">
+                    <span className="text-[9px] text-slate-400 uppercase leading-none mb-1">Calculated Dose</span>
+                    <span className="font-mono font-bold text-blue-700 text-sm leading-none">
+                      {typeof calculatedDose === 'number' && !isNaN(calculatedDose) ? `${calculatedDose.toFixed(1)} ml` : '--'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Medicine prescription search bar */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-tight mb-1">
@@ -826,10 +1179,11 @@ export default function ConsultationRoom({
                   {drugSuggestions.length > 0 && (
                     <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 max-h-[160px] overflow-y-auto">
                       {drugSuggestions.map((item) => {
-                        const isConflict = currentPatient.drugAllergies.some(
+                        const isConflict = item.allergyGroup !== 'None' && currentPatient.drugAllergies.some(
                           a => a.toLowerCase() === item.allergyGroup.toLowerCase() ||
                                item.allergyGroup.toLowerCase().includes(a.toLowerCase())
                         );
+                        const price = typeof item.pricePerUnit === 'number' ? item.pricePerUnit : 0;
                         return (
                           <button
                             key={item.id}
@@ -845,7 +1199,7 @@ export default function ConsultationRoom({
                               {isConflict && (
                                 <span className="bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded text-[8px] uppercase">Allergy Conflict</span>
                               )}
-                              <span className="font-mono text-[#07B2B2] font-bold">RM{item.pricePerUnit.toFixed(2)}</span>
+                              <span className="font-mono text-[#07B2B2] font-bold">RM{price.toFixed(2)}</span>
                             </div>
                           </button>
                         );
@@ -855,8 +1209,67 @@ export default function ConsultationRoom({
                 </div>
               </div>
 
+              {/* SMART DOSAGE QUICK-PILLS PRESET BAR */}
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+                    <Pill className="w-3.5 h-3.5 text-[#0D9488]" />
+                    Fast Preset Dosage Quick-Pills
+                  </span>
+                  <span className="text-[9px] text-slate-400">Click to apply to active prescription</span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[
+                    { label: '1 Tab BD (2x Daily)', freq: '1 Tab Twice Daily', en: 'Take 1 tablet twice a day after food', bm: 'Makan 1 biji 2 kali sehari selepas makan' },
+                    { label: '1 Cap TDS (3x Daily)', freq: '1 Cap 3x Daily', en: 'Take 1 capsule three times a day after food', bm: 'Makan 1 kapsul 3 kali sehari selepas makan' },
+                    { label: '1 Tab QDS (4x Daily)', freq: '1 Tab 4x Daily', en: 'Take 1 tablet four times a day', bm: 'Makan 1 biji 4 kali sehari' },
+                    { label: '1 Tab PRN (As Needed)', freq: '1 Tab PRN', en: 'Take 1 tablet when needed for pain/fever', bm: 'Makan 1 biji jika perlu bila sakit/demam' },
+                    { label: 'Take After Meals', freq: 'After Meals', en: 'Take after meals', bm: 'Makan selepas makan' }
+                  ].map((preset, pIdx) => (
+                    <button
+                      key={pIdx}
+                      type="button"
+                      onClick={() => {
+                        if (rxList.length > 0) {
+                          const updated = [...rxList];
+                          const lastIdx = updated.length - 1;
+                          updated[lastIdx] = {
+                            ...updated[lastIdx],
+                            frequency: preset.freq,
+                            dosage: preset.en,
+                            dosageBM: preset.bm
+                          };
+                          setRxList(updated);
+                        }
+                      }}
+                      className="text-[10px] font-bold bg-white hover:bg-[#0D9488] hover:text-white text-[#0D9488] px-2.5 py-1 rounded-md border border-teal-200 shadow-2xs transition-colors cursor-pointer"
+                    >
+                      + {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Currently Selected Prescription list */}
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
+              <div className="border border-slate-200 rounded-lg overflow-hidden space-y-0">
+                
+                {/* CLINICAL CONTRAINDICATION WARNING BANNER */}
+                {contraindicationAlerts.length > 0 && (
+                  <div className="bg-amber-50 border-b border-amber-200 p-3 space-y-1">
+                    <h5 className="text-xs font-extrabold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 animate-bounce-slow" />
+                      Drug-Disease Clinical Contraindication Alert ({contraindicationAlerts.length})
+                    </h5>
+                    <div className="space-y-1">
+                      {contraindicationAlerts.map((alert, idx) => (
+                        <p key={idx} className="text-[11px] text-amber-800 font-medium leading-relaxed">
+                          • <strong className="font-bold underline">{alert.drugName}</strong> vs Diagnosis <strong className="font-mono bg-amber-100 px-1 rounded text-amber-900 font-bold">{alert.icdCode}</strong>: {alert.reason}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <table className="w-full text-left border-collapse" id="prescription-builder-table">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
@@ -876,21 +1289,30 @@ export default function ConsultationRoom({
                       </tr>
                     ) : (
                       rxList.map((rx) => {
-                        const catalogDrugDef = DRUG_CATALOG.find(d => d.name === rx.drugName);
+                        const catalogDrugDef = inventory.find(d => d.name === rx.drugName);
+                        if (!catalogDrugDef) return null;
                         const hasConflict = catalogDrugDef && catalogDrugDef.allergyGroup !== 'None' && 
                           currentPatient.drugAllergies.some(a => a.toLowerCase() === catalogDrugDef.allergyGroup.toLowerCase());
+                        const isContraindicated = contraindicationAlerts.some(a => a.drugName === rx.drugName);
+                        const unitPrice = typeof rx.pricePerUnit === 'number' ? rx.pricePerUnit : (catalogDrugDef?.pricePerUnit || 0);
+                        const itemTotal = unitPrice * (rx.quantity || 1);
                         
                         return (
-                          <tr key={rx.id} className={`border-b text-xs border-slate-100 ${hasConflict ? 'bg-red-50/40' : ''}`}>
+                          <tr key={rx.id} className={`border-b text-xs border-slate-100 ${hasConflict ? 'bg-red-50/40' : isContraindicated ? 'bg-amber-50/40' : ''}`}>
                             <td className="px-3 py-2.5">
                               <span className="font-semibold text-slate-800 block">{rx.drugName}</span>
-                              <div className="flex items-center gap-1.5 mt-0.5">
+                              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                                 {/* Vector pill icon */}
                                 <span 
                                   className="w-2.5 h-2.5 rounded-full inline-block border border-slate-300"
                                   style={{ backgroundColor: rx.pillColor }}
                                 />
                                 <span className="text-[10px] text-slate-400">Batch Expiry: {rx.expiryDate}</span>
+                                {isContraindicated && (
+                                  <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider border border-amber-300 flex items-center gap-1">
+                                    <AlertTriangle className="w-3 h-3 text-amber-600" /> ICD Contraindication
+                                  </span>
+                                )}
                               </div>
                             </td>
                             <td className="px-3 py-2.5 font-mono text-[10px] text-slate-600">
@@ -906,7 +1328,7 @@ export default function ConsultationRoom({
                               />
                             </td>
                             <td className="px-3 py-2.5 text-right font-mono font-semibold text-slate-700">
-                              RM{(rx.pricePerUnit * rx.quantity).toFixed(2)}
+                              RM{itemTotal.toFixed(2)}
                             </td>
                             <td className="px-3 py-2.5 text-center">
                               <button
@@ -925,38 +1347,124 @@ export default function ConsultationRoom({
                 </table>
               </div>
 
-              {/* Digital MC Certification trigger button */}
-              <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#07B2B2]" />
-                  <div>
-                    <span className="text-xs font-semibold block text-slate-700">Medical Certificate (MC) Module</span>
-                    <span className="text-[10px] text-slate-400">Issue paid clinic recovery leave.</span>
-                  </div>
-                </div>
+              {/* PHARMACY MEMO */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-tight mb-1">
+                  Notes / Instructions for Pharmacist
+                </label>
+                <textarea
+                  className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+                  value={pharmacyMemo}
+                  onChange={e => setPharmacyMemo(e.target.value)}
+                  placeholder="e.g., Please demonstrate inhaler technique. Patient prefers liquid formulation if possible."
+                  rows={2}
+                />
+              </div>
 
-                {mcGenerated ? (
+              {/* Plan Actions (MC, Labs, Referrals) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* Digital MC Certification trigger button */}
+                <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-cyan-800 bg-cyan-100 font-semibold px-2 py-0.5 rounded">
-                      {mcDays} Days Issued ({selectedICD?.code || 'Diagnose'})
-                    </span>
+                    <FileText className="w-5 h-5 text-[#07B2B2]" />
+                    <div>
+                      <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Medical Cert (MC)</span>
+                      <span className="text-[9px] text-slate-400 leading-tight block">Issue paid clinic recovery leave.</span>
+                    </div>
+                  </div>
+
+                  {mcGenerated ? (
+                    <div className="flex flex-col gap-1 mt-auto">
+                      <span className="text-[10px] text-cyan-800 bg-cyan-100 font-bold px-2 py-0.5 rounded text-center">
+                        {mcDays} Days Issued ({selectedICD?.code || 'Diagnose'})
+                      </span>
+                      <div className="flex items-center gap-2 mt-1 justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setIsMcModalOpen(true)}
+                          className="text-[10px] font-bold text-[#07B2B2] underline cursor-pointer text-center"
+                        >
+                          View Certificate
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMcGenerated(false)}
+                          className="text-[10px] font-bold text-red-500 hover:text-red-600 underline cursor-pointer text-center"
+                        >
+                          Revoke
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => setIsMcModalOpen(true)}
-                      className="text-xs text-[#07B2B2] underline cursor-pointer"
+                      onClick={triggerMcOpening}
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto"
                     >
-                      View Cert
+                      Generate MC
                     </button>
+                  )}
+                </div>
+
+                {/* Lab & Imaging */}
+                <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-2">
+                    <TestTube className="w-5 h-5 text-purple-500" />
+                    <div>
+                      <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Lab & Imaging</span>
+                      <span className="text-[9px] text-slate-400 leading-tight block">Order bloodwork or radiology.</span>
+                    </div>
                   </div>
-                ) : (
                   <button
                     type="button"
-                    onClick={triggerMcOpening}
-                    className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
+                    className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto"
+                    onClick={() => alert('Lab & Imaging module will open a side panel for test selection.')}
                   >
-                    Generate MC
+                    Order Tests
                   </button>
-                )}
+                </div>
+
+                {/* Referrals */}
+                <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-2">
+                    <Share className="w-5 h-5 text-indigo-500" />
+                    <div>
+                      <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Specialist Referral</span>
+                      <span className="text-[9px] text-slate-400 leading-tight block">Draft referral letter.</span>
+                    </div>
+                  </div>
+                  {referralGenerated ? (
+                    <div className="flex flex-col gap-1 mt-auto">
+                      <span className="text-[10px] text-indigo-800 bg-indigo-100 font-bold px-2 py-0.5 rounded text-center truncate" title={referralDetails.hospital}>
+                        {referralDetails.hospital}
+                      </span>
+                      <div className="flex items-center gap-2 mt-1 justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setIsReferralModalOpen(true)}
+                          className="text-[10px] font-bold text-indigo-600 underline cursor-pointer text-center"
+                        >
+                          Edit Referral
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setReferralGenerated(false); setReferralDetails({ hospital: '', department: '', reason: '' }); }}
+                          className="text-[10px] font-bold text-red-500 hover:text-red-600 underline cursor-pointer text-center"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto"
+                      onClick={() => setIsReferralModalOpen(true)}
+                    >
+                      Draft Referral
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* AI Treatment Outcome Prediction */}
@@ -981,7 +1489,7 @@ export default function ConsultationRoom({
         {/* AI Smart Summary (New Feature) */}
         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3.5 rounded-lg border border-indigo-100 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Sparkles className="w-12 h-12 text-indigo-500" />
+            <Brain className="w-12 h-12 text-indigo-500" />
           </div>
           <h4 className="text-[10px] font-bold text-indigo-800 uppercase flex items-center gap-1.5 mb-2">
             <Zap className="w-3.5 h-3.5" /> AI Medical Summary
@@ -1027,7 +1535,7 @@ export default function ConsultationRoom({
       {/* MC GENERATOR POPUP MODAL */}
       {isMcModalOpen && (
         <div id="mc-generator-modal" className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-scaleUp">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-scaleUp">
             
             {/* Modal Header */}
             <div className="bg-[#07B2B2] text-white px-5 py-3.5 flex items-center justify-between">
@@ -1068,7 +1576,7 @@ export default function ConsultationRoom({
                           id="mc-days-input"
                           className="w-12 border rounded px-1 text-center font-mono font-bold"
                           value={mcDays}
-                          onChange={(e) => setMcDays(Math.max(1, parseInt(e.target.value) || 1))}
+                          onChange={(e) => setMcDays(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1))}
                         />
                         <span>Days</span>
                       </div>
@@ -1129,6 +1637,100 @@ export default function ConsultationRoom({
           </div>
         </div>
       )}
+
+      {/* REFERRAL MODAL */}
+      {isReferralModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-scaleUp">
+            <div className="bg-indigo-600 text-white px-5 py-3.5 flex items-center justify-between">
+              <span className="font-semibold text-xs uppercase tracking-wider">Specialist Referral Letter Draft</span>
+              <button onClick={() => setIsReferralModalOpen(false)} className="text-white hover:text-slate-200 font-bold text-sm cursor-pointer">&times;</button>
+            </div>
+            
+            <div className="p-5 space-y-4 text-xs">
+              <div>
+                <label className="block text-[10px] text-slate-500 uppercase font-bold mb-1">Destination Hospital / Center</label>
+                <input 
+                  type="text" 
+                  className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-indigo-500" 
+                  placeholder="e.g. Hospital Kuala Lumpur"
+                  value={referralDetails.hospital}
+                  onChange={e => setReferralDetails({...referralDetails, hospital: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-500 uppercase font-bold mb-1">Specialist Department</label>
+                <input 
+                  type="text" 
+                  className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-indigo-500" 
+                  placeholder="e.g. Cardiology"
+                  value={referralDetails.department}
+                  onChange={e => setReferralDetails({...referralDetails, department: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-500 uppercase font-bold mb-1">Clinical Reason / Remarks</label>
+                <textarea 
+                  className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-indigo-500 h-24" 
+                  placeholder="Brief reason for referral..."
+                  value={referralDetails.reason}
+                  onChange={e => setReferralDetails({...referralDetails, reason: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-end gap-2">
+              <button onClick={() => setIsReferralModalOpen(false)} className="px-3.5 py-1.5 border border-slate-200 text-slate-600 rounded text-xs hover:bg-slate-100">
+                Cancel
+              </button>
+              <button 
+                onClick={() => { setReferralGenerated(true); setIsReferralModalOpen(false); }} 
+                className="bg-indigo-600 text-white px-4 py-1.5 rounded text-xs font-semibold hover:bg-indigo-700 flex items-center gap-1.5"
+              >
+                <Check className="w-3.5 h-3.5" /> Attach to Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      </div>
+
+      {/* 📌 3. FLOATING STICKY ACTION BAR FOR LONG SOAP PAGES */}
+      <div className="fixed bottom-4 right-6 z-[60] bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700/80 flex items-center justify-between gap-4 animate-fadeIn">
+        <div className="hidden md:flex flex-col">
+          <span className="text-[9px] text-slate-400 font-mono uppercase tracking-wider">Active Patient Encounter</span>
+          <span className="text-xs font-extrabold text-teal-300 truncate max-w-[200px]">{currentPatient.fullName}</span>
+        </div>
+
+        <div className="hidden lg:flex items-center gap-2 border-l border-slate-700/80 pl-4">
+          <span className="text-[10px] text-slate-400">ICD-10:</span>
+          <span className={`text-xs font-bold font-mono px-2 py-0.5 rounded ${selectedICD ? 'bg-[#0D9488] text-white' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>
+            {selectedICD ? selectedICD.code : 'No ICD Selected'}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2.5 border-l border-slate-700/80 pl-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            id="floating-submit-soap-btn"
+            onClick={handleSubmitConsultation}
+            className="bg-[#0D9488] hover:bg-teal-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 transition-all hover:scale-105 cursor-pointer ring-2 ring-teal-400/30"
+          >
+            <Stethoscope className="w-4 h-4" />
+            <span>Complete & Route to Dispensary</span>
+            <span className="hidden sm:inline text-[9px] font-mono opacity-80 bg-black/30 px-1.5 py-0.5 rounded border border-white/10">Ctrl+Enter</span>
+          </button>
+        </div>
+      </div>
 
     </div>
   );

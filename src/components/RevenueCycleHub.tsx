@@ -90,15 +90,15 @@ export default function RevenueCycleHub() {
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex justify-between items-center text-xs border-b border-slate-200 pb-2">
                   <span className="font-bold text-slate-600">Procedure: Endoscopy</span>
-                  <span className="font-mono text-slate-800">$1,200.00</span>
+                  <span className="font-mono text-slate-800">RM 1,200.00</span>
                 </div>
                 <div className="flex justify-between items-center text-xs border-b border-slate-200 pb-2">
                   <span className="font-bold text-slate-600">AIA Panel Coverage (80%)</span>
-                  <span className="font-mono text-emerald-600">-$960.00</span>
+                  <span className="font-mono text-emerald-600">-RM 960.00</span>
                 </div>
                 <div className="flex justify-between items-center text-sm font-bold pt-1">
                   <span className="text-slate-800">Patient Out of Pocket:</span>
-                  <span className="font-mono text-rose-600">$240.00</span>
+                  <span className="font-mono text-rose-600">RM 240.00</span>
                 </div>
                 <button className="w-full mt-2 bg-slate-800 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-900 transition-colors">
                   Generate Estimate PDF for Patient

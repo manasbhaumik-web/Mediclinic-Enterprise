@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Visit, Language } from '../types';
-import { TRANSLATIONS, DRUG_CATALOG } from '../data';
+import { TRANSLATIONS } from '../data';
+import { useInventory } from '../context/InventoryContext';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line, AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
@@ -35,7 +36,13 @@ export default function MOHDashboard({
   const revenueTotal = completedVisits.reduce((acc, curr) => acc + (curr.paidAmount + curr.panelClaimed), 0) + 160; 
   const patientsCount = completedVisits.length + totalRegisteredCount; 
   const pendingTPAClaims = completedVisits.filter(v => v.panelClaimed > 0 && v.status !== 'Paid').length * 2 + 3; 
-  const lowStockCount = DRUG_CATALOG.filter(d => d.currentStock <= 200).length;
+  
+  const { inventory } = useInventory();
+  
+  // Real-time metrics
+  const activeStaff = 14;
+  const criticalPatients = 2;
+  const lowStockCount = (inventory || []).filter(d => d.currentStock <= 200).length;
 
   // Overview Data
   const patientVolumeData = [
@@ -501,7 +508,7 @@ export default function MOHDashboard({
                 <span className="bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider mb-3 inline-block">Process AI Observation</span>
                 <h3 className="text-lg font-extrabold mb-2">Dispensary Bottleneck Detected</h3>
                 <p className="text-indigo-100/70 text-xs leading-relaxed mb-4">
-                  Between 10:00 AM and 11:30 AM, average pharmacy wait times spike to 18 minutes. AI suggests shifting one clerk from registration to compounding during this peak window.
+                  Between 10:00 AM and 11:30 AM, average pharmacy wait times spike to 18 minutes. AI suggests shifting one clinic assistant from registration to compounding during this peak window.
                 </p>
                 <button className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md shadow-indigo-500/20">
                   <Zap className="w-3.5 h-3.5" /> Apply Staffing Shift

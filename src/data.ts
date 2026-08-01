@@ -1,4 +1,5 @@
-import { Patient, Visit, ICD10Code, TPAConfig, PrescriptionItem } from './types';
+
+import { ICD10Code, Patient, Visit } from './types';
 
 // Malaysian-English Translation Dictionary
 export const TRANSLATIONS = {
@@ -146,50 +147,25 @@ export const TRANSLATIONS = {
   }
 };
 
-// Available Third Party Administrators in Malaysia
-export const TPA_LIST: TPAConfig[] = [
-  { name: 'Self-Pay', coverageLimit: 999999, coPayRequired: false },
-  { name: 'MiCare TPA', coverageLimit: 150, coPayRequired: true, coPayPercentage: 10 },
-  { name: 'Medkad Sdn Bhd', coverageLimit: 200, coPayRequired: false },
-  { name: 'HealthMetrics Malaysia', coverageLimit: 300, coPayRequired: true, coPayPercentage: 15 },
-  { name: 'PMCare Corporate', coverageLimit: 250, coPayRequired: false },
-  { name: 'Petronas Panel', coverageLimit: 500, coPayRequired: false },
-];
-
-// Prescribable catalog with allergy classification groups
-export interface CatalogDrug {
-  id: string;
-  name: string;
-  category: string;
-  allergyGroup: string; // e.g. Penicillin, NSAID, Sulfa, None
-  dosageEN: string;
-  dosageBM: string;
-  frequency: string;
-  pricePerUnit: number; // MYR
-  currentStock: number;
-  expiryMonths: number; // how far is expiry
-  pillColor: string;
-  capsuleStyle: 'solid' | 'split' | 'round';
-}
-
-export const DRUG_CATALOG: CatalogDrug[] = [
+// Drug Database for clinic pharmacy dispensary
+export const DRUG_DATABASE = [
   {
     id: 'D001',
-    name: 'Amoxicillin 250mg Capsule',
+    name: 'Amoxicillin 500mg Capsule',
     category: 'Antibiotic Penicillin',
     allergyGroup: 'Penicillin',
-    dosageEN: 'Take 1 capsule three times a day, finish the course.',
-    dosageBM: 'Ambil 1 biji tiga kali sehari, habiskan ubat antibiotik ini.',
-    frequency: 'TDS (Three Times Daily)',
-    pricePerUnit: 0.80,
-    currentStock: 1200,
+    dosageEN: 'Take 1 capsule three times a day after meals, complete the course.',
+    dosageBM: 'Ambil 1 kapsul tiga kali sehari selepas makan, habiskan antibiotik ini.',
+    frequency: 'TDS (Thrice Daily)',
+    pricePerUnit: 1.50,
+    currentStock: 600,
     expiryMonths: 18,
-    pillColor: '#ef4444', // Red-solid
+    pillColor: '#a78bfa', // Light violet
     capsuleStyle: 'split'
   },
   {
     id: 'D002',
-    name: 'Augmentin 625mg Co-Amoxiclav',
+    name: 'Augmentin (Amoxicillin/Clavulanate) 625mg',
     category: 'Antibiotic Penicillin',
     allergyGroup: 'Penicillin',
     dosageEN: 'Take 1 tablet twice a day after meals, finish the course.',
@@ -476,3 +452,55 @@ export const PREVIOUS_VISITS: Visit[] = [
     glNumber: 'MKAD-GL-84941'
   }
 ];
+
+export const MOCK_VISITS_QUEUE: Visit[] = [
+  {
+    id: 'V-MOCK-201',
+    patientId: 'P001',
+    date: '2026-06-05',
+    soap: {
+      subjective: 'High fever for 2 days, chestiness with productive cough.',
+      objective: { bpSystolic: 125, bpDiastolic: 80, heartRate: 85, temperature: 38.6, respiratoryRate: 18 },
+      assessment: { icdCode: 'J06.9', description: 'Acute upper respiratory infection', clinicalNotes: 'Avoid cold beverages.' },
+      plan: { prescription: [], followUpWeeks: 1, mcDays: 2, requiresReferral: false }
+    },
+    status: 'Awaiting Dispensation',
+    totalBill: 50.00,
+    panelClaimed: 0,
+    paidAmount: 0,
+    registeredTime: Date.now() - 1000 * 60 * 45
+  },
+  {
+    id: 'V-MOCK-202',
+    patientId: 'P002',
+    date: '2026-06-05',
+    soap: {
+      subjective: 'Follow up hypertension medication checkout.',
+      objective: { bpSystolic: 135, bpDiastolic: 85, heartRate: 74, temperature: 36.5, respiratoryRate: 16 },
+      assessment: { icdCode: 'I10', description: 'Essential (primary) hypertension', clinicalNotes: 'Surveillance continues.' },
+      plan: { prescription: [], followUpWeeks: 8, mcDays: 0, requiresReferral: false }
+    },
+    status: 'Awaiting Dispensation',
+    totalBill: 45.00,
+    panelClaimed: 0,
+    paidAmount: 0,
+    registeredTime: Date.now() - 1000 * 60 * 20
+  },
+  {
+    id: 'V-MOCK-203',
+    patientId: 'P003',
+    date: '2026-06-05',
+    soap: {
+      subjective: 'Symptomatic review',
+      objective: { bpSystolic: 120, bpDiastolic: 78, heartRate: 72, temperature: 36.6, respiratoryRate: 14 },
+      assessment: { icdCode: 'Z02.7', description: 'Issue of medical certificate', clinicalNotes: 'Routine consultation' },
+      plan: { prescription: [], followUpWeeks: 0, mcDays: 1, requiresReferral: false }
+    },
+    status: 'Awaiting Consult',
+    totalBill: 0,
+    panelClaimed: 0,
+    paidAmount: 0,
+    registeredTime: Date.now() - 1000 * 60 * 5
+  }
+];
+

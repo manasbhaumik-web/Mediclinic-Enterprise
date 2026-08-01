@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ShieldAlert, ShieldCheck, Lock, Key, Eye, Activity, 
-  ServerCrash, Fingerprint, Database, CheckCircle2, AlertTriangle, FileText
+  ServerCrash, Fingerprint, Database, CheckCircle2, AlertTriangle, FileText, Stethoscope
 } from 'lucide-react';
 
 export default function SecurityHub() {
@@ -152,7 +152,7 @@ export default function SecurityHub() {
                   <td className="px-4 py-4"><button className="text-blue-600 font-bold hover:underline">Edit Policy</button></td>
                 </tr>
                 <tr className="hover:bg-slate-50">
-                  <td className="px-4 py-4 font-bold text-slate-800 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" /> Billing Clerk</td>
+                  <td className="px-4 py-4 font-bold text-slate-800 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" /> Billing Clinic Assistant</td>
                   <td className="px-4 py-4"><span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-bold">Read Only (Masked)</span></td>
                   <td className="px-4 py-4"><span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[10px] font-bold">Full Access</span></td>
                   <td className="px-4 py-4"><span className="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[10px] font-bold">No Access</span></td>
@@ -187,7 +187,7 @@ export default function SecurityHub() {
             <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100 font-mono text-[10px]">
               <span className="text-slate-400">10:42:15 UTC</span>
               <span className="text-blue-500 font-bold w-16">ACCESS</span>
-              <span className="text-slate-700 flex-1 truncate">Clerk #501 viewed billing record for Patient #PT-8891</span>
+              <span className="text-slate-700 flex-1 truncate">Clinic Assistant #501 viewed billing record for Patient #PT-8891</span>
               <span className="text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded truncate max-w-[120px]">Hash: 0x4e2d...9a0f</span>
             </div>
             <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100 font-mono text-[10px]">

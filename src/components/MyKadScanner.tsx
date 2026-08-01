@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, ShieldAlert, CheckCircle, RefreshCw, Sparkles } from 'lucide-react';
+import { Camera, ShieldAlert, CheckCircle, RefreshCw, ScanLine } from 'lucide-react';
 
 interface MyKadData {
   fullName: string;
@@ -108,7 +108,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
         {/* Header */}
         <div className="bg-[#07B2B2] px-5 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-cyan-300" />
+            <ScanLine className="w-5 h-5 text-cyan-300" />
             <h3 className="font-semibold tracking-wide">MyKad Smart OCR & Reader</h3>
           </div>
           <button 

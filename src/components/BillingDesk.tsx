@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Visit, Language, TPAConfig } from '../types';
-import { TRANSLATIONS, TPA_LIST } from '../data';
+import { TRANSLATIONS } from '../data';
 import { useSettings } from '../context/SettingsContext';
+import { useAuxiliary } from '../context/AuxiliaryContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateInvoicePDF } from '../utils/pdfGenerator';
 import { 
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet,
-  ClipboardCheck, CheckCircle2, Sparkles, FileCheck
+  ClipboardCheck, CheckCircle2, QrCode, FileCheck, FileText, Plus, Percent, Trash2
 } from 'lucide-react';
 
 interface BillingDeskProps {
@@ -28,6 +29,7 @@ export default function BillingDesk({
   onPaymentComplete
 }: BillingDeskProps) {
   const { settings } = useSettings();
+  const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
 
   // Selected visit state
@@ -37,7 +39,7 @@ export default function BillingDesk({
 
   // Panel settings state
   const [isPanelClaim, setIsPanelClaim] = useState(false);
-  const [selectedTPA, setSelectedTPA] = useState<TPAConfig>(TPA_LIST[1]); // MiCare TPA default
+  const [selectedTPA, setSelectedTPA] = useState<TPAConfig | null>(null);
   const [glReferenceNo, setGlReferenceNo] = useState('');
   const [isGlApproved, setIsGlApproved] = useState(false);
 
@@ -47,6 +49,15 @@ export default function BillingDesk({
   const [receiptWindowData, setReceiptWindowData] = useState<{
     method: 'Cash' | 'Credit Card' | 'e-Wallet' | 'Panel';
   } | null>(null);
+
+  // Dynamic adjustments
+  const [customLineItems, setCustomLineItems] = useState<{ description: string; amount: number }[]>([]);
+  const [customDesc, setCustomDesc] = useState('');
+  const [customAmount, setCustomAmount] = useState('');
+  
+  const [discount, setDiscount] = useState<{ type: 'fixed' | 'percentage', value: number }>({ type: 'fixed', value: 0 });
+  const [discountInput, setDiscountInput] = useState('');
+  const [discountType, setDiscountType] = useState<'fixed' | 'percentage'>('fixed');
 
   // Active visit calculation parameters
   const activeVisit = queue.find(v => v.id === selectedVisitId) || queue[0];
@@ -60,6 +71,8 @@ export default function BillingDesk({
   // Subtotals and dynamic totals
   const [billingBreakdown, setBillingBreakdown] = useState({
     medicationCost: 0,
+    customItemsTotal: 0,
+    discountAmount: 0,
     subtotal: 0,
     sstTax: 0,
     grandTotal: 0,
@@ -71,9 +84,16 @@ export default function BillingDesk({
     setSelectedVisitId(visitId);
     // Reset parameters
     setIsPanelClaim(false);
+    const defaultTpa = tpaList.length > 0 ? tpaList[1] || tpaList[0] : null;
+    setSelectedTPA(defaultTpa);
     setGlReferenceNo('');
     setIsGlApproved(false);
     setActivePaymentMethod(null);
+    setCustomLineItems([]);
+    setDiscount({ type: 'fixed', value: 0 });
+    setCustomDesc('');
+    setCustomAmount('');
+    setDiscountInput('');
   };
 
   // Recalculate bill balance upon select/change parameters
@@ -88,39 +108,51 @@ export default function BillingDesk({
       });
     }
 
-    const sub = CONSULTATION_FEE + PROCEDURE_FEE + medsCost;
+    const totalCustomItems = customLineItems.reduce((acc, item) => acc + item.amount, 0);
+    const preDiscountSub = CONSULTATION_FEE + PROCEDURE_FEE + medsCost + totalCustomItems;
+    
+    let discountAmountValue = 0;
+    if (discount.type === 'fixed') {
+      discountAmountValue = discount.value;
+    } else {
+      discountAmountValue = preDiscountSub * (discount.value / 100);
+    }
+    
+    const sub = Math.max(0, preDiscountSub - discountAmountValue);
     const tax = sub * TAX_RATE; // SST
     const grand = sub + tax;
 
-    let panelSponsorAmount = 0;
-    let finalPatientShare = grand;
+    let panelPaid = 0;
+    let patientCopay = grand;
 
-    if (isPanelClaim) {
-      if (selectedTPA.name !== 'Self-Pay') {
-        // Evaluate limit capping
-        const cappedLimit = selectedTPA.coverageLimit;
-        panelSponsorAmount = Math.min(grand, cappedLimit);
-
-        // Evaluate Co-pay percentages if any
-        if (selectedTPA.coPayRequired && selectedTPA.coPayPercentage) {
-          const copayAmount = panelSponsorAmount * (selectedTPA.coPayPercentage / 100);
-          panelSponsorAmount = panelSponsorAmount - copayAmount;
+    if (isPanelClaim && selectedTPA) {
+        if (grand <= selectedTPA.coverageLimit) {
+          panelPaid = grand;
+          patientCopay = 0;
+        } else {
+          panelPaid = selectedTPA.coverageLimit;
+          patientCopay = grand - selectedTPA.coverageLimit;
         }
 
-        finalPatientShare = grand - panelSponsorAmount;
-      }
+        if (selectedTPA.coPayRequired && selectedTPA.coPayPercentage) {
+          const copayAmount = (grand * selectedTPA.coPayPercentage) / 100;
+          patientCopay += copayAmount;
+          panelPaid -= copayAmount;
+        }
     }
 
     setBillingBreakdown({
       medicationCost: medsCost,
+      customItemsTotal: totalCustomItems,
+      discountAmount: discountAmountValue,
       subtotal: sub,
       sstTax: tax,
       grandTotal: grand,
-      panelPaid: panelSponsorAmount,
-      patientCopay: finalPatientShare
+      panelPaid: panelPaid,
+      patientCopay: patientCopay
     });
 
-  }, [activeVisit, isPanelClaim, selectedTPA]);
+  }, [activeVisit, isPanelClaim, selectedTPA, customLineItems, discount]);
 
   const triggerInstantGLApprove = () => {
     if (!glReferenceNo.trim()) {
@@ -291,6 +323,42 @@ export default function BillingDesk({
                       </td>
                     </tr>
                   )}
+                  
+                  {customLineItems.length > 0 && (
+                    <tr className="border-b border-slate-100 text-slate-700">
+                      <td className="px-3 py-2">
+                        <span>Ad-Hoc Charges & Services</span>
+                        <div className="text-[9px] text-slate-400 pl-2.5 mt-0.5 space-y-1">
+                          {customLineItems.map((item, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <span>• {item.description} (RM{item.amount.toFixed(2)})</span>
+                              <button 
+                                onClick={() => setCustomLineItems(customLineItems.filter((_, idx) => idx !== i))}
+                                className="text-red-400 hover:text-red-600 transition-colors"
+                                title="Remove charge"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono font-medium">
+                        RM{billingBreakdown.customItemsTotal.toFixed(2)}
+                      </td>
+                    </tr>
+                  )}
+
+                  {billingBreakdown.discountAmount > 0 && (
+                    <tr className="border-b border-slate-100 text-red-600 bg-red-50/50">
+                      <td className="px-3 py-2 font-semibold">
+                        Manual Discount Applied ({discount.type === 'percentage' ? `${discount.value}%` : 'Fixed Amount'})
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono font-bold">
+                        -RM{billingBreakdown.discountAmount.toFixed(2)}
+                      </td>
+                    </tr>
+                  )}
 
                   <tr className="border-b border-slate-200 bg-slate-50 font-medium text-slate-600 font-mono text-[11px]">
                     <td className="px-3 py-1.5 text-right font-semibold">Subtotal:</td>
@@ -306,6 +374,42 @@ export default function BillingDesk({
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            {/* Manual Adjustments Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <h5 className="text-[10px] font-bold text-slate-600 uppercase mb-2 flex items-center gap-1"><Plus className="w-3 h-3" /> Add Ad-Hoc Charge</h5>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="Description" value={customDesc} onChange={e => setCustomDesc(e.target.value)} className="flex-1 text-xs border border-slate-300 px-2 py-1.5 rounded focus:ring-1 focus:ring-[#07B2B2] outline-none" />
+                  <input type="number" placeholder="RM" value={customAmount} onChange={e => setCustomAmount(e.target.value)} className="w-20 text-xs border border-slate-300 px-2 py-1.5 rounded focus:ring-1 focus:ring-[#07B2B2] outline-none font-mono" />
+                  <button onClick={() => {
+                    const amt = parseFloat(customAmount);
+                    if (customDesc && !isNaN(amt) && amt > 0) {
+                      setCustomLineItems([...customLineItems, { description: customDesc, amount: amt }]);
+                      setCustomDesc('');
+                      setCustomAmount('');
+                    }
+                  }} className="bg-[#07B2B2] text-white px-2 py-1.5 rounded text-xs font-bold hover:bg-[#058A8A] cursor-pointer">Add</button>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <h5 className="text-[10px] font-bold text-slate-600 uppercase mb-2 flex items-center gap-1"><Percent className="w-3 h-3" /> Apply Discount</h5>
+                <div className="flex gap-2">
+                  <select value={discountType} onChange={e => setDiscountType(e.target.value as 'fixed' | 'percentage')} className="text-xs border border-slate-300 px-2 py-1.5 rounded focus:ring-1 focus:ring-[#07B2B2] outline-none bg-white">
+                    <option value="fixed">Fixed RM</option>
+                    <option value="percentage">%</option>
+                  </select>
+                  <input type="number" placeholder="Value" value={discountInput} onChange={e => setDiscountInput(e.target.value)} className="flex-1 text-xs border border-slate-300 px-2 py-1.5 rounded focus:ring-1 focus:ring-[#07B2B2] outline-none font-mono" />
+                  <button onClick={() => {
+                    const val = parseFloat(discountInput);
+                    if (!isNaN(val) && val >= 0) {
+                      setDiscount({ type: discountType, value: val });
+                    }
+                  }} className="bg-slate-600 text-white px-2 py-1.5 rounded text-xs font-bold hover:bg-slate-700 cursor-pointer">Apply</button>
+                </div>
+              </div>
             </div>
 
             {/* AI Billing Compliance Scan */}
@@ -340,7 +444,7 @@ export default function BillingDesk({
                   onClick={() => {
                     setIsPanelClaim(!isPanelClaim);
                     // Autofill demo TPA according to user profile
-                    const matchTPA = TPA_LIST.find(t => t.name.toLowerCase().includes(activePatient.panelEmployer.split(' ')[0].toLowerCase())) || TPA_LIST[1];
+                    const matchTPA = tpaList.find(t => t.name.toLowerCase().includes(activePatient.panelEmployer.split(' ')[0].toLowerCase())) || tpaList[0];
                     setSelectedTPA(matchTPA);
                   }}
                   className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
@@ -364,13 +468,13 @@ export default function BillingDesk({
                     <select
                       id="tpa-select"
                       className="w-full text-xs px-2 py-1.5 bg-white border border-slate-300 rounded focus:ring-1 focus:ring-cyan-600 focus:outline-none font-medium text-slate-800"
-                      value={selectedTPA.name}
+                      value={selectedTPA?.name || ''}
                       onChange={(e) => {
-                        const match = TPA_LIST.find(t => t.name === e.target.value) || TPA_LIST[0];
+                        const match = tpaList.find(t => t.name === e.target.value) || tpaList[0];
                         setSelectedTPA(match);
                       }}
                     >
-                      {TPA_LIST.map((tpa) => (
+                      {tpaList.map((tpa) => (
                         <option key={tpa.name} value={tpa.name}>
                           {tpa.name} (Max coverage limit: RM{tpa.coverageLimit})
                         </option>
@@ -429,7 +533,7 @@ export default function BillingDesk({
                   <div className="text-right">
                     <span className="text-[10px] uppercase text-slate-400 block font-mono">Co-Pay Status:</span>
                     <span className="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">
-                      {selectedTPA.coPayRequired ? `Co-pay ${selectedTPA.coPayPercentage}% applied` : '100% Sponsor Covered'}
+                      {selectedTPA?.coPayRequired ? `Co-pay ${selectedTPA.coPayPercentage}% applied` : '100% Sponsor Covered'}
                     </span>
                   </div>
                 </div>
@@ -500,7 +604,7 @@ export default function BillingDesk({
             {/* Header branding */}
             <div className="bg-[#0052a5] text-white p-4 text-center">
               <h4 className="font-extrabold text-sm tracking-tight uppercase flex items-center justify-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-300" />
+                <QrCode className="w-4 h-4 text-amber-300" />
                 Bank QR Payment Gateway
               </h4>
               <span className="text-[10px] text-blue-100 font-mono">DuitNow / Bank QR API</span>
@@ -586,10 +690,10 @@ export default function BillingDesk({
                 <span className="text-slate-500">Amount Paid:</span>
                 <span className="font-bold text-[#07B2B2] text-sm">RM{(isPanelClaim ? billingBreakdown.patientCopay : billingBreakdown.grandTotal).toFixed(2)}</span>
               </div>
-              {isPanelClaim && (
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Panel Claimed:</span>
-                  <span className="font-bold text-emerald-600">RM{billingBreakdown.panelPaid.toFixed(2)}</span>
+              {isPanelClaim && selectedTPA && (
+                <div className="flex justify-between items-center text-xs text-blue-700 font-semibold pt-1">
+                  <span>Panel Covered ({selectedTPA.name}):</span>
+                  <span>-RM{billingBreakdown.panelPaid.toFixed(2)}</span>
                 </div>
               )}
             </div>
@@ -601,12 +705,29 @@ export default function BillingDesk({
                   executeSettleTransaction(receiptWindowData.method);
                   setReceiptWindowData(null);
                 }}
-                className="flex-1 bg-[#07B2B2] hover:bg-[#058A8A] text-white font-bold px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-[#07B2B2] hover:bg-[#058A8A] text-white font-bold px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ClipboardCheck className="w-5 h-5" />
                 Print Receipt
               </button>
             </div>
+
+            {/* Add Medical Certificate and Referral buttons */}
+            {(activeVisit.soap?.plan?.mcDays > 0 || activeVisit.soap?.plan?.requiresReferral) && (
+              <div className="flex flex-col gap-2 border-t border-slate-100 pt-3 mt-1">
+                {activeVisit.soap?.plan?.mcDays > 0 && (
+                  <button onClick={() => alert('MC PDF generation simulated...')} className="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm text-xs">
+                    <FileText className="w-4 h-4 text-emerald-600" /> Print Medical Certificate ({activeVisit.soap.plan.mcDays} Days)
+                  </button>
+                )}
+                {activeVisit.soap?.plan?.requiresReferral && (
+                  <button onClick={() => alert('Referral PDF generation simulated...')} className="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm text-xs">
+                    <FileText className="w-4 h-4 text-blue-600" /> Print Referral Letter
+                  </button>
+                )}
+              </div>
+            )}
+
           </div>
         </div>
       )}

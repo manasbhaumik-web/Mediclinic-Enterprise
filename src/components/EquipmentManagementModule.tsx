@@ -1,32 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Stethoscope, Plus, Search, CheckCircle, AlertTriangle, X, Trash2, PenTool, ArrowRightLeft, History } from 'lucide-react';
 import EquipmentRegistration from './EquipmentRegistration';
+import { supabase } from '../lib/supabase';
 
 export interface EquipmentItem {
-  // 1. Asset Identification & Classification
   id: string;
   name: string;
   type: string;
   modelNumber?: string;
   serialNumber: string;
   manufacturer?: string;
-
-  // 2. Purchase & Financial Details
   purchaseDate?: string;
   costPrice?: number;
   warrantyExpiryDate?: string;
   vendor?: string;
   depreciationRate?: number;
   depreciationMethod?: string;
-
-  // 3. Location & Operational Status
   status: 'Operational' | 'Maintenance' | 'Decommissioned';
   assignedRoom?: string;
   custodian?: string;
-
-  // 4. Calibration & Preventive Maintenance
   lastCalibrationDate?: string;
-  nextMaintenance: string; // Next Calibration Due Date
+  nextMaintenance: string; 
   maintenanceFrequency?: string;
   safetyCertification?: string;
 }
@@ -39,14 +33,8 @@ export interface EquipmentLog {
   notes: string;
 }
 
-const INITIAL_EQUIPMENT: EquipmentItem[] = [
-  { id: 'EQ-001', name: 'Digital BP Monitor (Room 1)', type: 'Diagnostic', status: 'Operational', nextMaintenance: '2026-08-12', serialNumber: 'BPM-8921-A' },
-  { id: 'EQ-002', name: 'ECG Machine (Triage)', type: 'Diagnostic', status: 'Maintenance', nextMaintenance: '2026-06-01', serialNumber: 'ECG-X2-990' },
-  { id: 'EQ-003', name: 'Autoclave Sterilizer', type: 'Sanitization', status: 'Operational', nextMaintenance: '2026-09-05', serialNumber: 'AC-1100-M' }
-];
-
 export default function EquipmentManagementModule() {
-  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>(INITIAL_EQUIPMENT);
+  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([]);
   const [logs, setLogs] = useState<EquipmentLog[]>([]);
   
   const [activeTab, setActiveTab] = useState<'catalog' | 'logs'>('catalog');
@@ -57,64 +45,118 @@ export default function EquipmentManagementModule() {
   const [maintainEqId, setMaintainEqId] = useState<string | null>(null);
   const [disposeEqId, setDisposeEqId] = useState<string | null>(null);
 
-  // Derived
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      const { data, error } = await supabase.from('equipment').select('*').order('name');
+      if (data && !error) {
+        setEquipmentList(data.map(eq => ({
+          id: eq.id,
+          name: eq.name,
+          type: eq.type,
+          status: eq.status as any,
+          serialNumber: eq.serial_number,
+          nextMaintenance: eq.next_maintenance,
+        })));
+      }
+    };
+    
+    const fetchLogs = async () => {
+      const { data, error } = await supabase
+        .from('equipment_logs')
+        .select('*, equipment(name)')
+        .order('date', { ascending: false });
+        
+      if (data && !error) {
+        setLogs(data.map(l => ({
+          id: l.id,
+          date: new Date(l.date).toISOString().split('T')[0],
+          equipmentName: l.equipment?.name || 'Unknown',
+          action: l.action as any,
+          notes: l.notes
+        })));
+      }
+    };
+    
+    fetchEquipment();
+    fetchLogs();
+    
+    const eqChannel = supabase.channel('eq_sync_' + Math.random().toString(36).substring(2, 9))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'equipment' }, fetchEquipment)
+      .subscribe();
+      
+    const logChannel = supabase.channel('eq_logs_sync_' + Math.random().toString(36).substring(2, 9))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'equipment_logs' }, fetchLogs)
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(eqChannel);
+      supabase.removeChannel(logChannel);
+    };
+  }, []);
+
   const filteredEq = equipmentList.filter(eq => 
     (eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     eq.serialNumber.toLowerCase().includes(searchQuery.toLowerCase())) &&
+     eq.serialNumber?.toLowerCase().includes(searchQuery.toLowerCase())) &&
     eq.status !== 'Decommissioned' // Hide decommissioned from active view
   );
   
   const issuesCount = equipmentList.filter(e => e.status === 'Maintenance').length;
 
-  const handleAddEquipmentSubmit = (newEqData: Omit<EquipmentItem, 'id'>) => {
-    const newEq: EquipmentItem = {
-      id: `EQ-${Math.floor(Math.random() * 900) + 100}`,
-      ...newEqData
-    };
+  const handleAddEquipmentSubmit = async (newEqData: Omit<EquipmentItem, 'id'>) => {
+    const { data: newEq, error } = await supabase.from('equipment').insert([{
+      name: newEqData.name,
+      type: newEqData.type,
+      status: newEqData.status,
+      serial_number: newEqData.serialNumber,
+      next_maintenance: newEqData.nextMaintenance
+    }]).select().single();
+    
+    if (newEq && !error) {
+      await supabase.from('equipment_logs').insert([{
+        equipment_id: newEq.id,
+        action: 'Deployed',
+        notes: 'Initial registration and deployment.'
+      }]);
+    }
 
-    setEquipmentList([...equipmentList, newEq]);
     setCurrentView('list');
   };
 
-  const handleMaintain = (e: React.FormEvent) => {
+  const handleMaintain = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!maintainEqId) return;
 
-    const eq = equipmentList.find(e => e.id === maintainEqId);
-    
     // Update to operational and set next date artificially 6 months from now
-    setEquipmentList(prev => prev.map(item => 
-      item.id === maintainEqId ? { ...item, status: 'Operational', nextMaintenance: '2026-12-01' } : item
-    ));
+    const nextDate = new Date();
+    nextDate.setMonth(nextDate.getMonth() + 6);
 
-    setLogs(prev => [{
-      id: `EL-${Date.now()}`,
-      date: new Date().toISOString().split('T')[0],
-      equipmentName: eq?.name || 'Unknown',
+    await supabase.from('equipment').update({ 
+      status: 'Operational', 
+      next_maintenance: nextDate.toISOString().split('T')[0] 
+    }).eq('id', maintainEqId);
+
+    await supabase.from('equipment_logs').insert([{
+      equipment_id: maintainEqId,
       action: 'Maintenance Logged',
       notes: 'Routine calibration and servicing completed.'
-    }, ...prev]);
+    }]);
 
     setMaintainEqId(null);
   };
 
-  const handleDispose = (e: React.FormEvent) => {
+  const handleDispose = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!disposeEqId) return;
 
-    const eq = equipmentList.find(e => e.id === disposeEqId);
-    
-    setEquipmentList(prev => prev.map(item => 
-      item.id === disposeEqId ? { ...item, status: 'Decommissioned' } : item
-    ));
+    await supabase.from('equipment').update({ 
+      status: 'Decommissioned' 
+    }).eq('id', disposeEqId);
 
-    setLogs(prev => [{
-      id: `EL-${Date.now()}`,
-      date: new Date().toISOString().split('T')[0],
-      equipmentName: eq?.name || 'Unknown',
+    await supabase.from('equipment_logs').insert([{
+      equipment_id: disposeEqId,
       action: 'Decommissioned',
       notes: 'Equipment marked for permanent disposal.'
-    }, ...prev]);
+    }]);
 
     setDisposeEqId(null);
   };
@@ -213,7 +255,7 @@ export default function EquipmentManagementModule() {
                  No active equipment matches your criteria.
                </div>
             ) : filteredEq.map(eq => (
-               <div key={eq.id} className={`p-5 rounded-xl border shadow-sm transition-all hover:shadow-md ${eq.status === 'Maintenance' ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-white'}`}>
+               <div key={eq.id} className={`flex flex-col h-full p-5 rounded-xl border shadow-sm transition-all hover:shadow-md ${eq.status === 'Maintenance' ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-white'}`}>
                  <div className="flex justify-between items-start mb-3">
                    <h3 className="font-bold text-slate-800 leading-tight">{eq.name}</h3>
                    <span className={`text-[9px] uppercase font-bold px-2 py-1 rounded tracking-wide ${eq.status === 'Maintenance' ? 'bg-red-200 text-red-800' : 'bg-emerald-100 text-emerald-800'}`}>
@@ -230,7 +272,7 @@ export default function EquipmentManagementModule() {
                    </p>
                  </div>
 
-                 <div className="flex gap-2">
+                 <div className="flex gap-2 mt-auto pt-4">
                    <button 
                      onClick={() => setMaintainEqId(eq.id)}
                      className="flex-1 py-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 rounded text-[10px] font-bold uppercase flex items-center justify-center gap-1 cursor-pointer transition-colors"

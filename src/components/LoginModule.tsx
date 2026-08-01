@@ -11,83 +11,108 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
   const [role, setRole] = useState<UserRole>('doctor');
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans text-slate-800 relative">
-      
-      <button 
-        type="button"
-        onClick={() => onNavigate('landing')}
-        className="absolute top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer font-semibold text-sm"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Return to Home
-      </button>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-8 font-sans text-slate-800">
+      <div className="enterprise-card max-w-5xl w-full flex flex-col md:flex-row overflow-hidden shadow-2xl">
 
-      <div className="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200 animate-fadeIn">
-        {/* Top Branding */}
-        <div className="bg-[#07B2B2] p-6 text-center text-white relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent"></div>
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="bg-white/20 p-3 rounded-xl mb-4 border border-white/20">
-              <Activity className="w-8 h-8 text-white" />
+        {/* Left Side: Branding & Info */}
+        <div className="md:w-5/12 bg-slate-900 text-white p-10 flex flex-col justify-between relative overflow-hidden">
+          {/* Subtle background pattern */}
+          <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-white via-slate-900 to-black"></div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-12">
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700">
+                <Activity className="w-6 h-6 text-[#07B2B2]" />
+              </div>
+              <div>
+                <h1 className="text-xl font-extrabold tracking-tight uppercase leading-none">
+                  MediClinic
+                </h1>
+                <span className="text-xs text-slate-400 font-mono tracking-wider">Enterprise v1.2</span>
+              </div>
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight">MediClinic Access</h2>
-            <p className="text-cyan-50 text-sm mt-1">Secure Enterprise Authentication</p>
+
+            <h2 className="text-3xl font-bold mb-4 leading-tight">
+              Clinical Excellence <br />
+              <span className="text-[#07B2B2]">Unified.</span>
+            </h2>
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+              Secure access to patient records, billing ledgers, and consultation histories across your healthcare network.
+            </p>
+          </div>
+
+          <div className="relative z-10 mt-12 md:mt-0">
+            <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
+              <Shield className="w-4 h-4 text-emerald-500" />
+              AES-256-GCM Encrypted Session
+            </div>
           </div>
         </div>
 
-        {/* Login Form Area */}
-        <div className="p-8">
-          
+        {/* Right Side: Login Form Area */}
+        <div className="md:w-7/12 bg-white p-10 lg:p-16 flex flex-col justify-center relative">
+
+          <div className="absolute top-6 right-6">
+            <button
+              type="button"
+              onClick={() => onNavigate('landing')}
+              className="text-xs font-semibold text-slate-500 hover:text-[#0D9488] flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Public Website</span>
+            </button>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold text-slate-800">Sign In</h3>
+            <p className="text-slate-500 text-sm mt-1">Authenticate to access the clinical suite</p>
+          </div>
+
           {/* Role Switcher */}
-          <div className="grid grid-cols-5 gap-1 p-1 bg-slate-100 rounded-lg mb-8">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-8">
             <button
               type="button"
               onClick={() => setRole('doctor')}
-              className={`flex flex-col items-center justify-center gap-1 py-2 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
-                role === 'doctor' ? 'bg-white text-[#07B2B2] shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'
-              }`}
+              className={`flex flex-col items-center justify-center gap-1 py-3 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${role === 'doctor' ? 'bg-teal-50 text-[#07B2B2] border-[#07B2B2]' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 hover:text-slate-700'
+                }`}
             >
-              <Stethoscope className="w-5 h-5" />
+              <Stethoscope className="w-4 h-4" />
               Doctor
             </button>
             <button
               type="button"
               onClick={() => setRole('pharmacist')}
-              className={`flex flex-col items-center justify-center gap-1 py-2 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
-                role === 'pharmacist' ? 'bg-white text-orange-600 shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'
-              }`}
+              className={`flex flex-col items-center justify-center gap-1 py-3 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${role === 'pharmacist' ? 'bg-orange-50 text-orange-600 border-orange-500' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 hover:text-slate-700'
+                }`}
             >
-              <Pill className="w-5 h-5" />
-              Pharmacist
+              <Pill className="w-4 h-4" />
+              Pharmacy
             </button>
             <button
               type="button"
-              onClick={() => setRole('clerk')}
-              className={`flex flex-col items-center justify-center gap-1 py-2 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
-                role === 'clerk' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'
-              }`}
+              onClick={() => setRole('clinic-assistant')}
+              className={`flex flex-col items-center justify-center gap-1 py-3 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${role === 'clinic-assistant' ? 'bg-blue-50 text-blue-600 border-blue-500' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 hover:text-slate-700'
+                }`}
             >
-              <ClipboardList className="w-5 h-5" />
-              Clerk
+              <ClipboardList className="w-4 h-4" />
+              Clinic Assistant
             </button>
             <button
               type="button"
               onClick={() => setRole('admin')}
-              className={`flex flex-col items-center justify-center gap-1 py-2 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
-                role === 'admin' ? 'bg-white text-slate-800 shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'
-              }`}
+              className={`flex flex-col items-center justify-center gap-1 py-3 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${role === 'admin' ? 'bg-slate-800 text-white border-slate-900' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 hover:text-slate-700'
+                }`}
             >
-              <Shield className="w-5 h-5" />
+              <Shield className="w-4 h-4" />
               Admin
             </button>
             <button
               type="button"
               onClick={() => setRole('hr')}
-              className={`flex flex-col items-center justify-center gap-1 py-2 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
-                role === 'hr' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'
-              }`}
+              className={`flex flex-col items-center justify-center gap-1 py-3 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${role === 'hr' ? 'bg-indigo-50 text-indigo-600 border-indigo-500' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 hover:text-slate-700'
+                }`}
             >
-              <Users className="w-5 h-5" />
+              <Users className="w-4 h-4" />
               HR
             </button>
           </div>
@@ -96,7 +121,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
             e.preventDefault();
             onLogin(role);
           }}>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">
                 {(role === 'admin' || role === 'hr') ? 'Admin/HR Username' : 'Staff ID / Email'}
               </label>
@@ -104,45 +129,42 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   {(role === 'admin' || role === 'hr') ? <UserCog className="w-4 h-4 text-slate-400" /> : <User className="w-4 h-4 text-slate-400" />}
                 </div>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   defaultValue={(role === 'admin' || role === 'hr') ? (role === 'admin' ? 'sysadmin' : 'hr_admin') : `${role}@mediclinic.local`}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#07B2B2] focus:border-[#07B2B2] outline-none transition-all text-sm font-medium"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-[#07B2B2] focus:border-[#07B2B2] outline-none transition-all text-sm font-medium"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Password
                 </label>
-                <a href="#" className="text-xs text-[#07B2B2] font-semibold hover:underline">Forgot?</a>
+                <a href="#" className="text-xs text-[#07B2B2] font-semibold hover:underline">Forgot Password?</a>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="w-4 h-4 text-slate-400" />
                 </div>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   defaultValue="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#07B2B2] focus:border-[#07B2B2] outline-none transition-all text-sm font-medium tracking-widest"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-[#07B2B2] focus:border-[#07B2B2] outline-none transition-all text-sm font-medium tracking-widest"
                 />
               </div>
             </div>
 
-            <div className="pt-4">
-              <button 
+            <div className="pt-6">
+              <button
                 type="submit"
-                className="w-full bg-[#07B2B2] hover:bg-[#069494] text-white py-3 rounded-lg font-bold text-sm shadow-md transition-all cursor-pointer flex justify-center items-center gap-2"
+                className="w-full bg-[#07B2B2] hover:bg-[#058A8A] text-white py-3 rounded-lg font-bold text-sm transition-colors cursor-pointer flex justify-center items-center gap-2"
               >
-                Authenticate & Login
+                Authenticate Session
               </button>
             </div>
-            
-            <p className="text-center text-xs text-slate-400 mt-6 font-mono">
-              Session is encrypted (AES-256-GCM). <br/> Authorized personnel only.
-            </p>
+
           </form>
 
         </div>

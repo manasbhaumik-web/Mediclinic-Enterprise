@@ -6,13 +6,14 @@ import {
 } from 'lucide-react';
 
 interface StaffRegistrationProps {
+  initialData?: StaffMember;
   onCancel: () => void;
   onSubmit: (newStaff: StaffMember) => void;
 }
 
-export default function StaffRegistration({ onCancel, onSubmit }: StaffRegistrationProps) {
+export default function StaffRegistration({ initialData, onCancel, onSubmit }: StaffRegistrationProps) {
   // Form State initialized with defaults
-  const [formData, setFormData] = useState<Partial<StaffMember>>({
+  const [formData, setFormData] = useState<Partial<StaffMember>>(initialData || {
     status: 'Active',
     gender: 'Male',
     employmentStatus: 'Full-Time',
@@ -28,14 +29,15 @@ export default function StaffRegistration({ onCancel, onSubmit }: StaffRegistrat
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const parsedValue = type === 'number' ? (value === '' ? 0 : Number(value)) : value;
     
     // Handle nested fields
     if (name.startsWith('emergencyContact.')) {
       const field = name.split('.')[1];
       setFormData({
         ...formData,
-        emergencyContact: { ...formData.emergencyContact!, [field]: value }
+        emergencyContact: { ...formData.emergencyContact!, [field]: parsedValue }
       });
       return;
     }
@@ -44,12 +46,12 @@ export default function StaffRegistration({ onCancel, onSubmit }: StaffRegistrat
       const field = name.split('.')[1];
       setFormData({
         ...formData,
-        bankDetails: { ...formData.bankDetails!, [field]: value }
+        bankDetails: { ...formData.bankDetails!, [field]: parsedValue }
       });
       return;
     }
 
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: parsedValue });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -63,7 +65,7 @@ export default function StaffRegistration({ onCancel, onSubmit }: StaffRegistrat
 
     const newStaff: StaffMember = {
       ...formData as StaffMember,
-      id: `S${Math.floor(Math.random() * 9000) + 1000}`, // Generate random ID for mock
+      id: initialData?.id || `S${Math.floor(Math.random() * 9000) + 1000}`, // Keep ID if editing, else generate
     };
 
     onSubmit(newStaff);

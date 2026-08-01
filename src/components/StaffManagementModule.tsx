@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, X, 
   DollarSign, CheckCircle, Clock, Calendar, AlertCircle 
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
+import { supabase } from '../lib/supabase';
 
 export interface StaffMember {
   id: string;
@@ -13,122 +14,143 @@ export interface StaffMember {
   status: 'Active' | 'Inactive' | 'Suspended' | 'On Leave';
   email: string;
   
-  // 2. Personal Information
   gender?: 'Male' | 'Female' | 'Other';
   dob?: string;
   icNumber?: string;
   phone?: string;
-  altPhone?: string;
-  emergencyContact?: {
-    name: string;
-    relationship: string;
-    phone: string;
-  };
-
-  // 3. Professional & Clinical Credentials
-  jobTitle?: string;
-  licenseNumber?: string;
-  licenseExpiry?: string;
-  specialization?: string;
-  qualifications?: string;
-
-  // 4. Employment & HR Details
-  dateJoined?: string;
-  dateResigned?: string;
-  employmentStatus?: 'Full-Time' | 'Part-Time' | 'Contract' | 'Locum';
-  workSchedule?: string;
-  supervisorId?: string;
-
-  // 5. Financial & Statutory Details
+  
   salaryBase: number;
   paymentStatus: 'Paid' | 'Pending';
-  attendanceRate: number; // percentage 0-100
-  leaveBalance: number; // days
-  leavesTaken: number; // days
-  bankDetails?: {
-    bankName: string;
-    accountHolder: string;
-    accountNumber: string;
-  };
-  taxId?: string;
-  statutoryFundNumber?: string;
+  attendanceRate: number; 
+  leaveBalance: number; 
+  leavesTaken: number; 
 }
-
-const INITIAL_STAFF: StaffMember[] = [
-  { id: 'S101', name: 'Dr. Sarah Ahmad', department: 'General Practice', role: 'Physician', status: 'Active', email: 'sarah.ahmad@mediclinic.local', salaryBase: 12000, paymentStatus: 'Paid', attendanceRate: 98, leaveBalance: 14, leavesTaken: 2 },
-  { id: 'S102', name: 'Nurse Wong', department: 'Triage', role: 'Registered Nurse', status: 'Active', email: 'wong.ly@mediclinic.local', salaryBase: 4500, paymentStatus: 'Pending', attendanceRate: 100, leaveBalance: 20, leavesTaken: 0 },
-  { id: 'S103', name: 'Ahmad Faizal', department: 'Administration', role: 'System Admin', status: 'Active', email: 'admin@mediclinic.local', salaryBase: 5000, paymentStatus: 'Pending', attendanceRate: 95, leaveBalance: 12, leavesTaken: 4 },
-  { id: 'S104', name: 'Dr. Ramesh Kumar', department: 'Pediatrics', role: 'Physician', status: 'Suspended', email: 'ramesh.k@mediclinic.local', salaryBase: 13500, paymentStatus: 'Paid', attendanceRate: 40, leaveBalance: 0, leavesTaken: 15 }
-];
 
 type StaffViewTab = 'directory' | 'payroll' | 'attendance';
 
 export default function StaffManagementModule() {
   const [activeTab, setActiveTab] = useState<StaffViewTab>('directory');
   const [currentView, setCurrentView] = useState<'list' | 'registration'>('list');
-  const [staffList, setStaffList] = useState<StaffMember[]>(INITIAL_STAFF);
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
 
-  // Derived State
+  useEffect(() => {
+    const fetchStaff = async () => {
+      const { data, error } = await supabase.from('staff').select('*').order('name');
+      if (data && !error) {
+        setStaffList(data.map(s => ({
+          id: s.id,
+          name: s.name,
+          department: s.department,
+          role: s.role,
+          status: s.status as any,
+          email: s.email,
+          gender: s.gender,
+          dob: s.dob,
+          icNumber: s.ic_number,
+          phone: s.phone,
+          salaryBase: Number(s.salary_base),
+          paymentStatus: s.payment_status as any,
+          attendanceRate: s.attendance_rate,
+          leaveBalance: s.leave_balance,
+          leavesTaken: s.leaves_taken
+        })));
+      }
+    };
+    
+    fetchStaff();
+    
+    const channel = supabase.channel('staff_sync_' + Math.random().toString(36).substring(2, 9))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'staff' }, fetchStaff)
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const filteredStaff = staffList.filter(s => 
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.department.toLowerCase().includes(searchQuery.toLowerCase())
+    s.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const activeCount = staffList.filter(s => s.status === 'Active').length;
-  
-  // Payroll Metrics
-  const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + curr.salaryBase, 0);
+  const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
   const pendingPayments = staffList.filter(s => s.paymentStatus === 'Pending').length;
 
-  const handleAddStaffSubmit = (newStaff: StaffMember) => {
-    setStaffList([...staffList, newStaff]);
-    setCurrentView('list');
-  };
-
-  const toggleStatus = (id: string) => {
-    setStaffList(staffList.map(s => {
-      if (s.id === id) {
-        return { ...s, status: s.status === 'Active' ? 'Suspended' : 'Active' };
+  const handleAddStaffSubmit = async (newStaff: StaffMember) => {
+    try {
+      if (editingStaffId) {
+        // Upsert uses id
+        await supabase.from('staff').update({
+          name: newStaff.name,
+          department: newStaff.department,
+          role: newStaff.role,
+          email: newStaff.email,
+          salary_base: newStaff.salaryBase,
+          status: newStaff.status
+        }).eq('id', editingStaffId);
+        setEditingStaffId(null);
+      } else {
+        await supabase.from('staff').insert([{
+          name: newStaff.name,
+          department: newStaff.department,
+          role: newStaff.role,
+          email: newStaff.email,
+          salary_base: newStaff.salaryBase || 0
+        }]);
       }
-      return s;
-    }));
-  };
-
-  const deleteStaff = (id: string) => {
-    if (confirm('Are you sure you want to permanently delete this staff record?')) {
-      setStaffList(staffList.filter(s => s.id !== id));
+      setCurrentView('list');
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  // HR Actions
-  const processPayroll = (id: string) => {
-    setStaffList(staffList.map(s => s.id === id ? { ...s, paymentStatus: 'Paid' } : s));
+  const toggleStatus = async (id: string) => {
+    const staff = staffList.find(s => s.id === id);
+    if (!staff) return;
+    const newStatus = staff.status === 'Active' ? 'Suspended' : 'Active';
+    await supabase.from('staff').update({ status: newStatus }).eq('id', id);
   };
 
-  const approveLeave = (id: string) => {
-    setStaffList(staffList.map(s => {
-      if (s.id === id && s.leaveBalance > 0) {
-        return { ...s, leaveBalance: s.leaveBalance - 1, leavesTaken: s.leavesTaken + 1 };
-      }
-      return s;
-    }));
+  const deleteStaff = async (id: string) => {
+    if (confirm('Are you sure you want to permanently delete this staff record?')) {
+      await supabase.from('staff').delete().eq('id', id);
+    }
   };
 
-  const markAbsent = (id: string) => {
-    setStaffList(staffList.map(s => {
-      if (s.id === id) {
-        // Drop attendance by 2% for mock logic
-        return { ...s, attendanceRate: Math.max(0, s.attendanceRate - 2) };
-      }
-      return s;
-    }));
+  const processPayroll = async (id: string) => {
+    await supabase.from('staff').update({ payment_status: 'Paid' }).eq('id', id);
+  };
+
+  const revertPayroll = async (id: string) => {
+    await supabase.from('staff').update({ payment_status: 'Pending' }).eq('id', id);
+  };
+
+  const approveLeave = async (id: string) => {
+    const staff = staffList.find(s => s.id === id);
+    if (staff && staff.leaveBalance > 0) {
+      await supabase.from('staff').update({ 
+        leave_balance: staff.leaveBalance - 1, 
+        leaves_taken: staff.leavesTaken + 1 
+      }).eq('id', id);
+    }
+  };
+
+  const markAbsent = async (id: string) => {
+    const staff = staffList.find(s => s.id === id);
+    if (staff) {
+      await supabase.from('staff').update({ 
+        attendance_rate: Math.max(0, staff.attendanceRate - 2) 
+      }).eq('id', id);
+    }
   };
 
   return (
     <div className="animate-fadeIn max-w-5xl mx-auto space-y-6">
-      {/* Module Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Staff & HR Management</h2>
@@ -148,7 +170,10 @@ export default function StaffManagementModule() {
           </div>
           {activeTab === 'directory' && (
             <button 
-              onClick={() => setCurrentView('registration')}
+              onClick={() => {
+                setEditingStaffId(null);
+                setCurrentView('registration');
+              }}
               className="bg-[#07B2B2] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#058A8A] cursor-pointer shadow-sm transition-colors"
             >
               <Plus className="w-4 h-4" />
@@ -158,15 +183,17 @@ export default function StaffManagementModule() {
         </div>
       </div>
 
-      {/* Render the appropriate view */}
       {currentView === 'registration' ? (
         <StaffRegistration 
-          onCancel={() => setCurrentView('list')} 
+          initialData={editingStaffId ? staffList.find(s => s.id === editingStaffId) : undefined}
+          onCancel={() => {
+            setCurrentView('list');
+            setEditingStaffId(null);
+          }} 
           onSubmit={handleAddStaffSubmit} 
         />
       ) : (
         <>
-          {/* Sub Navigation */}
           <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
             <button
               onClick={() => setActiveTab('directory')}
@@ -194,7 +221,6 @@ export default function StaffManagementModule() {
             </button>
           </div>
 
-          {/* -------------------- TAB: DIRECTORY -------------------- */}
           {activeTab === 'directory' && (
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden animate-fadeIn">
               <table className="w-full text-left text-sm">
@@ -222,7 +248,7 @@ export default function StaffManagementModule() {
                           </div>
                           <div>
                             <p className="font-bold text-slate-800">{staff.name}</p>
-                            <p className="text-[10px] font-mono text-slate-400">{staff.email} • ID: {staff.id}</p>
+                            <p className="text-[10px] font-mono text-slate-400">{staff.email}</p>
                           </div>
                         </div>
                       </td>
@@ -250,7 +276,13 @@ export default function StaffManagementModule() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
-                          <button className="p-2 text-slate-400 hover:text-[#07B2B2] bg-white hover:bg-cyan-50 rounded-lg border border-transparent hover:border-cyan-100 transition-all cursor-pointer">
+                          <button 
+                            onClick={() => {
+                              setEditingStaffId(staff.id);
+                              setCurrentView('registration');
+                            }}
+                            className="p-2 text-slate-400 hover:text-[#07B2B2] bg-white hover:bg-cyan-50 rounded-lg border border-transparent hover:border-cyan-100 transition-all cursor-pointer"
+                          >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button 
@@ -268,10 +300,8 @@ export default function StaffManagementModule() {
             </div>
           )}
 
-          {/* -------------------- TAB: PAYROLL -------------------- */}
           {activeTab === 'payroll' && (
             <div className="space-y-4 animate-fadeIn">
-              {/* Payroll Stats */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center text-[#07B2B2]">
@@ -307,20 +337,30 @@ export default function StaffManagementModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {filteredStaff.map((staff) => {
-                      const deductions = staff.salaryBase * 0.15; // Mock 15% deduction
-                      const netPay = staff.salaryBase - deductions;
+                      const base = Number(staff.salaryBase) || 0;
+                      const deductions = base * 0.15; // Mock 15% deduction
+                      const netPay = base - deductions;
 
                       return (
                         <tr key={staff.id} className="hover:bg-slate-50">
                           <td className="px-6 py-4 font-bold text-slate-800">{staff.name}</td>
-                          <td className="px-6 py-4 font-mono text-slate-600">RM {staff.salaryBase.toLocaleString()}</td>
+                          <td className="px-6 py-4 font-mono text-slate-600">RM {base.toLocaleString()}</td>
                           <td className="px-6 py-4 font-mono text-red-500">-RM {deductions.toLocaleString()}</td>
                           <td className="px-6 py-4 font-mono font-bold text-[#07B2B2]">RM {netPay.toLocaleString()}</td>
                           <td className="px-6 py-4">
                             {staff.paymentStatus === 'Paid' ? (
-                              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
-                                <CheckCircle className="w-3 h-3" /> Paid
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                                  <CheckCircle className="w-3 h-3" /> Paid
+                                </span>
+                                <button 
+                                  onClick={() => revertPayroll(staff.id)}
+                                  className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-amber-500 cursor-pointer"
+                                  title="Revert to Pending"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">
                                 <Clock className="w-3 h-3" /> Pending
@@ -349,7 +389,6 @@ export default function StaffManagementModule() {
             </div>
           )}
 
-          {/* -------------------- TAB: ATTENDANCE -------------------- */}
           {activeTab === 'attendance' && (
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden animate-fadeIn">
               <table className="w-full text-left text-sm">

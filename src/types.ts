@@ -1,5 +1,5 @@
 export type Language = 'EN' | 'BM';
-export type UserRole = 'doctor' | 'pharmacist' | 'clerk' | 'admin' | 'hr';
+export type UserRole = 'doctor' | 'pharmacist' | 'clinic-assistant' | 'admin' | 'hr';
 
 export interface Patient {
   id: string;
@@ -48,6 +48,12 @@ export interface SOAPNotes {
     followUpWeeks: number;
     mcDays: number;
     requiresReferral: boolean;
+    pharmacyMemo?: string;
+    referralDetails?: {
+      hospital: string;
+      department: string;
+      reason: string;
+    };
   };
 }
 
@@ -63,6 +69,7 @@ export interface Visit {
   paymentMethod?: 'Cash' | 'Credit Card' | 'e-Wallet' | 'Panel';
   glNumber?: string;
   mcIssued?: boolean;
+  registeredTime?: number;
 }
 
 export interface ICD10Code {

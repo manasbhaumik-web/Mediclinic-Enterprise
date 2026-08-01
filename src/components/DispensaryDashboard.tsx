@@ -3,7 +3,7 @@ import { Visit, PrescriptionItem, Language } from '../types';
 import { TRANSLATIONS } from '../data';
 import { 
   Users, User, CheckCircle, AlertCircle, FileText, Printer, CheckSquare, 
-  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen
+  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 
@@ -12,16 +12,25 @@ interface DispensaryDashboardProps {
   patientsMap: Record<string, any>;
   activeLanguage: Language;
   onDispenseSubmit: (visitId: string) => void;
+  pharmacistName?: string;
 }
 
 export default function DispensaryDashboard({
   queue,
   patientsMap,
   activeLanguage,
-  onDispenseSubmit
+  onDispenseSubmit,
+  pharmacistName = "Pharm. Ahmad Razak"
 }: DispensaryDashboardProps) {
   const t = TRANSLATIONS[activeLanguage];
   const { dispenseDrug } = useInventory();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   // Active Selected Patient ID in pharmacy queue
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(
@@ -39,9 +48,24 @@ export default function DispensaryDashboard({
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   const [selectedLabelRx, setSelectedLabelRx] = useState<PrescriptionItem | null>(null);
 
+  // Skip/Out of Stock Toggle State
+  const [skippedDrugs, setSkippedDrugs] = useState<Set<string>>(new Set());
+
   // Find the selected active visit
   const activeVisit = queue.find(v => v.id === selectedVisitId) || queue[0];
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
+
+  const checkAllergyConflict = (drugName: string) => {
+    if (!activePatient || !activePatient.allergies) return false;
+    return activePatient.allergies.some((allergy: string) => {
+      if (!allergy.trim() || allergy.toLowerCase() === 'none') return false;
+      return drugName.toLowerCase().includes(allergy.toLowerCase());
+    });
+  };
+
+  const hasUnskippedAllergies = activeVisit?.soap?.plan?.prescription?.some(rx => 
+    !skippedDrugs.has(rx.id) && checkAllergyConflict(rx.drugName)
+  );
 
   const handleSelectVisit = (id: string) => {
     setSelectedVisitId(id);
@@ -51,6 +75,7 @@ export default function DispensaryDashboard({
       allergyCleared: false,
       dosageExplained: false
     });
+    setSkippedDrugs(new Set());
   };
 
   const handlePrintLabelClick = (rx: PrescriptionItem) => {
@@ -65,11 +90,18 @@ export default function DispensaryDashboard({
       return;
     }
 
+    if (hasUnskippedAllergies) {
+      alert(activeLanguage === 'EN' ? 'CRITICAL: Allergy conflict detected in active prescriptions. You must skip the conflicting drug or resolve the allergy before dispensing.' : 'KRITIKAL: Konflik alahan dikesan. Anda mesti melangkau ubat tersebut atau menyelesaikan alahan sebelum mendispens.');
+      return;
+    }
+
     // Deduct stock for all prescribed drugs in this visit
     if (activeVisit?.soap?.plan?.prescription) {
       activeVisit.soap.plan.prescription.forEach(rx => {
-        const qty = rx.quantity || 1;
-        dispenseDrug(rx.drugName, qty);
+        if (!skippedDrugs.has(rx.id)) {
+          const qty = rx.quantity || 1;
+          dispenseDrug(rx.drugName, qty);
+        }
       });
     }
 
@@ -78,7 +110,21 @@ export default function DispensaryDashboard({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+    <div className="space-y-5 animate-fadeIn">
+      {/* Clean Enterprise Greetings Banner */}
+      <div className="enterprise-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-[#0D9488]">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Pill className="w-6 h-6 text-[#0D9488]" />
+            <span>{getGreeting()}, {pharmacistName}</span>
+          </h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Pending prescriptions are awaiting dispensation. Verify patient details, labels, and dosage safety.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
       
       {/* 1. DISPENSARY QUEUE LIST PANEL (Left Column - 35%) */}
       <div className="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
@@ -93,9 +139,9 @@ export default function DispensaryDashboard({
 
         {queue.length === 0 ? (
           <div className="bg-white rounded-lg border border-slate-200/60 p-8 text-center text-slate-400">
-            <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-2 animate-bounce-slow" />
-            <p className="text-xs font-semibold text-slate-600">Dispensation Queue Empty</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Approved medications from SOAP rooms flow here automatically.</p>
+            <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-2 animate-pulse opacity-80" />
+            <p className="text-sm font-semibold text-slate-600">Dispensation Queue Empty</p>
+            <p className="text-xs text-slate-400 mt-0.5">Approved medications from SOAP rooms flow here automatically.</p>
           </div>
         ) : (
           <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
@@ -114,18 +160,18 @@ export default function DispensaryDashboard({
                       : 'border-slate-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between text-[10px]">
-                    <span className="bg-slate-100 text-slate-600 font-mono px-1.5 py-0.2 rounded font-bold">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="bg-slate-100 text-slate-600 font-mono px-1.5 py-0.5 rounded font-bold">
                       RX-QUEUE #{index + 101}
                     </span>
                     <span className="text-slate-400 font-mono">{visit.date}</span>
                   </div>
 
-                  <h5 className="text-xs font-bold text-slate-800 uppercase mt-1.5 truncate">
+                  <h5 className="text-sm font-bold text-slate-800 uppercase mt-1.5 truncate">
                     {pt.fullName}
                   </h5>
 
-                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100 text-[10px]">
+                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100 text-xs">
                     <span className="text-slate-500 font-mono">
                       Rx Meds: <strong className="text-slate-700">{visit.soap?.plan?.prescription?.length || 0} ITEMS</strong>
                     </span>
@@ -150,17 +196,29 @@ export default function DispensaryDashboard({
                 <h4 id="dispenser-patient-banner" className="text-slate-800 font-bold text-sm uppercase tracking-tight">
                   {activePatient.fullName}
                 </h4>
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   MyKad IC: <strong className="font-mono text-slate-500">{activePatient.icNumber}</strong> | Gender: {activePatient.gender}
                 </p>
               </div>
               <div className="text-right">
-                <span className="bg-[#07B2B2]/10 text-[#07B2B2] px-2.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider">
+                <span className="bg-[#07B2B2]/10 text-[#07B2B2] px-2.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
                   Pharmacopoeia Audit
                 </span>
-                <span className="text-[9px] text-slate-400 block mt-0.5">Doctor Case: {activeVisit.soap?.assessment?.icdCode}</span>
+                <span className="text-xs text-slate-400 block mt-0.5">Doctor Case: {activeVisit.soap?.assessment?.icdCode}</span>
               </div>
             </div>
+
+            {/* PHARMACY MEMO DISPLAY */}
+            {activeVisit.soap?.plan?.pharmacyMemo && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <h5 className="text-xs font-bold text-amber-800 uppercase flex items-center gap-1.5 mb-1">
+                  <AlertCircle className="w-4 h-4" /> Doctor's Instructions
+                </h5>
+                <p className="text-sm text-amber-900 leading-relaxed font-medium">
+                  "{activeVisit.soap.plan.pharmacyMemo}"
+                </p>
+              </div>
+            )}
 
             {/* Grid display for active prescriptions */}
             <div>
@@ -179,23 +237,31 @@ export default function DispensaryDashboard({
                     // Check if expiry contains warnings (simulated using months to determine danger)
                     // If months remaining is near (derived mock check: random calculation based on date)
                     const isExpiryAmber = rx.drugName.includes('Ibuprofen') || rx.drugName.includes('Amlodipine');
+                    const hasAllergy = checkAllergyConflict(rx.drugName);
+                    const isSkipped = skippedDrugs.has(rx.id);
                     
                     return (
                       <div 
                         key={rx.id} 
-                        className="bg-slate-50/50 p-3 rounded-lg border border-slate-100 flex flex-col md:flex-row items-stretch justify-between gap-3 text-xs"
+                        className={`p-3 rounded-lg border flex flex-col md:flex-row items-stretch justify-between gap-3 text-xs transition-all ${
+                          isSkipped 
+                            ? 'bg-slate-100 border-slate-200 opacity-60 grayscale'
+                            : hasAllergy 
+                              ? 'bg-red-50 border-red-300 shadow-[0_0_15px_rgba(239,68,68,0.15)] ring-1 ring-red-300'
+                              : 'bg-slate-50/50 border-slate-100'
+                        }`}
                       >
                         
                         {/* Drug Name with dual BM/EN dosage translations */}
-                        <div className="flex-1 space-y-1">
+                        <div className="flex-1 space-y-1.5">
                           <div className="flex items-center gap-2">
-                            <h6 className="font-bold text-slate-800 tracking-tight">{rx.drugName}</h6>
-                            <span className="bg-slate-200 text-slate-700 text-[8px] font-bold px-1 rounded uppercase tracking-wide">
+                            <h6 className="font-bold text-sm text-slate-800 tracking-tight">{rx.drugName}</h6>
+                            <span className="bg-slate-200 text-slate-700 text-xs font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">
                               Qty: {rx.quantity}
                             </span>
                           </div>
 
-                          <div className="text-[11px] leading-relaxed">
+                          <div className="text-xs leading-relaxed border-l-2 border-slate-200 pl-2">
                             <p className="text-slate-600 font-mono">
                               <strong>EN:</strong> {rx.dosage}
                             </p>
@@ -203,38 +269,14 @@ export default function DispensaryDashboard({
                               <strong>BM:</strong> {rx.dosageBM}
                             </p>
                           </div>
-                        </div>
-
-                        {/* Pill verification design reference */}
-                        <div className="md:w-44 flex flex-col justify-between p-2 bg-white rounded border border-slate-200/60 font-mono text-[9px] text-slate-500 space-y-1 shrink-0">
-                          <div className="text-[8px] uppercase font-bold text-slate-400 flex items-center justify-between">
-                            <span>Visual ID</span>
-                            <span>Capsule Form</span>
-                          </div>
                           
-                          {/* Beautiful pill visual CSS placeholder */}
-                          <div className="flex items-center justify-center p-1.5 py-2.5">
-                            <div className="relative flex items-center gap-1.5">
-                              {/* Left / Right split capsule shape */}
-                              <div 
-                                className={`w-8 h-4 rounded-l-full border border-slate-300 shadow-inner`}
-                                style={{ backgroundColor: rx.pillColor, opacity: 0.9 }}
-                              />
-                              <div 
-                                className={`w-8 h-4 rounded-r-full border border-slate-300 shadow-inner`}
-                                style={{ backgroundColor: rx.capsuleStyle === 'split' ? '#f3f4f6' : rx.pillColor, opacity: 0.9 }}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Batch & expiry status indicator badge */}
-                          <div className="text-center">
+                          <div className="pt-1">
                             {isExpiryAmber ? (
-                              <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1 rounded text-[8px] font-semibold uppercase">
+                              <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase">
                                 Low Stock Expiry Warning (&lt; 3 months)
                               </span>
                             ) : (
-                              <span className="bg-emerald-50 text-emerald-800 px-1 rounded text-[8px] font-semibold uppercase">
+                              <span className="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase border border-emerald-100">
                                 Batch Safe (Exp: {rx.expiryDate})
                               </span>
                             )}
@@ -242,16 +284,55 @@ export default function DispensaryDashboard({
                         </div>
 
                         {/* Prints Sticker and controls */}
-                        <div className="flex flex-col justify-center items-end shrink-0 pl-1.5 border-l border-dashed border-slate-200">
+                        <div className="flex flex-col justify-center items-end shrink-0 pl-3 border-l border-slate-100 space-y-2 w-32">
                           <button
                             type="button"
                             onClick={() => handlePrintLabelClick(rx)}
-                            className="bg-white border hover:bg-slate-50 text-[#07B2B2] border-slate-200 text-[10px] px-2.5 py-1.5 rounded font-semibold flex items-center gap-1.5 cursor-pointer"
+                            disabled={isSkipped}
+                            className="bg-white hover:bg-slate-50 border border-slate-200 text-[#07B2B2] disabled:opacity-50 text-xs px-3 py-1.5 rounded font-semibold flex items-center justify-center gap-1.5 transition-colors w-full shadow-sm"
                           >
                             <Printer className="w-3.5 h-3.5" />
                             {t.printLabel}
                           </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newSet = new Set(skippedDrugs);
+                              if (isSkipped) newSet.delete(rx.id);
+                              else newSet.add(rx.id);
+                              setSkippedDrugs(newSet);
+                            }}
+                            className={`px-3 py-1.5 rounded text-xs font-bold w-full transition-colors border shadow-sm ${
+                              isSkipped 
+                                ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' 
+                                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                            }`}
+                          >
+                            {isSkipped ? 'RESTORE (OOS)' : 'SKIP (OOS)'}
+                          </button>
                         </div>
+                        
+                        {/* ALLERGY HARD STOP OVERLAY */}
+                        {hasAllergy && !isSkipped && (
+                          <div className="absolute inset-0 bg-red-50/95 rounded-lg flex flex-col items-center justify-center text-center p-4 backdrop-blur-[2px] z-10 animate-fadeIn border-2 border-red-200">
+                            <ShieldAlert className="w-8 h-8 text-red-500 mb-2 animate-pulse" />
+                            <h4 className="text-red-700 font-bold uppercase tracking-widest text-sm mb-1">Critical Allergy Conflict</h4>
+                            <p className="text-red-600 text-xs max-w-[80%] leading-relaxed mb-3">
+                              Patient has a registered allergy to components in <strong className="text-red-800">{rx.drugName}</strong>. Dispensing is locked.
+                            </p>
+                            <button
+                              onClick={() => {
+                                const newSet = new Set(skippedDrugs);
+                                newSet.add(rx.id);
+                                setSkippedDrugs(newSet);
+                              }}
+                              className="bg-red-600 hover:bg-red-700 text-white shadow shadow-red-500/20 px-4 py-1.5 rounded text-xs font-bold transition-colors cursor-pointer"
+                            >
+                              Skip This Medication
+                            </button>
+                          </div>
+                        )}
 
                       </div>
                     );
@@ -318,11 +399,13 @@ export default function DispensaryDashboard({
                 type="button"
                 id="pharmacy-dispense-confirm-btn"
                 onClick={triggerDispensingSignoff}
-                disabled={!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained}
-                className="bg-[#07B2B2] text-white font-bold text-xs px-5 py-2.5 rounded-lg hover:bg-[#058A8A] transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                disabled={!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained || hasUnskippedAllergies}
+                className={`text-white font-bold text-xs px-5 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
+                  hasUnskippedAllergies ? 'bg-red-600 hover:bg-red-700' : 'bg-[#07B2B2] hover:bg-[#058A8A]'
+                }`}
               >
-                <CheckCircle className="w-4 h-4 text-white" />
-                Dispense &amp; Route to Billing
+                {hasUnskippedAllergies ? <ShieldAlert className="w-4 h-4 text-white" /> : <CheckCircle className="w-4 h-4 text-white" />}
+                {hasUnskippedAllergies ? 'Resolve Conflicts' : 'Dispense & Route to Billing'}
               </button>
             </div>
 
@@ -451,6 +534,7 @@ export default function DispensaryDashboard({
         </div>
       )}
 
+      </div>
     </div>
   );
 }

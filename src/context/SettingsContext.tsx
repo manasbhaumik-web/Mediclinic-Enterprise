@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export interface GlobalSettings {
   billing: {
@@ -50,8 +51,58 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
 
-  const updateSettings = (newSettings: GlobalSettings) => {
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data, error } = await supabase.from('clinic_settings').select('*').eq('id', 1).single();
+      if (data && !error) {
+        setSettings({
+          billing: {
+            taxRate: Number(data.tax_rate),
+            consultationFee: Number(data.consultation_fee),
+            procedureFee: Number(data.procedure_fee)
+          },
+          modules: data.active_modules,
+          hardware: data.hardware_config
+        });
+      }
+    };
+    fetchSettings();
+
+    const channel = supabase.channel('settings_sync_' + Math.random().toString(36).substring(2, 9))
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'clinic_settings' }, (payload: any) => {
+        const data = payload.new;
+        setSettings({
+          billing: {
+            taxRate: Number(data.tax_rate),
+            consultationFee: Number(data.consultation_fee),
+            procedureFee: Number(data.procedure_fee)
+          },
+          modules: data.active_modules,
+          hardware: data.hardware_config
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const updateSettings = async (newSettings: GlobalSettings) => {
     setSettings(newSettings);
+    
+    try {
+      await supabase.from('clinic_settings').upsert({
+        id: 1,
+        tax_rate: newSettings.billing.taxRate,
+        consultation_fee: newSettings.billing.consultationFee,
+        procedure_fee: newSettings.billing.procedureFee,
+        active_modules: newSettings.modules,
+        hardware_config: newSettings.hardware
+      });
+    } catch (err) {
+      console.error('Failed to update settings', err);
+    }
   };
 
   return (
