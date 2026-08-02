@@ -15,6 +15,7 @@ import { Card, CardContent } from './ui/Card';
 interface LandingDashboardProps {
   userRole: UserRole | null;
   userName?: string;
+  triageQueue?: Visit[];
   doctorQueue: Visit[];
   pharmacyQueue: Visit[];
   cashierQueue: Visit[];
@@ -28,6 +29,7 @@ interface LandingDashboardProps {
 export default function LandingDashboard({
   userRole,
   userName = "Dr. Sarah Jenkins",
+  triageQueue = [],
   doctorQueue,
   pharmacyQueue,
   cashierQueue,
@@ -47,8 +49,8 @@ export default function LandingDashboard({
   };
 
   // Derived Metrics
-  const totalEncountersToday = completedVisits.length + doctorQueue.length + pharmacyQueue.length + cashierQueue.length + 18;
-  const activeQueueCount = doctorQueue.length + pharmacyQueue.length;
+  const totalEncountersToday = completedVisits.length + triageQueue.length + doctorQueue.length + pharmacyQueue.length + cashierQueue.length + 18;
+  const activeQueueCount = triageQueue.length + doctorQueue.length + pharmacyQueue.length;
   const calculatedRevenue = completedVisits.reduce((acc, curr) => acc + (curr.paidAmount || 0) + (curr.panelClaimed || 0), 0) + 2850;
 
   // Statistical Data Arrays for Recharts
@@ -178,7 +180,7 @@ export default function LandingDashboard({
                 Avg Wait: <strong className="text-slate-800 font-mono">11m</strong>
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Dr Lounge: {doctorQueue.length} | Pharmacy: {pharmacyQueue.length}</p>
+            <p className="text-xs text-slate-400 mt-1 font-medium">Triage: {triageQueue.length} | Doctor: {doctorQueue.length} | Pharmacy: {pharmacyQueue.length}</p>
           </CardContent>
         </Card>
 

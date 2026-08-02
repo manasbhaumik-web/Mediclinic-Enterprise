@@ -19,6 +19,7 @@ import DoctorDashboardModule from './components/DoctorDashboardModule';
 import LandingDashboard from './components/LandingDashboard';
 import ClinicLandingPage from './components/ClinicLandingPage';
 import PatientRegistrationModule from './components/PatientRegistrationModule';
+import TriageModule from './components/TriageModule';
 
 // Import icons
 import {
@@ -34,7 +35,7 @@ export default function App() {
   const [appView, setAppView] = useState<'landing' | 'telemetry' | 'login' | 'suite' | 'admin'>('landing');
 
   // Navigation Menu Active Page
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'dispensary' | 'billing'>('queue');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing'>('queue');
 
   const handleLogin = async (role: UserRole) => {
     await signIn(role);
@@ -45,7 +46,7 @@ export default function App() {
       // Automatically route to dedicated dashboard view according to logged-in user role
       if (role === 'doctor') setActiveTab('queue');
       else if (role === 'pharmacist') setActiveTab('dispensary');
-      else if (role === 'clinic-assistant') setActiveTab('registration');
+      else if (role === 'clinic-assistant') setActiveTab('triage');
       else setActiveTab('dashboard');
     }
   };
@@ -159,9 +160,28 @@ export default function App() {
   }, {});
 
   // Categorize flow lists
+  const triageQueue = visitsQueue.filter(v => v.status === 'Awaiting Triage');
   const doctorQueue = visitsQueue.filter(v => v.status === 'Awaiting Consult' || v.status === 'Consulting');
   const pharmacyQueue = visitsQueue.filter(v => v.status === 'Awaiting Dispensation');
   const cashierQueue = visitsQueue.filter(v => v.status === 'Awaiting Billing');
+
+  const handleTriageComplete = (visitId: string, vitals: any, chiefComplaint: string) => {
+    const visit = visitsQueue.find(v => v.id === visitId);
+    if (visit) {
+      updateVisitInDb({
+        ...visit,
+        soap: {
+          ...visit.soap,
+          subjective: chiefComplaint,
+          objective: {
+            ...visit.soap?.objective,
+            ...vitals
+          }
+        },
+        status: 'Awaiting Consult'
+      });
+    }
+  };
 
   const getUserDisplayName = () => {
     if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
@@ -207,6 +227,7 @@ export default function App() {
           <LandingDashboard
             userRole={userRole}
             userName={getUserDisplayName()}
+            triageQueue={triageQueue}
             doctorQueue={doctorQueue}
             pharmacyQueue={pharmacyQueue}
             cashierQueue={cashierQueue}
@@ -377,6 +398,29 @@ export default function App() {
                         <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
                         <span>{t.patientRegistration}</span>
                       </div>
+                      </button>
+                    )}
+
+                  {/* Triage Module Icon */}
+                  {userRole === 'clinic-assistant' && (
+                    <button
+                      type="button"
+                      id="sidebar-link-triage"
+                      onClick={() => setActiveTab('triage')}
+                      className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'triage'
+                        ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
+                        <span>Triage Module</span>
+                      </div>
+                      {triageQueue.length > 0 && (
+                        <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                          {triageQueue.length}
+                        </span>
+                      )}
                     </button>
                   )}
 
@@ -517,6 +561,7 @@ export default function App() {
                   <LandingDashboard
                     userRole={userRole}
                     userName={getUserDisplayName()}
+                    triageQueue={triageQueue}
                     doctorQueue={doctorQueue}
                     pharmacyQueue={pharmacyQueue}
                     cashierQueue={cashierQueue}
@@ -539,10 +584,23 @@ export default function App() {
                   <PatientRegistrationModule
                     t={t}
                     activeLanguage={activeLanguage}
-                    patientsList={patientsList}
+                    searchPatients={async (query: string) => patientsList.filter(p => p.fullName.toLowerCase().includes(query.toLowerCase()) || p.icNumber.includes(query))}
+                    totalPatientCount={patientsList.length}
+                    triageQueue={triageQueue}
+                    patientsMap={patientsMap}
                     addPatientToDb={addPatientToDb}
                     addVisitToDb={addVisitToDb}
+                    updateVisitInDb={updateVisitInDb}
                     onNavigateTab={setActiveTab}
+                  />
+                )}
+
+                {/* TRIAGE MODULE */}
+                {activeTab === 'triage' && userRole === 'clinic-assistant' && (
+                  <TriageModule
+                    triageQueue={triageQueue}
+                    patientsMap={patientsMap}
+                    onTriageComplete={handleTriageComplete}
                   />
                 )}
 

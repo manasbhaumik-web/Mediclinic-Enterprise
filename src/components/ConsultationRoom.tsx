@@ -340,7 +340,7 @@ export default function ConsultationRoom({
       frequency: catalogDrug.frequency,
       quantity: 10, // default quantity
       pricePerUnit: catalogDrug.pricePerUnit,
-      expiryDate: new Date(Date.now() + catalogDrug.expiryMonths * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      expiryDate: new Date(Date.now() + (catalogDrug.expiryMonths || 12) * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       pillColor: catalogDrug.pillColor,
       capsuleStyle: catalogDrug.capsuleStyle
     };
@@ -783,7 +783,7 @@ export default function ConsultationRoom({
               </div>
               <textarea
                 id="soap-subjective-input"
-                className="w-full text-xs min-h-[140px] px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none shadow-inner resize-y min-h-[180px] leading-relaxed"
                 value={subjective}
                 onChange={(e) => setSubjective(e.target.value)}
                 placeholder="Record symptoms, clinical history, patient complaints, pain scale (0-10), onset duration..."
@@ -1090,7 +1090,7 @@ export default function ConsultationRoom({
                 </label>
                 <textarea
                   id="soap-notes-clinical-desc"
-                  className="w-full text-xs min-h-[80px] px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none shadow-inner resize-y min-h-[120px] leading-relaxed"
                   value={clinicalNotes}
                   onChange={(e) => setClinicalNotes(e.target.value)}
                   placeholder="Enter medical assessment summary, specialist reports references, follow-up parameters, or procedural logs..."

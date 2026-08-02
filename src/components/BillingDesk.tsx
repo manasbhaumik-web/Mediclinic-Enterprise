@@ -5,6 +5,7 @@ import { useSettings } from '../context/SettingsContext';
 import { useAuxiliary } from '../context/AuxiliaryContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateInvoicePDF } from '../utils/pdfGenerator';
+import StripeCheckout from './StripeCheckout';
 import { 
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet,
   ClipboardCheck, CheckCircle2, QrCode, FileCheck, FileText, Plus, Percent, Trash2
@@ -46,6 +47,7 @@ export default function BillingDesk({
   // Checkout overlay triggers
   const [activePaymentMethod, setActivePaymentMethod] = useState<'Cash' | 'Credit Card' | 'e-Wallet' | null>(null);
   const [isTngOverlayOpen, setIsTngOverlayOpen] = useState(false);
+  const [isStripeOverlayOpen, setIsStripeOverlayOpen] = useState(false);
   const [receiptWindowData, setReceiptWindowData] = useState<{
     method: 'Cash' | 'Credit Card' | 'e-Wallet' | 'Panel';
   } | null>(null);
@@ -199,6 +201,10 @@ export default function BillingDesk({
 
   const handleTngSimulationStart = () => {
     setIsTngOverlayOpen(true);
+  };
+
+  const handleStripeCheckoutStart = () => {
+    setIsStripeOverlayOpen(true);
   };
 
   return (
@@ -560,7 +566,7 @@ export default function BillingDesk({
                 <button
                   type="button"
                   id="checkout-card-btn"
-                  onClick={() => setReceiptWindowData({ method: 'Credit Card' })}
+                  onClick={handleStripeCheckoutStart}
                   className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold rounded-lg p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
                 >
                   <CreditCard className="w-5 h-5 text-indigo-600" />
@@ -597,6 +603,20 @@ export default function BillingDesk({
       </div>
 
       {/* TOUCH N GO E-WALLET INTERACTIVE POPUP SCANNER */}
+      {isStripeOverlayOpen && activePatient && activeVisit && (
+        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+          <StripeCheckout
+            amount={isPanelClaim ? billingBreakdown.patientCopay : billingBreakdown.grandTotal}
+            invoiceId={`INV-${activeVisit.id}`}
+            onCancel={() => setIsStripeOverlayOpen(false)}
+            onSuccess={() => {
+              setIsStripeOverlayOpen(false);
+              setReceiptWindowData({ method: 'Credit Card' });
+            }}
+          />
+        </div>
+      )}
+
       {isTngOverlayOpen && activePatient && (
         <div id="tng-wallet-modal-overlay" className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
           <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 animate-scaleUp">

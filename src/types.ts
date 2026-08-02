@@ -62,7 +62,7 @@ export interface Visit {
   patientId: string;
   date: string;
   soap: SOAPNotes;
-  status: 'Awaiting Consult' | 'Consulting' | 'Awaiting Dispensation' | 'Dispensing' | 'Awaiting Billing' | 'Paid';
+  status: 'Awaiting Triage' | 'Triaging' | 'Awaiting Consult' | 'Consulting' | 'Awaiting Dispensation' | 'Dispensing' | 'Awaiting Billing' | 'Paid' | 'Cancelled';
   totalBill: number;
   panelClaimed: number;
   paidAmount: number;

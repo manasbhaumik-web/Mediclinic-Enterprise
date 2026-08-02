@@ -3,6 +3,8 @@ import React from 'react';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  id?: string;
+  key?: React.Key | string | number;
 }
 
 export function Card({ children, className = '' }: CardProps) {

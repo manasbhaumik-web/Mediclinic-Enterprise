@@ -3,9 +3,17 @@ import React from 'react';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
   error?: string;
-  label?: string;
+  label?: React.ReactNode;
   className?: string;
   id?: string;
+  type?: string;
+  value?: string | number | readonly string[];
+  placeholder?: string;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  step?: string | number;
+  min?: string | number;
+  max?: string | number;
+  required?: boolean;
 }
 
 export default function Input({ icon, error, label, className = '', id, ...props }: InputProps) {
