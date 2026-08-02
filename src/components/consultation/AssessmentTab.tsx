@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -25,18 +25,16 @@ export default function AssessmentTab({
   const { icd10Catalog } = useAuxiliary();
 
   const [searchICDQuery, setSearchICDQuery] = useState('');
-  const [icdSuggestions, setIcdSuggestions] = useState<ICD10Code[]>([]);
-
   // Filter ICD suggestions
-  useEffect(() => {
+  const icdSuggestions = useMemo(() => {
     if (searchICDQuery.trim() === '') {
-      setIcdSuggestions([]);
+      return [];
     } else if (searchICDQuery.trim().length > 1) {
-      const filtered = icd10Catalog.filter(
+      return icd10Catalog.filter(
         (i) => i.code.toLowerCase().includes(searchICDQuery.toLowerCase()) || i.desc.toLowerCase().includes(searchICDQuery.toLowerCase())
       );
-      setIcdSuggestions(filtered);
     }
+    return [];
   }, [searchICDQuery, icd10Catalog]);
 
   return (
@@ -71,7 +69,6 @@ export default function AssessmentTab({
                   onClick={() => {
                     setSelectedICD(item);
                     setSearchICDQuery('');
-                    setIcdSuggestions([]);
                   }}
                   className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 border-b border-slate-100 flex items-center justify-between cursor-pointer"
                 >
@@ -121,7 +118,7 @@ export default function AssessmentTab({
         </label>
         <textarea
           id="soap-notes-clinical-desc"
-          className="w-full text-xs min-h-[80px] px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none shadow-inner resize-y min-h-[120px] leading-relaxed"
           value={clinicalNotes}
           onChange={(e) => setClinicalNotes(e.target.value)}
           placeholder="Enter medical assessment summary, specialist reports references, follow-up parameters, or procedural logs..."

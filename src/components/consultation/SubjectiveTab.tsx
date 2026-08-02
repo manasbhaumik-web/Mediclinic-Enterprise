@@ -74,7 +74,7 @@ export default function SubjectiveTab({
       </div>
       <textarea
         id="soap-subjective-input"
-        className="w-full text-xs min-h-[140px] px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none shadow-inner resize-y min-h-[180px] leading-relaxed"
         value={subjective}
         onChange={(e) => setSubjective(e.target.value)}
         placeholder="Record symptoms, clinical history, patient complaints, pain scale (0-10), onset duration..."

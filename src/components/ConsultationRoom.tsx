@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Patient, Visit, ICD10Code, PrescriptionItem, Language 
 } from '../types';
@@ -13,6 +13,10 @@ import {
   AlertTriangle, Check, FileText, Printer, Clock, Heart, Thermometer, Info, ChevronRight, UserMinus,
   Mic, MicOff, Bluetooth, Zap, Eye, TrendingUp, Brain, CheckCircle2, TestTube, Share, LineChart, Copy
 } from 'lucide-react';
+import SubjectiveTab from './consultation/SubjectiveTab';
+import ObjectiveTab from './consultation/ObjectiveTab';
+import AssessmentTab from './consultation/AssessmentTab';
+import PlanTab from './consultation/PlanTab';
 
 interface ConsultationRoomProps {
   currentPatient: Patient | null;
@@ -69,7 +73,7 @@ export default function ConsultationRoom({
   }, [activeVisit]);
 
   // Automated Vitals Abnormality Helper
-  const getVitalsAbnormalities = () => {
+  const vitalsAlerts = useMemo(() => {
     const alerts: { label: string; value: string; isHigh: boolean; type: string }[] = [];
     if (vitals.temperature >= 37.5) {
       alerts.push({
@@ -111,30 +115,18 @@ export default function ConsultationRoom({
       });
     }
     return alerts;
-  };
-
-  const vitalsAlerts = getVitalsAbnormalities();
+  }, [vitals]);
 
 
   // Assessment State
-  const [searchICDQuery, setSearchICDQuery] = useState('');
   const [selectedICD, setSelectedICD] = useState<ICD10Code | null>(null);
-  const [icdSuggestions, setIcdSuggestions] = useState<ICD10Code[]>([]);
   const [clinicalNotes, setClinicalNotes] = useState('');
 
   // Plan State (Prescription builder)
-  const [searchDrugQuery, setSearchDrugQuery] = useState('');
-  const [drugSuggestions, setDrugSuggestions] = useState<any[]>([]);
   const [rxList, setRxList] = useState<PrescriptionItem[]>([]);
-  
-  // Drug Alerts & Conflicts State
-  const [allergyAlerts, setAllergyAlerts] = useState<{ drugName: string; allergyGroup: string }[]>([]);
-  const [contraindicationAlerts, setContraindicationAlerts] = useState<{ drugName: string; icdCode: string; reason: string }[]>([]);
 
   // MC Generator
-  const [isMcModalOpen, setIsMcModalOpen] = useState(false);
   const [mcDays, setMcDays] = useState<number | ''>(1);
-  const [mcReferenceNo, setMcReferenceNo] = useState('');
   const [mcGenerated, setMcGenerated] = useState(false);
 
   // Next-Gen Simulations State
@@ -145,32 +137,12 @@ export default function ConsultationRoom({
   const [pharmacyMemo, setPharmacyMemo] = useState('');
 
   // Referral State
-  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [referralDetails, setReferralDetails] = useState({
     hospital: '',
     department: '',
     reason: ''
   });
   const [referralGenerated, setReferralGenerated] = useState(false);
-
-  // Pediatric Calc State
-  const [patientWeight, setPatientWeight] = useState('');
-  const [medConcentration, setMedConcentration] = useState('');
-  const [calculatedDose, setCalculatedDose] = useState<number | null>(null);
-
-  // function for pediatric calculator
-  useEffect(() => {
-    const weight = parseFloat(patientWeight);
-    const conc = parseFloat(medConcentration);
-    if (weight > 0 && conc > 0) {
-      // standard formula e.g. 15mg/kg/dose for paracetamol
-      const doseMg = weight * 15;
-      const volumeMl = doseMg / conc;
-      setCalculatedDose(volumeMl);
-    } else {
-      setCalculatedDose(null);
-    }
-  }, [patientWeight, medConcentration]);
 
   // Populate longitudinal history for active patient
   const [patientPastVisits, setPatientPastVisits] = useState<Visit[]>([]);
@@ -196,117 +168,6 @@ export default function ConsultationRoom({
     activeLanguage === 'EN' ? 'Muscle sorenesses and joint stiffness post exercise' : 'Lengu-lengu otot dan sendi selepas bersenam',
   ];
 
-  // Filter ICD suggestions
-  useEffect(() => {
-    if (searchICDQuery.trim() === '') {
-      setIcdSuggestions([]);
-    } else if (searchICDQuery.trim().length > 1) {
-      const filtered = icd10Catalog.filter(
-        (i) => i.code.toLowerCase().includes(searchICDQuery.toLowerCase()) || i.desc.toLowerCase().includes(searchICDQuery.toLowerCase())
-      );
-      setIcdSuggestions(filtered);
-    }
-  }, [searchICDQuery, icd10Catalog]);
-
-  // Filter Drug Suggestions
-  useEffect(() => {
-    if (searchDrugQuery.trim() === '') {
-      setDrugSuggestions([]);
-    } else if (searchDrugQuery.trim().length > 1) {
-      const filtered = inventory.filter(
-        (d) => d.name.toLowerCase().includes(searchDrugQuery.toLowerCase()) && d.currentStock > 0
-      );
-      setDrugSuggestions(filtered);
-    }
-  }, [searchDrugQuery, inventory]);
-
-  // Check Allergies whenever RX list updates
-  useEffect(() => {
-    if (!currentPatient) return;
-    const alerts: { drugName: string; allergyGroup: string }[] = [];
-    
-    rxList.forEach(rx => {
-      // Find matching drug in catalog to inspect
-      const catalogDrug = inventory.find(d => d.name === rx.drugName);
-      if (catalogDrug && catalogDrug.allergyGroup !== 'None') {
-        // Is the patient allergic to this group?
-        const isAllergic = catalogDrug.allergyGroup !== 'None' && currentPatient.drugAllergies.some(
-          allergy => allergy.toLowerCase() === catalogDrug.allergyGroup.toLowerCase() ||
-                    catalogDrug.allergyGroup.toLowerCase().includes(allergy.toLowerCase()) ||
-                    allergy.toLowerCase().includes(catalogDrug.allergyGroup.toLowerCase())
-        );
-        if (isAllergic) {
-          alerts.push({
-            drugName: rx.drugName,
-            allergyGroup: catalogDrug.allergyGroup
-          });
-        }
-      }
-    });
-
-    setAllergyAlerts(alerts);
-  }, [rxList, currentPatient, inventory]);
-
-  // Check Drug-Disease Contraindications whenever rxList or selectedICD changes
-  useEffect(() => {
-    const alerts: { drugName: string; icdCode: string; reason: string }[] = [];
-    if (!selectedICD) {
-      setContraindicationAlerts([]);
-      return;
-    }
-
-    const icdCodeUpper = selectedICD.code.toUpperCase();
-
-    rxList.forEach(rx => {
-      const drugLower = rx.drugName.toLowerCase();
-
-      // Rule 1: Gastritis / Peptic Ulcer (K30, K29, K27) vs NSAIDs / Painkillers
-      if (icdCodeUpper.startsWith('K30') || icdCodeUpper.startsWith('K29') || icdCodeUpper.startsWith('K27')) {
-        if (drugLower.includes('ibuprofen') || drugLower.includes('diclofenac') || drugLower.includes('mefenamic') || drugLower.includes('aspirin') || drugLower.includes('naproxen') || drugLower.includes('ponstan') || drugLower.includes('voltaren')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `NSAIDs cause gastric mucosal erosion and risk ulceration in Gastritis (${selectedICD.code}).`
-          });
-        }
-      }
-
-      // Rule 2: Asthma (J45, J44) vs Beta-blockers
-      if (icdCodeUpper.startsWith('J45') || icdCodeUpper.startsWith('J44')) {
-        if (drugLower.includes('propranolol') || drugLower.includes('atenolol') || drugLower.includes('carvedilol') || drugLower.includes('metoprolol')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `Beta-blockers induce bronchospasm in Asthmatic conditions (${selectedICD.code}).`
-          });
-        }
-      }
-
-      // Rule 3: Essential Hypertension (I10) vs Decongestants / Pseudoephedrine
-      if (icdCodeUpper.startsWith('I10')) {
-        if (drugLower.includes('pseudoephedrine') || drugLower.includes('phenylephrine') || drugLower.includes('actifed') || drugLower.includes('decongestant')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `Sympathomimetic decongestants cause arterial vasoconstriction & BP elevation in Hypertension (${selectedICD.code}).`
-          });
-        }
-      }
-
-      // Rule 4: Diabetes (E11) vs High Corticosteroids
-      if (icdCodeUpper.startsWith('E11')) {
-        if (drugLower.includes('dexamethasone') || drugLower.includes('prednisolone') || drugLower.includes('cortisone')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `Systemic corticosteroids induce severe hyperglycemia in Type 2 Diabetes (${selectedICD.code}).`
-          });
-        }
-      }
-    });
-
-    setContraindicationAlerts(alerts);
-  }, [rxList, selectedICD]);
 
   if (!currentPatient) {
     return (
@@ -323,51 +184,7 @@ export default function ConsultationRoom({
     setSubjective(prev => prev ? `${prev}. ${txt}` : txt);
   };
 
-  // Add prescription item
-  const handleAddDrug = (catalogDrug: any) => {
-    // Prevent duplicated adds
-    if (rxList.some(r => r.drugName === catalogDrug.name)) {
-      setSearchDrugQuery('');
-      setDrugSuggestions([]);
-      return;
-    }
 
-    const newRx: PrescriptionItem = {
-      id: `rx-${Date.now()}`,
-      drugName: catalogDrug.name,
-      dosage: catalogDrug.dosageEN,
-      dosageBM: catalogDrug.dosageBM,
-      frequency: catalogDrug.frequency,
-      quantity: 10, // default quantity
-      pricePerUnit: catalogDrug.pricePerUnit,
-      expiryDate: new Date(Date.now() + (catalogDrug.expiryMonths || 12) * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      pillColor: catalogDrug.pillColor,
-      capsuleStyle: catalogDrug.capsuleStyle
-    };
-
-    setRxList([...rxList, newRx]);
-    setSearchDrugQuery('');
-    setDrugSuggestions([]);
-  };
-
-  const handleRemoveRx = (rxId: string) => {
-    setRxList(rxList.filter(r => r.id !== rxId));
-  };
-
-  const handleUpdateRxQty = (rxId: string, qty: number) => {
-    setRxList(rxList.map(r => r.id === rxId ? { ...r, quantity: Math.max(1, qty) } : r));
-  };
-
-  // MC Code generation reference
-  const triggerMcOpening = () => {
-    const randomRef = `MC-${Math.floor(100000 + Math.random() * 900000)}`;
-    setMcReferenceNo(randomRef);
-    setIsMcModalOpen(true);
-  };
-
-  const handleMockGenerateMc = () => {
-    setMcGenerated(true);
-  };
 
   // Submit Consultation Notes Form
   const handleSubmitConsultation = () => {
@@ -751,738 +568,54 @@ export default function ConsultationRoom({
             </button>
           </div>
 
-          {/* TAB 1: SUBJECTIVE (Voice-to-Text Copilot) */}
+          {/* TAB 1: SUBJECTIVE */}
           {activeTab === 'subjective' && (
-            <div className="space-y-4 animate-fadeIn">
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-slate-500 font-semibold">Record patient complaints, symptoms, and medical history.</p>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => {
-                      if(patientPastVisits.length > 0) {
-                        setSubjective(patientPastVisits[0].soap.subjective);
-                      }
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 cursor-pointer"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    Copy Previous
-                  </button>
-                  <button 
-                    onClick={handleVoiceToText}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
-                      isListening 
-                        ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' 
-                        : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 cursor-pointer'
-                    }`}
-                  >
-                    {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                    {isListening ? 'AI Listening...' : 'AI Voice Dictation'}
-                  </button>
-                </div>
-              </div>
-              <textarea
-                id="soap-subjective-input"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none shadow-inner resize-y min-h-[180px] leading-relaxed"
-                value={subjective}
-                onChange={(e) => setSubjective(e.target.value)}
-                placeholder="Record symptoms, clinical history, patient complaints, pain scale (0-10), onset duration..."
-              />
-
-              {/* Malaysia local templates helper */}
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wide block mb-1.5">
-                  💡 Clinical Complain Quick-Templates:
-                </span>
-                <div className="flex flex-col gap-1.5">
-                  {complainTemplateList.map((tpl, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => handleApplySymptomTemplate(tpl)}
-                      className="text-left py-1 px-2.5 bg-slate-50 hover:bg-slate-100 ring-1 ring-slate-200 text-[11px] text-slate-600 rounded-lg truncate cursor-pointer transition-colors"
-                    >
-                      + {tpl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <SubjectiveTab 
+              subjective={subjective}
+              setSubjective={setSubjective}
+              patientPastVisits={patientPastVisits}
+              activeLanguage={activeLanguage}
+            />
           )}
 
           {/* TAB 2: OBJECTIVE (IoT Vitals Integration) */}
           {activeTab === 'objective' && (
-            <div className="space-y-5 animate-fadeIn">
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-slate-500 font-semibold">Record physical examination and vital signs.</p>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => {
-                      if(patientPastVisits.length > 0) {
-                        setVitals(patientPastVisits[0].soap.objective);
-                      }
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 cursor-pointer"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    Copy Previous
-                  </button>
-                  <button 
-                    onClick={handleSyncVitals}
-                    disabled={isSyncingVitals}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
-                      isSyncingVitals 
-                        ? 'bg-blue-50 text-blue-500 border-blue-200 animate-pulse' 
-                        : 'bg-[#07B2B2]/10 text-[#07B2B2] border-cyan-200 hover:bg-[#07B2B2]/20 cursor-pointer'
-                    }`}
-                  >
-                    <Bluetooth className="w-3.5 h-3.5" />
-                    {isSyncingVitals ? 'Syncing Hardware...' : 'Sync IoT Vitals'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Vitals Trending Sparkline */}
-              {patientPastVisits.length > 1 && (
-                <div className="bg-slate-50 rounded-lg p-3 border border-slate-200 flex items-center justify-between shadow-inner">
-                  <div className="flex items-center gap-2">
-                    <LineChart className="w-4 h-4 text-slate-400" />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">BP Trend (Last 3 Visits)</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {patientPastVisits.slice(0,3).map((v, i) => (
-                      <div key={i} className="flex flex-col items-center">
-                        <span className="text-[9px] text-slate-400 font-mono">{v.date.substring(5)}</span>
-                        <span className="text-xs font-bold text-slate-700">{v.soap.objective.bpSystolic}/{v.soap.objective.bpDiastolic}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    BP Systolic (mmHg)
-                  </label>
-                  <input
-                    type="number"
-                    id="vital-bp-sys"
-                    value={vitals.bpSystolic}
-                    onChange={(e) => setVitals({ ...vitals, bpSystolic: parseInt(e.target.value) || 0 })}
-                    className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
-                  />
-                  {vitals.bpSystolic > 140 ? (
-                    <span className="text-[9px] text-red-600 font-semibold block mt-1">Alert: Hypertension Level</span>
-                  ) : (
-                    <span className="text-[9px] text-slate-400 block mt-1">Normal Range: 90 - 130</span>
-                  )}
-                </div>
-
-                <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    BP Diastolic (mmHg)
-                  </label>
-                  <input
-                    type="number"
-                    id="vital-bp-dia"
-                    value={vitals.bpDiastolic}
-                    onChange={(e) => setVitals({ ...vitals, bpDiastolic: parseInt(e.target.value) || 0 })}
-                    className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
-                  />
-                  {vitals.bpDiastolic > 90 ? (
-                    <span className="text-[9px] text-red-500 font-semibold block mt-1">Elevated diastolic diastolic</span>
-                  ) : (
-                    <span className="text-[9px] text-slate-400 block mt-1">Normal Range: 60 - 85</span>
-                  )}
-                </div>
-
-                <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Heart Rate (bpm)
-                  </label>
-                  <input
-                    type="number"
-                    id="vital-hr"
-                    value={vitals.heartRate}
-                    onChange={(e) => setVitals({ ...vitals, heartRate: parseInt(e.target.value) || 0 })}
-                    className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
-                  />
-                  {vitals.heartRate > 100 || vitals.heartRate < 50 ? (
-                    <span className="text-[9px] text-amber-600 font-semibold block mt-1">Tachy/Bradycardia Warning</span>
-                  ) : (
-                    <span className="text-[9px] text-slate-400 block mt-1">Normal Range: 60 - 100</span>
-                  )}
-                </div>
-
-                <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Temperature (°C)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    id="vital-temp"
-                    value={vitals.temperature}
-                    onChange={(e) => setVitals({ ...vitals, temperature: parseFloat(e.target.value) || 0 })}
-                    className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
-                  />
-                  {vitals.temperature >= 37.5 ? (
-                    <span className="text-[9px] bg-red-100 text-red-700 px-1 py-0.2 rounded font-semibold inline-block mt-1">
-                      Fever Detected
-                    </span>
-                  ) : (
-                    <span className="text-[9px] text-slate-400 block mt-1">Normal Range: 36.4 - 37.2</span>
-                  )}
-                </div>
-
-                <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Respiratory Rate (bpm)
-                  </label>
-                  <input
-                    type="number"
-                    id="vital-rr"
-                    value={vitals.respiratoryRate}
-                    onChange={(e) => setVitals({ ...vitals, respiratoryRate: parseInt(e.target.value) || 0 })}
-                    className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
-                  />
-                  <span className="text-[9px] text-slate-400 block mt-1">Normal Range: 12 - 20 bpm</span>
-                </div>
-              </div>
-
-              {/* IoT Medical Device Telemetry */}
-              <div className="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-sm mt-4">
-                <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Activity className="w-4 h-4" />
-                  IoT Medical Device Network
-                </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-slate-900 p-2 rounded-lg border border-slate-600 flex flex-col justify-between">
-                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Omron BP-X</span>
-                    <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-1">
-                      <Bluetooth className="w-3 h-3" /> Connected
-                    </span>
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-lg border border-slate-600 flex flex-col justify-between">
-                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Nellcor Oximeter</span>
-                    <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-1">
-                      <Bluetooth className="w-3 h-3" /> Connected
-                    </span>
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-lg border border-slate-600 flex flex-col justify-between">
-                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Welch Allyn Temp</span>
-                    <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-1">
-                      <Bluetooth className="w-3 h-3" /> Connected
-                    </span>
-                  </div>
-                  <div className="bg-slate-900 p-2 rounded-lg border border-slate-600 flex flex-col justify-between">
-                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Digital Scale</span>
-                    <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1 mt-1">
-                      <Bluetooth className="w-3 h-3" /> Standby
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* AR Medical Imaging Support */}
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm mt-4">
-                <h4 className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
-                  Augmented Reality (AR) Overlay
-                </h4>
-                <p className="text-[10px] text-indigo-600 mb-3 font-medium">
-                  Project MRI/CT scans into the clinical field of view using Apple Vision or HoloLens.
-                </p>
-                <div className="flex gap-2">
-                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-[10px] font-bold transition-colors flex items-center gap-1 shadow-sm">
-                    <Eye className="w-3 h-3" />
-                    Launch AR View (HoloLens)
-                  </button>
-                  <button className="bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded text-[10px] font-bold transition-colors shadow-sm">
-                    Load Latest MRI
-                  </button>
-                </div>
-              </div>
-            </div>
+            <ObjectiveTab
+              vitals={vitals}
+              setVitals={setVitals}
+              patientPastVisits={patientPastVisits}
+            />
           )}
 
           {/* TAB 3: ASSESSMENT FIELD (ICD-10 search tool index) */}
           {activeTab === 'assessment' && (
-            <div className="space-y-4 animate-fadeIn">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-tight">
-                    {t.icd10Search} <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='J06.9')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">URTI (J06.9)</button>
-                    <button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='I10')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">HTN (I10)</button>
-                    <button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='E11.9')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">T2DM (E11.9)</button>
-                  </div>
-                </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    id="icd10-catalog-search"
-                    className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
-                    value={searchICDQuery}
-                    onChange={(e) => setSearchICDQuery(e.target.value)}
-                    placeholder="Search standard diagnose (e.g., 'Cold', 'J06', 'Hypertension', 'Diabetes', 'Gastritis')..."
-                  />
-                  
-                  {icdSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 max-h-[160px] overflow-y-auto">
-                      {icdSuggestions.map((item) => (
-                        <button
-                          key={item.code}
-                          type="button"
-                          onClick={() => {
-                            setSelectedICD(item);
-                            setSearchICDQuery('');
-                            setIcdSuggestions([]);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 border-b border-slate-100 flex items-center justify-between cursor-pointer"
-                        >
-                          <div>
-                            <span className="font-mono font-bold text-[#07B2B2]">{item.code}</span>
-                            <span className="text-slate-700 ml-2">{item.desc}</span>
-                          </div>
-                          <span className="text-[10px] text-slate-400 bg-slate-100 px-1 py-0.2 rounded">
-                            {item.category}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Assessment display selection indicator */}
-              {selectedICD ? (
-                <div id="selected-icd-indicator" className="bg-cyan-50 border border-[#07B2B2]/20 p-3 rounded-lg">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] bg-[#07B2B2] text-white px-1.5 py-0.5 rounded font-mono font-bold">
-                      ICD-Code: {selectedICD.code}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedICD(null)}
-                      className="text-slate-400 hover:text-slate-600 text-xs font-bold shrink-0"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <strong className="text-xs text-slate-800 uppercase block">{selectedICD.desc}</strong>
-                  <span className="text-[10px] text-slate-500 block mt-1">Category Grouping: {selectedICD.category}</span>
-                </div>
-              ) : (
-                <div className="p-3 bg-red-50 text-red-700 rounded-lg border border-red-100 text-xs flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
-                  <span>Please search and assign an ICD-10 clinically coded diagnosis to complete assessment.</span>
-                </div>
-              )}
-
-              {/* Clinician notes description */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-tight mb-1">
-                  Assessment / Clinical Sign-off Summary (Procedures/Investigations)
-                </label>
-                <textarea
-                  id="soap-notes-clinical-desc"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none shadow-inner resize-y min-h-[120px] leading-relaxed"
-                  value={clinicalNotes}
-                  onChange={(e) => setClinicalNotes(e.target.value)}
-                  placeholder="Enter medical assessment summary, specialist reports references, follow-up parameters, or procedural logs..."
-                />
-              </div>
-            </div>
+            <AssessmentTab 
+              selectedICD={selectedICD}
+              setSelectedICD={setSelectedICD}
+              clinicalNotes={clinicalNotes}
+              setClinicalNotes={setClinicalNotes}
+              activeLanguage={activeLanguage}
+            />
           )}
 
           {/* TAB 4: PLAN (Prescriptions builder, allergy integration verification flags) */}
           {activeTab === 'plan' && (
-            <div className="space-y-5 animate-fadeIn relative">
-              
-              {/* AI DRUG INTERACTION ALERT */}
-              {allergyAlerts.length > 0 ? (
-                <div className="absolute top-0 right-0 left-0 z-10 bg-red-600 text-white p-3 rounded-lg shadow-lg animate-bounce-slow flex items-start gap-3">
-                  <AlertTriangle className="w-6 h-6 shrink-0" />
-                  <div>
-                    <h4 className="font-black text-sm uppercase tracking-wider">AI ALERT: Drug Interaction Detected!</h4>
-                    <p className="text-xs mt-0.5">
-                      Patient has a known allergy history that conflicts with your prescription plan.
-                    </p>
-                    <ul className="text-[10px] mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded">
-                      {allergyAlerts.map((alert, idx) => (
-                        <li key={idx}><span className="font-bold">{alert.drugName}</span> belongs to <span className="font-bold underline">{alert.allergyGroup}</span> family.</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ) : rxList.length > 0 ? (
-                <div className="bg-emerald-50 text-emerald-700 p-2.5 rounded-lg border border-emerald-100 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">AI Interaction Scan: Safe (No Contraindications Detected)</span>
-                </div>
-              ) : null}
-
-              {/* PEDIATRIC DOSAGE CALCULATOR */}
-              <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
-                <h4 className="text-[10px] font-bold text-blue-800 uppercase flex items-center gap-1.5 mb-2">
-                  <Activity className="w-3.5 h-3.5" /> Pediatric Dosage Calculator (Paracetamol 15mg/kg)
-                </h4>
-                <div className="grid grid-cols-3 gap-3 items-end">
-                  <div>
-                    <label className="block text-[10px] text-slate-500 uppercase">Weight (kg)</label>
-                    <input 
-                      type="number" 
-                      className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none"
-                      value={patientWeight}
-                      onChange={e => setPatientWeight(e.target.value)}
-                      placeholder="e.g. 15"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-slate-500 uppercase">Concentration (mg/ml)</label>
-                    <input 
-                      type="number" 
-                      className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none"
-                      value={medConcentration}
-                      onChange={e => setMedConcentration(e.target.value)}
-                      placeholder="e.g. 250"
-                    />
-                  </div>
-                  <div className="bg-white px-3 py-1.5 rounded border border-blue-200 flex flex-col justify-center h-full">
-                    <span className="text-[9px] text-slate-400 uppercase leading-none mb-1">Calculated Dose</span>
-                    <span className="font-mono font-bold text-blue-700 text-sm leading-none">
-                      {typeof calculatedDose === 'number' && !isNaN(calculatedDose) ? `${calculatedDose.toFixed(1)} ml` : '--'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Medicine prescription search bar */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-tight mb-1">
-                  Add Medication & Drug Catalog Search
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    id="drug-prescriber-search"
-                    className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
-                    value={searchDrugQuery}
-                    onChange={(e) => setSearchDrugQuery(e.target.value)}
-                    placeholder="Search stock catalog (e.g. 'Amoxicillin', 'Panadol', 'Ibuprofen', 'Amlodipine')..."
-                  />
-
-                  {drugSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 max-h-[160px] overflow-y-auto">
-                      {drugSuggestions.map((item) => {
-                        const isConflict = item.allergyGroup !== 'None' && currentPatient.drugAllergies.some(
-                          a => a.toLowerCase() === item.allergyGroup.toLowerCase() ||
-                               item.allergyGroup.toLowerCase().includes(a.toLowerCase())
-                        );
-                        const price = typeof item.pricePerUnit === 'number' ? item.pricePerUnit : 0;
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => handleAddDrug(item)}
-                            className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 border-b border-slate-100 flex items-center justify-between cursor-pointer"
-                          >
-                            <div>
-                              <span className="font-semibold text-slate-800">{item.name}</span>
-                              <span className="text-[10px] text-slate-400 block">{item.category} (Allergen: {item.allergyGroup})</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {isConflict && (
-                                <span className="bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded text-[8px] uppercase">Allergy Conflict</span>
-                              )}
-                              <span className="font-mono text-[#07B2B2] font-bold">RM{price.toFixed(2)}</span>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* SMART DOSAGE QUICK-PILLS PRESET BAR */}
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                    <Pill className="w-3.5 h-3.5 text-[#0D9488]" />
-                    Fast Preset Dosage Quick-Pills
-                  </span>
-                  <span className="text-[9px] text-slate-400">Click to apply to active prescription</span>
-                </div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {[
-                    { label: '1 Tab BD (2x Daily)', freq: '1 Tab Twice Daily', en: 'Take 1 tablet twice a day after food', bm: 'Makan 1 biji 2 kali sehari selepas makan' },
-                    { label: '1 Cap TDS (3x Daily)', freq: '1 Cap 3x Daily', en: 'Take 1 capsule three times a day after food', bm: 'Makan 1 kapsul 3 kali sehari selepas makan' },
-                    { label: '1 Tab QDS (4x Daily)', freq: '1 Tab 4x Daily', en: 'Take 1 tablet four times a day', bm: 'Makan 1 biji 4 kali sehari' },
-                    { label: '1 Tab PRN (As Needed)', freq: '1 Tab PRN', en: 'Take 1 tablet when needed for pain/fever', bm: 'Makan 1 biji jika perlu bila sakit/demam' },
-                    { label: 'Take After Meals', freq: 'After Meals', en: 'Take after meals', bm: 'Makan selepas makan' }
-                  ].map((preset, pIdx) => (
-                    <button
-                      key={pIdx}
-                      type="button"
-                      onClick={() => {
-                        if (rxList.length > 0) {
-                          const updated = [...rxList];
-                          const lastIdx = updated.length - 1;
-                          updated[lastIdx] = {
-                            ...updated[lastIdx],
-                            frequency: preset.freq,
-                            dosage: preset.en,
-                            dosageBM: preset.bm
-                          };
-                          setRxList(updated);
-                        }
-                      }}
-                      className="text-[10px] font-bold bg-white hover:bg-[#0D9488] hover:text-white text-[#0D9488] px-2.5 py-1 rounded-md border border-teal-200 shadow-2xs transition-colors cursor-pointer"
-                    >
-                      + {preset.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Currently Selected Prescription list */}
-              <div className="border border-slate-200 rounded-lg overflow-hidden space-y-0">
-                
-                {/* CLINICAL CONTRAINDICATION WARNING BANNER */}
-                {contraindicationAlerts.length > 0 && (
-                  <div className="bg-amber-50 border-b border-amber-200 p-3 space-y-1">
-                    <h5 className="text-xs font-extrabold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 animate-bounce-slow" />
-                      Drug-Disease Clinical Contraindication Alert ({contraindicationAlerts.length})
-                    </h5>
-                    <div className="space-y-1">
-                      {contraindicationAlerts.map((alert, idx) => (
-                        <p key={idx} className="text-[11px] text-amber-800 font-medium leading-relaxed">
-                          • <strong className="font-bold underline">{alert.drugName}</strong> vs Diagnosis <strong className="font-mono bg-amber-100 px-1 rounded text-amber-900 font-bold">{alert.icdCode}</strong>: {alert.reason}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <table className="w-full text-left border-collapse" id="prescription-builder-table">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
-                      <th className="px-3 py-2">Medication Info</th>
-                      <th className="px-3 py-2">Frequency & Instructions</th>
-                      <th className="px-3 py-2 w-20">Qty</th>
-                      <th className="px-3 py-2 text-right w-24">Price (MYR)</th>
-                      <th className="px-3 py-2 text-center w-12">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rxList.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="text-center p-6 text-xs text-slate-400 italic">
-                          No medications prescribed yet. Search above to construct treatment.
-                        </td>
-                      </tr>
-                    ) : (
-                      rxList.map((rx) => {
-                        const catalogDrugDef = inventory.find(d => d.name === rx.drugName);
-                        if (!catalogDrugDef) return null;
-                        const hasConflict = catalogDrugDef && catalogDrugDef.allergyGroup !== 'None' && 
-                          currentPatient.drugAllergies.some(a => a.toLowerCase() === catalogDrugDef.allergyGroup.toLowerCase());
-                        const isContraindicated = contraindicationAlerts.some(a => a.drugName === rx.drugName);
-                        const unitPrice = typeof rx.pricePerUnit === 'number' ? rx.pricePerUnit : (catalogDrugDef?.pricePerUnit || 0);
-                        const itemTotal = unitPrice * (rx.quantity || 1);
-                        
-                        return (
-                          <tr key={rx.id} className={`border-b text-xs border-slate-100 ${hasConflict ? 'bg-red-50/40' : isContraindicated ? 'bg-amber-50/40' : ''}`}>
-                            <td className="px-3 py-2.5">
-                              <span className="font-semibold text-slate-800 block">{rx.drugName}</span>
-                              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                                {/* Vector pill icon */}
-                                <span 
-                                  className="w-2.5 h-2.5 rounded-full inline-block border border-slate-300"
-                                  style={{ backgroundColor: rx.pillColor }}
-                                />
-                                <span className="text-[10px] text-slate-400">Batch Expiry: {rx.expiryDate}</span>
-                                {isContraindicated && (
-                                  <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider border border-amber-300 flex items-center gap-1">
-                                    <AlertTriangle className="w-3 h-3 text-amber-600" /> ICD Contraindication
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-3 py-2.5 font-mono text-[10px] text-slate-600">
-                              <span className="font-semibold text-[#07B2B2]">{rx.frequency}</span>
-                              <span className="block text-slate-500 line-clamp-1 italic" title={rx.dosage}>{rx.dosage}</span>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <input
-                                type="number"
-                                className="w-16 border rounded px-1.5 py-0.5 text-center font-mono"
-                                value={rx.quantity}
-                                onChange={(e) => handleUpdateRxQty(rx.id, parseInt(e.target.value) || 1)}
-                              />
-                            </td>
-                            <td className="px-3 py-2.5 text-right font-mono font-semibold text-slate-700">
-                              RM{itemTotal.toFixed(2)}
-                            </td>
-                            <td className="px-3 py-2.5 text-center">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveRx(rx.id)}
-                                className="text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* PHARMACY MEMO */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-tight mb-1">
-                  Notes / Instructions for Pharmacist
-                </label>
-                <textarea
-                  className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
-                  value={pharmacyMemo}
-                  onChange={e => setPharmacyMemo(e.target.value)}
-                  placeholder="e.g., Please demonstrate inhaler technique. Patient prefers liquid formulation if possible."
-                  rows={2}
-                />
-              </div>
-
-              {/* Plan Actions (MC, Labs, Referrals) */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {/* Digital MC Certification trigger button */}
-                <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-[#07B2B2]" />
-                    <div>
-                      <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Medical Cert (MC)</span>
-                      <span className="text-[9px] text-slate-400 leading-tight block">Issue paid clinic recovery leave.</span>
-                    </div>
-                  </div>
-
-                  {mcGenerated ? (
-                    <div className="flex flex-col gap-1 mt-auto">
-                      <span className="text-[10px] text-cyan-800 bg-cyan-100 font-bold px-2 py-0.5 rounded text-center">
-                        {mcDays} Days Issued ({selectedICD?.code || 'Diagnose'})
-                      </span>
-                      <div className="flex items-center gap-2 mt-1 justify-center">
-                        <button
-                          type="button"
-                          onClick={() => setIsMcModalOpen(true)}
-                          className="text-[10px] font-bold text-[#07B2B2] underline cursor-pointer text-center"
-                        >
-                          View Certificate
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMcGenerated(false)}
-                          className="text-[10px] font-bold text-red-500 hover:text-red-600 underline cursor-pointer text-center"
-                        >
-                          Revoke
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={triggerMcOpening}
-                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto"
-                    >
-                      Generate MC
-                    </button>
-                  )}
-                </div>
-
-                {/* Lab & Imaging */}
-                <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2">
-                    <TestTube className="w-5 h-5 text-purple-500" />
-                    <div>
-                      <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Lab & Imaging</span>
-                      <span className="text-[9px] text-slate-400 leading-tight block">Order bloodwork or radiology.</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto"
-                    onClick={() => alert('Lab & Imaging module will open a side panel for test selection.')}
-                  >
-                    Order Tests
-                  </button>
-                </div>
-
-                {/* Referrals */}
-                <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2">
-                    <Share className="w-5 h-5 text-indigo-500" />
-                    <div>
-                      <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Specialist Referral</span>
-                      <span className="text-[9px] text-slate-400 leading-tight block">Draft referral letter.</span>
-                    </div>
-                  </div>
-                  {referralGenerated ? (
-                    <div className="flex flex-col gap-1 mt-auto">
-                      <span className="text-[10px] text-indigo-800 bg-indigo-100 font-bold px-2 py-0.5 rounded text-center truncate" title={referralDetails.hospital}>
-                        {referralDetails.hospital}
-                      </span>
-                      <div className="flex items-center gap-2 mt-1 justify-center">
-                        <button
-                          type="button"
-                          onClick={() => setIsReferralModalOpen(true)}
-                          className="text-[10px] font-bold text-indigo-600 underline cursor-pointer text-center"
-                        >
-                          Edit Referral
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setReferralGenerated(false); setReferralDetails({ hospital: '', department: '', reason: '' }); }}
-                          className="text-[10px] font-bold text-red-500 hover:text-red-600 underline cursor-pointer text-center"
-                        >
-                          Clear
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto"
-                      onClick={() => setIsReferralModalOpen(true)}
-                    >
-                      Draft Referral
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* AI Treatment Outcome Prediction */}
-              {selectedICD && rxList.length > 0 && (
-                <div className="mt-4 bg-indigo-50/50 border border-indigo-100 p-3.5 rounded-lg flex gap-3 items-start animate-fadeIn">
-                  <div className="bg-indigo-100 p-2 rounded-lg shrink-0">
-                    <TrendingUp className="w-4 h-4 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-[10px] font-bold text-indigo-800 uppercase tracking-wide">AI Treatment Outcome Prediction</h4>
-                    <p className="text-xs text-indigo-900/80 mt-1 leading-relaxed">
-                      Based on the diagnosis of <strong>{selectedICD.code}</strong> and the prescribed regimen ({rxList.map(r=>r.drugName).join(', ')}), ML models predict a <strong>94% probability of symptom resolution within 5 days</strong>. No aggressive follow-up required.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-            </div>
+            <PlanTab
+              rxList={rxList}
+              setRxList={setRxList}
+              currentPatient={currentPatient}
+              selectedICD={selectedICD}
+              mcDays={mcDays}
+              setMcDays={setMcDays}
+              mcGenerated={mcGenerated}
+              setMcGenerated={setMcGenerated}
+              pharmacyMemo={pharmacyMemo}
+              setPharmacyMemo={setPharmacyMemo}
+              referralDetails={referralDetails}
+              setReferralDetails={setReferralDetails}
+              referralGenerated={referralGenerated}
+              setReferralGenerated={setReferralGenerated}
+            />
           )}
         </div>
 
@@ -1531,168 +664,6 @@ export default function ConsultationRoom({
         </div>
 
       </div>
-
-      {/* MC GENERATOR POPUP MODAL */}
-      {isMcModalOpen && (
-        <div id="mc-generator-modal" className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-scaleUp">
-            
-            {/* Modal Header */}
-            <div className="bg-[#07B2B2] text-white px-5 py-3.5 flex items-center justify-between">
-              <span className="font-semibold text-xs uppercase tracking-wider">Malaysian Medical Certificate Portal</span>
-              <button
-                type="button"
-                onClick={() => setIsMcModalOpen(false)}
-                className="text-white hover:text-slate-200 font-bold text-sm cursor-pointer"
-              >
-                &times;
-              </button>
-            </div>
-
-            {/* Document Frame Mock (Clinical Authentic design) */}
-            <div className="p-5 space-y-4">
-              <div className="bg-amber-50/40 p-4 border border-amber-500/20 rounded-lg text-slate-800 text-xs shadow-xs space-y-3.5 relative">
-                {/* Clinic Identifier sticker */}
-                <div className="border-b border-dashed border-slate-300 pb-2 text-center">
-                  <h4 className="font-bold text-sm uppercase tracking-wide text-[#07B2B2]">KLINIK MALAYSIA ENTERPRISE</h4>
-                  <span className="text-[9px] text-slate-400">MOH APC Registration: No. APC-1002931-A</span>
-                </div>
-
-                <div className="text-center font-bold text-xs uppercase text-slate-700 tracking-wider">
-                  SIJIL CUTI SAKIT / MEDICAL CERTIFICATE
-                </div>
-
-                <div className="space-y-1.5 leading-relaxed text-slate-600">
-                  <p>
-                    This is to medically certify that <strong>{currentPatient.fullName}</strong> (IC: {currentPatient.icNumber}) was examined on this date and found temporarily unfit to execute standard trade duty.
-                  </p>
-                  
-                  <div className="py-2 grid grid-cols-2 gap-2 text-[11px] bg-white p-2 rounded border border-slate-100">
-                    <div>
-                      <span className="text-slate-400 block text-[9px] uppercase">Leave Duration</span>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <input
-                          type="number"
-                          id="mc-days-input"
-                          className="w-12 border rounded px-1 text-center font-mono font-bold"
-                          value={mcDays}
-                          onChange={(e) => setMcDays(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1))}
-                        />
-                        <span>Days</span>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[9px] uppercase">Diagnosis ICD</span>
-                      <strong className="text-slate-700 block mt-0.5">{selectedICD?.code || 'Z02.7 Pending'}</strong>
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-slate-500 italic">
-                    Unfitness duration covers outpatient clinical rest, fully logs for Malaysian Board Audit validation.
-                  </p>
-                </div>
-
-                {/* Stamp simulator */}
-                <div className="flex items-end justify-between pt-4 border-t border-dashed border-slate-200">
-                  <div>
-                    <span className="text-[9px] text-slate-400 block">MC Code Reference:</span>
-                    <strong className="font-mono text-slate-700 text-[10px]">{mcReferenceNo}</strong>
-                  </div>
-                  <div className="text-center border-2 border-emerald-600/30 text-emerald-800 bg-emerald-50 text-[10px] uppercase font-bold p-1 rounded rotate-[-4deg]">
-                    Klinik Approved
-                  </div>
-                </div>
-              </div>
-
-              {/* Confirmation and Actions */}
-              <div className="text-slate-500 text-[10px] px-1 text-center">
-                This document is validated for Submission with Human Resource & Panel TPAs portals.
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsMcModalOpen(false)}
-                className="px-3.5 py-1.5 border border-slate-200 text-slate-600 rounded text-xs hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              
-              <button
-                type="button"
-                id="mc-confirm-generate-btn"
-                onClick={() => {
-                  handleMockGenerateMc();
-                  setIsMcModalOpen(false);
-                }}
-                className="bg-[#07B2B2] text-white px-4 py-1.5 rounded text-xs font-semibold hover:bg-[#058A8A] transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                Issue & Sign Certification
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* REFERRAL MODAL */}
-      {isReferralModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-scaleUp">
-            <div className="bg-indigo-600 text-white px-5 py-3.5 flex items-center justify-between">
-              <span className="font-semibold text-xs uppercase tracking-wider">Specialist Referral Letter Draft</span>
-              <button onClick={() => setIsReferralModalOpen(false)} className="text-white hover:text-slate-200 font-bold text-sm cursor-pointer">&times;</button>
-            </div>
-            
-            <div className="p-5 space-y-4 text-xs">
-              <div>
-                <label className="block text-[10px] text-slate-500 uppercase font-bold mb-1">Destination Hospital / Center</label>
-                <input 
-                  type="text" 
-                  className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-indigo-500" 
-                  placeholder="e.g. Hospital Kuala Lumpur"
-                  value={referralDetails.hospital}
-                  onChange={e => setReferralDetails({...referralDetails, hospital: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] text-slate-500 uppercase font-bold mb-1">Specialist Department</label>
-                <input 
-                  type="text" 
-                  className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-indigo-500" 
-                  placeholder="e.g. Cardiology"
-                  value={referralDetails.department}
-                  onChange={e => setReferralDetails({...referralDetails, department: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] text-slate-500 uppercase font-bold mb-1">Clinical Reason / Remarks</label>
-                <textarea 
-                  className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-indigo-500 h-24" 
-                  placeholder="Brief reason for referral..."
-                  value={referralDetails.reason}
-                  onChange={e => setReferralDetails({...referralDetails, reason: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-end gap-2">
-              <button onClick={() => setIsReferralModalOpen(false)} className="px-3.5 py-1.5 border border-slate-200 text-slate-600 rounded text-xs hover:bg-slate-100">
-                Cancel
-              </button>
-              <button 
-                onClick={() => { setReferralGenerated(true); setIsReferralModalOpen(false); }} 
-                className="bg-indigo-600 text-white px-4 py-1.5 rounded text-xs font-semibold hover:bg-indigo-700 flex items-center gap-1.5"
-              >
-                <Check className="w-3.5 h-3.5" /> Attach to Plan
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       </div>
 

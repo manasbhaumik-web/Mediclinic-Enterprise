@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Patient, Visit } from '../types';
+import { Patient, Visit, Appointment } from '../types';
 
 export function useSupabaseSync() {
   const [patientsList, setPatientsList] = useState<Patient[]>([]);
   const [visitsQueue, setVisitsQueue] = useState<Visit[]>([]);
   const [completedVisits, setCompletedVisits] = useState<Visit[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isSyncing, setIsSyncing] = useState(true);
 
   useEffect(() => {
     const syncData = async () => {
       try {
-        // Fetch Patients
-        const { data: dbPatients, error: pErr } = await supabase.from('patients').select('*');
+        // Fetch Patients (LIMIT 100 to avoid O(N) memory blowup)
+        const { data: dbPatients, error: pErr } = await supabase.from('patients')
+          .select('*')
+          .order('registered_date', { ascending: false })
+          .limit(100);
         if (!pErr && dbPatients && dbPatients.length > 0) {
           const mappedPatients: Patient[] = dbPatients.map(p => ({
             id: p.id,
@@ -29,8 +33,11 @@ export function useSupabaseSync() {
           setPatientsList(mappedPatients);
         }
 
-        // Fetch Visits with related SOAP notes and Prescriptions
-        const { data: dbVisits, error: vErr } = await supabase.from('visits').select('*, soap_notes(*), prescriptions(*)');
+        // Fetch active Visits with related SOAP notes and Prescriptions (filtering out Paid/Cancelled server-side)
+        const { data: dbVisits, error: vErr } = await supabase.from('visits')
+          .select('*, soap_notes(*), prescriptions(*)')
+          .neq('status', 'Paid')
+          .neq('status', 'Cancelled');
         if (!vErr && dbVisits && dbVisits.length > 0) {
           const mappedVisits: Visit[] = dbVisits.map(v => {
             const soap = v.soap_notes?.[0] || {};
@@ -39,7 +46,7 @@ export function useSupabaseSync() {
             return {
               id: v.id,
               patientId: v.patient_id,
-              date: v.date,
+              date: v.visit_date || v.date || new Date().toISOString().split('T')[0],
               status: v.status,
               totalBill: Number(v.total_bill),
               panelClaimed: Number(v.panel_claimed),
@@ -47,7 +54,7 @@ export function useSupabaseSync() {
               paymentMethod: v.payment_method,
               glNumber: v.gl_number,
               mcIssued: v.mc_issued,
-              registeredTime: Number(v.registered_time),
+              registeredTime: v.registered_time ? Number(v.registered_time) : new Date(v.created_at).getTime(),
               soap: {
                 subjective: soap.subjective || '',
                 objective: {
@@ -84,8 +91,8 @@ export function useSupabaseSync() {
             };
           });
           
-          setVisitsQueue(mappedVisits.filter(v => v.status !== 'Paid'));
-          setCompletedVisits(mappedVisits.filter(v => v.status === 'Paid'));
+          setVisitsQueue(mappedVisits.filter(v => v.status !== 'Paid' && v.status !== 'Cancelled'));
+          setCompletedVisits(mappedVisits.filter(v => v.status === 'Paid' || v.status === 'Cancelled'));
         }
       } catch (err) {
         console.error('Supabase sync error', err);
@@ -94,7 +101,37 @@ export function useSupabaseSync() {
       }
     };
 
+    const fetchAppointments = async () => {
+      try {
+        const { data: dbAppointments, error } = await supabase.from('appointments')
+          .select('*')
+          .gte('appointment_time', new Date(new Date().setHours(0,0,0,0)).toISOString()) // Today onwards
+          .order('appointment_time', { ascending: true })
+          .limit(200);
+
+        if (!error && dbAppointments) {
+          const mappedAppointments: Appointment[] = dbAppointments.map(a => ({
+            id: a.id,
+            patientId: a.patient_id,
+            patientName: a.patient_name,
+            patientPhone: a.patient_phone,
+            appointmentTime: a.appointment_time,
+            durationMinutes: a.duration_minutes,
+            purpose: a.purpose,
+            status: a.status,
+            doctorId: a.doctor_id,
+            notes: a.notes,
+            createdAt: a.created_at
+          }));
+          setAppointments(mappedAppointments);
+        }
+      } catch (err) {
+        console.error('Failed to fetch appointments', err);
+      }
+    };
+
     syncData();
+    fetchAppointments();
 
     const channel = supabase.channel('clinic_sync_' + Math.random().toString(36).substring(2, 9))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'visits' }, () => {
@@ -102,6 +139,9 @@ export function useSupabaseSync() {
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'prescriptions' }, () => {
         syncData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+        fetchAppointments();
       })
       .subscribe();
 
@@ -129,6 +169,35 @@ export function useSupabaseSync() {
     }
   };
 
+  const searchPatients = async (query: string): Promise<Patient[]> => {
+    if (!query || query.trim().length < 2) return [];
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .or(`full_name.ilike.%${query}%,ic_number.ilike.%${query}%,phone.ilike.%${query}%`)
+        .limit(20);
+      
+      if (error || !data) return [];
+      
+      return data.map(p => ({
+        id: p.id,
+        fullName: p.full_name,
+        icNumber: p.ic_number,
+        gender: p.gender,
+        dob: p.dob,
+        address: p.address || '',
+        phone: p.phone,
+        panelEmployer: p.panel_employer,
+        drugAllergies: p.drug_allergies || [],
+        registeredDate: p.registered_date
+      }));
+    } catch (err) {
+      console.error('Search error', err);
+      return [];
+    }
+  };
+
   const addVisitToDb = async (visit: Visit) => {
     setVisitsQueue(prev => [...prev, visit]);
     try {
@@ -136,8 +205,10 @@ export function useSupabaseSync() {
         id: visit.id,
         patient_id: visit.patientId,
         status: visit.status,
-        date: new Date().toISOString(),
-        registered_time: Date.now()
+        visit_date: new Date().toISOString(),
+        total_bill: visit.totalBill || 0,
+        panel_claimed: visit.panelClaimed || 0,
+        paid_amount: visit.paidAmount || 0
       }]).select().single();
 
       if (vErr) throw vErr;
@@ -154,7 +225,7 @@ export function useSupabaseSync() {
   };
 
   const updateVisitInDb = async (visit: Visit) => {
-    if (visit.status === 'Paid') {
+    if (visit.status === 'Paid' || visit.status === 'Cancelled') {
       setVisitsQueue(prev => prev.filter(v => v.id !== visit.id));
       setCompletedVisits(prev => [...prev, visit]);
     } else {
@@ -163,6 +234,11 @@ export function useSupabaseSync() {
     
     // Attempt update in Supabase
     try {
+      if (visit.status === 'Cancelled') {
+        await supabase.from('visits').delete().eq('id', visit.id);
+        return; // Skip soap note updates since visit is deleted
+      }
+
       await supabase.from('visits').update({
         status: visit.status,
         total_bill: visit.totalBill,
@@ -222,6 +298,61 @@ export function useSupabaseSync() {
     }
   };
 
+  const addAppointmentToDb = async (appointment: Omit<Appointment, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabase.from('appointments').insert([{
+        patient_id: appointment.patientId || null,
+        patient_name: appointment.patientName,
+        patient_phone: appointment.patientPhone,
+        appointment_time: appointment.appointmentTime,
+        duration_minutes: appointment.durationMinutes,
+        purpose: appointment.purpose,
+        status: appointment.status,
+        doctor_id: appointment.doctorId || null,
+        notes: appointment.notes || ''
+      }]).select().single();
+      
+      if (error) throw error;
+      
+      const newAppointment: Appointment = {
+        id: data.id,
+        patientId: data.patient_id,
+        patientName: data.patient_name,
+        patientPhone: data.patient_phone,
+        appointmentTime: data.appointment_time,
+        durationMinutes: data.duration_minutes,
+        purpose: data.purpose,
+        status: data.status,
+        doctorId: data.doctor_id,
+        notes: data.notes,
+        createdAt: data.created_at
+      };
+      setAppointments(prev => [...prev, newAppointment].sort((a,b) => new Date(a.appointmentTime).getTime() - new Date(b.appointmentTime).getTime()));
+    } catch (err) {
+      console.error('Failed to insert appointment', err);
+      throw err;
+    }
+  };
+
+  const updateAppointmentInDb = async (id: string, updates: Partial<Appointment>) => {
+    try {
+      const dbUpdates: any = {};
+      if (updates.status !== undefined) dbUpdates.status = updates.status;
+      if (updates.appointmentTime !== undefined) dbUpdates.appointment_time = updates.appointmentTime;
+      if (updates.durationMinutes !== undefined) dbUpdates.duration_minutes = updates.durationMinutes;
+      if (updates.purpose !== undefined) dbUpdates.purpose = updates.purpose;
+      if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+
+      const { error } = await supabase.from('appointments').update(dbUpdates).eq('id', id);
+      if (error) throw error;
+      
+      setAppointments(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
+    } catch (err) {
+      console.error('Failed to update appointment', err);
+      throw err;
+    }
+  };
+
   return {
     patientsList,
     setPatientsList,
@@ -232,6 +363,10 @@ export function useSupabaseSync() {
     addPatientToDb,
     addVisitToDb,
     updateVisitInDb,
+    searchPatients,
+    appointments,
+    addAppointmentToDb,
+    updateAppointmentInDb,
     isSyncing
   };
 }

@@ -84,3 +84,17 @@ export interface TPAConfig {
   coPayRequired: boolean;
   coPayPercentage?: number;
 }
+
+export interface Appointment {
+  id: string;
+  patientId?: string;
+  patientName: string;
+  patientPhone: string;
+  appointmentTime: string; // ISO string
+  durationMinutes: number;
+  purpose: string;
+  status: 'Scheduled' | 'Completed' | 'Cancelled' | 'No-Show';
+  doctorId?: string;
+  notes?: string;
+  createdAt: string;
+}

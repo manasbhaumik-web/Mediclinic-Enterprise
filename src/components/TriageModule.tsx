@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Patient, Visit } from '../types';
 import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight } from 'lucide-react';
 import { maskICNumber } from '../utils/piiMasker';
+import Button from './ui/Button';
+import Input from './ui/Input';
+import { Card, CardHeader, CardContent, CardFooter } from './ui/Card';
 
 interface TriageModuleProps {
   triageQueue: Visit[];
@@ -73,8 +76,8 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
         
         {/* LEFT PANEL: Queue */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-140px)]">
-            <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+          <Card className="flex flex-col h-[calc(100vh-140px)]">
+            <CardHeader className="bg-slate-50 flex justify-between items-center py-4">
               <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
                 <Users className="w-4 h-4 text-teal-600" />
                 Awaiting Triage
@@ -82,7 +85,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
               <span className="bg-teal-100 text-teal-800 text-xs font-bold px-2 py-0.5 rounded-full">
                 {triageQueue.length}
               </span>
-            </div>
+            </CardHeader>
             
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
               {triageQueue.length === 0 ? (
@@ -119,14 +122,14 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                 })
               )}
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* RIGHT PANEL: Vitals Form */}
         <div className="lg:col-span-2">
           {activeVisit && activePatient ? (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 h-[calc(100vh-140px)] flex flex-col">
-              <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <Card className="h-[calc(100vh-140px)] flex flex-col">
+              <CardHeader className="bg-slate-50 flex items-center justify-between py-5">
                 <div>
                   <h2 className="text-lg font-bold text-slate-800">{activePatient.fullName}</h2>
                   <p className="text-sm text-slate-500">Age: {new Date().getFullYear() - new Date(activePatient.dob).getFullYear()} • IC: {activePatient.icNumber}</p>
@@ -134,7 +137,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                 <div className="bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
                   <Activity className="w-3.5 h-3.5" /> Triaging
                 </div>
-              </div>
+              </CardHeader>
 
               <div className="flex-1 overflow-y-auto p-6">
                 <form id="triage-form" onSubmit={handleSubmitTriage} className="space-y-6 max-w-2xl">
@@ -144,51 +147,36 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                       <Stethoscope className="w-4 h-4 text-teal-600" /> Vitals
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Temp (°C)</label>
-                        <input
-                          type="number" step="0.1" required
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none"
-                          value={vitalsForm.temperature} onChange={e => setVitalsForm({...vitalsForm, temperature: e.target.value})}
-                          placeholder="36.6"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">BP Sys</label>
-                        <input
-                          type="number" required
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none"
-                          value={vitalsForm.bpSystolic} onChange={e => setVitalsForm({...vitalsForm, bpSystolic: e.target.value})}
-                          placeholder="120"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">BP Dia</label>
-                        <input
-                          type="number" required
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none"
-                          value={vitalsForm.bpDiastolic} onChange={e => setVitalsForm({...vitalsForm, bpDiastolic: e.target.value})}
-                          placeholder="80"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Heart Rate</label>
-                        <input
-                          type="number" required
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none"
-                          value={vitalsForm.heartRate} onChange={e => setVitalsForm({...vitalsForm, heartRate: e.target.value})}
-                          placeholder="72"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Resp. Rate</label>
-                        <input
-                          type="number" required
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:bg-white outline-none"
-                          value={vitalsForm.respiratoryRate} onChange={e => setVitalsForm({...vitalsForm, respiratoryRate: e.target.value})}
-                          placeholder="16"
-                        />
-                      </div>
+                      <Input
+                        label="Temp (°C)"
+                        type="number" step="0.1" required
+                        value={vitalsForm.temperature} onChange={e => setVitalsForm({...vitalsForm, temperature: e.target.value})}
+                        placeholder="36.6"
+                      />
+                      <Input
+                        label="BP Sys"
+                        type="number" required
+                        value={vitalsForm.bpSystolic} onChange={e => setVitalsForm({...vitalsForm, bpSystolic: e.target.value})}
+                        placeholder="120"
+                      />
+                      <Input
+                        label="BP Dia"
+                        type="number" required
+                        value={vitalsForm.bpDiastolic} onChange={e => setVitalsForm({...vitalsForm, bpDiastolic: e.target.value})}
+                        placeholder="80"
+                      />
+                      <Input
+                        label="Heart Rate"
+                        type="number" required
+                        value={vitalsForm.heartRate} onChange={e => setVitalsForm({...vitalsForm, heartRate: e.target.value})}
+                        placeholder="72"
+                      />
+                      <Input
+                        label="Resp. Rate"
+                        type="number" required
+                        value={vitalsForm.respiratoryRate} onChange={e => setVitalsForm({...vitalsForm, respiratoryRate: e.target.value})}
+                        placeholder="16"
+                      />
                     </div>
                   </div>
 
@@ -207,16 +195,12 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                 </form>
               </div>
 
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
-                <button
-                  type="submit"
-                  form="triage-form"
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors shadow-sm"
-                >
-                  Send to Doctor <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+              <CardFooter className="justify-end">
+                <Button type="submit" form="triage-form">
+                  Send to Doctor <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
           ) : (
             <div className="h-[calc(100vh-140px)] flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
               <Activity className="w-16 h-16 text-slate-200 mb-4" />

@@ -47,8 +47,13 @@ export default function ObjectiveTab({
 
   return (
     <div className="space-y-5 animate-fadeIn">
-      <div className="flex justify-between items-center">
-        <p className="text-xs text-slate-500 font-semibold">Record physical examination and vital signs.</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-xs text-slate-500 font-semibold">Physical examination and vital signs.</p>
+          <div className="mt-1.5 flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
+            <span>🔒 Locked to Triage Entry (Read-Only)</span>
+          </div>
+        </div>
         <div className="flex gap-2">
           <Button 
             onClick={() => {
@@ -104,7 +109,8 @@ export default function ObjectiveTab({
             id="vital-bp-sys"
             value={vitals.bpSystolic}
             onChange={(e) => setVitals({ ...vitals, bpSystolic: parseInt(e.target.value) || 0 })}
-            className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
+            readOnly
+            className="w-full border border-slate-200 rounded px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 text-slate-500 cursor-not-allowed"
           />
           {vitals.bpSystolic > 140 ? (
             <span className="text-[9px] text-red-600 font-semibold block mt-1">Alert: Hypertension Level</span>
@@ -122,7 +128,8 @@ export default function ObjectiveTab({
             id="vital-bp-dia"
             value={vitals.bpDiastolic}
             onChange={(e) => setVitals({ ...vitals, bpDiastolic: parseInt(e.target.value) || 0 })}
-            className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
+            readOnly
+            className="w-full border border-slate-200 rounded px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 text-slate-500 cursor-not-allowed"
           />
           {vitals.bpDiastolic > 90 ? (
             <span className="text-[9px] text-red-500 font-semibold block mt-1">Elevated diastolic diastolic</span>
@@ -140,7 +147,8 @@ export default function ObjectiveTab({
             id="vital-hr"
             value={vitals.heartRate}
             onChange={(e) => setVitals({ ...vitals, heartRate: parseInt(e.target.value) || 0 })}
-            className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
+            readOnly
+            className="w-full border border-slate-200 rounded px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 text-slate-500 cursor-not-allowed"
           />
           {vitals.heartRate > 100 || vitals.heartRate < 50 ? (
             <span className="text-[9px] text-amber-600 font-semibold block mt-1">Tachy/Bradycardia Warning</span>
@@ -159,7 +167,8 @@ export default function ObjectiveTab({
             id="vital-temp"
             value={vitals.temperature}
             onChange={(e) => setVitals({ ...vitals, temperature: parseFloat(e.target.value) || 0 })}
-            className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
+            readOnly
+            className="w-full border border-slate-200 rounded px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 text-slate-500 cursor-not-allowed"
           />
           {vitals.temperature >= 37.5 ? (
             <span className="text-[9px] bg-red-100 text-red-700 px-1 py-0.2 rounded font-semibold inline-block mt-1">
@@ -179,7 +188,8 @@ export default function ObjectiveTab({
             id="vital-rr"
             value={vitals.respiratoryRate}
             onChange={(e) => setVitals({ ...vitals, respiratoryRate: parseInt(e.target.value) || 0 })}
-            className="w-full border border-slate-300 rounded px-2.5 py-1 text-xs font-mono font-bold"
+            readOnly
+            className="w-full border border-slate-200 rounded px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 text-slate-500 cursor-not-allowed"
           />
           <span className="text-[9px] text-slate-400 block mt-1">Normal Range: 12 - 20 bpm</span>
         </div>

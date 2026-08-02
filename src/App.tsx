@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Patient, Visit, Language, UserRole } from './types';
 import { TRANSLATIONS } from './data';
 import { useFinancials } from './context/FinancialContext';
@@ -8,25 +8,29 @@ import { SettingsProvider } from './context/SettingsContext';
 import { InventoryProvider } from './context/InventoryContext';
 import { AuxiliaryProvider } from './context/AuxiliaryContext';
 
-// Import modules
-import MyKadScanner from './components/MyKadScanner';
-import DispensaryDashboard from './components/DispensaryDashboard';
-import BillingDesk from './components/BillingDesk';
-import LoginModule from './components/LoginModule';
-import AdminModule from './components/AdminModule';
-import DoctorDashboardModule from './components/DoctorDashboardModule';
-// Landing Dashboard & Public Landing Page
-import LandingDashboard from './components/LandingDashboard';
-import ClinicLandingPage from './components/ClinicLandingPage';
-import PatientRegistrationModule from './components/PatientRegistrationModule';
-import TriageModule from './components/TriageModule';
+// Import modules lazily (Code Splitting)
+const MyKadScanner = React.lazy(() => import('./components/MyKadScanner'));
+const DispensaryDashboard = React.lazy(() => import('./components/DispensaryDashboard'));
+const BillingDesk = React.lazy(() => import('./components/BillingDesk'));
+const LoginModule = React.lazy(() => import('./components/LoginModule'));
+const AdminModule = React.lazy(() => import('./components/AdminModule'));
+const DoctorDashboardModule = React.lazy(() => import('./components/DoctorDashboardModule'));
+
+// Landing Dashboard & Public Landing Page (Keep Landing Dashboard sync for fast initial render if desired, but we'll lazy load everything to slash initial bundle size)
+const LandingDashboard = React.lazy(() => import('./components/LandingDashboard'));
+const ClinicLandingPage = React.lazy(() => import('./components/ClinicLandingPage'));
+const PatientRegistrationModule = React.lazy(() => import('./components/PatientRegistrationModule'));
+const TriageModule = React.lazy(() => import('./components/TriageModule'));
+const AppointmentCalendarModule = React.lazy(() => import('./components/AppointmentCalendarModule'));
+
+import GlobalSpinner from './components/ui/GlobalSpinner';
 
 // Import icons
 import {
   Building, Users, FolderCheck, Stethoscope, Pill, CreditCard,
   Settings, Menu, LayoutDashboard, Globe, AlertCircle, Wifi, WifiOff,
   CheckCircle2, ChevronRight, Activity, X, UserCheck, MapPin,
-  LogOut, ShieldAlert, FileText, Smartphone, MessageCircle, Network, BarChart3, Mic, LogIn
+  LogOut, ShieldAlert, FileText, Smartphone, MessageCircle, Network, BarChart3, Mic, LogIn, CalendarClock
 } from 'lucide-react';
 
 export default function App() {
@@ -35,7 +39,7 @@ export default function App() {
   const [appView, setAppView] = useState<'landing' | 'telemetry' | 'login' | 'suite' | 'admin'>('landing');
 
   // Navigation Menu Active Page
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing'>('queue');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments'>('queue');
 
   const handleLogin = async (role: UserRole) => {
     await signIn(role);
@@ -69,6 +73,9 @@ export default function App() {
     addPatientToDb,
     addVisitToDb,
     updateVisitInDb,
+    appointments,
+    addAppointmentToDb,
+    updateAppointmentInDb,
     isSyncing
   } = useSupabaseSync();
 
@@ -424,6 +431,24 @@ export default function App() {
                     </button>
                   )}
 
+                  {/* Appointments Module Icon */}
+                  {userRole === 'clinic-assistant' && (
+                    <button
+                      type="button"
+                      id="sidebar-link-appointments"
+                      onClick={() => setActiveTab('appointments')}
+                      className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'appointments'
+                        ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
+                        <span>Appointments</span>
+                      </div>
+                    </button>
+                  )}
+
                   {/* Doctor Suite Links: Patient Queue, Consultation Suite, Monthly Reports */}
                   {userRole === 'doctor' && (
                     <>
@@ -540,6 +565,7 @@ export default function App() {
 
               {/* INNER PAGE STAGE WINDOW CONTAINER */}
               <main className="flex-1 p-5 overflow-y-auto max-h-full">
+                <Suspense fallback={<GlobalSpinner />}>
 
                 {/* DOCTOR MODULE: PATIENT QUEUE, CONSULTATION SUITE, MONTHLY REPORTS */}
                 {(activeTab === 'queue' || activeTab === 'consultation' || activeTab === 'reports') && userRole === 'doctor' && (
@@ -604,6 +630,16 @@ export default function App() {
                   />
                 )}
 
+                {/* APPOINTMENT CALENDAR MODULE */}
+                {activeTab === 'appointments' && (userRole === 'clinic-assistant' || userRole === 'admin') && (
+                  <AppointmentCalendarModule
+                    appointments={appointments}
+                    patientsList={patientsList}
+                    addAppointment={addAppointmentToDb}
+                    updateAppointment={updateAppointmentInDb}
+                  />
+                )}
+
                 {/* DISPENSARY TAB */}
                 {activeTab === 'dispensary' && userRole === 'pharmacist' && (
                   <DispensaryDashboard
@@ -625,6 +661,7 @@ export default function App() {
                   />
                 )}
 
+                </Suspense>
               </main>
             </div>
 

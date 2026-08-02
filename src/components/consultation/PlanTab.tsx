@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   AlertTriangle, CheckCircle2, Activity, Pill, Trash2, FileText, 
   TestTube, Share, TrendingUp 
@@ -52,10 +52,6 @@ export default function PlanTab({
   const [calculatedDose, setCalculatedDose] = useState<number | null>(null);
   
   const [searchDrugQuery, setSearchDrugQuery] = useState('');
-  const [drugSuggestions, setDrugSuggestions] = useState<any[]>([]);
-  
-  const [allergyAlerts, setAllergyAlerts] = useState<{ drugName: string; allergyGroup: string }[]>([]);
-  const [contraindicationAlerts, setContraindicationAlerts] = useState<{ drugName: string; icdCode: string; reason: string }[]>([]);
   
   const [isMcModalOpen, setIsMcModalOpen] = useState(false);
   const [mcReferenceNo, setMcReferenceNo] = useState('');
@@ -75,19 +71,19 @@ export default function PlanTab({
   }, [patientWeight, medConcentration]);
 
   // Filter Drug Suggestions
-  useEffect(() => {
+  const drugSuggestions = useMemo(() => {
     if (searchDrugQuery.trim() === '') {
-      setDrugSuggestions([]);
+      return [];
     } else if (searchDrugQuery.trim().length > 1) {
-      const filtered = inventory.filter(
+      return inventory.filter(
         (d) => d.name.toLowerCase().includes(searchDrugQuery.toLowerCase()) && d.currentStock > 0
       );
-      setDrugSuggestions(filtered);
     }
+    return [];
   }, [searchDrugQuery, inventory]);
 
   // Check Allergies whenever RX list updates
-  useEffect(() => {
+  const allergyAlerts = useMemo(() => {
     const alerts: { drugName: string; allergyGroup: string }[] = [];
     
     rxList.forEach(rx => {
@@ -107,15 +103,14 @@ export default function PlanTab({
       }
     });
 
-    setAllergyAlerts(alerts);
+    return alerts;
   }, [rxList, currentPatient, inventory]);
 
   // Check Drug-Disease Contraindications
-  useEffect(() => {
+  const contraindicationAlerts = useMemo(() => {
     const alerts: { drugName: string; icdCode: string; reason: string }[] = [];
     if (!selectedICD) {
-      setContraindicationAlerts([]);
-      return;
+      return alerts;
     }
 
     const icdCodeUpper = selectedICD.code.toUpperCase();
@@ -163,13 +158,12 @@ export default function PlanTab({
         }
       }
     });
-    setContraindicationAlerts(alerts);
+    return alerts;
   }, [rxList, selectedICD]);
 
   const handleAddDrug = (catalogDrug: any) => {
     if (rxList.some(r => r.drugName === catalogDrug.name)) {
       setSearchDrugQuery('');
-      setDrugSuggestions([]);
       return;
     }
     const newRx: PrescriptionItem = {
@@ -186,7 +180,6 @@ export default function PlanTab({
     };
     setRxList([...rxList, newRx]);
     setSearchDrugQuery('');
-    setDrugSuggestions([]);
   };
 
   const triggerMcOpening = () => {
