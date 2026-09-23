@@ -13,6 +13,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement> | (() => void);
   type?: 'button' | 'submit' | 'reset';
+  form?: string;
   id?: string;
   key?: React.Key | string | number;
 }

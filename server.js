@@ -10,8 +10,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Use the provided key or fallback to a standard Stripe test secret key
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+// Use process.env.STRIPE_SECRET_KEY or dummy string fallback
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 'dummy_stripe_secret_key_placeholder';
 const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2023-10-16',
 });

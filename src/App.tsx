@@ -211,26 +211,37 @@ export default function App() {
       />
     );
     if (appView === 'telemetry') return (
-      <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-        <div className="bg-slate-900 px-6 py-3 text-white flex items-center justify-between border-b border-slate-800 shadow-md">
+      <div className="min-h-screen bg-[#f7fdfd] flex flex-col font-sans selection:bg-[#0d9488] selection:text-white">
+        <div className="sticky top-0 z-50 bg-[#e0f5f2]/95 backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between border-b border-[#b2f5ea] shadow-xs">
           <button
             type="button"
             onClick={() => setAppView('landing')}
-            className="text-xs font-bold bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 text-teal-300 flex items-center gap-2 cursor-pointer transition-colors"
+            className="text-xs font-extrabold bg-[#f7fdfd] hover:bg-[#e6f4f1] px-3.5 py-2 rounded-xl border border-[#ccfbf1] text-[#0d9488] hover:border-[#0d9488] flex items-center gap-2 cursor-pointer transition-all shadow-2xs"
           >
             ← Back to Public Website
           </button>
-          <span className="text-xs font-mono text-slate-300 font-semibold">Live Operational Telemetry Dashboard</span>
+          
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="text-xs font-mono text-slate-900 font-black tracking-tight">
+              LIVE OPERATIONAL TELEMETRY DASHBOARD
+            </span>
+          </div>
+
           <button
             type="button"
             onClick={() => setAppView('login')}
-            className="text-xs font-bold bg-[#0D9488] hover:bg-teal-600 px-3.5 py-1.5 rounded-lg text-white flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
+            className="text-xs font-extrabold bg-[#0d9488] hover:bg-[#0f766e] px-4 py-2 rounded-xl text-white flex items-center gap-2 cursor-pointer transition-all shadow-md shadow-teal-500/20 hover:scale-105"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Staff Portal Login</span>
           </button>
         </div>
-        <div className="p-4 sm:p-6 flex-1">
+
+        <div className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl mx-auto w-full">
           <LandingDashboard
             userRole={userRole}
             userName={getUserDisplayName()}
