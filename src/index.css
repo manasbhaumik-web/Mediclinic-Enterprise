@@ -94,6 +94,20 @@ body {
   border-color: rgba(45, 212, 191, 0.25) !important;
 }
 
+/* Dark Mode Table Headers & Rows */
+.dark tr.bg-slate-100,
+.dark thead tr,
+.dark .bg-slate-100,
+.dark .bg-slate-200 {
+  background-color: #082830 !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(45, 212, 191, 0.2) !important;
+}
+
+.dark thead th {
+  color: #94a3b8 !important;
+}
+
 .dark .bg-\[\#f0fdfa\],
 .dark .bg-\[\#f7fdfd\] {
   background-color: #0e404e !important;
@@ -111,15 +125,18 @@ body {
 
 /* High-Contrast Text Legibility in Dark Mode */
 .dark .text-slate-900,
-.dark .text-slate-800,
-.dark .text-slate-700 {
+.dark .text-slate-800 {
   color: #f8fafc !important;
 }
 
-.dark .text-slate-600,
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
 .dark .text-slate-500,
 .dark .text-slate-400 {
-  color: #cbd5e1 !important;
+  color: #94a3b8 !important;
 }
 
 .dark .text-\[\#0d9488\] {
@@ -130,41 +147,101 @@ body {
   color: #5eead4 !important;
 }
 
+/* Dark Mode Input & Select Dropdowns */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #082830 !important;
+  color: #f8fafc !important;
+  border-color: rgba(45, 212, 191, 0.3) !important;
+}
+
+.dark select option {
+  background-color: #082830 !important;
+  color: #f8fafc !important;
+}
+
+/* High-Contrast Badges & Status Indicators in Dark Mode */
+.dark .bg-teal-50,
+.dark .bg-teal-100 {
+  background-color: rgba(13, 148, 136, 0.35) !important;
+  color: #2dd4bf !important;
+  border-color: rgba(45, 212, 191, 0.4) !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.3) !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.4) !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.3) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(251, 191, 36, 0.4) !important;
+}
+
+.dark .bg-purple-50,
+.dark .bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.3) !important;
+  color: #c084fc !important;
+  border-color: rgba(192, 132, 252, 0.4) !important;
+}
+
+.dark .bg-sky-50,
+.dark .bg-sky-100 {
+  background-color: rgba(14, 165, 233, 0.3) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+.dark .text-teal-800,
+.dark .text-teal-700 {
+  color: #2dd4bf !important;
+}
+
+.dark .text-emerald-800,
+.dark .text-emerald-700 {
+  color: #34d399 !important;
+}
+
+.dark .text-amber-800,
+.dark .text-amber-700 {
+  color: #fbbf24 !important;
+}
+
+.dark .text-purple-800,
+.dark .text-purple-700 {
+  color: #c084fc !important;
+}
+
+.dark .text-sky-800,
+.dark .text-sky-700 {
+  color: #38bdf8 !important;
+}
+
 /* Borders in Dark Mode */
 .dark .border-slate-200,
 .dark .border-slate-100,
+.dark .border-slate-300,
 .dark .border-\[\#ccfbf1\],
 .dark .border-\[\#b2f5ea\] {
   border-color: rgba(45, 212, 191, 0.25) !important;
 }
 
 .dark .border-t-slate-100,
-.dark .border-b-slate-100 {
+.dark .border-b-slate-100,
+.dark .border-b-slate-200,
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
   border-color: rgba(45, 212, 191, 0.15) !important;
 }
 
-/* Badges & Status Indicators in Dark Mode */
-.dark .bg-teal-100,
-.dark .bg-emerald-100,
-.dark .bg-amber-100,
-.dark .bg-sky-100,
-.dark .bg-purple-100 {
-  background-color: rgba(13, 148, 136, 0.25) !important;
-  border-color: rgba(45, 212, 191, 0.4) !important;
-}
-
-.dark .text-teal-800,
-.dark .text-emerald-800,
-.dark .text-emerald-700,
-.dark .text-amber-800,
-.dark .text-sky-800,
-.dark .text-sky-700,
-.dark .text-purple-800 {
-  color: #5eead4 !important;
-}
-
 /* Table Row & Card Hover Highlights in Dark Mode */
+.dark tbody tr:hover,
 .dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-50\/70:hover,
 .dark .hover\:bg-teal-50:hover {
   background-color: #124e5e !important;
 }
