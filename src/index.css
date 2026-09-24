@@ -83,3 +83,94 @@ body {
     transform: translateY(0);
   }
 }
+
+/* ========================================================================= */
+/* NIGHT SHIFT / DARK MODE COMPONENT CONTRAST ELEVATION                       */
+/* ========================================================================= */
+
+.dark .bg-white {
+  background-color: #0c3844 !important;
+  color: #f8fafc !important;
+  border-color: rgba(45, 212, 191, 0.25) !important;
+}
+
+.dark .bg-\[\#f0fdfa\],
+.dark .bg-\[\#f7fdfd\] {
+  background-color: #0e404e !important;
+  color: #f8fafc !important;
+  border-color: rgba(45, 212, 191, 0.3) !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-100\/50,
+.dark .bg-\[\#e0f5f2\] {
+  background-color: #092e38 !important;
+  border-color: rgba(45, 212, 191, 0.2) !important;
+  color: #e2e8f0 !important;
+}
+
+/* High-Contrast Text Legibility in Dark Mode */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-\[\#0d9488\] {
+  color: #2dd4bf !important;
+}
+
+.dark .text-\[\#0f3c4c\] {
+  color: #5eead4 !important;
+}
+
+/* Borders in Dark Mode */
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-\[\#ccfbf1\],
+.dark .border-\[\#b2f5ea\] {
+  border-color: rgba(45, 212, 191, 0.25) !important;
+}
+
+.dark .border-t-slate-100,
+.dark .border-b-slate-100 {
+  border-color: rgba(45, 212, 191, 0.15) !important;
+}
+
+/* Badges & Status Indicators in Dark Mode */
+.dark .bg-teal-100,
+.dark .bg-emerald-100,
+.dark .bg-amber-100,
+.dark .bg-sky-100,
+.dark .bg-purple-100 {
+  background-color: rgba(13, 148, 136, 0.25) !important;
+  border-color: rgba(45, 212, 191, 0.4) !important;
+}
+
+.dark .text-teal-800,
+.dark .text-emerald-800,
+.dark .text-emerald-700,
+.dark .text-amber-800,
+.dark .text-sky-800,
+.dark .text-sky-700,
+.dark .text-purple-800 {
+  color: #5eead4 !important;
+}
+
+/* Table Row & Card Hover Highlights in Dark Mode */
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-teal-50:hover {
+  background-color: #124e5e !important;
+}
+
+.dark .hover\:border-slate-300:hover,
+.dark .hover\:border-\[\#0d9488\]:hover {
+  border-color: #2dd4bf !important;
+  box-shadow: 0 4px 20px rgba(45, 212, 191, 0.2) !important;
+}

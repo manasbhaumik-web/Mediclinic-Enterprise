@@ -75,7 +75,7 @@ export default function EnterpriseLayoutTemplate({
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-[#07b2b2]/20 transition-colors duration-300 ${
-      isNightShift ? 'bg-[#092e38] text-slate-100' : 'bg-[#f8fafc] text-slate-800'
+      isNightShift ? 'dark bg-[#092e38] text-slate-100' : 'bg-[#f8fafc] text-slate-800'
     }`}>
       
       {/* ========================================================================= */}
