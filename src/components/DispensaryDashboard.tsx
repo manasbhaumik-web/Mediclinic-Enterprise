@@ -447,7 +447,7 @@ export default function DispensaryDashboard({
                 {/* Clinic details header */}
                 <div className="border-b-2 border-black pb-1.5 text-center flex items-center justify-between">
                   <div className="text-left font-bold">
-                    <p className="text-xs">KLINIK MALAYSIA ENTERPRISE</p>
+                    <p className="text-xs font-bold">MEDICLINIC ENTERPRISE</p>
                     <p className="text-[8px] text-slate-600">No. 20 Jln Ampang, KL • Tel: 03-21664000</p>
                   </div>
                   <div className="text-right text-[8px]">

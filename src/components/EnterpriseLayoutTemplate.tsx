@@ -121,23 +121,6 @@ export default function EnterpriseLayoutTemplate({
           )}
         </div>
 
-        {/* Center: Interactive Quick Search Bar */}
-        <div className="hidden md:flex items-center gap-2 max-w-md w-full mx-4">
-          <div className="relative w-full">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-teal-100/80" />
-            <input
-              type="text"
-              placeholder="Search Patient Name, MRN, or ICD-10 Code..."
-              value={globalSearchQuery}
-              onChange={(e) => setGlobalSearchQuery(e.target.value)}
-              className="w-full bg-[#069494] border border-[#058a8a] text-xs text-white placeholder:text-teal-100/70 pl-8 pr-12 py-1.5 focus:outline-none focus:ring-1 focus:ring-white focus:border-white rounded-md transition-all font-medium"
-            />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono font-bold bg-[#058a8a] text-teal-100 px-1.5 py-0.5 border border-[#047777] rounded-md pointer-events-none">
-              ⌘K
-            </span>
-          </div>
-        </div>
-
         {/* Right: Real-time Clock & Global Actions */}
         <div className="flex items-center gap-2.5 sm:gap-3">
 

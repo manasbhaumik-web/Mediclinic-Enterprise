@@ -8,12 +8,12 @@ export const generateInvoicePDF = (patient: Patient, visit: Visit, isPanel: bool
   // Header
   doc.setFontSize(22);
   doc.setTextColor(7, 178, 178); // #07B2B2
-  doc.text('Klinik Malaysia Enterprise', 14, 20);
+  doc.text('Mediclinic Enterprise', 14, 20);
   
   doc.setFontSize(10);
   doc.setTextColor(100, 100, 100);
   doc.text('123, Jalan Bukit Bintang, 55100 Kuala Lumpur', 14, 28);
-  doc.text('Phone: 03-2141 1234 | Email: billing@klinikmalaysia.com', 14, 34);
+  doc.text('Phone: +60 3-5510 8899 | Email: billing@mediclinic.com.my', 14, 34);
   
   // Invoice Details
   doc.setFontSize(16);
@@ -113,7 +113,7 @@ export const generateInvoicePDF = (patient: Patient, visit: Visit, isPanel: bool
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(150, 150, 150);
   doc.text('This is a computer generated document. No signature is required.', 14, 280);
-  doc.text('Thank you for choosing Klinik Malaysia Enterprise.', 14, 285);
+  doc.text('Thank you for choosing Mediclinic Enterprise.', 14, 285);
 
   // Download
   doc.save(`Invoice_${visit.id}.pdf`);
