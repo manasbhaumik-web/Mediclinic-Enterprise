@@ -515,7 +515,7 @@ export default function ClinicLandingPage({
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-[#f0fdfa] rounded-2xl border border-[#ccfbf1] max-w-3xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] max-w-3xl mx-auto">
             <button
               type="button"
               onClick={() => setActiveFeatureTab('emr')}
@@ -570,7 +570,7 @@ export default function ClinicLandingPage({
           </div>
 
           {/* Active Tab Showcase Content */}
-          <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-3xl p-8 shadow-xs">
+          <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-none p-8 shadow-xs">
             {activeFeatureTab === 'emr' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-fadeIn">
                 <div className="space-y-4">
@@ -596,7 +596,7 @@ export default function ClinicLandingPage({
                   </button>
                 </div>
 
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-2xl p-6 shadow-md space-y-4 font-mono text-xs">
+                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-4 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3 font-sans">
                     <span className="font-black text-slate-900 text-xs">EMR Telemetry Live Widget</span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">ONLINE</span>
@@ -642,7 +642,7 @@ export default function ClinicLandingPage({
                   </button>
                 </div>
 
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-2xl p-6 shadow-md space-y-4">
+                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-4">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
                     <span className="font-black text-slate-900 text-xs flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-[#0d9488]" /> Biometric MyKad Pass
@@ -673,7 +673,7 @@ export default function ClinicLandingPage({
                       <div>
                         <div className="text-xs font-black text-slate-900">Ahmad Firdaus Bin Ismail</div>
                         <div className="text-[11px] font-mono text-[#0d9488] font-bold">890214-10-5421</div>
-                        <div className="text-[10px] text-slate-600 font-medium">Panel: Petronas Corporate Health</div>
+                        <div className="text-[10px] text-[#0d9488] font-medium">Panel: Petronas Corporate Health</div>
                       </div>
                     </div>
 
@@ -710,7 +710,7 @@ export default function ClinicLandingPage({
                   </a>
                 </div>
 
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-2xl p-6 shadow-md space-y-3 font-mono text-xs">
+                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-3 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3 font-sans">
                     <span className="font-black text-slate-900 text-xs">TPA Panel e-GL Status</span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">APPROVED</span>
@@ -755,7 +755,7 @@ export default function ClinicLandingPage({
                   </a>
                 </div>
 
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-2xl p-6 shadow-md space-y-3 font-mono text-xs">
+                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-3 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3 font-sans">
                     <span className="font-black text-slate-900 text-xs">Dispensary Fulfillment</span>
                     <span className="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">DISPENSED</span>
@@ -914,7 +914,7 @@ export default function ClinicLandingPage({
             </div>
 
             {/* Right Col: Interactive Panel Cashless Estimator Card */}
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-2xl p-5 space-y-4 shadow-sm">
+            <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 space-y-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
                 <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-[#0d9488]" /> Cashless Benefit Check
@@ -1185,7 +1185,7 @@ export default function ClinicLandingPage({
       {/* 9. TELEMETRY BANNER CALLOUT                                               */}
       {/* ========================================================================= */}
       <section id="telemetry" className="py-16 px-4 lg:px-8 bg-[#f0fdfa] border-t border-[#ccfbf1]">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 p-8 rounded-3xl bg-[#f7fdfd] border border-[#ccfbf1] shadow-xs relative overflow-hidden">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 p-8 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] shadow-xs relative overflow-hidden">
           
           <div className="space-y-2 text-center md:text-left relative z-10">
             <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] flex items-center justify-center md:justify-start gap-1.5">
@@ -1295,7 +1295,7 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {isBookingOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative text-slate-900">
+          <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none max-w-lg w-full p-6 shadow-2xl space-y-5 relative text-slate-900">
             
             <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-4">
               <div className="flex items-center gap-2.5">
