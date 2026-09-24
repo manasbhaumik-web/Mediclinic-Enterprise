@@ -3,7 +3,7 @@ import { Visit, Patient, UserRole, Language } from '../types';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
   TrendingUp, ArrowUpRight, ShieldCheck, MapPin, Phone, Building2,
-  Calendar, CheckCircle2, ChevronRight, AlertCircle, BarChart3, PieChart as PieChartIcon, Zap, LogIn, Download, Filter
+  Calendar, CheckCircle2, ChevronRight, AlertCircle, BarChart3, PieChart as PieChartIcon, Zap, LogIn, Download, Filter, FileText, ExternalLink, RefreshCw, LayoutDashboard
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -20,11 +20,11 @@ interface LandingDashboardProps {
   completedVisits: Visit[];
   patientsList: Patient[];
   activeLanguage: Language;
-  onNavigateTab: (tab: 'dashboard' | 'registration' | 'consultation' | 'dispensary' | 'billing') => void;
+  onNavigateTab: (tab: any) => void;
   onOpenLogin?: () => void;
 }
 
-// Inline Micro SVG Sparkline for 10/10 Metric Density
+// Inline Micro SVG Sparkline for 10/10 Metric Density (Sharp Line Styling)
 const MicroSparkline = ({ data, color = '#0d9488' }: { data: number[]; color?: string }) => {
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -35,13 +35,13 @@ const MicroSparkline = ({ data, color = '#0d9488' }: { data: number[]; color?: s
   }).join(' ');
 
   return (
-    <svg className="w-20 h-7 overflow-visible inline-block opacity-80" viewBox="0 0 100 30">
+    <svg className="w-20 h-7 overflow-visible inline-block opacity-90" viewBox="0 0 100 30">
       <polyline
         fill="none"
         stroke={color}
         strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
         points={points}
       />
     </svg>
@@ -62,10 +62,10 @@ export default function LandingDashboard({
   onOpenLogin
 }: LandingDashboardProps) {
 
-  // Time Horizon & Suite Filter State (10/10 Usability)
+  // Time Horizon & Filter State
   const [timeHorizon, setTimeHorizon] = useState<'today' | '7days' | 'monthly'>('today');
-  const [selectedSuiteFilter, setSelectedSuiteFilter] = useState<'all' | 'suite101' | 'dispensary'>('all');
   const [isExporting, setIsExporting] = useState(false);
+  const [activeQuickFilter, setActiveQuickFilter] = useState<'all' | 'urgent' | 'panel'>('all');
 
   // Time-based greeting helper
   const getGreeting = () => {
@@ -79,7 +79,22 @@ export default function LandingDashboard({
     setIsExporting(true);
     setTimeout(() => {
       setIsExporting(false);
-      alert('Telemetry Operational Report exported successfully as CSV/PDF summary.');
+      // Trigger instant CSV download
+      const headers = ['Telemetry Metric', 'Value', 'Status', 'Timestamp'];
+      const rows = [
+        ['Total Encounters Today', totalEncountersToday, 'Optimal', new Date().toISOString()],
+        ['Active Queue Volume', activeQueueCount, 'SLA Target Met', new Date().toISOString()],
+        ['Daily Revenue (RM)', calculatedRevenue.toFixed(2), '100% Panel Verified', new Date().toISOString()],
+        ['Clinic Efficiency Index', '96.4%', 'KKM Compliant', new Date().toISOString()]
+      ];
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `MediClinic_Enterprise_Telemetry_${timeHorizon}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }, 600);
   };
 
@@ -102,7 +117,6 @@ export default function LandingDashboard({
     { hour: '05:00 PM', encounters: 12, waiting: 2 },
   ];
 
-  // Unified Medical Color Palette for 10/10 Color Harmony
   const icdBreakdownData = [
     { name: 'URTI / Common Cold (J06.9)', count: 42, color: '#0d9488' },
     { name: 'Essential Hypertension (I10)', count: 28, color: '#0891b2' },
@@ -126,38 +140,106 @@ export default function LandingDashboard({
     { name: 'Omeprazole 20mg Cap', category: 'Gastroprotective', dispensed: 115, stock: 600, percentage: 40, isHealthy: false },
   ];
 
+  // 5 Application Workspace Modules Config
+  const workspaceModules = [
+    {
+      id: 'registration',
+      title: 'Patient Registration & Triage',
+      subtitle: 'Biometric MyKad OCR, Patient Records & Triage Queue',
+      icon: Users,
+      badge: `${patientsList.length} Registered`,
+      badgeColor: 'bg-teal-100 text-teal-800 border-teal-300',
+      accentColor: 'border-l-[#0d9488]',
+      actionText: 'Launch Registration',
+      tabKey: 'registration'
+    },
+    {
+      id: 'consultation',
+      title: 'Doctor Consultation Suite',
+      subtitle: 'SOAP EHR Notes, ICD-10 Coding & Public PA Call System',
+      icon: Stethoscope,
+      badge: `${doctorQueue.length} Waiting`,
+      badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
+      accentColor: 'border-l-[#0f3c4c]',
+      actionText: 'Enter Doctor Suite',
+      tabKey: 'consultation'
+    },
+    {
+      id: 'dispensary',
+      title: 'Pharmacy & Dispensary Suite',
+      subtitle: 'e-Prescription Fulfillment, FIFO Batch & Labeling',
+      icon: Pill,
+      badge: `${pharmacyQueue.length} Pending Orders`,
+      badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
+      accentColor: 'border-l-purple-600',
+      actionText: 'Open Dispensary',
+      tabKey: 'dispensary'
+    },
+    {
+      id: 'billing',
+      title: 'Billing Desk & Cashier',
+      subtitle: 'Corporate Panel e-GL Claims, Cash/QR & Receipts',
+      icon: CreditCard,
+      badge: `${cashierQueue.length} Unpaid Visits`,
+      badgeColor: 'bg-sky-100 text-sky-800 border-sky-300',
+      accentColor: 'border-l-sky-600',
+      actionText: 'Launch Cashier Desk',
+      tabKey: 'billing'
+    },
+    {
+      id: 'moh',
+      title: 'MOH Telemetry & Analytics',
+      subtitle: 'KKM Surveillance, Disease Registry & Compliance SLA',
+      icon: BarChart3,
+      badge: 'KKM Sync Active',
+      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+      accentColor: 'border-l-emerald-600',
+      actionText: 'View MOH Reports',
+      tabKey: 'reports'
+    },
+  ];
+
   return (
     <div className="space-y-6 animate-fadeIn pb-12 font-sans text-slate-800">
 
       {/* ========================================================================= */}
-      {/* 1. COMMAND-CENTER CONTROL BAR & PUBLIC PORTAL BANNER (10/10 HIERARCHY)     */}
+      {/* 1. ENTERPRISE COMMAND-CENTER HEADER & CONTROL BAR                         */}
       {/* ========================================================================= */}
-      <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-none p-6 sm:p-7 space-y-5 shadow-xs border-l-4 border-l-[#0d9488]">
+      <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-none p-6 space-y-5 shadow-xs border-l-4 border-l-[#0d9488]">
         
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 bg-[#0d9488] text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">
+                Enterprise Operations Command
+              </span>
+              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold uppercase tracking-wider border border-emerald-300 rounded-none flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-ping"></span>
+                System Normal • KKM EHR Synced
+              </span>
+            </div>
             <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
               <Activity className="w-7 h-7 text-[#0d9488]" />
               <span>
-                {userRole ? `${getGreeting()}, ${userName}` : 'Welcome to MediClinic Enterprise Operations'}
+                {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 font-normal">
-              Real-time outpatient telemetry, clinical analytics, and facility operational status.
+              Unified healthcare operations launchpad, outpatient telemetry, clinical analytics, and facility status.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            {/* Time Horizon Filter Pills */}
-            <div className="flex items-center gap-1 bg-[#f7fdfd] p-1 rounded-xl border border-[#ccfbf1] text-xs font-bold">
+            {/* Time Horizon Filter Selector */}
+            <div className="flex items-center bg-white p-1 border border-[#ccfbf1] text-xs font-bold rounded-none">
               {(['today', '7days', 'monthly'] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setTimeHorizon(t)}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer capitalize ${
+                  className={`px-3 py-1.5 transition-all cursor-pointer capitalize rounded-none ${
                     timeHorizon === t 
-                      ? 'bg-[#0d9488] text-white shadow-2xs' 
+                      ? 'bg-[#0f3c4c] text-white shadow-2xs' 
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -174,14 +256,14 @@ export default function LandingDashboard({
               className="px-4 py-2 rounded-none bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] font-extrabold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
             >
               <Download className={`w-3.5 h-3.5 text-[#0d9488] ${isExporting ? 'animate-bounce' : ''}`} />
-              <span>{isExporting ? 'Exporting...' : 'Export Telemetry'}</span>
+              <span>{isExporting ? 'Exporting CSV...' : 'Export Telemetry'}</span>
             </button>
 
             {!userRole && (
               <button
                 type="button"
                 onClick={onOpenLogin}
-                className="px-5 py-2 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md shadow-teal-500/20 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                className="px-5 py-2 rounded-none bg-[#0d9488] hover:bg-[#0f3c4c] text-white font-extrabold text-xs shadow-md shadow-teal-500/20 flex items-center gap-2 transition-all cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Staff Portal</span>
@@ -189,19 +271,69 @@ export default function LandingDashboard({
             )}
           </div>
         </div>
-
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. STATISTICAL KPI CARDS WITH SPARKLINES & SLA BADGES (10/10 DATA DENSITY) */}
+      {/* 2. WORKSPACE MODULE LAUNCHPAD (5 INTERACTIVE ENTERPRISE TILES)             */}
+      {/* ========================================================================= */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <LayoutDashboard className="w-4 h-4 text-[#0d9488]" />
+            Application Workspace Module Launcher
+          </h3>
+          <span className="text-xs text-slate-400 font-mono">Select module to navigate instantly</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {workspaceModules.map((mod) => {
+            const IconComponent = mod.icon;
+            return (
+              <div
+                key={mod.id}
+                onClick={() => onNavigateTab(mod.tabKey)}
+                className={`bg-white border border-slate-200 p-4 rounded-none border-l-4 ${mod.accentColor} shadow-2xs hover:shadow-md hover:border-slate-300 transition-all cursor-pointer flex flex-col justify-between group space-y-3`}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="p-2 bg-slate-50 border border-slate-100 group-hover:bg-teal-50 group-hover:border-teal-200 transition-colors">
+                      <IconComponent className="w-5 h-5 text-[#0d9488]" />
+                    </div>
+                    <span className={`px-2 py-0.5 text-[10px] font-bold font-mono uppercase tracking-wider border rounded-none ${mod.badgeColor}`}>
+                      {mod.badge}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 group-hover:text-[#0d9488] transition-colors flex items-center gap-1">
+                      {mod.title}
+                    </h4>
+                    <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      {mod.subtitle}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#0d9488] group-hover:text-[#0f3c4c] transition-colors">
+                  <span>{mod.actionText}</span>
+                  <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. STATISTICAL KPI CARDS WITH SPARKLINES & SLA BADGES                     */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* KPI 1: Today's Encounters */}
         <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span>Today's Encounters</span>
-            <span className="p-2 rounded-xl bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488]">
+            <span>Today's Total Encounters</span>
+            <span className="p-2 bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488] rounded-none">
               <Users className="w-4 h-4" />
             </span>
           </div>
@@ -211,7 +343,7 @@ export default function LandingDashboard({
               <span className="text-3xl font-black font-mono tracking-tight text-slate-900 block">
                 {totalEncountersToday}
               </span>
-              <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-flex items-center gap-0.5 mt-1">
+              <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-none inline-flex items-center gap-0.5 mt-1 border border-emerald-200">
                 <ArrowUpRight className="w-3 h-3" /> +14.2% vs yesterday
               </span>
             </div>
@@ -221,7 +353,7 @@ export default function LandingDashboard({
           </div>
 
           <div className="mt-3 pt-2 border-t border-[#ccfbf1] flex items-center justify-between text-[10px] text-slate-500 font-semibold">
-            <span>Walk-ins &amp; Online tokens</span>
+            <span>Walk-ins & Online tokens</span>
             <span className="text-[#0d9488] font-bold">🟢 SLA Target Met</span>
           </div>
         </div>
@@ -230,7 +362,7 @@ export default function LandingDashboard({
         <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Active Queue Volume</span>
-            <span className="p-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-600">
+            <span className="p-2 bg-amber-50 border border-amber-200 text-amber-600 rounded-none">
               <Clock className="w-4 h-4" />
             </span>
           </div>
@@ -251,15 +383,15 @@ export default function LandingDashboard({
 
           <div className="mt-3 pt-2 border-t border-[#ccfbf1] flex items-center justify-between text-[10px] text-slate-500 font-semibold">
             <span>Triage: {triageQueue.length} | Doctor: {doctorQueue.length}</span>
-            <span className="text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.5 rounded">⚡ Zero-Wait Active</span>
+            <span className="text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.5 rounded-none border border-emerald-200">⚡ Zero-Wait Active</span>
           </div>
         </div>
 
         {/* KPI 3: Today's Financial Billing */}
         <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span>Daily Revenue &amp; Claims</span>
-            <span className="p-2 rounded-xl bg-sky-50 border border-sky-200 text-[#0284c7]">
+            <span>Daily Revenue & Claims</span>
+            <span className="p-2 bg-sky-50 border border-sky-200 text-[#0284c7] rounded-none">
               <CreditCard className="w-4 h-4" />
             </span>
           </div>
@@ -272,7 +404,7 @@ export default function LandingDashboard({
                   {calculatedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-md inline-block mt-1">
+              <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-none inline-block mt-1 border border-sky-200">
                 100% Panel Verified
               </span>
             </div>
@@ -291,7 +423,7 @@ export default function LandingDashboard({
         <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Clinic Efficiency Index</span>
-            <span className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600">
+            <span className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-none">
               <ShieldCheck className="w-4 h-4" />
             </span>
           </div>
@@ -301,7 +433,7 @@ export default function LandingDashboard({
               <span className="text-3xl font-black font-mono tracking-tight text-slate-900 block">
                 96.4%
               </span>
-              <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md inline-block mt-1">
+              <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-none inline-block mt-1 border border-emerald-200">
                 OPTIMAL PERFORMANCE
               </span>
             </div>
@@ -311,7 +443,7 @@ export default function LandingDashboard({
           </div>
 
           <div className="mt-3 pt-2 border-t border-[#ccfbf1] flex items-center justify-between text-[10px] text-slate-500 font-semibold">
-            <span>KKM &amp; EMR SLA target</span>
+            <span>KKM & EMR SLA target</span>
             <span className="text-emerald-700 font-bold">🛡️ KKM Compliant</span>
           </div>
         </div>
@@ -319,7 +451,7 @@ export default function LandingDashboard({
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. CHARTS ROW 1: THROUGHPUT TREND & ICD DIAGNOSIS (10/10 COLOR HARMONY)  */}
+      {/* 4. CHARTS ROW 1: THROUGHPUT TREND & ICD DIAGNOSIS                          */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
@@ -335,8 +467,8 @@ export default function LandingDashboard({
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="text-[10px] bg-[#e0f5f2] text-[#0d9488] font-mono px-2.5 py-1 rounded-full border border-[#b2f5ea] font-extrabold tracking-wider uppercase flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-[10px] bg-[#e0f5f2] text-[#0d9488] font-mono px-2.5 py-1 rounded-none border border-[#b2f5ea] font-extrabold tracking-wider uppercase flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
                 Live Stream
               </span>
             </div>
@@ -355,7 +487,7 @@ export default function LandingDashboard({
                 <XAxis dataKey="hour" tick={{ fontSize: 11, fill: '#475569' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#475569' }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', color: '#fff', borderRadius: '12px', fontSize: '12px', padding: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ backgroundColor: '#0f3c4c', color: '#fff', borderRadius: '0px', fontSize: '12px', padding: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                   itemStyle={{ color: '#5eead4' }}
                 />
                 <Area type="monotone" dataKey="encounters" name="Patients Attended" stroke="#0d9488" strokeWidth={3} fillOpacity={1} fill="url(#colorEncounters)" />
@@ -393,7 +525,7 @@ export default function LandingDashboard({
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', color: '#fff', borderRadius: '12px', fontSize: '12px', padding: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    contentStyle={{ backgroundColor: '#0f3c4c', color: '#fff', borderRadius: '0px', fontSize: '12px', padding: '12px', border: 'none' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -409,7 +541,7 @@ export default function LandingDashboard({
             {icdBreakdownData.slice(0, 3).map((item, idx) => (
               <div key={idx} className="flex items-center justify-between text-slate-700">
                 <span className="flex items-center gap-2 truncate max-w-[180px]">
-                  <span className="w-3 h-3 rounded-full shrink-0 shadow-xs" style={{ backgroundColor: item.color }} />
+                  <span className="w-3 h-3 rounded-none shrink-0" style={{ backgroundColor: item.color }} />
                   <span className="truncate font-semibold">{item.name}</span>
                 </span>
                 <span className="font-mono font-black text-slate-900">{item.count}</span>
@@ -421,7 +553,7 @@ export default function LandingDashboard({
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. CHARTS ROW 2: PAYER MIX & PHARMACY TELEMETRY (DYNAMIC ALERTS)          */}
+      {/* 5. CHARTS ROW 2: PAYER MIX & PHARMACY TELEMETRY                           */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
@@ -431,11 +563,11 @@ export default function LandingDashboard({
             <div>
               <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-[#0284c7]" />
-                Payer &amp; TPA Panel Settlement Mix
+                Payer & TPA Panel Settlement Mix
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">Revenue split across Corporate Panels and Self-Pay.</p>
             </div>
-            <span className="text-[10px] text-[#0284c7] bg-sky-50 px-2.5 py-1 rounded-full font-mono font-bold uppercase tracking-wider border border-sky-200">
+            <span className="text-[10px] text-[#0284c7] bg-sky-50 px-2.5 py-1 rounded-none font-mono font-bold uppercase tracking-wider border border-sky-200">
               MYR Currency
             </span>
           </div>
@@ -447,15 +579,15 @@ export default function LandingDashboard({
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#475569' }} />
                 <YAxis dataKey="provider" type="category" tick={{ fontSize: 11, fill: '#1e293b' }} width={120} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', color: '#fff', borderRadius: '12px', fontSize: '12px', padding: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ backgroundColor: '#0f3c4c', color: '#fff', borderRadius: '0px', fontSize: '12px', padding: '12px', border: 'none' }}
                 />
-                <Bar dataKey="amount" name="Total Claims (RM)" fill="#0d9488" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="amount" name="Total Claims (RM)" fill="#0d9488" radius={[0, 0, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Fast-Moving Medications Progress Meters with Stock Alerts (6 Cols) */}
+        {/* Fast-Moving Medications Progress Meters (6 Cols) */}
         <div className="lg:col-span-6 bg-[#f0fdfa] border border-[#ccfbf1] rounded-none p-6 shadow-xs">
           <div className="pb-4 border-b border-[#ccfbf1] mb-5 flex items-center justify-between">
             <div>
@@ -465,7 +597,7 @@ export default function LandingDashboard({
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">Top dispensed pharmaceuticals and warehouse stock alerts.</p>
             </div>
-            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-mono font-bold uppercase tracking-wider">
+            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none font-mono font-bold uppercase tracking-wider border border-emerald-200">
               FIFO Active
             </span>
           </div>
@@ -477,11 +609,11 @@ export default function LandingDashboard({
                   <span className="font-extrabold text-slate-900 flex items-center gap-2">
                     <span>{drug.name}</span>
                     {drug.percentage < 50 ? (
-                      <span className="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.2 rounded font-bold">
+                      <span className="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.2 rounded-none font-bold border border-amber-300">
                         ⚠️ Low Reserve
                       </span>
                     ) : (
-                      <span className="text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.2 rounded font-bold">
+                      <span className="text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.2 rounded-none font-bold border border-emerald-300">
                         🟢 Healthy
                       </span>
                     )}
@@ -490,9 +622,9 @@ export default function LandingDashboard({
                     Dispensed: <strong className="text-[#0d9488]">{drug.dispensed}</strong> / Stock: {drug.stock}
                   </span>
                 </div>
-                <div className="w-full bg-[#e0f5f2] h-2.5 rounded-full overflow-hidden border border-[#b2f5ea]">
+                <div className="w-full bg-[#e0f5f2] h-2.5 rounded-none overflow-hidden border border-[#b2f5ea]">
                   <div 
-                    className={`h-full rounded-full transition-all duration-500 ${
+                    className={`h-full rounded-none transition-all duration-500 ${
                       drug.percentage < 50 ? 'bg-amber-500' : 'bg-[#0d9488]'
                     }`}
                     style={{ width: `${drug.percentage}%` }}
@@ -506,7 +638,7 @@ export default function LandingDashboard({
       </div>
 
       {/* ========================================================================= */}
-      {/* 5. CLINICAL INFORMATION & OPERATIONAL DIRECTORY                           */}
+      {/* 6. CLINICAL INFORMATION & OPERATIONAL DIRECTORY                           */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
@@ -515,9 +647,9 @@ export default function LandingDashboard({
           <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-4">
             <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[#0d9488]" />
-              Clinic Operating Information &amp; Licensing
+              Clinic Operating Information & Licensing
             </h3>
-            <span className="text-[10px] bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 px-2.5 py-1 rounded-full font-mono font-bold">
+            <span className="text-[10px] bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 px-2.5 py-1 rounded-none font-mono font-bold">
               Reg #KKM-2026-SL-8902
             </span>
           </div>
@@ -535,7 +667,7 @@ export default function LandingDashboard({
               <div className="flex items-start gap-3 text-slate-600 pt-1">
                 <Phone className="w-5 h-5 text-[#0d9488] shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block text-slate-900 font-extrabold mb-1">24/7 Hotline &amp; Ambulance</strong>
+                  <strong className="block text-slate-900 font-extrabold mb-1">24/7 Hotline & Ambulance</strong>
                   <span className="leading-relaxed block">+60 3-5510 8899 / emergency@mediclinic.my</span>
                 </div>
               </div>
@@ -555,7 +687,7 @@ export default function LandingDashboard({
                 <ShieldCheck className="w-5 h-5 text-[#0d9488] shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-slate-900 font-extrabold mb-1">Accreditation</strong>
-                  <span className="leading-relaxed block">Malaysian Medical Council (MMC) &amp; KKM PWA Approved</span>
+                  <span className="leading-relaxed block">Malaysian Medical Council (MMC) & KKM PWA Approved</span>
                 </div>
               </div>
             </div>
@@ -569,38 +701,38 @@ export default function LandingDashboard({
               <Users className="w-5 h-5 text-[#0d9488]" />
               On-Duty Medical Staff Roster
             </h3>
-            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-mono font-bold uppercase tracking-wider">
+            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none font-mono font-bold uppercase tracking-wider border border-emerald-200">
               Shift Active
             </span>
           </div>
 
           <div className="space-y-3 text-xs">
-            <div className="p-3.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
+            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
               <div>
                 <strong className="block text-slate-900 font-extrabold mb-0.5">Dr. Sarah Jenkins, MD</strong>
                 <span className="text-[11px] text-[#0d9488] font-semibold">Attending Physician (Consultation Suite 101)</span>
               </div>
-              <span className="px-2.5 py-1 rounded-md text-[10px] font-black tracking-wider bg-[#0d9488] text-white">
+              <span className="px-2.5 py-1 rounded-none text-[10px] font-black tracking-wider bg-[#0d9488] text-white">
                 DOCTOR
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
+            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
               <div>
                 <strong className="block text-slate-900 font-extrabold mb-0.5">Pharm. Ahmad Razak, B.Pharm</strong>
                 <span className="text-[11px] text-teal-700 font-semibold">Chief Pharmacist (Compounding Suite)</span>
               </div>
-              <span className="px-2.5 py-1 rounded-md text-[10px] font-black tracking-wider bg-[#0f766e] text-white">
+              <span className="px-2.5 py-1 rounded-none text-[10px] font-black tracking-wider bg-[#0f766e] text-white">
                 PHARMACIST
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
+            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
               <div>
                 <strong className="block text-slate-900 font-extrabold mb-0.5">Siti Aishah Binti Ramli</strong>
-                <span className="text-[11px] text-slate-600 font-medium">Triage &amp; Biometric Registration</span>
+                <span className="text-[11px] text-slate-600 font-medium">Triage & Biometric Registration</span>
               </div>
-              <span className="px-2.5 py-1 rounded-md text-[10px] font-black tracking-wider bg-[#e0f5f2] text-[#0d9488] border border-[#b2f5ea]">
+              <span className="px-2.5 py-1 rounded-none text-[10px] font-black tracking-wider bg-[#e0f5f2] text-[#0d9488] border border-[#b2f5ea]">
                 CLINIC ASSISTANT
               </span>
             </div>
