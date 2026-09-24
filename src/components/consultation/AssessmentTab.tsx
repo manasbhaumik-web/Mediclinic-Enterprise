@@ -3,7 +3,7 @@ import { AlertTriangle } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { ICD10Code, Language } from '../../types';
-import { TRANSLATIONS } from '../../data';
+import { TRANSLATIONS, ICD10_CATALOG } from '../../data';
 import { useAuxiliary } from '../../context/AuxiliaryContext';
 
 interface AssessmentTabProps {
@@ -24,18 +24,20 @@ export default function AssessmentTab({
   const t = TRANSLATIONS[activeLanguage];
   const { icd10Catalog } = useAuxiliary();
 
+  const catalog = useMemo(() => {
+    return (icd10Catalog && icd10Catalog.length > 0) ? icd10Catalog : ICD10_CATALOG;
+  }, [icd10Catalog]);
+
   const [searchICDQuery, setSearchICDQuery] = useState('');
-  // Filter ICD suggestions
+
+  // Filter ICD suggestions starting from 1 character for instant search responsiveness
   const icdSuggestions = useMemo(() => {
-    if (searchICDQuery.trim() === '') {
-      return [];
-    } else if (searchICDQuery.trim().length > 1) {
-      return icd10Catalog.filter(
-        (i) => i.code.toLowerCase().includes(searchICDQuery.toLowerCase()) || i.desc.toLowerCase().includes(searchICDQuery.toLowerCase())
-      );
-    }
-    return [];
-  }, [searchICDQuery, icd10Catalog]);
+    const q = searchICDQuery.trim().toLowerCase();
+    if (!q) return [];
+    return catalog.filter(
+      (i) => i.code.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q) || i.category.toLowerCase().includes(q)
+    );
+  }, [searchICDQuery, catalog]);
 
   return (
     <div className="space-y-4 animate-fadeIn">
@@ -45,23 +47,42 @@ export default function AssessmentTab({
             {t.icd10Search} <span className="text-red-500">*</span>
           </label>
           <div className="flex flex-wrap gap-1.5 mt-2">
-            <Button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='J06.9')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">URTI (J06.9)</Button>
-            <Button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='I10')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">HTN (I10)</Button>
-            <Button onClick={() => setSelectedICD(icd10Catalog.find(i=>i.code==='E11.9')||null)} className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded cursor-pointer transition-colors">T2DM (E11.9)</Button>
+            <Button 
+              type="button"
+              onClick={() => setSelectedICD(catalog.find(i=>i.code==='J06.9') || { code: 'J06.9', desc: 'Acute upper respiratory infection, unspecified (URTI)', category: 'Infectious / Respiratory' })} 
+              className="text-[9px] bg-[#e0f5f2] hover:bg-[#0d9488] hover:text-white text-[#0d9488] font-bold px-2 py-0.5 rounded cursor-pointer transition-colors border border-[#ccfbf1]"
+            >
+              URTI (J06.9)
+            </Button>
+            <Button 
+              type="button"
+              onClick={() => setSelectedICD(catalog.find(i=>i.code==='I10') || { code: 'I10', desc: 'Essential (primary) hypertension (HTN)', category: 'Cardiovascular' })} 
+              className="text-[9px] bg-[#e0f5f2] hover:bg-[#0d9488] hover:text-white text-[#0d9488] font-bold px-2 py-0.5 rounded cursor-pointer transition-colors border border-[#ccfbf1]"
+            >
+              HTN (I10)
+            </Button>
+            <Button 
+              type="button"
+              onClick={() => setSelectedICD(catalog.find(i=>i.code==='E11.9') || { code: 'E11.9', desc: 'Type 2 diabetes mellitus (T2DM)', category: 'Endocrine / Metabolic' })} 
+              className="text-[9px] bg-[#e0f5f2] hover:bg-[#0d9488] hover:text-white text-[#0d9488] font-bold px-2 py-0.5 rounded cursor-pointer transition-colors border border-[#ccfbf1]"
+            >
+              T2DM (E11.9)
+            </Button>
           </div>
         </div>
+        
         <div className="relative">
           <Input
             type="text"
             id="icd10-catalog-search"
-            className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+            className="w-full text-xs px-3 py-2 bg-white text-slate-800 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] focus:outline-none"
             value={searchICDQuery}
             onChange={(e) => setSearchICDQuery(e.target.value)}
-            placeholder="Search standard diagnose (e.g., 'Cold', 'J06', 'Hypertension', 'Diabetes', 'Gastritis')..."
+            placeholder="Search standard diagnose (e.g., 'Cold', 'J06', 'Hypertension', 'Diabetes', 'Gastritis', 'Fever')..."
           />
           
-          {icdSuggestions.length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 max-h-[160px] overflow-y-auto">
+          {searchICDQuery.trim().length > 0 && (
+            <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-20 max-h-[220px] overflow-y-auto divide-y divide-slate-100">
               {icdSuggestions.map((item) => (
                 <Button
                   key={item.code}
@@ -70,17 +91,34 @@ export default function AssessmentTab({
                     setSelectedICD(item);
                     setSearchICDQuery('');
                   }}
-                  className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 border-b border-slate-100 flex items-center justify-between cursor-pointer"
+                  className="w-full text-left px-3 py-2.5 text-xs hover:bg-teal-50/80 flex items-center justify-between cursor-pointer transition-colors"
                 >
-                  <div>
-                    <span className="font-mono font-bold text-[#0D9488]">{item.code}</span>
-                    <span className="text-slate-700 ml-2">{item.desc}</span>
+                  <div className="pr-2">
+                    <span className="font-mono font-bold text-[#0d9488] block text-[11px]">{item.code}</span>
+                    <span className="text-slate-800 font-medium block text-xs">{item.desc}</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 bg-slate-100 px-1 py-0.2 rounded">
+                  <span className="text-[9px] text-teal-800 bg-teal-50 px-2 py-0.5 rounded font-bold uppercase shrink-0 border border-teal-200">
                     {item.category}
                   </span>
                 </Button>
               ))}
+
+              {/* Allow assigning typed custom diagnosis if not in catalog */}
+              <Button
+                type="button"
+                onClick={() => {
+                  setSelectedICD({
+                    code: `DX-${searchICDQuery.trim().substring(0, 6).toUpperCase()}`,
+                    desc: searchICDQuery.trim(),
+                    category: 'Clinical Diagnosis'
+                  });
+                  setSearchICDQuery('');
+                }}
+                className="w-full text-left px-3 py-2.5 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold flex items-center justify-between cursor-pointer transition-colors"
+              >
+                <span>➕ Assign Custom Diagnosis: "{searchICDQuery.trim()}"</span>
+                <span className="text-[9px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded uppercase font-mono">Custom DX</span>
+              </Button>
             </div>
           )}
         </div>

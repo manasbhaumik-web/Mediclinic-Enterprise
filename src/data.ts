@@ -264,14 +264,23 @@ export const DRUG_DATABASE = [
 ];
 
 export const ICD10_CATALOG: ICD10Code[] = [
-  { code: 'J06.9', desc: 'Acute upper respiratory infection, unspecified (Common Cold / URTI)', category: 'Infectious / Respiratory' },
-  { code: 'I10', desc: 'Essential (primary) hypertension', category: 'Cardiovascular' },
-  { code: 'E11.9', desc: 'Type 2 diabetes mellitus without complications', category: 'Endocrine / Metabolic' },
-  { code: 'K30', desc: 'Dyspepsia / Gastritis', category: 'Gastrointestinal' },
-  { code: 'A09.9', desc: 'Gastroenteritis and colitis of infectious origin (Diarrhea)', category: 'Infectious' },
-  { code: 'M79.1', desc: 'Myalgia (General muscle pain)', category: 'Musculoskeletal' },
-  { code: 'L20.9', desc: 'Atopic dermatitis, unspecified (Eczema / Skin Allergy)', category: 'Dermatological' },
-  { code: 'Z02.7', desc: 'Issue of medical certificate (General Health Screening & MC)', category: 'Administrative' }
+  { code: 'J06.9', desc: 'Acute upper respiratory infection, unspecified (Common Cold / URTI / Flu)', category: 'Infectious / Respiratory' },
+  { code: 'I10', desc: 'Essential (primary) hypertension (HTN / High Blood Pressure)', category: 'Cardiovascular' },
+  { code: 'E11.9', desc: 'Type 2 diabetes mellitus without complications (T2DM / Diabetes)', category: 'Endocrine / Metabolic' },
+  { code: 'K30', desc: 'Dyspepsia / Acute Gastritis / Indigestion', category: 'Gastrointestinal' },
+  { code: 'A09.9', desc: 'Gastroenteritis and colitis of infectious origin (Diarrhea / Food Poisoning)', category: 'Infectious' },
+  { code: 'M79.1', desc: 'Myalgia (General Muscle Pain / Back Pain / Body Ache)', category: 'Musculoskeletal' },
+  { code: 'L20.9', desc: 'Atopic dermatitis, unspecified (Eczema / Skin Rash / Allergy)', category: 'Dermatological' },
+  { code: 'Z02.7', desc: 'Issue of medical certificate (General Health Screening & MC)', category: 'Administrative' },
+  { code: 'R50.9', desc: 'Fever, unspecified (Pyrexia / Viral Fever)', category: 'General Symptoms' },
+  { code: 'J45.909', desc: 'Unspecified asthma, uncomplicated (Asthma / Wheezing)', category: 'Respiratory' },
+  { code: 'G43.909', desc: 'Migraine, unspecified, not intractable (Severe Headache / Migraine)', category: 'Neurological' },
+  { code: 'J30.9', desc: 'Allergic rhinitis, unspecified (Sinusitis / Runny Nose)', category: 'Respiratory' },
+  { code: 'K21.9', desc: 'Gastro-esophageal reflux disease without esophagitis (GERD / Acid Reflux)', category: 'Gastrointestinal' },
+  { code: 'A90', desc: 'Dengue fever (classical dengue / Viral hemorrhagic fever)', category: 'Infectious' },
+  { code: 'H10.9', desc: 'Unspecified conjunctivitis (Pink Eye / Eye Infection)', category: 'Ophthalmological' },
+  { code: 'N39.0', desc: 'Urinary tract infection, site not specified (UTI / Dysuria)', category: 'Urological' },
+  { code: 'B01.9', desc: 'Varicella without complication (Chickenpox)', category: 'Infectious' }
 ];
 
 // Initial Patients base for clinic sandbox
