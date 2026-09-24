@@ -86,8 +86,8 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
             
             {/* Header Branding */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-none overflow-hidden border border-white/30 shadow-md shrink-0 bg-white flex items-center justify-center">
-                <img src="./logo_primary.jpg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-cover" />
+              <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center">
+                <img src="./logo_transparent.svg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h1 className="text-lg font-black tracking-tight text-white block leading-none">

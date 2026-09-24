@@ -85,8 +85,8 @@ export default function EnterpriseLayoutTemplate({
             onMouseLeave={() => setShowClinicInfoTooltip(false)}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-9 h-9 rounded-none overflow-hidden border border-[#14b8a6]/40 shadow-2xs shrink-0 bg-white flex items-center justify-center group-hover:border-[#2dd4bf] transition-colors">
-              <img src="./logo_primary.jpg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-cover" />
+            <div className="w-9 h-9 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
+              <img src="./logo_transparent.svg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-sm font-extrabold tracking-tight uppercase leading-none font-sans text-white group-hover:text-[#2dd4bf] transition-colors flex items-center gap-1.5">
