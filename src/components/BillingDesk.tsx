@@ -567,7 +567,7 @@ export default function BillingDesk({
                   type="button"
                   id="checkout-card-btn"
                   onClick={handleStripeCheckoutStart}
-                  className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold rounded-lg p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
+                  className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
                 >
                   <CreditCard className="w-5 h-5 text-indigo-600" />
                   <span>Debit / Visa</span>
@@ -577,7 +577,7 @@ export default function BillingDesk({
                   type="button"
                   id="checkout-tng-btn"
                   onClick={handleTngSimulationStart}
-                  className="bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-800 font-semibold rounded-lg p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
+                  className="bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-800 font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs"
                 >
                   <Wallet className="w-5 h-5 text-sky-500" />
                   <span>Bank QR Code</span>

@@ -647,7 +647,7 @@ export default function ConsultationRoom({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-medium hover:bg-slate-100 transition-colors cursor-pointer"
+            className="px-4 py-2 border border-slate-200 text-slate-600 rounded-none text-xs font-medium hover:bg-slate-100 transition-colors cursor-pointer"
           >
             Cancel Consult
           </button>
@@ -656,7 +656,7 @@ export default function ConsultationRoom({
             type="button"
             id="clinical-save-signoff-btn"
             onClick={handleSubmitConsultation}
-            className="bg-[#07B2B2] text-white px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-[#058A8A] transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
+            className="bg-[#07B2B2] text-white px-5 py-2.5 rounded-none text-xs font-bold hover:bg-[#058A8A] transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
           >
             <Check className="w-4 h-4 text-white" />
             Clinical Sign-off (Send to Pharmacy)
@@ -685,7 +685,7 @@ export default function ConsultationRoom({
           <button
             type="button"
             onClick={onCancel}
-            className="px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
+            className="px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-none transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -694,7 +694,7 @@ export default function ConsultationRoom({
             type="button"
             id="floating-submit-soap-btn"
             onClick={handleSubmitConsultation}
-            className="bg-[#0D9488] hover:bg-teal-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 transition-all hover:scale-105 cursor-pointer ring-2 ring-teal-400/30"
+            className="bg-[#0D9488] hover:bg-teal-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-none shadow-lg flex items-center gap-2 transition-all hover:scale-105 cursor-pointer ring-2 ring-teal-400/30"
           >
             <Stethoscope className="w-4 h-4" />
             <span>Complete & Route to Dispensary</span>

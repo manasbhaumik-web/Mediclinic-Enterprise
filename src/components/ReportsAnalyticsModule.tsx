@@ -369,7 +369,7 @@ export default function ReportsAnalyticsModule() {
               <button 
                 onClick={handleGenerateReport}
                 disabled={isGenerating}
-                className="bg-[#07B2B2] text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#058A8A] transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                className="bg-[#07B2B2] text-white px-6 py-2.5 rounded-none text-sm font-bold flex items-center gap-2 hover:bg-[#058A8A] transition-all shadow-sm cursor-pointer disabled:opacity-50"
               >
                 {isGenerating ? (
                   <><RefreshCw className="w-4 h-4 animate-spin" /> Compiling Data...</>

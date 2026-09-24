@@ -489,7 +489,7 @@ export default function MedicineManagementModule() {
               </div>
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setRestockDrugId(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg font-bold text-sm transition-colors cursor-pointer">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 bg-[#07B2B2] text-white hover:bg-[#058A8A] rounded-lg font-bold text-sm transition-colors cursor-pointer shadow-sm">Confirm Restock</button>
+                <button type="submit" className="flex-1 py-2.5 bg-[#07B2B2] text-white hover:bg-[#058A8A] rounded-none font-bold text-sm transition-colors cursor-pointer shadow-sm">Confirm Restock</button>
               </div>
             </form>
           </div>
@@ -524,7 +524,7 @@ export default function MedicineManagementModule() {
               </div>
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setDisposeDrugId(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg font-bold text-sm transition-colors cursor-pointer">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 bg-orange-600 text-white hover:bg-orange-700 rounded-lg font-bold text-sm transition-colors cursor-pointer shadow-sm">Confirm Disposal</button>
+                <button type="submit" className="flex-1 py-2.5 bg-orange-600 text-white hover:bg-orange-700 rounded-none font-bold text-sm transition-colors cursor-pointer shadow-sm">Confirm Disposal</button>
               </div>
             </form>
           </div>

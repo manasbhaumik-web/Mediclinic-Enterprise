@@ -400,7 +400,7 @@ export default function DispensaryDashboard({
                 id="pharmacy-dispense-confirm-btn"
                 onClick={triggerDispensingSignoff}
                 disabled={!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained || hasUnskippedAllergies}
-                className={`text-white font-bold text-xs px-5 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
+                className={`text-white font-bold text-xs px-5 py-2.5 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
                   hasUnskippedAllergies ? 'bg-red-600 hover:bg-red-700' : 'bg-[#07B2B2] hover:bg-[#058A8A]'
                 }`}
               >

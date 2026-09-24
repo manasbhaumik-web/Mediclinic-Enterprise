@@ -232,7 +232,7 @@ export default function IntegrationsHub() {
         ))}
 
         {/* Add New Integration Placeholder */}
-        <button className="bg-slate-50/50 rounded-xl border-2 border-dashed border-slate-200 shadow-sm hover:bg-slate-100 hover:border-slate-300 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center p-6 text-slate-400 group min-h-[220px]">
+        <button className="bg-slate-50/50 rounded-none border-2 border-dashed border-slate-200 shadow-sm hover:bg-slate-100 hover:border-slate-300 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center p-6 text-slate-400 group min-h-[220px]">
           <div className="w-12 h-12 bg-white rounded-full shadow-sm border border-slate-200 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
             <span className="text-2xl font-light text-slate-400 leading-none pb-1">+</span>
           </div>

@@ -170,7 +170,7 @@ export default function SystemArchitectureHub() {
             </div>
             
             <div className="mt-4">
-              <button className="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-[10px] font-bold transition-colors flex items-center justify-center gap-2">
+              <button className="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-none text-[10px] font-bold transition-colors flex items-center justify-center gap-2">
                 <Code className="w-4 h-4" /> Open Swagger Docs
               </button>
             </div>

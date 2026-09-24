@@ -350,7 +350,7 @@ export default function EquipmentManagementModule() {
               <p className="text-sm text-slate-600">Mark <strong className="text-slate-800">{equipmentList.find(e => e.id === maintainEqId)?.name}</strong> as Operational and reset its calibration schedule?</p>
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setMaintainEqId(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg font-bold text-sm cursor-pointer">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-bold text-sm shadow-sm cursor-pointer">Confirm Fix</button>
+                <button type="submit" className="flex-1 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-none font-bold text-sm shadow-sm cursor-pointer">Confirm Fix</button>
               </div>
             </form>
           </div>
@@ -369,7 +369,7 @@ export default function EquipmentManagementModule() {
               <p className="text-sm text-slate-600">Are you sure you want to permanently decommission <strong className="text-slate-800">{equipmentList.find(e => e.id === disposeEqId)?.name}</strong>? It will be removed from the active grid.</p>
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setDisposeEqId(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg font-bold text-sm cursor-pointer">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 bg-red-600 text-white hover:bg-red-700 rounded-lg font-bold text-sm shadow-sm cursor-pointer">Decommission</button>
+                <button type="submit" className="flex-1 py-2.5 bg-red-600 text-white hover:bg-red-700 rounded-none font-bold text-sm shadow-sm cursor-pointer">Decommission</button>
               </div>
             </form>
           </div>

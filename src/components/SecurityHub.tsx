@@ -205,7 +205,7 @@ export default function SecurityHub() {
           </div>
           
           <div className="mt-6 flex justify-end">
-            <button className="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-slate-900 transition-colors flex items-center gap-2">
+            <button className="bg-slate-800 text-white px-4 py-2 rounded-none text-xs font-bold shadow-sm hover:bg-slate-900 transition-colors flex items-center gap-2">
               <Eye className="w-4 h-4" /> Export Immutable Ledger
             </button>
           </div>

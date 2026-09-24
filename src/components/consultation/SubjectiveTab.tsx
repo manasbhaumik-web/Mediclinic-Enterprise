@@ -61,7 +61,7 @@ export default function SubjectiveTab({
           </button>
           <button 
             onClick={handleVoiceToText}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all shadow-sm border ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[10px] font-bold uppercase transition-all shadow-sm border ${
               isListening 
                 ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' 
                 : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 cursor-pointer'

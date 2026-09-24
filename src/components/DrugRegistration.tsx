@@ -78,7 +78,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
           <button 
             type="button"
             onClick={onCancel}
-            className="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors cursor-pointer"
+            className="p-2 hover:bg-slate-200 rounded-none text-slate-500 transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -95,13 +95,13 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
           <button 
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+            className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 rounded-none hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button 
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#07B2B2] rounded-lg hover:bg-[#058A8A] transition-colors cursor-pointer shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#07B2B2] rounded-none hover:bg-[#058A8A] transition-colors cursor-pointer shadow-sm"
           >
             <Save className="w-4 h-4" />
             Save to Catalog

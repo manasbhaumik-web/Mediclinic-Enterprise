@@ -257,7 +257,7 @@ export default function ClinicLandingPage({
           <button 
             type="button"
             onClick={onOpenTelemetry} 
-            className="hover:text-teal-700 transition-colors flex items-center gap-1.5 text-[#0d9488] cursor-pointer bg-[#e6f4f1] px-3 py-1 rounded-full border border-[#ccfbf1] font-bold"
+            className="hover:text-teal-700 transition-colors flex items-center gap-1.5 text-[#0d9488] cursor-pointer bg-[#e6f4f1] px-3 py-1 rounded-none border border-[#ccfbf1] font-bold"
           >
             <BarChart3 className="w-3.5 h-3.5" />
             <span>Live Telemetry</span>
@@ -270,7 +270,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={() => onToggleLanguage(activeLanguage === 'EN' ? 'BM' : 'EN')}
-            className="px-2.5 py-1.5 text-[11px] font-bold rounded-xl border border-[#ccfbf1] bg-[#f7fdfd] text-slate-700 hover:text-[#0d9488] hover:border-[#0d9488] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+            className="px-2.5 py-1.5 text-[11px] font-bold rounded-none border border-[#ccfbf1] bg-[#f7fdfd] text-slate-700 hover:text-[#0d9488] hover:border-[#0d9488] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
           >
             <span>🌐</span>
             <span>{activeLanguage === 'EN' ? 'BM' : 'EN'}</span>
@@ -280,7 +280,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={onOpenTelemetry}
-            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-[#e6f4f1] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#ccfbf1] transition-all cursor-pointer shadow-2xs hover:scale-105"
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-none bg-[#e6f4f1] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#ccfbf1] transition-all cursor-pointer shadow-2xs hover:scale-105"
           >
             <BarChart3 className="w-3.5 h-3.5 text-[#0d9488]" />
             <span>Telemetry Feed</span>
@@ -290,7 +290,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={onOpenLogin}
-            className="px-4.5 py-2 text-xs font-extrabold rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white shadow-md shadow-teal-500/20 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
+            className="px-4.5 py-2 text-xs font-extrabold rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white shadow-md shadow-teal-500/20 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Staff Portal</span>
@@ -300,7 +300,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-[#0f3c4c] cursor-pointer"
+            className="md:hidden p-2 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-[#0f3c4c] cursor-pointer"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -314,7 +314,7 @@ export default function ClinicLandingPage({
             <a 
               href="#services" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-xl hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
             >
               <span>Medical Care Services</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -322,7 +322,7 @@ export default function ClinicLandingPage({
             <a 
               href="#features" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-xl hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
             >
               <span>Smart Features Showcase</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -330,7 +330,7 @@ export default function ClinicLandingPage({
             <a 
               href="#doctors" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-xl hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
             >
               <span>Resident Physicians</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -338,7 +338,7 @@ export default function ClinicLandingPage({
             <a 
               href="#panels" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-xl hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
             >
               <span>Corporate Insurance Panels</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -346,7 +346,7 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => { setIsMobileMenuOpen(false); onOpenTelemetry(); }}
-              className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#f7fdfd] text-[#0d9488] flex items-center justify-between cursor-pointer"
+              className="w-full text-left px-3 py-2 rounded-none hover:bg-[#f7fdfd] text-[#0d9488] flex items-center justify-between cursor-pointer"
             >
               <span className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" /> Operations Telemetry
@@ -356,7 +356,7 @@ export default function ClinicLandingPage({
             <a 
               href="#faq" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-xl hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
             >
               <span>FAQ &amp; Patient Help</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -367,7 +367,7 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => { setIsMobileMenuOpen(false); setIsBookingOpen(true); }}
-              className="w-full py-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md"
+              className="w-full py-3 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md"
             >
               <Calendar className="w-4 h-4" />
               <span>Book Appointment Online</span>
@@ -410,7 +410,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={() => setIsBookingOpen(true)}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Book Appointment Online</span>
@@ -420,7 +420,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={onOpenTelemetry}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#f7fdfd] hover:bg-[#f0fdfa] text-slate-800 border border-[#ccfbf1] font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer hover:border-[#0d9488] shadow-xs"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-none bg-[#f7fdfd] hover:bg-[#f0fdfa] text-slate-800 border border-[#ccfbf1] font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer hover:border-[#0d9488] shadow-xs"
               >
                 <BarChart3 className="w-4 h-4 text-[#0d9488]" />
                 <span>View Live Operations Telemetry</span>
@@ -453,7 +453,7 @@ export default function ClinicLandingPage({
           <div className="ice-mint-panel p-3.5 shadow-[0_0_25px_rgba(13,148,136,0.18)] border border-[#b2f5ea] ring-1 ring-[#0d9488]/20 transition-all">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
               
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1]">
+              <div className="flex items-center gap-2.5 p-2.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1]">
                 <div className="w-9 h-9 rounded-lg bg-[#e6f4f1] flex items-center justify-center text-[#0d9488] border border-[#ccfbf1] shrink-0">
                   <Stethoscope className="w-4 h-4" />
                 </div>
@@ -463,7 +463,7 @@ export default function ClinicLandingPage({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1]">
+              <div className="flex items-center gap-2.5 p-2.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1]">
                 <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-200 shrink-0">
                   <Users className="w-4 h-4" />
                 </div>
@@ -473,7 +473,7 @@ export default function ClinicLandingPage({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1]">
+              <div className="flex items-center gap-2.5 p-2.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1]">
                 <div className="w-9 h-9 rounded-lg bg-[#e6f4f1] flex items-center justify-center text-[#0d9488] border border-[#ccfbf1] shrink-0">
                   <Pill className="w-4 h-4" />
                 </div>
@@ -486,7 +486,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={() => setIsBookingOpen(true)}
-                className="w-full h-full py-3 px-3.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02]"
+                className="w-full h-full py-3 px-3.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
                 <span>Reserve Queue Token</span>
                 <ArrowRight className="w-4 h-4" />
@@ -519,7 +519,7 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => setActiveFeatureTab('emr')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'emr'
                   ? 'bg-[#0d9488] text-white shadow-xs'
                   : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
@@ -532,7 +532,7 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => setActiveFeatureTab('mykad')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'mykad'
                   ? 'bg-[#0d9488] text-white shadow-xs'
                   : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
@@ -545,7 +545,7 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => setActiveFeatureTab('tpa')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'tpa'
                   ? 'bg-[#0d9488] text-white shadow-xs'
                   : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
@@ -558,7 +558,7 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => setActiveFeatureTab('dispensary')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'dispensary'
                   ? 'bg-[#0d9488] text-white shadow-xs'
                   : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
@@ -589,7 +589,7 @@ export default function ClinicLandingPage({
                   <button
                     type="button"
                     onClick={onOpenTelemetry}
-                    className="px-6 py-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+                    className="px-6 py-3 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
                   >
                     <span>Inspect Public Telemetry</span>
                     <ArrowRight className="w-4 h-4" />
@@ -601,15 +601,15 @@ export default function ClinicLandingPage({
                     <span className="font-black text-[#0f3c4c] text-xs">EMR Telemetry Live Widget</span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">ONLINE</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between items-center">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between items-center">
                     <span>Patient Token:</span>
                     <span className="font-bold text-[#0d9488]">#APT-8902</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between items-center">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between items-center">
                     <span>Consultation Suite:</span>
                     <span className="font-bold text-slate-800">Suite 101 (Dr. Jenkins)</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between items-center">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between items-center">
                     <span>Estimated Waiting:</span>
                     <span className="font-bold text-sky-600">8 Minutes</span>
                   </div>
@@ -635,7 +635,7 @@ export default function ClinicLandingPage({
                   <button
                     type="button"
                     onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+                    className="px-6 py-3 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
                   >
                     <span>Try Registration Demo</span>
                     <ArrowRight className="w-4 h-4" />
@@ -654,7 +654,7 @@ export default function ClinicLandingPage({
                   </div>
                   
                   {/* Digital MyKad Pass Simulation */}
-                  <div className="p-4 bg-[#e0f5f2] border border-[#b2f5ea] rounded-xl space-y-3 relative overflow-hidden shadow-xs">
+                  <div className="p-4 bg-[#e0f5f2] border border-[#b2f5ea] rounded-none space-y-3 relative overflow-hidden shadow-xs">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {/* Smart Chip Graphic */}
@@ -667,7 +667,7 @@ export default function ClinicLandingPage({
                     </div>
 
                     <div className="flex items-center gap-3 pt-1">
-                      <div className="w-11 h-11 bg-[#0d9488] text-white rounded-xl flex items-center justify-center font-extrabold text-xs shadow-xs border border-teal-600">
+                      <div className="w-11 h-11 bg-[#0d9488] text-white rounded-none flex items-center justify-center font-extrabold text-xs shadow-xs border border-teal-600">
                         AF
                       </div>
                       <div>
@@ -703,7 +703,7 @@ export default function ClinicLandingPage({
                   </ul>
                   <a
                     href="#panels"
-                    className="px-6 py-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer inline-flex items-center gap-2"
+                    className="px-6 py-3 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer inline-flex items-center gap-2"
                   >
                     <span>View Supported Panels</span>
                     <ArrowRight className="w-4 h-4" />
@@ -715,15 +715,15 @@ export default function ClinicLandingPage({
                     <span className="font-black text-[#0f3c4c] text-xs">TPA Panel e-GL Status</span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">APPROVED</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between">
                     <span>Panel:</span>
                     <span className="font-bold text-[#0f3c4c]">PMCare Corporate</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between">
                     <span>e-GL Ref:</span>
                     <span className="font-bold text-[#0d9488]">#GL-2026-9021</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between">
                     <span>Consultation Limit:</span>
                     <span className="font-bold text-emerald-600">RM 250.00 Covered</span>
                   </div>
@@ -748,7 +748,7 @@ export default function ClinicLandingPage({
                   </ul>
                   <a
                     href="#services"
-                    className="px-6 py-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer inline-flex items-center gap-2"
+                    className="px-6 py-3 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer inline-flex items-center gap-2"
                   >
                     <span>Explore Dispensary Services</span>
                     <ArrowRight className="w-4 h-4" />
@@ -760,15 +760,15 @@ export default function ClinicLandingPage({
                     <span className="font-black text-[#0f3c4c] text-xs">Dispensary Fulfillment</span>
                     <span className="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">DISPENSED</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between">
                     <span>Rx 1:</span>
                     <span className="font-bold text-[#0f3c4c]">Paracetamol 500mg (20 Tab)</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between">
                     <span>Rx 2:</span>
                     <span className="font-bold text-[#0f3c4c]">Amoxicillin 500mg (15 Cap)</span>
                   </div>
-                  <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
+                  <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between">
                     <span>Safety Check:</span>
                     <span className="font-bold text-emerald-600">No Allergy Detected</span>
                   </div>
@@ -1084,7 +1084,7 @@ export default function ClinicLandingPage({
                     placeholder="Search panel..."
                     value={panelSearch}
                     onChange={e => setPanelSearch(e.target.value)}
-                    className="w-full pl-9.5 pr-3.5 py-2.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]"
+                    className="w-full pl-9.5 pr-3.5 py-2.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]"
                   />
                 </div>
               </div>
@@ -1095,7 +1095,7 @@ export default function ClinicLandingPage({
                     key={idx} 
                     type="button"
                     onClick={() => setSelectedPanelCheck(panel)}
-                    className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                    className={`px-3.5 py-2 rounded-none border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
                       selectedPanelCheck === panel 
                         ? 'bg-[#0d9488] text-white border-[#0d9488]' 
                         : 'bg-[#f7fdfd] border-[#ccfbf1] text-slate-700 hover:border-[#0d9488] hover:text-[#0d9488]'
@@ -1128,7 +1128,7 @@ export default function ClinicLandingPage({
                   <select
                     value={selectedPanelCheck}
                     onChange={e => setSelectedPanelCheck(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-[#e0f5f2] border border-[#b2f5ea] text-xs font-bold text-[#0f3c4c] focus:outline-none"
+                    className="w-full p-2.5 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] text-xs font-bold text-[#0f3c4c] focus:outline-none"
                   >
                     {tpaPanels.map((p, i) => (
                       <option key={i} value={p}>{p}</option>
@@ -1143,11 +1143,11 @@ export default function ClinicLandingPage({
                     value={panelEmpId}
                     onChange={e => setPanelEmpId(e.target.value)}
                     placeholder="Enter Staff ID..."
-                    className="w-full p-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-xs font-mono font-bold text-[#0f3c4c] focus:outline-none"
+                    className="w-full p-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-xs font-mono font-bold text-[#0f3c4c] focus:outline-none"
                   />
                 </div>
 
-                <div className="p-3 bg-[#e0f5f2] border border-[#b2f5ea] rounded-xl space-y-1.5">
+                <div className="p-3 bg-[#e0f5f2] border border-[#b2f5ea] rounded-none space-y-1.5">
                   <div className="flex justify-between items-center text-[11px]">
                     <span className="text-slate-600">Consultation Coverage:</span>
                     <span className="font-extrabold text-emerald-700">100% Cashless</span>
@@ -1165,7 +1165,7 @@ export default function ClinicLandingPage({
                 <button
                   type="button"
                   onClick={() => setIsBookingOpen(true)}
-                  className="w-full py-2.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Reserve Cashless Token</span>
@@ -1190,7 +1190,7 @@ export default function ClinicLandingPage({
             </div>
 
             {/* Department Filter Pills */}
-            <div className="flex items-center gap-2 text-xs font-bold bg-[#f0fdfa] p-1.5 rounded-xl border border-[#ccfbf1]">
+            <div className="flex items-center gap-2 text-xs font-bold bg-[#f0fdfa] p-1.5 rounded-none border border-[#ccfbf1]">
               {['All', 'General Medicine', 'Pediatrics', 'Pharmacy'].map((dept) => (
                 <button
                   key={dept}
@@ -1253,7 +1253,7 @@ export default function ClinicLandingPage({
                 <button
                   type="button"
                   onClick={() => openDoctorBooking(doc.name)}
-                  className="w-full py-2.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                  className="w-full py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
                 >
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Reserve Slot with {doc.name.split(' ')[1]}</span>
@@ -1289,7 +1289,7 @@ export default function ClinicLandingPage({
                 key={cat}
                 type="button"
                 onClick={() => setReviewCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer border ${
+                className={`px-3.5 py-1.5 rounded-none transition-all cursor-pointer border ${
                   reviewCategory === cat
                     ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-2xs'
                     : 'bg-[#f7fdfd] border-[#ccfbf1] text-slate-700 hover:text-[#0f3c4c]'
@@ -1398,7 +1398,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={onOpenTelemetry}
-            className="px-7 py-4 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md flex items-center gap-2 transition-all hover:scale-105 cursor-pointer shrink-0 relative z-10"
+            className="px-7 py-4 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md flex items-center gap-2 transition-all hover:scale-105 cursor-pointer shrink-0 relative z-10"
           >
             <Activity className="w-4 h-4" />
             <span>Open Telemetry Dashboard</span>
@@ -1445,7 +1445,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={onOpenLogin}
-                className="w-full py-2.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-md"
+                className="w-full py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-md"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Staff Portal Access</span>
@@ -1482,7 +1482,7 @@ export default function ClinicLandingPage({
           type="button"
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="w-10 h-10 rounded-2xl bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-[#0d9488] hover:border-[#0d9488] shadow-md flex items-center justify-center transition-all cursor-pointer"
+          className="w-10 h-10 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-[#0d9488] hover:border-[#0d9488] shadow-md flex items-center justify-center transition-all cursor-pointer"
         >
           <ArrowUp className="w-4 h-4" />
         </button>
@@ -1497,7 +1497,7 @@ export default function ClinicLandingPage({
             
             <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488]">
+                <div className="w-8 h-8 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488]">
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
@@ -1543,7 +1543,7 @@ export default function ClinicLandingPage({
                 <button
                   type="button"
                   onClick={resetBooking}
-                  className="px-6 py-2.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs transition-colors cursor-pointer"
+                  className="px-6 py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs transition-colors cursor-pointer"
                 >
                   Done
                 </button>
@@ -1555,7 +1555,7 @@ export default function ClinicLandingPage({
                   <input
                     type="text"
                     required
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                    className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                     placeholder="e.g. Ahmad Firdaus Bin Ismail"
                     value={bookingForm.fullName}
                     onChange={e => setBookingForm({ ...bookingForm, fullName: e.target.value })}
@@ -1568,7 +1568,7 @@ export default function ClinicLandingPage({
                     <input
                       type="text"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] font-mono focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] font-mono focus:outline-none focus:border-[#0d9488]"
                       placeholder="YYMMDD-XX-XXXX"
                       value={bookingForm.icNumber}
                       onChange={e => setBookingForm({ ...bookingForm, icNumber: e.target.value })}
@@ -1579,7 +1579,7 @@ export default function ClinicLandingPage({
                     <input
                       type="text"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                       placeholder="+60 12-345 6789"
                       value={bookingForm.phone}
                       onChange={e => setBookingForm({ ...bookingForm, phone: e.target.value })}
@@ -1590,7 +1590,7 @@ export default function ClinicLandingPage({
                 <div>
                   <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Medical Specialty *</label>
                   <select
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                    className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                     value={bookingForm.service}
                     onChange={e => setBookingForm({ ...bookingForm, service: e.target.value })}
                   >
@@ -1606,7 +1606,7 @@ export default function ClinicLandingPage({
                     <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Preferred Date</label>
                     <input
                       type="date"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                       value={bookingForm.preferredDate}
                       onChange={e => setBookingForm({ ...bookingForm, preferredDate: e.target.value })}
                     />
@@ -1614,7 +1614,7 @@ export default function ClinicLandingPage({
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Preferred Time</label>
                     <select
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                       value={bookingForm.preferredTime}
                       onChange={e => setBookingForm({ ...bookingForm, preferredTime: e.target.value })}
                     >
@@ -1629,7 +1629,7 @@ export default function ClinicLandingPage({
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md transition-all cursor-pointer mt-2"
+                  className="w-full py-3.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md transition-all cursor-pointer mt-2"
                 >
                   Confirm Appointment Booking
                 </button>

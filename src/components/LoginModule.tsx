@@ -283,7 +283,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
                 {/* Submit CTA Button */}
                 <button
                   type="submit"
-                  className="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white py-3.5 rounded-xl font-black text-xs transition-all hover:scale-[1.01] cursor-pointer flex justify-center items-center gap-2 shadow-md shadow-teal-500/20"
+                  className="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white py-3.5 rounded-none font-black text-xs transition-all hover:scale-[1.01] cursor-pointer flex justify-center items-center gap-2 shadow-md shadow-teal-500/20"
                 >
                   <ShieldCheck className="w-4 h-4" />
                   <span>Authenticate Clinical Session</span>
@@ -294,7 +294,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
                   type="button"
                   onClick={handleSmartCardAuth}
                   disabled={isSmartCardScanning}
-                  className="w-full py-2.5 rounded-xl bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
+                  className="w-full py-2.5 rounded-none bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
                 >
                   <Zap className={`w-3.5 h-3.5 text-[#0d9488] ${isSmartCardScanning ? 'animate-spin' : ''}`} />
                   <span>{isSmartCardScanning ? 'Scanning SmartCard...' : '⚡ Instant SmartCard / MyKad Login'}</span>

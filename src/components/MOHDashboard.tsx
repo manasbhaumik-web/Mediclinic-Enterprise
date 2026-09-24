@@ -304,7 +304,7 @@ export default function MOHDashboard({
                   type="button"
                   onClick={handleNidcsUpload}
                   disabled={isUploading}
-                  className="w-full md:w-auto bg-[#07B2B2] text-white hover:bg-[#058A8A] text-xs font-bold px-5 py-3 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+                  className="w-full md:w-auto bg-[#07B2B2] text-white hover:bg-[#058A8A] text-xs font-bold px-5 py-3 rounded-none transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isUploading ? 'animate-spin' : ''}`} />
                   {isUploading ? 'Encrypting & Posting...' : 'Submit Records to KKM Gateway'}
@@ -381,7 +381,7 @@ export default function MOHDashboard({
                   </p>
                 </div>
               </div>
-              <button className="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+              <button className="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2.5 rounded-none transition-colors flex items-center justify-center gap-2">
                 View Target Group <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
@@ -510,7 +510,7 @@ export default function MOHDashboard({
                 <p className="text-indigo-100/70 text-xs leading-relaxed mb-4">
                   Between 10:00 AM and 11:30 AM, average pharmacy wait times spike to 18 minutes. AI suggests shifting one clinic assistant from registration to compounding during this peak window.
                 </p>
-                <button className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md shadow-indigo-500/20">
+                <button className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs px-4 py-2 rounded-none transition-colors flex items-center gap-1.5 shadow-md shadow-indigo-500/20">
                   <Zap className="w-3.5 h-3.5" /> Apply Staffing Shift
                 </button>
               </div>
@@ -526,7 +526,7 @@ export default function MOHDashboard({
                 <p className="text-emerald-100/70 text-xs leading-relaxed mb-4">
                   Dr. Wei types similar subjective notes for URTI cases 85% of the time. Implementing the AI "1-Click URTI Standard" macro will save an estimated 42 minutes daily.
                 </p>
-                <button className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md shadow-emerald-500/20">
+                <button className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs px-4 py-2 rounded-none transition-colors flex items-center gap-1.5 shadow-md shadow-emerald-500/20">
                   <ShieldCheck className="w-3.5 h-3.5" /> Generate Macro
                 </button>
               </div>

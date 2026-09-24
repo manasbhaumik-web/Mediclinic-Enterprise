@@ -57,7 +57,7 @@ export default function BillingManagementModule() {
         </div>
         
         <div className="flex gap-2 items-center">
-          <button className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-colors cursor-pointer">
+          <button className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-none text-xs font-bold flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-colors cursor-pointer">
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
             Export Financials
           </button>

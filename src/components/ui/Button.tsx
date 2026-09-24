@@ -29,7 +29,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   
-  const baseStyles = 'inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 ease-out active:scale-[0.98] outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none hover:scale-[1.02]';
+  const baseStyles = 'inline-flex items-center justify-center font-bold rounded-none transition-all duration-300 ease-out active:scale-[0.98] outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none hover:scale-[1.02]';
   
   const variants = {
     primary: 'bg-gradient-to-r from-teal-600 to-teal-500 text-white hover:from-teal-700 hover:to-teal-600 shadow-[0_4px_14px_0_rgba(13,148,136,0.25)] hover:shadow-[0_6px_20px_rgba(13,148,136,0.35)] focus:ring-teal-500',

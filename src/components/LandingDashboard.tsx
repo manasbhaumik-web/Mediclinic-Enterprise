@@ -175,7 +175,7 @@ export default function LandingDashboard({
               type="button"
               onClick={handleExportTelemetry}
               disabled={isExporting}
-              className="px-4 py-2 rounded-xl bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] font-extrabold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+              className="px-4 py-2 rounded-none bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] font-extrabold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
             >
               <Download className={`w-3.5 h-3.5 text-[#0d9488] ${isExporting ? 'animate-bounce' : ''}`} />
               <span>{isExporting ? 'Exporting...' : 'Export Telemetry'}</span>
@@ -185,7 +185,7 @@ export default function LandingDashboard({
               <button
                 type="button"
                 onClick={onOpenLogin}
-                className="px-5 py-2 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md shadow-teal-500/20 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                className="px-5 py-2 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md shadow-teal-500/20 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Staff Portal</span>

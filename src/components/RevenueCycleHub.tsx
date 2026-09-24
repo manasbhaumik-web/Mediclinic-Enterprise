@@ -100,7 +100,7 @@ export default function RevenueCycleHub() {
                   <span className="text-slate-800">Patient Out of Pocket:</span>
                   <span className="font-mono text-rose-600">RM 240.00</span>
                 </div>
-                <button className="w-full mt-2 bg-slate-800 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-900 transition-colors">
+                <button className="w-full mt-2 bg-slate-800 text-white py-2 rounded-none text-xs font-bold hover:bg-slate-900 transition-colors">
                   Generate Estimate PDF for Patient
                 </button>
               </div>

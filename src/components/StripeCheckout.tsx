@@ -78,7 +78,7 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
         <button 
           onClick={onCancel}
           type="button"
-          className="absolute left-4 top-4 p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors cursor-pointer"
+          className="absolute left-4 top-4 p-1.5 bg-white/10 hover:bg-white/20 rounded-none transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
@@ -119,7 +119,7 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
           <button 
             type="submit" 
             disabled={!stripe || isProcessing}
-            className="w-full bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold py-3 rounded-md transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
+            className="w-full bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold py-3 rounded-none transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
           >
             {isProcessing ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -190,7 +190,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
         <button 
           onClick={onCancel}
           type="button"
-          className="absolute left-4 top-8 p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors cursor-pointer"
+          className="absolute left-4 top-8 p-1.5 bg-white/10 hover:bg-white/20 rounded-none transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
@@ -277,7 +277,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
           <button 
             type="submit" 
             disabled={isProcessing}
-            className="w-full bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold py-3 rounded-md transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
+            className="w-full bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold py-3 rounded-none transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
           >
             {isProcessing ? (
               <Loader2 className="w-5 h-5 animate-spin" />

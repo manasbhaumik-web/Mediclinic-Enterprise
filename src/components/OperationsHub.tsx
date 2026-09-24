@@ -89,7 +89,7 @@ export default function OperationsHub() {
               </p>
               <p className="text-xs text-slate-500 mt-1">Based on historical surge prediction.</p>
             </div>
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-sm shrink-0">
+            <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-none transition-colors shadow-sm shrink-0">
               Apply Schedule
             </button>
           </div>
@@ -211,7 +211,7 @@ export default function OperationsHub() {
                 <p className="text-xs text-teal-700 leading-relaxed">
                   Flu season indicators show a 40% expected rise in respiratory cases next week. Auto-drafted a PO for Lisinopril and Amoxicillin to supplier "PharmaCorp".
                 </p>
-                <button className="w-full mt-3 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-2 rounded-lg transition-colors shadow-sm">
+                <button className="w-full mt-3 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-2 rounded-none transition-colors shadow-sm">
                   Review & Approve Purchase Order
                 </button>
               </div>

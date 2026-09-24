@@ -216,7 +216,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setAppView('landing')}
-            className="text-xs font-extrabold bg-[#f7fdfd] hover:bg-[#e6f4f1] px-3.5 py-2 rounded-xl border border-[#ccfbf1] text-[#0d9488] hover:border-[#0d9488] flex items-center gap-2 cursor-pointer transition-all shadow-2xs"
+            className="text-xs font-extrabold bg-[#f7fdfd] hover:bg-[#e6f4f1] px-3.5 py-2 rounded-none border border-[#ccfbf1] text-[#0d9488] hover:border-[#0d9488] flex items-center gap-2 cursor-pointer transition-all shadow-2xs"
           >
             ← Back to Public Website
           </button>
@@ -234,7 +234,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setAppView('login')}
-            className="text-xs font-extrabold bg-[#0d9488] hover:bg-[#0f766e] px-4 py-2 rounded-xl text-white flex items-center gap-2 cursor-pointer transition-all shadow-md shadow-teal-500/20 hover:scale-105"
+            className="text-xs font-extrabold bg-[#0d9488] hover:bg-[#0f766e] px-4 py-2 rounded-none text-white flex items-center gap-2 cursor-pointer transition-all shadow-md shadow-teal-500/20 hover:scale-105"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Staff Portal Login</span>
@@ -390,7 +390,7 @@ export default function App() {
                     type="button"
                     id="sidebar-link-dashboard"
                     onClick={() => setActiveTab('dashboard')}
-                    className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'dashboard'
+                    className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'dashboard'
                       ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                       : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                       }`}
@@ -407,7 +407,7 @@ export default function App() {
                       type="button"
                       id="sidebar-link-registration"
                       onClick={() => setActiveTab('registration')}
-                      className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'registration'
+                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'registration'
                         ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                         : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                         }`}
@@ -425,7 +425,7 @@ export default function App() {
                       type="button"
                       id="sidebar-link-triage"
                       onClick={() => setActiveTab('triage')}
-                      className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'triage'
+                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'triage'
                         ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                         : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                         }`}
@@ -435,7 +435,7 @@ export default function App() {
                         <span>Triage Module</span>
                       </div>
                       {triageQueue.length > 0 && (
-                        <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                        <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
                           {triageQueue.length}
                         </span>
                       )}
@@ -448,7 +448,7 @@ export default function App() {
                       type="button"
                       id="sidebar-link-appointments"
                       onClick={() => setActiveTab('appointments')}
-                      className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'appointments'
+                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'appointments'
                         ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                         : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                         }`}
@@ -467,7 +467,7 @@ export default function App() {
                         type="button"
                         id="sidebar-link-queue"
                         onClick={() => setActiveTab('queue')}
-                        className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'queue'
+                        className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'queue'
                           ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                           : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                           }`}
@@ -477,7 +477,7 @@ export default function App() {
                           <span>Patient Queue</span>
                         </div>
                         {doctorQueue.length > 0 && (
-                          <span className="bg-red-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                          <span className="bg-red-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
                             {doctorQueue.length}
                           </span>
                         )}
@@ -487,7 +487,7 @@ export default function App() {
                         type="button"
                         id="sidebar-link-consultation"
                         onClick={() => setActiveTab('consultation')}
-                        className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'consultation'
+                        className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'consultation'
                           ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                           : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                           }`}
@@ -502,7 +502,7 @@ export default function App() {
                         type="button"
                         id="sidebar-link-reports"
                         onClick={() => setActiveTab('reports')}
-                        className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'reports'
+                        className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'reports'
                           ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                           : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                           }`}
@@ -521,7 +521,7 @@ export default function App() {
                       type="button"
                       id="sidebar-link-dispensary"
                       onClick={() => setActiveTab('dispensary')}
-                      className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'dispensary'
+                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'dispensary'
                         ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                         : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                         }`}
@@ -531,7 +531,7 @@ export default function App() {
                         <span>{t.dispensary}</span>
                       </div>
                       {pharmacyQueue.length > 0 && (
-                        <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                        <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
                           {pharmacyQueue.length}
                         </span>
                       )}
@@ -544,7 +544,7 @@ export default function App() {
                       type="button"
                       id="sidebar-link-billing"
                       onClick={() => setActiveTab('billing')}
-                      className={`flex items-center px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'billing'
+                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'billing'
                         ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
                         : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                         }`}
@@ -554,7 +554,7 @@ export default function App() {
                         <span>{t.billing}</span>
                       </div>
                       {cashierQueue.length > 0 && (
-                        <span className="bg-blue-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center ml-2">
+                        <span className="bg-blue-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
                           {cashierQueue.length}
                         </span>
                       )}
@@ -681,10 +681,10 @@ export default function App() {
             {/* GLOBAL VOICE AI / NLP ASSISTANT */}
             <div className="fixed bottom-6 right-6 z-50">
               <button
-                className="bg-[#07B2B2] hover:bg-[#058A8A] text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-105 relative group cursor-pointer border-4 border-white"
+                className="bg-[#07B2B2] hover:bg-[#058A8A] text-white w-14 h-14 rounded-none shadow-2xl flex items-center justify-center transition-all hover:scale-105 relative group cursor-pointer border-4 border-white"
                 title="Voice AI Command"
               >
-                <div className="absolute inset-0 bg-[#07B2B2] rounded-full animate-ping opacity-20"></div>
+                <div className="absolute inset-0 bg-[#07B2B2] rounded-none animate-ping opacity-20"></div>
                 <Mic className="w-6 h-6" />
               </button>
             </div>
