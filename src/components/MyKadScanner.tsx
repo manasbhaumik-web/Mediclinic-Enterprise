@@ -102,19 +102,20 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
   };
 
   return (
-    <div id="mykad-scanner-modal" className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+    <div id="mykad-scanner-modal" role="dialog" aria-modal="true" aria-labelledby="mykad-scanner-title" className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
       <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
         
         {/* Header */}
         <div className="bg-[#07B2B2] px-5 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ScanLine className="w-5 h-5 text-cyan-300" />
-            <h3 className="font-semibold tracking-wide">MyKad Smart OCR & Reader</h3>
+            <h3 id="mykad-scanner-title" className="font-semibold tracking-wide">MyKad Smart OCR & Reader</h3>
           </div>
           <button 
             id="close-scanner-btn" 
             onClick={onClose}
-            className="text-white/80 hover:text-white transition-colors text-xl font-bold cursor-pointer"
+            aria-label="Close MyKad scanner modal"
+            className="text-white/80 hover:text-white transition-colors text-xl font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-sm px-1"
           >
             &times;
           </button>

@@ -511,14 +511,17 @@ export default function ConsultationRoom({
           </div>
 
           {/* SOAP Tabs Navigation */}
-          <div className="flex border-b border-slate-200 mb-4 bg-slate-50 p-1.5 rounded-lg gap-1 shadow-inner">
+          <div className="flex border-b border-slate-200 mb-4 bg-slate-50 p-1.5 rounded-lg gap-1 shadow-inner" role="tablist" aria-label="SOAP Clinical Notes Navigation">
             <button
               type="button"
+              role="tab"
+              aria-selected={activeTab === 'subjective'}
+              id="subjective-tab-trigger"
               onClick={() => setActiveTab('subjective')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                 activeTab === 'subjective' 
-                  ? 'bg-white text-[#07B2B2] shadow-xs font-semibold' 
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                  ? 'bg-white text-[#07B2B2] shadow-xs font-extrabold' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <ClipboardList className="w-3.5 h-3.5 text-[#07B2B2]" />
@@ -526,12 +529,14 @@ export default function ConsultationRoom({
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={activeTab === 'objective'}
               id="objective-tab-trigger"
               onClick={() => setActiveTab('objective')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                 activeTab === 'objective' 
-                  ? 'bg-white text-[#07B2B2] shadow-xs font-semibold' 
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                  ? 'bg-white text-[#07B2B2] shadow-xs font-extrabold' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <Activity className="w-3.5 h-3.5 text-rose-500" />
@@ -539,12 +544,14 @@ export default function ConsultationRoom({
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={activeTab === 'assessment'}
               id="assessment-tab-trigger"
               onClick={() => setActiveTab('assessment')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                 activeTab === 'assessment' 
-                  ? 'bg-white text-[#07B2B2] shadow-xs font-semibold' 
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                  ? 'bg-white text-[#07B2B2] shadow-xs font-extrabold' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <ClipboardList className="w-3.5 h-3.5 text-blue-500" />
@@ -552,18 +559,20 @@ export default function ConsultationRoom({
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={activeTab === 'plan'}
               id="plan-tab-trigger"
               onClick={() => setActiveTab('plan')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                 activeTab === 'plan' 
-                  ? 'bg-white text-[#07B2B2] shadow-xs font-semibold' 
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                  ? 'bg-white text-[#07B2B2] shadow-xs font-extrabold' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <Pill className="w-3.5 h-3.5 text-orange-500" />
               {t.plan}
               {rxList.length > 0 && (
-                <span className="bg-orange-500 text-white font-mono text-[9px] px-1 rounded-full">{rxList.length}</span>
+                <span className="bg-orange-500 text-white font-mono text-[9px] px-1 rounded-full font-bold">{rxList.length}</span>
               )}
             </button>
           </div>

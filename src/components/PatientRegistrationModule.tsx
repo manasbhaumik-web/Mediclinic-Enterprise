@@ -287,33 +287,45 @@ export default function PatientRegistrationModule({
       
       {/* Toast Notification (Absolute positioned overlay) */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-slideUp">
+        <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-slideUp">
           <CheckCircle2 className="w-5 h-5" />
           <span className="font-bold text-sm tracking-wide">{toastMessage}</span>
         </div>
       )}
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-4 border-b border-slate-200">
+      <div className="flex items-center gap-4 border-b border-slate-200" role="tablist" aria-label="Patient Registration Sub Navigation">
         <button
+          role="tab"
+          aria-selected={activeSubTab === 'queue'}
+          id="subtab-queue"
+          aria-controls="subtab-panel-queue"
           onClick={() => setActiveSubTab('queue')}
-          className={`pb-3 font-semibold text-xs transition-colors cursor-pointer border-b-2 -mb-[1px] ${
+          className={`pb-3 font-bold text-xs transition-colors cursor-pointer border-b-2 -mb-[1px] focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-t-sm ${
             activeSubTab === 'queue' ? 'text-teal-600 border-teal-600' : 'text-slate-500 border-transparent hover:text-slate-700'
           }`}
         >
           Waiting Room Monitor
         </button>
         <button
+          role="tab"
+          aria-selected={activeSubTab === 'form'}
+          id="subtab-form"
+          aria-controls="subtab-panel-form"
           onClick={() => setActiveSubTab('form')}
-          className={`pb-3 font-semibold text-xs transition-colors cursor-pointer border-b-2 -mb-[1px] ${
+          className={`pb-3 font-bold text-xs transition-colors cursor-pointer border-b-2 -mb-[1px] focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-t-sm ${
             activeSubTab === 'form' ? 'text-teal-600 border-teal-600' : 'text-slate-500 border-transparent hover:text-slate-700'
           }`}
         >
           Registration Form
         </button>
         <button
+          role="tab"
+          aria-selected={activeSubTab === 'registry'}
+          id="subtab-registry"
+          aria-controls="subtab-panel-registry"
           onClick={() => setActiveSubTab('registry')}
-          className={`pb-3 font-semibold text-xs transition-colors cursor-pointer border-b-2 -mb-[1px] ${
+          className={`pb-3 font-bold text-xs transition-colors cursor-pointer border-b-2 -mb-[1px] focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-t-sm ${
             activeSubTab === 'registry' ? 'text-teal-600 border-teal-600' : 'text-slate-500 border-transparent hover:text-slate-700'
           }`}
         >
