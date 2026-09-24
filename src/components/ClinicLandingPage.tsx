@@ -382,11 +382,6 @@ export default function ClinicLandingPage({
           {/* Centered Hero Content Header */}
           <div className="text-center max-w-3xl mx-auto space-y-4">
             
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#f7fdfd] border border-[#ccfbf1] text-[#0d9488] text-xs font-semibold shadow-xs">
-              <ShieldCheck className="w-4 h-4 text-[#0d9488] animate-pulse" />
-              <span>KKM Licensed &amp; MMC Accredited 24/7 Medical Facility</span>
-            </div>
-
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0f3c4c] tracking-tight leading-[1.12]">
               Authoritative <span className="text-[#0d9488]">Outpatient Care</span> &amp; 24/7 Smart Health
             </h1>
@@ -495,9 +490,6 @@ export default function ClinicLandingPage({
         <div className="max-w-6xl mx-auto space-y-12">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
-              Smart Healthcare Platform
-            </span>
             <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Enterprise Medical System Showcase</h2>
             <p className="text-slate-600 text-xs sm:text-sm">
               Explore how integrated EMR, biometric identity, automated panel billing, and pharmacy compounding streamline outpatient operations.
@@ -1264,9 +1256,6 @@ export default function ClinicLandingPage({
         <div className="max-w-6xl mx-auto space-y-12">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
-              Verified Patient Experiences
-            </span>
             <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Trusted by Over 45,000 Outpatients</h2>
             <p className="text-slate-600 text-xs sm:text-sm">
               Read authentic feedback from individuals, families, and corporate HR managers who rely on our 24/7 medical services.
@@ -1331,9 +1320,6 @@ export default function ClinicLandingPage({
         <div className="max-w-4xl mx-auto space-y-10">
           
           <div className="text-center space-y-3">
-            <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
-              Patient Help &amp; Information
-            </span>
             <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Frequently Asked Questions</h2>
             <p className="text-slate-600 text-xs sm:text-sm">
               Quick answers regarding insurance coverage, walk-in procedures, MyKad check-ins, and emergency services.

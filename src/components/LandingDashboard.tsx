@@ -132,14 +132,10 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 1. COMMAND-CENTER CONTROL BAR & PUBLIC PORTAL BANNER (10/10 HIERARCHY)     */}
       {/* ========================================================================= */}
-      <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-none p-6 sm:p-7 space-y-5 shadow-xs border-l-4 border-l-[#0d9488]">
+      <div className="bg-[#b2f5ea]/70 border border-[#0d9488]/30 rounded-none p-6 sm:p-7 space-y-5 shadow-xs border-l-4 border-l-[#0d9488]">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7fdfd] border border-[#ccfbf1] text-[#0d9488] text-[11px] font-black uppercase tracking-wider mb-2">
-              <Activity className="w-3.5 h-3.5 text-[#0d9488]" />
-              <span>Real-Time Clinical Telemetry Engine</span>
-            </div>
             <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
               <Activity className="w-7 h-7 text-[#0d9488]" />
               <span>
