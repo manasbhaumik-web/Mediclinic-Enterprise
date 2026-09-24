@@ -24,6 +24,7 @@ const TriageModule = React.lazy(() => import('./components/TriageModule'));
 const AppointmentCalendarModule = React.lazy(() => import('./components/AppointmentCalendarModule'));
 
 import GlobalSpinner from './components/ui/GlobalSpinner';
+import EnterpriseLayoutTemplate from './components/EnterpriseLayoutTemplate';
 
 // Import icons
 import {
@@ -61,6 +62,7 @@ export default function App() {
 
   // PWA Network Emulator State
   const [isOnline, setIsOnline] = useState<boolean>(true);
+  const [showPII, setShowPII] = useState<boolean>(true);
 
   // Clinic State Databases with Supabase Sync
   const {
@@ -292,404 +294,136 @@ export default function App() {
     <SettingsProvider>
       <InventoryProvider>
         <AuxiliaryProvider>
-          <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-[#07B2B2]/20">
-            {/* Global Toast for WhatsApp */}
-            {whatsappToast && (
-              <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3">
-                <MessageCircle className="w-5 h-5" />
-                <div>
-                  <p className="font-bold text-sm">WhatsApp Sent</p>
-                  <p className="text-xs text-emerald-100">{whatsappToast}</p>
-                </div>
-                <button onClick={() => setWhatsappToast(null)} className="ml-4 hover:text-emerald-200">
-                  <X className="w-4 h-4" />
-                </button>
+          {/* Global Toast for WhatsApp */}
+          {whatsappToast && (
+            <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-none shadow-xl flex items-center gap-3">
+              <MessageCircle className="w-5 h-5" />
+              <div>
+                <p className="font-bold text-sm">WhatsApp Sent</p>
+                <p className="text-xs text-emerald-100">{whatsappToast}</p>
               </div>
-            )}
-
-            {/* GLOBAL HEADER BAR */}
-            <header className="bg-gradient-to-r from-[#07B2B2] via-teal-600 to-[#058A8A] text-white px-6 py-3 flex items-center justify-between border-b border-teal-800/50 shrink-0 shadow-lg relative z-20">
-
-              {/* Clinician clinic logo titles */}
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-none overflow-hidden border border-white/30 shadow-2xs shrink-0 bg-white flex items-center justify-center">
-                  <img src="./logo_primary.jpg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <h1 className="text-sm font-extrabold tracking-tight uppercase leading-none font-sans">
-                    {t.clinicName}
-                  </h1>
-                  <span className="text-[10px] text-cyan-200 font-mono tracking-wider">Enterprise Clinical Suite v1.1.2</span>
-                </div>
-              </div>
-
-              {/* Global actions: network status PWA toggle, BM/EN translations control */}
-              <div className="flex items-center gap-4">
-
-                {/* PWA Network Simulator toggle */}
-                <button
-                  type="button"
-                  id="pwa-network-toggle"
-                  onClick={() => setIsOnline(!isOnline)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 bg-cyan-800/80 rounded border border-cyan-700 hover:bg-cyan-900 transition-colors cursor-pointer text-[10px] uppercase font-bold font-mono"
-                  title="Simulate offline cache network mode"
-                >
-                  {isOnline ? (
-                    <>
-                      <Wifi className="w-3.5 h-3.5 text-white" />
-                      <span className="text-white">{t.online}</span>
-                    </>
-                  ) : (
-                    <>
-                      <WifiOff className="w-3.5 h-3.5 text-red-400 animate-pulse" />
-                      <span className="text-red-300">{t.offline}</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Lang Selector BM/EN switcher */}
-                <div className="bg-cyan-800/80 rounded border border-cyan-700 p-0.5 flex">
-                  <button
-                    type="button"
-                    id="lang-toggle-en"
-                    onClick={() => setActiveLanguage('EN')}
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${activeLanguage === 'EN' ? 'bg-[#07B2B2] text-white shadow-xs' : 'text-cyan-300 hover:text-white'
-                      }`}
-                  >
-                    {t.enToggle}
-                  </button>
-                  <button
-                    type="button"
-                    id="lang-toggle-bm"
-                    onClick={() => setActiveLanguage('BM')}
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${activeLanguage === 'BM' ? 'bg-[#07B2B2] text-white shadow-xs' : 'text-cyan-300 hover:text-white'
-                      }`}
-                  >
-                    {t.bmToggle}
-                  </button>
-                </div>
-
-                <span className="text-slate-100 hidden sm:inline text-xs font-mono font-medium">
-                  {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)} Suite` : 'Suite'}
-                </span>
-                <button type="button" onClick={async () => { setAppView('login'); await signOut(); }} className="text-xs bg-cyan-900/50 hover:bg-red-500/80 text-white px-2 py-1 rounded transition-colors cursor-pointer">Logout</button>
-              </div>
-
-            </header>
-
-            {/* CORE FRAME LAYOUT */}
-            <div className="flex-1 flex flex-col overflow-hidden relative">
-
-              {/* TOP NAVIGATION (Clinician tools bar) */}
-              <nav className="w-full bg-white/95 backdrop-blur-md text-slate-600 flex items-center justify-between border-b border-slate-200 shrink-0 px-4 overflow-x-auto no-scrollbar shadow-sm relative z-10">
-
-                <div className="flex items-center space-x-1 py-2" id="sidebar-navigation-links">
-
-                  {/* Generic Dashboard Icon */}
-                  <button
-                    type="button"
-                    id="sidebar-link-dashboard"
-                    onClick={() => setActiveTab('dashboard')}
-                    className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'dashboard'
-                      ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                      }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                      <span>{t.dashboard}</span>
-                    </div>
-                  </button>
-
-                  {/* Patient Registration Icon */}
-                  {userRole === 'clinic-assistant' && (
-                    <button
-                      type="button"
-                      id="sidebar-link-registration"
-                      onClick={() => setActiveTab('registration')}
-                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'registration'
-                        ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                        <span>{t.patientRegistration}</span>
-                      </div>
-                      </button>
-                    )}
-
-                  {/* Triage Module Icon */}
-                  {userRole === 'clinic-assistant' && (
-                    <button
-                      type="button"
-                      id="sidebar-link-triage"
-                      onClick={() => setActiveTab('triage')}
-                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'triage'
-                        ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                        <span>Triage Module</span>
-                      </div>
-                      {triageQueue.length > 0 && (
-                        <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
-                          {triageQueue.length}
-                        </span>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Appointments Module Icon */}
-                  {userRole === 'clinic-assistant' && (
-                    <button
-                      type="button"
-                      id="sidebar-link-appointments"
-                      onClick={() => setActiveTab('appointments')}
-                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'appointments'
-                        ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                        <span>Appointments</span>
-                      </div>
-                    </button>
-                  )}
-
-                  {/* Doctor Suite Links: Patient Queue, Consultation Suite, Monthly Reports */}
-                  {userRole === 'doctor' && (
-                    <>
-                      <button
-                        type="button"
-                        id="sidebar-link-queue"
-                        onClick={() => setActiveTab('queue')}
-                        className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'queue'
-                          ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                          }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                          <span>Patient Queue</span>
-                        </div>
-                        {doctorQueue.length > 0 && (
-                          <span className="bg-red-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
-                            {doctorQueue.length}
-                          </span>
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        id="sidebar-link-consultation"
-                        onClick={() => setActiveTab('consultation')}
-                        className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'consultation'
-                          ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                          }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                          <span>Consultation Suite</span>
-                        </div>
-                      </button>
-
-                      <button
-                        type="button"
-                        id="sidebar-link-reports"
-                        onClick={() => setActiveTab('reports')}
-                        className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'reports'
-                          ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                          }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                          <span>Monthly Reports</span>
-                        </div>
-                      </button>
-                    </>
-                  )}
-
-                  {/* Pharmacy / Dispensary Icon */}
-                  {userRole === 'pharmacist' && (
-                    <button
-                      type="button"
-                      id="sidebar-link-dispensary"
-                      onClick={() => setActiveTab('dispensary')}
-                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'dispensary'
-                        ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                        <span>{t.dispensary}</span>
-                      </div>
-                      {pharmacyQueue.length > 0 && (
-                        <span className="bg-orange-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
-                          {pharmacyQueue.length}
-                        </span>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Billing claims receipt ledger icon */}
-                  {userRole === 'clinic-assistant' && (
-                    <button
-                      type="button"
-                      id="sidebar-link-billing"
-                      onClick={() => setActiveTab('billing')}
-                      className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-300 whitespace-nowrap ${activeTab === 'billing'
-                        ? 'bg-teal-50 text-[#07B2B2] shadow-sm ring-1 ring-teal-100/50'
-                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-[#07B2B2]' : 'text-slate-400'}`} />
-                        <span>{t.billing}</span>
-                      </div>
-                      {cashierQueue.length > 0 && (
-                        <span className="bg-blue-500 text-white text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2">
-                          {cashierQueue.length}
-                        </span>
-                      )}
-                    </button>
-                  )}
-                </div>
-
-                <div className="hidden lg:flex items-center space-x-4 text-[10px] text-slate-400 font-mono pl-4 border-l border-slate-200 ml-4">
-                  <div className="flex items-center gap-1">
-                    <span>Sync:</span>
-                    <span className="text-[#07B2B2] font-bold uppercase drop-shadow-sm">KKM-ONLINE</span>
-                  </div>
-                  <div>
-                    <span>ID: <strong>MY-APC-KLG-20</strong></span>
-                  </div>
-                </div>
-
-              </nav>
-
-              {/* INNER PAGE STAGE WINDOW CONTAINER */}
-              <main className="flex-1 p-5 overflow-y-auto max-h-full">
-                <Suspense fallback={<GlobalSpinner />}>
-
-                {/* DOCTOR MODULE: PATIENT QUEUE, CONSULTATION SUITE, MONTHLY REPORTS */}
-                {(activeTab === 'queue' || activeTab === 'consultation' || activeTab === 'reports') && userRole === 'doctor' && (
-                  <DoctorDashboardModule
-                    doctorTab={activeTab === 'reports' ? 'reports' : activeTab === 'consultation' ? 'consultation' : 'queue'}
-                    onTabChange={(t) => setActiveTab(t)}
-                    doctorQueue={doctorQueue}
-                    completedVisits={completedVisits}
-                    patientsMap={patientsMap}
-                    activeLanguage={activeLanguage}
-                    activeConsultationVisitId={activeConsultationVisitId}
-                    setActiveConsultationVisitId={setActiveConsultationVisitId}
-                    onConsultationComplete={handleDoctorSoapSubmit}
-                    doctorName={getUserDisplayName()}
-                  />
-                )}
-
-                {activeTab === 'dashboard' && (
-                  <LandingDashboard
-                    userRole={userRole}
-                    userName={getUserDisplayName()}
-                    triageQueue={triageQueue}
-                    doctorQueue={doctorQueue}
-                    pharmacyQueue={pharmacyQueue}
-                    cashierQueue={cashierQueue}
-                    completedVisits={completedVisits}
-                    patientsList={patientsList}
-                    activeLanguage={activeLanguage}
-                    onNavigateTab={(tab) => {
-                      if (!userRole) {
-                        setAppView('login');
-                      } else {
-                        setActiveTab(tab);
-                      }
-                    }}
-                    onOpenLogin={() => setAppView('login')}
-                  />
-                )}
-
-                {/* TAB 2: PATIENT REGISTRATION MODULE */}
-                {activeTab === 'registration' && userRole === 'clinic-assistant' && (
-                  <PatientRegistrationModule
-                    t={t}
-                    activeLanguage={activeLanguage}
-                    searchPatients={async (query: string) => patientsList.filter(p => p.fullName.toLowerCase().includes(query.toLowerCase()) || p.icNumber.includes(query))}
-                    totalPatientCount={patientsList.length}
-                    triageQueue={triageQueue}
-                    patientsMap={patientsMap}
-                    addPatientToDb={addPatientToDb}
-                    addVisitToDb={addVisitToDb}
-                    updateVisitInDb={updateVisitInDb}
-                    onNavigateTab={setActiveTab}
-                  />
-                )}
-
-                {/* TRIAGE MODULE */}
-                {activeTab === 'triage' && userRole === 'clinic-assistant' && (
-                  <TriageModule
-                    triageQueue={triageQueue}
-                    patientsMap={patientsMap}
-                    onTriageComplete={handleTriageComplete}
-                  />
-                )}
-
-                {/* APPOINTMENT CALENDAR MODULE */}
-                {activeTab === 'appointments' && (userRole === 'clinic-assistant' || userRole === 'admin') && (
-                  <AppointmentCalendarModule
-                    appointments={appointments}
-                    patientsList={patientsList}
-                    addAppointment={addAppointmentToDb}
-                    updateAppointment={updateAppointmentInDb}
-                  />
-                )}
-
-                {/* DISPENSARY TAB */}
-                {activeTab === 'dispensary' && userRole === 'pharmacist' && (
-                  <DispensaryDashboard
-                    queue={pharmacyQueue}
-                    patientsMap={patientsMap}
-                    activeLanguage={activeLanguage}
-                    onDispenseSubmit={handleDispenseVerified}
-                    pharmacistName={getUserDisplayName()}
-                  />
-                )}
-
-                {/* BILLING TAB */}
-                {activeTab === 'billing' && userRole === 'clinic-assistant' && (
-                  <BillingDesk
-                    queue={cashierQueue}
-                    patientsMap={patientsMap}
-                    activeLanguage={activeLanguage}
-                    onPaymentComplete={(visitId, paymentDetails) => handleBillingSettled(visitId, paymentDetails)}
-                  />
-                )}
-
-                </Suspense>
-              </main>
-            </div>
-
-            {/* GLOBAL SIMULATED MYKAD MODAL REMOVED (Now inside PatientRegistrationModule) */}
-
-            {/* GLOBAL VOICE AI / NLP ASSISTANT */}
-            <div className="fixed bottom-6 right-6 z-50">
-              <button
-                className="bg-[#07B2B2] hover:bg-[#058A8A] text-white w-14 h-14 rounded-none shadow-2xl flex items-center justify-center transition-all hover:scale-105 relative group cursor-pointer border-4 border-white"
-                title="Voice AI Command"
-              >
-                <div className="absolute inset-0 bg-[#07B2B2] rounded-none animate-ping opacity-20"></div>
-                <Mic className="w-6 h-6" />
+              <button onClick={() => setWhatsappToast(null)} className="ml-4 hover:text-emerald-200 cursor-pointer">
+                <X className="w-4 h-4" />
               </button>
             </div>
+          )}
 
-          </div>
+          <EnterpriseLayoutTemplate
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            userName={getUserDisplayName()}
+            userRole={userRole || 'doctor'}
+            isOnline={isOnline}
+            setIsOnline={setIsOnline}
+            showPII={showPII}
+            setShowPII={setShowPII}
+            activeLanguage={activeLanguage}
+            setActiveLanguage={setActiveLanguage}
+            onSignOut={async () => { setAppView('login'); await signOut(); }}
+            t={t}
+            triageQueueLength={triageQueue.length}
+            doctorQueueLength={doctorQueue.length}
+            pharmacyQueueLength={pharmacyQueue.length}
+            cashierQueueLength={cashierQueue.length}
+          >
+            <Suspense fallback={<GlobalSpinner />}>
+
+              {/* DOCTOR MODULE: PATIENT QUEUE, CONSULTATION SUITE, MONTHLY REPORTS */}
+              {(activeTab === 'queue' || activeTab === 'consultation' || activeTab === 'reports') && userRole === 'doctor' && (
+                <DoctorDashboardModule
+                  doctorTab={activeTab === 'reports' ? 'reports' : activeTab === 'consultation' ? 'consultation' : 'queue'}
+                  onTabChange={(t) => setActiveTab(t)}
+                  doctorQueue={doctorQueue}
+                  completedVisits={completedVisits}
+                  patientsMap={patientsMap}
+                  activeLanguage={activeLanguage}
+                  activeConsultationVisitId={activeConsultationVisitId}
+                  setActiveConsultationVisitId={setActiveConsultationVisitId}
+                  onConsultationComplete={handleDoctorSoapSubmit}
+                  doctorName={getUserDisplayName()}
+                />
+              )}
+
+              {activeTab === 'dashboard' && (
+                <LandingDashboard
+                  userRole={userRole}
+                  userName={getUserDisplayName()}
+                  triageQueue={triageQueue}
+                  doctorQueue={doctorQueue}
+                  pharmacyQueue={pharmacyQueue}
+                  cashierQueue={cashierQueue}
+                  completedVisits={completedVisits}
+                  patientsList={patientsList}
+                  activeLanguage={activeLanguage}
+                  onNavigateTab={(tab) => {
+                    if (!userRole) {
+                      setAppView('login');
+                    } else {
+                      setActiveTab(tab);
+                    }
+                  }}
+                  onOpenLogin={() => setAppView('login')}
+                />
+              )}
+
+              {/* TAB 2: PATIENT REGISTRATION MODULE */}
+              {activeTab === 'registration' && userRole === 'clinic-assistant' && (
+                <PatientRegistrationModule
+                  t={t}
+                  activeLanguage={activeLanguage}
+                  searchPatients={async (query: string) => patientsList.filter(p => p.fullName.toLowerCase().includes(query.toLowerCase()) || p.icNumber.includes(query))}
+                  totalPatientCount={patientsList.length}
+                  triageQueue={triageQueue}
+                  patientsMap={patientsMap}
+                  addPatientToDb={addPatientToDb}
+                  addVisitToDb={addVisitToDb}
+                  updateVisitInDb={updateVisitInDb}
+                  onNavigateTab={setActiveTab}
+                />
+              )}
+
+              {/* TRIAGE MODULE */}
+              {activeTab === 'triage' && userRole === 'clinic-assistant' && (
+                <TriageModule
+                  triageQueue={triageQueue}
+                  patientsMap={patientsMap}
+                  onTriageComplete={handleTriageComplete}
+                />
+              )}
+
+              {/* APPOINTMENT CALENDAR MODULE */}
+              {activeTab === 'appointments' && (userRole === 'clinic-assistant' || userRole === 'admin') && (
+                <AppointmentCalendarModule
+                  appointments={appointments}
+                  patientsList={patientsList}
+                  addAppointment={addAppointmentToDb}
+                  updateAppointment={updateAppointmentInDb}
+                />
+              )}
+
+              {/* DISPENSARY TAB */}
+              {activeTab === 'dispensary' && userRole === 'pharmacist' && (
+                <DispensaryDashboard
+                  queue={pharmacyQueue}
+                  patientsMap={patientsMap}
+                  activeLanguage={activeLanguage}
+                  onDispenseSubmit={handleDispenseVerified}
+                  pharmacistName={getUserDisplayName()}
+                />
+              )}
+
+              {/* BILLING TAB */}
+              {activeTab === 'billing' && userRole === 'clinic-assistant' && (
+                <BillingDesk
+                  queue={cashierQueue}
+                  patientsMap={patientsMap}
+                  activeLanguage={activeLanguage}
+                  onPaymentComplete={(visitId, paymentDetails) => handleBillingSettled(visitId, paymentDetails)}
+                />
+              )}
+
+            </Suspense>
+          </EnterpriseLayoutTemplate>
         </AuxiliaryProvider>
       </InventoryProvider>
     </SettingsProvider>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
-  ChevronDown, LogOut
+  ChevronDown, LogOut, CalendarClock
 } from 'lucide-react';
 
 interface EnterpriseLayoutTemplateProps {
@@ -18,6 +18,7 @@ interface EnterpriseLayoutTemplateProps {
   setActiveLanguage: (val: string) => void;
   onSignOut: () => void;
   t: any;
+  triageQueueLength?: number;
   doctorQueueLength: number;
   pharmacyQueueLength: number;
   cashierQueueLength: number;
@@ -37,6 +38,7 @@ export default function EnterpriseLayoutTemplate({
   setActiveLanguage,
   onSignOut,
   t,
+  triageQueueLength = 0,
   doctorQueueLength,
   pharmacyQueueLength,
   cashierQueueLength,
@@ -272,6 +274,51 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center gap-2">
                   <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                   <span>{t.patientRegistration || 'Registration'}</span>
+                </div>
+              </button>
+            )}
+
+            {/* Triage Module Link */}
+            {userRole === 'clinic-assistant' && (
+              <button
+                type="button"
+                id="sidebar-link-triage"
+                onClick={() => setActiveTab('triage')}
+                className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
+                  activeTab === 'triage'
+                    ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                    : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
+                  <span>Triage Module</span>
+                </div>
+                {triageQueueLength > 0 && (
+                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
+                    activeTab === 'triage' ? 'bg-[#0d9488] text-white' : 'bg-[#e0f5f2] text-[#0f766e] border border-[#b2f5ea]'
+                  }`}>
+                    {triageQueueLength}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Appointments Link */}
+            {userRole === 'clinic-assistant' && (
+              <button
+                type="button"
+                id="sidebar-link-appointments"
+                onClick={() => setActiveTab('appointments')}
+                className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
+                  activeTab === 'appointments'
+                    ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                    : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
+                  <span>Appointments</span>
                 </div>
               </button>
             )}
