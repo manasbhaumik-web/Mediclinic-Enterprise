@@ -193,7 +193,7 @@ export const DRUG_DATABASE = [
   },
   {
     id: 'D004',
-    name: 'Ibuprofen 400mg Tablet',
+    name: 'Ibuprofen 400mg Tablet (Brufen/Nurofen)',
     category: 'Non-steroidal Anti-inflammatory (NSAID)',
     allergyGroup: 'NSAID',
     dosageEN: 'Take 1 tablet three times a day as needed for severe pain, with food.',
@@ -207,7 +207,7 @@ export const DRUG_DATABASE = [
   },
   {
     id: 'D005',
-    name: 'Paracetamol (Panadol) 500mg',
+    name: 'Paracetamol (Panadol) 500mg Tablet',
     category: 'Analgesic & Antipyretic',
     allergyGroup: 'Paracetamol',
     dosageEN: 'Take 2 tablets four times a day as needed for pain or fever. Max 8 tablets daily.',
@@ -218,6 +218,34 @@ export const DRUG_DATABASE = [
     expiryMonths: 36,
     pillColor: '#3b82f6', // Light Blue
     capsuleStyle: 'round'
+  },
+  {
+    id: 'D005-PED1',
+    name: 'Paracetamol 120mg/5ml Syrup (Pediatric)',
+    category: 'Pediatric Analgesic / Antipyretic',
+    allergyGroup: 'Paracetamol',
+    dosageEN: 'Give calculated dose (ml) 3-4 times daily as needed for fever or pain.',
+    dosageBM: 'Beri dos yang dikira (ml) 3-4 kali sehari mengikut keperluan demam atau sakit.',
+    frequency: 'TDS/QDS PRN',
+    pricePerUnit: 8.50,
+    currentStock: 250,
+    expiryMonths: 24,
+    pillColor: '#ec4899', // Pink liquid
+    capsuleStyle: 'solid'
+  },
+  {
+    id: 'D005-PED2',
+    name: 'Paracetamol 250mg/5ml Syrup (Pediatric Forte)',
+    category: 'Pediatric Analgesic / Antipyretic',
+    allergyGroup: 'Paracetamol',
+    dosageEN: 'Give calculated dose (ml) 3-4 times daily as needed for fever or pain.',
+    dosageBM: 'Beri dos yang dikira (ml) 3-4 kali sehari mengikut keperluan demam atau sakit.',
+    frequency: 'TDS/QDS PRN',
+    pricePerUnit: 11.00,
+    currentStock: 180,
+    expiryMonths: 24,
+    pillColor: '#f43f5e', // Dark Pink liquid
+    capsuleStyle: 'solid'
   },
   {
     id: 'D006',
@@ -235,7 +263,7 @@ export const DRUG_DATABASE = [
   },
   {
     id: 'D007',
-    name: 'Metformin HCl 500mg',
+    name: 'Metformin HCl 500mg (Glucophage)',
     category: 'Oral Antidiabetic',
     allergyGroup: 'None',
     dosageEN: 'Take 1 tablet twice daily with lunch and dinner.',
@@ -249,7 +277,7 @@ export const DRUG_DATABASE = [
   },
   {
     id: 'D008',
-    name: 'Amlodipine Besylate 10mg',
+    name: 'Amlodipine Besylate 10mg (Norvasc)',
     category: 'Antihypertensive',
     allergyGroup: 'None',
     dosageEN: 'Take 1 tablet once a day in the morning.',
@@ -260,6 +288,90 @@ export const DRUG_DATABASE = [
     expiryMonths: 1.5, // Expiry warning! (< 3 months)
     pillColor: '#a855f7', // Purple
     capsuleStyle: 'round'
+  },
+  {
+    id: 'D009',
+    name: 'Ponstan (Mefenamic Acid) 500mg',
+    category: 'Non-steroidal Anti-inflammatory (NSAID)',
+    allergyGroup: 'NSAID',
+    dosageEN: 'Take 1 tablet three times daily after food for severe pain/cramps.',
+    dosageBM: 'Ambil 1 biji 3 kali sehari selepas makan untuk kesakitan kuat.',
+    frequency: 'TDS (Thrice Daily)',
+    pricePerUnit: 0.70,
+    currentStock: 1200,
+    expiryMonths: 24,
+    pillColor: '#e11d48',
+    capsuleStyle: 'solid'
+  },
+  {
+    id: 'D010',
+    name: 'Voltaren (Diclofenac Sodium) 50mg',
+    category: 'Non-steroidal Anti-inflammatory (NSAID)',
+    allergyGroup: 'NSAID',
+    dosageEN: 'Take 1 tablet twice daily after meals.',
+    dosageBM: 'Ambil 1 biji 2 kali sehari selepas makan.',
+    frequency: 'BD (Twice Daily)',
+    pricePerUnit: 0.85,
+    currentStock: 950,
+    expiryMonths: 18,
+    pillColor: '#f97316',
+    capsuleStyle: 'round'
+  },
+  {
+    id: 'D011',
+    name: 'Zyrtec (Cetirizine HCl) 10mg',
+    category: 'Antihistamine / Anti-allergy',
+    allergyGroup: 'None',
+    dosageEN: 'Take 1 tablet once daily at bedtime for rhinitis or rash.',
+    dosageBM: 'Ambil 1 biji sekali sehari sebelum tidur untuk gatal/selesema.',
+    frequency: 'OD (Once Daily)',
+    pricePerUnit: 0.45,
+    currentStock: 2200,
+    expiryMonths: 30,
+    pillColor: '#06b6d4',
+    capsuleStyle: 'round'
+  },
+  {
+    id: 'D012',
+    name: 'Ventolin (Salbutamol) 100mcg Inhaler',
+    category: 'Bronchodilator / Anti-asthma',
+    allergyGroup: 'None',
+    dosageEN: 'Inhale 2 puffs as needed for acute shortness of breath or wheezing.',
+    dosageBM: 'Sedut 2 semburan jika perlu semasa sesak nafas atau mengah.',
+    frequency: 'PRN (As Needed)',
+    pricePerUnit: 18.50,
+    currentStock: 85,
+    expiryMonths: 24,
+    pillColor: '#0284c7',
+    capsuleStyle: 'solid'
+  },
+  {
+    id: 'D013',
+    name: 'Omeprazole 20mg Capsule',
+    category: 'Proton Pump Inhibitor (PPI)',
+    allergyGroup: 'None',
+    dosageEN: 'Take 1 capsule daily before breakfast for acid reflux / gastritis.',
+    dosageBM: 'Ambil 1 kapsul sehari sebelum sarapan untuk gastrik / pedih ulu hati.',
+    frequency: 'OD (Once Daily)',
+    pricePerUnit: 0.90,
+    currentStock: 1500,
+    expiryMonths: 20,
+    pillColor: '#84cc16',
+    capsuleStyle: 'split'
+  },
+  {
+    id: 'D014',
+    name: 'Gaviscon Double Action Liquid 150ml',
+    category: 'Antacid & Anti-reflux',
+    allergyGroup: 'None',
+    dosageEN: 'Take 10-20ml after meals and at bedtime.',
+    dosageBM: 'Ambil 10-20ml selepas makan dan sebelum tidur.',
+    frequency: 'QDS (4x Daily)',
+    pricePerUnit: 22.00,
+    currentStock: 60,
+    expiryMonths: 18,
+    pillColor: '#10b981',
+    capsuleStyle: 'solid'
   }
 ];
 
