@@ -74,14 +74,14 @@ export default function AdminModule({
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
         {/* Admin Navigation Bar */}
-        <nav className="w-full bg-[#069494] text-white flex items-center justify-start border-b border-cyan-800 shrink-0 px-4 overflow-x-auto custom-scrollbar">
+        <nav className="w-full bg-[#0d9488] text-white flex items-center justify-start border-b border-[#096b62] shrink-0 px-4 overflow-x-auto custom-scrollbar">
           <div className="flex items-center space-x-1 py-2">
             {(userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
               <button
                 onClick={() => setActiveTab('staff')}
                 className={`flex items-center px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all whitespace-nowrap ${activeTab === 'staff'
-                    ? 'bg-[#058A8A] text-white shadow font-semibold'
-                    : 'text-cyan-50 hover:bg-[#07B2B2] hover:text-white'
+                    ? 'bg-[#0f766e] text-white shadow font-semibold'
+                    : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white'
                   }`}
               >
                 <Users className="w-4 h-4 mr-2" />
