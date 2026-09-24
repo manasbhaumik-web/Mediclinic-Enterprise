@@ -3,7 +3,7 @@ import { Visit, Patient, UserRole, Language } from '../types';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
   TrendingUp, ArrowUpRight, ShieldCheck, MapPin, Phone, Building2,
-  Calendar, CheckCircle2, ChevronRight, AlertCircle, BarChart3, PieChart as PieChartIcon, Zap, LogIn, Download, Sparkles, Filter
+  Calendar, CheckCircle2, ChevronRight, AlertCircle, BarChart3, PieChart as PieChartIcon, Zap, LogIn, Download, Filter
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -137,7 +137,7 @@ export default function LandingDashboard({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f7fdfd] border border-[#ccfbf1] text-[#0d9488] text-[11px] font-black uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#0d9488]" />
+              <Activity className="w-3.5 h-3.5 text-[#0d9488]" />
               <span>Real-Time Clinical Telemetry Engine</span>
             </div>
             <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">

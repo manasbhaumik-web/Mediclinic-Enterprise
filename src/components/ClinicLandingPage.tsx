@@ -3,7 +3,7 @@ import { Language } from '../types';
 import { 
   Stethoscope, Pill, ShieldCheck, Activity, Heart, Calendar, Clock, 
   MapPin, Phone, CheckCircle2, Star, ArrowRight, LogIn, BarChart3, 
-  Users, Building2, ChevronRight, Menu, X, Search, Sparkles, Check, 
+  Users, Building2, ChevronRight, Menu, X, Search, Check, 
   ShieldAlert, Zap, Globe, Award, HelpCircle, Mail, ChevronDown, MessageSquare, ArrowUp, CreditCard
 } from 'lucide-react';
 
@@ -780,7 +780,7 @@ export default function ClinicLandingPage({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
             <div className="space-y-3 max-w-2xl">
               <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
-                <Sparkles className="w-3.5 h-3.5 text-[#0d9488]" />
+                <Activity className="w-3.5 h-3.5 text-[#0d9488]" />
                 <span>Comprehensive Outpatient Suite</span>
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c] tracking-tight">
@@ -1105,7 +1105,7 @@ export default function ClinicLandingPage({
             <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 space-y-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
                 <span className="text-xs font-black text-[#0f3c4c] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#0d9488]" /> Cashless Benefit Check
+                  <ShieldCheck className="w-4 h-4 text-[#0d9488]" /> Cashless Benefit Check
                 </span>
                 <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
                   INSTANT API

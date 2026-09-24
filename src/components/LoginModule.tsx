@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Activity, Lock, User, UserCog, ArrowLeft, ShieldCheck, Stethoscope, 
-  Pill, ClipboardList, Users, Building2, Eye, EyeOff, Sparkles, CheckCircle2, Zap
+  Pill, ClipboardList, Users, Building2, Eye, EyeOff, CheckCircle2, Zap
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -100,7 +100,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
             {/* Core Value Headline */}
             <div className="space-y-4 pt-2">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-teal-100 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20">
-                <Sparkles className="w-3 h-3 text-emerald-300" />
+                <ShieldCheck className="w-3 h-3 text-emerald-300" />
                 <span>Encrypted Staff Portal</span>
               </span>
               
