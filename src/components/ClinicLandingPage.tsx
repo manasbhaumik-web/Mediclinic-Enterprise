@@ -204,7 +204,7 @@ export default function ClinicLandingPage({
       {/* 0. STICKY TOP REAL-TIME TICKER & PULSE BANNER                             */}
       {/* ========================================================================= */}
       <div className="bg-[#0f766e] text-teal-50 text-[11px] font-semibold py-1.5 px-4 flex items-center justify-between border-b border-[#0d9488] relative z-50">
-        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar whitespace-nowrap max-w-6xl mx-auto w-full justify-between">
+        <div className="flex items-center gap-4 overflow-hidden whitespace-nowrap max-w-6xl mx-auto w-full justify-between">
           <div className="flex items-center gap-2 shrink-0">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>

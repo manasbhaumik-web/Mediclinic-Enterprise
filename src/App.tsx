@@ -381,7 +381,7 @@ export default function App() {
             <div className="flex-1 flex flex-col overflow-hidden relative">
 
               {/* TOP NAVIGATION (Clinician tools bar) */}
-              <nav className="w-full bg-white/95 backdrop-blur-md text-slate-600 flex items-center justify-between border-b border-slate-200 shrink-0 px-4 overflow-x-auto custom-scrollbar shadow-sm relative z-10">
+              <nav className="w-full bg-white/95 backdrop-blur-md text-slate-600 flex items-center justify-between border-b border-slate-200 shrink-0 px-4 overflow-x-auto no-scrollbar shadow-sm relative z-10">
 
                 <div className="flex items-center space-x-1 py-2" id="sidebar-navigation-links">
 
