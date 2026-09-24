@@ -74,9 +74,9 @@ export default function EnterpriseLayoutTemplate({
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-teal-600/20">
       
       {/* ========================================================================= */}
-      {/* GLOBAL TOP HEADER BAR (DARK EMERALD SLATE PALETTE & INTERACTIVE CONTROLS)   */}
+      {/* GLOBAL TOP HEADER BAR (SCHEME A: NORDIC ICE-MINT & MIDNIGHT CYAN)           */}
       {/* ========================================================================= */}
-      <header className="bg-[#092e38] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between border-b border-[#0d9488]/40 shrink-0 shadow-md relative z-30 sticky top-0">
+      <header className="bg-[#0f3c4c] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between border-b-2 border-[#0d9488] shrink-0 shadow-sm relative z-30 sticky top-0">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
         <div className="flex items-center gap-3 relative">
@@ -128,9 +128,9 @@ export default function EnterpriseLayoutTemplate({
               placeholder="Search Patient Name, MRN, or ICD-10 Code..."
               value={globalSearchQuery}
               onChange={(e) => setGlobalSearchQuery(e.target.value)}
-              className="w-full bg-[#0f3c4c]/90 border border-[#14b8a6]/40 text-xs text-white placeholder:text-slate-400 pl-8 pr-12 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#2dd4bf] focus:border-[#2dd4bf] rounded-none transition-all font-medium"
+              className="w-full bg-[#092e38] border border-[#14b8a6]/40 text-xs text-white placeholder:text-slate-400 pl-8 pr-12 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#2dd4bf] focus:border-[#2dd4bf] rounded-none transition-all font-medium"
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono font-bold bg-[#092e38] text-[#2dd4bf] px-1.5 py-0.5 border border-[#14b8a6]/30 rounded-none pointer-events-none">
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono font-bold bg-[#0f3c4c] text-[#2dd4bf] px-1.5 py-0.5 border border-[#14b8a6]/30 rounded-none pointer-events-none">
               ⌘K
             </span>
           </div>
@@ -140,7 +140,7 @@ export default function EnterpriseLayoutTemplate({
         <div className="flex items-center gap-2.5 sm:gap-3">
 
           {/* Live Monospace Clock */}
-          <div className="hidden xl:flex items-center gap-1.5 bg-[#0f3c4c] px-2.5 py-1 border border-[#14b8a6]/40 font-mono text-xs text-[#2dd4bf] rounded-none font-bold">
+          <div className="hidden xl:flex items-center gap-1.5 bg-[#134e4a] px-2.5 py-1 border border-[#14b8a6]/40 font-mono text-xs text-[#2dd4bf] rounded-none font-bold">
             <Clock className="w-3.5 h-3.5 text-[#2dd4bf]" />
             <span>{timeString || '13:50:24 MYT'}</span>
           </div>
@@ -150,7 +150,7 @@ export default function EnterpriseLayoutTemplate({
             type="button"
             id="pwa-network-toggle"
             onClick={() => setIsOnline(!isOnline)}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#0f3c4c] rounded-none border border-[#14b8a6]/40 hover:bg-[#134e4a] transition-all cursor-pointer text-[10px] uppercase font-bold font-mono text-[#2dd4bf] shadow-2xs"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#134e4a] rounded-none border border-[#14b8a6]/40 hover:bg-[#092e38] transition-all cursor-pointer text-[10px] uppercase font-bold font-mono text-[#2dd4bf] shadow-2xs"
             title="Toggle Simulated PWA Offline/Online Mode"
           >
             {isOnline ? (
@@ -173,7 +173,7 @@ export default function EnterpriseLayoutTemplate({
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono ${
               showPII 
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30' 
-                : 'bg-[#0f3c4c] text-[#2dd4bf] border border-[#14b8a6]/40 hover:bg-[#134e4a]'
+                : 'bg-[#134e4a] text-[#2dd4bf] border border-[#14b8a6]/40 hover:bg-[#092e38]'
             }`}
             title="Toggle Global Patient PII Masking"
           >
@@ -185,13 +185,13 @@ export default function EnterpriseLayoutTemplate({
           </button>
 
           {/* Language Switcher (EN | BM) */}
-          <div className="bg-[#0f3c4c] rounded-none border border-[#14b8a6]/40 p-0.5 flex">
+          <div className="bg-[#134e4a] rounded-none border border-[#14b8a6]/40 p-0.5 flex">
             <button
               type="button"
               id="lang-toggle-en"
               onClick={() => setActiveLanguage('EN')}
               className={`px-2 py-0.5 rounded-none text-[10px] font-bold transition-all cursor-pointer ${
-                activeLanguage === 'EN' ? 'bg-[#14b8a6] text-[#092e38] font-black' : 'text-[#2dd4bf] hover:text-white'
+                activeLanguage === 'EN' ? 'bg-[#0d9488] text-white font-black' : 'text-[#2dd4bf] hover:text-white'
               }`}
             >
               EN
@@ -201,7 +201,7 @@ export default function EnterpriseLayoutTemplate({
               id="lang-toggle-bm"
               onClick={() => setActiveLanguage('BM')}
               className={`px-2 py-0.5 rounded-none text-[10px] font-bold transition-all cursor-pointer ${
-                activeLanguage === 'BM' ? 'bg-[#14b8a6] text-[#092e38] font-black' : 'text-[#2dd4bf] hover:text-white'
+                activeLanguage === 'BM' ? 'bg-[#0d9488] text-white font-black' : 'text-[#2dd4bf] hover:text-white'
               }`}
             >
               BM
@@ -210,7 +210,7 @@ export default function EnterpriseLayoutTemplate({
 
           {/* User Profile Avatar Pill */}
           <div className="flex items-center gap-2 bg-[#134e4a] border border-[#14b8a6]/40 px-2.5 py-1 rounded-none">
-            <div className="w-5 h-5 bg-[#14b8a6] text-[#092e38] font-mono text-[10px] font-black flex items-center justify-center rounded-none">
+            <div className="w-5 h-5 bg-[#0d9488] text-white font-mono text-[10px] font-black flex items-center justify-center rounded-none">
               {getUserInitials(userName)}
             </div>
             <span className="text-[#5eead4] hidden sm:inline text-xs font-mono font-bold uppercase">
@@ -222,7 +222,7 @@ export default function EnterpriseLayoutTemplate({
           <button 
             type="button" 
             onClick={onSignOut} 
-            className="text-xs bg-[#14b8a6] hover:bg-rose-600 text-[#092e38] hover:text-white px-3 py-1 rounded-none font-black transition-all cursor-pointer border border-[#14b8a6] flex items-center gap-1 shadow-2xs"
+            className="text-xs bg-[#0d9488] hover:bg-rose-600 text-white px-3 py-1 rounded-none font-black transition-all cursor-pointer border border-[#0d9488] flex items-center gap-1 shadow-2xs"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Logout</span>
@@ -232,27 +232,27 @@ export default function EnterpriseLayoutTemplate({
       </header>
 
       {/* ========================================================================= */}
-      {/* SUB-NAVIGATION BAR (DARK EMERALD SLATE TABS & TELEMETRY SYNC TICKER)       */}
+      {/* SUB-NAVIGATION BAR (SCHEME A: ICE MINT MIST CANVAS & TEAL ACTIVE TABS)      */}
       {/* ========================================================================= */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
-        <nav className="w-full bg-[#0f3c4c] text-white flex items-center justify-between border-b border-[#0d9488]/40 shrink-0 px-4 overflow-x-auto custom-scrollbar shadow-xs relative z-10">
+        <nav className="w-full bg-[#f0fdfa] text-slate-700 flex items-center justify-between border-b border-[#ccfbf1] shrink-0 px-4 overflow-x-auto custom-scrollbar shadow-xs relative z-10">
 
-          <div className="flex items-center space-x-1 py-1.5" id="sidebar-navigation-links">
+          <div className="flex items-center space-x-1 py-0" id="sidebar-navigation-links">
 
             {/* Dashboard Navigation Link */}
             <button
               type="button"
               id="sidebar-link-dashboard"
               onClick={() => setActiveTab('dashboard')}
-              className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
+              className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
                 activeTab === 'dashboard'
-                  ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
-                  : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
+                  ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                  : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
               }`}
             >
               <div className="flex items-center gap-2">
-                <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-[#2dd4bf]' : 'text-slate-400'}`} />
+                <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                 <span>{t.dashboard || 'Dashboard'}</span>
               </div>
             </button>
@@ -263,14 +263,14 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-registration"
                 onClick={() => setActiveTab('registration')}
-                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
+                className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
                   activeTab === 'registration'
-                    ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
-                    : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
+                    ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                    : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-[#2dd4bf]' : 'text-slate-400'}`} />
+                  <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                   <span>{t.patientRegistration || 'Registration'}</span>
                 </div>
               </button>
@@ -283,19 +283,19 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-queue"
                   onClick={() => setActiveTab('queue')}
-                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
+                  className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
                     activeTab === 'queue'
-                      ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
-                      : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
+                      ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                      : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-[#2dd4bf]' : 'text-slate-400'}`} />
+                    <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                     <span>Patient Queue</span>
                   </div>
                   {doctorQueueLength > 0 && (
                     <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                      activeTab === 'queue' ? 'bg-[#14b8a6] text-[#092e38]' : 'bg-[#092e38] text-[#2dd4bf] border border-[#14b8a6]/40'
+                      activeTab === 'queue' ? 'bg-[#0d9488] text-white' : 'bg-[#e0f5f2] text-[#0f766e] border border-[#b2f5ea]'
                     }`}>
                       {doctorQueueLength}
                     </span>
@@ -306,14 +306,14 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-consultation"
                   onClick={() => setActiveTab('consultation')}
-                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
+                  className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
                     activeTab === 'consultation'
-                      ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
-                      : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
+                      ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                      : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-[#2dd4bf]' : 'text-slate-400'}`} />
+                    <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                     <span>Consultation Suite</span>
                   </div>
                 </button>
@@ -322,14 +322,14 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-reports"
                   onClick={() => setActiveTab('reports')}
-                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
+                  className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
                     activeTab === 'reports'
-                      ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
-                      : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
+                      ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                      : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-[#2dd4bf]' : 'text-slate-400'}`} />
+                    <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                     <span>Monthly Reports</span>
                   </div>
                 </button>
@@ -342,19 +342,19 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-dispensary"
                 onClick={() => setActiveTab('dispensary')}
-                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
+                className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
                   activeTab === 'dispensary'
-                    ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
-                    : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
+                    ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                    : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-[#2dd4bf]' : 'text-slate-400'}`} />
+                  <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                   <span>{t.dispensary || 'Dispensary'}</span>
                 </div>
                 {pharmacyQueueLength > 0 && (
                   <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'dispensary' ? 'bg-[#14b8a6] text-[#092e38]' : 'bg-[#092e38] text-[#2dd4bf] border border-[#14b8a6]/40'
+                    activeTab === 'dispensary' ? 'bg-[#0d9488] text-white' : 'bg-[#e0f5f2] text-[#0f766e] border border-[#b2f5ea]'
                   }`}>
                     {pharmacyQueueLength}
                   </span>
@@ -368,19 +368,19 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-billing"
                 onClick={() => setActiveTab('billing')}
-                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
+                className={`flex items-center px-4 py-2.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-3 ${
                   activeTab === 'billing'
-                    ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
-                    : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
+                    ? 'bg-white text-[#0d9488] border-[#0d9488] font-black shadow-xs'
+                    : 'border-transparent text-slate-600 hover:bg-[#e0f5f2] hover:text-[#0f3c4c]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-[#2dd4bf]' : 'text-slate-400'}`} />
+                  <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
                   <span>{t.billing || 'Billing'}</span>
                 </div>
                 {cashierQueueLength > 0 && (
                   <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'billing' ? 'bg-[#14b8a6] text-[#092e38]' : 'bg-[#092e38] text-[#2dd4bf] border border-[#14b8a6]/40'
+                    activeTab === 'billing' ? 'bg-[#0d9488] text-white' : 'bg-[#e0f5f2] text-[#0f766e] border border-[#b2f5ea]'
                   }`}>
                     {cashierQueueLength}
                   </span>
@@ -390,27 +390,27 @@ export default function EnterpriseLayoutTemplate({
           </div>
 
           {/* Nav Right Telemetry Sync Status & Manual Refresh Trigger */}
-          <div className="hidden lg:flex items-center space-x-3 text-[10px] text-slate-300 font-mono pl-4 border-l border-[#0d9488]/40 ml-4">
+          <div className="hidden lg:flex items-center space-x-3 text-[10px] text-slate-500 font-mono pl-4 border-l border-[#ccfbf1] ml-4">
             <div className="flex items-center gap-1.5">
               <span>Sync:</span>
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2dd4bf] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#14b8a6]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9488] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0d9488]"></span>
               </span>
-              <span className="text-[#2dd4bf] font-bold uppercase">KKM-ONLINE</span>
+              <span className="text-[#0d9488] font-bold uppercase">KKM-ONLINE</span>
             </div>
 
             <button
               type="button"
               onClick={handleManualSync}
-              className="p-1 hover:bg-[#134e4a] text-[#2dd4bf] rounded-none transition-colors border border-[#14b8a6]/30"
+              className="p-1 hover:bg-[#e0f5f2] text-[#0d9488] rounded-none transition-colors border border-[#b2f5ea]"
               title="Force Refresh Data Sync"
             >
-              <RefreshCw className={`w-3 h-3 ${isSyncRefreshing ? 'animate-spin text-[#14b8a6]' : ''}`} />
+              <RefreshCw className={`w-3 h-3 ${isSyncRefreshing ? 'animate-spin text-[#0d9488]' : ''}`} />
             </button>
 
             <div>
-              <span>ID: <strong className="text-white font-mono">MY-APC-KLG-20</strong></span>
+              <span>ID: <strong className="text-slate-800 font-mono">MY-APC-KLG-20</strong></span>
             </div>
           </div>
 
