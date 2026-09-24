@@ -427,24 +427,101 @@ export default function ClinicLandingPage({
               </button>
             </div>
 
-            {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 max-w-4xl mx-auto">
-              <div className="ice-mint-card p-2.5 text-center">
-                <span className="block text-xl font-black font-mono text-[#0d9488]">24/7</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Emergency Suite</span>
+            {/* Quick Metrics Bar (Redesigned Executive Sharp Cards) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4 max-w-5xl mx-auto">
+              
+              {/* Card 1: 24/7 Emergency Suite */}
+              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-[#0d9488] p-4 text-left shadow-2xs hover:shadow-md hover:border-[#0d9488] transition-all group relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="w-8 h-8 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] group-hover:bg-[#0d9488] group-hover:text-white transition-colors">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <span className="text-[9px] font-extrabold text-[#0d9488] bg-[#e6f4f1] px-2 py-0.5 border border-[#ccfbf1] uppercase tracking-wider">
+                    24/7 ACTIVE
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-[#0d9488] transition-colors">
+                    24/7
+                  </span>
+                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
+                    Emergency Suite
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
+                    Trauma &amp; Outpatient Care
+                  </span>
+                </div>
               </div>
-              <div className="ice-mint-card p-2.5 text-center">
-                <span className="block text-xl font-black font-mono text-[#0284c7]">11m</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Avg Wait Time</span>
+
+              {/* Card 2: Avg Wait Time */}
+              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-[#0284c7] p-4 text-left shadow-2xs hover:shadow-md hover:border-[#0284c7] transition-all group relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="w-8 h-8 rounded-none bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] group-hover:bg-[#0284c7] group-hover:text-white transition-colors">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <span className="text-[9px] font-extrabold text-sky-800 bg-sky-100 px-2 py-0.5 border border-sky-200 uppercase tracking-wider">
+                    ⚡ FAST QUEUE
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-[#0284c7] transition-colors">
+                    11m
+                  </span>
+                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
+                    Avg Wait Time
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
+                    Live Token Queue Velocity
+                  </span>
+                </div>
               </div>
-              <div className="ice-mint-card p-2.5 text-center">
-                <span className="block text-xl font-black font-mono text-emerald-600">150+</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Corporate Panels</span>
+
+              {/* Card 3: Corporate Panels */}
+              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-emerald-600 p-4 text-left shadow-2xs hover:shadow-md hover:border-emerald-600 transition-all group relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="w-8 h-8 rounded-none bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <span className="text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-200 uppercase tracking-wider">
+                    💳 CASHLESS
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-emerald-600 transition-colors">
+                    150+
+                  </span>
+                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
+                    Corporate Panels
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
+                    PMCare, MiCare &amp; TPAs
+                  </span>
+                </div>
               </div>
-              <div className="ice-mint-card p-2.5 text-center">
-                <span className="block text-xl font-black font-mono text-amber-600">99.4%</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Patient Rating</span>
+
+              {/* Card 4: Patient Rating */}
+              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-amber-500 p-4 text-left shadow-2xs hover:shadow-md hover:border-amber-500 transition-all group relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="w-8 h-8 rounded-none bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                    <Star className="w-4 h-4 fill-amber-400 group-hover:fill-white" />
+                  </div>
+                  <span className="text-[9px] font-extrabold text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-200 uppercase tracking-wider">
+                    ★ 4.95 / 5.0
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-amber-600 transition-colors">
+                    99.4%
+                  </span>
+                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
+                    Patient Rating
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
+                    Verified Patient Reviews
+                  </span>
+                </div>
               </div>
+
             </div>
 
           </div>

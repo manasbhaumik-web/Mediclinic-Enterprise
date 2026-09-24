@@ -18,15 +18,15 @@ body {
   }
 
   .ice-mint-card {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-[0_4px_20px_rgba(13,148,136,0.06)] rounded-none overflow-hidden transition-all duration-300;
+    @apply bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-2 border-t-[#0d9488] shadow-[0_4px_20px_rgba(13,148,136,0.06)] rounded-none overflow-hidden transition-all duration-300;
   }
 
   .ice-mint-card-interactive {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-xs rounded-none transition-all duration-300 hover:border-[#0d9488] hover:shadow-md hover:-translate-y-1;
+    @apply bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-2 border-t-[#0d9488] shadow-xs rounded-none transition-all duration-300 hover:border-[#0d9488] hover:shadow-md hover:-translate-y-1;
   }
 
   .ice-mint-panel {
-    @apply bg-[#f0fdfa] border border-[#ccfbf1] shadow-lg rounded-none;
+    @apply bg-gradient-to-b from-[#f0fdfa] to-[#e6f4f1] border border-[#ccfbf1] shadow-lg rounded-none;
   }
 
   .mint-badge {
