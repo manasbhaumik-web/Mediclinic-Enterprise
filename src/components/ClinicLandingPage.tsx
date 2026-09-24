@@ -427,90 +427,24 @@ export default function ClinicLandingPage({
               </button>
             </div>
 
-            {/* Quick Metrics Bar (Minimalist Micro-Badge Layout) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 max-w-4xl mx-auto">
-              
-              {/* Card 1: 24/7 Emergency Suite */}
-              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-[#0d9488] transition-all relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                    EMERGENCY SUITE
-                  </span>
-                  <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0d9488]"></span>
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
-                    24/7
-                  </span>
-                  <span className="text-[10px] font-bold text-[#0d9488] bg-[#e6f4f1] px-1.5 py-0.5 border border-[#ccfbf1]">
-                    OPEN
-                  </span>
-                </div>
+            {/* Quick Metrics Bar */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 max-w-4xl mx-auto">
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+                <span className="block text-xl font-black font-mono text-[#0d9488]">24/7</span>
+                <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Emergency Suite</span>
               </div>
-
-              {/* Card 2: Avg Wait Time */}
-              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-[#0284c7] transition-all relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                    AVG WAIT TIME
-                  </span>
-                  <span className="flex h-2 w-2 relative">
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0284c7]"></span>
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
-                    11m
-                  </span>
-                  <span className="text-[10px] font-bold text-[#0284c7] bg-sky-50 px-1.5 py-0.5 border border-sky-200">
-                    FAST
-                  </span>
-                </div>
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+                <span className="block text-xl font-black font-mono text-[#0284c7]">11m</span>
+                <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Avg Wait Time</span>
               </div>
-
-              {/* Card 3: Corporate Panels */}
-              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-emerald-600 transition-all relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                    CORPORATE PANELS
-                  </span>
-                  <span className="flex h-2 w-2 relative">
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
-                    150+
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200">
-                    ACTIVE
-                  </span>
-                </div>
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+                <span className="block text-xl font-black font-mono text-emerald-600">150+</span>
+                <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Corporate Panels</span>
               </div>
-
-              {/* Card 4: Patient Rating */}
-              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-amber-500 transition-all relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                    PATIENT RATING
-                  </span>
-                  <span className="flex h-2 w-2 relative">
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
-                    99.4%
-                  </span>
-                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 border border-amber-200">
-                    ★ 4.95
-                  </span>
-                </div>
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+                <span className="block text-xl font-black font-mono text-amber-600">99.4%</span>
+                <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Patient Rating</span>
               </div>
-
             </div>
 
           </div>
