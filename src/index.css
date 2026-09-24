@@ -9,12 +9,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f7fdfd;
-  color: #0f172a;
+  color: #0f3c4c;
 }
 
 @layer utilities {
   .ice-mint-header {
-    @apply bg-[#f0fdfa]/95 backdrop-blur-md border-b border-[#ccfbf1] shadow-xs text-slate-900;
+    @apply bg-[#f0fdfa]/95 backdrop-blur-md border-b border-[#ccfbf1] shadow-xs text-[#0f3c4c];
   }
 
   .ice-mint-card {

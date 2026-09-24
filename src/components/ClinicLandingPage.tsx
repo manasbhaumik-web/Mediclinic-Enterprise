@@ -198,7 +198,7 @@ export default function ClinicLandingPage({
     : testimonials.filter(t => t.category === reviewCategory);
 
   return (
-    <div className="min-h-screen bg-[#f7fdfd] text-slate-900 font-sans selection:bg-[#0d9488] selection:text-white relative">
+    <div className="min-h-screen bg-[#f7fdfd] text-[#0f3c4c] font-sans selection:bg-[#0d9488] selection:text-white relative">
       
       {/* ========================================================================= */}
       {/* 0. STICKY TOP REAL-TIME TICKER & PULSE BANNER                             */}
@@ -238,7 +238,7 @@ export default function ClinicLandingPage({
             <Building2 className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-base font-black tracking-tight text-slate-900 block leading-none">
+            <span className="text-base font-black tracking-tight text-[#0f3c4c] block leading-none">
               MEDICLINIC <span className="text-[#0d9488]">ENTERPRISE</span>
             </span>
             <span className="text-[10px] text-slate-500 font-medium tracking-wide">
@@ -300,7 +300,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-slate-900 cursor-pointer"
+            className="md:hidden p-2 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-[#0f3c4c] cursor-pointer"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -397,7 +397,7 @@ export default function ClinicLandingPage({
               <span>KKM Licensed &amp; MMC Accredited 24/7 Medical Facility</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.12]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0f3c4c] tracking-tight leading-[1.12]">
               Authoritative <span className="text-[#0d9488]">Outpatient Care</span> &amp; 24/7 Smart Health
             </h1>
 
@@ -458,7 +458,7 @@ export default function ClinicLandingPage({
                   <Stethoscope className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-[11px] font-extrabold text-slate-900">Attending Physician</h4>
+                  <h4 className="text-[11px] font-extrabold text-[#0f3c4c]">Attending Physician</h4>
                   <span className="text-[10px] text-[#0d9488] font-semibold block">Dr. Sarah Jenkins (Suite 101)</span>
                 </div>
               </div>
@@ -468,7 +468,7 @@ export default function ClinicLandingPage({
                   <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-[11px] font-extrabold text-slate-900">Waiting Room Queue</h4>
+                  <h4 className="text-[11px] font-extrabold text-[#0f3c4c]">Waiting Room Queue</h4>
                   <span className="text-[10px] text-emerald-700 font-mono font-bold block">{doctorQueueLength} Patients Queued</span>
                 </div>
               </div>
@@ -478,7 +478,7 @@ export default function ClinicLandingPage({
                   <Pill className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-[11px] font-extrabold text-slate-900">Dispensary Stock</h4>
+                  <h4 className="text-[11px] font-extrabold text-[#0f3c4c]">Dispensary Stock</h4>
                   <span className="text-[10px] text-[#0d9488] font-bold block">On-Site Stock Ready</span>
                 </div>
               </div>
@@ -508,7 +508,7 @@ export default function ClinicLandingPage({
             <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
               Smart Healthcare Platform
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900">Enterprise Medical System Showcase</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Enterprise Medical System Showcase</h2>
             <p className="text-slate-600 text-xs sm:text-sm">
               Explore how integrated EMR, biometric identity, automated panel billing, and pharmacy compounding streamline outpatient operations.
             </p>
@@ -522,7 +522,7 @@ export default function ClinicLandingPage({
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'emr'
                   ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-[#e6f4f1]'
+                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
               }`}
             >
               <BarChart3 className="w-4 h-4" />
@@ -535,7 +535,7 @@ export default function ClinicLandingPage({
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'mykad'
                   ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-[#e6f4f1]'
+                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
               }`}
             >
               <ShieldCheck className="w-4 h-4" />
@@ -548,7 +548,7 @@ export default function ClinicLandingPage({
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'tpa'
                   ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-[#e6f4f1]'
+                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
               }`}
             >
               <Building2 className="w-4 h-4" />
@@ -561,7 +561,7 @@ export default function ClinicLandingPage({
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeFeatureTab === 'dispensary'
                   ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-[#e6f4f1]'
+                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
               }`}
             >
               <Pill className="w-4 h-4" />
@@ -577,7 +577,7 @@ export default function ClinicLandingPage({
                   <div className="inline-flex items-center gap-1.5 text-[#0d9488] text-xs font-bold uppercase tracking-wider">
                     <Activity className="w-4 h-4" /> Real-Time Telemetry Feed
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900">Live Clinical EMR &amp; Queue Analytics</h3>
+                  <h3 className="text-2xl font-black text-[#0f3c4c]">Live Clinical EMR &amp; Queue Analytics</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Instantly monitor patient flow velocity, consultation room status, vital signs telemetry, and ICD-10 diagnostic trends with zero delay.
                   </p>
@@ -598,7 +598,7 @@ export default function ClinicLandingPage({
 
                 <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-4 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3 font-sans">
-                    <span className="font-black text-slate-900 text-xs">EMR Telemetry Live Widget</span>
+                    <span className="font-black text-[#0f3c4c] text-xs">EMR Telemetry Live Widget</span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">ONLINE</span>
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between items-center">
@@ -623,7 +623,7 @@ export default function ClinicLandingPage({
                   <div className="inline-flex items-center gap-1.5 text-[#0d9488] text-xs font-bold uppercase tracking-wider">
                     <ShieldCheck className="w-4 h-4" /> Biometric Authentication
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900">Encrypted MyKad Scanner Verification</h3>
+                  <h3 className="text-2xl font-black text-[#0f3c4c]">Encrypted MyKad Scanner Verification</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Eliminate manual entry errors. Placed on our biometric reader, the MyKad chip populates official name, IC number, address, and panel eligibility automatically.
                   </p>
@@ -644,7 +644,7 @@ export default function ClinicLandingPage({
 
                 <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-4">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
-                    <span className="font-black text-slate-900 text-xs flex items-center gap-1.5">
+                    <span className="font-black text-[#0f3c4c] text-xs flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-[#0d9488]" /> Biometric MyKad Pass
                     </span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
@@ -671,14 +671,14 @@ export default function ClinicLandingPage({
                         AF
                       </div>
                       <div>
-                        <div className="text-xs font-black text-slate-900">Ahmad Firdaus Bin Ismail</div>
+                        <div className="text-xs font-black text-[#0f3c4c]">Ahmad Firdaus Bin Ismail</div>
                         <div className="text-[11px] font-mono text-[#0d9488] font-bold">890214-10-5421</div>
                         <div className="text-[10px] text-[#0d9488] font-medium">Panel: Petronas Corporate Health</div>
                       </div>
                     </div>
 
                     <div className="pt-2 border-t border-[#ccfbf1] flex items-center justify-between text-[10px] text-slate-600">
-                      <span>Token ID: <strong className="font-mono text-slate-900">#MK-8902</strong></span>
+                      <span>Token ID: <strong className="font-mono text-[#0f3c4c]">#MK-8902</strong></span>
                       <span className="text-emerald-700 font-extrabold bg-emerald-100 px-2 py-0.5 rounded">E-GL AUTHORIZED</span>
                     </div>
                   </div>
@@ -692,7 +692,7 @@ export default function ClinicLandingPage({
                   <div className="inline-flex items-center gap-1.5 text-[#0d9488] text-xs font-bold uppercase tracking-wider">
                     <Building2 className="w-4 h-4" /> Corporate TPA Integration
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900">Instant Cashless e-Guarantee Letters</h3>
+                  <h3 className="text-2xl font-black text-[#0f3c4c]">Instant Cashless e-Guarantee Letters</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Say goodbye to upfront payments. Our system connects directly with PMCare, MiCare, HealthMetrics, and RedAlert API servers for instant approval.
                   </p>
@@ -712,12 +712,12 @@ export default function ClinicLandingPage({
 
                 <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-3 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3 font-sans">
-                    <span className="font-black text-slate-900 text-xs">TPA Panel e-GL Status</span>
+                    <span className="font-black text-[#0f3c4c] text-xs">TPA Panel e-GL Status</span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">APPROVED</span>
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
                     <span>Panel:</span>
-                    <span className="font-bold text-slate-900">PMCare Corporate</span>
+                    <span className="font-bold text-[#0f3c4c]">PMCare Corporate</span>
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
                     <span>e-GL Ref:</span>
@@ -737,7 +737,7 @@ export default function ClinicLandingPage({
                   <div className="inline-flex items-center gap-1.5 text-[#0d9488] text-xs font-bold uppercase tracking-wider">
                     <Pill className="w-4 h-4" /> Licensed Compounding
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900">On-Site Pharmacy &amp; Barcode Dispensing</h3>
+                  <h3 className="text-2xl font-black text-[#0f3c4c]">On-Site Pharmacy &amp; Barcode Dispensing</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Equipped with automated prescription fulfillment, drug allergy cross-referencing, and barcode verification for 100% medication safety.
                   </p>
@@ -757,16 +757,16 @@ export default function ClinicLandingPage({
 
                 <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-md space-y-3 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3 font-sans">
-                    <span className="font-black text-slate-900 text-xs">Dispensary Fulfillment</span>
+                    <span className="font-black text-[#0f3c4c] text-xs">Dispensary Fulfillment</span>
                     <span className="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">DISPENSED</span>
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
                     <span>Rx 1:</span>
-                    <span className="font-bold text-slate-900">Paracetamol 500mg (20 Tab)</span>
+                    <span className="font-bold text-[#0f3c4c]">Paracetamol 500mg (20 Tab)</span>
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
                     <span>Rx 2:</span>
-                    <span className="font-bold text-slate-900">Amoxicillin 500mg (15 Cap)</span>
+                    <span className="font-bold text-[#0f3c4c]">Amoxicillin 500mg (15 Cap)</span>
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-xl border border-[#ccfbf1] flex justify-between">
                     <span>Safety Check:</span>
@@ -790,7 +790,7 @@ export default function ClinicLandingPage({
             <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
               Comprehensive Outpatient Care
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900">Our Medical Specialties &amp; Services</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Our Medical Specialties &amp; Services</h2>
             <p className="text-slate-600 text-xs sm:text-sm">
               Delivering expert general practice, pediatrics, corporate health screenings, and round-the-clock minor procedures.
             </p>
@@ -802,7 +802,7 @@ export default function ClinicLandingPage({
               <div className="w-12 h-12 rounded-2xl bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] group-hover:scale-110 transition-transform shadow-2xs">
                 <Stethoscope className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-[#0d9488] transition-colors">General Outpatient Consultation</h3>
+              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">General Outpatient Consultation</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Comprehensive diagnosis and treatment for acute fever, influenza, hypertension, diabetes, and gastritis.
               </p>
@@ -812,7 +812,7 @@ export default function ClinicLandingPage({
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-2xs">
                 <Pill className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">Pharmacy &amp; Compounding</h3>
+              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-emerald-700 transition-colors">Pharmacy &amp; Compounding</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Licensed dispensary supplying KKM-approved pharmaceuticals, antibiotics, and pediatric syrups.
               </p>
@@ -822,7 +822,7 @@ export default function ClinicLandingPage({
               <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] group-hover:scale-110 transition-transform shadow-2xs">
                 <Heart className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-[#0284c7] transition-colors">Pediatrics &amp; Immunization</h3>
+              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-[#0284c7] transition-colors">Pediatrics &amp; Immunization</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Gentle healthcare for infants and young children, developmental tracking, and mandatory child vaccination.
               </p>
@@ -832,7 +832,7 @@ export default function ClinicLandingPage({
               <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform shadow-2xs">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">Corporate Panel &amp; TPA Billing</h3>
+              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-indigo-700 transition-colors">Corporate Panel &amp; TPA Billing</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Cashless medical coverage for corporate employees under PMCare, MiCare, HealthMetrics, Petronas, and Maybank.
               </p>
@@ -842,7 +842,7 @@ export default function ClinicLandingPage({
               <div className="w-12 h-12 rounded-2xl bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] group-hover:scale-110 transition-transform shadow-2xs">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-[#0d9488] transition-colors">Executive Health Screening</h3>
+              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">Executive Health Screening</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Full-body blood profiling, ECG cardiac screening, lipid panels, and kidney/liver testing with digital reports.
               </p>
@@ -852,7 +852,7 @@ export default function ClinicLandingPage({
               <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform shadow-2xs">
                 <Clock className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-rose-700 transition-colors">24/7 Emergency &amp; Surgery</h3>
+              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-rose-700 transition-colors">24/7 Emergency &amp; Surgery</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Round-the-clock wound suturing, dressing, abscess drainage, asthma nebulization, and tetanus prophylaxis.
               </p>
@@ -875,7 +875,7 @@ export default function ClinicLandingPage({
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="space-y-1 text-center md:text-left">
                   <span className="text-xs font-black uppercase tracking-widest text-[#0d9488]">Cashless Corporate Medical Coverage</span>
-                  <h3 className="text-xl font-extrabold text-slate-900">Recognized TPA &amp; Insurance Panels</h3>
+                  <h3 className="text-xl font-extrabold text-[#0f3c4c]">Recognized TPA &amp; Insurance Panels</h3>
                 </div>
 
                 {/* Panel Search Input */}
@@ -886,7 +886,7 @@ export default function ClinicLandingPage({
                     placeholder="Search panel..."
                     value={panelSearch}
                     onChange={e => setPanelSearch(e.target.value)}
-                    className="w-full pl-9.5 pr-3.5 py-2.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0d9488]"
+                    className="w-full pl-9.5 pr-3.5 py-2.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]"
                   />
                 </div>
               </div>
@@ -916,7 +916,7 @@ export default function ClinicLandingPage({
             {/* Right Col: Interactive Panel Cashless Estimator Card */}
             <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 space-y-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
-                <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <span className="text-xs font-black text-[#0f3c4c] flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-[#0d9488]" /> Cashless Benefit Check
                 </span>
                 <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
@@ -930,7 +930,7 @@ export default function ClinicLandingPage({
                   <select
                     value={selectedPanelCheck}
                     onChange={e => setSelectedPanelCheck(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-[#e0f5f2] border border-[#b2f5ea] text-xs font-bold text-slate-900 focus:outline-none"
+                    className="w-full p-2.5 rounded-xl bg-[#e0f5f2] border border-[#b2f5ea] text-xs font-bold text-[#0f3c4c] focus:outline-none"
                   >
                     {tpaPanels.map((p, i) => (
                       <option key={i} value={p}>{p}</option>
@@ -945,7 +945,7 @@ export default function ClinicLandingPage({
                     value={panelEmpId}
                     onChange={e => setPanelEmpId(e.target.value)}
                     placeholder="Enter Staff ID..."
-                    className="w-full p-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-xs font-mono font-bold text-slate-900 focus:outline-none"
+                    className="w-full p-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-xs font-mono font-bold text-[#0f3c4c] focus:outline-none"
                   />
                 </div>
 
@@ -960,7 +960,7 @@ export default function ClinicLandingPage({
                   </div>
                   <div className="flex justify-between items-center text-[11px]">
                     <span className="text-slate-600">Co-Pay Required:</span>
-                    <span className="font-extrabold text-slate-900 font-mono">RM 0.00</span>
+                    <span className="font-extrabold text-[#0f3c4c] font-mono">RM 0.00</span>
                   </div>
                 </div>
 
@@ -988,7 +988,7 @@ export default function ClinicLandingPage({
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-center md:text-left">
               <span className="text-xs font-black uppercase tracking-widest text-[#0d9488]">Expert Clinical Staff</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900">Resident Medical Doctors &amp; Specialists</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0f3c4c]">Resident Medical Doctors &amp; Specialists</h2>
             </div>
 
             {/* Department Filter Pills */}
@@ -1001,7 +1001,7 @@ export default function ClinicLandingPage({
                   className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                     doctorSpecialty === dept 
                       ? 'bg-[#0d9488] text-white shadow-2xs' 
-                      : 'text-slate-700 hover:text-slate-900'
+                      : 'text-slate-700 hover:text-[#0f3c4c]'
                   }`}
                 >
                   {dept}
@@ -1036,14 +1036,14 @@ export default function ClinicLandingPage({
                     <Star className="w-3.5 h-3.5 fill-amber-400" />
                     <span>{doc.rating} ({doc.experience})</span>
                   </div>
-                  <h3 className="text-base font-extrabold text-slate-900">{doc.name}</h3>
+                  <h3 className="text-base font-extrabold text-[#0f3c4c]">{doc.name}</h3>
                   <span className="text-xs text-[#0d9488] font-semibold block">{doc.title}</span>
                   <span className="text-[11px] text-slate-500 block pt-0.5">{doc.role}</span>
                 </div>
                 
                 {/* Live Slot & Queue Status Box */}
                 <div className="p-2.5 bg-[#e0f5f2] border border-[#b2f5ea] rounded-xl flex items-center justify-between text-[10px] font-bold text-slate-700">
-                  <span className="flex items-center gap-1 text-slate-900">
+                  <span className="flex items-center gap-1 text-[#0f3c4c]">
                     <Clock className="w-3 h-3 text-[#0d9488]" />
                     {doc.nextSlot}
                   </span>
@@ -1078,7 +1078,7 @@ export default function ClinicLandingPage({
             <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
               Verified Patient Experiences
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900">Trusted by Over 45,000 Outpatients</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Trusted by Over 45,000 Outpatients</h2>
             <p className="text-slate-600 text-xs sm:text-sm">
               Read authentic feedback from individuals, families, and corporate HR managers who rely on our 24/7 medical services.
             </p>
@@ -1094,7 +1094,7 @@ export default function ClinicLandingPage({
                 className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer border ${
                   reviewCategory === cat
                     ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-2xs'
-                    : 'bg-[#f7fdfd] border-[#ccfbf1] text-slate-700 hover:text-slate-900'
+                    : 'bg-[#f7fdfd] border-[#ccfbf1] text-slate-700 hover:text-[#0f3c4c]'
                 }`}
               >
                 {cat}
@@ -1123,7 +1123,7 @@ export default function ClinicLandingPage({
 
                 <div className="pt-4 border-t border-[#ccfbf1] flex items-center justify-between">
                   <div>
-                    <div className="font-extrabold text-xs text-slate-900">{t.name}</div>
+                    <div className="font-extrabold text-xs text-[#0f3c4c]">{t.name}</div>
                     <div className="text-[10px] text-[#0d9488] font-medium">{t.role}</div>
                   </div>
                   <span className="text-[10px] font-mono text-slate-400 font-semibold">{t.date}</span>
@@ -1145,7 +1145,7 @@ export default function ClinicLandingPage({
             <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
               Patient Help &amp; Information
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900">Frequently Asked Questions</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Frequently Asked Questions</h2>
             <p className="text-slate-600 text-xs sm:text-sm">
               Quick answers regarding insurance coverage, walk-in procedures, MyKad check-ins, and emergency services.
             </p>
@@ -1161,7 +1161,7 @@ export default function ClinicLandingPage({
                     onClick={() => toggleFaq(idx)}
                     className="w-full p-5 text-left flex items-center justify-between gap-4 cursor-pointer focus:outline-none"
                   >
-                    <span className="text-sm font-extrabold text-slate-900 flex items-center gap-2.5">
+                    <span className="text-sm font-extrabold text-[#0f3c4c] flex items-center gap-2.5">
                       <HelpCircle className="w-4 h-4 text-[#0d9488] shrink-0" />
                       {faq.q}
                     </span>
@@ -1191,7 +1191,7 @@ export default function ClinicLandingPage({
             <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] flex items-center justify-center md:justify-start gap-1.5">
               <BarChart3 className="w-4 h-4" /> Real-Time Operations Intelligence
             </span>
-            <h2 className="text-2xl font-black text-slate-900">Public Operations &amp; Queue Telemetry Dashboard</h2>
+            <h2 className="text-2xl font-black text-[#0f3c4c]">Public Operations &amp; Queue Telemetry Dashboard</h2>
             <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
               Inspect hourly patient traffic, diagnostic distributions, TPA claim metrics, and live waiting queue counts before visiting.
             </p>
@@ -1295,7 +1295,7 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {isBookingOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none max-w-lg w-full p-6 shadow-2xl space-y-5 relative text-slate-900">
+          <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none max-w-lg w-full p-6 shadow-2xl space-y-5 relative text-[#0f3c4c]">
             
             <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-4">
               <div className="flex items-center gap-2.5">
@@ -1303,7 +1303,7 @@ export default function ClinicLandingPage({
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
+                  <h3 className="text-base font-extrabold text-[#0f3c4c]">
                     Book Doctor Appointment
                   </h3>
                   {selectedDoctor && (
@@ -1317,7 +1317,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={() => setIsBookingOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#e6f4f1] text-slate-500 hover:text-slate-900 flex items-center justify-center text-sm cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[#e6f4f1] text-slate-500 hover:text-[#0f3c4c] flex items-center justify-center text-sm cursor-pointer"
               >
                 ✕
               </button>
@@ -1328,7 +1328,7 @@ export default function ClinicLandingPage({
                 <div className="w-16 h-16 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-600 mx-auto flex items-center justify-center shadow-md">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900">Appointment Reserved!</h4>
+                <h4 className="text-xl font-black text-[#0f3c4c]">Appointment Reserved!</h4>
                 <p className="text-xs text-slate-600 leading-relaxed max-w-xs mx-auto">
                   Thank you, <strong className="text-[#0d9488]">{bookingForm.fullName}</strong>. Your queue token reference is <strong className="text-mono font-bold text-amber-600">#APT-8902</strong>.
                 </p>
@@ -1357,7 +1357,7 @@ export default function ClinicLandingPage({
                   <input
                     type="text"
                     required
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-slate-900 focus:outline-none focus:border-[#0d9488]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                     placeholder="e.g. Ahmad Firdaus Bin Ismail"
                     value={bookingForm.fullName}
                     onChange={e => setBookingForm({ ...bookingForm, fullName: e.target.value })}
@@ -1370,7 +1370,7 @@ export default function ClinicLandingPage({
                     <input
                       type="text"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-slate-900 font-mono focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] font-mono focus:outline-none focus:border-[#0d9488]"
                       placeholder="YYMMDD-XX-XXXX"
                       value={bookingForm.icNumber}
                       onChange={e => setBookingForm({ ...bookingForm, icNumber: e.target.value })}
@@ -1381,7 +1381,7 @@ export default function ClinicLandingPage({
                     <input
                       type="text"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-slate-900 focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                       placeholder="+60 12-345 6789"
                       value={bookingForm.phone}
                       onChange={e => setBookingForm({ ...bookingForm, phone: e.target.value })}
@@ -1392,7 +1392,7 @@ export default function ClinicLandingPage({
                 <div>
                   <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Medical Specialty *</label>
                   <select
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-slate-900 focus:outline-none focus:border-[#0d9488]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                     value={bookingForm.service}
                     onChange={e => setBookingForm({ ...bookingForm, service: e.target.value })}
                   >
@@ -1408,7 +1408,7 @@ export default function ClinicLandingPage({
                     <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Preferred Date</label>
                     <input
                       type="date"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-slate-900 focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                       value={bookingForm.preferredDate}
                       onChange={e => setBookingForm({ ...bookingForm, preferredDate: e.target.value })}
                     />
@@ -1416,7 +1416,7 @@ export default function ClinicLandingPage({
                   <div>
                     <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Preferred Time</label>
                     <select
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-slate-900 focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
                       value={bookingForm.preferredTime}
                       onChange={e => setBookingForm({ ...bookingForm, preferredTime: e.target.value })}
                     >
