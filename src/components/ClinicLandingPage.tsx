@@ -781,81 +781,274 @@ export default function ClinicLandingPage({
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. MEDICAL SERVICES GRID                                                  */}
+      {/* 4. REDESIGNED MEDICAL SERVICES BENTO GRID                                 */}
       {/* ========================================================================= */}
       <section id="services" className="py-20 px-4 lg:px-8 bg-[#f7fdfd] border-t border-[#ccfbf1]">
-        <div className="max-w-6xl mx-auto space-y-12">
+        <div className="max-w-6xl mx-auto space-y-10">
           
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
-              Comprehensive Outpatient Care
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c]">Our Medical Specialties &amp; Services</h2>
-            <p className="text-slate-600 text-xs sm:text-sm">
-              Delivering expert general practice, pediatrics, corporate health screenings, and round-the-clock minor procedures.
-            </p>
+          {/* Header Section with Live Status Badge */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+            <div className="space-y-3 max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
+                <Sparkles className="w-3.5 h-3.5 text-[#0d9488]" />
+                <span>Comprehensive Outpatient Suite</span>
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c] tracking-tight">
+                Our Medical Specialties &amp; Services
+              </h2>
+              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                Delivering expert general practice, pediatric care, corporate health screenings, and round-the-clock minor emergency procedures.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-[11px] font-extrabold text-[#0d9488] bg-[#e0f5f2] px-3 py-1.5 rounded-none border border-[#b2f5ea] flex items-center gap-2 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>All 6 Clinical Suites Active</span>
+              </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Asymmetric Bento Grid Container */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div className="ice-mint-card-interactive p-6 space-y-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] group-hover:scale-110 transition-transform shadow-2xs">
-                <Stethoscope className="w-6 h-6" />
+            {/* FEATURED HERO CARD (Spans 7 Cols on Desktop) */}
+            <div className="lg:col-span-7 bg-gradient-to-br from-[#e0f5f2] via-[#f0fdfa] to-[#f7fdfd] border border-[#b2f5ea] rounded-none p-7 shadow-xs space-y-6 relative overflow-hidden group hover:border-[#0d9488] transition-all">
+              
+              {/* Subtle Ambient Background Watermark */}
+              <div className="absolute top-0 right-0 w-60 h-60 bg-[#0d9488]/5 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-none bg-[#0d9488] text-white flex items-center justify-center shadow-md shadow-teal-500/20">
+                    <Stethoscope className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#0d9488] block">Primary Clinical Suite</span>
+                    <h3 className="text-xl font-black text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">
+                      General Outpatient &amp; Acute Care Suite
+                    </h3>
+                  </div>
+                </div>
+
+                <span className="hidden sm:inline-flex text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none border border-emerald-200">
+                  🟢 Suite 101 Active
+                </span>
               </div>
-              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">General Outpatient Consultation</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Comprehensive diagnosis and treatment for acute fever, influenza, hypertension, diabetes, and gastritis.
+
+              <p className="text-xs text-slate-700 leading-relaxed font-normal relative z-10">
+                Comprehensive diagnostic consultations, acute illness management, chronic disease monitoring, and minor outpatient surgical procedures delivered by senior MMC-registered physicians.
               </p>
+
+              {/* Key Clinical Checklist */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 relative z-10 text-xs font-semibold text-slate-800">
+                <div className="flex items-center gap-2 bg-[#f7fdfd]/80 p-2.5 rounded-none border border-[#ccfbf1]">
+                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
+                  <span>Acute Fever &amp; Viral Influenza</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#f7fdfd]/80 p-2.5 rounded-none border border-[#ccfbf1]">
+                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
+                  <span>Hypertension &amp; Diabetes EMR Sync</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#f7fdfd]/80 p-2.5 rounded-none border border-[#ccfbf1]">
+                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
+                  <span>24/7 Laceration Suturing &amp; Dressing</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#f7fdfd]/80 p-2.5 rounded-none border border-[#ccfbf1]">
+                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
+                  <span>Asthma Nebulization Suite</span>
+                </div>
+              </div>
+
+              {/* Action Footer */}
+              <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-[#b2f5ea] relative z-10">
+                <button
+                  type="button"
+                  onClick={() => setIsBookingOpen(true)}
+                  className="px-5 py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Book Outpatient Consultation</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onOpenTelemetry}
+                  className="text-xs text-[#0d9488] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Inspect Live Queue Telemetry</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+
             </div>
 
-            <div className="ice-mint-card-interactive p-6 space-y-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-2xs">
-                <Pill className="w-6 h-6" />
+            {/* CARD 2: PHARMACY & COMPOUNDING (Spans 5 Cols) */}
+            <div className="lg:col-span-5 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-none bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs group-hover:scale-105 transition-transform">
+                    <Pill className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-none border border-emerald-200">
+                    FIFO Barcode Verified
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-lg font-black text-[#0f3c4c] group-hover:text-emerald-700 transition-colors">
+                    Pharmacy &amp; Compounding
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Licensed dispensary supplying KKM-approved pharmaceuticals, automated antibiotic fulfillment, and custom pediatric formulations.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">KKM Reg #8902</span>
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">Pediatric Syrups</span>
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">Allergy Safety</span>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-emerald-700 transition-colors">Pharmacy &amp; Compounding</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Licensed dispensary supplying KKM-approved pharmaceuticals, antibiotics, and pediatric syrups.
-              </p>
+
+              <div className="pt-4 border-t border-[#ccfbf1] mt-4 flex items-center justify-between text-xs font-bold text-emerald-700">
+                <span>On-Site Dispensary Open</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
 
-            <div className="ice-mint-card-interactive p-6 space-y-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] group-hover:scale-110 transition-transform shadow-2xs">
-                <Heart className="w-6 h-6" />
+            {/* CARD 3: PEDIATRICS & IMMUNIZATION (Spans 4 Cols) */}
+            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0284c7] hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-none bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] shadow-2xs group-hover:scale-105 transition-transform">
+                    <Heart className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-none border border-sky-200">
+                    Child Friendly Suite
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-base font-black text-[#0f3c4c] group-hover:text-[#0284c7] transition-colors">
+                    Pediatrics &amp; Immunization
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Gentle healthcare for infants and children, growth tracking, and mandatory KKM childhood vaccination schedules.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">KKM Vaccines</span>
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">Growth Chart</span>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-[#0284c7] transition-colors">Pediatrics &amp; Immunization</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Gentle healthcare for infants and young children, developmental tracking, and mandatory child vaccination.
-              </p>
+
+              <div className="pt-4 border-t border-[#ccfbf1] mt-4 flex items-center justify-between text-xs font-bold text-[#0284c7]">
+                <span>Pediatric Vaccination Info</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
 
-            <div className="ice-mint-card-interactive p-6 space-y-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform shadow-2xs">
-                <ShieldCheck className="w-6 h-6" />
+            {/* CARD 4: CORPORATE PANEL & TPA BILLING (Spans 4 Cols) */}
+            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-indigo-600 hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-none bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-2xs group-hover:scale-105 transition-transform">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-none border border-indigo-200">
+                    150+ Corporate TPAs
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-base font-black text-[#0f3c4c] group-hover:text-indigo-700 transition-colors">
+                    Corporate Panel &amp; TPA Billing
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Cashless medical billing for PMCare, MiCare, HealthMetrics, Petronas, and Maybank staff with real-time e-GL dispatch.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">Instant e-GL</span>
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">Zero Upfront Cash</span>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-indigo-700 transition-colors">Corporate Panel &amp; TPA Billing</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Cashless medical coverage for corporate employees under PMCare, MiCare, HealthMetrics, Petronas, and Maybank.
-              </p>
+
+              <div className="pt-4 border-t border-[#ccfbf1] mt-4 flex items-center justify-between text-xs font-bold text-indigo-700">
+                <span>Check Panel Eligibility</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
 
-            <div className="ice-mint-card-interactive p-6 space-y-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] group-hover:scale-110 transition-transform shadow-2xs">
-                <Activity className="w-6 h-6" />
+            {/* CARD 5: EXECUTIVE HEALTH SCREENING (Spans 4 Cols) */}
+            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] shadow-2xs group-hover:scale-105 transition-transform">
+                    <Activity className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-none border border-teal-200">
+                    Full Lab Profile
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-base font-black text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">
+                    Executive Health Screening
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Full-body blood profiling, 12-lead ECG cardiac screening, lipid panels, and kidney/liver functionality testing with EMR reports.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">38 Parameters</span>
+                  <span className="text-[10px] font-bold text-slate-700 bg-[#e0f5f2] px-2 py-0.5 rounded-none border border-[#b2f5ea]">12-Lead ECG</span>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">Executive Health Screening</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Full-body blood profiling, ECG cardiac screening, lipid panels, and kidney/liver testing with digital reports.
-              </p>
+
+              <div className="pt-4 border-t border-[#ccfbf1] mt-4 flex items-center justify-between text-xs font-bold text-[#0d9488]">
+                <span>View Screening Packages</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
 
-            <div className="ice-mint-card-interactive p-6 space-y-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform shadow-2xs">
-                <Clock className="w-6 h-6" />
+            {/* CARD 6: 24/7 EMERGENCY & SURGERY (Spans Full Width 12 Cols Banner) */}
+            <div className="lg:col-span-12 bg-gradient-to-r from-rose-50/80 via-[#f7fdfd] to-[#e0f5f2]/60 border border-rose-200/80 rounded-none p-6 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 hover:border-rose-400 transition-all group">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-none bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/20">
+                  <Clock className="w-6 h-6 animate-pulse" />
+                </div>
+                <div className="space-y-1 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-2">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded-none border border-rose-200">
+                      24/7 Emergency Suite
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-none">
+                      Trauma Bed Ready
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-black text-[#0f3c4c]">
+                    24-Hour Emergency &amp; Minor Surgical Procedures
+                  </h3>
+                  <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                    Immediate care for acute wound suturing, burn dressing, abscess drainage, asthma nebulization, foreign body removal, and tetanus prophylaxis.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-[#0f3c4c] group-hover:text-rose-700 transition-colors">24/7 Emergency &amp; Surgery</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Round-the-clock wound suturing, dressing, abscess drainage, asthma nebulization, and tetanus prophylaxis.
-              </p>
+
+              <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
+                <a
+                  href="tel:+60355108899"
+                  className="w-full md:w-auto px-6 py-3 rounded-none bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>Call Emergency: +60 3-5510 8899</span>
+                </a>
+              </div>
             </div>
 
           </div>
