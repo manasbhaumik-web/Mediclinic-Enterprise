@@ -449,8 +449,8 @@ export default function ClinicLandingPage({
 
           </div>
 
-          {/* Docked Floating Ice Mint Telemetry Bar */}
-          <div className="ice-mint-panel p-3.5 shadow-md border border-[#ccfbf1]">
+          {/* Docked Floating Ice Mint Telemetry Bar with Ambient Glow */}
+          <div className="ice-mint-panel p-3.5 shadow-[0_0_25px_rgba(13,148,136,0.18)] border border-[#b2f5ea] ring-1 ring-[#0d9488]/20 transition-all">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
               
               <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#f7fdfd] border border-[#ccfbf1]">
@@ -814,6 +814,7 @@ export default function ClinicLandingPage({
             
             {/* FEATURED HERO CARD (Spans 7 Cols on Desktop) */}
             <div className="lg:col-span-7 bg-gradient-to-br from-[#e0f5f2] via-[#f0fdfa] to-[#f7fdfd] border border-[#b2f5ea] rounded-none p-7 shadow-xs space-y-6 relative overflow-hidden group hover:border-[#0d9488] transition-all">
+              <div className="h-1 bg-gradient-to-r from-[#0d9488] via-[#0284c7] to-[#0f766e] absolute top-0 left-0 right-0" />
               
               {/* Subtle Ambient Background Watermark */}
               <div className="absolute top-0 right-0 w-60 h-60 bg-[#0d9488]/5 rounded-full blur-2xl pointer-events-none" />
@@ -884,7 +885,8 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 2: PHARMACY & COMPOUNDING (Spans 5 Cols) */}
-            <div className="lg:col-span-5 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group">
+            <div className="lg:col-span-5 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-emerald-500 to-[#0d9488] absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs group-hover:scale-105 transition-transform">
@@ -918,7 +920,8 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 3: PEDIATRICS & IMMUNIZATION (Spans 4 Cols) */}
-            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0284c7] hover:shadow-md transition-all group">
+            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0284c7] hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-sky-400 to-[#0284c7] absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] shadow-2xs group-hover:scale-105 transition-transform">
@@ -951,7 +954,8 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 4: CORPORATE PANEL & TPA BILLING (Spans 4 Cols) */}
-            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-indigo-600 hover:shadow-md transition-all group">
+            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-indigo-600 hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-indigo-400 to-indigo-600 absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-2xs group-hover:scale-105 transition-transform">
@@ -984,7 +988,8 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 5: EXECUTIVE HEALTH SCREENING (Spans 4 Cols) */}
-            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group">
+            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-teal-400 to-[#0d9488] absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] shadow-2xs group-hover:scale-105 transition-transform">
@@ -1235,13 +1240,13 @@ export default function ClinicLandingPage({
                 </div>
                 
                 {/* Live Slot & Queue Status Box */}
-                <div className="p-2.5 bg-[#e0f5f2] border border-[#b2f5ea] rounded-xl flex items-center justify-between text-[10px] font-bold text-slate-700">
-                  <span className="flex items-center gap-1 text-[#0f3c4c]">
-                    <Clock className="w-3 h-3 text-[#0d9488]" />
-                    {doc.nextSlot}
+                <div className="p-3 bg-[#e0f5f2] border border-[#b2f5ea] rounded-none flex items-center justify-between text-[11px] font-bold text-slate-700 shadow-2xs">
+                  <span className="flex items-center gap-1.5 text-[#0f3c4c]">
+                    <Clock className="w-3.5 h-3.5 text-[#0d9488]" />
+                    <span>{doc.nextSlot}</span>
                   </span>
-                  <span className="font-mono text-[#0d9488]">
-                    {doc.queueCount} Queued
+                  <span className="font-mono text-[#0d9488] bg-white px-2 py-0.5 border border-[#ccfbf1] text-[10px]">
+                    ⏱️ {doc.queueCount} Ahead (Wait &lt; 8m)
                   </span>
                 </div>
 
