@@ -212,7 +212,7 @@ export default function App() {
     );
     if (appView === 'telemetry') return (
       <div className="min-h-screen bg-[#f7fdfd] flex flex-col font-sans selection:bg-[#0d9488] selection:text-white">
-        <div className="sticky top-0 z-50 bg-[#b2f5ea] backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between border-b border-[#0d9488]/40 shadow-xs">
+        <div className="sticky top-0 z-50 bg-[#e0f5f2]/95 backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between border-b border-[#b2f5ea] shadow-xs">
           <button
             type="button"
             onClick={() => setAppView('landing')}

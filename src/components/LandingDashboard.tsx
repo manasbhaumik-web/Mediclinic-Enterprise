@@ -132,7 +132,7 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 1. COMMAND-CENTER CONTROL BAR & PUBLIC PORTAL BANNER (10/10 HIERARCHY)     */}
       {/* ========================================================================= */}
-      <div className="bg-[#b2f5ea]/70 border border-[#0d9488]/30 rounded-none p-6 sm:p-7 space-y-5 shadow-xs border-l-4 border-l-[#0d9488]">
+      <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-none p-6 sm:p-7 space-y-5 shadow-xs border-l-4 border-l-[#0d9488]">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
