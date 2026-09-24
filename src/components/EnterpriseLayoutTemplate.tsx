@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, FileText, Pill, CreditCard, Mic
+  Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
+  FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
+  ChevronDown, LogOut
 } from 'lucide-react';
 
 interface EnterpriseLayoutTemplateProps {
@@ -40,34 +42,116 @@ export default function EnterpriseLayoutTemplate({
   cashierQueueLength,
   children
 }: EnterpriseLayoutTemplateProps) {
+  // Live Real-Time Clock
+  const [timeString, setTimeString] = useState<string>('');
+  const [isSyncRefreshing, setIsSyncRefreshing] = useState<boolean>(false);
+  const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
+  const [showClinicInfoTooltip, setShowClinicInfoTooltip] = useState<boolean>(false);
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      setTimeString(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' MYT');
+    };
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleManualSync = () => {
+    setIsSyncRefreshing(true);
+    setTimeout(() => setIsSyncRefreshing(false), 800);
+  };
+
+  const getUserInitials = (name: string) => {
+    if (!name) return 'EX';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-teal-600/20">
-      {/* GLOBAL HEADER BAR - DARK EMERALD SLATE PALETTE */}
-      <header className="bg-[#092e38] text-white px-6 py-3 flex items-center justify-between border-b border-[#0d9488]/40 shrink-0 shadow-md relative z-20 sticky top-0">
+      
+      {/* ========================================================================= */}
+      {/* GLOBAL TOP HEADER BAR (DARK EMERALD SLATE PALETTE & INTERACTIVE CONTROLS)   */}
+      {/* ========================================================================= */}
+      <header className="bg-[#092e38] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between border-b border-[#0d9488]/40 shrink-0 shadow-md relative z-30 sticky top-0">
 
-        {/* Clinician clinic logo titles */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-none overflow-hidden border border-[#14b8a6]/40 shadow-2xs shrink-0 bg-white flex items-center justify-center">
-            <img src="./logo_primary.jpg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-cover" />
+        {/* Left: Brand Identity & Interactive Clinic Tooltip */}
+        <div className="flex items-center gap-3 relative">
+          <div 
+            onMouseEnter={() => setShowClinicInfoTooltip(true)}
+            onMouseLeave={() => setShowClinicInfoTooltip(false)}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-9 h-9 rounded-none overflow-hidden border border-[#14b8a6]/40 shadow-2xs shrink-0 bg-white flex items-center justify-center group-hover:border-[#2dd4bf] transition-colors">
+              <img src="./logo_primary.jpg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h1 className="text-sm font-extrabold tracking-tight uppercase leading-none font-sans text-white group-hover:text-[#2dd4bf] transition-colors flex items-center gap-1.5">
+                <span>{t.clinicName || 'MEDICLINIC ENTERPRISE'}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-[#2dd4bf] opacity-70 group-hover:opacity-100 transition-opacity" />
+              </h1>
+              <span className="text-[10px] text-[#2dd4bf] font-mono tracking-wider font-semibold block mt-0.5">
+                Enterprise Clinical Suite v1.1.2
+              </span>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-extrabold tracking-tight uppercase leading-none font-sans text-white">
-              {t.clinicName || 'MEDICLINIC ENTERPRISE'}
-            </h1>
-            <span className="text-[10px] text-[#2dd4bf] font-mono tracking-wider font-semibold">Enterprise Clinical Suite v1.1.2</span>
+
+          {/* Interactive Clinic Information Popover Tooltip */}
+          {showClinicInfoTooltip && (
+            <div className="absolute top-12 left-0 z-50 bg-[#0f3c4c] border border-[#14b8a6]/50 p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn">
+              <div className="flex items-center justify-between border-b border-[#0d9488]/40 pb-2">
+                <span className="font-extrabold text-white uppercase flex items-center gap-1.5">
+                  <Building className="w-3.5 h-3.5 text-[#2dd4bf]" /> Shah Alam Main Branch
+                </span>
+                <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 font-mono text-[9px] font-bold uppercase rounded-none border border-emerald-500/30">
+                  Active 24/7
+                </span>
+              </div>
+              <div className="space-y-1 text-slate-300 font-mono text-[11px]">
+                <p>📍 Level 2, Menara Medical Suite</p>
+                <p>📋 KKM License: Reg #KKM-2026-SL-8902</p>
+                <p>📞 Emergency Hotline: +60 3-5510 8899</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Center: Interactive Quick Search Bar */}
+        <div className="hidden md:flex items-center gap-2 max-w-md w-full mx-4">
+          <div className="relative w-full">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#2dd4bf]/70" />
+            <input
+              type="text"
+              placeholder="Search Patient Name, MRN, or ICD-10 Code..."
+              value={globalSearchQuery}
+              onChange={(e) => setGlobalSearchQuery(e.target.value)}
+              className="w-full bg-[#0f3c4c]/90 border border-[#14b8a6]/40 text-xs text-white placeholder:text-slate-400 pl-8 pr-12 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#2dd4bf] focus:border-[#2dd4bf] rounded-none transition-all font-medium"
+            />
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono font-bold bg-[#092e38] text-[#2dd4bf] px-1.5 py-0.5 border border-[#14b8a6]/30 rounded-none pointer-events-none">
+              ⌘K
+            </span>
           </div>
         </div>
 
-        {/* Global actions: network status PWA toggle, BM/EN translations control */}
-        <div className="flex items-center gap-3">
+        {/* Right: Real-time Clock & Global Actions */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+
+          {/* Live Monospace Clock */}
+          <div className="hidden xl:flex items-center gap-1.5 bg-[#0f3c4c] px-2.5 py-1 border border-[#14b8a6]/40 font-mono text-xs text-[#2dd4bf] rounded-none font-bold">
+            <Clock className="w-3.5 h-3.5 text-[#2dd4bf]" />
+            <span>{timeString || '13:50:24 MYT'}</span>
+          </div>
 
           {/* PWA Network Simulator toggle */}
           <button
             type="button"
             id="pwa-network-toggle"
             onClick={() => setIsOnline(!isOnline)}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#0f3c4c] rounded-none border border-[#14b8a6]/40 hover:bg-[#134e4a] transition-colors cursor-pointer text-[10px] uppercase font-bold font-mono text-[#2dd4bf]"
-            title="Simulate offline cache network mode"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#0f3c4c] rounded-none border border-[#14b8a6]/40 hover:bg-[#134e4a] transition-all cursor-pointer text-[10px] uppercase font-bold font-mono text-[#2dd4bf] shadow-2xs"
+            title="Toggle Simulated PWA Offline/Online Mode"
           >
             {isOnline ? (
               <>
@@ -86,21 +170,21 @@ export default function EnterpriseLayoutTemplate({
           <button
             type="button"
             onClick={() => setShowPII(!showPII)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-colors cursor-pointer text-[10px] uppercase font-bold font-mono ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono ${
               showPII 
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30' 
                 : 'bg-[#0f3c4c] text-[#2dd4bf] border border-[#14b8a6]/40 hover:bg-[#134e4a]'
             }`}
-            title="Toggle Global PII Visibility"
+            title="Toggle Global Patient PII Masking"
           >
             {showPII ? (
-              <><Eye className="w-3.5 h-3.5" /> <span>PII Shown</span></>
+              <><Eye className="w-3.5 h-3.5" /> <span className="hidden sm:inline">PII Shown</span></>
             ) : (
-              <><EyeOff className="w-3.5 h-3.5" /> <span>PII Masked</span></>
+              <><EyeOff className="w-3.5 h-3.5" /> <span className="hidden sm:inline">PII Masked</span></>
             )}
           </button>
 
-          {/* Lang Selector BM/EN switcher */}
+          {/* Language Switcher (EN | BM) */}
           <div className="bg-[#0f3c4c] rounded-none border border-[#14b8a6]/40 p-0.5 flex">
             <button
               type="button"
@@ -110,7 +194,7 @@ export default function EnterpriseLayoutTemplate({
                 activeLanguage === 'EN' ? 'bg-[#14b8a6] text-[#092e38] font-black' : 'text-[#2dd4bf] hover:text-white'
               }`}
             >
-              {t.enToggle || 'EN'}
+              EN
             </button>
             <button
               type="button"
@@ -120,42 +204,51 @@ export default function EnterpriseLayoutTemplate({
                 activeLanguage === 'BM' ? 'bg-[#14b8a6] text-[#092e38] font-black' : 'text-[#2dd4bf] hover:text-white'
               }`}
             >
-              {t.bmToggle || 'BM'}
+              BM
             </button>
           </div>
 
-          <span className="text-[#5eead4] hidden sm:inline text-xs font-mono font-bold uppercase bg-[#134e4a] px-2.5 py-1 border border-[#14b8a6]/40 rounded-none">
-            {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)} Suite` : 'Suite'}
-          </span>
+          {/* User Profile Avatar Pill */}
+          <div className="flex items-center gap-2 bg-[#134e4a] border border-[#14b8a6]/40 px-2.5 py-1 rounded-none">
+            <div className="w-5 h-5 bg-[#14b8a6] text-[#092e38] font-mono text-[10px] font-black flex items-center justify-center rounded-none">
+              {getUserInitials(userName)}
+            </div>
+            <span className="text-[#5eead4] hidden sm:inline text-xs font-mono font-bold uppercase">
+              {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)} Suite` : 'Suite'}
+            </span>
+          </div>
 
+          {/* Logout Button */}
           <button 
             type="button" 
             onClick={onSignOut} 
-            className="text-xs bg-[#14b8a6] hover:bg-rose-600 text-[#092e38] hover:text-white px-3 py-1 rounded-none font-black transition-colors cursor-pointer border border-[#14b8a6]"
+            className="text-xs bg-[#14b8a6] hover:bg-rose-600 text-[#092e38] hover:text-white px-3 py-1 rounded-none font-black transition-all cursor-pointer border border-[#14b8a6] flex items-center gap-1 shadow-2xs"
           >
-            Logout
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
 
       </header>
 
-      {/* CORE FRAME LAYOUT */}
+      {/* ========================================================================= */}
+      {/* SUB-NAVIGATION BAR (DARK EMERALD SLATE TABS & TELEMETRY SYNC TICKER)       */}
+      {/* ========================================================================= */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
-        {/* TOP NAVIGATION BAR - DARK EMERALD SLATE TABS */}
         <nav className="w-full bg-[#0f3c4c] text-white flex items-center justify-between border-b border-[#0d9488]/40 shrink-0 px-4 overflow-x-auto custom-scrollbar shadow-xs relative z-10">
 
           <div className="flex items-center space-x-1 py-1.5" id="sidebar-navigation-links">
 
-            {/* Generic Dashboard Icon */}
+            {/* Dashboard Navigation Link */}
             <button
               type="button"
               id="sidebar-link-dashboard"
               onClick={() => setActiveTab('dashboard')}
-              className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap ${
+              className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
                 activeTab === 'dashboard'
-                  ? 'bg-[#134e4a] text-[#2dd4bf] border-b-2 border-[#14b8a6] font-black shadow-2xs'
-                  : 'text-slate-300 hover:bg-[#134e4a]/60 hover:text-white'
+                  ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
+                  : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -164,16 +257,16 @@ export default function EnterpriseLayoutTemplate({
               </div>
             </button>
 
-            {/* Patient Registration Icon */}
+            {/* Registration Navigation Link */}
             {userRole === 'clinic-assistant' && (
               <button
                 type="button"
                 id="sidebar-link-registration"
                 onClick={() => setActiveTab('registration')}
-                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap ${
+                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
                   activeTab === 'registration'
-                    ? 'bg-[#134e4a] text-[#2dd4bf] border-b-2 border-[#14b8a6] font-black shadow-2xs'
-                    : 'text-slate-300 hover:bg-[#134e4a]/60 hover:text-white'
+                    ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
+                    : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -190,10 +283,10 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-queue"
                   onClick={() => setActiveTab('queue')}
-                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap ${
+                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
                     activeTab === 'queue'
-                      ? 'bg-[#134e4a] text-[#2dd4bf] border-b-2 border-[#14b8a6] font-black shadow-2xs'
-                      : 'text-slate-300 hover:bg-[#134e4a]/60 hover:text-white'
+                      ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
+                      : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -213,10 +306,10 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-consultation"
                   onClick={() => setActiveTab('consultation')}
-                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap ${
+                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
                     activeTab === 'consultation'
-                      ? 'bg-[#134e4a] text-[#2dd4bf] border-b-2 border-[#14b8a6] font-black shadow-2xs'
-                      : 'text-slate-300 hover:bg-[#134e4a]/60 hover:text-white'
+                      ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
+                      : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -229,10 +322,10 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-reports"
                   onClick={() => setActiveTab('reports')}
-                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap ${
+                  className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
                     activeTab === 'reports'
-                      ? 'bg-[#134e4a] text-[#2dd4bf] border-b-2 border-[#14b8a6] font-black shadow-2xs'
-                      : 'text-slate-300 hover:bg-[#134e4a]/60 hover:text-white'
+                      ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
+                      : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -243,16 +336,16 @@ export default function EnterpriseLayoutTemplate({
               </>
             )}
 
-            {/* Pharmacy / Dispensary Icon */}
+            {/* Pharmacy / Dispensary Link */}
             {userRole === 'pharmacist' && (
               <button
                 type="button"
                 id="sidebar-link-dispensary"
                 onClick={() => setActiveTab('dispensary')}
-                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap ${
+                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
                   activeTab === 'dispensary'
-                    ? 'bg-[#134e4a] text-[#2dd4bf] border-b-2 border-[#14b8a6] font-black shadow-2xs'
-                    : 'text-slate-300 hover:bg-[#134e4a]/60 hover:text-white'
+                    ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
+                    : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -269,16 +362,16 @@ export default function EnterpriseLayoutTemplate({
               </button>
             )}
 
-            {/* Billing claims receipt ledger icon */}
+            {/* Billing Link */}
             {userRole === 'clinic-assistant' && (
               <button
                 type="button"
                 id="sidebar-link-billing"
                 onClick={() => setActiveTab('billing')}
-                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap ${
+                className={`flex items-center px-4 py-2 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-b-2 ${
                   activeTab === 'billing'
-                    ? 'bg-[#134e4a] text-[#2dd4bf] border-b-2 border-[#14b8a6] font-black shadow-2xs'
-                    : 'text-slate-300 hover:bg-[#134e4a]/60 hover:text-white'
+                    ? 'bg-[#134e4a] text-[#2dd4bf] border-[#14b8a6] font-black shadow-2xs'
+                    : 'border-transparent text-slate-300 hover:bg-[#134e4a]/60 hover:text-white hover:border-[#2dd4bf]/40'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -296,7 +389,8 @@ export default function EnterpriseLayoutTemplate({
             )}
           </div>
 
-          <div className="hidden lg:flex items-center space-x-4 text-[10px] text-slate-300 font-mono pl-4 border-l border-[#0d9488]/40 ml-4">
+          {/* Nav Right Telemetry Sync Status & Manual Refresh Trigger */}
+          <div className="hidden lg:flex items-center space-x-3 text-[10px] text-slate-300 font-mono pl-4 border-l border-[#0d9488]/40 ml-4">
             <div className="flex items-center gap-1.5">
               <span>Sync:</span>
               <span className="relative flex h-2 w-2">
@@ -305,6 +399,16 @@ export default function EnterpriseLayoutTemplate({
               </span>
               <span className="text-[#2dd4bf] font-bold uppercase">KKM-ONLINE</span>
             </div>
+
+            <button
+              type="button"
+              onClick={handleManualSync}
+              className="p-1 hover:bg-[#134e4a] text-[#2dd4bf] rounded-none transition-colors border border-[#14b8a6]/30"
+              title="Force Refresh Data Sync"
+            >
+              <RefreshCw className={`w-3 h-3 ${isSyncRefreshing ? 'animate-spin text-[#14b8a6]' : ''}`} />
+            </button>
+
             <div>
               <span>ID: <strong className="text-white font-mono">MY-APC-KLG-20</strong></span>
             </div>
