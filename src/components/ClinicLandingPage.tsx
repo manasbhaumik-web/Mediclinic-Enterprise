@@ -276,16 +276,6 @@ export default function ClinicLandingPage({
             <span>{activeLanguage === 'EN' ? 'BM' : 'EN'}</span>
           </button>
 
-          {/* Telemetry Button */}
-          <button
-            type="button"
-            onClick={onOpenTelemetry}
-            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-none bg-[#e6f4f1] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#ccfbf1] transition-all cursor-pointer shadow-2xs hover:scale-105"
-          >
-            <BarChart3 className="w-3.5 h-3.5 text-[#0d9488]" />
-            <span>Telemetry Feed</span>
-          </button>
-
           {/* Staff Login Button */}
           <button
             type="button"
