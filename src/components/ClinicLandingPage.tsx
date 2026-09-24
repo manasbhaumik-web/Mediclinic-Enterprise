@@ -270,7 +270,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={() => onToggleLanguage(activeLanguage === 'EN' ? 'BM' : 'EN')}
-            className="px-2.5 py-1.5 text-[11px] font-bold rounded-none border border-[#ccfbf1] bg-[#f7fdfd] text-slate-700 hover:text-[#0d9488] hover:border-[#0d9488] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+            className="px-2.5 py-1.5 text-[11px] font-bold rounded-none border border-[#ccfbf1] bg-[#f7fdfd] hover:bg-[#e6f4f1] text-[#0d9488] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
           >
             <Globe className="w-3.5 h-3.5 text-[#0d9488]" />
             <span>{activeLanguage === 'EN' ? 'BM' : 'EN'}</span>
@@ -405,7 +405,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={onOpenTelemetry}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-none bg-[#f7fdfd] hover:bg-[#f0fdfa] text-slate-800 border border-[#ccfbf1] font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer hover:border-[#0d9488] shadow-xs"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-none bg-[#f7fdfd] hover:bg-[#e0f5f2] text-slate-800 border border-[#ccfbf1] font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
               >
                 <BarChart3 className="w-4 h-4 text-[#0d9488]" />
                 <span>View Live Operations Telemetry</span>
@@ -414,19 +414,19 @@ export default function ClinicLandingPage({
 
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 max-w-4xl mx-auto">
-              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs transition-colors hover:bg-[#d5f0eb]">
                 <span className="block text-xl font-black font-mono text-[#0d9488]">24/7</span>
                 <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Emergency Suite</span>
               </div>
-              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs transition-colors hover:bg-[#d5f0eb]">
                 <span className="block text-xl font-black font-mono text-[#0284c7]">11m</span>
                 <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Avg Wait Time</span>
               </div>
-              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs transition-colors hover:bg-[#d5f0eb]">
                 <span className="block text-xl font-black font-mono text-emerald-600">150+</span>
                 <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Corporate Panels</span>
               </div>
-              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs hover:border-[#0d9488] transition-all">
+              <div className="bg-[#e0f5f2] border border-[#b2f5ea] rounded-none p-2.5 text-center shadow-xs transition-colors hover:bg-[#d5f0eb]">
                 <span className="block text-xl font-black font-mono text-amber-600">99.4%</span>
                 <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider">Patient Rating</span>
               </div>

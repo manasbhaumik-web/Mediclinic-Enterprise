@@ -18,15 +18,15 @@ body {
   }
 
   .ice-mint-card {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-[0_4px_20px_rgba(13,148,136,0.06)] rounded-none overflow-hidden transition-all duration-300;
+    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-[0_4px_20px_rgba(13,148,136,0.06)] rounded-none overflow-hidden transition-colors duration-200;
   }
 
   .ice-mint-card-interactive {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-xs rounded-none transition-all duration-300 hover:border-[#0d9488] hover:shadow-md hover:-translate-y-1;
+    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-xs rounded-none transition-all duration-200 hover:bg-[#f0fdfa] hover:shadow-sm;
   }
 
   .ice-mint-panel {
-    @apply bg-[#f0fdfa] border border-[#ccfbf1] shadow-lg rounded-none;
+    @apply bg-[#f0fdfa] border border-[#ccfbf1] shadow-md rounded-none;
   }
 
   .mint-badge {
@@ -244,10 +244,4 @@ body {
 .dark .hover\:bg-slate-50\/70:hover,
 .dark .hover\:bg-teal-50:hover {
   background-color: #124e5e !important;
-}
-
-.dark .hover\:border-slate-300:hover,
-.dark .hover\:border-\[\#0d9488\]:hover {
-  border-color: #2dd4bf !important;
-  box-shadow: 0 4px 20px rgba(45, 212, 191, 0.2) !important;
 }

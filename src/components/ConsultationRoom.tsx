@@ -432,9 +432,9 @@ export default function ConsultationRoom({
                   <div
                     key={visit.id}
                     onClick={() => setSelectedPastVisit(isSelected ? null : visit)}
-                    className={`p-2.5 rounded-lg border transition-all text-left cursor-pointer hover:border-cyan-500/50 bg-white ${
+                    className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer hover:bg-teal-50/50 bg-white ${
                       isSelected 
-                        ? 'border-[#07B2B2] ring-1 ring-[#07B2B2] bg-cyan-50/20 shadow-xs' 
+                        ? 'border-[#0D9488] bg-teal-50/40 shadow-xs' 
                         : 'border-slate-200'
                     }`}
                   >

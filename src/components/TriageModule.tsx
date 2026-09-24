@@ -104,10 +104,10 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                     <button
                       key={visit.id}
                       onClick={() => handleSelectPatient(visit)}
-                      className={`w-full text-left p-3 rounded-xl border transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md ${
+                      className={`w-full text-left p-3 rounded-none border transition-colors ${
                         isActive 
-                          ? 'border-teal-500 bg-teal-50 ring-1 ring-teal-500/30 shadow-sm' 
-                          : 'border-slate-200 bg-white hover:border-teal-300'
+                          ? 'border-[#0D9488] bg-teal-50/50 shadow-xs' 
+                          : 'border-slate-200 bg-white hover:bg-slate-50'
                       }`}
                     >
                       <div className="flex justify-between items-start mb-1.5">

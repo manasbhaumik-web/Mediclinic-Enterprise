@@ -218,7 +218,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setAppView('landing')}
-            className="text-xs font-extrabold bg-[#f7fdfd] hover:bg-[#e6f4f1] px-3.5 py-2 rounded-none border border-[#ccfbf1] text-[#0d9488] hover:border-[#0d9488] flex items-center gap-2 cursor-pointer transition-all shadow-2xs"
+            className="text-xs font-extrabold bg-[#f7fdfd] hover:bg-[#e6f4f1] px-3.5 py-2 rounded-none border border-[#ccfbf1] text-[#0d9488] flex items-center gap-2 cursor-pointer transition-colors shadow-2xs"
           >
             ← Back to Public Website
           </button>

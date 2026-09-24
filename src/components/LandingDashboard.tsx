@@ -292,11 +292,11 @@ export default function LandingDashboard({
               <div
                 key={mod.id}
                 onClick={() => onNavigateTab(mod.tabKey)}
-                className={`bg-white border border-slate-200 p-4 rounded-none border-l-4 ${mod.accentColor} shadow-2xs hover:shadow-md hover:border-slate-300 transition-all cursor-pointer flex flex-col justify-between group space-y-3`}
+                className={`bg-white border border-slate-200 p-4 rounded-none border-l-4 ${mod.accentColor} shadow-2xs hover:bg-[#f0fdfa] transition-colors cursor-pointer flex flex-col justify-between group space-y-3`}
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="p-2 bg-slate-50 border border-slate-100 group-hover:bg-teal-50 group-hover:border-teal-200 transition-colors">
+                    <div className="p-2 bg-slate-50 border border-slate-100 group-hover:bg-teal-100 transition-colors">
                       <IconComponent className="w-5 h-5 text-[#0d9488]" />
                     </div>
                     <span className={`px-2 py-0.5 text-[10px] font-bold font-mono uppercase tracking-wider border rounded-none ${mod.badgeColor}`}>
@@ -330,7 +330,7 @@ export default function LandingDashboard({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* KPI 1: Today's Encounters */}
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:bg-[#f0fdfa] transition-colors relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Today's Total Encounters</span>
             <span className="p-2 bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488] rounded-none">
@@ -359,7 +359,7 @@ export default function LandingDashboard({
         </div>
 
         {/* KPI 2: Active Waiting Queue */}
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:bg-[#f0fdfa] transition-colors relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Active Queue Volume</span>
             <span className="p-2 bg-amber-50 border border-amber-200 text-amber-600 rounded-none">
@@ -388,7 +388,7 @@ export default function LandingDashboard({
         </div>
 
         {/* KPI 3: Today's Financial Billing */}
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:bg-[#f0fdfa] transition-colors relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Daily Revenue & Claims</span>
             <span className="p-2 bg-sky-50 border border-sky-200 text-[#0284c7] rounded-none">
@@ -420,7 +420,7 @@ export default function LandingDashboard({
         </div>
 
         {/* KPI 4: Clinic Operational Efficiency */}
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:border-[#0d9488] transition-all relative overflow-hidden">
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:bg-[#f0fdfa] transition-colors relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Clinic Efficiency Index</span>
             <span className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-none">
@@ -707,7 +707,7 @@ export default function LandingDashboard({
           </div>
 
           <div className="space-y-3 text-xs">
-            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
+            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:bg-[#f0fdfa]">
               <div>
                 <strong className="block text-slate-900 font-extrabold mb-0.5">Dr. Sarah Jenkins, MD</strong>
                 <span className="text-[11px] text-[#0d9488] font-semibold">Attending Physician (Consultation Suite 101)</span>
@@ -717,7 +717,7 @@ export default function LandingDashboard({
               </span>
             </div>
 
-            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
+            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:bg-[#f0fdfa]">
               <div>
                 <strong className="block text-slate-900 font-extrabold mb-0.5">Pharm. Ahmad Razak, B.Pharm</strong>
                 <span className="text-[11px] text-teal-700 font-semibold">Chief Pharmacist (Compounding Suite)</span>
@@ -727,7 +727,7 @@ export default function LandingDashboard({
               </span>
             </div>
 
-            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:border-[#0d9488]">
+            <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:bg-[#f0fdfa]">
               <div>
                 <strong className="block text-slate-900 font-extrabold mb-0.5">Siti Aishah Binti Ramli</strong>
                 <span className="text-[11px] text-slate-600 font-medium">Triage & Biometric Registration</span>

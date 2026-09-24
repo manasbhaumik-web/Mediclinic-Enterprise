@@ -29,13 +29,13 @@ export default function Button({
   ...props
 }: ButtonProps) {
   
-  const baseStyles = 'inline-flex items-center justify-center font-bold rounded-none transition-all duration-300 ease-out active:scale-[0.98] outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none hover:scale-[1.02]';
+  const baseStyles = 'inline-flex items-center justify-center font-bold rounded-none transition-colors duration-200 ease-out active:scale-[0.98] outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none';
   
   const variants = {
-    primary: 'bg-gradient-to-r from-teal-600 to-teal-500 text-white hover:from-teal-700 hover:to-teal-600 shadow-[0_4px_14px_0_rgba(13,148,136,0.25)] hover:shadow-[0_6px_20px_rgba(13,148,136,0.35)] focus:ring-teal-500',
-    secondary: 'bg-slate-800 text-white hover:bg-slate-900 shadow-[0_4px_14px_0_rgba(15,23,42,0.2)] focus:ring-slate-800',
-    outline: 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 focus:ring-slate-200 shadow-sm',
-    danger: 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 focus:ring-red-500',
+    primary: 'bg-[#0D9488] text-white hover:bg-[#0F766E] focus:ring-[#0D9488] shadow-xs',
+    secondary: 'bg-slate-800 text-white hover:bg-slate-900 focus:ring-slate-800 shadow-xs',
+    outline: 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 focus:ring-slate-200 shadow-xs',
+    danger: 'bg-red-600 text-white hover:bg-red-700 border border-red-600 focus:ring-red-500 shadow-xs',
     ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-slate-200'
   };
 

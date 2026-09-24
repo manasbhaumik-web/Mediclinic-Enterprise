@@ -154,7 +154,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
             <button
               type="button"
               onClick={() => onNavigate('landing')}
-              className="px-3.5 py-1.5 text-xs font-extrabold rounded-xl border border-[#ccfbf1] bg-[#f7fdfd] text-slate-700 hover:text-[#0d9488] hover:border-[#0d9488] transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs shrink-0"
+              className="px-3.5 py-1.5 text-xs font-extrabold rounded-none border border-[#ccfbf1] bg-[#f7fdfd] hover:bg-[#e6f4f1] text-[#0d9488] transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs shrink-0"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Public Website</span>
@@ -183,10 +183,10 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
                     key={p.id}
                     type="button"
                     onClick={() => setRole(p.id)}
-                    className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                    className={`p-2.5 rounded-none border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                       isSelected
-                        ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-md shadow-teal-500/20 ring-2 ring-teal-500/30 scale-[1.02]'
-                        : 'bg-[#f7fdfd] text-slate-700 border-[#ccfbf1] hover:border-[#0d9488] hover:text-[#0d9488]'
+                        ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs'
+                        : 'bg-white text-slate-700 border-[#ccfbf1] hover:bg-[#e6f4f1]'
                     }`}
                   >
                     <IconComponent className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-[#0d9488]'}`} />

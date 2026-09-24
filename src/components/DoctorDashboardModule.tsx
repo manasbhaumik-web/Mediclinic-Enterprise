@@ -218,19 +218,19 @@ export default function DoctorDashboardModule({
                 <div className="space-y-4">
                   {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY) */}
                   {nextPatient && (
-                    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-5 rounded-xl border border-slate-700 shadow-xl mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+                    <div className="bg-slate-900 text-white p-5 rounded-none border border-slate-800 shadow-md mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
                       <div className="space-y-1.5 z-10">
                         <div className="flex items-center gap-2">
-                          <span className="bg-[#0D9488] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider">
+                          <span className="bg-[#0D9488] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-none tracking-wider">
                             NEXT IN LINE (#1)
                           </span>
                           {isNextCalled && (
-                            <span className="bg-emerald-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider animate-pulse">
+                            <span className="bg-emerald-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-none tracking-wider animate-pulse">
                               📢 PATIENT CALLED
                             </span>
                           )}
                           {nextPatient.drugAllergies.length > 0 && (
-                            <span className="bg-red-500/20 text-red-300 text-[9px] font-bold uppercase px-2 py-0.5 rounded border border-red-500/30">
+                            <span className="bg-red-500/20 text-red-300 text-[9px] font-bold uppercase px-2 py-0.5 rounded-none border border-red-500/30">
                               ⚠️ Allergy Alert
                             </span>
                           )}
@@ -249,7 +249,7 @@ export default function DoctorDashboardModule({
                         <button
                           type="button"
                           onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
-                          className="bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 font-bold text-xs px-4 py-3 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                          className="bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 font-bold text-xs px-4 py-3 rounded-none transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <span>📢 Call Patient</span>
                         </button>
@@ -257,7 +257,7 @@ export default function DoctorDashboardModule({
                         <button
                           type="button"
                           onClick={() => handleStartConsultation(nextVisit.id)}
-                          className="bg-[#0D9488] hover:bg-teal-600 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                          className="bg-[#0D9488] hover:bg-[#0F766E] text-white font-extrabold text-xs px-5 py-3 rounded-none shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
                         >
                           <Stethoscope className="w-4 h-4" />
                           <span>Start Consultation</span>
@@ -285,16 +285,16 @@ export default function DoctorDashboardModule({
                           if (pt.drugAllergies.length > 0) triageLevel = 'HIGH';
 
                           const waitTimeMinutes = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
-                          const waitTimeColor = waitTimeMinutes >= 30 ? 'bg-red-50 text-red-700 border-red-200 shadow-[0_0_8px_rgba(239,68,68,0.2)]' :
+                          const waitTimeColor = waitTimeMinutes >= 30 ? 'bg-red-50 text-red-700 border-red-200' :
                             waitTimeMinutes >= 15 ? 'bg-amber-50 text-amber-700 border-amber-200' :
                               'bg-emerald-50 text-emerald-700 border-emerald-200';
 
                           return (
                             <div
                               key={visit.id}
-                              className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-300 ${isConsulting
-                                ? 'border-[#0D9488] bg-teal-50/50 shadow-md ring-1 ring-[#0D9488]/30'
-                                : 'border-slate-200 bg-white hover:shadow-md hover:border-teal-300'
+                              className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-none border transition-colors ${isConsulting
+                                ? 'border-[#0D9488] bg-teal-50/50 shadow-xs'
+                                : 'border-slate-200 bg-white hover:bg-slate-50'
                                 }`}
                             >
                               <div className="flex items-center gap-4 min-w-0">

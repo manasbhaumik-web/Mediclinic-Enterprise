@@ -369,7 +369,7 @@ export default function PatientRegistrationModule({
                   if (waitMins > 30) waitStatusColor = 'red';
 
                   return (
-                    <div key={visit.id} className={`p-5 rounded-2xl border border-${waitStatusColor}-200 bg-${waitStatusColor}-50/30 hover:border-${waitStatusColor}-400 shadow-sm hover:shadow-md flex flex-col transition-all duration-300 ease-out hover:-translate-y-1 animate-fadeInUp relative overflow-hidden group`}>
+                    <div key={visit.id} className={`p-4 rounded-none border border-slate-200 bg-white hover:bg-slate-50 shadow-xs flex flex-col transition-colors relative overflow-hidden group`}>
                       <div className={`absolute top-0 left-0 w-1 h-full bg-${waitStatusColor}-500 transition-all duration-300 group-hover:w-1.5`}></div>
                       
                       <div className="flex justify-between items-start pl-2">

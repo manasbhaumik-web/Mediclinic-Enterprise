@@ -154,9 +154,9 @@ export default function DispensaryDashboard({
                 <div
                   key={visit.id}
                   onClick={() => handleSelectVisit(visit.id)}
-                  className={`p-2.5 rounded-lg border transition-all text-left cursor-pointer hover:border-cyan-500 bg-white ${
+                  className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer hover:bg-teal-50/50 bg-white ${
                     isSelected 
-                      ? 'border-[#07B2B2] ring-1 ring-[#07B2B2]/60 shadow-xs' 
+                      ? 'border-[#0D9488] bg-teal-50/40 shadow-xs' 
                       : 'border-slate-200'
                   }`}
                 >
