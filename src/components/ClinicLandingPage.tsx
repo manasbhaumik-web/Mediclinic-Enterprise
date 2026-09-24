@@ -427,97 +427,86 @@ export default function ClinicLandingPage({
               </button>
             </div>
 
-            {/* Quick Metrics Bar (Redesigned Executive Sharp Cards) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4 max-w-5xl mx-auto">
+            {/* Quick Metrics Bar (Minimalist Micro-Badge Layout) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 max-w-4xl mx-auto">
               
               {/* Card 1: 24/7 Emergency Suite */}
-              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-[#0d9488] p-4 text-left shadow-2xs hover:shadow-md hover:border-[#0d9488] transition-all group relative overflow-hidden">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="w-8 h-8 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] group-hover:bg-[#0d9488] group-hover:text-white transition-colors">
-                    <Activity className="w-4 h-4" />
-                  </div>
-                  <span className="text-[9px] font-extrabold text-[#0d9488] bg-[#e6f4f1] px-2 py-0.5 border border-[#ccfbf1] uppercase tracking-wider">
-                    24/7 ACTIVE
+              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-[#0d9488] transition-all relative">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    EMERGENCY SUITE
+                  </span>
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0d9488]"></span>
                   </span>
                 </div>
-                <div>
-                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-[#0d9488] transition-colors">
+                <div className="flex items-baseline justify-between gap-1">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
                     24/7
                   </span>
-                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
-                    Emergency Suite
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
-                    Trauma &amp; Outpatient Care
+                  <span className="text-[10px] font-bold text-[#0d9488] bg-[#e6f4f1] px-1.5 py-0.5 border border-[#ccfbf1]">
+                    OPEN
                   </span>
                 </div>
               </div>
 
               {/* Card 2: Avg Wait Time */}
-              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-[#0284c7] p-4 text-left shadow-2xs hover:shadow-md hover:border-[#0284c7] transition-all group relative overflow-hidden">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="w-8 h-8 rounded-none bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] group-hover:bg-[#0284c7] group-hover:text-white transition-colors">
-                    <Clock className="w-4 h-4" />
-                  </div>
-                  <span className="text-[9px] font-extrabold text-sky-800 bg-sky-100 px-2 py-0.5 border border-sky-200 uppercase tracking-wider">
-                    ⚡ FAST QUEUE
+              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-[#0284c7] transition-all relative">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    AVG WAIT TIME
+                  </span>
+                  <span className="flex h-2 w-2 relative">
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0284c7]"></span>
                   </span>
                 </div>
-                <div>
-                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-[#0284c7] transition-colors">
+                <div className="flex items-baseline justify-between gap-1">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
                     11m
                   </span>
-                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
-                    Avg Wait Time
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
-                    Live Token Queue Velocity
+                  <span className="text-[10px] font-bold text-[#0284c7] bg-sky-50 px-1.5 py-0.5 border border-sky-200">
+                    FAST
                   </span>
                 </div>
               </div>
 
               {/* Card 3: Corporate Panels */}
-              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-emerald-600 p-4 text-left shadow-2xs hover:shadow-md hover:border-emerald-600 transition-all group relative overflow-hidden">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="w-8 h-8 rounded-none bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <Building2 className="w-4 h-4" />
-                  </div>
-                  <span className="text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-200 uppercase tracking-wider">
-                    💳 CASHLESS
+              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-emerald-600 transition-all relative">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    CORPORATE PANELS
+                  </span>
+                  <span className="flex h-2 w-2 relative">
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                 </div>
-                <div>
-                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-emerald-600 transition-colors">
+                <div className="flex items-baseline justify-between gap-1">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
                     150+
                   </span>
-                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
-                    Corporate Panels
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
-                    PMCare, MiCare &amp; TPAs
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200">
+                    ACTIVE
                   </span>
                 </div>
               </div>
 
               {/* Card 4: Patient Rating */}
-              <div className="bg-gradient-to-b from-[#f7fdfd] to-[#f0fdfa] border border-[#ccfbf1] border-t-3 border-t-amber-500 p-4 text-left shadow-2xs hover:shadow-md hover:border-amber-500 transition-all group relative overflow-hidden">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="w-8 h-8 rounded-none bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                    <Star className="w-4 h-4 fill-amber-400 group-hover:fill-white" />
-                  </div>
-                  <span className="text-[9px] font-extrabold text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-200 uppercase tracking-wider">
-                    ★ 4.95 / 5.0
+              <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 text-left rounded-none shadow-2xs hover:border-amber-500 transition-all relative">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    PATIENT RATING
+                  </span>
+                  <span className="flex h-2 w-2 relative">
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                   </span>
                 </div>
-                <div>
-                  <span className="block text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900 group-hover:text-amber-600 transition-colors">
+                <div className="flex items-baseline justify-between gap-1">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
                     99.4%
                   </span>
-                  <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block mt-0.5">
-                    Patient Rating
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-medium block mt-1">
-                    Verified Patient Reviews
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 border border-amber-200">
+                    ★ 4.95
                   </span>
                 </div>
               </div>
