@@ -17,10 +17,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    @keyframes pulseRing {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.15); opacity: 0.3; }
-      100% { transform: scale(0.95); opacity: 0.8; }
+    @keyframes ecgStroke {
+      0% { stroke-dashoffset: 400; }
+      50% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -400; }
     }
     @keyframes barSlide {
       0% { transform: translateX(-100%); }
@@ -29,17 +29,19 @@
     .preloader-bg {
       position: fixed;
       inset: 0;
-      background-color: #f7fdfd;
+      background-color: #07252d;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       z-index: 99999;
-      color: #0f3c4c;
+      color: #5eead4;
+      padding: 24px;
     }
-    .preloader-[#0d9488] {
-      color: #0d9488;
+    .ecg-path {
+      stroke-dasharray: 400;
+      animation: ecgStroke 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
   </style>
 </head>
@@ -48,20 +50,36 @@
   <div id="root">
     <!-- Initial App Preloader Animation before React Mounts -->
     <div class="preloader-bg">
-      <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
-        <div style="width: 80px; height: 80px; border-radius: 50%; background-color: rgba(13, 148, 136, 0.15); animation: pulseRing 2s infinite ease-in-out;"></div>
-        <div style="position: absolute; background: white; border: 2px solid #0d9488; padding: 12px; display: flex; align-items: center; gap: 8px;">
-          <img src="./logo_transparent.svg" alt="Mediclinic" style="width: 40px; height: 40px;" />
+      <div style="background: #082830; border: 2px solid #0d9488; padding: 24px; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;">
+        
+        <div style="display: flex; items-center; justify-content: space-between; border-bottom: 1px solid rgba(45,212,191,0.3); padding-bottom: 8px; margin-bottom: 16px; font-family: monospace; font-size: 10px; font-weight: 700;">
+          <span style="color: #34d399; display: flex; align-items: center; gap: 6px;">● TELEMETRY SYSTEM ACTIVE</span>
+          <span style="color: #0d9488; background: #e0f5f2; padding: 2px 6px;">24/7 EMR HUB</span>
         </div>
-      </div>
-      <h2 style="font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0; color: #0f3c4c;">
-        MEDICLINIC ENTERPRISE
-      </h2>
-      <p style="font-size: 12px; font-weight: 700; color: #0d9488; margin-top: 6px;">
-        Loading Clinical Suite...
-      </p>
-      <div style="width: 180px; height: 5px; background: #e0f5f2; border: 1px solid #b2f5ea; margin-top: 16px; overflow: hidden; position: relative;">
-        <div style="width: 60px; height: 100%; background: #0d9488; animation: barSlide 1.5s infinite linear;"></div>
+
+        <div style="position: relative; background: #07252d; border: 1px solid rgba(13,148,136,0.5); padding: 12px; margin-bottom: 16px; height: 100px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+          <svg style="width: 100%; height: 70px;" viewBox="0 0 500 120" fill="none">
+            <path d="M0 60 L120 60 L135 60 L145 20 L155 100 L165 40 L175 75 L185 60 L320 60 L335 60 L345 20 L355 100 L365 40 L375 75 L385 60 L500 60" stroke="#0f766e" stroke-width="2" stroke-opacity="0.4" />
+            <path class="ecg-path" d="M0 60 L120 60 L135 60 L145 20 L155 100 L165 40 L175 75 L185 60 L320 60 L335 60 L345 20 L355 100 L365 40 L375 75 L385 60 L500 60" stroke="#2dd4bf" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div style="position: absolute; background: rgba(7, 37, 45, 0.95); border: 1px solid #0d9488; padding: 6px 12px; display: flex; align-items: center; gap: 8px;">
+            <img src="./logo_transparent.svg" alt="Mediclinic" style="width: 24px; height: 24px;" />
+            <span style="font-family: monospace; font-size: 11px; font-weight: 900; color: #5eead4; text-transform: uppercase;">Mediclinic Enterprise</span>
+          </div>
+        </div>
+
+        <h3 style="font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0; color: #5eead4;">
+          INITIALIZING CLINICAL ENCOUNTER WORKSPACE
+        </h3>
+        
+        <div style="width: 100%; height: 6px; background: #082830; border: 1px solid rgba(45,212,191,0.3); margin-top: 14px; overflow: hidden; position: relative;">
+          <div style="width: 80px; height: 100%; background: #2dd4bf; animation: barSlide 1.5s infinite linear;"></div>
+        </div>
+
+        <span style="font-family: monospace; font-size: 10px; color: #94a3b8; display: block; margin-top: 8px;">
+          Securing EMR Telemetry &amp; Patient Encounters...
+        </span>
+
       </div>
     </div>
   </div>

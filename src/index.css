@@ -343,3 +343,53 @@ span.bg-amber-500,
 .dark .hover\:bg-teal-50:hover {
   background-color: #124e5e !important;
 }
+
+/* ========================================================================= */
+/* MEDICAL LOADING ANIMATION KEYFRAMES                                      */
+/* ========================================================================= */
+
+@keyframes ecgDraw {
+  0% {
+    stroke-dashoffset: 400;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -400;
+  }
+}
+
+@keyframes radarRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+.animate-ecg {
+  stroke-dasharray: 400;
+  animation: ecgDraw 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-radar {
+  animation: radarRotate 4s linear infinite;
+  transform-origin: center;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
