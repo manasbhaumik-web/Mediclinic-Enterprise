@@ -76,7 +76,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
         {/* ========================================================================= */}
         {/* 1. DEEP MEDICAL TEAL BRANDING PANEL (COLOR HARMONY 10/10)                 */}
         {/* ========================================================================= */}
-        <div className="md:w-5/12 bg-gradient-to-br from-[#0f766e] via-[#0d9488] to-[#047857] text-white p-8 sm:p-12 flex flex-col justify-between relative overflow-hidden">
+        <div className="md:w-5/12 bg-[#0f766e] text-white p-8 sm:p-12 flex flex-col justify-between relative overflow-hidden">
           
           {/* Ambient Glow Graphic Overlays */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-teal-300/10 rounded-full blur-3xl pointer-events-none"></div>

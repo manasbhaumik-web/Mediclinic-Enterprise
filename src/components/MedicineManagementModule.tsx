@@ -381,7 +381,7 @@ export default function MedicineManagementModule() {
       {activeTab === 'supply_chain' && (
         <div className="space-y-6 animate-fadeIn">
           
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 shadow-sm relative overflow-hidden">
+          <div className="bg-indigo-50/80 dark:bg-[#082830] p-6 rounded-none border border-indigo-100 shadow-sm relative overflow-hidden">
             <Zap className="absolute -right-4 -bottom-4 w-32 h-32 text-indigo-500/10" />
             <h3 className="text-indigo-900 font-black text-lg mb-2 flex items-center gap-2">
               <BrainCircuit className="w-5 h-5 text-indigo-600" /> AI Supply Chain & Predictive Restocking

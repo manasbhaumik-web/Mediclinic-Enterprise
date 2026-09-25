@@ -795,8 +795,8 @@ export default function ClinicLandingPage({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* FEATURED HERO CARD (Spans 7 Cols on Desktop) */}
-            <div className="lg:col-span-7 bg-gradient-to-br from-[#e0f5f2] via-[#f0fdfa] to-[#f7fdfd] border border-[#b2f5ea] rounded-none p-7 shadow-xs space-y-6 relative overflow-hidden group hover:border-[#0d9488] transition-all">
-              <div className="h-1 bg-gradient-to-r from-[#0d9488] via-[#0284c7] to-[#0f766e] absolute top-0 left-0 right-0" />
+            <div className="lg:col-span-7 bg-[#f0fdfa] border border-[#b2f5ea] rounded-none p-7 shadow-xs space-y-6 relative overflow-hidden group hover:border-[#0d9488] transition-all">
+              <div className="h-1 bg-[#0d9488] absolute top-0 left-0 right-0" />
               
               {/* Subtle Ambient Background Watermark */}
               <div className="absolute top-0 right-0 w-60 h-60 bg-[#0d9488]/5 rounded-full blur-2xl pointer-events-none" />
@@ -868,7 +868,7 @@ export default function ClinicLandingPage({
 
             {/* CARD 2: PHARMACY & COMPOUNDING (Spans 5 Cols) */}
             <div className="lg:col-span-5 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group relative overflow-hidden">
-              <div className="h-1 bg-gradient-to-r from-emerald-500 to-[#0d9488] absolute top-0 left-0 right-0" />
+              <div className="h-1 bg-[#0d9488] absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs group-hover:scale-105 transition-transform">
@@ -903,7 +903,7 @@ export default function ClinicLandingPage({
 
             {/* CARD 3: PEDIATRICS & IMMUNIZATION (Spans 4 Cols) */}
             <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0284c7] hover:shadow-md transition-all group relative overflow-hidden">
-              <div className="h-1 bg-gradient-to-r from-sky-400 to-[#0284c7] absolute top-0 left-0 right-0" />
+              <div className="h-1 bg-[#0284c7] absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] shadow-2xs group-hover:scale-105 transition-transform">
@@ -937,7 +937,7 @@ export default function ClinicLandingPage({
 
             {/* CARD 4: CORPORATE PANEL & TPA BILLING (Spans 4 Cols) */}
             <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-indigo-600 hover:shadow-md transition-all group relative overflow-hidden">
-              <div className="h-1 bg-gradient-to-r from-indigo-400 to-indigo-600 absolute top-0 left-0 right-0" />
+              <div className="h-1 bg-indigo-600 absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-2xs group-hover:scale-105 transition-transform">
@@ -971,7 +971,7 @@ export default function ClinicLandingPage({
 
             {/* CARD 5: EXECUTIVE HEALTH SCREENING (Spans 4 Cols) */}
             <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group relative overflow-hidden">
-              <div className="h-1 bg-gradient-to-r from-teal-400 to-[#0d9488] absolute top-0 left-0 right-0" />
+              <div className="h-1 bg-[#0d9488] absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] shadow-2xs group-hover:scale-105 transition-transform">
@@ -983,7 +983,7 @@ export default function ClinicLandingPage({
                 </div>
 
                 <div className="space-y-1.5">
-                  <h3 className="text-base font-black text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">
+                  <h3 className="text-[#0f3c4c] text-base font-black group-hover:text-[#0d9488] transition-colors">
                     Executive Health Screening
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -1004,7 +1004,7 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 6: 24/7 EMERGENCY & SURGERY (Spans Full Width 12 Cols Banner) */}
-            <div className="lg:col-span-12 bg-gradient-to-r from-rose-50/80 via-[#f7fdfd] to-[#e0f5f2]/60 border border-rose-200/80 rounded-none p-6 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 hover:border-rose-400 transition-all group">
+            <div className="lg:col-span-12 bg-rose-50/80 border border-rose-200/80 rounded-none p-6 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 hover:border-rose-400 transition-all group">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-none bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/20">
                   <Clock className="w-6 h-6 animate-pulse" />

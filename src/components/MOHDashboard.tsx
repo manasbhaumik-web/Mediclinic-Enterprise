@@ -500,7 +500,7 @@ export default function MOHDashboard({
       {activeTab === 'workflow' && (
         <div className="space-y-5 animate-fadeIn">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-indigo-900 to-slate-900 p-6 rounded-xl shadow-lg text-white border border-indigo-500/30 relative overflow-hidden group hover:shadow-indigo-500/20 transition-all duration-300">
+            <div className="bg-indigo-950 p-6 rounded-none shadow-lg text-white border border-indigo-500/30 relative overflow-hidden group hover:shadow-indigo-500/20 transition-all duration-300">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500">
                 <Brain className="w-24 h-24" />
               </div>
@@ -516,7 +516,7 @@ export default function MOHDashboard({
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-emerald-900 to-slate-900 p-6 rounded-xl shadow-lg text-white border border-emerald-500/30 relative overflow-hidden group hover:shadow-emerald-500/20 transition-all duration-300">
+            <div className="bg-slate-900 p-6 rounded-none shadow-lg text-white border border-emerald-500/30 relative overflow-hidden group hover:shadow-emerald-500/20 transition-all duration-300">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500">
                 <FileText className="w-24 h-24" />
               </div>

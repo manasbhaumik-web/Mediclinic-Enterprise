@@ -129,12 +129,11 @@ export default function IntegrationsHub() {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* HEADER DASHBOARD */}
-      <div className="bg-gradient-to-r from-slate-900 to-indigo-950 p-6 rounded-2xl shadow-xl border border-slate-800 text-white relative overflow-hidden">
+      <div className="bg-slate-900 p-6 rounded-none shadow-xl border border-slate-800 text-white relative overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute top-0 right-0 p-8 opacity-5">
           <Network className="w-64 h-64" />
         </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/10 via-transparent to-transparent pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">

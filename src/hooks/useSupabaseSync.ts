@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Patient, Visit, Appointment } from '../types';
+import { INITIAL_PATIENTS, MOCK_VISITS_QUEUE } from '../data';
 
 export function useSupabaseSync() {
-  const [patientsList, setPatientsList] = useState<Patient[]>([]);
-  const [visitsQueue, setVisitsQueue] = useState<Visit[]>([]);
+  const [patientsList, setPatientsList] = useState<Patient[]>(INITIAL_PATIENTS);
+  const [visitsQueue, setVisitsQueue] = useState<Visit[]>(MOCK_VISITS_QUEUE);
   const [completedVisits, setCompletedVisits] = useState<Visit[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isSyncing, setIsSyncing] = useState(true);
@@ -17,8 +18,11 @@ export function useSupabaseSync() {
           .select('*')
           .order('registered_date', { ascending: false })
           .limit(100);
+        
+        let mergedPatients: Patient[] = [...INITIAL_PATIENTS];
+
         if (!pErr && dbPatients && dbPatients.length > 0) {
-          const mappedPatients: Patient[] = dbPatients.map(p => ({
+          const dbMapped: Patient[] = dbPatients.map(p => ({
             id: p.id,
             fullName: p.full_name,
             icNumber: p.ic_number,
@@ -30,16 +34,25 @@ export function useSupabaseSync() {
             drugAllergies: p.drug_allergies || [],
             registeredDate: p.registered_date
           }));
-          setPatientsList(mappedPatients);
+
+          dbMapped.forEach(p => {
+            if (!mergedPatients.some(existing => existing.id === p.id || existing.icNumber === p.icNumber)) {
+              mergedPatients.push(p);
+            }
+          });
         }
+        setPatientsList(mergedPatients);
 
         // Fetch active Visits with related SOAP notes and Prescriptions (filtering out Paid/Cancelled server-side)
         const { data: dbVisits, error: vErr } = await supabase.from('visits')
           .select('*, soap_notes(*), prescriptions(*)')
           .neq('status', 'Paid')
           .neq('status', 'Cancelled');
+        
+        let mergedVisits: Visit[] = [...MOCK_VISITS_QUEUE];
+
         if (!vErr && dbVisits && dbVisits.length > 0) {
-          const mappedVisits: Visit[] = dbVisits.map(v => {
+          const dbMapped: Visit[] = dbVisits.map(v => {
             const soap = v.soap_notes?.[0] || {};
             const rx = v.prescriptions || [];
             
@@ -90,10 +103,16 @@ export function useSupabaseSync() {
               }
             };
           });
-          
-          setVisitsQueue(mappedVisits.filter(v => v.status !== 'Paid' && v.status !== 'Cancelled'));
-          setCompletedVisits(mappedVisits.filter(v => v.status === 'Paid' || v.status === 'Cancelled'));
+
+          dbMapped.forEach(v => {
+            if (!mergedVisits.some(existing => existing.id === v.id)) {
+              mergedVisits.push(v);
+            }
+          });
         }
+
+        setVisitsQueue(mergedVisits.filter(v => v.status !== 'Paid' && v.status !== 'Cancelled'));
+        setCompletedVisits(mergedVisits.filter(v => v.status === 'Paid' || v.status === 'Cancelled'));
       } catch (err) {
         console.error('Supabase sync error', err);
       } finally {
@@ -266,7 +285,7 @@ export function useSupabaseSync() {
           follow_up_weeks: visit.soap.plan.followUpWeeks,
           mc_days: visit.soap.plan.mcDays,
           requires_referral: visit.soap.plan.requiresReferral,
-          pharmacy_memo: visit.soap.plan.pharmacyMemo
+          pharmacyMemo: visit.soap.plan.pharmacyMemo
         };
         
         if (existingSoap) {
@@ -298,58 +317,35 @@ export function useSupabaseSync() {
     }
   };
 
-  const addAppointmentToDb = async (appointment: Omit<Appointment, 'id' | 'createdAt'>) => {
+  const addAppointmentToDb = async (app: Appointment) => {
+    setAppointments(prev => [...prev, app]);
     try {
-      const { data, error } = await supabase.from('appointments').insert([{
-        patient_id: appointment.patientId || null,
-        patient_name: appointment.patientName,
-        patient_phone: appointment.patientPhone,
-        appointment_time: appointment.appointmentTime,
-        duration_minutes: appointment.durationMinutes,
-        purpose: appointment.purpose,
-        status: appointment.status,
-        doctor_id: appointment.doctorId || null,
-        notes: appointment.notes || ''
-      }]).select().single();
-      
-      if (error) throw error;
-      
-      const newAppointment: Appointment = {
-        id: data.id,
-        patientId: data.patient_id,
-        patientName: data.patient_name,
-        patientPhone: data.patient_phone,
-        appointmentTime: data.appointment_time,
-        durationMinutes: data.duration_minutes,
-        purpose: data.purpose,
-        status: data.status,
-        doctorId: data.doctor_id,
-        notes: data.notes,
-        createdAt: data.created_at
-      };
-      setAppointments(prev => [...prev, newAppointment].sort((a,b) => new Date(a.appointmentTime).getTime() - new Date(b.appointmentTime).getTime()));
+      await supabase.from('appointments').insert([{
+        id: app.id,
+        patient_id: app.patientId,
+        patient_name: app.patientName,
+        patient_phone: app.patientPhone,
+        appointment_time: app.appointmentTime,
+        duration_minutes: app.durationMinutes,
+        purpose: app.purpose,
+        status: app.status,
+        doctor_id: app.doctorId,
+        notes: app.notes
+      }]);
     } catch (err) {
       console.error('Failed to insert appointment', err);
-      throw err;
     }
   };
 
-  const updateAppointmentInDb = async (id: string, updates: Partial<Appointment>) => {
+  const updateAppointmentInDb = async (app: Appointment) => {
+    setAppointments(prev => prev.map(a => a.id === app.id ? app : a));
     try {
-      const dbUpdates: any = {};
-      if (updates.status !== undefined) dbUpdates.status = updates.status;
-      if (updates.appointmentTime !== undefined) dbUpdates.appointment_time = updates.appointmentTime;
-      if (updates.durationMinutes !== undefined) dbUpdates.duration_minutes = updates.durationMinutes;
-      if (updates.purpose !== undefined) dbUpdates.purpose = updates.purpose;
-      if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
-
-      const { error } = await supabase.from('appointments').update(dbUpdates).eq('id', id);
-      if (error) throw error;
-      
-      setAppointments(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
+      await supabase.from('appointments').update({
+        status: app.status,
+        notes: app.notes
+      }).eq('id', app.id);
     } catch (err) {
       console.error('Failed to update appointment', err);
-      throw err;
     }
   };
 
@@ -360,11 +356,12 @@ export function useSupabaseSync() {
     setVisitsQueue,
     completedVisits,
     setCompletedVisits,
+    appointments,
+    setAppointments,
     addPatientToDb,
+    searchPatients,
     addVisitToDb,
     updateVisitInDb,
-    searchPatients,
-    appointments,
     addAppointmentToDb,
     updateAppointmentInDb,
     isSyncing

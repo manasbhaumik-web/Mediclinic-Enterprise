@@ -43,8 +43,7 @@ export default function SystemArchitectureHub() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Microservices Infrastructure */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-slate-800 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#07B2B2] via-white to-white"></div>
+          <div className="bg-white p-6 rounded-none border border-slate-200 shadow-sm text-slate-800 relative overflow-hidden">
             
             <h3 className="text-sm font-bold uppercase tracking-wider mb-6 flex items-center gap-2 text-[#07B2B2] relative z-10">
               <Server className="w-5 h-5" />
@@ -119,7 +118,7 @@ export default function SystemArchitectureHub() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-5 rounded-2xl border border-indigo-100 shadow-sm">
+            <div className="bg-indigo-50/80 dark:bg-[#082830] p-5 rounded-none border border-indigo-100 shadow-sm">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-indigo-800">
                 <Cloud className="w-5 h-5 text-indigo-600" />
                 Cloud Sync Status

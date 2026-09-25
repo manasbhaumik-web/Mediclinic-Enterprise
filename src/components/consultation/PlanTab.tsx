@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   AlertTriangle, CheckCircle2, Activity, Pill, Trash2, FileText, 
   TestTube, Share, TrendingUp, PlusCircle 
@@ -99,138 +99,116 @@ export default function PlanTab({
     'glucophage': ['metformin', 'diabetes'],
     'norvasc': ['amlodipine', 'hypertension'],
     'lipitor': ['atorvastatin', 'cholesterol'],
-    'crestor': ['rosuvastatin', 'cholesterol']
+    'ventolin inhaler': ['salbutamol', 'inhaler']
   };
 
-  // Pediatric dose calculator logic (Paracetamol 15mg/kg standard)
-  useEffect(() => {
-    const weight = parseFloat(patientWeight);
+  // Recalculate pediatric dose on input change
+  useMemo(() => {
+    const w = parseFloat(patientWeight);
     const conc = parseFloat(medConcentration);
-    if (weight > 0 && conc > 0) {
-      const doseMg = weight * 15;
-      const volumeMl = doseMg / conc;
-      setCalculatedDose(volumeMl);
+    if (!isNaN(w) && w > 0 && !isNaN(conc) && conc > 0) {
+      const requiredMg = w * 15; // Standard paracetamol 15mg/kg
+      const requiredMl = requiredMg / conc;
+      setCalculatedDose(requiredMl);
     } else {
       setCalculatedDose(null);
     }
   }, [patientWeight, medConcentration]);
 
-  // Filter Drug Suggestions with Alias Support & Instant 1-Char Search
+  // Drug Suggestions Filter (supports trade alias match & sub-string search)
   const drugSuggestions = useMemo(() => {
     const q = searchDrugQuery.trim().toLowerCase();
-    if (q === '') return [];
-
-    // Find alias terms
-    let aliasTerms: string[] = [];
+    if (!q) return [];
+    
+    // Check if query matches a known trade name alias
+    let aliases: string[] = [];
     Object.keys(brandAliasMap).forEach(brand => {
       if (brand.includes(q) || q.includes(brand)) {
-        aliasTerms.push(brand, ...brandAliasMap[brand]);
+        aliases = [...aliases, ...brandAliasMap[brand]];
       }
     });
 
-    return mergedCatalog.filter(d => {
-      const nameMatch = d.name.toLowerCase().includes(q);
-      const catMatch = (d.category || '').toLowerCase().includes(q);
-      const allergyMatch = (d.allergyGroup || '').toLowerCase().includes(q);
-      const aliasMatch = aliasTerms.some(term => d.name.toLowerCase().includes(term) || (d.category || '').toLowerCase().includes(term));
-      return nameMatch || catMatch || allergyMatch || aliasMatch;
-    });
+    return mergedCatalog.filter(drug => {
+      const nameLower = drug.name.toLowerCase();
+      const catLower = (drug.category || '').toLowerCase();
+      const grpLower = (drug.allergyGroup || '').toLowerCase();
+      
+      const directMatch = nameLower.includes(q) || catLower.includes(q) || grpLower.includes(q);
+      const aliasMatch = aliases.some(alias => nameLower.includes(alias) || catLower.includes(alias));
+      
+      return directMatch || aliasMatch;
+    }).slice(0, 10);
   }, [searchDrugQuery, mergedCatalog]);
 
-  // Check Allergies whenever RX list updates
+  // Check Patient Allergies Against Selected Prescriptions
   const allergyAlerts = useMemo(() => {
+    if (!currentPatient || !currentPatient.drugAllergies || currentPatient.drugAllergies.length === 0) return [];
     const alerts: { drugName: string; allergyGroup: string }[] = [];
     
-    rxList.forEach(rx => {
-      const catalogDrug = mergedCatalog.find(d => d.name.toLowerCase() === rx.drugName.toLowerCase());
-      const allergyGroup = catalogDrug?.allergyGroup || (rx.drugName.toLowerCase().includes('paracetamol') ? 'Paracetamol' : rx.drugName.toLowerCase().includes('penicillin') || rx.drugName.toLowerCase().includes('amoxicillin') ? 'Penicillin' : 'None');
-      if (allergyGroup !== 'None') {
+    rxList.forEach(item => {
+      const catalogDrug = mergedCatalog.find(d => d.name.toLowerCase() === item.drugName.toLowerCase());
+      const grp = catalogDrug?.allergyGroup;
+      if (grp && grp !== 'None') {
         const isAllergic = currentPatient.drugAllergies.some(
-          allergy => allergy.toLowerCase() === allergyGroup.toLowerCase() ||
-                    allergyGroup.toLowerCase().includes(allergy.toLowerCase()) ||
-                    allergy.toLowerCase().includes(allergyGroup.toLowerCase())
+          a => a.toLowerCase() === grp.toLowerCase() || grp.toLowerCase().includes(a.toLowerCase())
         );
         if (isAllergic) {
-          alerts.push({
-            drugName: rx.drugName,
-            allergyGroup: allergyGroup
-          });
+          alerts.push({ drugName: item.drugName, allergyGroup: grp });
         }
       }
     });
-
     return alerts;
   }, [rxList, currentPatient, mergedCatalog]);
 
-  // Check Drug-Disease Contraindications
+  // Check Clinical Disease Contraindications (e.g., NSAID given to Asthmatic or Gastritis patient)
   const contraindicationAlerts = useMemo(() => {
+    if (!selectedICD) return [];
     const alerts: { drugName: string; icdCode: string; reason: string }[] = [];
-    if (!selectedICD) return alerts;
+    
+    const icdCode = selectedICD.code.toUpperCase();
+    
+    rxList.forEach(item => {
+      const name = item.drugName.toLowerCase();
+      const catalogDrug = mergedCatalog.find(d => d.name.toLowerCase() === name);
+      const grp = (catalogDrug?.allergyGroup || '').toLowerCase();
 
-    const icdCodeUpper = selectedICD.code.toUpperCase();
+      // Rule 1: NSAID / Aspirin in Gastritis / Peptic Ulcer Disease (K29 / K25)
+      if ((icdCode.startsWith('K29') || icdCode.startsWith('K25')) && (grp.includes('nsaid') || name.includes('mefenamic') || name.includes('diclofenac') || name.includes('ibuprofen') || name.includes('naproxen'))) {
+        alerts.push({
+          drugName: item.drugName,
+          icdCode: selectedICD.code,
+          reason: 'NSAID / Anti-inflammatory drugs can aggravate gastric ulceration and gastrointestinal bleeding.'
+        });
+      }
 
-    rxList.forEach(rx => {
-      const drugLower = rx.drugName.toLowerCase();
-      // Rule 1: Gastritis / Peptic Ulcer vs NSAIDs
-      if (icdCodeUpper.startsWith('K30') || icdCodeUpper.startsWith('K29') || icdCodeUpper.startsWith('K27')) {
-        if (drugLower.includes('ibuprofen') || drugLower.includes('diclofenac') || drugLower.includes('mefenamic') || drugLower.includes('aspirin') || drugLower.includes('naproxen') || drugLower.includes('ponstan') || drugLower.includes('voltaren')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `NSAIDs cause gastric mucosal erosion and risk ulceration in Gastritis (${selectedICD.code}).`
-          });
-        }
-      }
-      // Rule 2: Asthma vs Beta-blockers
-      if (icdCodeUpper.startsWith('J45') || icdCodeUpper.startsWith('J44')) {
-        if (drugLower.includes('propranolol') || drugLower.includes('atenolol') || drugLower.includes('carvedilol') || drugLower.includes('metoprolol')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `Beta-blockers induce bronchospasm in Asthmatic conditions (${selectedICD.code}).`
-          });
-        }
-      }
-      // Rule 3: Hypertension vs Decongestants
-      if (icdCodeUpper.startsWith('I10')) {
-        if (drugLower.includes('pseudoephedrine') || drugLower.includes('phenylephrine') || drugLower.includes('actifed') || drugLower.includes('decongestant')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `Sympathomimetic decongestants cause arterial vasoconstriction & BP elevation in Hypertension (${selectedICD.code}).`
-          });
-        }
-      }
-      // Rule 4: Diabetes vs Corticosteroids
-      if (icdCodeUpper.startsWith('E11')) {
-        if (drugLower.includes('dexamethasone') || drugLower.includes('prednisolone') || drugLower.includes('cortisone')) {
-          alerts.push({
-            drugName: rx.drugName,
-            icdCode: selectedICD.code,
-            reason: `Systemic corticosteroids induce severe hyperglycemia in Type 2 Diabetes (${selectedICD.code}).`
-          });
-        }
+      // Rule 2: Non-selective Beta Blockers in Asthma (J45)
+      if (icdCode.startsWith('J45') && (name.includes('propranolol') || name.includes('atenolol'))) {
+        alerts.push({
+          drugName: item.drugName,
+          icdCode: selectedICD.code,
+          reason: 'Beta-blockers can trigger severe bronchospasm in asthmatic patients.'
+        });
       }
     });
     return alerts;
-  }, [rxList, selectedICD]);
+  }, [rxList, selectedICD, mergedCatalog]);
 
-  const handleAddDrug = (catalogDrug: any) => {
-    if (rxList.some(r => r.drugName === catalogDrug.name)) {
+  const handleAddDrug = (drug: any) => {
+    if (rxList.some(r => r.drugName.toLowerCase() === drug.name.toLowerCase())) {
       setSearchDrugQuery('');
       return;
     }
     const newRx: PrescriptionItem = {
-      id: `rx-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      drugName: catalogDrug.name,
-      dosage: catalogDrug.dosageEN || 'Take as instructed by physician',
-      dosageBM: catalogDrug.dosageBM || 'Ambil mengikut arahan doktor',
-      frequency: catalogDrug.frequency || 'BD (Twice Daily)',
-      quantity: catalogDrug.quantity || 10,
-      pricePerUnit: typeof catalogDrug.pricePerUnit === 'number' ? catalogDrug.pricePerUnit : (catalogDrug.price || 0.50),
-      expiryDate: catalogDrug.expiryDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      pillColor: catalogDrug.pillColor || '#3b82f6',
-      capsuleStyle: catalogDrug.capsuleStyle || 'solid'
+      id: `rx-${Date.now()}-${Math.random()}`,
+      drugName: drug.name,
+      dosage: drug.dosageEN || 'Take as instructed',
+      dosageBM: drug.dosageBM || 'Makan mengikut arahan',
+      frequency: drug.frequency || '1 Tab BD',
+      quantity: 10,
+      pricePerUnit: drug.pricePerUnit || 0.50,
+      expiryDate: `${new Date().getFullYear() + 2}-12-31`,
+      pillColor: drug.pillColor || '#0d9488',
+      capsuleStyle: drug.capsuleStyle || 'solid'
     };
     setRxList([...rxList, newRx]);
     setSearchDrugQuery('');
@@ -238,22 +216,17 @@ export default function PlanTab({
 
   const handleAddCustomDrug = (customName: string) => {
     if (!customName.trim()) return;
-    const name = customName.trim();
-    if (rxList.some(r => r.drugName.toLowerCase() === name.toLowerCase())) {
-      setSearchDrugQuery('');
-      return;
-    }
     const newRx: PrescriptionItem = {
-      id: `rx-${Date.now()}`,
-      drugName: name,
+      id: `rx-custom-${Date.now()}`,
+      drugName: customName.trim(),
       dosage: 'Take as directed by doctor',
-      dosageBM: 'Makan seperti yang diarahkan oleh doktor',
-      frequency: 'TDS (Thrice Daily)',
+      dosageBM: 'Makan mengikut arahan doktor',
+      frequency: '1 Tab BD',
       quantity: 10,
       pricePerUnit: 1.00,
-      expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      pillColor: '#10b981',
-      capsuleStyle: 'round'
+      expiryDate: `${new Date().getFullYear() + 2}-06-30`,
+      pillColor: '#0d9488',
+      capsuleStyle: 'solid'
     };
     setRxList([...rxList, newRx]);
     setSearchDrugQuery('');
@@ -261,28 +234,26 @@ export default function PlanTab({
 
   const handleAddPediatricSyrup = () => {
     if (!calculatedDose || calculatedDose <= 0) return;
-    const doseStr = calculatedDose.toFixed(1);
-    const concLabel = medConcentration === '24' ? '120mg/5ml' : medConcentration === '50' ? '250mg/5ml' : `${medConcentration}mg/ml`;
-    const syrupName = `Paracetamol ${concLabel} Pediatric Syrup (${doseStr}ml dose)`;
-    
+    const doseStr = `${calculatedDose.toFixed(1)} ml TDS (3 times daily) after meals`;
+    const doseBMStr = `${calculatedDose.toFixed(1)} ml 3 kali sehari selepas makan`;
     const newRx: PrescriptionItem = {
       id: `rx-peds-${Date.now()}`,
-      drugName: syrupName,
-      dosage: `Give ${doseStr}ml (calculated for ${patientWeight}kg) three times daily after food for fever/pain`,
-      dosageBM: `Beri ${doseStr}ml (dikira untuk ${patientWeight}kg) 3 kali sehari selepas makan untuk demam/sakit`,
-      frequency: 'TDS PRN (3x Daily As Needed)',
-      quantity: 1,
-      pricePerUnit: 9.50,
-      expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      pillColor: '#ec4899',
+      drugName: `Syrup Paracetamol (${medConcentration === '24' ? '120mg/5ml' : medConcentration === '50' ? '250mg/5ml' : '100mg/ml Infant'})`,
+      dosage: doseStr,
+      dosageBM: doseBMStr,
+      frequency: 'TDS (3x Daily)',
+      quantity: 1, // 1 Bottle
+      pricePerUnit: 12.00,
+      expiryDate: `${new Date().getFullYear() + 1}-12-31`,
+      pillColor: '#f43f5e',
       capsuleStyle: 'solid'
     };
     setRxList([...rxList, newRx]);
   };
 
   const triggerMcOpening = () => {
-    const randomRef = `MC-${Math.floor(100000 + Math.random() * 900000)}`;
-    setMcReferenceNo(randomRef);
+    setMcDays(2);
+    setMcReferenceNo(`MC-${Date.now().toString().slice(-6)}`);
     setIsMcModalOpen(true);
   };
 
@@ -290,12 +261,12 @@ export default function PlanTab({
     <div className="space-y-5 animate-fadeIn relative">
       {/* AI DRUG INTERACTION ALERT */}
       {allergyAlerts.length > 0 ? (
-        <div className="bg-red-600 text-white p-3 rounded-lg shadow-lg animate-bounce-slow flex items-start gap-3">
-          <AlertTriangle className="w-6 h-6 shrink-0" />
+        <div className="bg-rose-600 text-white p-3.5 rounded-none shadow-md flex items-start gap-3 border border-rose-700">
+          <AlertTriangle className="w-5 h-5 shrink-0 text-white" />
           <div>
-            <h4 className="font-black text-sm uppercase tracking-wider">AI ALERT: Drug Interaction Detected!</h4>
-            <p className="text-xs mt-0.5">Patient has a known allergy history that conflicts with your prescription plan.</p>
-            <ul className="text-[10px] mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded">
+            <h4 className="font-extrabold text-xs uppercase tracking-wider">AI SAFETY ALERT: Drug Interaction Conflict Detected!</h4>
+            <p className="text-[11px] mt-0.5 opacity-95">Patient has registered allergies conflicting with your selected prescription plan.</p>
+            <ul className="text-[10px] mt-1.5 list-disc pl-4 font-mono bg-black/20 p-2 rounded-none">
               {allergyAlerts.map((alert, idx) => (
                 <li key={idx}><span className="font-bold">{alert.drugName}</span> belongs to <span className="font-bold underline">{alert.allergyGroup}</span> family.</li>
               ))}
@@ -303,35 +274,35 @@ export default function PlanTab({
           </div>
         </div>
       ) : rxList.length > 0 ? (
-        <div className="bg-emerald-50 text-emerald-700 p-2.5 rounded-lg border border-emerald-100 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">AI Interaction Scan: Safe (No Contraindications Detected)</span>
+        <div className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] p-3 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 flex items-center gap-2 shadow-2xs">
+          <CheckCircle2 className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
+          <span className="text-[11px] font-bold uppercase tracking-wider">AI Interaction Check: Safe (Zero Contraindications Detected)</span>
         </div>
       ) : null}
 
       {/* PEDIATRIC DOSAGE CALCULATOR */}
-      <div className="bg-blue-50/70 p-3 rounded-lg border border-blue-200 dark:bg-slate-800/80 dark:border-blue-900/60">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="text-xs font-extrabold text-blue-900 dark:text-blue-300 uppercase flex items-center gap-1.5">
-            <Activity className="w-4 h-4 text-blue-600" /> Pediatric Dosage Calculator (Paracetamol 15mg/kg)
+      <div className="bg-[#e0f5f2]/80 dark:bg-[#082830] p-4 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs">
+        <div className="flex items-center justify-between mb-2.5">
+          <h4 className="text-xs font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-1.5 tracking-wider">
+            <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" /> Pediatric Dosage Calculator (Paracetamol 15mg/kg)
           </h4>
-          <span className="text-[10px] text-blue-700 font-semibold bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 rounded">
-            Standard: 15mg / kg body weight
+          <span className="text-[10px] text-[#0f766e] dark:text-[#5eead4] bg-white dark:bg-[#082830] px-2.5 py-0.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/40">
+            Clinical Standard: 15mg / kg
           </span>
         </div>
         
         {/* Weight & Concentration Presets */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
           <div>
-            <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">
-              Child Weight (kg)
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              Child Body Weight (kg)
             </label>
             <Input 
               type="number" 
-              className="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white dark:bg-slate-900 dark:text-white"
+              className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
               value={patientWeight}
               onChange={e => setPatientWeight(e.target.value)}
-              placeholder="Enter weight e.g. 12"
+              placeholder="e.g. 12"
             />
             {/* Quick Weight Presets */}
             <div className="flex gap-1 mt-1.5 flex-wrap">
@@ -340,7 +311,11 @@ export default function PlanTab({
                   key={w}
                   type="button"
                   onClick={() => setPatientWeight(w)}
-                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${patientWeight === w ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-blue-50 cursor-pointer'}`}
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
+                    patientWeight === w 
+                      ? 'bg-[#0d9488] text-white border-[#0d9488]' 
+                      : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] cursor-pointer'
+                  }`}
                 >
                   {w}kg
                 </button>
@@ -349,77 +324,85 @@ export default function PlanTab({
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">
-              Syrup Concentration
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              Syrup Formulation Concentration
             </label>
             <select
-              className="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white dark:bg-slate-900 dark:text-white font-medium"
+              className="w-full text-xs px-2.5 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
               value={medConcentration}
               onChange={e => setMedConcentration(e.target.value)}
             >
-              <option value="24">120mg / 5ml Syrup (Standard 24mg/ml)</option>
-              <option value="50">250mg / 5ml Syrup (Forte 50mg/ml)</option>
+              <option value="24">120mg / 5ml Standard Syrup (24mg/ml)</option>
+              <option value="50">250mg / 5ml Forte Syrup (50mg/ml)</option>
               <option value="100">100mg / ml Drops (Infant 100mg/ml)</option>
             </select>
-            <div className="flex gap-1 mt-1.5">
+            <div className="flex gap-1.5 mt-1.5">
               <button
                 type="button"
                 onClick={() => setMedConcentration('24')}
-                className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${medConcentration === '24' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-blue-50 cursor-pointer'}`}
+                className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
+                  medConcentration === '24' 
+                    ? 'bg-[#0d9488] text-white border-[#0d9488]' 
+                    : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] cursor-pointer'
+                }`}
               >
                 120mg/5ml
               </button>
               <button
                 type="button"
                 onClick={() => setMedConcentration('50')}
-                className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${medConcentration === '50' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-blue-50 cursor-pointer'}`}
+                className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
+                  medConcentration === '50' 
+                    ? 'bg-[#0d9488] text-white border-[#0d9488]' 
+                    : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] cursor-pointer'
+                }`}
               >
                 250mg/5ml
               </button>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-2.5 rounded border border-blue-200 dark:border-blue-900 flex flex-col justify-between h-full shadow-2xs">
+          <div className="bg-white dark:bg-[#082830] p-3 rounded-none border border-[#b2f5ea] dark:border-teal-800/40 flex flex-col justify-between h-full shadow-2xs">
             <div>
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Calculated Single Dose</span>
               <div className="flex items-baseline gap-2 mt-0.5">
-                <span className="font-mono font-black text-blue-700 dark:text-blue-400 text-lg leading-none">
+                <span className="font-mono font-black text-[#0d9488] dark:text-[#2dd4bf] text-lg leading-none">
                   {typeof calculatedDose === 'number' && !isNaN(calculatedDose) ? `${calculatedDose.toFixed(1)} ml` : '--'}
                 </span>
                 {typeof calculatedDose === 'number' && !isNaN(calculatedDose) && (
-                  <span className="text-[10px] text-slate-500 font-mono">({(parseFloat(patientWeight) * 15).toFixed(0)} mg)</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">({(parseFloat(patientWeight) * 15).toFixed(0)} mg)</span>
                 )}
               </div>
             </div>
             
             {typeof calculatedDose === 'number' && !isNaN(calculatedDose) && calculatedDose > 0 && (
-              <Button
+              <button
                 type="button"
                 onClick={handleAddPediatricSyrup}
-                className="mt-2 w-full text-[10px] font-extrabold bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                className="mt-2 w-full text-[10px] font-extrabold bg-[#0d9488] hover:bg-[#0f766e] text-white py-1.5 px-2 rounded-none flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-xs"
               >
-                <PlusCircle className="w-3 h-3" /> Add {calculatedDose.toFixed(1)}ml Syrup to Rx
-              </Button>
+                <PlusCircle className="w-3.5 h-3.5" /> + Add {calculatedDose.toFixed(1)}ml Syrup to Rx
+              </button>
             )}
           </div>
         </div>
       </div>
 
       {/* Medication prescription search bar */}
-      <div>
-        <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-tight mb-1">
-          Add Medication & Drug Catalog Search
+      <div className="space-y-1">
+        <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">
+          Medication Catalog &amp; Brand Alias Search
         </label>
         <div className="relative">
           <Input
             type="text"
-            className="w-full text-xs px-3 py-2 border border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-[#0D9488] focus:outline-none font-medium"
+            className="w-full text-xs px-3.5 py-2.5 border border-[#b2f5ea] dark:border-teal-800/50 bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white rounded-none focus:ring-3 focus:ring-[#0d9488]/15 focus:border-[#0d9488] focus:outline-none font-medium placeholder:text-slate-400"
             value={searchDrugQuery}
             onChange={(e) => setSearchDrugQuery(e.target.value)}
             placeholder="Search catalog or brand names (e.g. 'Panadol', 'Amoxicillin', 'Augmentin', 'Ponstan', 'Voltaren', 'Zyrtec')..."
           />
           {searchDrugQuery.trim().length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl z-20 max-h-[220px] overflow-y-auto">
+            <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-700/50 rounded-none shadow-xl z-20 max-h-[220px] overflow-y-auto divide-y divide-slate-100 dark:divide-teal-800/40">
               {drugSuggestions.length > 0 ? (
                 drugSuggestions.map((item) => {
                   const isConflict = item.allergyGroup && item.allergyGroup !== 'None' && currentPatient.drugAllergies.some(
@@ -432,17 +415,17 @@ export default function PlanTab({
                       key={item.id}
                       type="button"
                       onClick={() => handleAddDrug(item)}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-teal-50 dark:hover:bg-slate-800 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between cursor-pointer transition-colors"
+                      className="w-full text-left px-3.5 py-2 text-xs hover:bg-[#e0f5f2]/60 dark:hover:bg-[#0e4857] flex items-center justify-between cursor-pointer transition-colors"
                     >
                       <div>
-                        <span className="font-bold text-slate-900 dark:text-white block">{item.name}</span>
+                        <span className="font-bold text-[#0f3c4c] dark:text-white block">{item.name}</span>
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
                           {item.category || 'General Medication'} (Allergen Group: {item.allergyGroup || 'None'})
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        {isConflict && <span className="bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded text-[8px] uppercase">Allergy Conflict</span>}
-                        <span className="font-mono text-[#0D9488] dark:text-teal-400 font-bold">RM{price.toFixed(2)}</span>
+                        {isConflict && <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 font-bold px-1.5 py-0.5 rounded-none text-[8px] uppercase">Allergy Conflict</span>}
+                        <span className="font-mono text-[#0d9488] dark:text-[#2dd4bf] font-bold">RM{price.toFixed(2)}</span>
                       </div>
                     </button>
                   );
@@ -453,9 +436,9 @@ export default function PlanTab({
               <button
                 type="button"
                 onClick={() => handleAddCustomDrug(searchDrugQuery)}
-                className="w-full text-left px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800/90 hover:bg-teal-100 dark:hover:bg-teal-900/40 text-teal-800 dark:text-teal-300 font-bold flex items-center gap-2 cursor-pointer border-t border-slate-200"
+                className="w-full text-left px-3.5 py-2.5 text-xs bg-[#e0f5f2]/70 dark:bg-[#0e4857] hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] text-[#0f766e] dark:text-[#5eead4] font-bold flex items-center gap-2 cursor-pointer border-t border-[#b2f5ea] dark:border-teal-700/50"
               >
-                <PlusCircle className="w-4 h-4 text-[#0D9488]" />
+                <PlusCircle className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
                 <span>Add Custom Prescription: "{searchDrugQuery}"</span>
               </button>
             </div>
@@ -464,12 +447,12 @@ export default function PlanTab({
       </div>
 
       {/* SMART DOSAGE QUICK-PILLS PRESET BAR */}
-      <div className="bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 space-y-1.5">
+      <div className="bg-[#f7fdfd] dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none p-3 space-y-2 shadow-2xs">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
-            <Pill className="w-3.5 h-3.5 text-[#0D9488]" /> Fast Preset Dosage Quick-Pills
+          <span className="text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1">
+            <Pill className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Fast Dosage Preset Quick-Pills
           </span>
-          <span className="text-[9px] text-slate-400">Click to apply to active prescription</span>
+          <span className="text-[9px] text-slate-400">Click to apply preset instructions to last added medication</span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
           {[
@@ -479,7 +462,7 @@ export default function PlanTab({
             { label: '1 Tab PRN (As Needed)', freq: '1 Tab PRN', en: 'Take 1 tablet when needed for pain/fever', bm: 'Makan 1 biji jika perlu bila sakit/demam' },
             { label: 'Take After Meals', freq: 'After Meals', en: 'Take after meals', bm: 'Makan selepas makan' }
           ].map((preset, pIdx) => (
-            <Button
+            <button
               key={pIdx}
               type="button"
               onClick={() => {
@@ -490,25 +473,25 @@ export default function PlanTab({
                   setRxList(updated);
                 }
               }}
-              className="text-[10px] font-bold bg-white dark:bg-slate-800 hover:bg-[#0D9488] hover:text-white text-[#0D9488] dark:text-teal-400 px-2.5 py-1 rounded-md border border-teal-200 dark:border-teal-900 shadow-2xs transition-colors cursor-pointer"
+              className="text-[10px] font-bold bg-white dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] px-2.5 py-1 rounded-none border border-[#b2f5ea] dark:border-teal-700/50 shadow-2xs transition-all cursor-pointer"
             >
               + {preset.label}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Currently Selected Prescription list */}
-      <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden space-y-0">
+      <div className="border border-[#b2f5ea] dark:border-teal-800/50 rounded-none overflow-hidden shadow-xs bg-white dark:bg-[#0c3844]">
         {contraindicationAlerts.length > 0 && (
-          <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900 p-3 space-y-1">
-            <h5 className="text-xs font-extrabold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+          <div className="bg-amber-50 dark:bg-amber-950/60 border-b border-amber-200 dark:border-amber-800/50 p-3.5 space-y-1">
+            <h5 className="text-xs font-extrabold text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4 text-amber-600 animate-bounce-slow" /> Drug-Disease Clinical Contraindication Alert ({contraindicationAlerts.length})
             </h5>
             <div className="space-y-1">
               {contraindicationAlerts.map((alert, idx) => (
                 <p key={idx} className="text-[11px] text-amber-800 dark:text-amber-300 font-medium leading-relaxed">
-                  • <strong className="font-bold underline">{alert.drugName}</strong> vs Diagnosis <strong className="font-mono bg-amber-100 dark:bg-amber-900/60 px-1 rounded text-amber-900 dark:text-amber-200 font-bold">{alert.icdCode}</strong>: {alert.reason}
+                  • <strong className="font-bold underline">{alert.drugName}</strong> vs Diagnosis <strong className="font-mono bg-amber-100 dark:bg-amber-900 px-1 rounded-none text-amber-900 dark:text-amber-200 font-bold">{alert.icdCode}</strong>: {alert.reason}
                 </p>
               ))}
             </div>
@@ -516,17 +499,17 @@ export default function PlanTab({
         )}
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
-              <th className="px-3 py-2">Medication Info</th>
-              <th className="px-3 py-2">Frequency & Instructions</th>
-              <th className="px-3 py-2 w-20">Qty</th>
-              <th className="px-3 py-2 text-right w-24">Price (MYR)</th>
-              <th className="px-3 py-2 text-center w-12">Action</th>
+            <tr className="bg-[#f7fdfd] dark:bg-[#082830] border-b border-[#b2f5ea] dark:border-teal-800/50 text-[10px] text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider font-bold">
+              <th className="px-3.5 py-2.5">Medication Info</th>
+              <th className="px-3.5 py-2.5">Frequency &amp; Instructions</th>
+              <th className="px-3.5 py-2.5 w-20">Qty</th>
+              <th className="px-3.5 py-2.5 text-right w-24">Price (MYR)</th>
+              <th className="px-3.5 py-2.5 text-center w-12">Action</th>
             </tr>
           </thead>
           <tbody>
             {rxList.length === 0 ? (
-              <tr><td colSpan={5} className="text-center p-6 text-xs text-slate-400 italic">No medications prescribed yet. Search above (e.g. 'Panadol', 'Amoxicillin') to construct treatment.</td></tr>
+              <tr><td colSpan={5} className="text-center p-6 text-xs text-slate-400 italic">No medications prescribed yet. Search above (e.g. 'Panadol', 'Amoxicillin') to construct treatment plan.</td></tr>
             ) : (
               rxList.map((rx) => {
                 const catalogDrugDef = mergedCatalog.find(d => d.name.toLowerCase() === rx.drugName.toLowerCase());
@@ -537,30 +520,30 @@ export default function PlanTab({
                 const itemTotal = unitPrice * (rx.quantity || 1);
                 
                 return (
-                  <tr key={rx.id} className={`border-b text-xs border-slate-100 dark:border-slate-800 ${hasConflict ? 'bg-red-50/60 dark:bg-red-950/40' : isContraindicated ? 'bg-amber-50/60 dark:bg-amber-950/40' : 'hover:bg-slate-50/50 dark:hover:bg-slate-900/50'}`}>
-                    <td className="px-3 py-2.5">
-                      <span className="font-bold text-slate-800 dark:text-slate-100 block">{rx.drugName}</span>
+                  <tr key={rx.id} className={`border-b text-xs border-slate-100 dark:border-teal-800/30 ${hasConflict ? 'bg-rose-50/70 dark:bg-rose-950/40' : isContraindicated ? 'bg-amber-50/70 dark:bg-amber-950/40' : 'hover:bg-[#f7fdfd] dark:hover:bg-[#0e4857]'}`}>
+                    <td className="px-3.5 py-2.5">
+                      <span className="font-bold text-[#0f3c4c] dark:text-white block">{rx.drugName}</span>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                        <span className="w-2.5 h-2.5 rounded-full inline-block border border-slate-300" style={{ backgroundColor: rx.pillColor || '#3b82f6' }} />
+                        <span className="w-2.5 h-2.5 rounded-full inline-block border border-slate-300" style={{ backgroundColor: rx.pillColor || '#0d9488' }} />
                         <span className="text-[10px] text-slate-400">Batch Expiry: {rx.expiryDate || 'N/A'}</span>
-                        {isContraindicated && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider border border-amber-300 flex items-center gap-1"><AlertTriangle className="w-3 h-3 text-amber-600" /> ICD Contraindication</span>}
+                        {isContraindicated && <span className="text-[9px] bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider border border-amber-300 flex items-center gap-1"><AlertTriangle className="w-3 h-3 text-amber-600" /> ICD Contraindication</span>}
                       </div>
                     </td>
-                    <td className="px-3 py-2.5 font-mono text-[10px] text-slate-600 dark:text-slate-300">
-                      <span className="font-bold text-[#0D9488] dark:text-teal-400 block">{rx.frequency}</span>
-                      <span className="block text-slate-500 dark:text-slate-400 line-clamp-1 italic" title={rx.dosage}>{rx.dosage}</span>
+                    <td className="px-3.5 py-2.5 text-[11px] text-slate-600 dark:text-slate-300">
+                      <span className="font-bold text-[#0d9488] dark:text-[#2dd4bf] block">{rx.frequency}</span>
+                      <span className="block text-slate-500 dark:text-slate-400 italic line-clamp-1" title={rx.dosage}>{rx.dosage}</span>
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-3.5 py-2.5">
                       <Input
                         type="number"
-                        className="w-16 border rounded px-1.5 py-0.5 text-center font-mono dark:bg-slate-900 dark:text-white"
+                        className="w-16 border border-slate-200 dark:border-teal-800/40 rounded-none px-2 py-1 text-center font-mono font-bold text-[#0f3c4c] dark:text-white bg-white dark:bg-[#07252d]"
                         value={rx.quantity}
                         onChange={(e) => setRxList(rxList.map(r => r.id === rx.id ? { ...r, quantity: Math.max(1, parseInt(e.target.value) || 1) } : r))}
                       />
                     </td>
-                    <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-800 dark:text-slate-200">RM{itemTotal.toFixed(2)}</td>
-                    <td className="px-3 py-2.5 text-center">
-                      <Button type="button" onClick={() => setRxList(rxList.filter(r => r.id !== rx.id))} className="text-slate-400 hover:text-red-600 transition-colors cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></Button>
+                    <td className="px-3.5 py-2.5 text-right font-mono font-bold text-[#0f3c4c] dark:text-[#5eead4]">RM{itemTotal.toFixed(2)}</td>
+                    <td className="px-3.5 py-2.5 text-center">
+                      <button type="button" onClick={() => setRxList(rxList.filter(r => r.id !== rx.id))} className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
                     </td>
                   </tr>
                 );
@@ -571,79 +554,79 @@ export default function PlanTab({
       </div>
 
       {/* PHARMACY MEMO */}
-      <div>
-        <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-tight mb-1">Notes / Instructions for Pharmacist</label>
+      <div className="space-y-1">
+        <label className="block text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">Instructions &amp; Special Memos for Pharmacist</label>
         <textarea
-          className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-cyan-600 focus:outline-none"
+          className="w-full text-xs px-3.5 py-2.5 border border-[#b2f5ea] dark:border-teal-800/50 rounded-none focus:ring-2 focus:ring-[#0d9488] focus:outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white"
           value={pharmacyMemo}
           onChange={e => setPharmacyMemo(e.target.value)}
-          placeholder="e.g., Please demonstrate inhaler technique. Patient prefers liquid formulation if possible."
+          placeholder="e.g., Please demonstrate inhaler technique. Patient prefers liquid syrup formulation if available."
           rows={2}
         />
       </div>
 
       {/* Plan Actions (MC, Labs, Referrals) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        <div className="flex flex-col p-3.5 bg-white dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow">
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#0D9488]" />
+            <FileText className="w-5 h-5 text-[#0d9488] dark:text-[#2dd4bf]" />
             <div>
-              <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Medical Cert (MC)</span>
-              <span className="text-[9px] text-slate-400 leading-tight block">Issue paid clinic recovery leave.</span>
+              <span className="text-xs font-bold block text-[#0f3c4c] dark:text-white uppercase tracking-tight">Medical Cert (MC)</span>
+              <span className="text-[10px] text-slate-400 leading-tight block">Issue paid clinic recovery leave.</span>
             </div>
           </div>
           {mcGenerated ? (
             <div className="flex flex-col gap-1 mt-auto">
-              <span className="text-[10px] text-cyan-800 bg-cyan-100 font-bold px-2 py-0.5 rounded text-center">{mcDays} Days Issued ({selectedICD?.code || 'Diagnose'})</span>
+              <span className="text-[10px] text-[#0f766e] dark:text-[#5eead4] bg-[#e0f5f2] dark:bg-[#082830] font-bold px-2 py-1 rounded-none text-center border border-[#b2f5ea] dark:border-teal-800/40">{mcDays} Days Issued ({selectedICD?.code || 'Diagnosis'})</span>
               <div className="flex items-center gap-2 mt-1 justify-center">
-                <Button type="button" onClick={() => setIsMcModalOpen(true)} className="text-[10px] font-bold text-[#0D9488] underline cursor-pointer text-center">View Certificate</Button>
-                <Button type="button" onClick={() => setMcGenerated(false)} className="text-[10px] font-bold text-red-500 hover:text-red-600 underline cursor-pointer text-center">Revoke</Button>
+                <button type="button" onClick={() => setIsMcModalOpen(true)} className="text-[10px] font-bold text-[#0d9488] dark:text-[#2dd4bf] underline cursor-pointer text-center">View Certificate</button>
+                <button type="button" onClick={() => setMcGenerated(false)} className="text-[10px] font-bold text-rose-500 hover:text-rose-600 underline cursor-pointer text-center">Revoke</button>
               </div>
             </div>
           ) : (
-            <Button type="button" onClick={triggerMcOpening} className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto">Generate MC</Button>
+            <button type="button" onClick={triggerMcOpening} className="bg-[#e0f5f2] dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-700/50 w-full py-1.5 rounded-none text-[10px] font-bold uppercase transition-all cursor-pointer mt-auto">Generate MC</button>
           )}
         </div>
 
-        <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex flex-col p-3.5 bg-white dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow">
           <div className="flex items-center gap-2">
-            <TestTube className="w-5 h-5 text-purple-500" />
+            <TestTube className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             <div>
-              <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Lab & Imaging</span>
-              <span className="text-[9px] text-slate-400 leading-tight block">Order bloodwork or radiology.</span>
+              <span className="text-xs font-bold block text-[#0f3c4c] dark:text-white uppercase tracking-tight">Lab &amp; Imaging</span>
+              <span className="text-[10px] text-slate-400 leading-tight block">Order bloodwork or radiology.</span>
             </div>
           </div>
-          <Button type="button" className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto" onClick={() => alert('Lab & Imaging module will open a side panel for test selection.')}>Order Tests</Button>
+          <button type="button" className="bg-[#e0f5f2] dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-700/50 w-full py-1.5 rounded-none text-[10px] font-bold uppercase transition-all cursor-pointer mt-auto" onClick={() => alert('Lab & Imaging module will open a side panel for test selection.')}>Order Tests</button>
         </div>
 
-        <div className="flex flex-col p-3 bg-slate-50 border border-slate-200 rounded-lg justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex flex-col p-3.5 bg-white dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow">
           <div className="flex items-center gap-2">
-            <Share className="w-5 h-5 text-indigo-500" />
+            <Share className="w-5 h-5 text-sky-600 dark:text-sky-400" />
             <div>
-              <span className="text-xs font-bold block text-slate-700 uppercase tracking-tight">Specialist Referral</span>
-              <span className="text-[9px] text-slate-400 leading-tight block">Draft referral letter.</span>
+              <span className="text-xs font-bold block text-[#0f3c4c] dark:text-white uppercase tracking-tight">Specialist Referral</span>
+              <span className="text-[10px] text-slate-400 leading-tight block">Draft referral letter.</span>
             </div>
           </div>
           {referralGenerated ? (
             <div className="flex flex-col gap-1 mt-auto">
-              <span className="text-[10px] text-indigo-800 bg-indigo-100 font-bold px-2 py-0.5 rounded text-center truncate" title={referralDetails.hospital}>{referralDetails.hospital}</span>
+              <span className="text-[10px] text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 font-bold px-2 py-1 rounded-none text-center truncate border border-sky-200 dark:border-sky-800/50" title={referralDetails.hospital}>{referralDetails.hospital}</span>
               <div className="flex items-center gap-2 mt-1 justify-center">
-                <Button type="button" onClick={() => setIsReferralModalOpen(true)} className="text-[10px] font-bold text-indigo-600 underline cursor-pointer text-center">Edit Referral</Button>
-                <Button type="button" onClick={() => { setReferralGenerated(false); setReferralDetails({ hospital: '', department: '', reason: '' }); }} className="text-[10px] font-bold text-red-500 hover:text-red-600 underline cursor-pointer text-center">Clear</Button>
+                <button type="button" onClick={() => setIsReferralModalOpen(true)} className="text-[10px] font-bold text-sky-600 dark:text-sky-400 underline cursor-pointer text-center">Edit Referral</button>
+                <button type="button" onClick={() => { setReferralGenerated(false); setReferralDetails({ hospital: '', department: '', reason: '' }); }} className="text-[10px] font-bold text-rose-500 hover:text-rose-600 underline cursor-pointer text-center">Clear</button>
               </div>
             </div>
           ) : (
-            <Button type="button" className="bg-slate-200 hover:bg-slate-300 text-slate-700 w-full py-1.5 rounded text-[10px] font-bold uppercase transition-colors cursor-pointer mt-auto" onClick={() => setIsReferralModalOpen(true)}>Draft Referral</Button>
+            <button type="button" className="bg-[#e0f5f2] dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-700/50 w-full py-1.5 rounded-none text-[10px] font-bold uppercase transition-all cursor-pointer mt-auto" onClick={() => setIsReferralModalOpen(true)}>Draft Referral</button>
           )}
         </div>
       </div>
 
       {selectedICD && rxList.length > 0 && (
-        <div className="mt-4 bg-indigo-50/50 border border-indigo-100 p-3.5 rounded-lg flex gap-3 items-start animate-fadeIn">
-          <div className="bg-indigo-100 p-2 rounded-lg shrink-0"><TrendingUp className="w-4 h-4 text-indigo-600" /></div>
+        <div className="mt-4 bg-indigo-50/50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/40 p-3.5 rounded-none flex gap-3 items-start animate-fadeIn">
+          <div className="bg-indigo-100 dark:bg-indigo-900 p-2 rounded-none shrink-0"><TrendingUp className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /></div>
           <div>
-            <h4 className="text-[10px] font-bold text-indigo-800 uppercase tracking-wide">AI Treatment Outcome Prediction</h4>
-            <p className="text-xs text-indigo-900/80 mt-1 leading-relaxed">
+            <h4 className="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wide">AI Treatment Outcome Prediction</h4>
+            <p className="text-xs text-indigo-900/80 dark:text-indigo-200/90 mt-1 leading-relaxed">
               Based on the diagnosis of <strong>{selectedICD.code}</strong> and the prescribed regimen ({rxList.map(r=>r.drugName).join(', ')}), ML models predict a <strong>94% probability of symptom resolution within 5 days</strong>. No aggressive follow-up required.
             </p>
           </div>
@@ -653,7 +636,7 @@ export default function PlanTab({
       {/* MODALS */}
       {isMcModalOpen && (
         <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-scaleUp">
+          <div className="bg-white dark:bg-[#0c3844] rounded-none shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-teal-700/50 animate-scaleUp">
             <div className="bg-[#0D9488] text-white px-5 py-4 flex items-center justify-between">
               <div>
                 <h3 className="font-bold">Medical Certificate (MC)</h3>
@@ -664,22 +647,22 @@ export default function PlanTab({
             <div className="p-5 space-y-4">
               <div className="flex justify-between items-end mb-6 text-sm">
                 <div>
-                  <p><span className="text-slate-500 w-20 inline-block">Patient:</span> <strong>{currentPatient.fullName}</strong></p>
-                  <p><span className="text-slate-500 w-20 inline-block">IC:</span> <strong>{maskICNumber(currentPatient.icNumber, showPII)}</strong></p>
-                  <p><span className="text-slate-500 w-20 inline-block">Date:</span> <strong>{new Date().toLocaleDateString('ms-MY')}</strong></p>
+                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">Patient:</span> <strong>{currentPatient.fullName}</strong></p>
+                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">IC:</span> <strong>{maskICNumber(currentPatient.icNumber, showPII)}</strong></p>
+                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">Date:</span> <strong>{new Date().toLocaleDateString('ms-MY')}</strong></p>
                 </div>
                 <div>
-                  <p><span className="text-slate-500 w-20 inline-block">Diagnosis:</span> <strong>{selectedICD?.desc || 'General Unwell'}</strong></p>
+                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">Diagnosis:</span> <strong>{selectedICD?.desc || 'General Unwell'}</strong></p>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Duration of Rest (Days)</label>
-                <Input type="number" min="1" max="14" className="w-full p-2 border border-slate-300 rounded" value={mcDays} onChange={e => setMcDays(parseInt(e.target.value) || 1)} />
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Duration of Rest (Days)</label>
+                <Input type="number" min="1" max="14" className="w-full p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" value={mcDays} onChange={e => setMcDays(parseInt(e.target.value) || 1)} />
               </div>
               <p className="text-[10px] text-slate-400">Digitally signed and verifiable via QR scan by employers.</p>
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <Button type="button" onClick={() => setIsMcModalOpen(false)} className="px-4 py-2 border text-slate-600 rounded text-xs">Cancel</Button>
-                <Button type="button" onClick={() => { setMcGenerated(true); setIsMcModalOpen(false); }} className="bg-[#0D9488] text-white px-5 py-2 rounded text-xs font-bold cursor-pointer">Generate & Embed to Plan</Button>
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-teal-800/30">
+                <Button type="button" onClick={() => setIsMcModalOpen(false)} className="px-4 py-2 border text-slate-600 dark:text-slate-300 rounded-none text-xs">Cancel</Button>
+                <Button type="button" onClick={() => { setMcGenerated(true); setIsMcModalOpen(false); }} className="bg-[#0D9488] text-white px-5 py-2 rounded-none text-xs font-bold cursor-pointer">Generate & Embed to Plan</Button>
               </div>
             </div>
           </div>
@@ -688,7 +671,7 @@ export default function PlanTab({
 
       {isReferralModalOpen && (
         <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-scaleUp">
+          <div className="bg-white dark:bg-[#0c3844] rounded-none shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 dark:border-teal-700/50 animate-scaleUp">
             <div className="bg-indigo-600 text-white px-5 py-4 flex items-center justify-between">
               <h3 className="font-bold">Specialist Referral Letter</h3>
               <button type="button" onClick={() => setIsReferralModalOpen(false)} className="text-white hover:text-slate-200 font-bold text-lg cursor-pointer">&times;</button>
@@ -696,22 +679,22 @@ export default function PlanTab({
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Target Hospital/Center</label>
-                  <Input type="text" placeholder="e.g. Hospital Kuala Lumpur" className="w-full text-xs p-2 border border-slate-300 rounded" value={referralDetails.hospital} onChange={e => setReferralDetails({ ...referralDetails, hospital: e.target.value })} />
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Target Hospital/Center</label>
+                  <Input type="text" placeholder="e.g. Hospital Kuala Lumpur" className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" value={referralDetails.hospital} onChange={e => setReferralDetails({ ...referralDetails, hospital: e.target.value })} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Target Department</label>
-                  <Input type="text" placeholder="e.g. Cardiology" className="w-full text-xs p-2 border border-slate-300 rounded" value={referralDetails.department} onChange={e => setReferralDetails({ ...referralDetails, department: e.target.value })} />
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Target Department</label>
+                  <Input type="text" placeholder="e.g. Cardiology" className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" value={referralDetails.department} onChange={e => setReferralDetails({ ...referralDetails, department: e.target.value })} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Clinical Indication / Reason for Referral</label>
-                <textarea rows={4} className="w-full text-xs p-2 border border-slate-300 rounded" placeholder="Please evaluate this patient for..." value={referralDetails.reason} onChange={e => setReferralDetails({ ...referralDetails, reason: e.target.value })} />
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Clinical Indication / Reason for Referral</label>
+                <textarea rows={4} className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" placeholder="Please evaluate this patient for..." value={referralDetails.reason} onChange={e => setReferralDetails({ ...referralDetails, reason: e.target.value })} />
               </div>
               <p className="text-[10px] text-slate-400">This will be printed as an official PDF document with clinic letterhead.</p>
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <Button type="button" onClick={() => setIsReferralModalOpen(false)} className="px-4 py-2 border text-slate-600 rounded text-xs">Cancel</Button>
-                <Button type="button" onClick={() => { setReferralGenerated(true); setIsReferralModalOpen(false); }} disabled={!referralDetails.hospital || !referralDetails.department} className="bg-indigo-600 text-white px-5 py-2 rounded text-xs font-bold disabled:opacity-50 cursor-pointer">Draft & Save to Plan</Button>
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-teal-800/30">
+                <Button type="button" onClick={() => setIsReferralModalOpen(false)} className="px-4 py-2 border text-slate-600 dark:text-slate-300 rounded-none text-xs">Cancel</Button>
+                <Button type="button" onClick={() => { setReferralGenerated(true); setIsReferralModalOpen(false); }} disabled={!referralDetails.hospital || !referralDetails.department} className="bg-indigo-600 text-white px-5 py-2 rounded-none text-xs font-bold disabled:opacity-50 cursor-pointer">Draft & Save to Plan</Button>
               </div>
             </div>
           </div>

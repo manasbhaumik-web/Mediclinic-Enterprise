@@ -12,6 +12,54 @@ body {
   color: #0f3c4c;
 }
 
+/* Enforce flat, sharp square corners (zero border-radius) across ALL cards, buttons, inputs, tabs, div containers, and workspace elements */
+button,
+input,
+select,
+textarea,
+div,
+section,
+article,
+header,
+nav,
+aside,
+main,
+form,
+fieldset,
+label,
+p,
+h1, h2, h3, h4, h5, h6,
+[role="tab"],
+[role="dialog"],
+.ice-mint-card,
+.ice-mint-panel,
+.mint-badge,
+.card,
+.panel {
+  border-radius: 0px !important;
+}
+
+/* EXCEPTIONS: Preserve round circle corners ONLY for blinking/pulsing indicator dots, ping rings, and live status dots */
+.rounded-full.animate-pulse,
+.rounded-full.animate-ping,
+.animate-pulse,
+.animate-ping,
+.status-dot,
+span.bg-emerald-400,
+span.bg-emerald-500,
+span.bg-teal-400,
+span.bg-teal-500,
+span.bg-rose-500,
+span.bg-red-500,
+span.bg-amber-500,
+[class*="w-2"].rounded-full,
+[class*="w-3"].rounded-full,
+[class*="h-2"].rounded-full,
+[class*="h-3"].rounded-full {
+  border-radius: 9999px !important;
+}
+
+
 @layer utilities {
   .ice-mint-header {
     @apply bg-[#f0fdfa]/95 backdrop-blur-md border-b border-[#ccfbf1] shadow-xs text-[#0f3c4c];
@@ -30,7 +78,7 @@ body {
   }
 
   .mint-badge {
-    @apply bg-[#e6f4f1] text-[#0d9488] border border-[#ccfbf1] px-2.5 py-1 rounded-full font-bold text-[10px];
+    @apply bg-[#e6f4f1] text-[#0d9488] border border-[#ccfbf1] px-2.5 py-1 rounded-none font-bold text-[10px];
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -88,10 +136,64 @@ body {
 /* NIGHT SHIFT / DARK MODE COMPONENT CONTRAST ELEVATION                       */
 /* ========================================================================= */
 
-.dark .bg-white {
+.dark body {
+  background-color: #07252d !important;
+  color: #f8fafc !important;
+}
+
+/* Global Gradient Removal Enforcement */
+[class*="bg-gradient"],
+.bg-gradient-to-r,
+.bg-gradient-to-l,
+.bg-gradient-to-t,
+.bg-gradient-to-b,
+.bg-gradient-to-tr,
+.bg-gradient-to-tl,
+.bg-gradient-to-br,
+.bg-gradient-to-bl,
+[class*="bg-radial"] {
+  background-image: none !important;
+}
+
+/* Override background gradients in Dark / Night Mode */
+.dark [class*="bg-gradient"],
+.dark .bg-gradient-to-r,
+.dark .bg-gradient-to-l,
+.dark .bg-gradient-to-t,
+.dark .bg-gradient-to-b,
+.dark .bg-gradient-to-tr,
+.dark .bg-gradient-to-tl,
+.dark .bg-gradient-to-br,
+.dark .bg-gradient-to-bl {
+  background-image: none !important;
+  background-color: #0c3844 !important;
+  border-color: rgba(45, 212, 191, 0.3) !important;
+}
+
+.dark .bg-white,
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-slate-200,
+.dark .bg-\[\#f7fdfd\],
+.dark .bg-\[\#f0fdfa\],
+.dark .bg-\[\#e0f5f2\] {
   background-color: #0c3844 !important;
   color: #f8fafc !important;
   border-color: rgba(45, 212, 191, 0.25) !important;
+}
+
+.dark button.bg-white,
+.dark button.bg-\[\#e0f5f2\],
+.dark button.bg-slate-50 {
+  background-color: #0e4857 !important;
+  color: #5eead4 !important;
+  border-color: rgba(45, 212, 191, 0.4) !important;
+}
+
+.dark button.bg-white:hover,
+.dark button.bg-\[\#e0f5f2\]:hover {
+  background-color: #12596b !important;
+  color: #ffffff !important;
 }
 
 /* Dark Mode Table Headers & Rows */
@@ -106,21 +208,6 @@ body {
 
 .dark thead th {
   color: #94a3b8 !important;
-}
-
-.dark .bg-\[\#f0fdfa\],
-.dark .bg-\[\#f7fdfd\] {
-  background-color: #0e404e !important;
-  color: #f8fafc !important;
-  border-color: rgba(45, 212, 191, 0.3) !important;
-}
-
-.dark .bg-slate-50,
-.dark .bg-slate-100\/50,
-.dark .bg-\[\#e0f5f2\] {
-  background-color: #092e38 !important;
-  border-color: rgba(45, 212, 191, 0.2) !important;
-  color: #e2e8f0 !important;
 }
 
 /* High-Contrast Text Legibility in Dark Mode */
@@ -147,17 +234,21 @@ body {
   color: #5eead4 !important;
 }
 
+.dark .text-\[\#0f766e\] {
+  color: #5eead4 !important;
+}
+
 /* Dark Mode Input & Select Dropdowns */
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: #082830 !important;
+  background-color: #07252d !important;
   color: #f8fafc !important;
   border-color: rgba(45, 212, 191, 0.3) !important;
 }
 
 .dark select option {
-  background-color: #082830 !important;
+  background-color: #07252d !important;
   color: #f8fafc !important;
 }
 
@@ -195,6 +286,13 @@ body {
   background-color: rgba(14, 165, 233, 0.3) !important;
   color: #38bdf8 !important;
   border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+.dark .bg-rose-50,
+.dark .bg-rose-100 {
+  background-color: rgba(244, 63, 94, 0.25) !important;
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.4) !important;
 }
 
 .dark .text-teal-800,

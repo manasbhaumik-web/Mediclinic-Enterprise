@@ -141,7 +141,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
                 className="absolute inset-0 w-full h-full object-cover opacity-80"
               />
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-radial from-slate-900 to-slate-950">
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-slate-950">
                 <Camera className="w-10 h-10 text-cyan-500 animate-pulse mb-2" />
                 <span className="text-xs font-mono text-slate-400">PWA CHIP OCR ACTIVE</span>
                 <span className="text-[10px] text-slate-500 mt-1">Align Malaysian IC with blue frame markings</span>
