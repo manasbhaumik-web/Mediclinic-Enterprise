@@ -598,21 +598,21 @@ export default function ConsultationRoom({
           <div className="bg-white dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/60 shadow-2xl rounded-none w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-fade-in-up my-auto">
             
             {/* POPUP MODAL HEADER */}
-            <div className="bg-[#0f3c4c] dark:bg-[#03191f] text-white px-5 py-3.5 flex items-center justify-between border-b border-[#0d9488]/40 dark:border-teal-800/60 shrink-0">
+            <div className="bg-[#f0fdfa] dark:bg-[#03191f] text-[#0f3c4c] dark:text-white px-5 py-3.5 flex items-center justify-between border-b border-[#b2f5ea] dark:border-teal-800/60 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-none bg-[#0d9488] text-white font-extrabold flex items-center justify-center text-xs shadow-2xs">
                   <Stethoscope className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 id="assessment-modal-title" className="text-sm font-extrabold uppercase tracking-wider text-white">
+                    <h3 id="assessment-modal-title" className="text-sm font-black uppercase tracking-wider text-[#0f3c4c] dark:text-white">
                       SOAP Clinical Assessment Suite
                     </h3>
-                    <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider">
+                    <span className="bg-[#e0f5f2] dark:bg-[#0d9488] text-[#0f766e] dark:text-white border border-[#b2f5ea] dark:border-teal-700/60 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider">
                       {currentPatient.fullName}
                     </span>
                   </div>
-                  <span className="text-[11px] text-teal-200 dark:text-[#5eead4]/80 font-mono">
+                  <span className="text-[11px] text-slate-500 dark:text-[#5eead4]/80 font-mono">
                     IC: {currentPatient.icNumber} • Gender: {currentPatient.gender} • Progress: {completedStepsCount}/4 Steps
                   </span>
                 </div>
@@ -622,7 +622,7 @@ export default function ConsultationRoom({
                 <button
                   type="button"
                   onClick={() => setIsAssessmentModalOpen(false)}
-                  className="text-slate-300 hover:text-white hover:bg-white/10 dark:text-teal-200 dark:hover:bg-teal-900/50 p-1.5 rounded-none transition-colors cursor-pointer text-xs font-bold flex items-center gap-1"
+                  className="text-slate-500 hover:text-[#0f3c4c] hover:bg-slate-200/50 dark:text-teal-200 dark:hover:bg-teal-900/50 p-1.5 rounded-none transition-colors cursor-pointer text-xs font-bold flex items-center gap-1"
                   title="Close Popup"
                 >
                   <span>Close</span>
@@ -635,7 +635,7 @@ export default function ConsultationRoom({
             <div className="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-white dark:bg-[#07252d]">
               
               {/* SINGLE UNIFIED SOAP TABS HEADER */}
-              <div className="flex border border-[#b2f5ea] dark:border-teal-800/60 bg-[#f0fdfa] dark:bg-[#082830] p-1.5 rounded-none gap-1.5 shadow-2xs sticky top-0 z-20" role="tablist" aria-label="SOAP Clinical Notes Navigation">
+              <div className="flex border border-[#b2f5ea] dark:border-teal-800/60 bg-white dark:bg-[#082830] p-1.5 rounded-none gap-1.5 shadow-2xs sticky top-0 z-20" role="tablist" aria-label="SOAP Clinical Notes Navigation">
                 <button
                   type="button"
                   role="tab"
@@ -645,7 +645,7 @@ export default function ConsultationRoom({
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
                     activeTab === 'subjective' 
                       ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-white dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
+                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
                   }`}
                 >
                   <ClipboardList className="w-4 h-4" />
@@ -661,7 +661,7 @@ export default function ConsultationRoom({
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
                     activeTab === 'objective' 
                       ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-white dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
+                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
                   }`}
                 >
                   <Activity className="w-4 h-4" />
@@ -677,7 +677,7 @@ export default function ConsultationRoom({
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
                     activeTab === 'assessment' 
                       ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-white dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
+                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
                   }`}
                 >
                   <Stethoscope className="w-4 h-4" />
@@ -693,7 +693,7 @@ export default function ConsultationRoom({
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
                     activeTab === 'plan' 
                       ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-white dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
+                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
                   }`}
                 >
                   <Pill className="w-4 h-4" />
