@@ -11,7 +11,8 @@ import { supabase } from '../lib/supabase';
 import { 
   History, Stethoscope, Activity, ClipboardList, Pill, Plus, Trash2, 
   AlertTriangle, Check, FileText, Printer, Clock, Heart, Thermometer, Info, ChevronRight, UserMinus,
-  Mic, MicOff, Bluetooth, Zap, Eye, TrendingUp, Brain, CheckCircle2, TestTube, Share, LineChart, Copy, X
+  Mic, MicOff, Bluetooth, Zap, Eye, EyeOff, TrendingUp, Brain, CheckCircle2, TestTube, Share, LineChart, Copy,
+  X, Lock, ShieldAlert, Sparkles, ChevronDown, HelpCircle, ArrowRight, Save
 } from 'lucide-react';
 import SubjectiveTab from './consultation/SubjectiveTab';
 import ObjectiveTab from './consultation/ObjectiveTab';
@@ -38,12 +39,26 @@ export default function ConsultationRoom({
   const { inventory } = useInventory();
   const { icd10Catalog } = useAuxiliary();
 
-  // Tab & Modal Popup State
+  // Single Authoritative Stepper Workflow State: 1: Subjective -> 2: Objective -> 3: Assessment -> 4: Plan
   const [activeTab, setActiveTab] = useState<'subjective' | 'objective' | 'assessment' | 'plan'>('subjective');
-  const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(true);
+
+  // PII Privacy Masking State
+  const [isPiiRevealed, setIsPiiRevealed] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lastSavedTime, setLastSavedTime] = useState<string>('Just now');
+
+  // Keyboard Hotkeys Help Overlay
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+
+  // Final Consultation Review Checklist Modal
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   // Interactive past history view
   const [selectedPastVisit, setSelectedPastVisit] = useState<Visit | null>(null);
+
+  // AI Decision Support Acceptance State
+  const [aiDraftAccepted, setAiDraftAccepted] = useState(false);
+  const [aiDraftDismissed, setAiDraftDismissed] = useState(false);
 
   // SOAP Inputs
   const [subjective, setSubjective] = useState('');
@@ -118,7 +133,6 @@ export default function ConsultationRoom({
     return alerts;
   }, [vitals]);
 
-
   // Assessment State
   const [selectedICD, setSelectedICD] = useState<ICD10Code | null>(null);
   const [clinicalNotes, setClinicalNotes] = useState('');
@@ -129,10 +143,6 @@ export default function ConsultationRoom({
   // MC Generator
   const [mcDays, setMcDays] = useState<number | ''>(1);
   const [mcGenerated, setMcGenerated] = useState(false);
-
-  // Next-Gen Simulations State
-  const [isListening, setIsListening] = useState(false);
-  const [isSyncingVitals, setIsSyncingVitals] = useState(false);
 
   // Pharmacy Memo
   const [pharmacyMemo, setPharmacyMemo] = useState('');
@@ -161,46 +171,73 @@ export default function ConsultationRoom({
     }
   }, [currentPatient]);
 
-  // Quick complain suggestions
-  const complainTemplateList = [
-    activeLanguage === 'EN' ? 'Fever and runny nose for 2 days' : 'Demam dan selesema selama 2 hari',
-    activeLanguage === 'EN' ? 'Productive cough with white sputum, sore throat' : 'Batuk berkahak putih dengan sakit tekak',
-    activeLanguage === 'EN' ? 'Epigastric gastric discomfort, worse after tea' : 'Sakit perut epigastrik, selepas minum teh',
-    activeLanguage === 'EN' ? 'Muscle sorenesses and joint stiffness post exercise' : 'Lengu-lengu otot dan sendi selepas bersenam',
-  ];
+  // Calculate Patient Age
+  const patientAge = useMemo(() => {
+    if (!currentPatient?.dob) return 30;
+    const birthYear = new Date(currentPatient.dob).getFullYear();
+    const currentYear = new Date().getFullYear();
+    return currentYear - birthYear;
+  }, [currentPatient]);
 
+  // PII Masking Utilities
+  const maskedIC = useMemo(() => {
+    if (!currentPatient?.icNumber) return 'N/A';
+    if (isPiiRevealed) return currentPatient.icNumber;
+    return `${currentPatient.icNumber.slice(0, 6)}-${currentPatient.icNumber.slice(6, 8)}-****`;
+  }, [currentPatient, isPiiRevealed]);
+
+  const maskedPhone = useMemo(() => {
+    if (!currentPatient?.phone) return 'N/A';
+    if (isPiiRevealed) return currentPatient.phone;
+    return `${currentPatient.phone.slice(0, 4)}***${currentPatient.phone.slice(-2)}`;
+  }, [currentPatient, isPiiRevealed]);
 
   if (!currentPatient) {
     return (
-      <div className="bg-white p-12 text-center rounded-lg border border-slate-200">
+      <div className="bg-white dark:bg-[#082830] p-12 text-center rounded-none border border-[#ccfbf1] dark:border-teal-800/40">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-slate-800">No Patient Loaded</h3>
-        <p className="text-slate-500 text-xs mt-1">Please select or register a patient from the patient Registration screen first.</p>
+        <h3 className="text-lg font-bold text-[#0f3c4c] dark:text-[#5eead4]">No Patient Selected</h3>
+        <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Please select an outpatient from the waiting queue to begin clinical documentation.</p>
       </div>
     );
   }
 
-  // Prepopulate form if we click standard complain
-  const handleApplySymptomTemplate = (txt: string) => {
-    setSubjective(prev => prev ? `${prev}. ${txt}` : txt);
+  // Authoritative Single Progress & Step Requirements
+  const soapSteps = [
+    { key: 'subjective', title: '1. Subjective History', isDone: subjective.trim().length > 0 },
+    { key: 'objective', title: '2. Objective Vitals', isDone: vitals.temperature > 0 },
+    { key: 'assessment', title: '3. ICD-10 Diagnosis', isDone: selectedICD !== null },
+    { key: 'plan', title: '4. Plan & Prescribe', isDone: rxList.length > 0 || (clinicalNotes && clinicalNotes.trim().length > 0) }
+  ];
+  const completedStepsCount = soapSteps.filter(s => s.isDone).length;
+  const soapProgressPercent = Math.round((completedStepsCount / 4) * 100);
+
+  // Actionable Status Requirement Text
+  const getActionableStatusText = () => {
+    if (!subjective.trim()) return 'Action Required: Record Subjective Symptoms';
+    if (!selectedICD) return 'Action Required: Assign ICD-10 Diagnosis';
+    if (rxList.length === 0) return 'Optional: Prescribe medications or proceed to review';
+    return 'Ready for final consultation review and sign-off';
   };
 
-
-
-  // Submit Consultation Notes Form
-  const handleSubmitConsultation = () => {
+  // Open Final Review Checklist Modal
+  const handleOpenReviewModal = () => {
     if (!selectedICD) {
-      alert(activeLanguage === 'EN' ? 'Please select a Diagnostic Classification code (ICD-10) before clinical sign-off.' : 'Sila pilih kod Pengelasan Diagnostik (ICD-10) sebelum menandatangani kes.');
+      alert(activeLanguage === 'EN' ? 'Please select an ICD-10 diagnostic code before signing off.' : 'Sila pilih kod Pengelasan Diagnostik (ICD-10) sebelum menandatangani kes.');
       setActiveTab('assessment');
       return;
     }
+    setIsReviewModalOpen(true);
+  };
 
+  // Final Signoff Action
+  const handleFinalSignoff = () => {
     const soapData = {
       subjective,
       objective: vitals,
       assessment: {
-        icdCode: selectedICD.code,
-        description: selectedICD.desc,
+        icdCode: selectedICD?.code || 'N/A',
+        description: selectedICD?.desc || 'N/A',
         clinicalNotes: clinicalNotes || 'N/A'
       },
       plan: {
@@ -213,498 +250,271 @@ export default function ConsultationRoom({
       }
     };
 
+    setIsReviewModalOpen(false);
     onConsultationComplete(soapData, mcGenerated, parseInt(mcDays.toString()) || 1);
   };
 
-  // SOAP Step Completion Progress
-  const soapSteps = [
-    { key: 'subjective', step: '1', title: 'Subjective', isDone: subjective.trim().length > 0 },
-    { key: 'objective', step: '2', title: 'Objective', isDone: vitals.temperature > 0 },
-    { key: 'assessment', step: '3', title: 'Assessment', isDone: selectedICD !== null },
-    { key: 'plan', step: '4', title: 'Plan (Rx)', isDone: rxList.length > 0 || (clinicalNotes && clinicalNotes.trim().length > 0) }
-  ];
-  const completedStepsCount = soapSteps.filter(s => s.isDone).length;
-  const soapProgressPercent = Math.round((completedStepsCount / 4) * 100);
-
-  // Keyboard Hotkeys: Alt+1..4 for tabs, Ctrl+Enter to submit
+  // Keyboard Shortcuts: Alt+1..4 for tabs, Ctrl+Enter opens Review Checklist Modal, Alt+? for Help
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key === '1') { e.preventDefault(); setActiveTab('subjective'); }
       if (e.altKey && e.key === '2') { e.preventDefault(); setActiveTab('objective'); }
       if (e.altKey && e.key === '3') { e.preventDefault(); setActiveTab('assessment'); }
       if (e.altKey && e.key === '4') { e.preventDefault(); setActiveTab('plan'); }
+      if (e.altKey && (e.key === '?' || e.key === '/')) { e.preventDefault(); setShowShortcutsHelp(prev => !prev); }
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        handleSubmitConsultation();
+        handleOpenReviewModal();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [subjective, vitals, selectedICD, clinicalNotes, rxList, activeLanguage]);
 
-  // --- Next-Gen Feature Handlers ---
-  const handleVoiceToText = () => {
-    if (isListening) return;
-    setIsListening(true);
-    // Simulate 3 seconds of AI listening and transcribing
-    setTimeout(() => {
-      setSubjective(prev => prev 
-        ? `${prev}\n[AI Transcribed]: Patient reports severe throbbing headache localized to frontal lobe, onset 24 hours ago. Denies nausea, photophobia, or aura.`
-        : `[AI Transcribed]: Patient reports severe throbbing headache localized to frontal lobe, onset 24 hours ago. Denies nausea, photophobia, or aura.`
-      );
-      setIsListening(false);
-    }, 3000);
-  };
-
-  const handleSyncVitals = () => {
-    if (isSyncingVitals) return;
-    setIsSyncingVitals(true);
-    // Simulate Bluetooth sync with hardware IoT
-    setTimeout(() => {
-      setVitals({
-        bpSystolic: 122,
-        bpDiastolic: 78,
-        heartRate: 84,
-        temperature: 37.1,
-        respiratoryRate: 18
-      });
-      setIsSyncingVitals(false);
-    }, 2500);
-  };
+  if (isLocked) {
+    return (
+      <div className="bg-white dark:bg-[#07252d] border-2 border-[#0d9488] p-12 text-center rounded-none shadow-2xl max-w-md mx-auto my-12 animate-fadeIn">
+        <Lock className="w-12 h-12 text-[#0d9488] mx-auto mb-4" />
+        <h3 className="text-lg font-black text-[#0f3c4c] dark:text-[#5eead4]">Privacy Lock Screen</h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+          Clinician privacy screen is locked. Click unlock to resume encounter for <strong>{currentPatient.fullName}</strong>.
+        </p>
+        <button
+          type="button"
+          onClick={() => setIsLocked(false)}
+          className="mt-6 w-full bg-[#0d9488] hover:bg-[#0f766e] text-white py-2.5 font-bold text-xs uppercase tracking-wider rounded-none shadow-xs transition-all cursor-pointer"
+        >
+          Unlock Consultation Room
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4 pb-16 relative animate-fadeIn text-[#0f3c4c]">
+    <div className="space-y-4 pb-16 relative animate-fadeIn text-[#0f3c4c] dark:text-[#f8fafc]">
       
-      {/* 📊 1. UNIFIED SUITE HEADER BAR */}
-      <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 border-l-4 border-l-[#0d9488]">
+      {/* ========================================================================= */}
+      {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
+      {/* ========================================================================= */}
+      <div className="bg-white dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/50 rounded-none p-4 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-[#0d9488]">
+        
+        {/* Patient Demographics & PII Controls */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] flex items-center justify-center text-[#0d9488] font-black text-sm shrink-0">
+          <div className="w-11 h-11 rounded-none bg-[#0d9488] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
             {currentPatient.fullName.substring(0, 2).toUpperCase()}
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-extrabold text-[#0f3c4c] uppercase tracking-tight">{currentPatient.fullName}</h2>
-              <span id="patient-banner-status" className="bg-[#e0f5f2] text-[#0f766e] border border-[#b2f5ea] text-[10px] uppercase font-extrabold tracking-wider px-2.5 py-0.5 rounded-none flex items-center gap-1">
-                <span className="w-2 h-2 rounded-none bg-emerald-500 animate-pulse"></span>
-                In Consultation
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-base font-black text-[#0f3c4c] dark:text-[#5eead4] tracking-tight">{currentPatient.fullName}</h2>
+              <span className="text-xs text-slate-600 dark:text-slate-300 font-bold">({patientAge} Yrs, {currentPatient.gender})</span>
+              <span id="patient-banner-status" className="bg-[#e0f5f2] dark:bg-teal-950/80 text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/50 text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-none flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Consultation Active
               </span>
             </div>
-            <div className="flex items-center gap-3 text-[11px] text-slate-500 font-medium mt-0.5">
-              <span>IC: <strong className="font-mono text-slate-700">{currentPatient.icNumber}</strong></span>
-              <span>•</span>
-              <span>Gender: <strong className="text-slate-700">{currentPatient.gender}</strong></span>
-              <span>•</span>
-              <span>Coverage: <strong className="text-[#0d9488] font-bold">{currentPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : currentPatient.panelEmployer}</strong></span>
+            
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300 font-medium mt-1">
+              {/* Masked IC Number */}
+              <span className="flex items-center gap-1.5 bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span>IC:</span>
+                <strong className="font-mono text-[#0f3c4c] dark:text-slate-100">{maskedIC}</strong>
+                <button
+                  type="button"
+                  onClick={() => setIsPiiRevealed(!isPiiRevealed)}
+                  className="text-[#0d9488] hover:text-[#0f766e] transition-colors ml-1 cursor-pointer"
+                  title={isPiiRevealed ? 'Mask PII IC Number' : 'Click to Reveal PII IC Number'}
+                >
+                  {isPiiRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </span>
+
+              {/* Masked Phone */}
+              <span className="flex items-center gap-1.5 bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span>Phone:</span>
+                <strong className="font-mono text-[#0f3c4c] dark:text-slate-100">{maskedPhone}</strong>
+              </span>
+
+              <span>Coverage: <strong className="text-[#0d9488] dark:text-[#2dd4bf] font-bold">{currentPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : currentPatient.panelEmployer}</strong></span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <button
-            type="button"
-            id="header-start-assessment-btn"
-            onClick={() => setIsAssessmentModalOpen(true)}
-            className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-4 py-2 rounded-none font-black text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer hover:shadow-lg"
-          >
-            <Stethoscope className="w-4 h-4 text-white" />
-            <span>Start Assessment</span>
-            <ChevronRight className="w-3.5 h-3.5 text-teal-200" />
-          </button>
+        {/* Header Right Toolbar: Single Authoritative Progress + Auto-Save State + Lock Screen */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          
+          {/* Auto-Save Indicator */}
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-none font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Saved {lastSavedTime}</span>
+          </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-none px-3 py-1.5 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#0d9488]" />
+          {/* Single Authoritative Progress Indicator */}
+          <div className="bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 rounded-none px-3 py-1 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
             <div className="text-left">
-              <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">SOAP Completion</span>
-              <span className="text-xs font-mono font-extrabold text-[#0f766e] leading-tight block">{completedStepsCount}/4 Steps ({soapProgressPercent}%)</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none">Progress</span>
+              <span className="text-xs font-mono font-extrabold text-[#0f766e] dark:text-[#5eead4] leading-tight block">Step {completedStepsCount} of 4 ({soapProgressPercent}%)</span>
             </div>
           </div>
-          <span className="text-[10px] text-slate-400 font-mono hidden lg:block bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-none">
-            Hotkeys: <kbd className="bg-white border px-1 rounded-none text-slate-700 font-bold">Alt+1..4</kbd> Tabs | <kbd className="bg-white border px-1 rounded-none text-slate-700 font-bold">Ctrl+Enter</kbd> Sign-off
-          </span>
+
+          {/* Quick Lock Screen */}
+          <button
+            type="button"
+            onClick={() => setIsLocked(true)}
+            className="px-3 py-1.5 border border-slate-300 dark:border-teal-800/50 bg-slate-50 dark:bg-[#07252d] text-slate-700 dark:text-slate-300 hover:bg-slate-100 rounded-none text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+            title="Lock Screen"
+          >
+            <Lock className="w-3.5 h-3.5 text-slate-500" />
+            <span className="hidden sm:inline">Lock Screen</span>
+          </button>
+
+          {/* Shortcuts Help Button */}
+          <button
+            type="button"
+            onClick={() => setShowShortcutsHelp(!showShortcutsHelp)}
+            className="p-1.5 border border-slate-300 dark:border-teal-800/50 bg-slate-50 dark:bg-[#07252d] text-slate-600 dark:text-slate-300 hover:bg-slate-100 rounded-none text-xs font-bold transition-colors cursor-pointer"
+            title="Keyboard Shortcuts (Alt+?)"
+          >
+            <HelpCircle className="w-4 h-4 text-[#0d9488]" />
+          </button>
         </div>
       </div>
 
-      {/* MAIN CONTENT GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[520px]">
-        
-        {/* LEFT COLUMN: Patient Overview Brief & Longitudinal Clinical History (35%) */}
-        <div className="lg:col-span-4 space-y-4">
-          
-          {/* Dynamic Patient Info & Alerts Card */}
-          <div className="bg-white p-4 rounded-none border border-slate-200 shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-xs font-bold text-[#0f3c4c] uppercase tracking-wider">Patient Clinical Profile</h3>
-              <span className="text-[10px] text-slate-400 font-mono">ID: {currentPatient.id.substring(0, 8)}...</span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
-              <div>
-                <span className="text-slate-400 text-[10px] block uppercase font-medium">Date of Birth</span>
-                <strong className="font-mono text-slate-800">{currentPatient.dob}</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 text-[10px] block uppercase font-medium">Phone Contact</span>
-                <strong className="font-mono text-slate-800">{currentPatient.phone || 'N/A'}</strong>
-              </div>
-            </div>
-
-            {/* Vitals Abnormality Alerts */}
-            {vitalsAlerts.length > 0 && (
-              <div className="pt-2 border-t border-amber-200">
-                <span className="text-[10px] font-bold text-amber-900 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
-                  <Activity className="w-3.5 h-3.5 text-amber-600" />
-                  Triage Vitals Alerts ({vitalsAlerts.length})
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {vitalsAlerts.map((alert, idx) => (
-                    <span key={idx} className="bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-none flex items-center gap-1">
-                      {alert.label}: <strong className="font-mono text-amber-950">{alert.value}</strong>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Drug Allergies Section */}
-            {currentPatient.drugAllergies.length > 0 ? (
-              <div className="pt-2 border-t border-slate-100">
-                <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wide flex items-center gap-1 mb-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  {t.activeAllergies} ({currentPatient.drugAllergies.length})
-                </span>
-                <div id="allergy-tags-pill" className="flex flex-wrap gap-1.5">
-                  {currentPatient.drugAllergies.map((allergy) => (
-                    <span key={allergy} className="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-extrabold px-2 py-0.5 rounded-none uppercase tracking-wide">
-                      {allergy}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-400 italic">
-                ✓ No known medication allergies registered (NKDA).
-              </div>
-            )}
-
-            {/* AI Patient Readmission Risk Scoring */}
-            <div className="pt-2 border-t border-slate-100">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] font-bold text-slate-600 uppercase flex items-center gap-1">
-                  <Brain className="w-3.5 h-3.5 text-[#0d9488]" /> AI Readmission Risk
-                </span>
-                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-none">Low (8%)</span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-none h-1.5 overflow-hidden">
-                <div className="bg-[#0d9488] h-1.5 rounded-none" style={{ width: '8%' }}></div>
-              </div>
-            </div>
+      {/* KEYBOARD SHORTCUTS OVERLAY BANNER */}
+      {showShortcutsHelp && (
+        <div className="bg-[#e0f5f2] dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-800/50 p-3 rounded-none flex items-center justify-between text-xs text-[#0f766e] dark:text-[#5eead4] font-mono animate-fadeIn">
+          <div className="flex flex-wrap items-center gap-4">
+            <span><kbd className="bg-white dark:bg-[#07252d] px-1.5 py-0.5 border border-[#b2f5ea] text-[#0f3c4c] font-bold">Alt+1</kbd> Subjective</span>
+            <span><kbd className="bg-white dark:bg-[#07252d] px-1.5 py-0.5 border border-[#b2f5ea] text-[#0f3c4c] font-bold">Alt+2</kbd> Objective Vitals</span>
+            <span><kbd className="bg-white dark:bg-[#07252d] px-1.5 py-0.5 border border-[#b2f5ea] text-[#0f3c4c] font-bold">Alt+3</kbd> ICD-10 Diagnosis</span>
+            <span><kbd className="bg-white dark:bg-[#07252d] px-1.5 py-0.5 border border-[#b2f5ea] text-[#0f3c4c] font-bold">Alt+4</kbd> Plan &amp; Rx</span>
+            <span><kbd className="bg-white dark:bg-[#07252d] px-1.5 py-0.5 border border-[#b2f5ea] text-[#0f3c4c] font-bold">Ctrl+Enter</kbd> Review &amp; Sign Off</span>
           </div>
-
-          {/* Longitudinal clinical history section */}
-          <div className="bg-white p-4 rounded-none border border-slate-200 shadow-xs space-y-3 flex-1 flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-xs font-bold text-[#0f3c4c] uppercase tracking-wider flex items-center gap-1.5">
-                <History className="w-4 h-4 text-[#0d9488]" />
-                {t.longitudinalHistory}
-              </h3>
-              <span className="bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-none text-[10px] font-mono font-bold">
-                {patientPastVisits.length} Visits
-              </span>
-            </div>
-
-            {patientPastVisits.length === 0 ? (
-              <div className="p-6 text-center text-slate-400 flex-1 flex flex-col items-center justify-center">
-                <Clock className="w-8 h-8 text-slate-300 mb-2" />
-                <span className="text-xs text-slate-600 font-semibold">First-Time Patient Consultation</span>
-                <span className="text-[10px] text-slate-400 mt-0.5">This session initiates the master clinical EHR timeline.</span>
-              </div>
-            ) : (
-              <div className="space-y-2 overflow-y-auto max-h-[360px] pr-1">
-                {patientPastVisits.map((visit) => {
-                  const isSelected = selectedPastVisit?.id === visit.id;
-                  return (
-                    <div
-                      key={visit.id}
-                      onClick={() => setSelectedPastVisit(isSelected ? null : visit)}
-                      className={`p-3 rounded-none border transition-all text-left cursor-pointer hover:bg-slate-50 bg-white ${
-                        isSelected 
-                          ? 'border-[#0d9488] bg-[#f0fdfa] shadow-xs' 
-                          : 'border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-mono font-bold text-slate-500">{visit.date}</span>
-                        <span className="text-[#0f766e] bg-[#e0f5f2] border border-[#b2f5ea] font-extrabold text-[9px] px-1.5 py-0.5 rounded-none">
-                          {visit.soap.assessment.icdCode}
-                        </span>
-                      </div>
-                      <p className="text-xs font-bold text-[#0f3c4c] truncate mt-1">
-                        {visit.soap.assessment.description}
-                      </p>
-                      <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5" title={visit.soap.subjective}>
-                        S: {visit.soap.subjective}
-                      </p>
-
-                      <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-500 font-mono">
-                        <span className="flex items-center gap-1 text-rose-600 font-semibold">
-                          <Heart className="w-3 h-3 text-rose-500" /> {visit.soap.objective.heartRate} bpm
-                        </span>
-                        <span className="flex items-center gap-1 text-amber-600 font-semibold">
-                          <Thermometer className="w-3 h-3 text-amber-500" /> {visit.soap.objective.temperature}°C
-                        </span>
-                      </div>
-
-                      {/* Extended Details panel when clicked */}
-                      {isSelected && (
-                        <div className="mt-3 pt-2 border-t border-slate-200 text-[10px] space-y-1.5 text-slate-700 animate-fadeIn">
-                          <div>
-                            <strong>Objective Findings:</strong> BP {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg | RR {visit.soap.objective.respiratoryRate} bpm.
-                          </div>
-                          <div>
-                            <strong>Assessment Notes:</strong> {visit.soap.assessment.clinicalNotes}
-                          </div>
-                          <div>
-                            <strong>Prescription Plan:</strong>
-                            <ul className="list-disc list-inside mt-0.5 text-slate-600 space-y-0.5 pl-1">
-                              {visit.soap.plan.prescription.map((rx, idx) => (
-                                <li key={idx}>
-                                  {rx.drugName} (Qty: {rx.quantity})
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          {visit.soap.plan.mcDays > 0 && (
-                            <div className="text-[#0f766e] bg-[#e0f5f2] border border-[#b2f5ea] rounded-none px-2 py-0.5 text-[9px] font-bold w-fit mt-1">
-                              MC Issued: {visit.soap.plan.mcDays} Days
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
+          <button type="button" onClick={() => setShowShortcutsHelp(false)} className="text-slate-400 hover:text-slate-700">
+            <X className="w-4 h-4" />
+          </button>
         </div>
+      )}
 
-        {/* RIGHT COLUMN: Modern Assessment Suite Launchpad (65%) */}
-        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-none p-6 flex flex-col justify-between shadow-xs relative overflow-hidden">
-          
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-sm font-black text-[#0f3c4c] uppercase tracking-wider flex items-center gap-2">
-                  <Stethoscope className="w-5 h-5 text-[#0d9488]" />
-                  SOAP Clinical Examination Suite
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                  Launch clinical SOAP notes, vitals recording, ICD-10 diagnosis, and prescription builder.
-                </p>
+      {/* ========================================================================= */}
+      {/* HIGH-PRIORITY PERSISTENT DRUG ALLERGY SAFETY ALERT BANNER                 */}
+      {/* ========================================================================= */}
+      {currentPatient.drugAllergies.length > 0 && (
+        <div className="bg-rose-50 dark:bg-rose-950/70 border-2 border-rose-400 dark:border-rose-700 p-3.5 rounded-none flex items-center justify-between gap-3 text-rose-900 dark:text-rose-200 shadow-xs animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-none bg-rose-600 text-white flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-black uppercase tracking-wide flex items-center gap-2 text-rose-700 dark:text-rose-300">
+                <span>CRITICAL PATIENT SAFETY ALERT: REGISTERED DRUG ALLERGIES</span>
               </div>
-              <span className="bg-[#e0f5f2] text-[#0f766e] border border-[#b2f5ea] text-[10px] font-extrabold px-3 py-1 uppercase tracking-wider">
-                Ready for Assessment
-              </span>
+              <p className="text-xs mt-0.5 font-medium">
+                Patient registered allergies: <strong className="font-extrabold underline uppercase">{currentPatient.drugAllergies.join(', ')}</strong>. Automatic contraindication checks active.
+              </p>
+            </div>
+          </div>
+          <span className="bg-rose-600 text-white font-mono text-[10px] font-black uppercase px-2.5 py-1 rounded-none shrink-0">
+            SAFETY CHECKS ENFORCED
+          </span>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* AREA 2 & 3: MAIN ENCOUNTER WORKSPACE + CONTEXTUAL RIGHT PANEL             */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[500px]">
+        
+        {/* AREA 2: MAIN CONSULTATION WORKSPACE (8 COLS / 65%) */}
+        <div className="lg:col-span-8 bg-white dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 p-5 rounded-none flex flex-col justify-between shadow-xs space-y-5">
+          
+          <div className="space-y-4">
+            
+            {/* STEPPER HEADER TOOLBAR */}
+            <div className="bg-[#f0fdfa] dark:bg-[#07252d] p-3.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-bold text-[#0d9488] uppercase tracking-wider block">Clinical Encounter Documentation</span>
+                <h3 className="text-sm font-black text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-1.5 mt-0.5">
+                  <Stethoscope className="w-4 h-4 text-[#0d9488]" />
+                  <span>Encounter Workspace — {soapSteps.find(s => s.key === activeTab)?.title}</span>
+                </h3>
+              </div>
+
+              {/* Actionable Requirement Status Text */}
+              <div className="bg-white dark:bg-[#082830] px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 text-[11px] font-bold text-[#0f766e] dark:text-[#5eead4] rounded-none">
+                {getActionableStatusText()}
+              </div>
             </div>
 
-            {/* Launch Banner Button Container */}
-            <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-8 rounded-none shadow-xs text-center space-y-4 flex flex-col items-center justify-center min-h-[260px]">
-              <div className="w-16 h-16 bg-[#0d9488]/10 rounded-full flex items-center justify-center border border-[#0d9488]/20">
-                <Stethoscope className="w-8 h-8 text-[#0d9488]" />
-              </div>
-              <div className="space-y-1.5 max-w-md">
-                <h4 className="font-extrabold text-[#0f3c4c] text-base">SOAP Assessment Suite</h4>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Click the button below to open the popup SOAP clinical panel for Subjective complaints, Objective vitals, ICD-10 diagnostic codes, and e-Prescriptions.
-                </p>
-              </div>
+            {/* SINGLE UNIFIED STEPPER NAVIGATION TABS */}
+            <div className="flex border border-[#ccfbf1] dark:border-teal-800/40 bg-[#f7fdfd] dark:bg-[#07252d] p-1.5 rounded-none gap-1.5" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'subjective'}
+                onClick={() => setActiveTab('subjective')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'subjective' 
+                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
+                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                }`}
+              >
+                <ClipboardList className="w-4 h-4" />
+                <span>1. Subjective</span>
+                {subjective.trim() && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 ml-1" />}
+              </button>
 
               <button
                 type="button"
-                id="open-soap-assessment-popup-btn"
-                onClick={() => setIsAssessmentModalOpen(true)}
-                className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-8 py-3.5 rounded-none font-black text-sm shadow-md hover:shadow-lg flex items-center gap-3 transition-all cursor-pointer transform hover:-translate-y-0.5"
+                role="tab"
+                aria-selected={activeTab === 'objective'}
+                onClick={() => setActiveTab('objective')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'objective' 
+                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
+                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                }`}
               >
-                <Stethoscope className="w-5 h-5 text-white" />
-                <span>Start Assessment</span>
-                <ChevronRight className="w-4 h-4 text-teal-200" />
+                <Activity className="w-4 h-4" />
+                <span>2. Objective</span>
+                {vitals.temperature > 0 && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 ml-1" />}
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'assessment'}
+                onClick={() => setActiveTab('assessment')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'assessment' 
+                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
+                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                }`}
+              >
+                <Stethoscope className="w-4 h-4" />
+                <span>3. ICD-10 Diagnosis</span>
+                {selectedICD && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 ml-1" />}
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'plan'}
+                onClick={() => setActiveTab('plan')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'plan' 
+                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
+                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                }`}
+              >
+                <Pill className="w-4 h-4" />
+                <span>4. Prescribe &amp; Plan</span>
+                {rxList.length > 0 && <span className="bg-white text-[#0d9488] text-[10px] font-mono px-1 font-black">{rxList.length}</span>}
               </button>
             </div>
 
-            {/* Live SOAP Progress Summary */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="bg-slate-50 p-3 border border-slate-200 text-center">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Subjective</span>
-                <span className={`text-xs font-bold ${subjective ? 'text-[#0d9488]' : 'text-slate-400'}`}>
-                  {subjective ? 'Drafted' : 'Pending'}
-                </span>
-              </div>
-              <div className="bg-slate-50 p-3 border border-slate-200 text-center">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Vitals</span>
-                <span className="text-xs font-mono font-bold text-slate-700">
-                  {vitals.bpSystolic}/{vitals.bpDiastolic} mmHg
-                </span>
-              </div>
-              <div className="bg-slate-50 p-3 border border-slate-200 text-center">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">ICD-10 Code</span>
-                <span className={`text-xs font-mono font-bold ${selectedICD ? 'text-[#0d9488]' : 'text-slate-400'}`}>
-                  {selectedICD ? selectedICD.code : 'Not Set'}
-                </span>
-              </div>
-              <div className="bg-slate-50 p-3 border border-slate-200 text-center">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Prescription</span>
-                <span className="text-xs font-bold text-slate-700 font-mono">
-                  {rxList.length} Items
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Footer Action Bar */}
-          <div className="border-t border-slate-200 pt-4 mt-6 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 border border-slate-300 text-slate-600 rounded-none text-xs font-bold hover:bg-slate-100 transition-colors cursor-pointer"
-            >
-              Cancel Consultation
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsAssessmentModalOpen(true)}
-              className="bg-[#0d9488] text-white px-5 py-2.5 rounded-none text-xs font-extrabold hover:bg-[#0f766e] transition-all flex items-center gap-2 cursor-pointer shadow-xs"
-            >
-              <Stethoscope className="w-4 h-4 text-white" />
-              <span>Start Assessment</span>
-            </button>
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 🪟 POPUP MODAL DIALOG: SOAP CLINICAL TABBED PANEL                          */}
-      {/* ========================================================================= */}
-      {isAssessmentModalOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="assessment-modal-title"
-        >
-          <div className="bg-white dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/60 shadow-2xl rounded-none w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-fade-in-up my-auto">
-            
-            {/* POPUP MODAL HEADER */}
-            <div className="bg-[#f0fdfa] dark:bg-[#03191f] text-[#0f3c4c] dark:text-white px-5 py-3.5 flex items-center justify-between border-b border-[#b2f5ea] dark:border-teal-800/60 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-none bg-[#0d9488] text-white font-extrabold flex items-center justify-center text-xs shadow-2xs">
-                  <Stethoscope className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 id="assessment-modal-title" className="text-sm font-black uppercase tracking-wider text-[#0f3c4c] dark:text-white">
-                      SOAP Clinical Assessment Suite
-                    </h3>
-                    <span className="bg-[#e0f5f2] dark:bg-[#0d9488] text-[#0f766e] dark:text-white border border-[#b2f5ea] dark:border-teal-700/60 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider">
-                      {currentPatient.fullName}
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-slate-500 dark:text-[#5eead4]/80 font-mono">
-                    IC: {currentPatient.icNumber} • Gender: {currentPatient.gender} • Progress: {completedStepsCount}/4 Steps
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAssessmentModalOpen(false)}
-                  className="text-slate-500 hover:text-[#0f3c4c] hover:bg-slate-200/50 dark:text-teal-200 dark:hover:bg-teal-900/50 p-1.5 rounded-none transition-colors cursor-pointer text-xs font-bold flex items-center gap-1"
-                  title="Close Popup"
-                >
-                  <span>Close</span>
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* POPUP MODAL BODY: TABBED PANEL */}
-            <div className="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4 bg-white dark:bg-[#07252d]">
-              
-              {/* SINGLE UNIFIED SOAP TABS HEADER */}
-              <div className="flex border border-[#b2f5ea] dark:border-teal-800/60 bg-white dark:bg-[#082830] p-1.5 rounded-none gap-1.5 shadow-2xs sticky top-0 z-20" role="tablist" aria-label="SOAP Clinical Notes Navigation">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'subjective'}
-                  id="subjective-tab-trigger"
-                  onClick={() => setActiveTab('subjective')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
-                    activeTab === 'subjective' 
-                      ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
-                  }`}
-                >
-                  <ClipboardList className="w-4 h-4" />
-                  Subjective (S)
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'objective'}
-                  id="objective-tab-trigger"
-                  onClick={() => setActiveTab('objective')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
-                    activeTab === 'objective' 
-                      ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
-                  }`}
-                >
-                  <Activity className="w-4 h-4" />
-                  Objective (O)
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'assessment'}
-                  id="assessment-tab-trigger"
-                  onClick={() => setActiveTab('assessment')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
-                    activeTab === 'assessment' 
-                      ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
-                  }`}
-                >
-                  <Stethoscope className="w-4 h-4" />
-                  Assessment (A)
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'plan'}
-                  id="plan-tab-trigger"
-                  onClick={() => setActiveTab('plan')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer focus-visible:outline-none ${
-                    activeTab === 'plan' 
-                      ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                      : 'text-[#0f3c4c] dark:text-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] dark:hover:text-white border border-[#ccfbf1] dark:border-teal-800/40'
-                  }`}
-                >
-                  <Pill className="w-4 h-4" />
-                  Plan &amp; Rx (P)
-                  {rxList.length > 0 && (
-                    <span className="bg-white text-[#0d9488] font-mono text-[10px] px-1.5 rounded-none font-black">{rxList.length}</span>
-                  )}
-                </button>
-              </div>
-
-              {/* TAB CONTENTS */}
+            {/* TAB CONTENT AREA */}
+            <div className="min-h-[360px]">
               {activeTab === 'subjective' && (
                 <SubjectiveTab 
                   subjective={subjective}
@@ -750,64 +560,300 @@ export default function ConsultationRoom({
                   setReferralGenerated={setReferralGenerated}
                 />
               )}
-
-              {/* AI Clinical Decision Support Summary Banner */}
-              <div className="bg-[#f0fdfa] dark:bg-[#082830] p-3.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-2xs relative overflow-hidden group">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-[11px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> AI Clinical Decision Support Summary
-                  </h4>
-                  <span className="text-[10px] text-[#0f766e] dark:text-teal-400 font-mono">ICD-10 Active</span>
-                </div>
-                <ul className="text-xs text-slate-700 dark:text-slate-200 space-y-1 mt-1 pl-4 list-disc marker:text-[#0d9488]">
-                  {currentPatient.drugAllergies.length > 0 ? (
-                    <li><strong className="text-rose-600 dark:text-rose-400">Allergy Warning:</strong> Patient allergic to {currentPatient.drugAllergies.join(', ')}.</li>
-                  ) : (
-                    <li>No active drug allergy alerts on file.</li>
-                  )}
-                  {selectedICD ? (
-                    <li>Primary Diagnosis Code Assigned: <strong className="font-mono text-[#0d9488] dark:text-[#2dd4bf]">{selectedICD.code}</strong> ({selectedICD.desc}).</li>
-                  ) : (
-                    <li>Diagnose code pending selection in Assessment tab.</li>
-                  )}
-                </ul>
-              </div>
             </div>
 
-            {/* POPUP MODAL FOOTER */}
-            <div className="border-t border-[#b2f5ea] dark:border-teal-800/60 p-4 bg-[#f0fdfa] dark:bg-[#03191f] flex items-center justify-between shrink-0">
-              <div className="text-xs text-slate-600 dark:text-slate-300 font-mono">
-                {rxList.length > 0 && (
-                  <span>Prescription Total: <strong className="text-[#0d9488] dark:text-[#2dd4bf] font-bold text-sm">RM {(rxList.reduce((acc, r) => acc + ((r.pricePerUnit || 0.5) * (r.quantity || 1)), 0)).toFixed(2)}</strong></span>
-                )}
-              </div>
+          </div>
 
-              <div className="flex items-center gap-3">
+          {/* SINGLE PRIMARY WORKFLOW CTA TOOLBAR */}
+          <div className="border-t border-[#ccfbf1] dark:border-teal-800/40 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-4 py-2 border border-slate-300 dark:border-teal-800/50 text-slate-600 dark:text-slate-300 rounded-none text-xs font-bold hover:bg-slate-100 dark:hover:bg-[#0c3844] transition-colors cursor-pointer"
+              >
+                Cancel Encounter
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLastSavedTime('Just now')}
+                className="px-3.5 py-2 border border-[#b2f5ea] dark:border-teal-800/40 bg-[#f0fdfa] text-[#0f766e] rounded-none text-xs font-bold hover:bg-[#e0f5f2] transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Save className="w-3.5 h-3.5 text-[#0d9488]" />
+                <span>Save Draft</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Dynamic Single Primary Action CTA Button */}
+              {activeTab === 'subjective' && (
                 <button
                   type="button"
-                  onClick={() => setIsAssessmentModalOpen(false)}
-                  className="px-4 py-2 border border-[#b2f5ea] dark:border-teal-700/50 bg-white dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] rounded-none text-xs font-bold hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] transition-colors cursor-pointer"
+                  onClick={() => setActiveTab('objective')}
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
-                  Cancel Consultation
+                  <span>Save Symptoms &amp; Proceed to Vitals</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-                
+              )}
+
+              {activeTab === 'objective' && (
                 <button
                   type="button"
-                  id="clinical-save-signoff-btn"
-                  onClick={() => {
-                    handleSubmitConsultation();
-                  }}
+                  onClick={() => setActiveTab('assessment')}
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <span>Save Vitals &amp; Proceed to Diagnosis</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+
+              {activeTab === 'assessment' && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('plan')}
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <span>Confirm Diagnosis &amp; Proceed to Prescription</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+
+              {activeTab === 'plan' && (
+                <button
+                  type="button"
+                  onClick={handleOpenReviewModal}
                   className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   <Check className="w-4 h-4 text-white" />
-                  <span>Complete &amp; Route to Dispensary</span>
+                  <span>Review &amp; Sign Off Consultation</span>
                 </button>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+        {/* AREA 3: CONTEXTUAL RIGHT PANEL — SUPPORTING DATA & QUICK TOOLS (4 COLS / 35%) */}
+        <div className="lg:col-span-4 space-y-4">
+          
+          {/* Contextual Recent Vitals Card */}
+          <div className="bg-white dark:bg-[#082830] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-2.5">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
+              <h3 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                <Activity className="w-4 h-4 text-[#0d9488]" />
+                Recent Outpatient Vitals
+              </h3>
+              <span className="text-[10px] text-slate-400 font-mono">Triage Recorded</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-400 block font-sans">BP</span>
+                <strong className="text-[#0f3c4c] dark:text-white">{vitals.bpSystolic}/{vitals.bpDiastolic} mmHg</strong>
               </div>
+              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-400 block font-sans">Heart Rate</span>
+                <strong className="text-[#0f3c4c] dark:text-white">{vitals.heartRate} bpm</strong>
+              </div>
+              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-400 block font-sans">Temperature</span>
+                <strong className="text-[#0f3c4c] dark:text-white">{vitals.temperature}°C</strong>
+              </div>
+              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-400 block font-sans">Resp. Rate</span>
+                <strong className="text-[#0f3c4c] dark:text-white">{vitals.respiratoryRate} bpm</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Contextual AI Decision Support Draft Card */}
+          <div className="bg-white dark:bg-[#082830] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
+              <h3 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                <Brain className="w-4 h-4 text-[#0d9488]" />
+                AI Decision Support
+              </h3>
+              <span className="bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-none text-[9px] font-bold">
+                Draft — Not a Diagnosis
+              </span>
+            </div>
+
+            {!aiDraftDismissed ? (
+              <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <p className="leading-relaxed">
+                  Based on symptoms and prior gastritis history, AI suggests considering <strong>ICD-10 K29.7 (Gastritis, unspecified)</strong> or <strong>K21.9 (GERD)</strong>.
+                </p>
+
+                <div className="flex gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedICD({ code: 'K29.7', desc: 'Gastritis, unspecified', category: 'Digestive' });
+                      setAiDraftAccepted(true);
+                    }}
+                    className="flex-1 bg-[#0d9488] text-white py-1 rounded-none text-[10px] font-bold hover:bg-[#0f766e]"
+                  >
+                    {aiDraftAccepted ? '✓ Accepted' : 'Accept K29.7'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAiDraftDismissed(true)}
+                    className="px-2.5 bg-slate-100 text-slate-600 border border-slate-300 py-1 rounded-none text-[10px] font-bold hover:bg-slate-200"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-[10px] text-slate-400 italic">
+                AI draft suggestion dismissed by clinician.
+              </div>
+            )}
+          </div>
+
+          {/* Longitudinal Clinical History Timeline */}
+          <div className="bg-white dark:bg-[#082830] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-3 flex-1 flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
+              <h3 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                <History className="w-4 h-4 text-[#0d9488]" />
+                {t.longitudinalHistory}
+              </h3>
+              <span className="bg-[#e0f5f2] dark:bg-teal-950 text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/50 px-2 py-0.5 rounded-none text-[10px] font-mono font-bold">
+                {patientPastVisits.length} Visits
+              </span>
+            </div>
+
+            {patientPastVisits.length === 0 ? (
+              <div className="p-6 text-center text-slate-400 flex-1 flex flex-col items-center justify-center">
+                <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
+                <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold">First Outpatient Encounter</span>
+                <span className="text-[10px] text-slate-400 mt-0.5">This session initiates the master clinical EHR timeline.</span>
+              </div>
+            ) : (
+              <div className="space-y-2 overflow-y-auto max-h-[300px] pr-1 custom-scrollbar">
+                {patientPastVisits.map((visit) => {
+                  const isSelected = selectedPastVisit?.id === visit.id;
+                  return (
+                    <div
+                      key={visit.id}
+                      onClick={() => setSelectedPastVisit(isSelected ? null : visit)}
+                      className={`p-3 rounded-none border transition-all text-left cursor-pointer hover:bg-[#f0fdfa] dark:hover:bg-[#0c3844] bg-[#f7fdfd] dark:bg-[#07252d] ${
+                        isSelected 
+                          ? 'border-[#0d9488] dark:border-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] shadow-xs' 
+                          : 'border-[#ccfbf1] dark:border-teal-800/40'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{visit.date}</span>
+                        <span className="text-[#0f766e] dark:text-[#5eead4] bg-[#e0f5f2] dark:bg-teal-950 border border-[#b2f5ea] dark:border-teal-800/50 font-extrabold text-[9px] px-1.5 py-0.5 rounded-none">
+                          {visit.soap.assessment.icdCode}
+                        </span>
+                      </div>
+                      <p className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] truncate mt-1">
+                        {visit.soap.assessment.description}
+                      </p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">
+                        S: {visit.soap.subjective}
+                      </p>
+
+                      {isSelected && (
+                        <div className="mt-3 pt-2 border-t border-slate-200 dark:border-teal-800/40 text-[10px] space-y-1.5 text-slate-700 dark:text-slate-300 animate-fadeIn">
+                          <div><strong>Objective:</strong> BP {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg.</div>
+                          <div><strong>Notes:</strong> {visit.soap.assessment.clinicalNotes}</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* ========================================================================= */}
+      {/* AREA 4: SAFE CONSULTATION REVIEW & SIGN-OFF CHECKLIST MODAL DIALOG        */}
+      {/* ========================================================================= */}
+      {isReviewModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn" role="dialog" aria-modal="true">
+          <div className="bg-white dark:bg-[#07252d] border-2 border-[#0d9488] shadow-2xl max-w-2xl w-full p-6 rounded-none space-y-5 text-[#0f3c4c] dark:text-white">
+            
+            <div className="flex items-center justify-between border-b border-[#ccfbf1] dark:border-teal-800/40 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Stethoscope className="w-5 h-5 text-[#0d9488]" />
+                <h3 className="text-base font-black uppercase tracking-tight">Final Consultation Summary Checklist</h3>
+              </div>
+              <button type="button" onClick={() => setIsReviewModalOpen(false)} className="text-slate-400 hover:text-slate-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              <div className="bg-[#f0fdfa] dark:bg-[#082830] p-3 border border-[#b2f5ea] dark:border-teal-800/40 flex justify-between items-center font-bold">
+                <span>Patient: <strong>{currentPatient.fullName}</strong></span>
+                <span>IC: <strong className="font-mono">{maskedIC}</strong></span>
+              </div>
+
+              <div>
+                <span className="text-slate-400 uppercase font-bold text-[10px] block">Primary ICD-10 Diagnosis</span>
+                <div className="bg-[#e0f5f2] dark:bg-teal-950 p-2.5 border border-[#b2f5ea] dark:border-teal-800/50 font-bold text-[#0f766e] dark:text-[#5eead4] mt-1 flex items-center justify-between">
+                  <span>{selectedICD?.code} — {selectedICD?.desc}</span>
+                  <CheckCircle2 className="w-4 h-4 text-[#0d9488]" />
+                </div>
+              </div>
+
+              <div>
+                <span className="text-slate-400 uppercase font-bold text-[10px] block">Prescriptions ({rxList.length} Items)</span>
+                {rxList.length > 0 ? (
+                  <ul className="bg-slate-50 dark:bg-[#082830] border border-slate-200 dark:border-teal-800/40 p-3 space-y-1.5 mt-1 font-mono text-[11px]">
+                    {rxList.map((rx, idx) => (
+                      <li key={idx} className="flex justify-between border-b border-slate-200 dark:border-teal-800/30 pb-1 last:border-0 last:pb-0">
+                        <span>{rx.drugName} (Qty: {rx.quantity})</span>
+                        <span className="font-bold">RM {((rx.pricePerUnit || 0.5) * (rx.quantity || 1)).toFixed(2)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-slate-400 italic mt-1">No medications prescribed for this visit.</p>
+                )}
+              </div>
+
+              {currentPatient.drugAllergies.length > 0 && (
+                <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 p-2.5 text-emerald-900 dark:text-emerald-200 font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Allergy Safety Verification Passed (No active conflicts with {currentPatient.drugAllergies.join(', ')})</span>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-[#ccfbf1] dark:border-teal-800/40 pt-4 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setIsReviewModalOpen(false)}
+                className="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold rounded-none hover:bg-slate-100 cursor-pointer"
+              >
+                Back to Edit
+              </button>
+
+              <button
+                type="button"
+                onClick={handleFinalSignoff}
+                className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-6 py-2.5 rounded-none font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm cursor-pointer"
+              >
+                <Check className="w-4 h-4 text-white" />
+                <span>Confirm &amp; Route to Dispensary</span>
+              </button>
             </div>
 
           </div>
         </div>
       )}
+
     </div>
   );
 }

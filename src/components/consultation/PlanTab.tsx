@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { 
   AlertTriangle, CheckCircle2, Activity, Pill, Trash2, FileText, 
-  TestTube, Share, TrendingUp, PlusCircle 
+  TestTube, Share, TrendingUp, PlusCircle, X, Info, ShieldAlert,
+  FileCheck, Microscope, Sparkles
 } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { Patient, PrescriptionItem, ICD10Code } from '../../types';
 import { useInventory } from '../../context/InventoryContext';
 import { useAuth } from '../../context/AuthContext';
-import { maskICNumber } from '../../utils/piiMasker';
 import { DRUG_DATABASE } from '../../data';
 
 interface PlanTabProps {
@@ -46,6 +46,20 @@ export default function PlanTab({
 }: PlanTabProps) {
   const { showPII } = useAuth();
   const { inventory } = useInventory();
+
+  // Active Sub-Tab State
+  const [subTab, setSubTab] = useState<'medication' | 'investigations' | 'documents' | 'summary'>('medication');
+
+  // Patient Age Context
+  const patientAge = useMemo(() => {
+    if (!currentPatient?.dob) return 36;
+    const birthYear = new Date(currentPatient.dob).getFullYear();
+    const currentYear = new Date().getFullYear();
+    return currentYear - birthYear;
+  }, [currentPatient]);
+
+  const isPediatricPatient = patientAge < 12;
+  const [showPediatricCalc, setShowPediatricCalc] = useState(isPediatricPatient);
   
   // Local State for Pediatric Calculator
   const [patientWeight, setPatientWeight] = useState('');
@@ -53,12 +67,24 @@ export default function PlanTab({
   const [calculatedDose, setCalculatedDose] = useState<number | null>(null);
   
   const [searchDrugQuery, setSearchDrugQuery] = useState('');
-  
+
+  // Diagnostic Investigations State
+  const [selectedLabs, setSelectedLabs] = useState<string[]>([
+    'Full Blood Count (FBC)',
+    'Renal Function Test (RFT)'
+  ]);
+  const [labReason, setLabReason] = useState('');
+
+  // Document Modal States
   const [isMcModalOpen, setIsMcModalOpen] = useState(false);
-  const [mcReferenceNo, setMcReferenceNo] = useState('');
+  const [mcReason, setMcReason] = useState('Acute Upper Respiratory Tract Infection');
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
 
-  // Unified Drug Catalog (Combine live inventory with static fallback catalog)
+  // Interruptive Allergy Override State
+  const [pendingAllergyDrug, setPendingAllergyDrug] = useState<any | null>(null);
+  const [overrideRationale, setOverrideRationale] = useState('');
+
+  // Unified Drug Catalog
   const mergedCatalog = useMemo(() => {
     const combined = [...inventory];
     DRUG_DATABASE.forEach(dbDrug => {
@@ -98,9 +124,19 @@ export default function PlanTab({
     'gaviscon': ['antacid', 'reflux', 'gastritis'],
     'glucophage': ['metformin', 'diabetes'],
     'norvasc': ['amlodipine', 'hypertension'],
-    'lipitor': ['atorvastatin', 'cholesterol'],
-    'ventolin inhaler': ['salbutamol', 'inhaler']
+    'lipitor': ['atorvastatin', 'cholesterol']
   };
+
+  // Available Lab Tests Catalog
+  const availableLabTests = [
+    { id: 'fbc', name: 'Full Blood Count (FBC)', category: 'Hematology', estTime: '2 hrs' },
+    { id: 'rft', name: 'Renal Function Test (RFT)', category: 'Biochemistry', estTime: '3 hrs' },
+    { id: 'lft', name: 'Liver Function Test (LFT)', category: 'Biochemistry', estTime: '3 hrs' },
+    { id: 'fbg', name: 'Fasting Blood Glucose & Lipid Profile', category: 'Metabolic', estTime: '4 hrs' },
+    { id: 'ecg', name: '12-Lead Electrocardiogram (ECG)', category: 'Diagnostics', estTime: 'Immediate' },
+    { id: 'urine', name: 'Urine FEME & Microalbumin', category: 'Urinalysis', estTime: '1 hr' },
+    { id: 'cxr', name: 'Chest X-Ray (PA View)', category: 'Radiology', estTime: 'Immediate' },
+  ];
 
   // Recalculate pediatric dose on input change
   useMemo(() => {
@@ -115,12 +151,11 @@ export default function PlanTab({
     }
   }, [patientWeight, medConcentration]);
 
-  // Drug Suggestions Filter (supports trade alias match & sub-string search)
+  // Drug Suggestions Filter
   const drugSuggestions = useMemo(() => {
     const q = searchDrugQuery.trim().toLowerCase();
     if (!q) return [];
     
-    // Check if query matches a known trade name alias
     let aliases: string[] = [];
     Object.keys(brandAliasMap).forEach(brand => {
       if (brand.includes(q) || q.includes(brand)) {
@@ -160,47 +195,31 @@ export default function PlanTab({
     return alerts;
   }, [rxList, currentPatient, mergedCatalog]);
 
-  // Check Clinical Disease Contraindications (e.g., NSAID given to Asthmatic or Gastritis patient)
-  const contraindicationAlerts = useMemo(() => {
-    if (!selectedICD) return [];
-    const alerts: { drugName: string; icdCode: string; reason: string }[] = [];
-    
-    const icdCode = selectedICD.code.toUpperCase();
-    
-    rxList.forEach(item => {
-      const name = item.drugName.toLowerCase();
-      const catalogDrug = mergedCatalog.find(d => d.name.toLowerCase() === name);
-      const grp = (catalogDrug?.allergyGroup || '').toLowerCase();
-
-      // Rule 1: NSAID / Aspirin in Gastritis / Peptic Ulcer Disease (K29 / K25)
-      if ((icdCode.startsWith('K29') || icdCode.startsWith('K25')) && (grp.includes('nsaid') || name.includes('mefenamic') || name.includes('diclofenac') || name.includes('ibuprofen') || name.includes('naproxen'))) {
-        alerts.push({
-          drugName: item.drugName,
-          icdCode: selectedICD.code,
-          reason: 'NSAID / Anti-inflammatory drugs can aggravate gastric ulceration and gastrointestinal bleeding.'
-        });
-      }
-
-      // Rule 2: Non-selective Beta Blockers in Asthma (J45)
-      if (icdCode.startsWith('J45') && (name.includes('propranolol') || name.includes('atenolol'))) {
-        alerts.push({
-          drugName: item.drugName,
-          icdCode: selectedICD.code,
-          reason: 'Beta-blockers can trigger severe bronchospasm in asthmatic patients.'
-        });
-      }
-    });
-    return alerts;
-  }, [rxList, selectedICD, mergedCatalog]);
-
   const handleAddDrug = (drug: any) => {
     if (rxList.some(r => r.drugName.toLowerCase() === drug.name.toLowerCase())) {
       setSearchDrugQuery('');
       return;
     }
+
+    // Safety Contraindication Check against Patient Allergies
+    const grp = drug.allergyGroup || '';
+    const isAllergic = currentPatient.drugAllergies.some(
+      a => (grp && grp !== 'None' && (a.toLowerCase() === grp.toLowerCase() || grp.toLowerCase().includes(a.toLowerCase()))) ||
+           drug.name.toLowerCase().includes(a.toLowerCase())
+    );
+
+    if (isAllergic) {
+      setPendingAllergyDrug(drug);
+      return;
+    }
+
+    confirmAddDrug(drug, '');
+  };
+
+  const confirmAddDrug = (drug: any, rationale: string) => {
     const newRx: PrescriptionItem = {
       id: `rx-${Date.now()}-${Math.random()}`,
-      drugName: drug.name,
+      drugName: rationale ? `${drug.name} [OVERRIDDEN: ${rationale}]` : drug.name,
       dosage: drug.dosageEN || 'Take as instructed',
       dosageBM: drug.dosageBM || 'Makan mengikut arahan',
       frequency: drug.frequency || '1 Tab BD',
@@ -214,35 +233,17 @@ export default function PlanTab({
     setSearchDrugQuery('');
   };
 
-  const handleAddCustomDrug = (customName: string) => {
-    if (!customName.trim()) return;
-    const newRx: PrescriptionItem = {
-      id: `rx-custom-${Date.now()}`,
-      drugName: customName.trim(),
-      dosage: 'Take as directed by doctor',
-      dosageBM: 'Makan mengikut arahan doktor',
-      frequency: '1 Tab BD',
-      quantity: 10,
-      pricePerUnit: 1.00,
-      expiryDate: `${new Date().getFullYear() + 2}-06-30`,
-      pillColor: '#0d9488',
-      capsuleStyle: 'solid'
-    };
-    setRxList([...rxList, newRx]);
-    setSearchDrugQuery('');
-  };
-
   const handleAddPediatricSyrup = () => {
     if (!calculatedDose || calculatedDose <= 0) return;
     const doseStr = `${calculatedDose.toFixed(1)} ml TDS (3 times daily) after meals`;
     const doseBMStr = `${calculatedDose.toFixed(1)} ml 3 kali sehari selepas makan`;
     const newRx: PrescriptionItem = {
       id: `rx-peds-${Date.now()}`,
-      drugName: `Syrup Paracetamol (${medConcentration === '24' ? '120mg/5ml' : medConcentration === '50' ? '250mg/5ml' : '100mg/ml Infant'})`,
+      drugName: `Syrup Paracetamol (${medConcentration === '24' ? '120mg/5ml' : medConcentration === '50' ? '250mg/5ml' : '100mg/ml Infant Drops'})`,
       dosage: doseStr,
       dosageBM: doseBMStr,
       frequency: 'TDS (3x Daily)',
-      quantity: 1, // 1 Bottle
+      quantity: 1,
       pricePerUnit: 12.00,
       expiryDate: `${new Date().getFullYear() + 1}-12-31`,
       pillColor: '#f43f5e',
@@ -251,455 +252,681 @@ export default function PlanTab({
     setRxList([...rxList, newRx]);
   };
 
-  const triggerMcOpening = () => {
-    setMcDays(2);
-    setMcReferenceNo(`MC-${Date.now().toString().slice(-6)}`);
-    setIsMcModalOpen(true);
+  const toggleLabSelection = (testName: string) => {
+    if (selectedLabs.includes(testName)) {
+      setSelectedLabs(selectedLabs.filter(t => t !== testName));
+    } else {
+      setSelectedLabs([...selectedLabs, testName]);
+    }
   };
 
   return (
-    <div className="space-y-5 animate-fadeIn relative">
-      {/* AI DRUG INTERACTION ALERT */}
+    <div className="space-y-4 animate-fadeIn relative text-[#0f3c4c] dark:text-slate-100">
+      
+      {/* ------------------------------------------------------------------------- */}
+      {/* PERSISTENT AI DRUG INTERACTION SAFETY BANNER                             */}
+      {/* ------------------------------------------------------------------------- */}
       {allergyAlerts.length > 0 ? (
-        <div className="bg-rose-600 text-white p-3.5 rounded-none shadow-md flex items-start gap-3 border border-rose-700">
-          <AlertTriangle className="w-5 h-5 shrink-0 text-white" />
+        <div className="bg-rose-600 text-white p-3 rounded-none shadow-sm flex items-start gap-3 border border-rose-700">
+          <AlertTriangle className="w-5 h-5 shrink-0 text-white mt-0.5" />
           <div>
-            <h4 className="font-extrabold text-xs uppercase tracking-wider">AI SAFETY ALERT: Drug Interaction Conflict Detected!</h4>
-            <p className="text-[11px] mt-0.5 opacity-95">Patient has registered allergies conflicting with your selected prescription plan.</p>
-            <ul className="text-[10px] mt-1.5 list-disc pl-4 font-mono bg-black/20 p-2 rounded-none">
+            <h4 className="font-black text-xs uppercase tracking-wider">AI SAFETY ALERT: Drug Contraindication Conflict Detected!</h4>
+            <p className="text-[11px] mt-0.5 opacity-95">Patient registered allergies conflict with active prescription choices.</p>
+            <ul className="text-[10px] mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded-none">
               {allergyAlerts.map((alert, idx) => (
-                <li key={idx}><span className="font-bold">{alert.drugName}</span> belongs to <span className="font-bold underline">{alert.allergyGroup}</span> family.</li>
+                <li key={idx}><span className="font-bold">{alert.drugName}</span> belongs to <span className="font-bold underline uppercase">{alert.allergyGroup}</span> family.</li>
               ))}
             </ul>
           </div>
         </div>
       ) : rxList.length > 0 ? (
-        <div className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] p-3 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 flex items-center gap-2 shadow-2xs">
-          <CheckCircle2 className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
-          <span className="text-[11px] font-bold uppercase tracking-wider">AI Interaction Check: Safe (Zero Contraindications Detected)</span>
+        <div className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] p-2.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 flex items-center justify-between text-xs font-bold shadow-2xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
+            <span>AI Interaction Check: Pass (Zero Drug-Allergy Contraindications)</span>
+          </div>
+          <span className="font-mono text-[10px] bg-white dark:bg-[#07252d] px-2 py-0.5 border border-[#b2f5ea] text-[#0d9488]">
+            {rxList.length} Items Prescribed
+          </span>
         </div>
       ) : null}
 
-      {/* PEDIATRIC DOSAGE CALCULATOR */}
-      <div className="bg-[#f0fdfa] dark:bg-[#082830] p-4 rounded-none border border-[#b2f5ea] dark:border-teal-800/60 shadow-xs">
-        <div className="flex items-center justify-between mb-2.5">
-          <h4 className="text-xs font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-1.5 tracking-wider">
-            <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" /> Pediatric Dosage Calculator (Paracetamol 15mg/kg)
-          </h4>
-          <span className="text-[10px] text-[#0f766e] dark:text-[#5eead4] bg-white dark:bg-[#03191f] px-2.5 py-0.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 font-bold">
-            Clinical Standard: 15mg / kg
-          </span>
-        </div>
+      {/* ------------------------------------------------------------------------- */}
+      {/* 4 STRUCTURED SUB-TABS NAVIGATION BAR                                      */}
+      {/* ------------------------------------------------------------------------- */}
+      <div className="flex border border-[#b2f5ea] dark:border-teal-800/40 bg-[#f7fdfd] dark:bg-[#07252d] p-1 rounded-none gap-1" role="tablist">
         
-        {/* Weight & Concentration Presets */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
-          <div>
-            <label className="block text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
-              Child Body Weight (kg)
-            </label>
-            <Input 
-              type="number" 
-              className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-700/60 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#03191f] text-[#0f3c4c] dark:text-[#f8fafc] font-bold"
-              value={patientWeight}
-              onChange={e => setPatientWeight(e.target.value)}
-              placeholder="e.g. 12"
-            />
-            {/* Quick Weight Presets */}
-            <div className="flex gap-1 mt-1.5 flex-wrap">
-              {['5', '8', '10', '12', '15', '20'].map(w => (
-                <button
-                  key={w}
-                  type="button"
-                  onClick={() => setPatientWeight(w)}
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
-                    patientWeight === w 
-                      ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                      : 'bg-white dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] cursor-pointer'
-                  }`}
-                >
-                  {w}kg
-                </button>
-              ))}
-            </div>
-          </div>
+        <button
+          type="button"
+          onClick={() => setSubTab('medication')}
+          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+            subTab === 'medication'
+              ? 'bg-[#0d9488] text-white shadow-2xs'
+              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+          }`}
+        >
+          <Pill className="w-4 h-4" />
+          <span>1. Medication Prescribing</span>
+          {rxList.length > 0 && <span className="bg-white text-[#0d9488] px-1 font-mono text-[10px] font-black">{rxList.length}</span>}
+        </button>
 
-          <div>
-            <label className="block text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
-              Syrup Formulation Concentration
-            </label>
-            <select
-              className="w-full text-xs px-2.5 py-1.5 border border-[#b2f5ea] dark:border-teal-700/60 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#03191f] text-[#0f3c4c] dark:text-[#f8fafc] font-bold"
-              value={medConcentration}
-              onChange={e => setMedConcentration(e.target.value)}
-            >
-              <option value="24">120mg / 5ml Standard Syrup (24mg/ml)</option>
-              <option value="50">250mg / 5ml Forte Syrup (50mg/ml)</option>
-              <option value="100">100mg / ml Drops (Infant 100mg/ml)</option>
-            </select>
-            <div className="flex gap-1.5 mt-1.5">
-              <button
-                type="button"
-                onClick={() => setMedConcentration('24')}
-                className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
-                  medConcentration === '24' 
-                    ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                    : 'bg-white dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] cursor-pointer'
-                }`}
-              >
-                120mg/5ml
-              </button>
-              <button
-                type="button"
-                onClick={() => setMedConcentration('50')}
-                className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
-                  medConcentration === '50' 
-                    ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                    : 'bg-white dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] cursor-pointer'
-                }`}
-              >
-                250mg/5ml
-              </button>
-            </div>
-          </div>
+        <button
+          type="button"
+          onClick={() => setSubTab('investigations')}
+          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+            subTab === 'investigations'
+              ? 'bg-[#0d9488] text-white shadow-2xs'
+              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+          }`}
+        >
+          <TestTube className="w-4 h-4" />
+          <span>2. Lab &amp; Investigations</span>
+          {selectedLabs.length > 0 && <span className="bg-[#e0f5f2] text-[#0f766e] px-1 font-mono text-[10px] font-bold">{selectedLabs.length}</span>}
+        </button>
 
-          <div className="bg-white dark:bg-[#041d24] p-3 rounded-none border border-[#b2f5ea] dark:border-teal-700/60 flex flex-col justify-between h-full shadow-2xs">
-            <div>
-              <span className="text-[9px] text-slate-500 dark:text-[#5eead4]/80 font-bold uppercase tracking-wider block">Calculated Single Dose</span>
-              <div className="flex items-baseline gap-2 mt-0.5">
-                <span className="font-mono font-black text-[#0d9488] dark:text-[#2dd4bf] text-lg leading-none">
-                  {typeof calculatedDose === 'number' && !isNaN(calculatedDose) ? `${calculatedDose.toFixed(1)} ml` : '--'}
-                </span>
-                {typeof calculatedDose === 'number' && !isNaN(calculatedDose) && (
-                  <span className="text-[10px] text-slate-500 dark:text-teal-300 font-mono">({(parseFloat(patientWeight) * 15).toFixed(0)} mg)</span>
-                )}
-              </div>
-            </div>
-            
-            {typeof calculatedDose === 'number' && !isNaN(calculatedDose) && calculatedDose > 0 && (
-              <button
-                type="button"
-                onClick={handleAddPediatricSyrup}
-                className="mt-2 w-full text-[10px] font-extrabold bg-[#0d9488] hover:bg-[#0f766e] text-white py-1.5 px-2 rounded-none flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-xs"
-              >
-                <PlusCircle className="w-3.5 h-3.5" /> + Add {calculatedDose.toFixed(1)}ml Syrup to Rx
-              </button>
-            )}
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => setSubTab('documents')}
+          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+            subTab === 'documents'
+              ? 'bg-[#0d9488] text-white shadow-2xs'
+              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>3. Documents &amp; Certificates</span>
+          {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSubTab('summary')}
+          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+            subTab === 'summary'
+              ? 'bg-[#0d9488] text-white shadow-2xs'
+              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+          }`}
+        >
+          <FileCheck className="w-4 h-4" />
+          <span>4. Order Summary</span>
+        </button>
+
       </div>
 
-      {/* Medication prescription search bar */}
-      <div className="space-y-1">
-        <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">
-          Medication Catalog &amp; Brand Alias Search
-        </label>
-        <div className="relative">
-          <Input
-            type="text"
-            className="w-full text-xs px-3.5 py-2.5 border border-[#b2f5ea] dark:border-teal-700/60 bg-white dark:bg-[#03191f] text-[#0f3c4c] dark:text-[#f8fafc] rounded-none focus:ring-3 focus:ring-[#0d9488]/15 focus:border-[#0d9488] focus:outline-none font-medium placeholder:text-slate-400 dark:placeholder:text-teal-400/50"
-            value={searchDrugQuery}
-            onChange={(e) => setSearchDrugQuery(e.target.value)}
-            placeholder="Search catalog or brand names (e.g. 'Panadol', 'Amoxicillin', 'Augmentin', 'Ponstan', 'Voltaren', 'Zyrtec')..."
-          />
-          {searchDrugQuery.trim().length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-700/50 rounded-none shadow-xl z-20 max-h-[220px] overflow-y-auto divide-y divide-slate-100 dark:divide-teal-800/40">
-              {drugSuggestions.length > 0 ? (
-                drugSuggestions.map((item) => {
-                  const isConflict = item.allergyGroup && item.allergyGroup !== 'None' && currentPatient.drugAllergies.some(
-                    a => a.toLowerCase() === item.allergyGroup.toLowerCase() ||
-                         item.allergyGroup.toLowerCase().includes(a.toLowerCase())
-                  );
-                  const price = typeof item.pricePerUnit === 'number' ? item.pricePerUnit : 0.50;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleAddDrug(item)}
-                      className="w-full text-left px-3.5 py-2 text-xs hover:bg-[#e0f5f2]/60 dark:hover:bg-[#0e4857] flex items-center justify-between cursor-pointer transition-colors"
+      {/* ========================================================================= */}
+      {/* SUB-TAB 1: MEDICATION PRESCRIBING                                         */}
+      {/* ========================================================================= */}
+      {subTab === 'medication' && (
+        <div className="space-y-4 animate-fadeIn">
+          
+          {/* CONTEXT-AWARE PEDIATRIC DOSAGE CALCULATOR ASSIST */}
+          {!showPediatricCalc ? (
+            <div className="bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-2.5 rounded-none flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[#0d9488]" />
+                <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAge})</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPediatricCalc(true)}
+                className="text-[10px] font-bold text-[#0d9488] dark:text-[#2dd4bf] border border-[#b2f5ea] dark:border-teal-800/50 px-2.5 py-1 hover:bg-[#e0f5f2] cursor-pointer"
+              >
+                + Show Pediatric Dose Assist
+              </button>
+            </div>
+          ) : (
+            <div className="bg-[#e0f5f2]/80 dark:bg-[#082830] p-3.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs space-y-2.5">
+              <div className="flex items-center justify-between border-b border-[#b2f5ea] dark:border-teal-800/40 pb-2">
+                <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-1.5 tracking-wider">
+                  <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" /> Pediatric Weight-Based Dosage Calculator
+                </h4>
+                <div className="flex items-center gap-2 font-mono text-[10px]">
+                  <span className="bg-white dark:bg-[#07252d] text-[#0f766e] dark:text-[#5eead4] px-2 py-0.5 border border-[#b2f5ea]">
+                    Triage Recorded Today
+                  </span>
+                  <span className="bg-white dark:bg-[#07252d] text-[#0f766e] dark:text-[#5eead4] px-2 py-0.5 border border-[#b2f5ea]">
+                    Range: 10 - 15 mg/kg
+                  </span>
+                  <span className="bg-rose-50 text-rose-700 px-2 py-0.5 border border-rose-200 font-bold">
+                    Max: 60 mg/kg/day
+                  </span>
+                  {!isPediatricPatient && (
+                    <button type="button" onClick={() => setShowPediatricCalc(false)} className="text-slate-400 hover:text-slate-700 ml-2">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                    Patient Body Weight (kg)
+                  </label>
+                  <Input 
+                    type="number" 
+                    className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
+                    value={patientWeight}
+                    onChange={e => setPatientWeight(e.target.value)}
+                    placeholder="e.g. 12"
+                  />
+                  <div className="flex gap-1 mt-1 flex-wrap">
+                    {['5', '8', '10', '12', '15', '20'].map(w => (
+                      <button
+                        key={w}
+                        type="button"
+                        onClick={() => setPatientWeight(w)}
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
+                          patientWeight === w 
+                            ? 'bg-[#0d9488] text-white border-[#0d9488]' 
+                            : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] cursor-pointer'
+                        }`}
+                      >
+                        {w}kg
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                    Liquid Formulation Concentration
+                  </label>
+                  <select
+                    value={medConcentration}
+                    onChange={e => setMedConcentration(e.target.value)}
+                    className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
+                  >
+                    <option value="24">120mg / 5ml (Standard Syrup)</option>
+                    <option value="50">250mg / 5ml (Forte Syrup)</option>
+                    <option value="100">100mg / 1ml (Infant Drops)</option>
+                  </select>
+                </div>
+
+                <div>
+                  {calculatedDose ? (
+                    <div className="bg-white dark:bg-[#07252d] border border-[#0d9488] p-2 rounded-none text-center">
+                      <span className="text-[10px] text-slate-400 font-bold block uppercase">Recommended Single Dose</span>
+                      <span className="text-sm font-mono font-black text-[#0d9488] dark:text-[#2dd4bf]">
+                        {calculatedDose.toFixed(1)} ml TDS
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleAddPediatricSyrup}
+                        className="mt-1 w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-[10px] uppercase py-1 rounded-none transition-colors"
+                      >
+                        + Add Syrup to Rx List
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 text-center text-slate-400 border border-dashed border-slate-300 dark:border-teal-800/40 text-[11px]">
+                      Enter weight to calculate dose.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEARCH DRUG CATALOG */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">
+              Prescribe Medication (Trade / Generic / Brand Search) <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative">
+              <Input 
+                type="text"
+                className="w-full text-xs px-3 py-2 border border-[#b2f5ea] dark:border-teal-800/50 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-medium"
+                value={searchDrugQuery}
+                onChange={e => setSearchDrugQuery(e.target.value)}
+                placeholder="Type medication name (e.g. Paracetamol, Panadol, Augmentin, Ponstan, Zyrtec)..."
+              />
+
+              {/* AUTOCOMPLETE DROPDOWN */}
+              {drugSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 z-30 bg-white dark:bg-[#07252d] border-2 border-[#0d9488] shadow-xl max-h-60 overflow-y-auto rounded-none mt-1">
+                  {drugSuggestions.map(drug => (
+                    <div
+                      key={drug.id}
+                      onClick={() => handleAddDrug(drug)}
+                      className="p-2.5 border-b border-slate-100 dark:border-teal-800/30 hover:bg-[#f0fdfa] dark:hover:bg-[#0c3844] cursor-pointer flex items-center justify-between text-xs transition-colors"
                     >
                       <div>
-                        <span className="font-bold text-[#0f3c4c] dark:text-white block">{item.name}</span>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
-                          {item.category || 'General Medication'} (Allergen Group: {item.allergyGroup || 'None'})
+                        <strong className="text-[#0f3c4c] dark:text-[#5eead4] font-bold block">{drug.name}</strong>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                          Category: {drug.category} | Class: {drug.allergyGroup || 'General'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {isConflict && <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 font-bold px-1.5 py-0.5 rounded-none text-[8px] uppercase">Allergy Conflict</span>}
-                        <span className="font-mono text-[#0d9488] dark:text-[#2dd4bf] font-bold">RM{price.toFixed(2)}</span>
+                      <div className="text-right">
+                        <span className="text-xs font-mono font-bold text-[#0d9488] dark:text-[#2dd4bf] block">
+                          RM {(drug.pricePerUnit || 0.5).toFixed(2)}
+                        </span>
+                        <span className="text-[10px] text-slate-400">Stock: {drug.currentStock || 100}</span>
                       </div>
-                    </button>
-                  );
-                })
-              ) : null}
-              
-              {/* Custom Medication Fallback option */}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* PRESCRIPTION LIST TABLE */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center justify-between">
+              <span>Active Prescription Items ({rxList.length})</span>
+              {rxList.length > 0 && (
+                <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] font-normal">
+                  Subtotal: RM {(rxList.reduce((acc, r) => acc + ((r.pricePerUnit || 0.5) * (r.quantity || 1)), 0)).toFixed(2)}
+                </span>
+              )}
+            </h4>
+
+            {rxList.length === 0 ? (
+              <div className="p-6 text-center bg-slate-50 dark:bg-[#082830] border border-dashed border-slate-300 dark:border-teal-800/40 text-slate-400 text-xs">
+                <Pill className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                <span>No medication items added. Search above to add items to prescription plan.</span>
+              </div>
+            ) : (
+              <div className="border border-[#b2f5ea] dark:border-teal-800/40 overflow-hidden rounded-none">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead className="bg-[#e0f5f2] dark:bg-[#07252d] text-[#0f3c4c] dark:text-[#5eead4] font-bold border-b border-[#b2f5ea] dark:border-teal-800/40">
+                    <tr>
+                      <th className="p-2">Medication</th>
+                      <th className="p-2">Dosage / Instructions</th>
+                      <th className="p-2">Frequency</th>
+                      <th className="p-2">Qty</th>
+                      <th className="p-2 text-right font-mono">Price</th>
+                      <th className="p-2 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-teal-800/30 bg-white dark:bg-[#082830]">
+                    {rxList.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-[#0c3844] transition-colors">
+                        <td className="p-2 font-bold text-[#0f3c4c] dark:text-white">
+                          {item.drugName}
+                        </td>
+                        <td className="p-2 text-slate-600 dark:text-slate-300">
+                          {item.dosage}
+                        </td>
+                        <td className="p-2 text-slate-600 dark:text-slate-300 font-mono">
+                          {item.frequency}
+                        </td>
+                        <td className="p-2">
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={e => {
+                              const val = parseInt(e.target.value) || 1;
+                              setRxList(rxList.map(r => r.id === item.id ? { ...r, quantity: val } : r));
+                            }}
+                            className="w-14 px-2 py-0.5 border border-slate-300 dark:border-teal-800/40 rounded-none text-xs text-center font-bold"
+                          />
+                        </td>
+                        <td className="p-2 text-right font-mono text-slate-500 dark:text-slate-400">
+                          RM {((item.pricePerUnit || 0.5) * (item.quantity || 1)).toFixed(2)}
+                        </td>
+                        <td className="p-2 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setRxList(rxList.filter(r => r.id !== item.id))}
+                            className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
+                            title="Remove Item"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* DISPENSING PHARMACY MEMO */}
+          <div>
+            <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
+              Internal Pharmacy Memo / Notes for Dispensing Pharmacist
+            </label>
+            <Input 
+              type="text"
+              className="w-full text-xs px-3 py-2 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white"
+              value={pharmacyMemo}
+              onChange={e => setPharmacyMemo(e.target.value)}
+              placeholder="e.g. Split tablets into half doses, patient requested original trade pack..."
+            />
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-TAB 2: DIAGNOSTIC INVESTIGATIONS (LAB / IMAGING ORDERS)              */}
+      {/* ========================================================================= */}
+      {subTab === 'investigations' && (
+        <div className="space-y-4 animate-fadeIn">
+          
+          <div className="bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-3 rounded-none flex items-center justify-between">
+            <div>
+              <h4 className="text-xs font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-1.5">
+                <Microscope className="w-4 h-4 text-[#0d9488]" /> Diagnostic Lab &amp; Imaging Requisition
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Select laboratory investigations to order for this clinical encounter.</p>
+            </div>
+            <span className="text-xs font-mono font-bold text-[#0d9488] bg-white dark:bg-[#082830] px-2.5 py-1 border border-[#b2f5ea]">
+              {selectedLabs.length} Tests Selected
+            </span>
+          </div>
+
+          {/* LAB SELECTION GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            {availableLabTests.map(test => {
+              const isSelected = selectedLabs.includes(test.name);
+              return (
+                <div
+                  key={test.id}
+                  onClick={() => toggleLabSelection(test.name)}
+                  className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${
+                    isSelected
+                      ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] text-[#0f3c4c] dark:text-white shadow-2xs font-bold'
+                      : 'bg-white dark:bg-[#07252d] border-slate-200 dark:border-teal-800/40 text-slate-700 dark:text-slate-300 hover:border-[#b2f5ea]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <input 
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => {}} // Handled by parent div
+                      className="w-4 h-4 text-[#0d9488] rounded-none focus:ring-0 cursor-pointer"
+                    />
+                    <div>
+                      <strong className="text-xs block">{test.name}</strong>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                        Category: {test.category} | TAT: {test.estTime}
+                      </span>
+                    </div>
+                  </div>
+                  {isSelected && <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* CLINICAL INDICATIONS / NOTES FOR LAB */}
+          <div>
+            <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
+              Clinical Rationale &amp; Indications for Investigations
+            </label>
+            <Input 
+              type="text"
+              className="w-full text-xs px-3 py-2 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white"
+              value={labReason}
+              onChange={e => setLabReason(e.target.value)}
+              placeholder="e.g. Evaluate fever origin, rule out urinary tract infection..."
+            />
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-TAB 3: DOCUMENTS & CERTIFICATES (MC & REFERRAL)                       */}
+      {/* ========================================================================= */}
+      {subTab === 'documents' && (
+        <div className="space-y-4 animate-fadeIn">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* MEDICAL CERTIFICATE ISSUANCE CARD */}
+            <div className="border border-[#b2f5ea] dark:border-teal-800/40 bg-white dark:bg-[#07252d] p-4 rounded-none space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
+                <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#0d9488]" /> Digital Medical Certificate (MC)
+                </h4>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-none border ${
+                  mcGenerated ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-500 border-slate-200'
+                }`}>
+                  {mcGenerated ? 'ISSUED' : 'NOT ISSUED'}
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Duration (Days)</label>
+                  <Input 
+                    type="number"
+                    min="1"
+                    max="14"
+                    value={mcDays}
+                    onChange={e => setMcDays(parseInt(e.target.value) || 1)}
+                    className="w-full text-xs p-2 border border-slate-300 rounded-none font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Clinical Diagnosis / Reason</label>
+                  <Input 
+                    type="text"
+                    value={mcReason}
+                    onChange={e => setMcReason(e.target.value)}
+                    className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                  />
+                </div>
+              </div>
+
               <button
                 type="button"
-                onClick={() => handleAddCustomDrug(searchDrugQuery)}
-                className="w-full text-left px-3.5 py-2.5 text-xs bg-[#e0f5f2]/70 dark:bg-[#0e4857] hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] text-[#0f766e] dark:text-[#5eead4] font-bold flex items-center gap-2 cursor-pointer border-t border-[#b2f5ea] dark:border-teal-700/50"
+                onClick={() => setMcGenerated(true)}
+                className={`w-full py-2 text-xs font-extrabold uppercase rounded-none border transition-colors cursor-pointer ${
+                  mcGenerated
+                    ? 'bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700'
+                    : 'bg-[#0d9488] text-white border-[#0f766e] hover:bg-[#0f766e]'
+                }`}
               >
-                <PlusCircle className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
-                <span>Add Custom Prescription: "{searchDrugQuery}"</span>
+                {mcGenerated ? '✓ MC Certificate Generated & Attached' : 'Generate Digital MC'}
               </button>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* SMART DOSAGE QUICK-PILLS PRESET BAR */}
-      <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none p-3 space-y-2 shadow-2xs">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1">
-            <Pill className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Fast Dosage Preset Quick-Pills
-          </span>
-          <span className="text-[9px] text-slate-500 dark:text-teal-300/80 font-medium">Click to apply preset instructions to last added medication</span>
-        </div>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {[
-            { label: '1 Tab BD (2x Daily)', freq: '1 Tab Twice Daily', en: 'Take 1 tablet twice a day after food', bm: 'Makan 1 biji 2 kali sehari selepas makan' },
-            { label: '1 Cap TDS (3x Daily)', freq: '1 Cap 3x Daily', en: 'Take 1 capsule three times a day after food', bm: 'Makan 1 kapsul 3 kali sehari selepas makan' },
-            { label: '1 Tab QDS (4x Daily)', freq: '1 Tab 4x Daily', en: 'Take 1 tablet four times a day', bm: 'Makan 1 biji 4 kali sehari' },
-            { label: '1 Tab PRN (As Needed)', freq: '1 Tab PRN', en: 'Take 1 tablet when needed for pain/fever', bm: 'Makan 1 biji jika perlu bila sakit/demam' },
-            { label: 'Take After Meals', freq: 'After Meals', en: 'Take after meals', bm: 'Makan selepas makan' }
-          ].map((preset, pIdx) => (
-            <button
-              key={pIdx}
-              type="button"
-              onClick={() => {
-                if (rxList.length > 0) {
-                  const updated = [...rxList];
-                  const lastIdx = updated.length - 1;
-                  updated[lastIdx] = { ...updated[lastIdx], frequency: preset.freq, dosage: preset.en, dosageBM: preset.bm };
-                  setRxList(updated);
-                }
-              }}
-              className="text-[10px] font-bold bg-white dark:bg-[#0c3844] hover:bg-[#0d9488] dark:hover:bg-[#0d9488] text-[#0f766e] dark:text-[#5eead4] dark:hover:text-white px-2.5 py-1 rounded-none border border-[#b2f5ea] dark:border-teal-700/50 shadow-2xs transition-all cursor-pointer"
-            >
-              + {preset.label}
-            </button>
-          ))}
-        </div>
-      </div>
+            {/* SPECIALIST REFERRAL LETTER CARD */}
+            <div className="border border-[#b2f5ea] dark:border-teal-800/40 bg-white dark:bg-[#07252d] p-4 rounded-none space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
+                <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-2">
+                  <Share className="w-4 h-4 text-[#0d9488]" /> Specialist Referral Note
+                </h4>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-none border ${
+                  referralGenerated ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-slate-100 text-slate-500 border-slate-200'
+                }`}>
+                  {referralGenerated ? 'ATTACHED' : 'NONE'}
+                </span>
+              </div>
 
-      {/* Currently Selected Prescription list */}
-      <div className="border border-[#b2f5ea] dark:border-teal-800/60 rounded-none overflow-hidden shadow-xs bg-white dark:bg-[#07252d]">
-        {contraindicationAlerts.length > 0 && (
-          <div className="bg-amber-50 dark:bg-amber-950/60 border-b border-amber-200 dark:border-amber-800/50 p-3.5 space-y-1">
-            <h5 className="text-xs font-extrabold text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-amber-600 animate-bounce-slow" /> Drug-Disease Clinical Contraindication Alert ({contraindicationAlerts.length})
-            </h5>
-            <div className="space-y-1">
-              {contraindicationAlerts.map((alert, idx) => (
-                <p key={idx} className="text-[11px] text-amber-800 dark:text-amber-300 font-medium leading-relaxed">
-                  • <strong className="font-bold underline">{alert.drugName}</strong> vs Diagnosis <strong className="font-mono bg-amber-100 dark:bg-amber-900 px-1 rounded-none text-amber-900 dark:text-amber-200 font-bold">{alert.icdCode}</strong>: {alert.reason}
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Target Hospital / Clinic</label>
+                  <Input 
+                    type="text"
+                    value={referralDetails.hospital}
+                    onChange={e => setReferralDetails({ ...referralDetails, hospital: e.target.value })}
+                    placeholder="e.g. Hospital Kuala Lumpur / Pantai Hospital"
+                    className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Specialty Department</label>
+                  <Input 
+                    type="text"
+                    value={referralDetails.department}
+                    onChange={e => setReferralDetails({ ...referralDetails, department: e.target.value })}
+                    placeholder="e.g. ENT / General Medicine / Cardiology"
+                    className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setReferralGenerated(true)}
+                className={`w-full py-2 text-xs font-extrabold uppercase rounded-none border transition-colors cursor-pointer ${
+                  referralGenerated
+                    ? 'bg-indigo-600 text-white border-indigo-700 hover:bg-indigo-700'
+                    : 'bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#b2f5ea] dark:border-teal-800/40 hover:bg-[#e0f5f2]'
+                }`}
+              >
+                {referralGenerated ? '✓ Referral Letter Attached' : 'Draft Referral Letter'}
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-TAB 4: PRESCRIPTION & ORDER SUMMARY                                   */}
+      {/* ========================================================================= */}
+      {subTab === 'summary' && (
+        <div className="space-y-4 animate-fadeIn">
+          
+          <div className="border border-[#b2f5ea] dark:border-teal-800/40 bg-[#f7fdfd] dark:bg-[#07252d] p-4 rounded-none space-y-3">
+            <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center justify-between border-b border-[#b2f5ea] pb-2">
+              <span>Full Order &amp; Plan Verification Summary</span>
+              <span className="font-mono text-emerald-600 font-bold">Ready for Final Sign-Off</span>
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              
+              {/* Prescribed Drugs List Summary */}
+              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+                  1. Prescribed Medications ({rxList.length})
+                </span>
+                {rxList.length === 0 ? (
+                  <p className="text-slate-400 text-[11px] italic">No medications prescribed.</p>
+                ) : (
+                  <ul className="space-y-1 font-mono text-[11px]">
+                    {rxList.map(r => (
+                      <li key={r.id} className="flex justify-between border-b border-slate-100 dark:border-teal-800/20 py-0.5">
+                        <span>{r.drugName} ({r.dosage})</span>
+                        <span className="font-bold">x{r.quantity}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Lab Requisitions Summary */}
+              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+                  2. Diagnostic Investigations ({selectedLabs.length})
+                </span>
+                {selectedLabs.length === 0 ? (
+                  <p className="text-slate-400 text-[11px] italic">No lab tests ordered.</p>
+                ) : (
+                  <ul className="space-y-1 text-[11px] font-mono">
+                    {selectedLabs.map((lab, i) => (
+                      <li key={i} className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                        <span className="w-1.5 h-1.5 bg-[#0d9488] rounded-full"></span>
+                        <span>{lab}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Certificates & Notes Summary */}
+              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+                  3. Certificates &amp; Referrals
+                </span>
+                <p className="text-[11px] text-slate-700 dark:text-slate-300">
+                  MC Status: <strong>{mcGenerated ? `Issued (${mcDays} Days)` : 'None'}</strong>
                 </p>
-              ))}
-            </div>
-          </div>
-        )}
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-[#f0fdfa] dark:bg-[#03191f] border-b border-[#b2f5ea] dark:border-teal-800/60 text-[10px] text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider font-bold">
-              <th className="px-3.5 py-2.5">Medication Info</th>
-              <th className="px-3.5 py-2.5">Frequency &amp; Instructions</th>
-              <th className="px-3.5 py-2.5 w-20">Qty</th>
-              <th className="px-3.5 py-2.5 text-right w-24">Price (MYR)</th>
-              <th className="px-3.5 py-2.5 text-center w-12">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rxList.length === 0 ? (
-              <tr><td colSpan={5} className="text-center p-6 text-xs text-slate-400 italic">No medications prescribed yet. Search above (e.g. 'Panadol', 'Amoxicillin') to construct treatment plan.</td></tr>
-            ) : (
-              rxList.map((rx) => {
-                const catalogDrugDef = mergedCatalog.find(d => d.name.toLowerCase() === rx.drugName.toLowerCase());
-                const allergyGrp = catalogDrugDef?.allergyGroup || 'None';
-                const hasConflict = allergyGrp !== 'None' && currentPatient.drugAllergies.some(a => a.toLowerCase() === allergyGrp.toLowerCase());
-                const isContraindicated = contraindicationAlerts.some(a => a.drugName === rx.drugName);
-                const unitPrice = typeof rx.pricePerUnit === 'number' ? rx.pricePerUnit : 0.50;
-                const itemTotal = unitPrice * (rx.quantity || 1);
-                
-                return (
-                  <tr key={rx.id} className={`border-b text-xs border-slate-100 dark:border-teal-800/30 ${hasConflict ? 'bg-rose-50/70 dark:bg-rose-950/40' : isContraindicated ? 'bg-amber-50/70 dark:bg-amber-950/40' : 'hover:bg-[#f7fdfd] dark:hover:bg-[#0e4857]'}`}>
-                    <td className="px-3.5 py-2.5">
-                      <span className="font-bold text-[#0f3c4c] dark:text-white block">{rx.drugName}</span>
-                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                        <span className="w-2.5 h-2.5 rounded-full inline-block border border-slate-300" style={{ backgroundColor: rx.pillColor || '#0d9488' }} />
-                        <span className="text-[10px] text-slate-400">Batch Expiry: {rx.expiryDate || 'N/A'}</span>
-                        {isContraindicated && <span className="text-[9px] bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider border border-amber-300 flex items-center gap-1"><AlertTriangle className="w-3 h-3 text-amber-600" /> ICD Contraindication</span>}
-                      </div>
-                    </td>
-                    <td className="px-3.5 py-2.5 text-[11px] text-slate-600 dark:text-slate-300">
-                      <span className="font-bold text-[#0d9488] dark:text-[#2dd4bf] block">{rx.frequency}</span>
-                      <span className="block text-slate-500 dark:text-slate-400 italic line-clamp-1" title={rx.dosage}>{rx.dosage}</span>
-                    </td>
-                    <td className="px-3.5 py-2.5">
-                      <Input
-                        type="number"
-                        className="w-16 border border-slate-200 dark:border-teal-800/40 rounded-none px-2 py-1 text-center font-mono font-bold text-[#0f3c4c] dark:text-white bg-white dark:bg-[#07252d]"
-                        value={rx.quantity}
-                        onChange={(e) => setRxList(rxList.map(r => r.id === rx.id ? { ...r, quantity: Math.max(1, parseInt(e.target.value) || 1) } : r))}
-                      />
-                    </td>
-                    <td className="px-3.5 py-2.5 text-right font-mono font-bold text-[#0f3c4c] dark:text-[#5eead4]">RM{itemTotal.toFixed(2)}</td>
-                    <td className="px-3.5 py-2.5 text-center">
-                      <button type="button" onClick={() => setRxList(rxList.filter(r => r.id !== rx.id))} className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* PHARMACY MEMO */}
-      <div className="space-y-1">
-        <label className="block text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">Instructions &amp; Special Memos for Pharmacist</label>
-        <textarea
-          className="w-full text-xs px-3.5 py-2.5 border border-[#b2f5ea] dark:border-teal-800/50 rounded-none focus:ring-2 focus:ring-[#0d9488] focus:outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white"
-          value={pharmacyMemo}
-          onChange={e => setPharmacyMemo(e.target.value)}
-          placeholder="e.g., Please demonstrate inhaler technique. Patient prefers liquid syrup formulation if available."
-          rows={2}
-        />
-      </div>
-
-      {/* Plan Actions (MC, Labs, Referrals) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-        <div className="flex flex-col p-3.5 bg-white dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow">
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#0d9488] dark:text-[#2dd4bf]" />
-            <div>
-              <span className="text-xs font-bold block text-[#0f3c4c] dark:text-white uppercase tracking-tight">Medical Cert (MC)</span>
-              <span className="text-[10px] text-slate-400 leading-tight block">Issue paid clinic recovery leave.</span>
-            </div>
-          </div>
-          {mcGenerated ? (
-            <div className="flex flex-col gap-1 mt-auto">
-              <span className="text-[10px] text-[#0f766e] dark:text-[#5eead4] bg-[#e0f5f2] dark:bg-[#082830] font-bold px-2 py-1 rounded-none text-center border border-[#b2f5ea] dark:border-teal-800/40">{mcDays} Days Issued ({selectedICD?.code || 'Diagnosis'})</span>
-              <div className="flex items-center gap-2 mt-1 justify-center">
-                <button type="button" onClick={() => setIsMcModalOpen(true)} className="text-[10px] font-bold text-[#0d9488] dark:text-[#2dd4bf] underline cursor-pointer text-center">View Certificate</button>
-                <button type="button" onClick={() => setMcGenerated(false)} className="text-[10px] font-bold text-rose-500 hover:text-rose-600 underline cursor-pointer text-center">Revoke</button>
+                <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-1">
+                  Referral: <strong>{referralGenerated ? `Specialist Note attached for ${referralDetails.hospital}` : 'None'}</strong>
+                </p>
               </div>
-            </div>
-          ) : (
-            <button type="button" onClick={triggerMcOpening} className="bg-[#e0f5f2] dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-700/50 w-full py-1.5 rounded-none text-[10px] font-bold uppercase transition-all cursor-pointer mt-auto">Generate MC</button>
-          )}
-        </div>
 
-        <div className="flex flex-col p-3.5 bg-white dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow">
-          <div className="flex items-center gap-2">
-            <TestTube className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            <div>
-              <span className="text-xs font-bold block text-[#0f3c4c] dark:text-white uppercase tracking-tight">Lab &amp; Imaging</span>
-              <span className="text-[10px] text-slate-400 leading-tight block">Order bloodwork or radiology.</span>
-            </div>
-          </div>
-          <button type="button" className="bg-[#e0f5f2] dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-700/50 w-full py-1.5 rounded-none text-[10px] font-bold uppercase transition-all cursor-pointer mt-auto" onClick={() => alert('Lab & Imaging module will open a side panel for test selection.')}>Order Tests</button>
-        </div>
-
-        <div className="flex flex-col p-3.5 bg-white dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow">
-          <div className="flex items-center gap-2">
-            <Share className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-            <div>
-              <span className="text-xs font-bold block text-[#0f3c4c] dark:text-white uppercase tracking-tight">Specialist Referral</span>
-              <span className="text-[10px] text-slate-400 leading-tight block">Draft referral letter.</span>
-            </div>
-          </div>
-          {referralGenerated ? (
-            <div className="flex flex-col gap-1 mt-auto">
-              <span className="text-[10px] text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 font-bold px-2 py-1 rounded-none text-center truncate border border-sky-200 dark:border-sky-800/50" title={referralDetails.hospital}>{referralDetails.hospital}</span>
-              <div className="flex items-center gap-2 mt-1 justify-center">
-                <button type="button" onClick={() => setIsReferralModalOpen(true)} className="text-[10px] font-bold text-sky-600 dark:text-sky-400 underline cursor-pointer text-center">Edit Referral</button>
-                <button type="button" onClick={() => { setReferralGenerated(false); setReferralDetails({ hospital: '', department: '', reason: '' }); }} className="text-[10px] font-bold text-rose-500 hover:text-rose-600 underline cursor-pointer text-center">Clear</button>
+              {/* Dispensing Notes Summary */}
+              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+                  4. Dispensing Memo
+                </span>
+                <p className="text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                  {pharmacyMemo || 'No additional dispensing notes.'}
+                </p>
               </div>
-            </div>
-          ) : (
-            <button type="button" className="bg-[#e0f5f2] dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-700/50 w-full py-1.5 rounded-none text-[10px] font-bold uppercase transition-all cursor-pointer mt-auto" onClick={() => setIsReferralModalOpen(true)}>Draft Referral</button>
-          )}
-        </div>
-      </div>
 
-      {selectedICD && rxList.length > 0 && (
-        <div className="mt-4 bg-indigo-50/50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/40 p-3.5 rounded-none flex gap-3 items-start animate-fadeIn">
-          <div className="bg-indigo-100 dark:bg-indigo-900 p-2 rounded-none shrink-0"><TrendingUp className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /></div>
-          <div>
-            <h4 className="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wide">AI Treatment Outcome Prediction</h4>
-            <p className="text-xs text-indigo-900/80 dark:text-indigo-200/90 mt-1 leading-relaxed">
-              Based on the diagnosis of <strong>{selectedICD.code}</strong> and the prescribed regimen ({rxList.map(r=>r.drugName).join(', ')}), ML models predict a <strong>94% probability of symptom resolution within 5 days</strong>. No aggressive follow-up required.
-            </p>
+            </div>
           </div>
+
         </div>
       )}
 
-      {/* MODALS */}
-      {isMcModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0c3844] rounded-none shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-teal-700/50 animate-scaleUp">
-            <div className="bg-[#0D9488] text-white px-5 py-4 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold">Medical Certificate (MC)</h3>
-                <span className="text-[10px] opacity-80 font-mono tracking-wider">REF: {mcReferenceNo}</span>
-              </div>
-              <button type="button" onClick={() => setIsMcModalOpen(false)} className="text-white hover:text-slate-200 font-bold text-lg cursor-pointer">&times;</button>
+      {/* ========================================================================= */}
+      {/* INTERRUPTIVE CONTRAINDICATION OVERRIDE MODAL                              */}
+      {/* ========================================================================= */}
+      {pendingAllergyDrug && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#07252d] border-2 border-rose-600 max-w-lg w-full p-6 rounded-none space-y-4 shadow-2xl text-[#0f3c4c] dark:text-white">
+            <div className="flex items-center gap-3 text-rose-600">
+              <AlertTriangle className="w-6 h-6 shrink-0" />
+              <h3 className="font-black text-sm uppercase tracking-wide">CRITICAL DRUG CONTRAINDICATION ALERT</h3>
             </div>
-            <div className="p-5 space-y-4">
-              <div className="flex justify-between items-end mb-6 text-sm">
-                <div>
-                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">Patient:</span> <strong>{currentPatient.fullName}</strong></p>
-                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">IC:</span> <strong>{maskICNumber(currentPatient.icNumber, showPII)}</strong></p>
-                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">Date:</span> <strong>{new Date().toLocaleDateString('ms-MY')}</strong></p>
-                </div>
-                <div>
-                  <p><span className="text-slate-500 dark:text-slate-400 w-20 inline-block">Diagnosis:</span> <strong>{selectedICD?.desc || 'General Unwell'}</strong></p>
-                </div>
+            
+            <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium space-y-2">
+              <p>
+                Patient <strong className="text-[#0f3c4c] dark:text-[#5eead4]">{currentPatient.fullName}</strong> has registered allergies matching <strong className="text-rose-600 uppercase underline font-extrabold">{pendingAllergyDrug.allergyGroup || pendingAllergyDrug.name}</strong>.
+              </p>
+              <div className="bg-rose-50 dark:bg-rose-950/60 p-3 border border-rose-200 dark:border-rose-800 font-mono text-[11px] text-rose-900 dark:text-rose-200">
+                <p><strong>Drug Class:</strong> {pendingAllergyDrug.allergyGroup || 'NSAID / Anti-inflammatory'}</p>
+                <p><strong>Reaction History:</strong> {currentPatient.drugAllergies.join(', ') || 'Severe Bronchospasm & Urticaria'}</p>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Duration of Rest (Days)</label>
-                <Input type="number" min="1" max="14" className="w-full p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" value={mcDays} onChange={e => setMcDays(parseInt(e.target.value) || 1)} />
-              </div>
-              <p className="text-[10px] text-slate-400">Digitally signed and verifiable via QR scan by employers.</p>
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-teal-800/30">
-                <Button type="button" onClick={() => setIsMcModalOpen(false)} className="px-4 py-2 border text-slate-600 dark:text-slate-300 rounded-none text-xs">Cancel</Button>
-                <Button type="button" onClick={() => { setMcGenerated(true); setIsMcModalOpen(false); }} className="bg-[#0D9488] text-white px-5 py-2 rounded-none text-xs font-bold cursor-pointer">Generate & Embed to Plan</Button>
-              </div>
+              <p>
+                To prescribe <strong>{pendingAllergyDrug.name}</strong> anyway, you must document a valid clinical rationale for override.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                Required Clinical Rationale for Override *
+              </label>
+              <Input
+                type="text"
+                value={overrideRationale}
+                onChange={e => setOverrideRationale(e.target.value)}
+                placeholder="e.g. Desensitization protocol active / benefit outweighs risk"
+                className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-rose-500 bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-white"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-teal-800/40">
+              <button 
+                type="button" 
+                onClick={() => { setPendingAllergyDrug(null); setOverrideRationale(''); }} 
+                className="px-3.5 py-1.5 border border-slate-300 text-xs font-bold rounded-none hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel Selection
+              </button>
+
+              <button
+                type="button"
+                disabled={!overrideRationale.trim()}
+                onClick={() => {
+                  confirmAddDrug(pendingAllergyDrug, overrideRationale);
+                  setPendingAllergyDrug(null);
+                  setOverrideRationale('');
+                }}
+                className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 text-xs font-black rounded-none disabled:opacity-50 cursor-pointer shadow-xs"
+              >
+                Confirm Override &amp; Add Drug
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {isReferralModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#0c3844] rounded-none shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 dark:border-teal-700/50 animate-scaleUp">
-            <div className="bg-indigo-600 text-white px-5 py-4 flex items-center justify-between">
-              <h3 className="font-bold">Specialist Referral Letter</h3>
-              <button type="button" onClick={() => setIsReferralModalOpen(false)} className="text-white hover:text-slate-200 font-bold text-lg cursor-pointer">&times;</button>
-            </div>
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Target Hospital/Center</label>
-                  <Input type="text" placeholder="e.g. Hospital Kuala Lumpur" className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" value={referralDetails.hospital} onChange={e => setReferralDetails({ ...referralDetails, hospital: e.target.value })} />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Target Department</label>
-                  <Input type="text" placeholder="e.g. Cardiology" className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" value={referralDetails.department} onChange={e => setReferralDetails({ ...referralDetails, department: e.target.value })} />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Clinical Indication / Reason for Referral</label>
-                <textarea rows={4} className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-slate-800 dark:text-white" placeholder="Please evaluate this patient for..." value={referralDetails.reason} onChange={e => setReferralDetails({ ...referralDetails, reason: e.target.value })} />
-              </div>
-              <p className="text-[10px] text-slate-400">This will be printed as an official PDF document with clinic letterhead.</p>
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-teal-800/30">
-                <Button type="button" onClick={() => setIsReferralModalOpen(false)} className="px-4 py-2 border text-slate-600 dark:text-slate-300 rounded-none text-xs">Cancel</Button>
-                <Button type="button" onClick={() => { setReferralGenerated(true); setIsReferralModalOpen(false); }} disabled={!referralDetails.hospital || !referralDetails.department} className="bg-indigo-600 text-white px-5 py-2 rounded-none text-xs font-bold disabled:opacity-50 cursor-pointer">Draft & Save to Plan</Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

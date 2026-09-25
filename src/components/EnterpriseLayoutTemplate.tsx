@@ -225,14 +225,15 @@ export default function EnterpriseLayoutTemplate({
             </span>
           </div>
 
-          {/* Logout / Terminate Session Button */}
+          {/* Logout / End Shift Button */}
           <button 
             type="button" 
             onClick={onSignOut} 
-            className="text-xs bg-[#086b68] hover:bg-[#065451] text-white px-3 py-1.5 rounded-md font-bold transition-all cursor-pointer border border-[#065451] flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none"
+            className="text-xs bg-rose-950/60 hover:bg-rose-900 text-rose-200 border border-rose-700/60 px-3 py-1.5 rounded-none font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none"
+            title="End clinician shift and log out"
           >
-            <LogOut className="w-3.5 h-3.5 text-white" />
-            <span className="hidden sm:inline">Terminate Session</span>
+            <LogOut className="w-3.5 h-3.5 text-rose-300" />
+            <span className="hidden sm:inline">End Shift / Log Out</span>
           </button>
         </div>
 
