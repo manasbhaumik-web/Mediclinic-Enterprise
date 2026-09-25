@@ -834,7 +834,7 @@ export default function ConsultationRoom({
             <div className="flex items-center justify-between border-b border-[#ccfbf1] dark:border-teal-800/40 pb-3">
               <div className="flex items-center gap-2.5">
                 <Stethoscope className="w-5 h-5 text-[#0d9488]" />
-                <h3 className="text-base font-black uppercase tracking-tight">Final Consultation Summary Checklist</h3>
+                <h3 className="text-base font-black uppercase tracking-tight">Review and send prescription</h3>
               </div>
               <button type="button" onClick={() => setIsReviewModalOpen(false)} className="text-slate-400 hover:text-slate-700">
                 <X className="w-5 h-5" />
@@ -879,6 +879,10 @@ export default function ConsultationRoom({
               )}
             </div>
 
+            <div className="bg-[#f0fdfa] dark:bg-[#07252d] p-3 border border-[#b2f5ea] dark:border-teal-800/40 font-mono text-[11px] text-[#0f766e] dark:text-[#5eead4]">
+              This will sign the consultation note and send {rxList.length} medication order(s) to the dispensary.
+            </div>
+
             <div className="border-t border-[#ccfbf1] dark:border-teal-800/40 pt-4 flex items-center justify-between">
               <button
                 type="button"
@@ -894,7 +898,7 @@ export default function ConsultationRoom({
                 className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-6 py-2.5 rounded-none font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm cursor-pointer"
               >
                 <Check className="w-4 h-4 text-white" />
-                <span>Review prescription for routing</span>
+                <span>Sign and send</span>
               </button>
             </div>
 

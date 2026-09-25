@@ -233,7 +233,7 @@ export default function EnterpriseLayoutTemplate({
             title="End clinician shift and log out of clinical workstation"
           >
             <LogOut className="w-3.5 h-3.5 text-rose-300" />
-            <span className="hidden sm:inline">Sign out of clinical workstation</span>
+            <span className="hidden sm:inline">Sign out workstation</span>
           </button>
         </div>
 

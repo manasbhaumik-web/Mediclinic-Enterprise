@@ -727,7 +727,7 @@ export default function PlanTab({
                     : 'bg-[#0d9488] text-white border-[#0f766e] hover:bg-[#0f766e]'
                 }`}
               >
-                {mcGenerated ? '✓ MC Certificate Generated & Attached' : 'Generate Digital MC'}
+                {mcGenerated ? '✓ Medical Certificate (MC) Created & Attached' : 'Create medical certificate'}
               </button>
             </div>
 
@@ -777,7 +777,7 @@ export default function PlanTab({
                     : 'bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#b2f5ea] dark:border-teal-800/40 hover:bg-[#e0f5f2]'
                 }`}
               >
-                {referralGenerated ? '✓ Referral Letter Attached' : 'Draft Referral Letter'}
+                {referralGenerated ? '✓ Specialist Referral Created & Attached' : 'Create referral draft'}
               </button>
             </div>
 

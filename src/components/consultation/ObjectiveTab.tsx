@@ -86,7 +86,7 @@ export default function ObjectiveTab({
             }`}
           >
             <Bluetooth className="w-3.5 h-3.5" />
-            {isSyncingVitals ? 'Syncing Hardware...' : 'Sync IoT Vitals'}
+            {isSyncingVitals ? 'Connecting to device...' : 'Import vitals from connected device'}
           </button>
         </div>
       </div>

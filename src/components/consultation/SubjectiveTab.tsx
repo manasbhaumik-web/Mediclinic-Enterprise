@@ -79,7 +79,7 @@ export default function SubjectiveTab({
             }`}
           >
             {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-            {isListening ? 'AI Listening...' : 'AI Voice Dictation'}
+            {isListening ? 'Listening for dictation...' : 'Start clinical dictation'}
           </button>
         </div>
       </div>
