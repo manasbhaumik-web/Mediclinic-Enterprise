@@ -281,12 +281,12 @@ export default function PlanTab({
       ) : null}
 
       {/* PEDIATRIC DOSAGE CALCULATOR */}
-      <div className="bg-[#e0f5f2]/80 dark:bg-[#082830] p-4 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs">
+      <div className="bg-[#f0fdfa] dark:bg-[#082830] p-4 rounded-none border border-[#b2f5ea] dark:border-teal-800/60 shadow-xs">
         <div className="flex items-center justify-between mb-2.5">
           <h4 className="text-xs font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-1.5 tracking-wider">
             <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" /> Pediatric Dosage Calculator (Paracetamol 15mg/kg)
           </h4>
-          <span className="text-[10px] text-[#0f766e] dark:text-[#5eead4] bg-white dark:bg-[#082830] px-2.5 py-0.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/40">
+          <span className="text-[10px] text-[#0f766e] dark:text-[#5eead4] bg-white dark:bg-[#03191f] px-2.5 py-0.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 font-bold">
             Clinical Standard: 15mg / kg
           </span>
         </div>
@@ -294,12 +294,12 @@ export default function PlanTab({
         {/* Weight & Concentration Presets */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+            <label className="block text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
               Child Body Weight (kg)
             </label>
             <Input 
               type="number" 
-              className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
+              className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-700/60 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#03191f] text-[#0f3c4c] dark:text-[#f8fafc] font-bold"
               value={patientWeight}
               onChange={e => setPatientWeight(e.target.value)}
               placeholder="e.g. 12"
@@ -314,7 +314,7 @@ export default function PlanTab({
                   className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
                     patientWeight === w 
                       ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                      : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] cursor-pointer'
+                      : 'bg-white dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] cursor-pointer'
                   }`}
                 >
                   {w}kg
@@ -324,11 +324,11 @@ export default function PlanTab({
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+            <label className="block text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
               Syrup Formulation Concentration
             </label>
             <select
-              className="w-full text-xs px-2.5 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
+              className="w-full text-xs px-2.5 py-1.5 border border-[#b2f5ea] dark:border-teal-700/60 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#03191f] text-[#0f3c4c] dark:text-[#f8fafc] font-bold"
               value={medConcentration}
               onChange={e => setMedConcentration(e.target.value)}
             >
@@ -343,7 +343,7 @@ export default function PlanTab({
                 className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
                   medConcentration === '24' 
                     ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                    : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] cursor-pointer'
+                    : 'bg-white dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] cursor-pointer'
                 }`}
               >
                 120mg/5ml
@@ -354,7 +354,7 @@ export default function PlanTab({
                 className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
                   medConcentration === '50' 
                     ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                    : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] cursor-pointer'
+                    : 'bg-white dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] cursor-pointer'
                 }`}
               >
                 250mg/5ml
@@ -362,15 +362,15 @@ export default function PlanTab({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#082830] p-3 rounded-none border border-[#b2f5ea] dark:border-teal-800/40 flex flex-col justify-between h-full shadow-2xs">
+          <div className="bg-white dark:bg-[#041d24] p-3 rounded-none border border-[#b2f5ea] dark:border-teal-700/60 flex flex-col justify-between h-full shadow-2xs">
             <div>
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Calculated Single Dose</span>
+              <span className="text-[9px] text-slate-500 dark:text-[#5eead4]/80 font-bold uppercase tracking-wider block">Calculated Single Dose</span>
               <div className="flex items-baseline gap-2 mt-0.5">
                 <span className="font-mono font-black text-[#0d9488] dark:text-[#2dd4bf] text-lg leading-none">
                   {typeof calculatedDose === 'number' && !isNaN(calculatedDose) ? `${calculatedDose.toFixed(1)} ml` : '--'}
                 </span>
                 {typeof calculatedDose === 'number' && !isNaN(calculatedDose) && (
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">({(parseFloat(patientWeight) * 15).toFixed(0)} mg)</span>
+                  <span className="text-[10px] text-slate-500 dark:text-teal-300 font-mono">({(parseFloat(patientWeight) * 15).toFixed(0)} mg)</span>
                 )}
               </div>
             </div>
@@ -396,7 +396,7 @@ export default function PlanTab({
         <div className="relative">
           <Input
             type="text"
-            className="w-full text-xs px-3.5 py-2.5 border border-[#b2f5ea] dark:border-teal-800/50 bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white rounded-none focus:ring-3 focus:ring-[#0d9488]/15 focus:border-[#0d9488] focus:outline-none font-medium placeholder:text-slate-400"
+            className="w-full text-xs px-3.5 py-2.5 border border-[#b2f5ea] dark:border-teal-700/60 bg-white dark:bg-[#03191f] text-[#0f3c4c] dark:text-[#f8fafc] rounded-none focus:ring-3 focus:ring-[#0d9488]/15 focus:border-[#0d9488] focus:outline-none font-medium placeholder:text-slate-400 dark:placeholder:text-teal-400/50"
             value={searchDrugQuery}
             onChange={(e) => setSearchDrugQuery(e.target.value)}
             placeholder="Search catalog or brand names (e.g. 'Panadol', 'Amoxicillin', 'Augmentin', 'Ponstan', 'Voltaren', 'Zyrtec')..."
@@ -447,12 +447,12 @@ export default function PlanTab({
       </div>
 
       {/* SMART DOSAGE QUICK-PILLS PRESET BAR */}
-      <div className="bg-[#f7fdfd] dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none p-3 space-y-2 shadow-2xs">
+      <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none p-3 space-y-2 shadow-2xs">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1">
             <Pill className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Fast Dosage Preset Quick-Pills
           </span>
-          <span className="text-[9px] text-slate-400">Click to apply preset instructions to last added medication</span>
+          <span className="text-[9px] text-slate-500 dark:text-teal-300/80 font-medium">Click to apply preset instructions to last added medication</span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
           {[
@@ -473,7 +473,7 @@ export default function PlanTab({
                   setRxList(updated);
                 }
               }}
-              className="text-[10px] font-bold bg-white dark:bg-[#0e4857] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] px-2.5 py-1 rounded-none border border-[#b2f5ea] dark:border-teal-700/50 shadow-2xs transition-all cursor-pointer"
+              className="text-[10px] font-bold bg-white dark:bg-[#0c3844] hover:bg-[#0d9488] dark:hover:bg-[#0d9488] text-[#0f766e] dark:text-[#5eead4] dark:hover:text-white px-2.5 py-1 rounded-none border border-[#b2f5ea] dark:border-teal-700/50 shadow-2xs transition-all cursor-pointer"
             >
               + {preset.label}
             </button>
@@ -482,7 +482,7 @@ export default function PlanTab({
       </div>
 
       {/* Currently Selected Prescription list */}
-      <div className="border border-[#b2f5ea] dark:border-teal-800/50 rounded-none overflow-hidden shadow-xs bg-white dark:bg-[#0c3844]">
+      <div className="border border-[#b2f5ea] dark:border-teal-800/60 rounded-none overflow-hidden shadow-xs bg-white dark:bg-[#07252d]">
         {contraindicationAlerts.length > 0 && (
           <div className="bg-amber-50 dark:bg-amber-950/60 border-b border-amber-200 dark:border-amber-800/50 p-3.5 space-y-1">
             <h5 className="text-xs font-extrabold text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -499,7 +499,7 @@ export default function PlanTab({
         )}
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#f7fdfd] dark:bg-[#082830] border-b border-[#b2f5ea] dark:border-teal-800/50 text-[10px] text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider font-bold">
+            <tr className="bg-[#f0fdfa] dark:bg-[#03191f] border-b border-[#b2f5ea] dark:border-teal-800/60 text-[10px] text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider font-bold">
               <th className="px-3.5 py-2.5">Medication Info</th>
               <th className="px-3.5 py-2.5">Frequency &amp; Instructions</th>
               <th className="px-3.5 py-2.5 w-20">Qty</th>
