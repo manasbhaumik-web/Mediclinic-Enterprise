@@ -300,7 +300,7 @@ export default function DoctorDashboardModule({
                           className="bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] font-black text-xs px-5 py-3 rounded-none shadow-md flex items-center gap-2 transition-all cursor-pointer"
                         >
                           <Stethoscope className="w-4.5 h-4.5 text-[#0f3c4c]" />
-                          <span>Start Consultation</span>
+                          <span>Start Assessment</span>
                           <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
                         </button>
                       </div>
@@ -396,7 +396,7 @@ export default function DoctorDashboardModule({
                                   className="px-3.5 py-1.5 rounded-none text-[11px] font-bold bg-[#0d9488] dark:bg-[#0f766e] hover:bg-[#0f766e] dark:hover:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer"
                                 >
                                   <Stethoscope className="w-3.5 h-3.5" />
-                                  <span>Start Consultation</span>
+                                  <span>Start Assessment</span>
                                 </button>
                               </div>
                             </div>
