@@ -88,7 +88,7 @@ export default function EnterpriseLayoutTemplate({
           <div 
             onMouseEnter={() => setShowClinicInfoTooltip(true)}
             onMouseLeave={() => setShowClinicInfoTooltip(false)}
-            className="flex items-center gap-3 cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-md"
+            className="flex items-center gap-3 cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-none"
             tabIndex={0}
           >
             <div className="w-9 h-9 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
@@ -107,12 +107,12 @@ export default function EnterpriseLayoutTemplate({
 
           {/* Interactive Clinic Information Popover Tooltip */}
           {showClinicInfoTooltip && (
-            <div className="absolute top-12 left-0 z-50 bg-[#086b68] border border-[#065451] p-4 shadow-2xl text-xs space-y-2 w-72 rounded-md animate-fadeIn text-white">
+            <div className="absolute top-12 left-0 z-50 bg-[#086b68] border border-[#065451] p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-white">
               <div className="flex items-center justify-between border-b border-[#065451] pb-2">
                 <span className="font-extrabold text-white uppercase flex items-center gap-1.5">
                   <Building className="w-3.5 h-3.5 text-teal-100" /> Shah Alam Main Branch
                 </span>
-                <span className="px-1.5 py-0.5 bg-emerald-400/20 text-emerald-200 font-mono text-[9px] font-bold uppercase rounded-md border border-emerald-400/40">
+                <span className="px-1.5 py-0.5 bg-emerald-400/20 text-emerald-200 font-mono text-[9px] font-bold uppercase rounded-none border border-emerald-400/40">
                   Active 24/7
                 </span>
               </div>
@@ -129,7 +129,7 @@ export default function EnterpriseLayoutTemplate({
         <div className="flex items-center gap-2.5 sm:gap-3">
 
           {/* Live Monospace Clock */}
-          <div className="hidden xl:flex items-center gap-1.5 bg-[#086b68] px-2.5 py-1 border border-[#065451] font-mono text-xs text-white rounded-md font-bold shadow-2xs">
+          <div className="hidden xl:flex items-center gap-1.5 bg-[#086b68] px-2.5 py-1 border border-[#065451] font-mono text-xs text-white rounded-none font-bold shadow-2xs">
             <Clock className="w-3.5 h-3.5 text-teal-100" />
             <span>{timeString || '13:50:24 MYT'}</span>
           </div>
@@ -138,7 +138,7 @@ export default function EnterpriseLayoutTemplate({
           <button
             type="button"
             onClick={() => setIsNightShift(!isNightShift)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono shadow-2xs focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono shadow-2xs focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
               isNightShift 
                 ? 'bg-indigo-950/80 text-amber-300 border-indigo-700/60 hover:bg-indigo-900' 
                 : 'bg-[#086b68] text-white border border-[#065451] hover:bg-[#065451]'
@@ -157,7 +157,7 @@ export default function EnterpriseLayoutTemplate({
             type="button"
             id="pwa-network-toggle"
             onClick={() => setIsOnline(!isOnline)}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#086b68] rounded-md border border-[#065451] hover:bg-[#065451] transition-all cursor-pointer text-[10px] uppercase font-bold font-mono text-white shadow-2xs focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#086b68] rounded-none border border-[#065451] hover:bg-[#065451] transition-all cursor-pointer text-[10px] uppercase font-bold font-mono text-white shadow-2xs focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none"
             title="Toggle Simulated PWA Offline/Online Mode"
           >
             {isOnline ? (
@@ -177,7 +177,7 @@ export default function EnterpriseLayoutTemplate({
           <button
             type="button"
             onClick={() => setShowPII(!showPII)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
               showPII 
                 ? 'bg-amber-400/20 text-amber-200 border-amber-400/50 hover:bg-amber-400/30' 
                 : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40 hover:bg-emerald-500/30'
@@ -192,12 +192,12 @@ export default function EnterpriseLayoutTemplate({
           </button>
 
           {/* Language Switcher (EN | BM) */}
-          <div className="bg-[#086b68] rounded-md border border-[#065451] p-0.5 flex">
+          <div className="bg-[#086b68] rounded-none border border-[#065451] p-0.5 flex">
             <button
               type="button"
               id="lang-toggle-en"
               onClick={() => setActiveLanguage('EN')}
-              className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+              className={`px-2 py-0.5 rounded-none text-[10px] font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                 activeLanguage === 'EN' ? 'bg-[#0a837f] text-white font-black shadow-xs' : 'text-teal-100 hover:text-white'
               }`}
             >
@@ -207,7 +207,7 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               id="lang-toggle-bm"
               onClick={() => setActiveLanguage('BM')}
-              className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+              className={`px-2 py-0.5 rounded-none text-[10px] font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                 activeLanguage === 'BM' ? 'bg-[#0a837f] text-white font-black shadow-xs' : 'text-teal-100 hover:text-white'
               }`}
             >
@@ -216,8 +216,8 @@ export default function EnterpriseLayoutTemplate({
           </div>
 
           {/* User Profile Avatar Pill */}
-          <div className="flex items-center gap-2 bg-[#086b68] border border-[#065451] px-2.5 py-1 rounded-md shadow-2xs">
-            <div className="w-5 h-5 bg-[#0a837f] text-white font-mono text-[10px] font-black flex items-center justify-center rounded-md">
+          <div className="flex items-center gap-2 bg-[#086b68] border border-[#065451] px-2.5 py-1 rounded-none shadow-2xs">
+            <div className="w-5 h-5 bg-[#0a837f] text-white font-mono text-[10px] font-black flex items-center justify-center rounded-none">
               {getUserInitials(userName)}
             </div>
             <span className="text-teal-100 hidden sm:inline text-xs font-mono font-bold uppercase">
@@ -253,7 +253,7 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               id="sidebar-link-dashboard"
               onClick={() => setActiveTab('dashboard')}
-              className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+              className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                 activeTab === 'dashboard'
                   ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                   : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -272,7 +272,7 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-registration"
                 onClick={() => setActiveTab('registration')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                   activeTab === 'registration'
                     ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                     : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -292,7 +292,7 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-triage"
                 onClick={() => setActiveTab('triage')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                   activeTab === 'triage'
                     ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                     : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -304,7 +304,7 @@ export default function EnterpriseLayoutTemplate({
                   <span>Triage Module</span>
                 </div>
                 {triageQueueLength > 0 && (
-                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                     activeTab === 'triage' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                   }`}>
                     {triageQueueLength}
@@ -319,7 +319,7 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-appointments"
                 onClick={() => setActiveTab('appointments')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                   activeTab === 'appointments'
                     ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                     : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -340,7 +340,7 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-queue"
                   onClick={() => setActiveTab('queue')}
-                  className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                  className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                     activeTab === 'queue'
                       ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                       : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -352,7 +352,7 @@ export default function EnterpriseLayoutTemplate({
                     <span>Patient Queue</span>
                   </div>
                   {activeTab !== 'consultation' && doctorQueueLength > 0 && (
-                    <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                    <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                       activeTab === 'queue' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                     }`}>
                       {doctorQueueLength}
@@ -364,7 +364,7 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-consultation"
                   onClick={() => setActiveTab('consultation')}
-                  className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                  className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                     activeTab === 'consultation'
                       ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                       : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -381,7 +381,7 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-reports"
                   onClick={() => setActiveTab('reports')}
-                  className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                  className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                     activeTab === 'reports'
                       ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                       : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -402,7 +402,7 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-dispensary"
                 onClick={() => setActiveTab('dispensary')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                   activeTab === 'dispensary'
                     ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                     : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -414,7 +414,7 @@ export default function EnterpriseLayoutTemplate({
                   <span>{t.dispensary || 'Dispensary'}</span>
                 </div>
                 {pharmacyQueueLength > 0 && (
-                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                     activeTab === 'dispensary' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                   }`}>
                     {pharmacyQueueLength}
@@ -429,7 +429,7 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-billing"
                 onClick={() => setActiveTab('billing')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
+                className={`flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
                   activeTab === 'billing'
                     ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
                     : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
@@ -441,7 +441,7 @@ export default function EnterpriseLayoutTemplate({
                   <span>{t.billing || 'Billing'}</span>
                 </div>
                 {cashierQueueLength > 0 && (
-                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                     activeTab === 'billing' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                   }`}>
                     {cashierQueueLength}
