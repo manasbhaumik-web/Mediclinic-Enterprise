@@ -37,10 +37,11 @@ import {
 export default function App() {
   const { recordTransaction } = useFinancials();
   const { user, role: userRole, signIn, signOut } = useAuth();
-  const [appView, setAppView] = useState<'landing' | 'telemetry' | 'login' | 'suite' | 'admin'>('landing');
+  const effectiveRole = userRole || 'doctor';
+  const [appView, setAppView] = useState<'landing' | 'telemetry' | 'login' | 'suite' | 'admin'>('suite');
 
   // Navigation Menu Active Page
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments'>('queue');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments'>('consultation');
 
   const handleLogin = async (role: UserRole) => {
     await signIn(role);
@@ -85,7 +86,7 @@ export default function App() {
   const [whatsappToast, setWhatsappToast] = useState<string | null>(null);
 
   // Selected patient actively being consulted by doctor
-  const [activeConsultationVisitId, setActiveConsultationVisitId] = useState<string | null>(null);
+  const [activeConsultationVisitId, setActiveConsultationVisitId] = useState<string | null>('v1');
 
   // Auto-translate genders helper
   const translateGender = (g: string) => {
@@ -329,7 +330,7 @@ export default function App() {
             <Suspense fallback={<GlobalSpinner />}>
 
               {/* DOCTOR MODULE: PATIENT QUEUE, CONSULTATION SUITE, MONTHLY REPORTS */}
-              {(activeTab === 'queue' || activeTab === 'consultation' || activeTab === 'reports') && userRole === 'doctor' && (
+              {(activeTab === 'queue' || activeTab === 'consultation' || activeTab === 'reports') && effectiveRole === 'doctor' && (
                 <DoctorDashboardModule
                   doctorTab={activeTab === 'reports' ? 'reports' : activeTab === 'consultation' ? 'consultation' : 'queue'}
                   onTabChange={(t) => setActiveTab(t)}
