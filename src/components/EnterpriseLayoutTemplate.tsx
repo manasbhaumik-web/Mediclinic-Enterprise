@@ -230,10 +230,10 @@ export default function EnterpriseLayoutTemplate({
             type="button" 
             onClick={onSignOut} 
             className="text-xs bg-rose-950/60 hover:bg-rose-900 text-rose-200 border border-rose-700/60 px-3 py-1.5 rounded-none font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none"
-            title="End clinician shift and log out"
+            title="End clinician shift and log out of clinical workstation"
           >
             <LogOut className="w-3.5 h-3.5 text-rose-300" />
-            <span className="hidden sm:inline">End Shift / Log Out</span>
+            <span className="hidden sm:inline">Sign out of clinical workstation</span>
           </button>
         </div>
 

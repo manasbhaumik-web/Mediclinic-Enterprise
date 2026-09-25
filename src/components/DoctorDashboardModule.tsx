@@ -300,7 +300,7 @@ export default function DoctorDashboardModule({
                           className="bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] font-black text-xs px-5 py-3 rounded-none shadow-md flex items-center gap-2 transition-all cursor-pointer"
                         >
                           <Stethoscope className="w-4.5 h-4.5 text-[#0f3c4c]" />
-                          <span>Start Consultation</span>
+                          <span>Continue SOAP assessment</span>
                           <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
                         </button>
                       </div>

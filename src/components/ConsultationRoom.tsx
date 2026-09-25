@@ -627,7 +627,7 @@ export default function ConsultationRoom({
                   className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   <Check className="w-4 h-4 text-white" />
-                  <span>Review &amp; Sign Off Consultation</span>
+                  <span>Review and sign consultation</span>
                 </button>
               )}
             </div>
@@ -846,7 +846,7 @@ export default function ConsultationRoom({
                 className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-6 py-2.5 rounded-none font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm cursor-pointer"
               >
                 <Check className="w-4 h-4 text-white" />
-                <span>Confirm &amp; Route to Dispensary</span>
+                <span>Review prescription for routing</span>
               </button>
             </div>
 
