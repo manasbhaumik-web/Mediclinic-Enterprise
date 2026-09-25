@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { AlertTriangle, Stethoscope, Search, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, Stethoscope, Search, CheckCircle2, Sparkles, Brain, ArrowRight } from 'lucide-react';
 import Input from '../ui/Input';
 import { ICD10Code, Language } from '../../types';
 import { TRANSLATIONS, ICD10_CATALOG } from '../../data';
@@ -11,6 +11,7 @@ interface AssessmentTabProps {
   clinicalNotes: string;
   setClinicalNotes: React.Dispatch<React.SetStateAction<string>>;
   activeLanguage: Language;
+  onOpenDiagnosticModal?: () => void;
 }
 
 export default function AssessmentTab({
@@ -18,7 +19,8 @@ export default function AssessmentTab({
   setSelectedICD,
   clinicalNotes,
   setClinicalNotes,
-  activeLanguage
+  activeLanguage,
+  onOpenDiagnosticModal
 }: AssessmentTabProps) {
   const t = TRANSLATIONS[activeLanguage];
   const { icd10Catalog } = useAuxiliary();
@@ -40,22 +42,84 @@ export default function AssessmentTab({
 
   return (
     <div className="space-y-5 animate-fadeIn">
-      {/* Header bar */}
-      <div className="bg-[#e0f5f2]/80 dark:bg-[#082830] p-3.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs flex items-center justify-between">
-        <div>
-          <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
-            <Stethoscope className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
-            Assessment &amp; Clinical Diagnostic Classification
-          </h4>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Select standardized ICD-10 diagnostic code for sign-off.</p>
+      
+      {/* 🚀 HERO DIAGNOSTIC LAUNCHER BANNER */}
+      <div className="bg-[#0f3c4c] dark:bg-[#07252d] text-white p-5 rounded-none border border-[#0d9488]/40 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="space-y-1.5 z-10">
+          <div className="flex items-center gap-2">
+            <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider">
+              CLINICAL DIAGNOSTIC SUITE
+            </span>
+            <span className="bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-bold px-2 py-0.5 rounded-none flex items-center gap-1">
+              <Brain className="w-3 h-3 text-emerald-400" />
+              AI Differential Active
+            </span>
+          </div>
+          <h3 className="text-base font-extrabold tracking-tight uppercase flex items-center gap-2">
+            <Stethoscope className="w-5 h-5 text-[#5eead4]" />
+            Diagnostic Code &amp; Assessment Sign-Off
+          </h3>
+          <p className="text-xs text-teal-100/80 font-medium max-w-xl">
+            Launch the interactive diagnostic popup window to search ICD-10 codes, view AI symptom recommendations, and assign primary clinical diagnoses.
+          </p>
         </div>
+
+        {onOpenDiagnosticModal && (
+          <button
+            type="button"
+            onClick={onOpenDiagnosticModal}
+            className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs px-5 py-3 rounded-none uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all shrink-0 z-10 border border-[#5eead4]/30"
+          >
+            <Sparkles className="w-4 h-4 text-[#5eead4] animate-pulse" />
+            <span>Start Diagnosis</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
+      {/* Assessment display selection indicator */}
+      {selectedICD ? (
+        <div id="selected-icd-indicator" className="bg-[#e0f5f2] dark:bg-[#082830] border-2 border-[#0d9488] dark:border-[#2dd4bf] p-4 rounded-none shadow-xs">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] bg-[#0d9488] text-white px-2.5 py-0.5 rounded-none font-mono font-bold tracking-wide flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Assigned ICD-10 Code: {selectedICD.code}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedICD(null)}
+              className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 text-xs font-bold shrink-0 cursor-pointer transition-colors"
+            >
+              Change / Remove
+            </button>
+          </div>
+          <strong className="text-sm font-extrabold text-[#0f3c4c] dark:text-[#f8fafc] uppercase block">{selectedICD.desc}</strong>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block mt-1">Classification Category: {selectedICD.category}</span>
+        </div>
+      ) : (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 rounded-none border border-rose-200 dark:border-rose-800/50 text-xs font-medium flex items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+            <span>No ICD-10 diagnostic code assigned. Click <strong>Start Diagnosis</strong> to open the diagnostic window.</span>
+          </div>
+
+          {onOpenDiagnosticModal && (
+            <button
+              type="button"
+              onClick={onOpenDiagnosticModal}
+              className="bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-none uppercase tracking-wider shrink-0 cursor-pointer"
+            >
+              Start Diagnosis
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ICD-10 Search & Quick Pills */}
-      <div className="space-y-2">
+      <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-teal-900/40">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">
-            Search ICD-10 Diagnostic Catalog <span className="text-rose-500">*</span>
+            Quick ICD-10 Catalog Lookup
           </label>
           
           {/* Quick preset chips */}
@@ -140,32 +204,6 @@ export default function AssessmentTab({
         </div>
       </div>
 
-      {/* Assessment display selection indicator */}
-      {selectedICD ? (
-        <div id="selected-icd-indicator" className="bg-[#e0f5f2] dark:bg-[#082830] border-2 border-[#0d9488] dark:border-[#2dd4bf] p-4 rounded-none shadow-xs">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[11px] bg-[#0d9488] text-white px-2.5 py-0.5 rounded-none font-mono font-bold tracking-wide flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              Assigned ICD-10 Code: {selectedICD.code}
-            </span>
-            <button
-              type="button"
-              onClick={() => setSelectedICD(null)}
-              className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 text-xs font-bold shrink-0 cursor-pointer transition-colors"
-            >
-              Change / Remove
-            </button>
-          </div>
-          <strong className="text-sm font-extrabold text-[#0f3c4c] dark:text-[#f8fafc] uppercase block">{selectedICD.desc}</strong>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block mt-1">Classification Category: {selectedICD.category}</span>
-        </div>
-      ) : (
-        <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 rounded-none border border-rose-200 dark:border-rose-800/50 text-xs font-medium flex items-center gap-2.5 shadow-2xs">
-          <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
-          <span>Please search and select a diagnostic classification code (ICD-10) to complete clinical sign-off.</span>
-        </div>
-      )}
-
       {/* Clinician notes description */}
       <div className="space-y-1.5">
         <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">
@@ -173,7 +211,7 @@ export default function AssessmentTab({
         </label>
         <textarea
           id="soap-notes-clinical-desc"
-          className="w-full bg-white dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/50 focus:border-[#0d9488] focus:ring-3 focus:ring-[#0d9488]/15 rounded-none px-4 py-3.5 text-xs text-[#0f3c4c] dark:text-[#f8fafc] transition-all outline-none shadow-xs resize-y min-h-[130px] leading-relaxed placeholder:text-slate-400"
+          className="w-full bg-white dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/50 focus:border-[#0d9488] focus:ring-3 focus:ring-[#0d9488]/15 rounded-none px-4 py-3.5 text-xs text-[#0f3c4c] dark:text-[#f8fafc] transition-all outline-none shadow-xs resize-y min-h-[120px] leading-relaxed placeholder:text-slate-400"
           value={clinicalNotes}
           onChange={(e) => setClinicalNotes(e.target.value)}
           placeholder="Enter medical assessment summary, specialist report references, diagnostic reasoning, follow-up advice..."

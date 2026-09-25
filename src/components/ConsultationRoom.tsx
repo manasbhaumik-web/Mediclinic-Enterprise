@@ -17,6 +17,7 @@ import SubjectiveTab from './consultation/SubjectiveTab';
 import ObjectiveTab from './consultation/ObjectiveTab';
 import AssessmentTab from './consultation/AssessmentTab';
 import PlanTab from './consultation/PlanTab';
+import DiagnosticModal from './consultation/DiagnosticModal';
 
 interface ConsultationRoomProps {
   currentPatient: Patient | null;
@@ -40,6 +41,9 @@ export default function ConsultationRoom({
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'subjective' | 'objective' | 'assessment' | 'plan'>('subjective');
+
+  // Diagnostic Popup Window Modal State
+  const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
 
   // Interactive past history view
   const [selectedPastVisit, setSelectedPastVisit] = useState<Visit | null>(null);
@@ -298,7 +302,25 @@ export default function ConsultationRoom({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <button
+            type="button"
+            id="start-diagnosis-modal-btn"
+            onClick={() => {
+              setActiveTab('assessment');
+              setIsDiagnosticModalOpen(true);
+            }}
+            className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-black px-4 py-2.5 rounded-none uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-xs transition-all border border-[#5eead4]/30"
+          >
+            <Stethoscope className="w-4 h-4 text-[#5eead4] animate-pulse" />
+            <span>Start Diagnosis</span>
+            {selectedICD && (
+              <span className="bg-white text-[#0d9488] font-mono text-[10px] px-1.5 py-0.5 rounded-none font-bold">
+                {selectedICD.code}
+              </span>
+            )}
+          </button>
+
           <div className="bg-slate-50 border border-slate-200 rounded-none px-3 py-1.5 flex items-center gap-2">
             <Activity className="w-4 h-4 text-[#0d9488]" />
             <div className="text-left">
@@ -578,6 +600,7 @@ export default function ConsultationRoom({
                 clinicalNotes={clinicalNotes}
                 setClinicalNotes={setClinicalNotes}
                 activeLanguage={activeLanguage}
+                onOpenDiagnosticModal={() => setIsDiagnosticModalOpen(true)}
               />
             )}
 
@@ -656,6 +679,20 @@ export default function ConsultationRoom({
         </div>
 
       </div>
+
+      {/* 🩺 DEDICATED DIAGNOSTIC SUITE POPUP WINDOW MODAL */}
+      <DiagnosticModal
+        isOpen={isDiagnosticModalOpen}
+        onClose={() => setIsDiagnosticModalOpen(false)}
+        selectedICD={selectedICD}
+        setSelectedICD={setSelectedICD}
+        clinicalNotes={clinicalNotes}
+        setClinicalNotes={setClinicalNotes}
+        activeLanguage={activeLanguage}
+        currentPatient={currentPatient}
+        subjectiveSymptoms={subjective}
+        vitals={vitals}
+      />
     </div>
   );
 }
