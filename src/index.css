@@ -170,32 +170,6 @@ span.bg-amber-500,
   border-color: rgba(45, 212, 191, 0.3) !important;
 }
 
-.dark .bg-white,
-.dark .bg-slate-50,
-.dark .bg-slate-100,
-.dark .bg-slate-200,
-.dark .bg-\[\#f7fdfd\],
-.dark .bg-\[\#f0fdfa\],
-.dark .bg-\[\#e0f5f2\] {
-  background-color: #0c3844 !important;
-  color: #f8fafc !important;
-  border-color: rgba(45, 212, 191, 0.25) !important;
-}
-
-.dark button.bg-white,
-.dark button.bg-\[\#e0f5f2\],
-.dark button.bg-slate-50 {
-  background-color: #0e4857 !important;
-  color: #5eead4 !important;
-  border-color: rgba(45, 212, 191, 0.4) !important;
-}
-
-.dark button.bg-white:hover,
-.dark button.bg-\[\#e0f5f2\]:hover {
-  background-color: #12596b !important;
-  color: #ffffff !important;
-}
-
 /* Dark Mode Table Headers & Rows */
 .dark tr.bg-slate-100,
 .dark thead tr,
