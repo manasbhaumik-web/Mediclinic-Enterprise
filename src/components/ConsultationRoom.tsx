@@ -430,19 +430,51 @@ export default function ConsultationRoom({
           
           <div className="space-y-4">
             
+            {/* EXPLICIT CLINICAL WORKFLOW STATE SEQUENCE BAR */}
+            <div className="bg-[#e0f5f2] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-2 rounded-none flex items-center justify-between text-[10px] font-mono font-bold">
+              <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar">
+                <span className="bg-[#0d9488] text-white px-2 py-0.5 rounded-none flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-300" />
+                  1. Draft Saved
+                </span>
+                <span className="text-slate-400">➔</span>
+                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-white text-[#0f766e] border-[#0d9488]' : 'bg-slate-100 dark:bg-[#082830] text-slate-400 border-slate-200 dark:border-teal-800/40'}`}>
+                  2. Ready for Review
+                </span>
+                <span className="text-slate-400">➔</span>
+                <span className="bg-slate-100 dark:bg-[#082830] text-slate-400 border border-slate-200 dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                  3. Signed Note
+                </span>
+                <span className="text-slate-400">➔</span>
+                <span className="bg-slate-100 dark:bg-[#082830] text-slate-400 border border-slate-200 dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                  4. Prescription Routed
+                </span>
+                <span className="text-slate-400">➔</span>
+                <span className="bg-slate-100 dark:bg-[#082830] text-slate-400 border border-slate-200 dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                  5. Encounter Closed
+                </span>
+              </div>
+              <span className="text-[10px] text-[#0f766e] dark:text-[#5eead4] shrink-0 font-sans hidden sm:inline">
+                Autosaved · {lastSavedTime}
+              </span>
+            </div>
+
             {/* STEPPER HEADER TOOLBAR */}
             <div className="bg-[#f0fdfa] dark:bg-[#07252d] p-3.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-bold text-[#0d9488] uppercase tracking-wider block">Clinical Encounter Documentation</span>
+                <span className="text-[10px] font-bold text-[#0d9488] uppercase tracking-wider block">Consultation Draft in Progress</span>
                 <h3 className="text-sm font-black text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-1.5 mt-0.5">
                   <Stethoscope className="w-4 h-4 text-[#0d9488]" />
-                  <span>Encounter Workspace — {soapSteps.find(s => s.key === activeTab)?.title}</span>
+                  <span>Encounter Workspace — {activeTab.toUpperCase()}</span>
                 </h3>
               </div>
 
               {/* Actionable Requirement Status Text */}
               <div className="bg-white dark:bg-[#082830] px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 text-[11px] font-bold text-[#0f766e] dark:text-[#5eead4] rounded-none">
-                {getActionableStatusText()}
+                {activeTab === 'subjective' && (subjective.trim() ? 'Subjective: Complete ✓' : 'Subjective: Enter Symptoms')}
+                {activeTab === 'objective' && (vitals.temperature > 0 ? 'Objective: Vitals Complete ✓' : 'Objective: Check Vitals')}
+                {activeTab === 'assessment' && (selectedICD ? `Assessment: ${selectedICD.code} Selected ✓` : 'Required Next: Select ICD-10 Diagnosis')}
+                {activeTab === 'plan' && (rxList.length > 0 ? `Plan: ${rxList.length} Rx Items Ready` : 'Plan: Add Prescriptions / Lab Orders')}
               </div>
             </div>
 
@@ -453,15 +485,19 @@ export default function ConsultationRoom({
                 role="tab"
                 aria-selected={activeTab === 'subjective'}
                 onClick={() => setActiveTab('subjective')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'subjective' 
                     ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
                     : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
                 }`}
               >
-                <ClipboardList className="w-4 h-4" />
-                <span>1. Subjective</span>
-                {subjective.trim() && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 ml-1" />}
+                <div className="flex items-center gap-1">
+                  <ClipboardList className="w-4 h-4" />
+                  <span>1. Subjective</span>
+                </div>
+                <span className="text-[9px] font-mono mt-0.5 opacity-90">
+                  {subjective.trim() ? 'Complete ✓' : 'In Progress'}
+                </span>
               </button>
 
               <button
@@ -469,15 +505,19 @@ export default function ConsultationRoom({
                 role="tab"
                 aria-selected={activeTab === 'objective'}
                 onClick={() => setActiveTab('objective')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'objective' 
                     ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
                     : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
                 }`}
               >
-                <Activity className="w-4 h-4" />
-                <span>2. Objective</span>
-                {vitals.temperature > 0 && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 ml-1" />}
+                <div className="flex items-center gap-1">
+                  <Activity className="w-4 h-4" />
+                  <span>2. Objective</span>
+                </div>
+                <span className="text-[9px] font-mono mt-0.5 opacity-90">
+                  {vitals.temperature > 0 ? 'Complete ✓' : 'Required'}
+                </span>
               </button>
 
               <button
@@ -485,15 +525,19 @@ export default function ConsultationRoom({
                 role="tab"
                 aria-selected={activeTab === 'assessment'}
                 onClick={() => setActiveTab('assessment')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'assessment' 
                     ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
                     : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
                 }`}
               >
-                <Stethoscope className="w-4 h-4" />
-                <span>3. ICD-10 Diagnosis</span>
-                {selectedICD && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 ml-1" />}
+                <div className="flex items-center gap-1">
+                  <Stethoscope className="w-4 h-4" />
+                  <span>3. Assessment</span>
+                </div>
+                <span className="text-[9px] font-mono mt-0.5 opacity-90">
+                  {selectedICD ? 'Complete ✓' : 'Required Next ➔'}
+                </span>
               </button>
 
               <button
@@ -501,15 +545,19 @@ export default function ConsultationRoom({
                 role="tab"
                 aria-selected={activeTab === 'plan'}
                 onClick={() => setActiveTab('plan')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'plan' 
                     ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
                     : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
                 }`}
               >
-                <Pill className="w-4 h-4" />
-                <span>4. Prescribe &amp; Plan</span>
-                {rxList.length > 0 && <span className="bg-white text-[#0d9488] text-[10px] font-mono px-1 font-black">{rxList.length}</span>}
+                <div className="flex items-center gap-1">
+                  <Pill className="w-4 h-4" />
+                  <span>4. Plan &amp; Rx</span>
+                </div>
+                <span className="text-[9px] font-mono mt-0.5 opacity-90">
+                  {selectedICD ? (rxList.length > 0 ? `${rxList.length} Items` : 'Ready') : 'Locked until ICD'}
+                </span>
               </button>
             </div>
 

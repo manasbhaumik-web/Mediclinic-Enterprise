@@ -173,21 +173,21 @@ export default function EnterpriseLayoutTemplate({
             )}
           </button>
 
-          {/* PII Masking Toggle */}
+          {/* Privacy Mode Toggle */}
           <button
             type="button"
             onClick={() => setShowPII(!showPII)}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
               showPII 
                 ? 'bg-amber-400/20 text-amber-200 border-amber-400/50 hover:bg-amber-400/30' 
-                : 'bg-[#086b68] text-white border border-[#065451] hover:bg-[#065451]'
+                : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40 hover:bg-emerald-500/30'
             }`}
-            title="Toggle Global Patient PII Masking"
+            title="Toggle Privacy Mode (Mask sensitive patient PII)"
           >
             {showPII ? (
-              <><Eye className="w-3.5 h-3.5" /> <span className="hidden sm:inline">PII Shown</span></>
+              <><Eye className="w-3.5 h-3.5 text-amber-200" /> <span className="hidden sm:inline">Privacy Mode: OFF</span></>
             ) : (
-              <><EyeOff className="w-3.5 h-3.5" /> <span className="hidden sm:inline">PII Masked</span></>
+              <><EyeOff className="w-3.5 h-3.5 text-emerald-300" /> <span className="hidden sm:inline">Privacy Mode: ON</span></>
             )}
           </button>
 
@@ -351,7 +351,7 @@ export default function EnterpriseLayoutTemplate({
                     <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-white' : 'text-teal-200'}`} />
                     <span>Patient Queue</span>
                   </div>
-                  {doctorQueueLength > 0 && (
+                  {activeTab !== 'consultation' && doctorQueueLength > 0 && (
                     <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
                       activeTab === 'queue' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                     }`}>

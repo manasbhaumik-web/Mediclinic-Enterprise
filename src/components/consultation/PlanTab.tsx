@@ -457,10 +457,13 @@ export default function PlanTab({
                       >
                         + Add Syrup to Rx List
                       </button>
+                      <p className="text-[9px] text-amber-700 dark:text-amber-300 font-bold mt-1.5 leading-tight">
+                        ⚠️ Requires clinical verification by attending physician.
+                      </p>
                     </div>
                   ) : (
                     <div className="p-2.5 text-center text-slate-400 border border-dashed border-slate-300 dark:border-teal-800/40 text-[11px]">
-                      Enter weight to calculate dose.
+                      Enter child weight to calculate dose.
                     </div>
                   )}
                 </div>
