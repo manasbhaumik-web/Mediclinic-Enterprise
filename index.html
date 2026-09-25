@@ -16,10 +16,55 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    @keyframes barSlide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .preloader-bg {
+      position: fixed;
+      inset: 0;
+      background-color: #f7fdfd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      z-index: 99999;
+      color: #0f3c4c;
+    }
+    .preloader-[#0d9488] {
+      color: #0d9488;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Initial App Preloader Animation before React Mounts -->
+    <div class="preloader-bg">
+      <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background-color: rgba(13, 148, 136, 0.15); animation: pulseRing 2s infinite ease-in-out;"></div>
+        <div style="position: absolute; background: white; border: 2px solid #0d9488; padding: 12px; display: flex; align-items: center; gap: 8px;">
+          <img src="./logo_transparent.svg" alt="Mediclinic" style="width: 40px; height: 40px;" />
+        </div>
+      </div>
+      <h2 style="font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0; color: #0f3c4c;">
+        MEDICLINIC ENTERPRISE
+      </h2>
+      <p style="font-size: 12px; font-weight: 700; color: #0d9488; margin-top: 6px;">
+        Loading Clinical Suite...
+      </p>
+      <div style="width: 180px; height: 5px; background: #e0f5f2; border: 1px solid #b2f5ea; margin-top: 16px; overflow: hidden; position: relative;">
+        <div style="width: 60px; height: 100%; background: #0d9488; animation: barSlide 1.5s infinite linear;"></div>
+      </div>
+    </div>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
