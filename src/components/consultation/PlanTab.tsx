@@ -375,7 +375,7 @@ export default function PlanTab({
               </button>
             </div>
           ) : (
-            <div className="bg-[#e0f5f2]/80 dark:bg-[#082830] p-3.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs space-y-2.5">
+            <div className="bg-[#e0f5f2] dark:bg-[#082830] p-3.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs space-y-2.5">
               <div className="flex items-center justify-between border-b border-[#b2f5ea] dark:border-teal-800/40 pb-2">
                 <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-1.5 tracking-wider">
                   <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" /> Pediatric Weight-Based Dosage Calculator
