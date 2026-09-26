@@ -81,7 +81,7 @@ export default function SettingsModule() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Modules</span>
@@ -97,7 +97,7 @@ export default function SettingsModule() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">SST Tax Rate</span>
@@ -113,7 +113,7 @@ export default function SettingsModule() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hardware Devices</span>
@@ -129,7 +129,7 @@ export default function SettingsModule() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Policy Compliance</span>
@@ -147,8 +147,8 @@ export default function SettingsModule() {
       </div>
 
       {/* 1. FINANCIAL PARAMETERS */}
-      <section className="bg-white rounded-none border border-slate-200 shadow-sm overflow-hidden">
-        <div className="bg-[#f7fdfd] px-5 py-3 border-b border-teal-100 flex items-center gap-2">
+      <section className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
+        <div className="bg-[#f0fdfa] px-5 py-3 border-b border-[#ccfbf1] flex items-center gap-2">
           <Percent className="w-4 h-4 text-[#0d9488]" />
           <h3 className="font-bold text-sm text-[#0f3c4c]">Financial Parameters & Billing Rules</h3>
         </div>
@@ -159,9 +159,9 @@ export default function SettingsModule() {
               type="number" 
               value={settings.billing.taxRate}
               onChange={(e) => handleBillingChange('taxRate', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition-all font-medium text-[#0f3c4c]" 
+              className="w-full px-3 py-2 bg-[#f0fdfa] border border-[#ccfbf1] rounded-none text-sm focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition-all font-medium text-[#0f3c4c]" 
             />
-            <p className="text-[10px] text-slate-400">Applied automatically during checkout receipt generation.</p>
+            <p className="text-[10px] text-slate-500">Applied automatically during checkout receipt generation.</p>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[#0f3c4c] uppercase tracking-wider">Base Consultation (RM)</label>
@@ -169,9 +169,9 @@ export default function SettingsModule() {
               type="number" 
               value={settings.billing.consultationFee}
               onChange={(e) => handleBillingChange('consultationFee', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition-all font-medium text-[#0f3c4c]" 
+              className="w-full px-3 py-2 bg-[#f0fdfa] border border-[#ccfbf1] rounded-none text-sm focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition-all font-medium text-[#0f3c4c]" 
             />
-            <p className="text-[10px] text-slate-400">Default standard outpatient consultation fee.</p>
+            <p className="text-[10px] text-slate-500">Default standard outpatient consultation fee.</p>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[#0f3c4c] uppercase tracking-wider">Base Procedure (RM)</label>
@@ -179,16 +179,16 @@ export default function SettingsModule() {
               type="number" 
               value={settings.billing.procedureFee}
               onChange={(e) => handleBillingChange('procedureFee', e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition-all font-medium text-[#0f3c4c]" 
+              className="w-full px-3 py-2 bg-[#f0fdfa] border border-[#ccfbf1] rounded-none text-sm focus:ring-2 focus:ring-[#0d9488] focus:border-[#0d9488] outline-none transition-all font-medium text-[#0f3c4c]" 
             />
-            <p className="text-[10px] text-slate-400">Default clinic minor surgical / diagnostic procedure fee.</p>
+            <p className="text-[10px] text-slate-500">Default clinic minor surgical / diagnostic procedure fee.</p>
           </div>
         </div>
       </section>
 
       {/* 2. MODULE ENABLEMENT */}
-      <section className="bg-white rounded-none border border-slate-200 shadow-sm overflow-hidden">
-        <div className="bg-[#f7fdfd] px-5 py-3 border-b border-teal-100 flex items-center justify-between">
+      <section className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
+        <div className="bg-[#f0fdfa] px-5 py-3 border-b border-[#ccfbf1] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-[#0d9488]" />
             <h3 className="font-bold text-sm text-[#0f3c4c]">Administration Module Enablement</h3>
@@ -201,9 +201,9 @@ export default function SettingsModule() {
           <p className="text-xs text-slate-500 mb-4">Toggle module visibility across the Enterprise Administration Sidebar.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-3.5 border border-slate-200 rounded-md hover:border-teal-200 hover:bg-[#f7fdfd] transition-all">
+            <div className="flex items-center justify-between p-3.5 border border-[#ccfbf1] bg-[#f0fdfa] rounded-none hover:border-[#0d9488] transition-all">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-md border border-teal-100">
+                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-none border border-[#ccfbf1]">
                   <Users className="w-4 h-4" />
                 </div>
                 <div>
@@ -217,9 +217,9 @@ export default function SettingsModule() {
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-3.5 border border-slate-200 rounded-md hover:border-teal-200 hover:bg-[#f7fdfd] transition-all">
+            <div className="flex items-center justify-between p-3.5 border border-[#ccfbf1] bg-[#f0fdfa] rounded-none hover:border-[#0d9488] transition-all">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-md border border-teal-100">
+                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-none border border-[#ccfbf1]">
                   <Pill className="w-4 h-4" />
                 </div>
                 <div>
@@ -233,9 +233,9 @@ export default function SettingsModule() {
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-3.5 border border-slate-200 rounded-md hover:border-teal-200 hover:bg-[#f7fdfd] transition-all">
+            <div className="flex items-center justify-between p-3.5 border border-[#ccfbf1] bg-[#f0fdfa] rounded-none hover:border-[#0d9488] transition-all">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-md border border-teal-100">
+                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-none border border-[#ccfbf1]">
                   <Stethoscope className="w-4 h-4" />
                 </div>
                 <div>
@@ -249,9 +249,9 @@ export default function SettingsModule() {
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-3.5 border border-slate-200 rounded-md hover:border-teal-200 hover:bg-[#f7fdfd] transition-all">
+            <div className="flex items-center justify-between p-3.5 border border-[#ccfbf1] bg-[#f0fdfa] rounded-none hover:border-[#0d9488] transition-all">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-md border border-teal-100">
+                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-none border border-[#ccfbf1]">
                   <DollarSign className="w-4 h-4" />
                 </div>
                 <div>
@@ -265,9 +265,9 @@ export default function SettingsModule() {
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-3.5 border border-slate-200 rounded-md hover:border-teal-200 hover:bg-[#f7fdfd] transition-all md:col-span-2">
+            <div className="flex items-center justify-between p-3.5 border border-[#ccfbf1] bg-[#f0fdfa] rounded-none hover:border-[#0d9488] transition-all md:col-span-2">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-md border border-teal-100">
+                <div className="p-2 bg-teal-50 text-[#0d9488] rounded-none border border-[#ccfbf1]">
                   <FileSpreadsheet className="w-4 h-4" />
                 </div>
                 <div>
@@ -285,7 +285,7 @@ export default function SettingsModule() {
       </section>
 
       {/* 3. HARDWARE PERIPHERAL INTEGRATIONS */}
-      <section className="bg-white rounded-none border border-slate-200 shadow-sm overflow-hidden">
+      <section className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
         <div className="bg-[#f7fdfd] px-5 py-3 border-b border-teal-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="w-4 h-4 text-[#0d9488]" />

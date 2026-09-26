@@ -154,7 +154,7 @@ export default function IntegrationsHub() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gateway Nodes</span>
@@ -170,7 +170,7 @@ export default function IntegrationsHub() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Packets Synced</span>
@@ -186,7 +186,7 @@ export default function IntegrationsHub() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Latency</span>
@@ -202,7 +202,7 @@ export default function IntegrationsHub() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Security Integrity</span>
@@ -228,7 +228,7 @@ export default function IntegrationsHub() {
           return (
             <div 
               key={integration.id} 
-              className="bg-white rounded-none border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col group"
+              className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col group"
             >
               {/* Card Header */}
               <div className={`p-4 border-b ${isWarning ? 'bg-amber-50 border-amber-200' : 'bg-[#f7fdfd] border-teal-100'} flex items-start justify-between transition-colors`}>

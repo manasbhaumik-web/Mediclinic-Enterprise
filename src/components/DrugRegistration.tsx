@@ -71,9 +71,9 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden animate-fadeIn flex flex-col h-[calc(100vh-140px)]">
+    <div className="bg-[#f7fdfd] rounded-none shadow-xs border border-[#ccfbf1] overflow-hidden animate-fadeIn flex flex-col h-[calc(100vh-140px)]">
       {/* Header */}
-      <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+      <div className="bg-[#e6f4f1] border-b border-[#ccfbf1] px-6 py-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button 
             type="button"

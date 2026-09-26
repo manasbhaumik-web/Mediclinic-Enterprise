@@ -45,7 +45,7 @@ export default function SecurityHub() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Zero-Trust Model</span>
@@ -61,7 +61,7 @@ export default function SecurityHub() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">AI Anomaly Watch</span>
@@ -77,7 +77,7 @@ export default function SecurityHub() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Data Encryption</span>
@@ -93,7 +93,7 @@ export default function SecurityHub() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Blockchain Audit</span>
@@ -147,7 +147,7 @@ export default function SecurityHub() {
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* AI Anomaly Detection */}
-          <div className="bg-white p-6 rounded-none shadow-sm border border-slate-200 md:col-span-2">
+          <div className="bg-[#f7fdfd] p-6 rounded-none shadow-2xs border border-[#ccfbf1] md:col-span-2">
             <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-[#0f3c4c]">
               <Activity className="w-5 h-5 text-[#0d9488]" />
               AI Anomaly Detection (Live Stream)
@@ -185,7 +185,7 @@ export default function SecurityHub() {
           </div>
 
           {/* Encryption Status */}
-          <div className="bg-white p-6 rounded-none shadow-sm border border-slate-200">
+          <div className="bg-[#f7fdfd] p-6 rounded-none shadow-2xs border border-[#ccfbf1]">
             <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-[#0f3c4c]">
               <Lock className="w-5 h-5 text-[#0d9488]" />
               Encryption Standards
@@ -213,7 +213,7 @@ export default function SecurityHub() {
       )}
 
       {activeTab === 'rbac' && (
-        <div className="bg-white p-6 rounded-none shadow-sm border border-slate-200">
+        <div className="bg-[#f7fdfd] p-6 rounded-none shadow-2xs border border-[#ccfbf1]">
           <h3 className="text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2 text-[#0f3c4c]">
             <Key className="w-5 h-5 text-[#0d9488]" />
             Role-Based Access Control (RBAC Matrix)
@@ -260,7 +260,7 @@ export default function SecurityHub() {
       )}
 
       {activeTab === 'audit' && (
-        <div className="bg-white p-6 rounded-none shadow-sm border border-slate-200">
+        <div className="bg-[#f7fdfd] p-6 rounded-none shadow-2xs border border-[#ccfbf1]">
           <div className="flex justify-between items-center mb-6 border-b border-teal-100 bg-[#f7fdfd] -mx-6 -mt-6 p-5">
             <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2 text-[#0f3c4c]">
               <Database className="w-5 h-5 text-[#0d9488]" />

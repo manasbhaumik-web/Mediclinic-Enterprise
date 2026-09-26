@@ -72,9 +72,9 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden animate-fadeIn">
+    <div className="bg-[#f7fdfd] rounded-none shadow-xs border border-[#ccfbf1] overflow-hidden animate-fadeIn">
       {/* Header */}
-      <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-[#e6f4f1] border-b border-[#ccfbf1] px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
             onClick={onCancel}

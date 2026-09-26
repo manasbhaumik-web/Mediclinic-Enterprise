@@ -106,7 +106,7 @@ export default function ReportsAnalyticsModule() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">YTD Revenue</span>
@@ -122,7 +122,7 @@ export default function ReportsAnalyticsModule() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Patients</span>
@@ -138,7 +138,7 @@ export default function ReportsAnalyticsModule() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">TPA Outstanding</span>
@@ -154,7 +154,7 @@ export default function ReportsAnalyticsModule() {
           </div>
         </div>
 
-        <div className="bg-white rounded-none border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Inventory Value</span>
@@ -198,8 +198,8 @@ export default function ReportsAnalyticsModule() {
       {activeTab === 'executive' && (
         <div className="space-y-6 animate-fadeIn">
           {/* Master Trend Chart */}
-          <div className="bg-white p-5 rounded-none shadow-sm border border-slate-200">
-            <div className="flex items-center justify-between mb-6 border-b border-teal-100 bg-[#f7fdfd] -mx-5 -mt-5 p-4">
+          <div className="bg-[#f7fdfd] p-5 rounded-none shadow-sm border border-[#ccfbf1]">
+            <div className="flex items-center justify-between mb-6 border-b border-teal-100 bg-[#f0fdfa] -mx-5 -mt-5 p-4">
               <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide">Revenue vs Operating Expenses (H1 2026)</h3>
               <span className="text-xs text-slate-500 font-mono">Consolidated Ledger</span>
             </div>
@@ -234,8 +234,8 @@ export default function ReportsAnalyticsModule() {
       {activeTab === 'clinical' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
           
-          <div className="bg-white p-5 rounded-none shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f7fdfd] -mx-5 -mt-5 p-4 mb-6">Patient Wait vs Consultation Time</h3>
+          <div className="bg-[#f7fdfd] p-5 rounded-none shadow-sm border border-[#ccfbf1]">
+            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f0fdfa] -mx-5 -mt-5 p-4 mb-6">Patient Wait vs Consultation Time</h3>
             <div className="h-64 w-full">
               <ResponsiveContainer>
                 <LineChart data={WAIT_TIME_DATA} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
@@ -251,8 +251,8 @@ export default function ReportsAnalyticsModule() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-none shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f7fdfd] -mx-5 -mt-5 p-4 mb-6">ICD-10 Diagnostic Distribution</h3>
+          <div className="bg-[#f7fdfd] p-5 rounded-none shadow-sm border border-[#ccfbf1]">
+            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f0fdfa] -mx-5 -mt-5 p-4 mb-6">ICD-10 Diagnostic Distribution</h3>
             <div className="h-64 grid grid-cols-1 md:grid-cols-12 items-center">
               <div className="md:col-span-7 h-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -285,8 +285,8 @@ export default function ReportsAnalyticsModule() {
       {activeTab === 'financial' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
           
-          <div className="bg-white p-5 rounded-none shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f7fdfd] -mx-5 -mt-5 p-4 mb-6">Revenue by Department (MTD)</h3>
+          <div className="bg-[#f7fdfd] p-5 rounded-none shadow-sm border border-[#ccfbf1]">
+            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f0fdfa] -mx-5 -mt-5 p-4 mb-6">Revenue by Department (MTD)</h3>
             <div className="h-64 w-full">
               <ResponsiveContainer>
                 <BarChart layout="vertical" data={DEPT_REVENUE_DATA} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -300,8 +300,8 @@ export default function ReportsAnalyticsModule() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-none shadow-sm border border-slate-200 flex flex-col">
-            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f7fdfd] -mx-5 -mt-5 p-4 mb-6">TPA Claims Aging Report</h3>
+          <div className="bg-[#f7fdfd] p-5 rounded-none shadow-sm border border-[#ccfbf1] flex flex-col">
+            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f0fdfa] -mx-5 -mt-5 p-4 mb-6">TPA Claims Aging Report</h3>
             <div className="flex-1 flex flex-col justify-center">
               <div className="space-y-4">
                 {TPA_AGING_DATA.map((item, idx) => (
@@ -332,13 +332,13 @@ export default function ReportsAnalyticsModule() {
       {/* TAB 4: INVENTORY & ASSETS */}
       {activeTab === 'inventory' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeIn">
-          <div className="bg-white p-5 rounded-none shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f7fdfd] -mx-5 -mt-5 p-4 mb-4 flex items-center justify-between">
+          <div className="bg-[#f7fdfd] p-5 rounded-none shadow-sm border border-[#ccfbf1]">
+            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f0fdfa] -mx-5 -mt-5 p-4 mb-4 flex items-center justify-between">
               Fast Moving Inventory 
               <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold border border-emerald-200">High Turnover</span>
             </h3>
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#f7fdfd] text-[#0f3c4c] text-xs border-b border-teal-100 font-bold">
+              <thead className="bg-[#f0fdfa] text-[#0f3c4c] text-xs border-b border-teal-100 font-bold">
                 <tr><th className="px-3 py-2">Item</th><th className="px-3 py-2">Stock Level</th><th className="px-3 py-2">Velocity (30d)</th></tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
@@ -349,8 +349,8 @@ export default function ReportsAnalyticsModule() {
             </table>
           </div>
 
-          <div className="bg-white p-5 rounded-none shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f7fdfd] -mx-5 -mt-5 p-4 mb-4 flex items-center justify-between">
+          <div className="bg-[#f7fdfd] p-5 rounded-none shadow-sm border border-[#ccfbf1]">
+            <h3 className="text-sm font-bold text-[#0f3c4c] uppercase tracking-wide border-b border-teal-100 bg-[#f0fdfa] -mx-5 -mt-5 p-4 mb-4 flex items-center justify-between">
               Equipment Depreciation Book Value
               <span className="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold border border-teal-200">CAPEX Audit</span>
             </h3>
@@ -382,7 +382,7 @@ export default function ReportsAnalyticsModule() {
 
       {/* TAB 5: REPORT GENERATOR */}
       {activeTab === 'generator' && (
-        <div className="bg-white p-6 rounded-none shadow-sm border border-slate-200 max-w-2xl mx-auto animate-fadeIn">
+        <div className="bg-[#f7fdfd] p-6 rounded-none shadow-sm border border-[#ccfbf1] max-w-2xl mx-auto animate-fadeIn">
           <div className="flex items-center gap-3 mb-6 border-b border-teal-100 bg-[#f7fdfd] -mx-6 -mt-6 p-5">
             <div className="bg-teal-100 p-2 rounded-lg text-[#0d9488]"><Filter className="w-5 h-5" /></div>
             <div>
