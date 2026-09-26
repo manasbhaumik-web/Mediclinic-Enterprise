@@ -734,52 +734,64 @@ export default function PatientRegistrationModule({
         <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs font-sans">
           <div className="p-6 space-y-6">
             
-            {/* Header section with total count badge */}
+            {/* Header section with primary action button and total count badge */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ccfbf1] dark:border-teal-800/40 pb-4 font-sans">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-[#0d9488]/10 dark:bg-teal-900/40 border border-[#0d9488]/20 flex items-center justify-center rounded-none">
+                <div className="w-10 h-10 bg-[#0d9488]/10 dark:bg-teal-900/40 border border-[#0d9488]/20 flex items-center justify-center rounded-none">
                   <FolderCheck className="w-5 h-5 text-[#0d9488] dark:text-[#5eead4]" />
                 </div>
                 <div>
-                  <h3 className="font-black text-base uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4] font-sans">
-                    Registered Patient Registry
+                  <h3 className="font-black text-lg text-[#0f3c4c] dark:text-[#5eead4] font-sans">
+                    Patient Registry
                   </h3>
-                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans font-medium">Comprehensive index of all registered patients in the clinic database</p>
+                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans font-medium">Search patient records, review medical allergies, and initiate clinical visits</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 font-sans">
-                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border border-[#0d9488]/20 font-bold px-3 py-1 rounded-none text-xs font-sans">
-                  {totalPatientCount} total patients
+              <div className="flex flex-wrap items-center gap-3 font-sans">
+                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border border-[#0d9488]/20 font-bold px-3 py-1.5 rounded-none text-xs font-sans">
+                  {totalPatientCount} Registered Patients
                 </span>
+                <button
+                  onClick={() => {
+                    setActiveSubTab('form');
+                    setRegistrationStep('id_check');
+                  }}
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-4 py-2 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Register New Patient
+                </button>
               </div>
             </div>
             
-            {/* Integrated Search Input */}
-            <div className="flex items-center gap-3 max-w-md font-sans">
-              <div className="relative flex-1">
+            {/* Integrated Search Input & Guidance */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans">
+              <div className="relative flex-1 max-w-lg w-full">
                 <Search className="w-4 h-4 text-[#0d9488] dark:text-[#5eead4] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder={t.searchPatient || "Search by Name / IC Number..."}
+                  placeholder="Search by Patient Name, NRIC (e.g. 900101-14-5555), or ID..."
                   value={patientRegistrySearch}
                   onChange={(e) => setPatientRegistrySearch(e.target.value)}
-                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none pl-9 pr-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 placeholder-[#0f766e]/50 dark:placeholder-teal-400/50 focus:border-[#0d9488] outline-none font-medium"
+                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none pl-9 pr-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 placeholder-[#0f766e]/60 dark:placeholder-teal-400/60 focus:border-[#0d9488] outline-none font-medium"
                 />
               </div>
+              <span className="text-[11px] text-[#0f766e] dark:text-teal-300 font-mono">
+                Partial matches supported • IC auto-format enabled
+              </span>
             </div>
             
-            {/* Flat Table */}
+            {/* Scannable Patient Table */}
             <div className="overflow-x-auto border border-[#ccfbf1] dark:border-teal-800/40 rounded-none font-sans">
               <table className="w-full text-xs text-left font-sans">
-                <thead className="bg-[#e0f5f2]/80 dark:bg-[#07252d] border-b border-[#ccfbf1] dark:border-teal-800/40 font-sans">
-                  <tr className="text-[#0f766e] dark:text-[#5eead4] font-sans text-[11px] uppercase tracking-wider font-black">
+                <thead className="bg-[#e0f5f2]/90 dark:bg-[#07252d] border-b border-[#ccfbf1] dark:border-teal-800/40 font-sans">
+                  <tr className="text-[#0f766e] dark:text-[#5eead4] font-sans text-xs uppercase tracking-wider font-extrabold">
                     <th className="px-4 py-3.5">ID</th>
-                    <th className="px-4 py-3.5">Full Name</th>
-                    <th className="px-4 py-3.5">IC Number</th>
-                    <th className="px-4 py-3.5">Panel</th>
-                    <th className="px-4 py-3.5">Allergies</th>
-                    <th className="px-4 py-3.5 text-right">Registered</th>
+                    <th className="px-4 py-3.5">Patient Name</th>
+                    <th className="px-4 py-3.5">IC / Passport Number</th>
+                    <th className="px-4 py-3.5">Panel Sponsor</th>
+                    <th className="px-4 py-3.5">Drug Allergies</th>
+                    <th className="px-4 py-3.5 text-right">Date Registered</th>
                     <th className="px-4 py-3.5 text-center">Action</th>
                   </tr>
                 </thead>
@@ -787,7 +799,7 @@ export default function PatientRegistrationModule({
                   {registryResults.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-12 text-center text-[#0f766e] dark:text-teal-400 font-sans font-medium">
-                        No patient records found matching your search.
+                        No patient records found matching your search term.
                       </td>
                     </tr>
                   ) : (
@@ -797,8 +809,8 @@ export default function PatientRegistrationModule({
                           {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className="font-bold text-xs uppercase text-[#0f3c4c] dark:text-[#5eead4] block font-sans">
-                            {p.fullName}
+                          <span className="font-bold text-xs capitalize text-[#0f3c4c] dark:text-[#5eead4] block font-sans">
+                            {p.fullName.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
                           </span>
                         </td>
                         <td className="px-4 py-3.5 font-mono text-xs text-[#0f766e] dark:text-teal-300">
@@ -815,11 +827,12 @@ export default function PatientRegistrationModule({
                         </td>
                         <td className="px-4 py-3.5">
                           {p.drugAllergies.length === 0
-                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">None</span>
-                            : <div className="flex flex-wrap gap-1">
+                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">No known allergies</span>
+                            : <div className="flex flex-wrap gap-1.5">
                                 {p.drugAllergies.map((a, i) => (
-                                  <span key={i} className="inline-block bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-[10px] font-sans font-bold px-2 py-0.5 rounded-none">
-                                    {a}
+                                  <span key={i} className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-[11px] font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
+                                    <ShieldAlert className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />
+                                    <span>Allergy: {a}</span>
                                   </span>
                                 ))}
                               </div>
@@ -831,9 +844,10 @@ export default function PatientRegistrationModule({
                         <td className="px-4 py-3.5 text-center">
                           <button
                             onClick={() => handleCreateTicket(p)}
-                            className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1"
+                            className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1.5"
+                            title={`Start consultation visit for ${p.fullName}`}
                           >
-                            <Plus className="w-3.5 h-3.5" /> New Visit
+                            <UserCheck className="w-3.5 h-3.5" /> Start Visit
                           </button>
                         </td>
                       </tr>
