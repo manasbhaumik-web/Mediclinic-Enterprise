@@ -165,7 +165,7 @@ export default function StaffManagementModule() {
               placeholder="Search personnel..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#07B2B2] outline-none w-64" 
+              className="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#0d9488] outline-none w-64" 
             />
           </div>
           {activeTab === 'directory' && (
@@ -174,7 +174,7 @@ export default function StaffManagementModule() {
                 setEditingStaffId(null);
                 setCurrentView('registration');
               }}
-              className="bg-[#07B2B2] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#058A8A] cursor-pointer shadow-sm transition-colors"
+              className="bg-[#0d9488] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#058A8A] cursor-pointer shadow-sm transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Staff
@@ -198,7 +198,7 @@ export default function StaffManagementModule() {
             <button
               onClick={() => setActiveTab('directory')}
               className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${
-                activeTab === 'directory' ? 'border-[#07B2B2] text-[#07B2B2]' : 'border-transparent text-slate-500 hover:text-slate-700'
+                activeTab === 'directory' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'
               }`}
             >
               Staff Directory ({activeCount})
@@ -206,7 +206,7 @@ export default function StaffManagementModule() {
             <button
               onClick={() => setActiveTab('payroll')}
               className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${
-                activeTab === 'payroll' ? 'border-[#07B2B2] text-[#07B2B2]' : 'border-transparent text-slate-500 hover:text-slate-700'
+                activeTab === 'payroll' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'
               }`}
             >
               Payroll & Salary
@@ -214,7 +214,7 @@ export default function StaffManagementModule() {
             <button
               onClick={() => setActiveTab('attendance')}
               className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${
-                activeTab === 'attendance' ? 'border-[#07B2B2] text-[#07B2B2]' : 'border-transparent text-slate-500 hover:text-slate-700'
+                activeTab === 'attendance' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'
               }`}
             >
               Leave & Attendance
@@ -243,7 +243,7 @@ export default function StaffManagementModule() {
                     <tr key={staff.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-[#07B2B2] shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-[#0d9488] shrink-0">
                             <User className="w-5 h-5" />
                           </div>
                           <div>
@@ -255,8 +255,8 @@ export default function StaffManagementModule() {
                       <td className="px-6 py-4">
                         <p className="text-slate-800 font-medium">{staff.department}</p>
                         <div className="flex items-center gap-1 mt-1">
-                          <Shield className="w-3 h-3 text-[#07B2B2]" />
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-[#07B2B2]">{staff.role}</span>
+                          <Shield className="w-3 h-3 text-[#0d9488]" />
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-[#0d9488]">{staff.role}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -281,7 +281,7 @@ export default function StaffManagementModule() {
                               setEditingStaffId(staff.id);
                               setCurrentView('registration');
                             }}
-                            className="p-2 text-slate-400 hover:text-[#07B2B2] bg-white hover:bg-cyan-50 rounded-lg border border-transparent hover:border-cyan-100 transition-all cursor-pointer"
+                            className="p-2 text-slate-400 hover:text-[#0d9488] bg-white hover:bg-cyan-50 rounded-lg border border-transparent hover:border-cyan-100 transition-all cursor-pointer"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -304,7 +304,7 @@ export default function StaffManagementModule() {
             <div className="space-y-4 animate-fadeIn">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center text-[#07B2B2]">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center text-[#0d9488]">
                     <DollarSign className="w-6 h-6" />
                   </div>
                   <div>
@@ -346,7 +346,7 @@ export default function StaffManagementModule() {
                           <td className="px-6 py-4 font-bold text-slate-800">{staff.name}</td>
                           <td className="px-6 py-4 font-mono text-slate-600">RM {base.toLocaleString()}</td>
                           <td className="px-6 py-4 font-mono text-red-500">-RM {deductions.toLocaleString()}</td>
-                          <td className="px-6 py-4 font-mono font-bold text-[#07B2B2]">RM {netPay.toLocaleString()}</td>
+                          <td className="px-6 py-4 font-mono font-bold text-[#0d9488]">RM {netPay.toLocaleString()}</td>
                           <td className="px-6 py-4">
                             {staff.paymentStatus === 'Paid' ? (
                               <div className="flex items-center gap-2">
@@ -374,7 +374,7 @@ export default function StaffManagementModule() {
                               className={`text-xs font-bold px-3 py-1.5 rounded transition-colors ${
                                 staff.paymentStatus === 'Paid' 
                                   ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                  : 'bg-[#07B2B2] hover:bg-[#058A8A] text-white cursor-pointer shadow-sm'
+                                  : 'bg-[#0d9488] hover:bg-[#058A8A] text-white cursor-pointer shadow-sm'
                               }`}
                             >
                               Process
@@ -412,7 +412,7 @@ export default function StaffManagementModule() {
                         <div className="flex items-center gap-2">
                           <div className="w-full bg-slate-200 rounded-full h-1.5 max-w-[80px]">
                             <div 
-                              className={`h-1.5 rounded-full ${staff.attendanceRate > 90 ? 'bg-[#07B2B2]' : staff.attendanceRate > 75 ? 'bg-amber-400' : 'bg-red-500'}`}
+                              className={`h-1.5 rounded-full ${staff.attendanceRate > 90 ? 'bg-[#0d9488]' : staff.attendanceRate > 75 ? 'bg-amber-400' : 'bg-red-500'}`}
                               style={{ width: `${staff.attendanceRate}%` }}
                             ></div>
                           </div>
@@ -441,7 +441,7 @@ export default function StaffManagementModule() {
                             className={`text-[10px] font-bold px-2 py-1 rounded border transition-colors ${
                               staff.leaveBalance <= 0 
                                 ? 'text-slate-400 border-slate-200 bg-slate-50 cursor-not-allowed'
-                                : 'text-[#07B2B2] border-cyan-200 hover:bg-cyan-50 cursor-pointer'
+                                : 'text-[#0d9488] border-cyan-200 hover:bg-cyan-50 cursor-pointer'
                             }`}
                           >
                             Approve Leave
