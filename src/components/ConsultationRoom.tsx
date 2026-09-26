@@ -296,18 +296,18 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
       {/* ========================================================================= */}
-      <div className="bg-white dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/50 rounded-none p-4 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-[#0d9488]">
+      <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/50 rounded-none p-4 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-[#0d9488]">
         
         {/* Patient Demographics & PII Controls */}
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-none bg-[#0d9488] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+          <div className="w-11 h-11 rounded-none bg-[#0f766e] text-white flex items-center justify-center font-black text-sm shrink-0 border border-[#0d9488] shadow-xs">
             {currentPatient.fullName.substring(0, 2).toUpperCase()}
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-base font-black text-[#0f3c4c] dark:text-[#5eead4] tracking-tight">{currentPatient.fullName}</h2>
               <span className="text-xs text-slate-600 dark:text-slate-300 font-bold">({patientAge} Yrs, {currentPatient.gender})</span>
-              <span id="patient-banner-status" className="bg-[#e0f5f2] dark:bg-teal-950/80 text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/50 text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-none flex items-center gap-1">
+              <span id="patient-banner-status" className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/50 text-[10px] uppercase font-extrabold tracking-wider px-2.5 py-0.5 rounded-none flex items-center gap-1 font-mono">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Consultation Active
               </span>
@@ -315,8 +315,8 @@ export default function ConsultationRoom({
             
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300 font-medium mt-1">
               {/* Masked IC Number */}
-              <span className="flex items-center gap-1.5 bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
-                <span>IC:</span>
+              <span className="flex items-center gap-1.5 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="font-bold text-[#0f766e] dark:text-teal-300 font-mono">IC:</span>
                 <strong className="font-mono text-[#0f3c4c] dark:text-slate-100">{maskedIC}</strong>
                 <button
                   type="button"
@@ -329,8 +329,8 @@ export default function ConsultationRoom({
               </span>
 
               {/* Masked Phone */}
-              <span className="flex items-center gap-1.5 bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
-                <span>Phone:</span>
+              <span className="flex items-center gap-1.5 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="font-bold text-[#0f766e] dark:text-teal-300 font-mono">Phone:</span>
                 <strong className="font-mono text-[#0f3c4c] dark:text-slate-100">{maskedPhone}</strong>
               </span>
 
@@ -343,17 +343,17 @@ export default function ConsultationRoom({
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           
           {/* Auto-Save Indicator */}
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-none font-bold">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-1 rounded-none font-bold font-mono">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Saved {lastSavedTime}</span>
           </div>
 
           {/* Single Authoritative Progress Indicator */}
-          <div className="bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 rounded-none px-3 py-1 flex items-center gap-2">
+          <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 rounded-none px-3 py-1 flex items-center gap-2">
             <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
             <div className="text-left">
-              <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none">Progress</span>
-              <span className="text-xs font-mono font-extrabold text-[#0f766e] dark:text-[#5eead4] leading-tight block">Step {completedStepsCount} of 4 ({soapProgressPercent}%)</span>
+              <span className="text-[9px] text-slate-500 font-bold uppercase block leading-none font-mono">Progress</span>
+              <span className="text-xs font-mono font-black text-[#0f766e] dark:text-[#5eead4] leading-tight block">Step {completedStepsCount} of 4 ({soapProgressPercent}%)</span>
             </div>
           </div>
 
@@ -361,10 +361,10 @@ export default function ConsultationRoom({
           <button
             type="button"
             onClick={() => setIsLocked(true)}
-            className="px-3 py-1.5 border border-slate-300 dark:border-teal-800/50 bg-slate-50 dark:bg-[#07252d] text-slate-700 dark:text-slate-300 hover:bg-slate-100 rounded-none text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/50 bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844] rounded-none text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
             title="Lock Screen"
           >
-            <Lock className="w-3.5 h-3.5 text-slate-500" />
+            <Lock className="w-3.5 h-3.5 text-[#0d9488]" />
             <span className="hidden sm:inline">Lock Screen</span>
           </button>
 
@@ -372,7 +372,7 @@ export default function ConsultationRoom({
           <button
             type="button"
             onClick={() => setShowShortcutsHelp(!showShortcutsHelp)}
-            className="p-1.5 border border-slate-300 dark:border-teal-800/50 bg-slate-50 dark:bg-[#07252d] text-slate-600 dark:text-slate-300 hover:bg-slate-100 rounded-none text-xs font-bold transition-colors cursor-pointer"
+            className="p-1.5 border border-[#b2f5ea] dark:border-teal-800/50 bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844] rounded-none text-xs font-bold transition-colors cursor-pointer"
             title="Keyboard Shortcuts (Alt+?)"
           >
             <HelpCircle className="w-4 h-4 text-[#0d9488]" />
@@ -426,31 +426,31 @@ export default function ConsultationRoom({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[500px]">
         
         {/* AREA 2: MAIN CONSULTATION WORKSPACE (8 COLS / 65%) */}
-        <div className="lg:col-span-8 bg-white dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 p-5 rounded-none flex flex-col justify-between shadow-xs space-y-5">
+        <div className="lg:col-span-8 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 p-5 rounded-none flex flex-col justify-between shadow-xs space-y-5">
           
           <div className="space-y-4">
             
             {/* EXPLICIT CLINICAL WORKFLOW STATE SEQUENCE BAR */}
-            <div className="bg-[#e0f5f2] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-2 rounded-none flex items-center justify-between text-[10px] font-mono font-bold">
+            <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 p-2 rounded-none flex items-center justify-between text-[10px] font-mono font-bold">
               <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar">
                 <span className="bg-[#0d9488] text-white px-2 py-0.5 rounded-none flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3 text-emerald-300" />
                   1. Draft Saved
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-white text-[#0f766e] border-[#0d9488]' : 'bg-slate-100 dark:bg-[#082830] text-slate-400 border-slate-200 dark:border-teal-800/40'}`}>
+                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-[#f7fdfd] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#0d9488]' : 'bg-[#e0f5f2] dark:bg-[#082830] text-slate-500 dark:text-slate-400 border-[#b2f5ea] dark:border-teal-800/40'}`}>
                   2. Ready for Review
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-slate-100 dark:bg-[#082830] text-slate-400 border border-slate-200 dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-[#e0f5f2] dark:bg-[#082830] text-slate-500 dark:text-slate-400 border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
                   3. Signed Note
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-slate-100 dark:bg-[#082830] text-slate-400 border border-slate-200 dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-[#e0f5f2] dark:bg-[#082830] text-slate-500 dark:text-slate-400 border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
                   4. Prescription Routed
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-slate-100 dark:bg-[#082830] text-slate-400 border border-slate-200 dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-[#e0f5f2] dark:bg-[#082830] text-slate-500 dark:text-slate-400 border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none">
                   5. Encounter Closed
                 </span>
               </div>
@@ -460,9 +460,9 @@ export default function ConsultationRoom({
             </div>
 
             {/* STEPPER HEADER TOOLBAR */}
-            <div className="bg-[#f0fdfa] dark:bg-[#07252d] p-3.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-[#f0fdfa] dark:bg-[#082830] p-3.5 border border-[#ccfbf1] dark:border-teal-800/40 rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-bold text-[#0d9488] uppercase tracking-wider block">Consultation Draft in Progress</span>
+                <span className="text-[10px] font-bold text-[#0d9488] uppercase tracking-wider block font-mono">Consultation Draft in Progress</span>
                 <h3 className="text-sm font-black text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-1.5 mt-0.5">
                   <Stethoscope className="w-4 h-4 text-[#0d9488]" />
                   <span>Encounter Workspace — {activeTab.toUpperCase()}</span>
@@ -470,7 +470,7 @@ export default function ConsultationRoom({
               </div>
 
               {/* Actionable Requirement Status Text */}
-              <div className="bg-white dark:bg-[#082830] px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 text-[11px] font-bold text-[#0f766e] dark:text-[#5eead4] rounded-none">
+              <div className="bg-[#f7fdfd] dark:bg-[#07252d] px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 text-[11px] font-bold text-[#0f766e] dark:text-[#5eead4] rounded-none">
                 {activeTab === 'subjective' && (subjective.trim() ? 'Subjective: Complete ✓' : 'Subjective: Enter Symptoms')}
                 {activeTab === 'objective' && (vitals.temperature > 0 ? 'Objective: Vitals Complete ✓' : 'Objective: Check Vitals')}
                 {activeTab === 'assessment' && (selectedICD ? `Assessment: ${selectedICD.code} Selected ✓` : 'Required Next: Select ICD-10 Diagnosis')}
@@ -479,7 +479,7 @@ export default function ConsultationRoom({
             </div>
 
             {/* SINGLE UNIFIED STEPPER NAVIGATION TABS */}
-            <div className="flex border border-[#ccfbf1] dark:border-teal-800/40 bg-[#f7fdfd] dark:bg-[#07252d] p-1.5 rounded-none gap-1.5" role="tablist">
+            <div className="flex border border-[#ccfbf1] dark:border-teal-800/40 bg-[#e0f5f2] dark:bg-[#082830] p-1 rounded-none gap-1" role="tablist">
               <button
                 type="button"
                 role="tab"
@@ -487,8 +487,8 @@ export default function ConsultationRoom({
                 onClick={() => setActiveTab('subjective')}
                 className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'subjective' 
-                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                    ? 'bg-[#0d9488] text-white shadow-xs font-black' 
+                    : 'text-[#0f766e] dark:text-slate-200 hover:bg-[#ccfbf1] dark:hover:bg-[#0c3844]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -507,8 +507,8 @@ export default function ConsultationRoom({
                 onClick={() => setActiveTab('objective')}
                 className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'objective' 
-                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                    ? 'bg-[#0d9488] text-white shadow-xs font-black' 
+                    : 'text-[#0f766e] dark:text-slate-200 hover:bg-[#ccfbf1] dark:hover:bg-[#0c3844]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -527,8 +527,8 @@ export default function ConsultationRoom({
                 onClick={() => setActiveTab('assessment')}
                 className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'assessment' 
-                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                    ? 'bg-[#0d9488] text-white shadow-xs font-black' 
+                    : 'text-[#0f766e] dark:text-slate-200 hover:bg-[#ccfbf1] dark:hover:bg-[#0c3844]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -547,8 +547,8 @@ export default function ConsultationRoom({
                 onClick={() => setActiveTab('plan')}
                 className={`flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-none text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'plan' 
-                    ? 'bg-[#0d9488] text-white shadow-xs font-extrabold' 
-                    : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2]'
+                    ? 'bg-[#0d9488] text-white shadow-xs font-black' 
+                    : 'text-[#0f766e] dark:text-slate-200 hover:bg-[#ccfbf1] dark:hover:bg-[#0c3844]'
                 }`}
               >
                 <div className="flex items-center gap-1">
@@ -618,7 +618,7 @@ export default function ConsultationRoom({
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 border border-slate-300 dark:border-teal-800/50 text-slate-600 dark:text-slate-300 rounded-none text-xs font-bold hover:bg-slate-100 dark:hover:bg-[#0c3844] transition-colors cursor-pointer"
+                className="px-4 py-2 border border-[#b2f5ea] dark:border-teal-800/50 bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-300 rounded-none text-xs font-bold hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844] transition-colors cursor-pointer"
               >
                 Cancel Encounter
               </button>
@@ -626,7 +626,7 @@ export default function ConsultationRoom({
               <button
                 type="button"
                 onClick={() => setLastSavedTime('Just now')}
-                className="px-3.5 py-2 border border-[#b2f5ea] dark:border-teal-800/40 bg-[#f0fdfa] text-[#0f766e] rounded-none text-xs font-bold hover:bg-[#e0f5f2] transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 border border-[#b2f5ea] dark:border-teal-800/40 bg-[#f0fdfa] dark:bg-[#082830] text-[#0f766e] dark:text-[#5eead4] rounded-none text-xs font-bold hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844] transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Save className="w-3.5 h-3.5 text-[#0d9488]" />
                 <span>Save Draft</span>
@@ -639,7 +639,7 @@ export default function ConsultationRoom({
                 <button
                   type="button"
                   onClick={() => setActiveTab('objective')}
-                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   <span>Save Symptoms &amp; Proceed to Vitals</span>
                   <ArrowRight className="w-4 h-4" />
@@ -650,7 +650,7 @@ export default function ConsultationRoom({
                 <button
                   type="button"
                   onClick={() => setActiveTab('assessment')}
-                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   <span>Save Vitals &amp; Proceed to Diagnosis</span>
                   <ArrowRight className="w-4 h-4" />
@@ -661,7 +661,7 @@ export default function ConsultationRoom({
                 <button
                   type="button"
                   onClick={() => setActiveTab('plan')}
-                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   <span>Confirm Diagnosis &amp; Proceed to Prescription</span>
                   <ArrowRight className="w-4 h-4" />
@@ -672,10 +672,10 @@ export default function ConsultationRoom({
                 <button
                   type="button"
                   onClick={handleOpenReviewModal}
-                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-2.5 rounded-none text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   <Check className="w-4 h-4 text-white" />
-                  <span>Review and sign consultation</span>
+                  <span>Review and Sign Consultation</span>
                 </button>
               )}
             </div>
@@ -687,51 +687,51 @@ export default function ConsultationRoom({
         <div className="lg:col-span-4 space-y-4">
           
           {/* Contextual Recent Vitals Card */}
-          <div className="bg-white dark:bg-[#082830] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-2.5">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-              <h3 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-2.5">
+            <div className="flex items-center justify-between border-b border-[#ccfbf1] dark:border-teal-800/40 pb-2">
+              <h3 className="text-xs font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
                 <Activity className="w-4 h-4 text-[#0d9488]" />
                 Recent Outpatient Vitals
               </h3>
-              <span className="text-[10px] text-slate-400 font-mono">Triage Recorded</span>
+              <span className="text-[10px] text-slate-500 font-mono">Triage Recorded</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
-                <span className="text-[9px] text-slate-400 block font-sans">BP</span>
+              <div className="bg-[#f0fdfa] dark:bg-[#082830] p-2 border border-[#b2f5ea] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-500 block font-sans">BP</span>
                 <strong className="text-[#0f3c4c] dark:text-white">{vitals.bpSystolic}/{vitals.bpDiastolic} mmHg</strong>
               </div>
-              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
-                <span className="text-[9px] text-slate-400 block font-sans">Heart Rate</span>
+              <div className="bg-[#f0fdfa] dark:bg-[#082830] p-2 border border-[#b2f5ea] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-500 block font-sans">Heart Rate</span>
                 <strong className="text-[#0f3c4c] dark:text-white">{vitals.heartRate} bpm</strong>
               </div>
-              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
-                <span className="text-[9px] text-slate-400 block font-sans">Temperature</span>
+              <div className="bg-[#f0fdfa] dark:bg-[#082830] p-2 border border-[#b2f5ea] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-500 block font-sans">Temperature</span>
                 <strong className="text-[#0f3c4c] dark:text-white">{vitals.temperature}°C</strong>
               </div>
-              <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-2 border border-[#ccfbf1] dark:border-teal-800/40">
-                <span className="text-[9px] text-slate-400 block font-sans">Resp. Rate</span>
+              <div className="bg-[#f0fdfa] dark:bg-[#082830] p-2 border border-[#b2f5ea] dark:border-teal-800/40">
+                <span className="text-[9px] text-slate-500 block font-sans">Resp. Rate</span>
                 <strong className="text-[#0f3c4c] dark:text-white">{vitals.respiratoryRate} bpm</strong>
               </div>
             </div>
           </div>
 
           {/* Contextual AI Decision Support Draft Card */}
-          <div className="bg-white dark:bg-[#082830] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-              <h3 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#ccfbf1] dark:border-teal-800/40 pb-2">
+              <h3 className="text-xs font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
                 <Brain className="w-4 h-4 text-[#0d9488]" />
                 AI Decision Support
               </h3>
-              <span className="bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-none text-[9px] font-bold">
+              <span className="bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800 px-2 py-0.5 rounded-none text-[9px] font-bold font-mono">
                 Draft — Not a Diagnosis
               </span>
             </div>
 
             {!aiDraftDismissed ? (
-              <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+              <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300 font-medium">
                 <p className="leading-relaxed">
-                  Based on symptoms and prior gastritis history, AI suggests considering <strong>ICD-10 K29.7 (Gastritis, unspecified)</strong> or <strong>K21.9 (GERD)</strong>.
+                  Based on symptoms and prior gastritis history, AI suggests considering <strong className="text-[#0f766e] dark:text-[#5eead4]">ICD-10 K29.7 (Gastritis, unspecified)</strong> or <strong className="text-[#0f766e] dark:text-[#5eead4]">K21.9 (GERD)</strong>.
                 </p>
 
                 <div className="flex gap-1.5 pt-1">
@@ -741,7 +741,7 @@ export default function ConsultationRoom({
                       setSelectedICD({ code: 'K29.7', desc: 'Gastritis, unspecified', category: 'Digestive' });
                       setAiDraftAccepted(true);
                     }}
-                    className="flex-1 bg-[#0d9488] text-white py-1 rounded-none text-[10px] font-bold hover:bg-[#0f766e]"
+                    className="flex-1 bg-[#0d9488] text-white py-1 rounded-none text-[10px] font-bold hover:bg-[#0f766e] cursor-pointer"
                   >
                     {aiDraftAccepted ? '✓ Accepted' : 'Accept K29.7'}
                   </button>
@@ -749,7 +749,7 @@ export default function ConsultationRoom({
                   <button
                     type="button"
                     onClick={() => setAiDraftDismissed(true)}
-                    className="px-2.5 bg-slate-100 text-slate-600 border border-slate-300 py-1 rounded-none text-[10px] font-bold hover:bg-slate-200"
+                    className="px-2.5 bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40 py-1 rounded-none text-[10px] font-bold hover:bg-[#ccfbf1] cursor-pointer"
                   >
                     Dismiss
                   </button>
@@ -763,22 +763,22 @@ export default function ConsultationRoom({
           </div>
 
           {/* Longitudinal Clinical History Timeline */}
-          <div className="bg-white dark:bg-[#082830] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-3 flex-1 flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-              <h3 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs space-y-3 flex-1 flex flex-col">
+            <div className="flex items-center justify-between border-b border-[#ccfbf1] dark:border-teal-800/40 pb-2">
+              <h3 className="text-xs font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
                 <History className="w-4 h-4 text-[#0d9488]" />
                 {t.longitudinalHistory}
               </h3>
-              <span className="bg-[#e0f5f2] dark:bg-teal-950 text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/50 px-2 py-0.5 rounded-none text-[10px] font-mono font-bold">
+              <span className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none text-[10px] font-mono font-bold">
                 {patientPastVisits.length} Visits
               </span>
             </div>
 
             {patientPastVisits.length === 0 ? (
               <div className="p-6 text-center text-slate-400 flex-1 flex flex-col items-center justify-center">
-                <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
-                <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold">First Outpatient Encounter</span>
-                <span className="text-[10px] text-slate-400 mt-0.5">This session initiates the master clinical EHR timeline.</span>
+                <Clock className="w-8 h-8 text-[#0d9488] opacity-50 mb-2" />
+                <span className="text-xs text-[#0f3c4c] dark:text-slate-300 font-bold">First Outpatient Encounter</span>
+                <span className="text-[10px] text-slate-500 mt-0.5">This session initiates the master clinical EHR timeline.</span>
               </div>
             ) : (
               <div className="space-y-2 overflow-y-auto max-h-[300px] pr-1 custom-scrollbar">
@@ -788,14 +788,14 @@ export default function ConsultationRoom({
                     <div
                       key={visit.id}
                       onClick={() => setSelectedPastVisit(isSelected ? null : visit)}
-                      className={`p-3 rounded-none border transition-all text-left cursor-pointer hover:bg-[#f0fdfa] dark:hover:bg-[#0c3844] bg-[#f7fdfd] dark:bg-[#07252d] ${
+                      className={`p-3 rounded-none border transition-all text-left cursor-pointer hover:bg-[#f0fdfa] dark:hover:bg-[#0c3844] bg-[#f0fdfa] dark:bg-[#082830] ${
                         isSelected 
-                          ? 'border-[#0d9488] dark:border-[#2dd4bf] bg-[#f0fdfa] dark:bg-[#0c3844] shadow-xs' 
+                          ? 'border-[#0d9488] dark:border-[#2dd4bf] bg-[#e0f5f2] dark:bg-[#0c3844] shadow-xs' 
                           : 'border-[#ccfbf1] dark:border-teal-800/40'
                       }`}
                     >
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-mono font-bold text-slate-500 dark:text-slate-400">{visit.date}</span>
+                        <span className="font-mono font-bold text-slate-600 dark:text-slate-300">{visit.date}</span>
                         <span className="text-[#0f766e] dark:text-[#5eead4] bg-[#e0f5f2] dark:bg-teal-950 border border-[#b2f5ea] dark:border-teal-800/50 font-extrabold text-[9px] px-1.5 py-0.5 rounded-none">
                           {visit.soap.assessment.icdCode}
                         </span>
