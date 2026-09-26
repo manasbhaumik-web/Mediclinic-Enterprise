@@ -112,13 +112,13 @@ export default function DispensaryDashboard({
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Clean Enterprise Greetings Banner */}
-      <div className="enterprise-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-[#0D9488]">
+      <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 border-l-4 border-l-[#0d9488] p-5 rounded-none shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Pill className="w-6 h-6 text-[#0D9488]" />
+          <h2 className="text-base font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
+            <Pill className="w-5 h-5 text-[#0d9488]" />
             <span>{getGreeting()}, {pharmacistName}</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
             Pending prescriptions are awaiting dispensation. Verify patient details, labels, and dosage safety.
           </p>
         </div>
