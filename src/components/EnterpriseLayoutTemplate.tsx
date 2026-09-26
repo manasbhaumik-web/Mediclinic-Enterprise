@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
-  ChevronDown, LogOut, CalendarClock, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe
+  ChevronDown, ChevronRight, LogOut, CalendarClock, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe
 } from 'lucide-react';
 
 interface EnterpriseLayoutTemplateProps {
