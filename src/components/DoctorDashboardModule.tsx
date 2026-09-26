@@ -134,9 +134,9 @@ export default function DoctorDashboardModule({
 
   const samplePaymentMix = [
     { name: 'Corporate Panel', value: 45, color: '#0d9488' },
-    { name: 'Direct Cash/QR', value: 30, color: '#0f3c4c' },
-    { name: 'Insurance (Medisave)', value: 15, color: '#6366f1' },
-    { name: 'Credit Card', value: 10, color: '#f59e0b' },
+    { name: 'Direct Cash/QR', value: 30, color: '#0f766e' },
+    { name: 'Insurance (Medisave)', value: 15, color: '#14b8a6' },
+    { name: 'Credit Card', value: 10, color: '#d97706' },
   ];
 
   const sampleMonthlyEncounters = [
@@ -720,22 +720,22 @@ export default function DoctorDashboardModule({
 
       {/* MONTHLY REPORTS & ANALYTICS VIEW */}
       {internalTab === 'reports' && (
-        <div className="space-y-5">
+        <div className="space-y-5 animate-fadeIn">
           {/* Header & Controls Toolbar */}
-          <div className="bg-white border border-slate-200 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none">
+          <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none shadow-xs">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-[#0f3c4c] flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-teal-600" />
-                  Doctor Monthly Clinical & Revenue Performance
+                <h2 className="text-base font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-[#0d9488] dark:text-[#5eead4]" />
+                  Doctor Monthly Clinical &amp; Revenue Performance
                 </h2>
                 {showSampleReports && (
-                  <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider border border-amber-300 rounded-none">
+                  <span className="px-2.5 py-0.5 bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 text-[10px] font-bold font-mono uppercase tracking-wider border border-amber-300 dark:border-amber-800 rounded-none">
                     Interactive Telemetry Mode
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                 Comprehensive consultation metrics, ICD-10 diagnostic volume, panel billing breakdown, and export options.
               </p>
             </div>
@@ -743,10 +743,10 @@ export default function DoctorDashboardModule({
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setShowSampleReports(!showSampleReports)}
-                className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider border flex items-center gap-1.5 transition-colors rounded-none ${
+                className={`px-3 py-1.5 text-xs font-bold font-mono uppercase tracking-wider border flex items-center gap-1.5 transition-colors rounded-none cursor-pointer ${
                   showSampleReports
-                    ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
-                    : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+                    ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-800'
+                    : 'bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-800/40'
                 }`}
                 title="Toggle between real live consultation data and simulated month telemetry"
               >
@@ -757,7 +757,7 @@ export default function DoctorDashboardModule({
               <select
                 value={reportMonthHorizon}
                 onChange={(e) => setReportMonthHorizon(e.target.value)}
-                className="bg-slate-50 border border-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-teal-500 rounded-none"
+                className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 text-[#0f3c4c] dark:text-teal-100 text-xs font-bold px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0d9488] rounded-none cursor-pointer"
               >
                 <option value="current">September 2026 (Current)</option>
                 <option value="last_month">August 2026</option>
@@ -766,7 +766,7 @@ export default function DoctorDashboardModule({
 
               <button
                 onClick={handleExportCSV}
-                className="px-3.5 py-1.5 bg-[#0d9488] hover:bg-[#0f3c4c] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-sm rounded-none"
+                className="px-4 py-1.5 bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-xs rounded-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export CSV</span>
@@ -777,62 +777,62 @@ export default function DoctorDashboardModule({
           {/* 4 KPI Metrics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* KPI 1 */}
-            <div className="bg-white border border-slate-200 p-4 flex items-center justify-between rounded-none shadow-sm">
+            <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 p-4 flex items-center justify-between rounded-none shadow-xs">
               <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Total Encounters</span>
+                <span className="text-[10px] text-slate-500 dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono block mb-1">Total Encounters</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-slate-800">{aggregatePatients}</span>
-                  <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
+                  <span className="text-2xl font-black text-[#0f3c4c] dark:text-white">{aggregatePatients}</span>
+                  <span className="text-[10px] font-bold text-[#0d9488] dark:text-[#5eead4] flex items-center gap-0.5 font-mono">
                     <TrendingUp className="w-3 h-3" /> +14.2%
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono block mt-0.5">Completed consultations</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block mt-0.5">Completed consultations</span>
               </div>
-              <div className="w-10 h-10 bg-teal-50 flex items-center justify-center text-teal-600 rounded-none border border-teal-100">
+              <div className="w-10 h-10 bg-[#e0f5f2] dark:bg-[#082830] flex items-center justify-center text-[#0d9488] dark:text-[#5eead4] rounded-none border border-[#b2f5ea] dark:border-teal-800/40">
                 <Users className="w-5 h-5" />
               </div>
             </div>
 
             {/* KPI 2 */}
-            <div className="bg-white border border-slate-200 p-4 flex items-center justify-between rounded-none shadow-sm">
+            <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 p-4 flex items-center justify-between rounded-none shadow-xs">
               <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Gross Billing (RM)</span>
+                <span className="text-[10px] text-slate-500 dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono block mb-1">Gross Billing (RM)</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-slate-800">RM {aggregateFees.toFixed(2)}</span>
+                  <span className="text-2xl font-black text-[#0f3c4c] dark:text-white">RM {aggregateFees.toFixed(2)}</span>
                 </div>
-                <span className="text-[10px] text-emerald-600 font-bold block mt-0.5">Avg RM {(aggregatePatients > 0 ? aggregateFees / aggregatePatients : 0).toFixed(2)} / visit</span>
+                <span className="text-[10px] text-[#0d9488] dark:text-[#5eead4] font-bold font-mono block mt-0.5">Avg RM {(aggregatePatients > 0 ? aggregateFees / aggregatePatients : 0).toFixed(2)} / visit</span>
               </div>
-              <div className="w-10 h-10 bg-emerald-50 flex items-center justify-center text-emerald-600 rounded-none border border-emerald-100">
+              <div className="w-10 h-10 bg-[#e0f5f2] dark:bg-[#082830] flex items-center justify-center text-[#0d9488] dark:text-[#5eead4] rounded-none border border-[#b2f5ea] dark:border-teal-800/40">
                 <DollarSign className="w-5 h-5" />
               </div>
             </div>
 
             {/* KPI 3 */}
-            <div className="bg-white border border-slate-200 p-4 flex items-center justify-between rounded-none shadow-sm">
+            <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 p-4 flex items-center justify-between rounded-none shadow-xs">
               <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Avg Consult Time</span>
+                <span className="text-[10px] text-slate-500 dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono block mb-1">Avg Consult Time</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-slate-800">{avgDuration} min</span>
+                  <span className="text-2xl font-black text-[#0f3c4c] dark:text-white">{avgDuration} min</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono block mt-0.5">Target: 15.0 mins/pt</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono block mt-0.5">Target: 15.0 mins/pt</span>
               </div>
-              <div className="w-10 h-10 bg-blue-50 flex items-center justify-center text-blue-600 rounded-none border border-blue-100">
+              <div className="w-10 h-10 bg-[#e0f5f2] dark:bg-[#082830] flex items-center justify-center text-[#0f766e] dark:text-[#5eead4] rounded-none border border-[#b2f5ea] dark:border-teal-800/40">
                 <Clock className="w-5 h-5" />
               </div>
             </div>
 
             {/* KPI 4 */}
-            <div className="bg-white border border-slate-200 p-4 flex items-center justify-between rounded-none shadow-sm">
+            <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 p-4 flex items-center justify-between rounded-none shadow-xs">
               <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Top Diagnostic (ICD-10)</span>
+                <span className="text-[10px] text-slate-500 dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono block mb-1">Top Diagnostic (ICD-10)</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-sm font-bold text-slate-800 truncate max-w-[130px]" title="J06.9 Acute Upper Respiratory">
+                  <span className="text-sm font-black text-[#0f3c4c] dark:text-white truncate max-w-[130px]" title="J06.9 Acute Upper Respiratory">
                     J06.9 (URTI)
                   </span>
                 </div>
-                <span className="text-[10px] text-teal-600 font-bold block mt-0.5">38% of monthly visits</span>
+                <span className="text-[10px] text-[#0d9488] dark:text-[#5eead4] font-bold font-mono block mt-0.5">38% of monthly visits</span>
               </div>
-              <div className="w-10 h-10 bg-purple-50 flex items-center justify-center text-purple-600 rounded-none border border-purple-100">
+              <div className="w-10 h-10 bg-[#e0f5f2] dark:bg-[#082830] flex items-center justify-center text-[#0d9488] dark:text-[#5eead4] rounded-none border border-[#b2f5ea] dark:border-teal-800/40">
                 <BrainCircuit className="w-5 h-5" />
               </div>
             </div>
@@ -841,19 +841,19 @@ export default function DoctorDashboardModule({
           {/* Interactive Recharts Analytics Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Area Chart: Daily Velocity */}
-            <div className="lg:col-span-2 bg-white border border-slate-200 p-5 rounded-none space-y-4">
+            <div className="lg:col-span-2 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 p-5 rounded-none space-y-4 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-teal-600" />
-                    Daily Encounter Velocity & Revenue Growth
+                  <h3 className="text-sm font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-[#0d9488]" />
+                    Daily Encounter Velocity &amp; Revenue Growth
                   </h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">
                     Patient volume vs gross financial yield throughout September 2026.
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-xs font-medium">
-                  <span className="flex items-center gap-1 text-teal-700">
+                <div className="flex items-center gap-3 text-xs font-bold font-mono">
+                  <span className="flex items-center gap-1.5 text-[#0f766e] dark:text-[#5eead4]">
                     <span className="w-3 h-3 bg-[#0d9488] inline-block rounded-none"></span> Revenue (RM)
                   </span>
                 </div>
@@ -868,11 +868,11 @@ export default function DoctorDashboardModule({
                         <stop offset="95%" stopColor="#0d9488" stopOpacity={0.0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} />
-                    <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ccfbf1" opacity={0.6} />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#0f766e', fontWeight: 'bold' }} axisLine={{ stroke: '#b2f5ea' }} />
+                    <YAxis tick={{ fontSize: 11, fill: '#0f766e', fontWeight: 'bold' }} axisLine={{ stroke: '#b2f5ea' }} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#0f3c4c', color: '#fff', borderRadius: '0px', border: 'none', fontSize: '12px' }}
+                      contentStyle={{ backgroundColor: '#0f3c4c', color: '#fff', borderRadius: '0px', border: '1px solid #2dd4bf', fontSize: '12px' }}
                       formatter={(value: any) => [`RM ${value}`, 'Revenue']}
                     />
                     <Area type="monotone" dataKey="fees" stroke="#0d9488" strokeWidth={2.5} fillOpacity={1} fill="url(#colorFees)" />
@@ -882,13 +882,13 @@ export default function DoctorDashboardModule({
             </div>
 
             {/* Pie Chart: Payment Route Distribution */}
-            <div className="bg-white border border-slate-200 p-5 rounded-none space-y-4 flex flex-col justify-between">
+            <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 p-5 rounded-none space-y-4 flex flex-col justify-between shadow-xs">
               <div>
-                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-teal-600" />
-                  Corporate Panel & Payment Mix
+                <h3 className="text-sm font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-[#0d9488]" />
+                  Corporate Panel &amp; Payment Mix
                 </h3>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">
                   Distribution of patient settlement routes.
                 </p>
               </div>
@@ -909,19 +909,19 @@ export default function DoctorDashboardModule({
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#0f3c4c', color: '#fff', borderRadius: '0px', fontSize: '11px' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#0f3c4c', color: '#fff', borderRadius: '0px', border: '1px solid #2dd4bf', fontSize: '11px' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
 
-              <div className="space-y-1.5 pt-2 border-t border-slate-100">
+              <div className="space-y-1.5 pt-2 border-t border-[#ccfbf1] dark:border-teal-800/40">
                 {samplePaymentMix.map((item) => (
                   <div key={item.name} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 inline-block rounded-none" style={{ backgroundColor: item.color }}></span>
-                      <span className="text-slate-600 font-medium">{item.name}</span>
+                      <span className="text-slate-700 dark:text-slate-300 font-bold">{item.name}</span>
                     </div>
-                    <span className="font-mono font-bold text-slate-800">{item.value}%</span>
+                    <span className="font-mono font-bold text-[#0f3c4c] dark:text-[#5eead4]">{item.value}%</span>
                   </div>
                 ))}
               </div>
@@ -929,13 +929,13 @@ export default function DoctorDashboardModule({
           </div>
 
           {/* Interactive Encounters Table with Search & Filter */}
-          <div className="bg-white border border-slate-200 rounded-none overflow-hidden space-y-0">
+          <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none overflow-hidden space-y-0 shadow-xs">
             {/* Filter Bar */}
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 bg-[#f0fdfa] dark:bg-[#082830] border-b border-[#ccfbf1] dark:border-teal-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-500" />
-                <h3 className="text-sm font-bold text-slate-800">Detailed Encounter & Fee Ledger</h3>
-                <span className="text-xs font-mono bg-slate-200 text-slate-700 px-2 py-0.5 rounded-none font-bold">
+                <Calendar className="w-4 h-4 text-[#0d9488]" />
+                <h3 className="text-sm font-extrabold text-[#0f3c4c] dark:text-[#5eead4]">Detailed Encounter &amp; Fee Ledger</h3>
+                <span className="text-xs font-mono bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40 px-2 py-0.5 rounded-none font-bold">
                   {filteredEncounters.length} Record{filteredEncounters.length !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -943,23 +943,23 @@ export default function DoctorDashboardModule({
               <div className="flex flex-wrap items-center gap-2">
                 {/* Search Bar */}
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#0d9488]" />
                   <input
                     type="text"
                     placeholder="Search patient, ICD code..."
                     value={reportSearchQuery}
                     onChange={(e) => setReportSearchQuery(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 bg-white border border-slate-300 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-teal-500 w-48 sm:w-56 rounded-none"
+                    className="pl-8 pr-3 py-1.5 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 text-xs font-bold text-[#0f3c4c] dark:text-teal-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0d9488] w-48 sm:w-56 rounded-none"
                   />
                 </div>
 
                 {/* Payment Method Filter */}
-                <div className="flex items-center gap-1.5 bg-white border border-slate-300 px-2.5 py-1.5 rounded-none">
-                  <Filter className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center gap-1.5 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 px-2.5 py-1.5 rounded-none">
+                  <Filter className="w-3.5 h-3.5 text-[#0d9488]" />
                   <select
                     value={reportPaymentFilter}
                     onChange={(e) => setReportPaymentFilter(e.target.value)}
-                    className="bg-transparent text-xs font-bold text-slate-700 focus:outline-none rounded-none"
+                    className="bg-transparent text-xs font-bold text-[#0f3c4c] dark:text-teal-100 focus:outline-none rounded-none cursor-pointer"
                   >
                     <option value="all">All Payment Routes</option>
                     <option value="Panel">Corporate Panel</option>
@@ -975,8 +975,8 @@ export default function DoctorDashboardModule({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-slate-100 text-slate-600 border-b border-slate-200 uppercase tracking-wider font-semibold">
-                    <th className="px-4 py-3 font-mono">Encounter ID</th>
+                  <tr className="bg-[#e0f5f2] dark:bg-[#082830] text-[#0f766e] dark:text-[#5eead4] border-b border-[#b2f5ea] dark:border-teal-800/40 uppercase tracking-wider font-bold font-mono">
+                    <th className="px-4 py-3">Encounter ID</th>
                     <th className="px-4 py-3">Date</th>
                     <th className="px-4 py-3">Patient Name</th>
                     <th className="px-4 py-3">ICD-10 Diagnostic Code</th>
@@ -985,7 +985,7 @@ export default function DoctorDashboardModule({
                     <th className="px-4 py-3 text-right">Total Fee (RM)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#e6f4f1] dark:divide-teal-800/30">
                   {filteredEncounters.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center p-8 text-slate-400 italic">
@@ -994,34 +994,34 @@ export default function DoctorDashboardModule({
                     </tr>
                   ) : (
                     filteredEncounters.map((visit) => (
-                      <tr key={visit.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="px-4 py-3 font-mono font-bold text-slate-500">{visit.id}</td>
-                        <td className="px-4 py-3 font-mono text-slate-600">{visit.date}</td>
-                        <td className="px-4 py-3 font-bold text-slate-800">
+                      <tr key={visit.id} className="hover:bg-[#f0fdfa] dark:hover:bg-[#082830]/80 transition-colors">
+                        <td className="px-4 py-3 font-mono font-bold text-[#0f766e] dark:text-teal-300">{visit.id}</td>
+                        <td className="px-4 py-3 font-mono text-slate-600 dark:text-slate-300 font-medium">{visit.date}</td>
+                        <td className="px-4 py-3 font-extrabold text-[#0f3c4c] dark:text-white">
                           {visit.patientName}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="bg-slate-100 text-slate-700 px-2 py-0.5 font-mono text-[11px] font-semibold rounded-none border border-slate-200">
+                          <span className="bg-[#f0fdfa] dark:bg-[#082830] text-[#0f766e] dark:text-[#5eead4] px-2 py-0.5 font-mono text-[11px] font-bold rounded-none border border-[#ccfbf1] dark:border-teal-800/40">
                             {visit.icdCode}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-none border ${
+                          <span className={`px-2 py-0.5 text-[10px] font-bold font-mono uppercase rounded-none border ${
                             visit.paymentMethod === 'Panel'
-                              ? 'bg-teal-50 text-teal-800 border-teal-200'
+                              ? 'bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-800/40'
                               : visit.paymentMethod === 'Insurance'
-                              ? 'bg-purple-50 text-purple-800 border-purple-200'
+                              ? 'bg-teal-900/10 dark:bg-teal-900/40 text-teal-800 dark:text-teal-200 border-teal-300 dark:border-teal-700'
                               : visit.paymentMethod === 'Credit Card'
-                              ? 'bg-amber-50 text-amber-800 border-amber-200'
-                              : 'bg-slate-100 text-slate-800 border-slate-200'
+                              ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-800'
+                              : 'bg-[#e6f4f1] dark:bg-[#082830] text-[#0d9488] dark:text-teal-300 border-[#ccfbf1] dark:border-teal-800/40'
                           }`}>
                             {visit.paymentMethod}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-center font-mono text-slate-600">
+                        <td className="px-4 py-3 text-center font-mono text-slate-600 dark:text-slate-300 font-medium">
                           {visit.durationMin} mins
                         </td>
-                        <td className="px-4 py-3 text-right font-mono font-bold text-[#0f3c4c]">
+                        <td className="px-4 py-3 text-right font-mono font-black text-[#0f3c4c] dark:text-[#5eead4]">
                           RM {visit.totalFee.toFixed(2)}
                         </td>
                       </tr>
@@ -1032,13 +1032,13 @@ export default function DoctorDashboardModule({
             </div>
 
             {/* Table Footer */}
-            <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+            <div className="p-3 bg-[#f0fdfa] dark:bg-[#082830] border-t border-[#ccfbf1] dark:border-teal-800/40 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
               <span className="font-mono">
                 Showing {filteredEncounters.length} of {displayEncounters.length} encounters
               </span>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-700">Subtotal Fees:</span>
-                <span className="font-mono font-bold text-teal-700 text-sm">RM {aggregateFees.toFixed(2)}</span>
+                <span className="font-bold text-[#0f3c4c] dark:text-teal-200">Subtotal Fees:</span>
+                <span className="font-mono font-black text-[#0d9488] dark:text-[#5eead4] text-sm">RM {aggregateFees.toFixed(2)}</span>
               </div>
             </div>
           </div>
