@@ -216,7 +216,7 @@ export default function EquipmentManagementModule() {
 
           {/* TOP 4 SUMMARY METRIC CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Fleet Assets</span>
@@ -232,7 +232,7 @@ export default function EquipmentManagementModule() {
               </div>
             </div>
 
-            <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Calibration Flags</span>
@@ -248,7 +248,7 @@ export default function EquipmentManagementModule() {
               </div>
             </div>
 
-            <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Operational Health</span>
@@ -264,7 +264,7 @@ export default function EquipmentManagementModule() {
               </div>
             </div>
 
-            <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Audit Records</span>
@@ -331,7 +331,7 @@ export default function EquipmentManagementModule() {
                      No active equipment matches your criteria.
                    </div>
                 ) : filteredEq.map(eq => (
-                   <div key={eq.id} className={`flex flex-col h-full p-5 rounded-none border shadow-sm transition-all hover:shadow-md ${eq.status === 'Maintenance' ? 'border-red-200 bg-red-50/50' : 'border-[#ccfbf1] bg-[#f7fdfd]'}`}>
+                   <div key={eq.id} className={`flex flex-col h-full p-5 rounded-none border shadow-sm transition-all hover:shadow-md ${eq.status === 'Maintenance' ? 'border-red-200 bg-red-50/50' : 'border-[#99f6e4] bg-[#e6f4f1]'}`}>
                      <div className="flex justify-between items-start mb-3">
                        <h3 className="font-bold text-[#0f3c4c] leading-tight">{eq.name}</h3>
                        <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded tracking-wide ${eq.status === 'Maintenance' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}`}>
@@ -369,7 +369,7 @@ export default function EquipmentManagementModule() {
           )}
 
           {activeTab === 'logs' && (
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-sm overflow-hidden animate-fadeIn">
+            <div className="bg-[#e6f4f1] border border-[#99f6e4] rounded-none shadow-sm overflow-hidden animate-fadeIn">
               <div className="bg-[#f7fdfd] px-5 py-3 border-b border-teal-100 flex justify-between items-center">
                 <h3 className="font-bold text-sm text-[#0f3c4c] flex items-center gap-2">
                   <History className="w-4 h-4 text-[#0d9488]" />

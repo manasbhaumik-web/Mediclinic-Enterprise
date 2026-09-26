@@ -64,23 +64,23 @@ span.bg-amber-500,
 
 @layer utilities {
   .ice-mint-header {
-    @apply bg-[#f0fdfa]/95 backdrop-blur-md border-b border-[#ccfbf1] shadow-xs text-[#0f3c4c];
+    @apply bg-[#e0f5f2]/95 backdrop-blur-md border-b border-[#99f6e4] shadow-xs text-[#0f3c4c];
   }
 
   .ice-mint-card {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-[0_4px_20px_rgba(13,148,136,0.06)] rounded-none overflow-hidden transition-colors duration-200;
+    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none overflow-hidden transition-colors duration-200;
   }
 
   .ice-mint-card-interactive {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-xs rounded-none transition-all duration-200 hover:bg-[#f0fdfa] hover:shadow-sm;
+    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none transition-all duration-200 hover:bg-[#e0f5f2] hover:border-[#5eead4] hover:shadow-sm;
   }
 
   .ice-mint-panel {
-    @apply bg-[#f0fdfa] border border-[#ccfbf1] shadow-md rounded-none;
+    @apply bg-[#e0f5f2] border border-[#99f6e4] shadow-sm rounded-none;
   }
 
   .mint-badge {
-    @apply bg-[#e6f4f1] text-[#0d9488] border border-[#ccfbf1] px-2.5 py-1 rounded-none font-bold text-[10px];
+    @apply bg-[#d5f0eb] text-[#0d9488] border border-[#99f6e4] px-2.5 py-1 rounded-none font-bold text-[10px];
   }
 
   /* Navigation & Switcher Hover / Active Design System */

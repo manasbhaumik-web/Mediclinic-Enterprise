@@ -74,24 +74,24 @@ export default function BillingManagementModule() {
 
       {/* 2. TOP METRICS SUMMARY ROW */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">MTD Clinic Revenue</span>
           <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">RM {totalRevenue.toFixed(2)}</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Pending TPA Claims</span>
           <span className={`text-xl font-black font-mono block mt-0.5 ${pendingClaims > 0 ? 'text-amber-600' : 'text-slate-600'}`}>
             RM {pendingClaims.toFixed(2)}
           </span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Tax Liability (SST {settings.billing.taxRate}%)</span>
           <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">RM {taxLiability.toFixed(2)}</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Reconciliation Status</span>
           <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">Fully Synced</span>
         </div>

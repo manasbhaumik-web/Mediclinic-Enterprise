@@ -220,7 +220,7 @@ export default function StaffManagementModule() {
     <div className="animate-fadeIn max-w-6xl mx-auto space-y-6">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+      <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
         <div className="space-y-1.5 z-10">
           <div className="inline-flex items-center gap-1.5 bg-[#e6f4f1] border border-[#ccfbf1] px-2.5 py-0.5 text-[10px] font-black uppercase text-[#0d9488] tracking-widest">
             <Activity className="w-3 h-3" />
@@ -262,22 +262,22 @@ export default function StaffManagementModule() {
 
       {/* 2. TOP METRICS CARDS ROW (Gives immediate structure & balance) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Registered Personnel</span>
           <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">{staffList.length} Members</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Active Duty Staff</span>
           <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">{activeCount} Active</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Est. Monthly Payroll</span>
           <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">RM {totalPayroll.toLocaleString()}</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Pending Disbursals</span>
           <span className="text-xl font-black font-mono text-amber-700 block mt-0.5">{pendingPayments} Pending</span>
         </div>
@@ -350,7 +350,7 @@ export default function StaffManagementModule() {
                       placeholder="Search name, role, department..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-3.5 py-2 bg-[#f7fdfd] border border-[#ccfbf1] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]" 
+                      className="w-full pl-9 pr-3.5 py-2 bg-[#e6f4f1] border border-[#99f6e4] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]" 
                     />
                   </div>
 
@@ -361,7 +361,7 @@ export default function StaffManagementModule() {
                       <select
                         value={departmentFilter}
                         onChange={e => setDepartmentFilter(e.target.value)}
-                        className="bg-[#f7fdfd] border border-[#ccfbf1] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
+                        className="bg-[#e6f4f1] border border-[#99f6e4] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
                       >
                         <option value="All">All Departments</option>
                         <option value="General Medicine">General Medicine</option>
@@ -376,7 +376,7 @@ export default function StaffManagementModule() {
                       <select
                         value={statusFilter}
                         onChange={e => setStatusFilter(e.target.value)}
-                        className="bg-[#f7fdfd] border border-[#ccfbf1] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
+                        className="bg-[#e6f4f1] border border-[#99f6e4] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
                       >
                         <option value="All">All Statuses</option>
                         <option value="Active">Active</option>
@@ -393,7 +393,7 @@ export default function StaffManagementModule() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-2">
                   
                   {/* Left Column: Hero Onboarding Card */}
-                  <div className="lg:col-span-7 bg-[#f7fdfd] border border-[#ccfbf1] p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
+                  <div className="lg:col-span-7 bg-[#e6f4f1] border border-[#99f6e4] p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
                     <div className="space-y-4">
                       <div className="w-14 h-14 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488] flex items-center justify-center shadow-md">
                         <UserPlus className="w-7 h-7" />
@@ -440,7 +440,7 @@ export default function StaffManagementModule() {
                       </h4>
 
                       <div className="space-y-3 text-xs">
-                        <div className="flex items-start gap-3 p-2.5 bg-[#f7fdfd] border border-[#ccfbf1]">
+                        <div className="flex items-start gap-3 p-2.5 bg-[#e6f4f1] border border-[#99f6e4]">
                           <span className="w-5 h-5 bg-[#0d9488] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">1</span>
                           <div>
                             <strong className="text-[#0f3c4c] block font-extrabold">Register Personnel</strong>
@@ -502,9 +502,9 @@ export default function StaffManagementModule() {
 
               {/* STAFF DIRECTORY TABLE (When records exist) */}
               {filteredStaff.length > 0 && (
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden animate-fadeIn">
+                <div className="bg-[#e6f4f1] border border-[#99f6e4] rounded-none shadow-xs overflow-hidden animate-fadeIn">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
+                    <thead className="bg-[#d5f0eb] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#99f6e4]">
                       <tr>
                         <th className="px-6 py-3.5">Staff Member</th>
                         <th className="px-6 py-3.5">Department &amp; Role</th>

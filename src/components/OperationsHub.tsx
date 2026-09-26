@@ -54,7 +54,7 @@ export default function OperationsHub() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Live Patient Traffic</span>
@@ -70,7 +70,7 @@ export default function OperationsHub() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Wait Time</span>
@@ -86,7 +86,7 @@ export default function OperationsHub() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Booking Efficiency</span>
@@ -102,7 +102,7 @@ export default function OperationsHub() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Automated Inventory</span>
@@ -123,7 +123,7 @@ export default function OperationsHub() {
         
         {/* ML Scheduling & Resources */}
         <div className="space-y-6">
-          <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
+          <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] shadow-2xs overflow-hidden">
             <div className="border-b border-teal-100 bg-[#f7fdfd] p-4 flex items-center justify-between">
               <h2 className="font-bold text-[#0f3c4c] flex items-center gap-2 text-sm">
                 <CalendarDays className="w-4 h-4 text-[#0d9488]" />
@@ -163,7 +163,7 @@ export default function OperationsHub() {
             </div>
           </div>
 
-          <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
+          <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] shadow-2xs overflow-hidden">
             <div className="border-b border-teal-100 bg-[#f7fdfd] p-4 flex items-center justify-between">
               <h2 className="font-bold text-[#0f3c4c] flex items-center gap-2 text-sm">
                 <Wrench className="w-4 h-4 text-amber-600" />
@@ -187,7 +187,7 @@ export default function OperationsHub() {
 
         {/* Inventory & Analytics */}
         <div className="space-y-6">
-          <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden h-full">
+          <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] shadow-2xs overflow-hidden h-full">
             <div className="border-b border-teal-100 bg-[#f7fdfd] p-4 flex items-center justify-between">
               <h2 className="font-bold text-[#0f3c4c] flex items-center gap-2 text-sm">
                 <PackageSearch className="w-4 h-4 text-[#0d9488]" />

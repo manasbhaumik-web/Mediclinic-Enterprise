@@ -135,7 +135,7 @@ export default function MOHDashboard({
     <div className="animate-fadeIn max-w-6xl mx-auto space-y-6">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+      <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
         <div className="space-y-1.5 z-10">
           <div className="inline-flex items-center gap-1.5 bg-[#e6f4f1] border border-[#ccfbf1] px-2.5 py-0.5 text-[10px] font-black uppercase text-[#0d9488] tracking-widest">
             <Globe2 className="w-3 h-3 text-[#0d9488]" />
@@ -162,22 +162,22 @@ export default function MOHDashboard({
 
       {/* 2. TOP METRICS SUMMARY ROW */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Total Patient Encounters</span>
           <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">{patientsCount} Encounters</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">NIDCS Sync Timestamp</span>
           <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">{lastUploadTime}</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Pending TPA Claims</span>
           <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">{pendingTPAClaims} Claims</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">MOH Regulatory Status</span>
           <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">100% Compliant</span>
         </div>
@@ -212,7 +212,7 @@ export default function MOHDashboard({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
           
           {/* Patient Volume hourly chart */}
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-2xs space-y-4">
+          <div className="bg-[#e6f4f1] border border-[#99f6e4] p-5 rounded-none shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-[#0f3c4c] flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-[#0d9488]" />
@@ -237,7 +237,7 @@ export default function MOHDashboard({
           </div>
 
           {/* ICD-10 Diagnoses distribution */}
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-2xs space-y-4">
+          <div className="bg-[#e6f4f1] border border-[#99f6e4] p-5 rounded-none shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-[#0f3c4c] flex items-center gap-2">
                 <Target className="w-4 h-4 text-[#0d9488]" />
@@ -264,7 +264,7 @@ export default function MOHDashboard({
 
       {/* POPULATION HEALTH */}
       {activeTab === 'population' && (
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-4">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-2xs space-y-4">
           <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
             <Users className="w-5 h-5 text-[#0d9488]" />
             <span>Epidemiological Surveillance &amp; Population Health</span>
@@ -277,7 +277,7 @@ export default function MOHDashboard({
 
       {/* COMPARATIVE */}
       {activeTab === 'comparative' && (
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-4">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-2xs space-y-4">
           <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-[#0d9488]" />
             <span>National Healthcare Benchmarking</span>
@@ -299,7 +299,7 @@ export default function MOHDashboard({
 
       {/* FINANCIAL */}
       {activeTab === 'financial' && (
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-4">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-2xs space-y-4">
           <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-[#0d9488]" />
             <span>Predictive Financial Revenue Forecasting</span>
@@ -321,7 +321,7 @@ export default function MOHDashboard({
 
       {/* PROVIDER */}
       {activeTab === 'provider' && (
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-4">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-2xs space-y-4">
           <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
             <Activity className="w-5 h-5 text-[#0d9488]" />
             <span>Resident Physician Efficiency Metrics</span>
@@ -346,7 +346,7 @@ export default function MOHDashboard({
 
       {/* WORKFLOW */}
       {activeTab === 'workflow' && (
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-4">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-2xs space-y-4">
           <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
             <Brain className="w-5 h-5 text-[#0d9488]" />
             <span>AI Clinical Workflow Optimization</span>
@@ -359,7 +359,7 @@ export default function MOHDashboard({
 
       {/* OUTCOMES */}
       {activeTab === 'outcomes' && (
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-4">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-2xs space-y-4">
           <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
             <Target className="w-5 h-5 text-[#0d9488]" />
             <span>Treatment Protocol Efficacy &amp; Outcomes</span>

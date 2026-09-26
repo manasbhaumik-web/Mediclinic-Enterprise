@@ -45,7 +45,7 @@ export default function RevenueCycleHub() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">First-Pass Rate</span>
@@ -61,7 +61,7 @@ export default function RevenueCycleHub() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Claim Payout</span>
@@ -77,7 +77,7 @@ export default function RevenueCycleHub() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Patient Payment Plans</span>
@@ -93,7 +93,7 @@ export default function RevenueCycleHub() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pre-Claim Scrubbing</span>
@@ -135,7 +135,7 @@ export default function RevenueCycleHub() {
       {activeTab === 'intelligent_billing' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-[#f7fdfd] p-6 rounded-none border border-[#ccfbf1] shadow-2xs">
+            <div className="bg-[#e6f4f1] p-6 rounded-none border border-[#99f6e4] shadow-xs">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-[#0f3c4c]">
                 <Target className="w-5 h-5 text-[#0d9488]" />
                 Patient Cost Estimator (Live TPA)
@@ -161,7 +161,7 @@ export default function RevenueCycleHub() {
               </div>
             </div>
 
-            <div className="bg-[#f7fdfd] p-6 rounded-none border border-[#ccfbf1] shadow-2xs text-slate-800">
+            <div className="bg-[#e6f4f1] p-6 rounded-none border border-[#99f6e4] shadow-xs text-slate-800">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-[#0f3c4c]">
                 <BarChart3 className="w-5 h-5 text-[#0d9488]" />
                 Competitive Pricing Analysis
@@ -205,7 +205,7 @@ export default function RevenueCycleHub() {
       )}
 
       {activeTab === 'leakage' && (
-        <div className="bg-[#f7fdfd] p-6 rounded-none border border-[#ccfbf1] shadow-2xs">
+        <div className="bg-[#e6f4f1] p-6 rounded-none border border-[#99f6e4] shadow-xs">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2 text-[#0f3c4c]">
               <Search className="w-5 h-5 text-[#0d9488]" />
@@ -254,7 +254,7 @@ export default function RevenueCycleHub() {
       )}
 
       {activeTab === 'denials' && (
-        <div className="bg-[#f7fdfd] p-6 rounded-none border border-[#ccfbf1] shadow-2xs">
+        <div className="bg-[#e6f4f1] p-6 rounded-none border border-[#99f6e4] shadow-xs">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2 text-[#0f3c4c]">
               <BrainCircuit className="w-5 h-5 text-[#0d9488]" />
@@ -263,9 +263,9 @@ export default function RevenueCycleHub() {
           </div>
           <p className="text-xs text-slate-500 mb-6">Claims are analyzed by predictive models *before* submission to prevent costly rejections from TPAs/Insurers.</p>
           
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none overflow-hidden">
+          <div className="bg-[#e6f4f1] border border-[#99f6e4] rounded-none overflow-hidden">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#f7fdfd] text-[#0f3c4c] uppercase border-b border-teal-100 font-bold">
+              <thead className="bg-[#d5f0eb] text-[#0f3c4c] uppercase border-b border-[#99f6e4] font-bold">
                 <tr>
                   <th className="px-4 py-3">Claim ID</th>
                   <th className="px-4 py-3">Insurer</th>

@@ -20,7 +20,7 @@ export default function SystemArchitectureHub() {
     <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-10">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+      <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
         <div className="space-y-1.5 z-10">
           <div className="inline-flex items-center gap-1.5 bg-[#e6f4f1] border border-[#ccfbf1] px-2.5 py-0.5 text-[10px] font-black uppercase text-[#0d9488] tracking-widest">
             <Activity className="w-3 h-3 text-[#0d9488]" />
@@ -42,22 +42,22 @@ export default function SystemArchitectureHub() {
 
       {/* 2. TOP METRICS SUMMARY ROW */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">API Request Throughput</span>
           <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">{traffic} req/s</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Microservices Uptime</span>
           <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">{apiHealth.toFixed(2)}%</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Edge Local Latency</span>
           <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">1.2ms Ping</span>
         </div>
 
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
           <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">AWS Cloud Replication</span>
           <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">Multi-AZ Active</span>
         </div>
@@ -70,7 +70,7 @@ export default function SystemArchitectureHub() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Microservices Cluster Card */}
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-6">
+          <div className="bg-[#e6f4f1] border border-[#99f6e4] p-6 rounded-none shadow-2xs space-y-6">
             <h3 className="text-xs font-black uppercase tracking-wider text-[#0d9488] flex items-center gap-2">
               <Server className="w-4 h-4 text-[#0d9488]" />
               <span>Microservices Cluster Topology</span>
@@ -117,7 +117,7 @@ export default function SystemArchitectureHub() {
 
           {/* Cloud-Native & Edge Computing */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-2xs space-y-3">
+            <div className="bg-[#e6f4f1] border border-[#99f6e4] p-5 rounded-none shadow-2xs space-y-3">
               <h3 className="text-xs font-black uppercase tracking-wider text-[#0f3c4c] flex items-center gap-2">
                 <Cpu className="w-4 h-4 text-[#0d9488]" />
                 <span>Edge Processing Nodes</span>
@@ -164,7 +164,7 @@ export default function SystemArchitectureHub() {
 
         {/* Column 3: API-First Engine */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-2xs space-y-4">
+          <div className="bg-[#e6f4f1] border border-[#99f6e4] p-5 rounded-none shadow-2xs space-y-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-[#0f3c4c] flex items-center gap-2">
               <Code className="w-4 h-4 text-[#0d9488]" />
               <span>API Health &amp; Security</span>

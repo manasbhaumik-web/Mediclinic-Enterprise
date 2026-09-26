@@ -81,7 +81,7 @@ export default function SettingsModule() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Modules</span>
@@ -97,7 +97,7 @@ export default function SettingsModule() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">SST Tax Rate</span>
@@ -113,7 +113,7 @@ export default function SettingsModule() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hardware Devices</span>
@@ -129,7 +129,7 @@ export default function SettingsModule() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Policy Compliance</span>
@@ -147,7 +147,7 @@ export default function SettingsModule() {
       </div>
 
       {/* 1. FINANCIAL PARAMETERS */}
-      <section className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
+      <section className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] shadow-2xs overflow-hidden">
         <div className="bg-[#f0fdfa] px-5 py-3 border-b border-[#ccfbf1] flex items-center gap-2">
           <Percent className="w-4 h-4 text-[#0d9488]" />
           <h3 className="font-bold text-sm text-[#0f3c4c]">Financial Parameters & Billing Rules</h3>
@@ -187,7 +187,7 @@ export default function SettingsModule() {
       </section>
 
       {/* 2. MODULE ENABLEMENT */}
-      <section className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
+      <section className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] shadow-2xs overflow-hidden">
         <div className="bg-[#f0fdfa] px-5 py-3 border-b border-[#ccfbf1] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-[#0d9488]" />
@@ -285,7 +285,7 @@ export default function SettingsModule() {
       </section>
 
       {/* 3. HARDWARE PERIPHERAL INTEGRATIONS */}
-      <section className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] shadow-2xs overflow-hidden">
+      <section className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] shadow-2xs overflow-hidden">
         <div className="bg-[#f7fdfd] px-5 py-3 border-b border-teal-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="w-4 h-4 text-[#0d9488]" />

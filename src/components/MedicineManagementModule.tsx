@@ -161,24 +161,24 @@ export default function MedicineManagementModule() {
 
           {/* 2. TOP METRICS SUMMARY ROW */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+            <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
               <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Total Catalog Items</span>
               <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">{totalItems} Formulations</span>
             </div>
 
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+            <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
               <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Low Stock Alerts</span>
               <span className={`text-xl font-black font-mono block mt-0.5 ${lowStockCount > 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
                 {lowStockCount} {lowStockCount > 0 ? 'Critical' : 'Adequate'}
               </span>
             </div>
 
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+            <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
               <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Controlled Substances (Rx)</span>
               <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">{controlledRxCount} Formulations</span>
             </div>
 
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+            <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
               <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Dispensary Fulfillment</span>
               <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">100% Ready</span>
             </div>

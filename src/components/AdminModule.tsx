@@ -109,7 +109,7 @@ export default function AdminModule({
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-[#0d9488]/20 transition-colors duration-300 ${
-      isNightShift ? 'dark bg-[#092e38] text-slate-100' : 'bg-[#f7fdfd] text-[#0f3c4c]'
+      isNightShift ? 'dark bg-[#092e38] text-slate-100' : 'bg-[#edf2f1] text-[#0f3c4c]'
     }`}>
 
       {/* ========================================================================= */}

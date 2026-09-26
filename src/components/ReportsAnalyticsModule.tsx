@@ -106,7 +106,7 @@ export default function ReportsAnalyticsModule() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">YTD Revenue</span>
@@ -122,7 +122,7 @@ export default function ReportsAnalyticsModule() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Patients</span>
@@ -138,7 +138,7 @@ export default function ReportsAnalyticsModule() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">TPA Outstanding</span>
@@ -154,7 +154,7 @@ export default function ReportsAnalyticsModule() {
           </div>
         </div>
 
-        <div className="bg-[#f7fdfd] rounded-none border border-[#ccfbf1] p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Inventory Value</span>
