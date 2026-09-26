@@ -45,6 +45,22 @@ export default function ClinicLandingPage({
   // Review Category Filter State
   const [reviewCategory, setReviewCategory] = useState('All');
 
+  // Hero Background Carousel State
+  const [heroSlide, setHeroSlide] = useState(0);
+  const heroImages = [
+    'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1920&q=80',
+    'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1920&q=80',
+    'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1920&q=80',
+    'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1920&q=80'
+  ];
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide(prev => (prev + 1) % heroImages.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [heroImages.length]);
+
   const [bookingForm, setBookingForm] = useState({
     fullName: '',
     icNumber: '',
@@ -385,32 +401,57 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       <section className="relative pt-10 pb-14 px-4 lg:px-8 bg-[#f7fdfd] overflow-hidden border-b border-[#ccfbf1]">
         
-        {/* Background Image Overlay */}
-        <div className="absolute inset-0 bg-[url('/hero_banner.jpg')] bg-cover bg-center opacity-40 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#f7fdfd]/90 via-[#f7fdfd]/70 to-[#f7fdfd] pointer-events-none" />
+        {/* Animated Sliding Background Image Carousel */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          {heroImages.map((imgUrl, idx) => (
+            <div 
+              key={imgUrl}
+              className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-in-out ${
+                idx === heroSlide ? 'opacity-35 scale-105' : 'opacity-0 scale-100'
+              }`}
+              style={{ backgroundImage: `url('${imgUrl}')` }}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#f7fdfd]/95 via-[#f7fdfd]/75 to-[#f7fdfd]" />
+        </div>
 
         <div className="max-w-5xl mx-auto relative z-10 space-y-7">
           
           {/* Centered Hero Content Header */}
           <div className="text-center max-w-3xl mx-auto space-y-5">
             
-            <div className="inline-flex items-center gap-2 bg-[#e6f4f1] border border-[#ccfbf1] px-3.5 py-1 rounded-full text-xs font-bold text-[#0d9488]">
+            <div className="inline-flex items-center gap-2 bg-[#e6f4f1] border border-[#ccfbf1] px-3.5 py-1 rounded-full text-xs font-bold text-[#0d9488] shadow-2xs">
               <Clock className="w-3.5 h-3.5 text-[#0d9488]" />
               <span>{isBM ? 'Klinik Outpatient & Kecemasan 24 Jam Shah Alam' : 'Shah Alam 24/7 Outpatient & Urgent Care Clinic'}</span>
+              
+              {/* Slide Dots Indicator */}
+              <div className="flex items-center gap-1 ml-2 border-l border-teal-300/60 pl-2">
+                {heroImages.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setHeroSlide(i)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${i === heroSlide ? 'bg-[#0d9488] w-3' : 'bg-teal-300'}`}
+                    title={`Slide ${i + 1}`}
+                  />
+                ))}
+              </div>
             </div>
 
+            {/* Strategic Marketing Banner Slogan */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0f3c4c] tracking-tight leading-[1.12]">
               {isBM ? (
-                <>Jumpa doktor hari ini—<span className="text-[#0d9488]">24 jam sehari.</span></>
+                <>Peneraju Kecemerlangan Kesihatan—<span className="text-[#0d9488]">Diagnosis Pintar &amp; Rawatan 24 Jam.</span></>
               ) : (
-                <>See a doctor today—<span className="text-[#0d9488]">24 hours a day.</span></>
+                <>Pioneering Next-Gen Healthcare—<span className="text-[#0d9488]">Smart Diagnostics &amp; 24/7 Precision Care.</span></>
               )}
             </h1>
 
-            <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-medium">
+            {/* Bold Teal Sub-Slogan */}
+            <p className="text-[#0d9488] font-bold text-base sm:text-lg max-w-3xl mx-auto leading-relaxed tracking-wide">
               {isBM 
-                ? 'Jumpa terus (walk in), tempah awal, atau semak perlindungan perubatan korporat anda dalam beberapa minit.'
-                : 'Walk in, book ahead, or check your corporate medical coverage in minutes.'
+                ? 'Nikmati rawatan mesra 24/7 tanpa janji temu, pendaftaran pantas MyKad, dan kelulusan panel TPA korporat 100% tanpa tunai.'
+                : 'Experience seamless 24/7 walk-in care, instant MyKad check-in, and 100% cashless corporate TPA panel approval.'
               }
             </p>
 
