@@ -19,7 +19,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 
 async function seed() {
   const users = [
-    { email: 'doctor@mediclinic.local', password: 'password123', name: 'Dr. Sarah Jenkins', role: 'doctor' },
+    { email: 'doctor@mediclinic.local', password: 'password123', name: 'Dr. Sarah Tan', role: 'doctor' },
     { email: 'pharmacist@mediclinic.local', password: 'password123', name: 'David Chen', role: 'pharmacist' },
     { email: 'assistant@mediclinic.local', password: 'password123', name: 'Nurul Amin', role: 'clinic-assistant' },
     { email: 'sysadmin@mediclinic.local', password: 'password123', name: 'System Admin', role: 'admin' }

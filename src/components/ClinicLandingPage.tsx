@@ -101,7 +101,7 @@ export default function ClinicLandingPage({
   const doctorsList = [
     {
       id: 'SJ',
-      name: 'Dr. Sarah Jenkins',
+      name: 'Dr. Sarah Tan',
       title: 'MD (UKM), MMC Reg #48291',
       role: 'Senior General Practitioner & Family Physician',
       specialty: 'General Medicine',
@@ -213,7 +213,7 @@ export default function ClinicLandingPage({
             <span className="font-extrabold text-white tracking-wide">OPERATIONS TELEMETRY LIVE</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-[11px]">
-            <span className="flex items-center gap-1.5"><Stethoscope className="w-3.5 h-3.5 text-teal-200" /> Suite 101: <strong className="text-white">Dr. Sarah Jenkins</strong> (On Duty)</span>
+            <span className="flex items-center gap-1.5"><Stethoscope className="w-3.5 h-3.5 text-teal-200" /> Suite 101: <strong className="text-white">Dr. Sarah Tan</strong> (On Duty)</span>
             <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-teal-200" /> Avg Queue Wait: <strong className="text-white font-mono">11 mins</strong></span>
             <span className="flex items-center gap-1.5"><Pill className="w-3.5 h-3.5 text-emerald-300" /> Dispensary Stock: <strong className="text-emerald-300">100% Ready</strong></span>
             <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-teal-200" /> TPA Claim Gateway: <strong className="text-teal-200">Online 99.9%</strong></span>
@@ -444,7 +444,7 @@ export default function ClinicLandingPage({
                 </div>
                 <div>
                   <h4 className="text-[11px] font-extrabold text-[#0f3c4c]">Attending Physician</h4>
-                  <span className="text-[10px] text-[#0d9488] font-semibold block">Dr. Sarah Jenkins (Suite 101)</span>
+                  <span className="text-[10px] text-[#0d9488] font-semibold block">Dr. Sarah Tan (Suite 101)</span>
                 </div>
               </div>
 
@@ -589,7 +589,7 @@ export default function ClinicLandingPage({
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between items-center">
                     <span>Consultation Suite:</span>
-                    <span className="font-bold text-slate-800">Suite 101 (Dr. Jenkins)</span>
+                    <span className="font-bold text-slate-800">Suite 101 (Dr. Tan)</span>
                   </div>
                   <div className="p-3 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] flex justify-between items-center">
                     <span>Estimated Waiting:</span>

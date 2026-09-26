@@ -20,7 +20,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
     {
       id: 'doctor' as UserRole,
       title: 'Doctor',
-      name: 'Dr. Sarah Jenkins',
+      name: 'Dr. Sarah Tan',
       detail: 'Suite 101 - Senior GP',
       icon: Stethoscope,
       username: 'doctor@mediclinic.local'

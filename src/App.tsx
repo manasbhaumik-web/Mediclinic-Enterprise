@@ -37,11 +37,10 @@ import {
 export default function App() {
   const { recordTransaction } = useFinancials();
   const { user, role: userRole, signIn, signOut } = useAuth();
-  const effectiveRole = userRole || 'doctor';
-  const [appView, setAppView] = useState<'landing' | 'telemetry' | 'login' | 'suite' | 'admin'>('suite');
+  const [appView, setAppView] = useState<'landing' | 'telemetry' | 'login' | 'suite' | 'admin'>('landing');
 
   // Navigation Menu Active Page
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments'>('consultation');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments'>('queue');
 
   const handleLogin = async (role: UserRole) => {
     await signIn(role);
@@ -86,7 +85,7 @@ export default function App() {
   const [whatsappToast, setWhatsappToast] = useState<string | null>(null);
 
   // Selected patient actively being consulted by doctor
-  const [activeConsultationVisitId, setActiveConsultationVisitId] = useState<string | null>('v1');
+  const [activeConsultationVisitId, setActiveConsultationVisitId] = useState<string | null>(null);
 
   // Auto-translate genders helper
   const translateGender = (g: string) => {
@@ -196,7 +195,7 @@ export default function App() {
   const getUserDisplayName = () => {
     if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
     if (user?.email) return user.email.split('@')[0];
-    if (userRole === 'doctor') return 'Dr. Sarah Jenkins';
+    if (userRole === 'doctor') return 'Dr. Sarah Tan';
     if (userRole === 'pharmacist') return 'Pharm. Ahmad Razak';
     if (userRole === 'clinic-assistant') return 'Clinic Assistant Siti Aishah';
     if (userRole === 'admin') return 'Administrator';
@@ -330,7 +329,7 @@ export default function App() {
             <Suspense fallback={<GlobalSpinner />}>
 
               {/* DOCTOR MODULE: PATIENT QUEUE, CONSULTATION SUITE, MONTHLY REPORTS */}
-              {(activeTab === 'queue' || activeTab === 'consultation' || activeTab === 'reports') && effectiveRole === 'doctor' && (
+              {(activeTab === 'queue' || activeTab === 'consultation' || activeTab === 'reports') && userRole === 'doctor' && (
                 <DoctorDashboardModule
                   doctorTab={activeTab === 'reports' ? 'reports' : activeTab === 'consultation' ? 'consultation' : 'queue'}
                   onTabChange={(t) => setActiveTab(t)}

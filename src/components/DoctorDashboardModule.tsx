@@ -32,7 +32,7 @@ export default function DoctorDashboardModule({
   activeConsultationVisitId,
   setActiveConsultationVisitId,
   onConsultationComplete,
-  doctorName = "Dr. Sarah Jenkins",
+  doctorName = "Dr. Sarah Tan",
   doctorTab = "queue",
   onTabChange
 }: DoctorDashboardModuleProps) {

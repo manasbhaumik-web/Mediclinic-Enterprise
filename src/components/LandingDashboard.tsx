@@ -50,7 +50,7 @@ const MicroSparkline = ({ data, color = '#0d9488' }: { data: number[]; color?: s
 
 export default function LandingDashboard({
   userRole,
-  userName = "Dr. Sarah Jenkins",
+  userName = "Dr. Sarah Tan",
   triageQueue = [],
   doctorQueue,
   pharmacyQueue,
@@ -188,7 +188,7 @@ export default function LandingDashboard({
     },
     {
       id: 'moh',
-      title: 'MOH Telemetry & Analytics',
+      title: 'Ministry reporting and analytics',
       subtitle: 'KKM Surveillance, Disease Registry & Compliance SLA',
       icon: BarChart3,
       badge: 'KKM Sync Active',
@@ -211,11 +211,11 @@ export default function LandingDashboard({
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 bg-[#0d9488] text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">
-                Enterprise Operations Command
+                Clinic overview
               </span>
               <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold uppercase tracking-wider border border-emerald-300 rounded-none flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-ping"></span>
-                System Normal • KKM EHR Synced
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
+                All systems operational
               </span>
             </div>
             <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2.5 tracking-tight">
@@ -280,9 +280,9 @@ export default function LandingDashboard({
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-[#0d9488]" />
-            Application Workspace Module Launcher
+            Choose a workspace
           </h3>
-          <span className="text-xs text-slate-400 font-mono">Select module to navigate instantly</span>
+          <span className="text-xs text-slate-400 font-mono">Select workspace module</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -361,7 +361,7 @@ export default function LandingDashboard({
         {/* KPI 2: Active Waiting Queue */}
         <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:bg-[#f0fdfa] transition-colors relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span>Active Queue Volume</span>
+            <span>Waiting for doctor</span>
             <span className="p-2 bg-amber-50 border border-amber-200 text-amber-600 rounded-none">
               <Clock className="w-4 h-4" />
             </span>
@@ -370,10 +370,10 @@ export default function LandingDashboard({
           <div className="mt-3 flex items-baseline justify-between">
             <div>
               <span className="text-3xl font-black font-mono tracking-tight text-slate-900 block">
-                {activeQueueCount}
+                {doctorQueue.length}
               </span>
               <span className="text-xs font-semibold text-slate-600 mt-1 block">
-                Avg Wait: <strong className="text-[#0d9488] font-mono font-bold">11m</strong>
+                Estimated wait: <strong className="text-[#0d9488] font-mono font-bold">{doctorQueue.length > 0 ? `${doctorQueue.length * 2 + 3} min` : '0 min'}</strong>
               </span>
             </div>
             
@@ -382,15 +382,17 @@ export default function LandingDashboard({
           </div>
 
           <div className="mt-3 pt-2 border-t border-[#ccfbf1] flex items-center justify-between text-[10px] text-slate-500 font-semibold">
-            <span>Triage: {triageQueue.length} | Doctor: {doctorQueue.length}</span>
-            <span className="text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.5 rounded-none border border-emerald-200">⚡ Zero-Wait Active</span>
+            <span>Triage queue: {triageQueue.length}</span>
+            <span className="text-[#0f766e] font-bold bg-[#e0f5f2] px-1.5 py-0.5 rounded-none border border-[#b2f5ea]">
+              {doctorQueue.length > 0 ? 'Normal queue volume' : 'No triage wait'}
+            </span>
           </div>
         </div>
 
         {/* KPI 3: Today's Financial Billing */}
         <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:bg-[#f0fdfa] transition-colors relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span>Daily Revenue & Claims</span>
+            <span>Today's collections</span>
             <span className="p-2 bg-sky-50 border border-sky-200 text-[#0284c7] rounded-none">
               <CreditCard className="w-4 h-4" />
             </span>
@@ -404,9 +406,6 @@ export default function LandingDashboard({
                   {calculatedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-none inline-block mt-1 border border-sky-200">
-                100% Panel Verified
-              </span>
             </div>
 
             {/* Micro Sparkline Graph */}
@@ -414,15 +413,15 @@ export default function LandingDashboard({
           </div>
 
           <div className="mt-3 pt-2 border-t border-[#ccfbf1] flex items-center justify-between text-[10px] text-slate-500 font-semibold">
-            <span>Cash + Corporate e-GL</span>
-            <span className="text-[#0d9488] font-bold">💳 Cashless Active</span>
+            <span>All panel claims verified</span>
+            <span className="text-[#0d9488] font-bold">💳 Cashless active</span>
           </div>
         </div>
 
         {/* KPI 4: Clinic Operational Efficiency */}
         <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 shadow-2xs hover:bg-[#f0fdfa] transition-colors relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span>Clinic Efficiency Index</span>
+            <span>Efficiency index</span>
             <span className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-none">
               <ShieldCheck className="w-4 h-4" />
             </span>
@@ -433,9 +432,6 @@ export default function LandingDashboard({
               <span className="text-3xl font-black font-mono tracking-tight text-slate-900 block">
                 96.4%
               </span>
-              <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-none inline-block mt-1 border border-emerald-200">
-                OPTIMAL PERFORMANCE
-              </span>
             </div>
 
             {/* Micro Sparkline Graph */}
@@ -443,7 +439,7 @@ export default function LandingDashboard({
           </div>
 
           <div className="mt-3 pt-2 border-t border-[#ccfbf1] flex items-center justify-between text-[10px] text-slate-500 font-semibold">
-            <span>KKM & EMR SLA target</span>
+            <span>All systems operational</span>
             <span className="text-emerald-700 font-bold">🛡️ KKM Compliant</span>
           </div>
         </div>
@@ -593,7 +589,7 @@ export default function LandingDashboard({
             <div>
               <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <Pill className="w-5 h-5 text-amber-600" />
-                Pharmacy Fast-Moving Drugs Telemetry
+                Pharmacy stock overview
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">Top dispensed pharmaceuticals and warehouse stock alerts.</p>
             </div>
@@ -709,7 +705,7 @@ export default function LandingDashboard({
           <div className="space-y-3 text-xs">
             <div className="p-3.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] flex items-center justify-between transition-colors hover:bg-[#f0fdfa]">
               <div>
-                <strong className="block text-slate-900 font-extrabold mb-0.5">Dr. Sarah Jenkins, MD</strong>
+                <strong className="block text-slate-900 font-extrabold mb-0.5">Dr. Sarah Tan, MD</strong>
                 <span className="text-[11px] text-[#0d9488] font-semibold">Attending Physician (Consultation Suite 101)</span>
               </div>
               <span className="px-2.5 py-1 rounded-none text-[10px] font-black tracking-wider bg-[#0d9488] text-white">
