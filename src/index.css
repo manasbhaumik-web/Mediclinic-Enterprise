@@ -83,15 +83,15 @@ span.bg-amber-500,
 
   /* Navigation & Switcher Hover / Active Design System */
   .nav-btn {
-    @apply flex items-center px-3.5 py-1.5 rounded-none text-xs font-bold cursor-pointer whitespace-nowrap border border-transparent focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none;
+    @apply h-full flex items-center px-4 rounded-none text-xs font-bold cursor-pointer whitespace-nowrap border-0 outline-none focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none;
   }
 
   .nav-btn-inactive {
-    @apply text-teal-50 hover:bg-[#0f766e] hover:text-white hover:border-[#2dd4bf]/40 font-semibold;
+    @apply text-teal-50 hover:bg-[#0f766e] hover:text-white border-0 font-semibold;
   }
 
   .nav-btn-active {
-    @apply bg-[#0f766e] text-white border border-[#2dd4bf]/70 font-black shadow-inner ring-1 ring-[#2dd4bf]/50;
+    @apply bg-[#0f766e] text-white border-0 font-black shadow-none ring-0;
   }
 
   .changer-container {

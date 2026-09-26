@@ -245,9 +245,9 @@ export default function EnterpriseLayoutTemplate({
       {/* ========================================================================= */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
-        <nav className="w-full bg-[#0d9488] text-white flex items-center justify-between border-b border-[#096b62] shrink-0 px-4 py-1.5 overflow-x-auto custom-scrollbar shadow-xs relative z-10">
+        <nav className="w-full bg-[#0d9488] text-white flex items-stretch justify-between border-b border-[#096b62] shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar shadow-xs relative z-10">
 
-          <div className="flex items-center space-x-1.5 py-0.5" id="sidebar-navigation-links">
+          <div className="flex items-stretch h-full" id="sidebar-navigation-links">
 
             {/* Dashboard Navigation Link */}
             <button
@@ -300,7 +300,7 @@ export default function EnterpriseLayoutTemplate({
                 </div>
                 {triageQueueLength > 0 && (
                   <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'triage' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
+                    activeTab === 'triage' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border-0'
                   }`}>
                     {triageQueueLength}
                   </span>
@@ -344,7 +344,7 @@ export default function EnterpriseLayoutTemplate({
                   </div>
                   {activeTab !== 'consultation' && doctorQueueLength > 0 && (
                     <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                      activeTab === 'queue' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
+                      activeTab === 'queue' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border-0'
                     }`}>
                       {doctorQueueLength}
                     </span>
@@ -400,7 +400,7 @@ export default function EnterpriseLayoutTemplate({
                 </div>
                 {pharmacyQueueLength > 0 && (
                   <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'dispensary' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
+                    activeTab === 'dispensary' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border-0'
                   }`}>
                     {pharmacyQueueLength}
                   </span>
@@ -425,7 +425,7 @@ export default function EnterpriseLayoutTemplate({
                 </div>
                 {cashierQueueLength > 0 && (
                   <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'billing' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
+                    activeTab === 'billing' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border-0'
                   }`}>
                     {cashierQueueLength}
                   </span>
