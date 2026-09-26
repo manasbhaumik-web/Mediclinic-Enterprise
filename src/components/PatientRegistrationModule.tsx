@@ -278,11 +278,11 @@ export default function PatientRegistrationModule({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn relative">
+    <div className="space-y-6 animate-fadeIn relative font-sans">
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-[#0d9488] text-white px-6 py-4 rounded-none shadow-2xl flex items-center gap-3 z-50 animate-slideUp font-mono text-xs border border-[#ccfbf1]">
+        <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-[#0d9488] text-white px-6 py-4 rounded-none shadow-2xl flex items-center gap-3 z-50 animate-slideUp font-sans text-xs border border-[#ccfbf1]">
           <CheckCircle2 className="w-5 h-5 text-[#5eead4]" />
           <span className="font-bold tracking-wide">{toastMessage}</span>
         </div>
@@ -296,7 +296,7 @@ export default function PatientRegistrationModule({
           id="subtab-queue"
           aria-controls="subtab-panel-queue"
           onClick={() => setActiveSubTab('queue')}
-          className={`px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
+          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'queue' 
               ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs' 
               : 'bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#ccfbf1] dark:border-teal-800/30 hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47]'
@@ -310,7 +310,7 @@ export default function PatientRegistrationModule({
           id="subtab-form"
           aria-controls="subtab-panel-form"
           onClick={() => setActiveSubTab('form')}
-          className={`px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
+          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'form' 
               ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs' 
               : 'bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#ccfbf1] dark:border-teal-800/30 hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47]'
@@ -324,7 +324,7 @@ export default function PatientRegistrationModule({
           id="subtab-registry"
           aria-controls="subtab-panel-registry"
           onClick={() => setActiveSubTab('registry')}
-          className={`px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
+          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'registry' 
               ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs' 
               : 'bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#ccfbf1] dark:border-teal-800/30 hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47]'
@@ -336,7 +336,7 @@ export default function PatientRegistrationModule({
 
       {/* WAITING ROOM MONITOR */}
       {activeSubTab === 'queue' && (
-        <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs">
+        <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs font-sans">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6 border-b border-[#ccfbf1] dark:border-teal-800/40 pb-4">
               <div className="flex items-center gap-3">
@@ -344,10 +344,10 @@ export default function PatientRegistrationModule({
                   <Clock className="w-5 h-5 text-[#0d9488] dark:text-[#5eead4]" />
                 </div>
                 <div>
-                  <h3 className="font-black text-base uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4] font-mono">
+                  <h3 className="font-black text-base uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4] font-sans">
                     Live Waiting Room Monitor
                   </h3>
-                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-mono">Real-time triage queue and patient waiting statuses</p>
+                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans font-medium">Real-time triage queue and patient waiting statuses</p>
                 </div>
               </div>
               
@@ -357,19 +357,19 @@ export default function PatientRegistrationModule({
             </div>
             
             {triageQueue.length === 0 ? (
-              <div className="text-center py-16 text-[#0f766e] dark:text-teal-400">
+              <div className="text-center py-16 text-[#0f766e] dark:text-teal-400 font-sans">
                 <Users className="w-14 h-14 mx-auto opacity-40 mb-3" />
                 <p className="font-extrabold text-base text-[#0f3c4c] dark:text-[#5eead4]">Waiting Room is Empty</p>
-                <p className="text-xs mt-1 font-mono">All registered patients have been triaged or cleared.</p>
+                <p className="text-xs mt-1 font-sans">All registered patients have been triaged or cleared.</p>
                 <button 
                   onClick={() => setActiveSubTab('form')}
-                  className="mt-6 mx-auto bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-4 py-2.5 rounded-none font-mono uppercase tracking-wider flex items-center gap-2 shadow-xs"
+                  className="mt-6 mx-auto bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-4 py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center gap-2 shadow-xs"
                 >
                   <Plus className="w-4 h-4" /> Register New Patient
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-live="polite">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 font-sans" aria-live="polite">
                 {triageQueue.map(visit => {
                   const pt = patientsMap[visit.patientId];
                   const waitTimeMs = Date.now() - (visit.registeredTime || Date.now());
@@ -396,7 +396,7 @@ export default function PatientRegistrationModule({
                         </span>
                       </div>
                       
-                      <div className="mt-3">
+                      <div className="mt-3 font-sans">
                         <div className="flex justify-between items-start mb-1">
                           <h4 className="font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase text-sm truncate">{pt?.fullName}</h4>
                           <span className="font-mono text-xs text-[#0f766e] dark:text-teal-300">IC: {maskICNumber(pt?.icNumber, showPII)}</span>
@@ -404,7 +404,7 @@ export default function PatientRegistrationModule({
                         
                         <div className="text-xs text-slate-500 mt-2 space-y-2">
                           {pt?.panelEmployer !== 'None (Self-Pay)' && (
-                            <span className="inline-block text-[#0d9488] dark:text-teal-200 font-mono font-bold bg-[#0d9488]/10 dark:bg-teal-900/40 px-2 py-0.5 rounded-none text-[10px] uppercase tracking-wide border border-[#0d9488]/20">
+                            <span className="inline-block text-[#0d9488] dark:text-teal-200 font-sans font-bold bg-[#0d9488]/10 dark:bg-teal-900/40 px-2 py-0.5 rounded-none text-[10px] uppercase tracking-wide border border-[#0d9488]/20">
                               Panel: {pt?.panelEmployer}
                             </span>
                           )}
@@ -415,10 +415,10 @@ export default function PatientRegistrationModule({
                         </div>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-[#ccfbf1] dark:border-teal-800/30 flex gap-2">
+                      <div className="mt-4 pt-3 border-t border-[#ccfbf1] dark:border-teal-800/30 flex gap-2 font-sans">
                         <button 
                           onClick={() => showToast(`${pt?.fullName} flagged as Priority for Doctor`)} 
-                          className="flex-1 py-1.5 text-xs font-mono font-bold bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-none shadow-xs uppercase tracking-wider flex items-center justify-center gap-1"
+                          className="flex-1 py-1.5 text-xs font-sans font-bold bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-none shadow-xs uppercase tracking-wider flex items-center justify-center gap-1"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" /> Priority
                         </button>
@@ -427,7 +427,7 @@ export default function PatientRegistrationModule({
                             updateVisitInDb({ ...visit, status: 'Cancelled' });
                             showToast(`${pt?.fullName} visit cancelled`);
                           }}
-                          className="flex-1 py-1.5 text-xs font-mono font-bold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800/60 rounded-none uppercase tracking-wider"
+                          className="flex-1 py-1.5 text-xs font-sans font-bold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800/60 rounded-none uppercase tracking-wider"
                         >
                           Cancel
                         </button>
@@ -443,21 +443,21 @@ export default function PatientRegistrationModule({
 
       {/* REGISTRATION FORM */}
       {activeSubTab === 'form' && (
-        <div className="animate-fadeIn">
+        <div className="animate-fadeIn font-sans">
           {registrationStep === 'id_check' ? (
-            <div className="max-w-md mx-auto mt-8 bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs p-8">
+            <div className="max-w-md mx-auto mt-8 bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs p-8 font-sans">
               <div className="text-center space-y-6">
                 <div className="mx-auto w-14 h-14 bg-[#0d9488]/10 dark:bg-teal-900/40 rounded-none flex items-center justify-center border border-[#0d9488]/20">
                   <Search className="w-7 h-7 text-[#0d9488] dark:text-[#5eead4]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black uppercase text-[#0f3c4c] dark:text-[#5eead4]">Identify Patient</h3>
-                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-mono mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
+                  <h3 className="text-lg font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-sans">Identify Patient</h3>
+                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
                 </div>
                 
-                <form onSubmit={handleIdCheckSubmit} className="space-y-4 text-left">
+                <form onSubmit={handleIdCheckSubmit} className="space-y-4 text-left font-sans">
                   <div>
-                    <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-mono">
+                    <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">
                       NRIC / Passport Number <span className="text-rose-500">*</span>
                     </label>
                     <input
@@ -471,7 +471,7 @@ export default function PatientRegistrationModule({
                   </div>
                   <button 
                     type="submit" 
-                    className="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs py-2.5 rounded-none font-mono uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
+                    className="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
                   >
                     Check Database <ArrowRight className="w-4 h-4" />
                   </button>
@@ -479,27 +479,27 @@ export default function PatientRegistrationModule({
                 
                 <div className="relative flex py-2 items-center">
                   <div className="flex-grow border-t border-[#ccfbf1] dark:border-teal-800/40"></div>
-                  <span className="flex-shrink-0 mx-4 text-[#0f766e] dark:text-teal-300 text-xs uppercase font-mono font-bold">Or</span>
+                  <span className="flex-shrink-0 mx-4 text-[#0f766e] dark:text-teal-300 text-xs uppercase font-sans font-bold">Or</span>
                   <div className="flex-grow border-t border-[#ccfbf1] dark:border-teal-800/40"></div>
                 </div>
                 
                 <button 
                   type="button" 
                   onClick={() => setIsMyKadOpen(true)}
-                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47] text-[#0f766e] dark:text-[#5eead4] border border-[#ccfbf1] dark:border-teal-800/50 font-bold text-xs py-2.5 rounded-none font-mono uppercase tracking-wider flex items-center justify-center gap-2"
+                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47] text-[#0f766e] dark:text-[#5eead4] border border-[#ccfbf1] dark:border-teal-800/50 font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
                 >
                   <Globe className="w-4 h-4 text-[#0d9488] dark:text-[#5eead4]" /> Scan PWA MyKad
                 </button>
               </div>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto font-sans">
               
               {/* Wizard Stepper */}
-              <div className="mb-6 flex items-center justify-between relative bg-[#f0fdfa] dark:bg-[#082830] p-4 border border-[#ccfbf1] dark:border-teal-800/40 rounded-none">
+              <div className="mb-6 flex items-center justify-between relative bg-[#f0fdfa] dark:bg-[#082830] p-4 border border-[#ccfbf1] dark:border-teal-800/40 rounded-none font-sans">
                 {[1, 2].map(stepNum => (
                   <div key={stepNum} className={`flex items-center gap-3 ${formStep >= stepNum ? '' : 'opacity-50'}`}>
-                    <div className={`w-7 h-7 rounded-none flex items-center justify-center font-bold text-xs font-mono transition-colors ${
+                    <div className={`w-7 h-7 rounded-none flex items-center justify-center font-bold text-xs font-sans transition-colors ${
                       formStep === stepNum 
                         ? 'bg-[#0d9488] text-white' 
                         : formStep > stepNum 
@@ -508,19 +508,19 @@ export default function PatientRegistrationModule({
                     }`}>
                       {formStep > stepNum ? <Check className="w-4 h-4" /> : stepNum}
                     </div>
-                    <span className="text-xs font-bold font-mono uppercase tracking-wider text-[#0f3c4c] dark:text-[#5eead4]">
+                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-[#0f3c4c] dark:text-[#5eead4]">
                       {stepNum === 1 ? '1. Patient Demographics' : '2. Billing & Medical Alerts'}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative">
+              <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative font-sans">
                 <div className="absolute top-4 right-4 z-10">
                   <button 
                     type="button" 
                     onClick={handleClearForm} 
-                    className="text-xs font-mono font-bold text-[#0f766e] dark:text-teal-400 hover:text-[#0d9488] flex items-center gap-1 bg-[#f7fdfd] dark:bg-[#07252d] px-3 py-1.5 border border-[#ccfbf1] dark:border-teal-800/40"
+                    className="text-xs font-sans font-bold text-[#0f766e] dark:text-teal-400 hover:text-[#0d9488] flex items-center gap-1 bg-[#f7fdfd] dark:bg-[#07252d] px-3 py-1.5 border border-[#ccfbf1] dark:border-teal-800/40"
                   >
                     <RotateCcw className="w-3.5 h-3.5" /> Restart
                   </button>
@@ -528,13 +528,13 @@ export default function PatientRegistrationModule({
 
                 {/* Step 1: Demographics */}
                 {formStep === 1 && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 font-sans">
                     <div>
-                      <h3 className="text-base font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-mono">
+                      <h3 className="text-base font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-sans">
                         Patient Demographics
                       </h3>
                       {existingPatientId && (
-                        <div className="mt-2 inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-1 rounded-none text-xs font-mono font-bold border border-emerald-300 dark:border-emerald-800">
+                        <div className="mt-2 inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-1 rounded-none text-xs font-sans font-bold border border-emerald-300 dark:border-emerald-800">
                           <UserCheck className="w-4 h-4" /> Existing Record Found - Auto-populated
                         </div>
                       )}
@@ -542,18 +542,18 @@ export default function PatientRegistrationModule({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-mono">Full Name *</label>
+                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Full Name *</label>
                         <input 
                           type="text"
                           required
                           value={manualForm.fullName}
                           onChange={(e) => setManualForm({ ...manualForm, fullName: e.target.value })}
                           placeholder="e.g. MOHD HAFIZ BIN RAZALI"
-                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-[#0f3c4c] dark:text-slate-100 font-bold focus:border-[#0d9488] outline-none"
+                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-[#0f3c4c] dark:text-slate-100 font-bold focus:border-[#0d9488] outline-none font-sans"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-mono">IC / Passport Number *</label>
+                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">IC / Passport Number *</label>
                         <input 
                           type="text"
                           required
@@ -567,18 +567,18 @@ export default function PatientRegistrationModule({
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-mono">Gender</label>
+                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Gender</label>
                         <select 
                           value={manualForm.gender} 
                           onChange={(e) => setManualForm({ ...manualForm, gender: e.target.value as 'Male' | 'Female' })}
-                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
                         >
                           <option value="Male">Male / Lelaki</option>
                           <option value="Female">Female / Perempuan</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-mono">Date of Birth</label>
+                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Date of Birth</label>
                         <input 
                           type="date"
                           value={manualForm.dob}
@@ -587,7 +587,7 @@ export default function PatientRegistrationModule({
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-mono">Phone Number *</label>
+                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Phone Number *</label>
                         <input 
                           type="text"
                           required
@@ -600,13 +600,13 @@ export default function PatientRegistrationModule({
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-mono">Residential Address</label>
+                      <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Residential Address</label>
                       <input 
                         type="text"
                         value={manualForm.address}
                         onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
                         placeholder="Enter full residential address..."
-                        className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                        className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none font-sans"
                       />
                     </div>
                   </div>
@@ -614,17 +614,17 @@ export default function PatientRegistrationModule({
 
                 {/* Step 2: Billing & Medical Alerts */}
                 {formStep === 2 && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 font-sans">
                     <div>
-                      <h3 className="text-base font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-mono">
+                      <h3 className="text-base font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-sans">
                         Billing Sponsor & Medical Alerts
                       </h3>
-                      <p className="text-xs text-[#0f766e] dark:text-teal-300 font-mono mt-0.5">Configure insurance panels and drug allergies</p>
+                      <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans mt-0.5">Configure insurance panels and drug allergies</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider font-mono">Panel / Corporate Sponsor</label>
+                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider font-sans">Panel / Corporate Sponsor</label>
                         <div className="flex gap-2">
                           <select
                             value={manualForm.panelEmployer}
@@ -632,7 +632,7 @@ export default function PatientRegistrationModule({
                               setManualForm({ ...manualForm, panelEmployer: e.target.value });
                               setCoverageStatus(e.target.value === 'None (Self-Pay)' ? 'verified' : 'unverified');
                             }}
-                            className="flex-1 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                            className="flex-1 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
                           >
                             <option value="None (Self-Pay)">Self-Pay (No sponsor claim co-pays)</option>
                             <option value="Petronas Panel">Petronas Panel (Cover RM500 limit)</option>
@@ -646,7 +646,7 @@ export default function PatientRegistrationModule({
                               type="button" 
                               onClick={handleVerifyCoverage}
                               disabled={isVerifyingCoverage || coverageStatus === 'verified'}
-                              className={`px-3 py-2 font-mono text-xs font-bold rounded-none uppercase transition-colors flex items-center gap-1 ${
+                              className={`px-3 py-2 font-sans text-xs font-bold rounded-none uppercase transition-colors flex items-center gap-1 ${
                                 coverageStatus === 'verified'
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                                   : 'bg-[#0d9488] text-white hover:bg-[#0f766e]'
@@ -660,7 +660,7 @@ export default function PatientRegistrationModule({
                       </div>
 
                       <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider font-mono">Drug Allergies</label>
+                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider font-sans">Drug Allergies</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -668,12 +668,12 @@ export default function PatientRegistrationModule({
                             onChange={(e) => setAllergyInput(e.target.value)}
                             placeholder="e.g. Penicillin, Aspirin..."
                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAllergyTag())}
-                            className="flex-1 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                            className="flex-1 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
                           />
                           <button 
                             type="button" 
                             onClick={handleAddAllergyTag}
-                            className="bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47] text-[#0f766e] dark:text-[#5eead4] border border-[#ccfbf1] dark:border-teal-800/50 font-bold text-xs px-3 py-2 rounded-none font-mono uppercase"
+                            className="bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47] text-[#0f766e] dark:text-[#5eead4] border border-[#ccfbf1] dark:border-teal-800/50 font-bold text-xs px-3 py-2 rounded-none font-sans uppercase"
                           >
                             + Add
                           </button>
@@ -681,7 +681,7 @@ export default function PatientRegistrationModule({
                         {allergiesList.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-2">
                             {allergiesList.map((tag, idx) => (
-                              <span key={idx} className="inline-flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-mono font-bold px-2.5 py-1 border border-rose-200 dark:border-rose-800/60 rounded-none">
+                              <span key={idx} className="inline-flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-sans font-bold px-2.5 py-1 border border-rose-200 dark:border-rose-800/60 rounded-none">
                                 {tag}
                                 <button type="button" onClick={() => handleRemoveAllergyTag(idx)} className="text-rose-400 hover:text-rose-700 cursor-pointer text-xs">&times;</button>
                               </span>
@@ -694,12 +694,12 @@ export default function PatientRegistrationModule({
                 )}
 
                 {/* Footer buttons */}
-                <div className="mt-8 pt-4 border-t border-[#ccfbf1] dark:border-teal-800/40 flex items-center justify-between">
+                <div className="mt-8 pt-4 border-t border-[#ccfbf1] dark:border-teal-800/40 flex items-center justify-between font-sans">
                   {formStep > 1 ? (
                     <button 
                       type="button" 
                       onClick={() => setFormStep(1)}
-                      className="bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] text-[#0f766e] dark:text-teal-300 border border-[#ccfbf1] font-mono font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5"
+                      className="bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] text-[#0f766e] dark:text-teal-300 border border-[#ccfbf1] font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5"
                     >
                       <ArrowLeft className="w-4 h-4" /> Back
                     </button>
@@ -709,7 +709,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={proceedToNextStep}
-                      className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-mono font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
+                      className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
                     >
                       Next Step <ArrowRight className="w-4 h-4" />
                     </button>
@@ -717,7 +717,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={handleRegisterSubmit} 
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-mono font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
                     >
                       <UserCheck className="w-4 h-4" /> Route to Triage Queue
                     </button>
@@ -731,32 +731,32 @@ export default function PatientRegistrationModule({
 
       {/* PATIENT REGISTRY TABLE TAB */}
       {activeSubTab === 'registry' && (
-        <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs">
+        <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs font-sans">
           <div className="p-6 space-y-6">
             
             {/* Header section with total count badge */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ccfbf1] dark:border-teal-800/40 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ccfbf1] dark:border-teal-800/40 pb-4 font-sans">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-[#0d9488]/10 dark:bg-teal-900/40 border border-[#0d9488]/20 flex items-center justify-center rounded-none">
                   <FolderCheck className="w-5 h-5 text-[#0d9488] dark:text-[#5eead4]" />
                 </div>
                 <div>
-                  <h3 className="font-black text-base uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4] font-mono">
+                  <h3 className="font-black text-base uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4] font-sans">
                     Registered Patient Registry
                   </h3>
-                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-mono">Comprehensive index of all registered patients in the clinic database</p>
+                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans font-medium">Comprehensive index of all registered patients in the clinic database</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border border-[#0d9488]/20 font-bold px-3 py-1 rounded-none text-xs font-mono">
+              <div className="flex items-center gap-3 font-sans">
+                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border border-[#0d9488]/20 font-bold px-3 py-1 rounded-none text-xs font-sans">
                   {totalPatientCount} total patients
                 </span>
               </div>
             </div>
             
             {/* Integrated Search Input */}
-            <div className="flex items-center gap-3 max-w-md">
+            <div className="flex items-center gap-3 max-w-md font-sans">
               <div className="relative flex-1">
                 <Search className="w-4 h-4 text-[#0d9488] dark:text-[#5eead4] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -764,16 +764,16 @@ export default function PatientRegistrationModule({
                   placeholder={t.searchPatient || "Search by Name / IC Number..."}
                   value={patientRegistrySearch}
                   onChange={(e) => setPatientRegistrySearch(e.target.value)}
-                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none pl-9 pr-3 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 placeholder-[#0f766e]/50 dark:placeholder-teal-400/50 focus:border-[#0d9488] outline-none"
+                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none pl-9 pr-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 placeholder-[#0f766e]/50 dark:placeholder-teal-400/50 focus:border-[#0d9488] outline-none font-medium"
                 />
               </div>
             </div>
             
             {/* Flat Table */}
-            <div className="overflow-x-auto border border-[#ccfbf1] dark:border-teal-800/40 rounded-none">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-[#e0f5f2]/80 dark:bg-[#07252d] border-b border-[#ccfbf1] dark:border-teal-800/40">
-                  <tr className="text-[#0f766e] dark:text-[#5eead4] font-mono text-[11px] uppercase tracking-wider font-black">
+            <div className="overflow-x-auto border border-[#ccfbf1] dark:border-teal-800/40 rounded-none font-sans">
+              <table className="w-full text-xs text-left font-sans">
+                <thead className="bg-[#e0f5f2]/80 dark:bg-[#07252d] border-b border-[#ccfbf1] dark:border-teal-800/40 font-sans">
+                  <tr className="text-[#0f766e] dark:text-[#5eead4] font-sans text-[11px] uppercase tracking-wider font-black">
                     <th className="px-4 py-3.5">ID</th>
                     <th className="px-4 py-3.5">Full Name</th>
                     <th className="px-4 py-3.5">IC Number</th>
@@ -783,10 +783,10 @@ export default function PatientRegistrationModule({
                     <th className="px-4 py-3.5 text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ccfbf1]/50 dark:divide-teal-800/30 bg-[#f7fdfd] dark:bg-[#07252d]">
+                <tbody className="divide-y divide-[#ccfbf1]/50 dark:divide-teal-800/30 bg-[#f7fdfd] dark:bg-[#07252d] font-sans">
                   {registryResults.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-4 py-12 text-center text-[#0f766e] dark:text-teal-400 font-mono">
+                      <td colSpan={7} className="px-4 py-12 text-center text-[#0f766e] dark:text-teal-400 font-sans font-medium">
                         No patient records found matching your search.
                       </td>
                     </tr>
@@ -797,7 +797,7 @@ export default function PatientRegistrationModule({
                           {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className="font-bold text-xs uppercase text-[#0f3c4c] dark:text-[#5eead4] block">
+                          <span className="font-bold text-xs uppercase text-[#0f3c4c] dark:text-[#5eead4] block font-sans">
                             {p.fullName}
                           </span>
                         </td>
@@ -805,7 +805,7 @@ export default function PatientRegistrationModule({
                           {maskICNumber(p.icNumber, showPII)}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className={`inline-block px-2.5 py-1 rounded-none text-[10px] font-mono font-bold uppercase tracking-wide border ${
+                          <span className={`inline-block px-2.5 py-1 rounded-none text-[10px] font-sans font-bold uppercase tracking-wide border ${
                             p.panelEmployer === 'None (Self-Pay)' 
                               ? 'bg-slate-100 dark:bg-[#082830] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-teal-900' 
                               : 'bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border-[#0d9488]/20 dark:border-teal-700/50'
@@ -815,10 +815,10 @@ export default function PatientRegistrationModule({
                         </td>
                         <td className="px-4 py-3.5">
                           {p.drugAllergies.length === 0
-                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-mono">None</span>
+                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">None</span>
                             : <div className="flex flex-wrap gap-1">
                                 {p.drugAllergies.map((a, i) => (
-                                  <span key={i} className="inline-block bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-[10px] font-mono font-bold px-2 py-0.5 rounded-none">
+                                  <span key={i} className="inline-block bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-[10px] font-sans font-bold px-2 py-0.5 rounded-none">
                                     {a}
                                   </span>
                                 ))}
@@ -831,7 +831,7 @@ export default function PatientRegistrationModule({
                         <td className="px-4 py-3.5 text-center">
                           <button
                             onClick={() => handleCreateTicket(p)}
-                            className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-mono transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1"
+                            className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1"
                           >
                             <Plus className="w-3.5 h-3.5" /> New Visit
                           </button>
