@@ -63,7 +63,7 @@ export default function ReportsAnalyticsModule() {
   };
 
   return (
-    <div className="animate-fadeIn space-y-6 pb-8">
+    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-8">
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -172,7 +172,7 @@ export default function ReportsAnalyticsModule() {
       </div>
 
       {/* TAB NAVIGATION SELECTION */}
-      <div className="flex gap-4 border-b border-slate-200">
+      <div className="flex items-center gap-1.5 border-b border-[#99f6e4] pb-px text-xs font-bold overflow-x-auto custom-scrollbar">
         {[
           { id: 'executive', label: 'Executive Overview' },
           { id: 'clinical', label: 'Clinical Outcomes' },
@@ -183,10 +183,10 @@ export default function ReportsAnalyticsModule() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`pb-3 text-sm font-bold transition-colors border-b-2 ${
+            className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === tab.id 
-                ? 'border-[#0d9488] text-[#0d9488]' 
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#e6f4f1]' 
+                : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
             }`}
           >
             {tab.label}

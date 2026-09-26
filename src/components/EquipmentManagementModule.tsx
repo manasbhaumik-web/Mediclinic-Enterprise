@@ -166,7 +166,7 @@ export default function EquipmentManagementModule() {
   };
 
   return (
-    <div className="animate-fadeIn space-y-6 pb-8">
+    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-8">
       
       {currentView === 'registration' ? (
         <EquipmentRegistration 

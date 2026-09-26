@@ -99,7 +99,7 @@ export default function IntegrationsHub() {
   ];
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-8">
+    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-8">
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">

@@ -9,7 +9,7 @@ export default function RevenueCycleHub() {
   const [activeTab, setActiveTab] = useState<'intelligent_billing' | 'leakage' | 'denials'>('intelligent_billing');
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-8">
+    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-8">
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -111,22 +111,22 @@ export default function RevenueCycleHub() {
       </div>
 
       {/* NAVIGATION TABS */}
-      <div className="flex gap-4 border-b border-slate-200">
+      <div className="flex items-center gap-1.5 border-b border-[#99f6e4] pb-px text-xs font-bold overflow-x-auto custom-scrollbar">
         <button 
           onClick={() => setActiveTab('intelligent_billing')}
-          className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'intelligent_billing' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'intelligent_billing' ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#e6f4f1]' : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'}`}
         >
           Intelligent Billing & Collections
         </button>
         <button 
           onClick={() => setActiveTab('leakage')}
-          className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'leakage' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'leakage' ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#e6f4f1]' : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'}`}
         >
           Revenue Leakage AI
         </button>
         <button 
           onClick={() => setActiveTab('denials')}
-          className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'denials' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'denials' ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#e6f4f1]' : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'}`}
         >
           Pre-Claim Denial Risk Scanner
         </button>
