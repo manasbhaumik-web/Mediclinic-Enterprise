@@ -49,24 +49,32 @@ export default function BillingManagementModule() {
     <div className="animate-fadeIn max-w-6xl mx-auto space-y-6">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
-        <div className="space-y-1.5 z-10">
-          <div className="inline-flex items-center gap-1.5 bg-[#e6f4f1] border border-[#ccfbf1] px-2.5 py-0.5 text-[10px] font-black uppercase text-[#0d9488] tracking-widest">
-            <Activity className="w-3 h-3 text-[#0d9488]" />
-            <span>Financial Revenue &amp; TPA Claims Governance</span>
+      <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="bg-white/10 text-teal-100 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 uppercase tracking-wide">
+              Financial Revenue &amp; Claims
+            </span>
+            <span className="flex items-center gap-1 text-[11px] text-teal-200 bg-teal-900/40 px-2 py-0.5 rounded border border-teal-400/20 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              SST {settings.billing.taxRate}% Active
+            </span>
           </div>
-          <h2 className="text-2xl font-black text-[#0f3c4c] tracking-tight">Billing Management</h2>
-          <p className="text-xs text-slate-600 font-medium max-w-xl">
-            Oversee clinic revenue, TPA panel claims, and automated invoice reconciliation.
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
+            <DollarSign className="w-6 h-6 text-teal-200" />
+            Billing &amp; TPA Claims Management
+          </h1>
+          <p className="text-xs text-teal-100/90 font-medium max-w-2xl leading-relaxed">
+            Oversee clinic revenue, TPA panel claims, payment reconciliation, and automated receipt generation.
           </p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-2.5 z-10">
+        <div className="flex items-center gap-3">
           <button 
             type="button"
-            className="bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] border border-[#b2f5ea] px-3.5 py-2 rounded-none text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+            className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-md flex items-center gap-1.5 border border-white/20 transition-all cursor-pointer"
           >
-            <FileSpreadsheet className="w-4 h-4 text-[#0d9488]" />
+            <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Export Financials</span>
           </button>
         </div>

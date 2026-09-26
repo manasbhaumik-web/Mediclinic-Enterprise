@@ -347,7 +347,7 @@ export default function AdminModule({
         {/* ========================================================================= */}
         {/* MAIN CONTENT AREA                                                         */}
         {/* ========================================================================= */}
-        <main className="flex-1 p-5 overflow-y-auto bg-[#f7fdfd] text-[#0f3c4c]">
+        <main className="flex-1 p-5 overflow-y-auto bg-[#edf2f1] text-[#0f3c4c]">
 
           {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
             <StaffManagementModule />
@@ -370,17 +370,11 @@ export default function AdminModule({
           )}
 
           {activeTab === 'moh' && userRole === 'admin' && (
-            <div className="space-y-4 animate-fadeIn max-w-6xl mx-auto">
-              <h2 className="text-xl font-black text-[#0f3c4c] flex items-center gap-2 mb-4">
-                <Globe2 className="w-6 h-6 text-[#0d9488]" />
-                MOH Regulatory Compliance &amp; Analytics
-              </h2>
-              <MOHDashboard
-                completedVisits={completedVisits}
-                totalRegisteredCount={totalRegisteredCount}
-                activeLanguage={activeLanguage}
-              />
-            </div>
+            <MOHDashboard
+              completedVisits={completedVisits}
+              totalRegisteredCount={totalRegisteredCount}
+              activeLanguage={activeLanguage}
+            />
           )}
 
           {activeTab === 'settings' && userRole === 'admin' && (
