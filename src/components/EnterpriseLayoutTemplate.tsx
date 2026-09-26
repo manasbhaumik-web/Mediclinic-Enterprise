@@ -133,8 +133,16 @@ export default function EnterpriseLayoutTemplate({
           )}
         </div>
 
-        {/* Right Controls Header */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* Center: Persistent Abnormal State Indicator (Shows ONLY when offline or abnormal) */}
+        {!isOnline && (
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase animate-pulse">
+            <WifiOff className="w-3.5 h-3.5 text-rose-300" />
+            <span>Offline Mode (Cached local data)</span>
+          </div>
+        )}
+
+        {/* Right Controls: Consolidated Workstation Settings & User Menu */}
+        <div className="flex items-center gap-3 relative">
 
           {/* Live Clock */}
           <div className="hidden xl:flex items-center gap-1.5 bg-[#086b68] px-2.5 py-1 border border-[#065451] font-mono text-xs text-white rounded-none font-bold shadow-2xs">
@@ -142,120 +150,133 @@ export default function EnterpriseLayoutTemplate({
             <span>{timeString || '13:50:24 MYT'}</span>
           </div>
 
-          {/* Night Shift Dark Mode Toggle */}
-          <button
-            type="button"
-            onClick={() => setIsNightShift(!isNightShift)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono shadow-2xs ${
-              isNightShift 
-                ? 'bg-indigo-950/80 text-amber-300 border-indigo-700/60 hover:bg-indigo-900' 
-                : 'bg-[#086b68] text-white border border-[#065451] hover:bg-[#065451]'
-            }`}
-            title="Toggle Night Shift Ergonomic Dark Mode"
-          >
-            {isNightShift ? (
-              <><Moon className="w-3.5 h-3.5 text-amber-300" /> <span className="hidden sm:inline">Night Shift</span></>
-            ) : (
-              <><Sun className="w-3.5 h-3.5 text-amber-200" /> <span className="hidden sm:inline">Day Mode</span></>
-            )}
-          </button>
-
-          {/* PWA Network Simulator toggle */}
-          <button
-            type="button"
-            id="pwa-network-toggle"
-            onClick={() => setIsOnline(!isOnline)}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#086b68] rounded-none border border-[#065451] hover:bg-[#065451] transition-all cursor-pointer text-[10px] uppercase font-bold font-mono text-white shadow-2xs"
-            title="Toggle Simulated PWA Offline/Online Mode"
-          >
-            {isOnline ? (
-              <>
-                <Wifi className="w-3.5 h-3.5 text-teal-100" />
-                <span className="text-white">{t.online || 'Online'}</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-3.5 h-3.5 text-rose-300 animate-pulse" />
-                <span className="text-rose-200">{t.offline || 'Offline'}</span>
-              </>
-            )}
-          </button>
-
-          {/* Plain-Language Screen Privacy Mode Toggle */}
-          <button
-            type="button"
-            onClick={() => setShowPII(!showPII)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono ${
-              showPII 
-                ? 'bg-amber-400/20 text-amber-100 border-amber-400/50 hover:bg-amber-400/30' 
-                : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40 hover:bg-emerald-500/30'
-            }`}
-            title={showPII ? 'Privacy mode: Off (Patient PII unmasked)' : 'Privacy mode: On (Patient PII masked for privacy)'}
-          >
-            {showPII ? (
-              <><Eye className="w-3.5 h-3.5 text-amber-200" /> <span className="hidden sm:inline">Privacy Mode: Off</span></>
-            ) : (
-              <><EyeOff className="w-3.5 h-3.5 text-emerald-300" /> <span className="hidden sm:inline">Privacy Mode: On</span></>
-            )}
-          </button>
-
-          {/* Clear Language Switcher */}
-          <div className="inline-flex bg-[#065451] p-0.5 border border-[#086b68] rounded-none font-sans text-xs">
-            <button
-              type="button"
-              id="lang-toggle-en"
-              onClick={() => setActiveLanguage('EN')}
-              className={`px-2 py-1 text-[10px] font-bold cursor-pointer rounded-none uppercase transition-colors ${
-                activeLanguage === 'EN' ? 'bg-[#0d9488] text-white font-black' : 'text-teal-100 hover:text-white'
-              }`}
-              title="Switch to English"
-            >
-              English (EN)
-            </button>
-            <button
-              type="button"
-              id="lang-toggle-bm"
-              onClick={() => setActiveLanguage('BM')}
-              className={`px-2 py-1 text-[10px] font-bold cursor-pointer rounded-none uppercase transition-colors ${
-                activeLanguage === 'BM' ? 'bg-[#0d9488] text-white font-black' : 'text-teal-100 hover:text-white'
-              }`}
-              title="Switch to Bahasa Melayu"
-            >
-              BM
-            </button>
-          </div>
-
-          {/* User & Workstation Menu Dropdown */}
+          {/* Combined Workstation Settings & Profile Menu Trigger */}
           <div className="relative">
             <button 
+              type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 bg-[#086b68] hover:bg-[#065451] border border-[#065451] px-2.5 py-1 rounded-none cursor-pointer transition-colors shadow-2xs"
+              className="flex items-center gap-2 bg-[#086b68] hover:bg-[#065451] border border-[#065451] px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none"
+              title="Workstation settings, user profile, and preferences"
+              aria-expanded={showUserMenu}
             >
-              <div className="w-5 h-5 bg-[#0a837f] text-white font-mono text-[10px] font-black flex items-center justify-center rounded-none">
+              <div className="w-6 h-6 bg-[#0a837f] text-white font-mono text-[11px] font-black flex items-center justify-center rounded-none border border-teal-300/40">
                 {getUserInitials(userName)}
               </div>
-              <span className="text-teal-100 hidden sm:inline text-xs font-mono font-bold uppercase">
-                {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)} Suite` : 'Suite'}
-              </span>
-              <ChevronDown className="w-3 h-3 text-teal-200" />
+              <div className="text-left hidden sm:block">
+                <p className="text-white text-xs font-bold leading-none">{userName || 'Clinician'}</p>
+                <p className="text-[9px] text-teal-100 font-mono uppercase tracking-wider mt-0.5">
+                  {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)}` : 'Staff'}
+                </p>
+              </div>
+              <Settings className="w-4 h-4 text-teal-100 ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-teal-200" />
             </button>
 
+            {/* Consolidated Workstation Settings & Utility Popover Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 top-10 w-64 bg-[#07252d] border border-teal-800/60 p-3 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
-                <div className="border-b border-teal-800/40 pb-2">
-                  <p className="font-bold text-sm text-[#5eead4]">{userName || 'Clinician'}</p>
-                  <p className="text-[10px] text-teal-200 font-mono uppercase">{userRole} Suite • Workstation #04</p>
+              <div className="absolute right-0 top-12 w-72 bg-[#07252d] border border-teal-800/80 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
+                <div className="flex items-center justify-between border-b border-teal-800/40 pb-2.5">
+                  <div>
+                    <p className="font-extrabold text-sm text-[#5eead4]">{userName || 'Clinician'}</p>
+                    <p className="text-[10px] text-teal-200 font-mono uppercase">{userRole} Suite • Station #04</p>
+                  </div>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active workstation session"></span>
                 </div>
 
-                <div className="space-y-1.5 text-xs">
+                {/* Utility Section: Workstation Settings */}
+                <div className="space-y-2.5 pt-1">
+                  <p className="text-[10px] font-mono uppercase text-teal-300 tracking-wider font-extrabold">Workstation Settings</p>
+                  
+                  {/* 1. Day / Night Shift Mode Toggle */}
+                  <div className="flex items-center justify-between bg-[#0b333d] p-2 border border-teal-900/60">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
+                      {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-200" />}
+                      <span>Theme Mode</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsNightShift(!isNightShift)}
+                      className={`px-2.5 py-1 text-[10px] font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                        isNightShift ? 'bg-indigo-950 text-amber-300 border-indigo-700' : 'bg-teal-700 text-white border-teal-600'
+                      }`}
+                    >
+                      {isNightShift ? 'Night Shift' : 'Day Mode'}
+                    </button>
+                  </div>
+
+                  {/* 2. Privacy Mode (PII Masking) Toggle */}
+                  <div className="flex items-center justify-between bg-[#0b333d] p-2 border border-teal-900/60">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
+                      {showPII ? <Eye className="w-3.5 h-3.5 text-amber-200" /> : <EyeOff className="w-3.5 h-3.5 text-emerald-300" />}
+                      <span>Privacy Mask</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowPII(!showPII)}
+                      className={`px-2.5 py-1 text-[10px] font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                        showPII ? 'bg-amber-500/30 text-amber-100 border-amber-400/50' : 'bg-emerald-500/30 text-emerald-200 border-emerald-400/40'
+                      }`}
+                    >
+                      {showPII ? 'Off (Exposed)' : 'On (Masked)'}
+                    </button>
+                  </div>
+
+                  {/* 3. PWA Network State Simulator */}
+                  <div className="flex items-center justify-between bg-[#0b333d] p-2 border border-teal-900/60">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
+                      {isOnline ? <Wifi className="w-3.5 h-3.5 text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-300" />}
+                      <span>Network State</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsOnline(!isOnline)}
+                      className={`px-2.5 py-1 text-[10px] font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                        isOnline ? 'bg-emerald-700 text-white border-emerald-600' : 'bg-rose-900 text-rose-200 border-rose-700'
+                      }`}
+                    >
+                      {isOnline ? 'Online' : 'Simulate Offline'}
+                    </button>
+                  </div>
+
+                  {/* 4. Language Switcher */}
+                  <div className="flex items-center justify-between bg-[#0b333d] p-2 border border-teal-900/60">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-teal-200" />
+                      <span>Language</span>
+                    </span>
+                    <div className="inline-flex border border-teal-700 font-mono text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('EN')}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'EN' ? 'bg-[#0d9488] text-white font-bold' : 'text-teal-200 hover:text-white'}`}
+                      >
+                        EN
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('BM')}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'BM' ? 'bg-[#0d9488] text-white font-bold' : 'text-teal-200 hover:text-white'}`}
+                      >
+                        BM
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sign Out Action */}
+                <div className="border-t border-teal-800/40 pt-2.5">
                   <button 
+                    type="button"
                     onClick={() => {
                       setShowUserMenu(false);
                       setShowSignOutConfirm(true);
                     }}
-                    className="w-full text-left px-3 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-200 border border-rose-800/40 font-bold flex items-center gap-2 rounded-none transition-colors"
+                    className="w-full text-left px-3 py-2 bg-rose-950/50 hover:bg-rose-900/80 text-rose-200 border border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
                   >
-                    <LogOut className="w-4 h-4 text-rose-400" /> Sign Out Workstation...
+                    <span className="flex items-center gap-2">
+                      <LogOut className="w-4 h-4 text-rose-400" /> Sign Out Workstation...
+                    </span>
+                    <ChevronRight className="w-3.5 h-3.5 text-rose-300" />
                   </button>
                 </div>
               </div>

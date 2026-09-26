@@ -82,7 +82,7 @@ export default function DoctorDashboardModule({
     
     if (allergies > 0 || waitMins >= 30 || temp >= 38.0) {
       return {
-        level: 'HIGH',
+        level: 'High',
         stripColor: 'border-l-4 border-l-rose-600 dark:border-l-rose-500',
         badgeBg: 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-rose-300 dark:border-rose-800 font-extrabold',
         icon: AlertCircle,
@@ -90,7 +90,7 @@ export default function DoctorDashboardModule({
       };
     } else if (waitMins >= 15 || temp >= 37.3) {
       return {
-        level: 'MED',
+        level: 'Medium',
         stripColor: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
         badgeBg: 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800 font-extrabold',
         icon: Clock,
@@ -98,7 +98,7 @@ export default function DoctorDashboardModule({
       };
     } else {
       return {
-        level: 'LOW',
+        level: 'Low',
         stripColor: 'border-l-4 border-l-emerald-500 dark:border-l-emerald-400',
         badgeBg: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800 font-extrabold',
         icon: CheckCircle2,
@@ -270,10 +270,10 @@ export default function DoctorDashboardModule({
                     <div>
                       <h3 className="text-base font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
                         <Users className="w-5 h-5 text-[#0d9488]" />
-                        Active Outpatient Waiting Queue
+                        Patient Queue
                       </h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
-                        Triaged outpatient consultation queue with severity flags and instant searchability.
+                        Triaged outpatient consultation queue organized for quick scanning and decisive workflow management.
                       </p>
                     </div>
 
@@ -281,7 +281,7 @@ export default function DoctorDashboardModule({
                     <div className="flex flex-wrap items-center gap-2 font-mono text-xs font-bold">
                       <span className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40 px-3 py-1.5 rounded-none flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5 text-[#0d9488]" />
-                        <span>{doctorQueue.length} Waiting</span>
+                        <span>{doctorQueue.length} {doctorQueue.length === 1 ? 'patient waiting' : 'patients waiting'}</span>
                       </span>
 
                       <span className="bg-rose-50 dark:bg-rose-950/70 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 px-3 py-1.5 rounded-none flex items-center gap-1.5">
@@ -289,9 +289,12 @@ export default function DoctorDashboardModule({
                         <span>{highPriorityCount} High Priority</span>
                       </span>
 
-                      <span className="bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800 px-3 py-1.5 rounded-none flex items-center gap-1.5">
+                      <span 
+                        className="bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800 px-3 py-1.5 rounded-none flex items-center gap-1.5 cursor-help"
+                        title="Patients waiting over 20 minutes target clinical turnaround time"
+                      >
                         <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>{overSlaCount} Over SLA (&gt;20m)</span>
+                        <span>{overSlaCount} Waiting over 20 min</span>
                       </span>
 
                       <span className="bg-sky-50 dark:bg-sky-950/70 text-sky-800 dark:text-sky-200 border border-sky-300 dark:border-sky-800 px-3 py-1.5 rounded-none">
@@ -300,7 +303,7 @@ export default function DoctorDashboardModule({
                     </div>
                   </div>
 
-                  {/* Sorting Controls & Data Freshness Indicator */}
+                  {/* Sorting Controls & Refresh Action */}
                   <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#ccfbf1] dark:border-teal-800/40 text-xs font-medium">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
@@ -328,19 +331,22 @@ export default function DoctorDashboardModule({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        Last synced: <strong>{lastSyncedText}</strong>
-                      </span>
+                      {isRefreshingQueue && (
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          Refreshing...
+                        </span>
+                      )}
                       <button
                         type="button"
                         onClick={handleManualQueueRefresh}
                         disabled={isRefreshingQueue}
-                        className="p-1.5 bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] rounded-none transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
-                        title="Refresh data sync"
+                        className="px-2.5 py-1 bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] rounded-none transition-all cursor-pointer font-bold flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none text-xs"
+                        title="Refresh clinical queue data"
                         aria-label="Refresh clinical queue data"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingQueue ? 'animate-spin' : ''}`} />
+                        <span>Refresh</span>
                       </button>
                     </div>
                   </div>
@@ -390,7 +396,6 @@ export default function DoctorDashboardModule({
               const nextVisit = sortedQueue[0];
               const nextPatient = patientsMap[nextVisit.patientId];
               const remainingQueue = sortedQueue.slice(1);
-              const isNextCalled = calledVisitId === nextVisit.id;
 
               return (
                 <div className="space-y-4">
@@ -419,7 +424,7 @@ export default function DoctorDashboardModule({
                           {/* Allergy Badge */}
                           {renderAllergyBadge(nextPatient.drugAllergies)}
 
-                          {/* Called timestamp badge */}
+                          {/* Called timestamp badge & explicit workflow feedback */}
                           {calledTimestampMap[nextVisit.id] && (
                             <span className="bg-emerald-400 text-[#0f3c4c] text-[10px] font-black uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center gap-1">
                               📢 Called at {calledTimestampMap[nextVisit.id]}
@@ -427,13 +432,19 @@ export default function DoctorDashboardModule({
                           )}
                         </div>
 
-                        {/* Stepper Indicator */}
-                        <div className="text-[11px] font-mono font-bold text-teal-200 bg-black/30 px-3 py-1 border border-white/10 rounded-none">
-                          {activeConsultationVisitId === nextVisit.id
-                            ? 'Step 3 of 3: Consultation Active'
-                            : calledVisitId === nextVisit.id
-                            ? 'Step 2 of 3: Patient Called'
-                            : 'Step 1 of 3: Patient Ready'}
+                        {/* Full 3-Step Visual Workflow Tracker */}
+                        <div className="text-[11px] font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center gap-1.5">
+                          <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-extrabold underline'}>
+                            Ready
+                          </span>
+                          <span className="text-teal-400">→</span>
+                          <span className={calledVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                            Called
+                          </span>
+                          <span className="text-teal-400">→</span>
+                          <span className={activeConsultationVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                            In Consultation
+                          </span>
                         </div>
                       </div>
 
@@ -475,7 +486,7 @@ export default function DoctorDashboardModule({
                           <button
                             type="button"
                             onClick={() => toggleDetails(nextVisit.id)}
-                            className="px-3.5 py-2.5 rounded-none text-xs font-extrabold bg-white/10 hover:bg-white/20 text-teal-100 border border-white/20 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                            className="px-3 py-2 rounded-none text-xs font-bold text-teal-100 hover:text-white underline cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
                           >
                             {expandedDetails[nextVisit.id] ? 'Hide details' : 'More details'}
                           </button>
@@ -484,17 +495,27 @@ export default function DoctorDashboardModule({
                             <button
                               type="button"
                               onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="px-5 py-2.5 rounded-none text-xs font-black bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] shadow-md flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                              className="px-6 py-2.5 rounded-none text-xs font-black bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
                             >
                               <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
-                              <span>Resume consultation</span>
+                              <span>Move to consultation</span>
+                              <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
+                            </button>
+                          ) : calledVisitId === nextVisit.id ? (
+                            <button
+                              type="button"
+                              onClick={() => handleStartConsultation(nextVisit.id)}
+                              className="px-6 py-2.5 rounded-none text-xs font-black bg-emerald-400 hover:bg-emerald-300 text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                            >
+                              <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
+                              <span>Move to consultation</span>
                               <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
                             </button>
                           ) : (
                             <button
                               type="button"
                               onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
-                              className="px-5 py-2.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-md flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                              className="px-6 py-2.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
                             >
                               <Volume2 className="w-4 h-4 text-white" />
                               <span>Call patient</span>
@@ -526,19 +547,19 @@ export default function DoctorDashboardModule({
                     </div>
                   )}
 
-                  {/* REMAINING PATIENTS LIST (#2 ONWARDS) */}
-                  {remainingQueue.length > 0 ? (
+                  {/* REMAINING PATIENTS LIST (#2 ONWARDS) - COMPACT ROW GRID */}
+                  {remainingQueue.length > 0 && (
                     <div className="space-y-3 pt-2 border-t border-[#b2f5ea] dark:border-teal-800/40">
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
-                          <span>Subsequent Queue Items ({remainingQueue.length} Waiting)</span>
+                          <span>Subsequent Patients ({remainingQueue.length} Waiting)</span>
                         </h4>
                         <span className="text-[11px] text-slate-500 font-mono font-medium">
                           Active Sort: <strong className="text-[#0d9488]">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
                         </span>
                       </div>
 
-                      <div className="flex flex-col gap-2.5">
+                      <div className="flex flex-col gap-2">
                         {remainingQueue.map((visit, index) => {
                           const pt = patientsMap[visit.patientId];
                           if (!pt) return null;
@@ -552,17 +573,20 @@ export default function DoctorDashboardModule({
                           return (
                             <div
                               key={visit.id}
-                              className={`border rounded-none ${triage.stripColor} transition-all p-3 space-y-2.5 ${
+                              tabIndex={0}
+                              onClick={() => toggleDetails(visit.id)}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
+                              className={`border rounded-none ${triage.stripColor} transition-all p-3 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
                                 isConsulting 
                                   ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
                                   : 'bg-white dark:bg-[#0c3844] hover:bg-[#f0fdfa] dark:hover:bg-[#0e4857] border-slate-200 dark:border-teal-800/50'
                               }`}
                             >
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                                 
-                                {/* Left: Queue # + Urgency Badge + Name + Chief Complaint */}
-                                <div className="flex items-center gap-3 min-w-0">
-                                  <div className="w-8 h-8 bg-[#e0f5f2] dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-800/40 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
+                                {/* Col 1-4: Queue # + Name + ID + Triage & Allergy */}
+                                <div className="md:col-span-5 flex items-center gap-3 min-w-0">
+                                  <div className="w-7 h-7 bg-[#e0f5f2] dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-800/40 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
                                     #{queuePosition}
                                   </div>
 
@@ -579,44 +603,33 @@ export default function DoctorDashboardModule({
                                         <span>{triage.level}</span>
                                       </span>
 
-                                      {/* Standardized Allergy Badge */}
+                                      {/* Allergy Badge */}
                                       {renderAllergyBadge(pt.drugAllergies)}
-
-                                      {/* Called Timestamp Badge */}
-                                      {calledTimestampMap[visit.id] && (
-                                        <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-none uppercase tracking-wider border border-emerald-300 dark:border-emerald-800 font-mono animate-pulse">
-                                          📢 Called at {calledTimestampMap[visit.id]}
-                                        </span>
-                                      )}
-                                    </div>
-
-                                    <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
-                                      <span className="font-bold text-[#0d9488] dark:text-[#2dd4bf]">
-                                        Complaint: {getChiefComplaintLabel(visit.soap?.subjective)}
-                                      </span>
-                                      <span className="opacity-40">•</span>
-                                      <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">
-                                        Wait: <strong>{waitMins}m</strong>
-                                      </span>
                                     </div>
                                   </div>
                                 </div>
 
-                                {/* Right: Contextual Primary Action + Secondary Details Toggle */}
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleDetails(visit.id)}
-                                    className="px-2.5 py-1.5 rounded-none text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-[#082830] hover:bg-slate-200 dark:hover:bg-[#0f766e] border border-slate-300 dark:border-teal-800/40 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
-                                  >
-                                    {isExpanded ? 'Hide' : 'More details'}
-                                  </button>
+                                {/* Col 5-8: Chief Complaint */}
+                                <div className="md:col-span-4 min-w-0">
+                                  <span className="text-xs font-bold text-[#0d9488] dark:text-[#2dd4bf] truncate block">
+                                    {getChiefComplaintLabel(visit.soap?.subjective)}
+                                  </span>
+                                </div>
 
+                                {/* Col 9-10: Dedicated Aligned Wait Time Column */}
+                                <div className="md:col-span-1 font-mono text-xs text-slate-600 dark:text-slate-300 font-bold text-left md:text-center">
+                                  <span className={waitMins >= 20 ? 'text-amber-600 dark:text-amber-400 font-black' : ''}>
+                                    {waitMins}m wait
+                                  </span>
+                                </div>
+
+                                {/* Col 11-12: Action / Call Button */}
+                                <div className="md:col-span-2 flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                                   {isConsulting ? (
                                     <button
                                       type="button"
                                       onClick={() => handleStartConsultation(visit.id)}
-                                      className="px-3.5 py-1.5 rounded-none text-xs font-extrabold bg-[#0f3c4c] dark:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                      className="px-3 py-1.5 rounded-none text-xs font-extrabold bg-[#0f3c4c] dark:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
                                     >
                                       <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
                                       <span>Resume</span>
@@ -625,16 +638,17 @@ export default function DoctorDashboardModule({
                                     <button
                                       type="button"
                                       onClick={() => handleCallPatient(visit.id, pt.fullName)}
-                                      className="px-3.5 py-1.5 rounded-none text-xs font-extrabold bg-[#0d9488] hover:bg-[#0f766e] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-slate-100 hover:bg-[#0d9488] text-slate-800 hover:text-white dark:bg-[#082830] dark:hover:bg-[#0d9488] border border-slate-300 dark:border-teal-800/40 transition-all cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
                                     >
-                                      <Volume2 className="w-3.5 h-3.5 text-white" />
-                                      <span>Call patient</span>
+                                      <Volume2 className="w-3 h-3" />
+                                      <span>Call</span>
                                     </button>
                                   )}
+                                  <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90 text-[#0d9488]' : ''}`} />
                                 </div>
                               </div>
 
-                              {/* Secondary Drawer */}
+                              {/* Expandable Details Drawer */}
                               {isExpanded && (
                                 <div className="pt-2.5 mt-2 border-t border-slate-200 dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-[#082830] p-3 rounded-none space-y-2 animate-fadeIn">
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -648,14 +662,7 @@ export default function DoctorDashboardModule({
                                     </div>
                                     <div>
                                       <strong className="block text-slate-900 dark:text-white font-bold mb-0.5">Demographics &amp; Vitals:</strong>
-                                      <p className="text-slate-600 dark:text-slate-300 font-mono text-[11px]">
-                                        {pt.gender}, DOB: {pt.dob} · Contact: {pt.phone}
-                                      </p>
-                                      {visit.soap?.objective && visit.soap.objective.temperature > 0 && (
-                                        <p className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-1">
-                                          BP: {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg | Temp: {visit.soap.objective.temperature}°C | HR: {visit.soap.objective.heartRate} bpm
-                                        </p>
-                                      )}
+                                      <p className="text-slate-600 dark:text-slate-300">{pt.gender}, {pt.dob} · {pt.phone}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -664,10 +671,6 @@ export default function DoctorDashboardModule({
                           );
                         })}
                       </div>
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-[#e0f5f2]/40 dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-800/40 rounded-none text-center text-xs text-slate-500 dark:text-slate-400 italic font-medium">
-                      No additional outpatients waiting in queue after Patient #1.
                     </div>
                   )}
                 </div>
