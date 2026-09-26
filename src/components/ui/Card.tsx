@@ -9,7 +9,7 @@ interface CardProps {
 
 export function Card({ children, className = '' }: CardProps) {
   return (
-    <div className={`bg-white rounded-none border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden ${className}`}>
+    <div className={`bg-[#f7fdfd] dark:bg-[#07252d] rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs overflow-hidden ${className}`}>
       {children}
     </div>
   );
@@ -17,7 +17,7 @@ export function Card({ children, className = '' }: CardProps) {
 
 export function CardHeader({ children, className = '' }: CardProps) {
   return (
-    <div className={`px-6 py-5 border-b border-slate-100 ${className}`}>
+    <div className={`px-6 py-5 border-b border-[#ccfbf1] dark:border-teal-800/40 bg-[#f0fdfa] dark:bg-[#082830] ${className}`}>
       {children}
     </div>
   );
@@ -25,7 +25,7 @@ export function CardHeader({ children, className = '' }: CardProps) {
 
 export function CardTitle({ children, className = '' }: CardProps) {
   return (
-    <h3 className={`font-bold text-lg text-slate-800 tracking-tight ${className}`}>
+    <h3 className={`font-black text-lg text-[#0f3c4c] dark:text-[#5eead4] tracking-tight uppercase ${className}`}>
       {children}
     </h3>
   );
@@ -33,7 +33,7 @@ export function CardTitle({ children, className = '' }: CardProps) {
 
 export function CardDescription({ children, className = '' }: CardProps) {
   return (
-    <p className={`text-sm text-slate-500 mt-1 ${className}`}>
+    <p className={`text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium ${className}`}>
       {children}
     </p>
   );
@@ -49,7 +49,7 @@ export function CardContent({ children, className = '' }: CardProps) {
 
 export function CardFooter({ children, className = '' }: CardProps) {
   return (
-    <div className={`px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center ${className}`}>
+    <div className={`px-6 py-4 bg-[#f0fdfa] dark:bg-[#082830] border-t border-[#ccfbf1] dark:border-teal-800/40 flex items-center ${className}`}>
       {children}
     </div>
   );

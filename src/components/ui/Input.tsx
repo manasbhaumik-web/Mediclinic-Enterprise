@@ -37,12 +37,12 @@ export default function Input({ icon, error, label, className = '', id, ...props
         <input
           id={generatedId}
           className={`
-            w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl outline-none 
+            w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 text-slate-900 dark:text-white rounded-none outline-none 
             transition-all duration-200 placeholder:text-slate-400
-            focus:ring-2 focus:ring-[#0D9488]/20 focus:border-[#0D9488] focus:bg-white
+            focus:ring-2 focus:ring-[#0d9488]/20 focus:border-[#0d9488] focus:bg-white dark:focus:bg-[#0c3844]
             ${icon ? 'pl-10' : 'pl-4'} 
             pr-4 py-2.5 sm:text-sm
-            ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : ''}
+            ${error ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : ''}
             ${className}
           `}
           {...props}

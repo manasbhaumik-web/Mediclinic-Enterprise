@@ -83,26 +83,26 @@ export default function DoctorDashboardModule({
     if (allergies > 0 || waitMins >= 30 || temp >= 38.0) {
       return {
         level: 'HIGH',
-        stripColor: 'border-l-4 border-l-red-600 dark:border-l-red-500',
-        badgeBg: 'bg-red-50 dark:bg-red-950/90 text-red-950 dark:text-red-100 border-2 border-red-600 dark:border-red-500 font-extrabold',
+        stripColor: 'border-l-4 border-l-rose-600 dark:border-l-rose-500',
+        badgeBg: 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-rose-300 dark:border-rose-800 font-extrabold',
         icon: AlertCircle,
-        iconColor: 'text-red-600 dark:text-red-400'
+        iconColor: 'text-rose-600 dark:text-rose-400'
       };
     } else if (waitMins >= 15 || temp >= 37.3) {
       return {
         level: 'MED',
         stripColor: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
-        badgeBg: 'bg-amber-50 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 border border-amber-500 dark:border-amber-600 font-extrabold',
+        badgeBg: 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800 font-extrabold',
         icon: Clock,
-        iconColor: 'text-amber-700 dark:text-amber-400'
+        iconColor: 'text-amber-600 dark:text-amber-400'
       };
     } else {
       return {
         level: 'LOW',
-        stripColor: 'border-l-4 border-l-slate-400 dark:border-l-slate-600',
-        badgeBg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-extrabold',
+        stripColor: 'border-l-4 border-l-emerald-500 dark:border-l-emerald-400',
+        badgeBg: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800 font-extrabold',
         icon: CheckCircle2,
-        iconColor: 'text-slate-600 dark:text-slate-400'
+        iconColor: 'text-emerald-600 dark:text-emerald-400'
       };
     }
   };
@@ -110,8 +110,8 @@ export default function DoctorDashboardModule({
   const renderAllergyBadge = (drugAllergies: string[] = []) => {
     if (drugAllergies.length === 0) return null;
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none text-[11px] font-bold uppercase tracking-wider bg-red-50 dark:bg-red-950/90 text-red-950 dark:text-red-100 border-2 border-red-600 shadow-2xs font-mono shrink-0">
-        <AlertCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400 shrink-0" />
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none text-[11px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border-2 border-rose-600 shadow-2xs font-mono shrink-0">
+        <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
         <span>Allergy: {drugAllergies.join(', ')}</span>
       </span>
     );
@@ -237,12 +237,12 @@ export default function DoctorDashboardModule({
       
       {/* Step 1 Call Announcement Toast */}
       {callAnnouncementToast && (
-        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-none shadow-2xl border border-sky-500/40 flex items-center gap-3 animate-bounce-slow">
-          <div className="w-8 h-8 bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold">
+        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-teal-500/40 flex items-center gap-3 animate-bounce-slow">
+          <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold">
             📢
           </div>
           <div>
-            <h4 className="text-xs font-bold text-sky-300">Public PA Call System</h4>
+            <h4 className="text-xs font-bold text-teal-300">Public PA Call System</h4>
             <p className="text-xs text-slate-200 font-medium">{callAnnouncementToast}</p>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function DoctorDashboardModule({
       {/* ========================================================================= */}
       {internalTab === 'queue' && (
         <div className="space-y-4 animate-fadeIn">
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-none shadow-xs space-y-4">
+          <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-5 rounded-none shadow-sm space-y-4">
             
             {/* QUEUE HEADER TOOLBAR WITH ACTIONABLE METRICS */}
             {(() => {
@@ -265,11 +265,11 @@ export default function DoctorDashboardModule({
               }, 0);
 
               return (
-                <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4 rounded-none space-y-3">
+                <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 p-4 rounded-none space-y-3">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                        <Users className="w-5 h-5 text-[#0284c7]" />
+                      <h3 className="text-base font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
+                        <Users className="w-5 h-5 text-[#0d9488]" />
                         Active Outpatient Waiting Queue
                       </h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
@@ -279,43 +279,43 @@ export default function DoctorDashboardModule({
 
                     {/* Actionable Metrics Summary Row */}
                     <div className="flex flex-wrap items-center gap-2 font-mono text-xs font-bold">
-                      <span className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-none flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-[#0284c7]" />
+                      <span className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40 px-3 py-1.5 rounded-none flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-[#0d9488]" />
                         <span>{doctorQueue.length} Waiting</span>
                       </span>
 
-                      <span className="bg-red-50 dark:bg-red-950/80 text-red-950 dark:text-red-100 border-2 border-red-600 dark:border-red-500 px-3 py-1.5 rounded-none flex items-center gap-1.5 font-extrabold">
-                        <AlertCircle className="w-3.5 h-3.5 text-red-600" />
+                      <span className="bg-rose-50 dark:bg-rose-950/70 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 px-3 py-1.5 rounded-none flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
                         <span>{highPriorityCount} High Priority</span>
                       </span>
 
-                      <span className="bg-amber-50 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 border border-amber-500 dark:border-amber-600 px-3 py-1.5 rounded-none flex items-center gap-1.5 font-extrabold">
-                        <Clock className="w-3.5 h-3.5 text-amber-700" />
+                      <span className="bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800 px-3 py-1.5 rounded-none flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
                         <span>{overSlaCount} Over SLA (&gt;20m)</span>
                       </span>
 
-                      <span className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-none">
+                      <span className="bg-sky-50 dark:bg-sky-950/70 text-sky-800 dark:text-sky-200 border border-sky-300 dark:border-sky-800 px-3 py-1.5 rounded-none">
                         Longest Wait: <strong>{maxWaitMinutes} min</strong>
                       </span>
                     </div>
                   </div>
 
                   {/* Sorting Controls & Data Freshness Indicator */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs font-medium">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#ccfbf1] dark:border-teal-800/40 text-xs font-medium">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
-                        <Filter className="w-3.5 h-3.5 text-[#0284c7]" /> Sort By:
+                        <Filter className="w-3.5 h-3.5 text-[#0d9488]" /> Sort By:
                       </span>
-                      <div className="inline-flex bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-0.5 rounded-none">
+                      <div className="inline-flex bg-white dark:bg-[#0c3844] border border-[#ccfbf1] dark:border-teal-800/40 p-0.5 rounded-none">
                         {(['urgency', 'wait', 'arrival'] as const).map((r) => (
                           <button
                             key={r}
                             type="button"
                             onClick={() => setSortRule(r)}
-                            className={`px-3 py-1 text-xs font-bold transition-all cursor-pointer rounded-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
+                            className={`px-3 py-1 text-xs font-bold transition-all cursor-pointer rounded-none focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
                               sortRule === r
-                                ? 'bg-[#0284c7] text-white shadow-2xs'
-                                : 'text-slate-700 hover:text-slate-900 dark:text-slate-300'
+                                ? 'bg-[#0d9488] text-white shadow-2xs'
+                                : 'text-slate-600 hover:text-slate-900 dark:text-slate-300'
                             }`}
                           >
                             {r === 'urgency' ? 'Clinical urgency' : r === 'wait' ? 'Longest wait' : 'Arrival order'}
@@ -336,7 +336,7 @@ export default function DoctorDashboardModule({
                         type="button"
                         onClick={handleManualQueueRefresh}
                         disabled={isRefreshingQueue}
-                        className="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-none transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+                        className="p-1.5 bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] rounded-none transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
                         title="Refresh data sync"
                         aria-label="Refresh clinical queue data"
                       >
