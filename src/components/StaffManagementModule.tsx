@@ -303,14 +303,14 @@ export default function StaffManagementModule() {
       ) : (
         <>
           {/* 3. SUB-TAB NAVIGATION SEGMENTED CONTROL */}
-          <div className="flex items-center gap-1.5 border-b border-[#ccfbf1] pb-px text-xs font-bold">
+          <div className="flex items-stretch gap-0 bg-[#d5f0eb] border-b border-[#99f6e4] text-xs font-bold h-10 overflow-x-auto">
             <button
               type="button"
               onClick={() => setActiveTab('directory')}
-              className={`px-4 py-2.5 rounded-none border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'directory' 
-                  ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#f0fdfa]' 
-                  : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
+                  ? 'bg-[#0a837f] text-white font-black' 
+                  : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'
               }`}
             >
               <User className="w-4 h-4" />
@@ -320,10 +320,10 @@ export default function StaffManagementModule() {
             <button
               type="button"
               onClick={() => setActiveTab('payroll')}
-              className={`px-4 py-2.5 rounded-none border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'payroll' 
-                  ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#f0fdfa]' 
-                  : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
+                  ? 'bg-[#0a837f] text-white font-black' 
+                  : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'
               }`}
             >
               <DollarSign className="w-4 h-4" />
@@ -333,10 +333,10 @@ export default function StaffManagementModule() {
             <button
               type="button"
               onClick={() => setActiveTab('attendance')}
-              className={`px-4 py-2.5 rounded-none border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'attendance' 
-                  ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#f0fdfa]' 
-                  : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
+                  ? 'bg-[#0a837f] text-white font-black' 
+                  : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'
               }`}
             >
               <Calendar className="w-4 h-4" />
