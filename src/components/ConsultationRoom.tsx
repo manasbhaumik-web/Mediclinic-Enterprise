@@ -400,21 +400,21 @@ export default function ConsultationRoom({
       {/* HIGH-PRIORITY PERSISTENT DRUG ALLERGY SAFETY ALERT BANNER                 */}
       {/* ========================================================================= */}
       {currentPatient.drugAllergies.length > 0 && (
-        <div className="bg-rose-50 dark:bg-rose-950/70 border-2 border-rose-400 dark:border-rose-700 p-3.5 rounded-none flex items-center justify-between gap-3 text-rose-900 dark:text-rose-200 shadow-xs animate-fadeIn">
+        <div className="bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 p-3.5 rounded-none flex items-center justify-between gap-3 text-rose-900 dark:text-rose-200 shadow-2xs animate-fadeIn">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-none bg-rose-600 text-white flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-none bg-rose-500 text-white flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-4.5 h-4.5" />
             </div>
             <div>
-              <div className="text-xs font-black uppercase tracking-wide flex items-center gap-2 text-rose-700 dark:text-rose-300">
+              <div className="text-xs font-bold uppercase tracking-wide flex items-center gap-2 text-rose-800 dark:text-rose-300">
                 <span>CRITICAL PATIENT SAFETY ALERT: REGISTERED DRUG ALLERGIES</span>
               </div>
-              <p className="text-xs mt-0.5 font-medium">
+              <p className="text-xs mt-0.5 font-medium text-rose-700/90 dark:text-rose-300/90">
                 Patient registered allergies: <strong className="font-extrabold underline uppercase">{currentPatient.drugAllergies.join(', ')}</strong>. Automatic contraindication checks active.
               </p>
             </div>
           </div>
-          <span className="bg-rose-600 text-white font-mono text-[10px] font-black uppercase px-2.5 py-1 rounded-none shrink-0">
+          <span className="bg-rose-500 text-white font-mono text-[10px] font-bold uppercase px-2.5 py-1 rounded-none shrink-0">
             SAFETY CHECKS ENFORCED
           </span>
         </div>
