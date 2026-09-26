@@ -8,8 +8,8 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f7fdfd;
-  color: #0f3c4c;
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 /* Enforce flat, sharp square corners (zero border-radius) across ALL cards, buttons, inputs, tabs, div containers, and workspace elements */
@@ -62,23 +62,23 @@ span.bg-amber-500,
 
 @layer utilities {
   .ice-mint-header {
-    @apply bg-[#f0fdfa]/95 backdrop-blur-md border-b border-[#ccfbf1] shadow-xs text-[#0f3c4c];
+    @apply bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs text-slate-900;
   }
 
   .ice-mint-card {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-[0_4px_20px_rgba(13,148,136,0.06)] rounded-none overflow-hidden transition-colors duration-200;
+    @apply bg-white border border-slate-200 shadow-xs rounded-none overflow-hidden transition-colors duration-200;
   }
 
   .ice-mint-card-interactive {
-    @apply bg-[#f7fdfd] border border-[#ccfbf1] shadow-xs rounded-none transition-all duration-200 hover:bg-[#f0fdfa] hover:shadow-sm;
+    @apply bg-white border border-slate-200 shadow-xs rounded-none transition-all duration-200 hover:bg-slate-50 hover:shadow-sm;
   }
 
   .ice-mint-panel {
-    @apply bg-[#f0fdfa] border border-[#ccfbf1] shadow-md rounded-none;
+    @apply bg-slate-50 border border-slate-200 shadow-xs rounded-none;
   }
 
   .mint-badge {
-    @apply bg-[#e6f4f1] text-[#0d9488] border border-[#ccfbf1] px-2.5 py-1 rounded-none font-bold text-[10px];
+    @apply bg-slate-100 text-slate-800 border border-slate-300 px-2.5 py-1 rounded-none font-bold text-[10px];
   }
 
   .custom-scrollbar::-webkit-scrollbar {
