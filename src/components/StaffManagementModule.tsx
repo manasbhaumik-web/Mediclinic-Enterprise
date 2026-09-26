@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, X, 
   DollarSign, CheckCircle, Clock, Calendar, AlertCircle,
-  FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw
+  FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw, CheckCircle2, ArrowRight, Activity
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../lib/supabase';
@@ -219,17 +219,21 @@ export default function StaffManagementModule() {
   return (
     <div className="animate-fadeIn max-w-6xl mx-auto space-y-6">
       
-      {/* Page Title & Actions Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+      {/* 1. STRUCTURED PAGE HEADER BANNER */}
+      <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="space-y-1.5 z-10">
+          <div className="inline-flex items-center gap-1.5 bg-[#e6f4f1] border border-[#ccfbf1] px-2.5 py-0.5 text-[10px] font-black uppercase text-[#0d9488] tracking-widest">
+            <Activity className="w-3 h-3" />
+            <span>Human Resources &amp; Workforce Governance</span>
+          </div>
           <h2 className="text-2xl font-black text-[#0f3c4c] tracking-tight">Staff &amp; HR Management</h2>
-          <p className="text-xs text-slate-500 font-medium">
-            Manage personnel directory, process monthly payroll, and track leave balances.
+          <p className="text-xs text-slate-600 font-medium max-w-xl">
+            Personnel Directory, Payroll Disbursements, and Leave Attendance Tracker.
           </p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-2.5">
-          {activeTab === 'directory' && (
+        <div className="flex flex-wrap items-center gap-2.5 z-10">
+          {activeTab === 'directory' && currentView === 'list' && (
             <>
               <button 
                 type="button"
@@ -256,6 +260,29 @@ export default function StaffManagementModule() {
         </div>
       </div>
 
+      {/* 2. TOP METRICS CARDS ROW (Gives immediate structure & balance) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Registered Personnel</span>
+          <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">{staffList.length} Members</span>
+        </div>
+
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Active Duty Staff</span>
+          <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">{activeCount} Active</span>
+        </div>
+
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Est. Monthly Payroll</span>
+          <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">RM {totalPayroll.toLocaleString()}</span>
+        </div>
+
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Pending Disbursals</span>
+          <span className="text-xl font-black font-mono text-amber-700 block mt-0.5">{pendingPayments} Pending</span>
+        </div>
+      </div>
+
       {currentView === 'registration' ? (
         <StaffRegistration 
           initialData={editingStaffId ? staffList.find(s => s.id === editingStaffId) : undefined}
@@ -267,14 +294,14 @@ export default function StaffManagementModule() {
         />
       ) : (
         <>
-          {/* Sub-Tab Selector */}
-          <div className="flex items-center gap-2 border-b border-[#ccfbf1] pb-px text-xs font-bold">
+          {/* 3. SUB-TAB NAVIGATION SEGMENTED CONTROL */}
+          <div className="flex items-center gap-1.5 border-b border-[#ccfbf1] pb-px text-xs font-bold">
             <button
               type="button"
               onClick={() => setActiveTab('directory')}
-              className={`px-4 py-2.5 border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2.5 rounded-none border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'directory' 
-                  ? 'border-[#0d9488] text-[#0d9488] font-black' 
+                  ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#f0fdfa]' 
                   : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
               }`}
             >
@@ -285,9 +312,9 @@ export default function StaffManagementModule() {
             <button
               type="button"
               onClick={() => setActiveTab('payroll')}
-              className={`px-4 py-2.5 border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2.5 rounded-none border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'payroll' 
-                  ? 'border-[#0d9488] text-[#0d9488] font-black' 
+                  ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#f0fdfa]' 
                   : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
               }`}
             >
@@ -298,9 +325,9 @@ export default function StaffManagementModule() {
             <button
               type="button"
               onClick={() => setActiveTab('attendance')}
-              className={`px-4 py-2.5 border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2.5 rounded-none border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'attendance' 
-                  ? 'border-[#0d9488] text-[#0d9488] font-black' 
+                  ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#f0fdfa]' 
                   : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
               }`}
             >
@@ -309,11 +336,11 @@ export default function StaffManagementModule() {
             </button>
           </div>
 
-          {/* Directory View */}
+          {/* 4. DIRECTORY VIEW AREA */}
           {activeTab === 'directory' && (
             <div className="space-y-4">
               
-              {/* Filter Controls Bar (Only when staff records exist) */}
+              {/* Search & Filter Bar (Only when staff records exist) */}
               {staffList.length > 0 && (
                 <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
                   <div className="relative w-full md:w-72">
@@ -361,46 +388,94 @@ export default function StaffManagementModule() {
                 </div>
               )}
 
-              {/* 1. ONBOARDING EMPTY STATE (When NO staff records exist in DB) */}
+              {/* 5. REDESIGNED 2-COLUMN ONBOARDING EMPTY STATE (When 0 staff records exist) */}
               {staffList.length === 0 && !isLoading && (
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-12 text-center space-y-5 shadow-xs max-w-2xl mx-auto my-8">
-                  <div className="w-16 h-16 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488] mx-auto flex items-center justify-center shadow-md">
-                    <UserPlus className="w-8 h-8" />
-                  </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-2">
                   
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-black text-[#0f3c4c]">Your staff directory is empty</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
-                      Add clinicians, receptionists, pharmacists, and administrators to manage their profiles, payroll, leave balances, and station access.
-                    </p>
+                  {/* Left Column: Hero Onboarding Card */}
+                  <div className="lg:col-span-7 bg-[#f7fdfd] border border-[#ccfbf1] p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="w-14 h-14 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488] flex items-center justify-center shadow-md">
+                        <UserPlus className="w-7 h-7" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-black text-[#0f3c4c]">Your staff directory is empty</h3>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          Add clinicians, receptionists, pharmacists, and administrators to manage their profiles, payroll, leave balances, and station access.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingStaffId(null);
+                          setCurrentView('registration');
+                        }}
+                        className="w-full sm:w-auto px-6 py-3 bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs rounded-none shadow-md transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add First Staff Member</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleLoadSampleRoster}
+                        className="w-full sm:w-auto px-5 py-3 bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] font-bold text-xs border border-[#b2f5ea] rounded-none transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <FileSpreadsheet className="w-4 h-4 text-[#0d9488]" />
+                        <span>Import Sample Roster</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingStaffId(null);
-                        setCurrentView('registration');
-                      }}
-                      className="px-6 py-3 bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs rounded-none shadow-md transition-all hover:scale-105 cursor-pointer flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add First Staff Member</span>
-                    </button>
+                  {/* Right Column: Quick Onboarding Workflow Guide */}
+                  <div className="lg:col-span-5 bg-[#f0fdfa] border border-[#ccfbf1] p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-[#0d9488] flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-[#0d9488]" />
+                        <span>Quick Onboarding Guide</span>
+                      </h4>
 
-                    <button
-                      type="button"
-                      onClick={handleLoadSampleRoster}
-                      className="px-5 py-3 bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] font-bold text-xs border border-[#b2f5ea] rounded-none transition-colors cursor-pointer flex items-center gap-2"
-                    >
-                      <FileSpreadsheet className="w-4 h-4 text-[#0d9488]" />
-                      <span>Import Sample Roster</span>
-                    </button>
+                      <div className="space-y-3 text-xs">
+                        <div className="flex items-start gap-3 p-2.5 bg-[#f7fdfd] border border-[#ccfbf1]">
+                          <span className="w-5 h-5 bg-[#0d9488] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">1</span>
+                          <div>
+                            <strong className="text-[#0f3c4c] block font-extrabold">Register Personnel</strong>
+                            <span className="text-[11px] text-slate-600">Enter MyKad IC/Passport, contact details &amp; credentials.</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 p-2.5 bg-[#f7fdfd] border border-[#ccfbf1]">
+                          <span className="w-5 h-5 bg-[#0d9488] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">2</span>
+                          <div>
+                            <strong className="text-[#0f3c4c] block font-extrabold">Assign Workstation Role</strong>
+                            <span className="text-[11px] text-slate-600">Assign Doctor, Pharmacist, Triage Nurse or Cashier suite.</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 p-2.5 bg-[#f7fdfd] border border-[#ccfbf1]">
+                          <span className="w-5 h-5 bg-[#0d9488] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">3</span>
+                          <div>
+                            <strong className="text-[#0f3c4c] block font-extrabold">Configure Payroll &amp; Benefits</strong>
+                            <span className="text-[11px] text-slate-600">Set base salary, EPF/SOCSO deductions &amp; annual leave.</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#ccfbf1] text-[11px] text-[#0d9488] font-bold flex items-center justify-between">
+                      <span>PDPA 2010 Compliant System</span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    </div>
                   </div>
+
                 </div>
               )}
 
-              {/* 2. SEARCH NO RESULTS STATE (When records exist but search query filters out everything) */}
+              {/* SEARCH NO RESULTS STATE */}
               {staffList.length > 0 && filteredStaff.length === 0 && (
                 <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-10 text-center space-y-4">
                   <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
@@ -425,7 +500,7 @@ export default function StaffManagementModule() {
                 </div>
               )}
 
-              {/* 3. STAFF DIRECTORY TABLE (When records exist) */}
+              {/* STAFF DIRECTORY TABLE (When records exist) */}
               {filteredStaff.length > 0 && (
                 <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden animate-fadeIn">
                   <table className="w-full text-left text-xs">
@@ -511,27 +586,6 @@ export default function StaffManagementModule() {
           {/* Payroll View */}
           {activeTab === 'payroll' && (
             <div className="space-y-4 animate-fadeIn">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[#f7fdfd] p-4 border border-[#ccfbf1] rounded-none shadow-2xs flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488]">
-                    <DollarSign className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase">Monthly Payroll Liability</p>
-                    <p className="text-2xl font-black text-[#0f3c4c]">RM {totalPayroll.toLocaleString()}</p>
-                  </div>
-                </div>
-                <div className="bg-[#f7fdfd] p-4 border border-[#ccfbf1] rounded-none shadow-2xs flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-none bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
-                    <AlertCircle className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase">Pending Disbursals</p>
-                    <p className="text-2xl font-black text-[#0f3c4c]">{pendingPayments} Employees</p>
-                  </div>
-                </div>
-              </div>
-
               <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
@@ -673,7 +727,7 @@ export default function StaffManagementModule() {
         </>
       )}
 
-      {/* CSV Import Modal Simulation */}
+      {/* CSV Import Modal */}
       {isImportModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-[#f7fdfd] border border-[#ccfbf1] max-w-md w-full p-6 shadow-2xl space-y-5 relative text-[#0f3c4c]">
