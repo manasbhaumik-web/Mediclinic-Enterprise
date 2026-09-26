@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Server, Database, Network, Cloud, Cpu, Activity, ServerCrash, 
-  Wifi, Zap, Lock, Code, Globe2, Radio, Smartphone
+  Wifi, Zap, Lock, Code, Globe2, Radio, Smartphone, CheckCircle2, ShieldCheck
 } from 'lucide-react';
 
 export default function SystemArchitectureHub() {
@@ -17,184 +17,187 @@ export default function SystemArchitectureHub() {
   }, []);
 
   return (
-    <div className="space-y-6 animate-fadeIn max-w-7xl mx-auto pb-10">
+    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-10">
       
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
-            <Network className="w-8 h-8 text-[#07B2B2]" />
-            System Architecture
-          </h2>
-          <p className="text-slate-500 text-sm mt-1">
+      {/* 1. STRUCTURED PAGE HEADER BANNER */}
+      <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="space-y-1.5 z-10">
+          <div className="inline-flex items-center gap-1.5 bg-[#e6f4f1] border border-[#ccfbf1] px-2.5 py-0.5 text-[10px] font-black uppercase text-[#0d9488] tracking-widest">
+            <Activity className="w-3 h-3 text-[#0d9488]" />
+            <span>Enterprise Infrastructure &amp; System Topology</span>
+          </div>
+          <h2 className="text-2xl font-black text-[#0f3c4c] tracking-tight">System Architecture &amp; Cloud Engine</h2>
+          <p className="text-xs text-slate-600 font-medium max-w-xl">
             API-First Microservices, Edge Computing, and Cloud-Native Infrastructure.
           </p>
         </div>
-        <div className="flex gap-2">
-          <span className="bg-emerald-100 text-[#07B2B2] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-emerald-200">
-            <Wifi className="w-4 h-4" /> ALL SYSTEMS NORMAL
+        
+        <div className="flex flex-wrap items-center gap-2.5 z-10">
+          <span className="bg-[#e0f5f2] text-[#0d9488] px-3.5 py-2 rounded-none text-xs font-black flex items-center gap-1.5 border border-[#b2f5ea] shadow-2xs">
+            <Wifi className="w-4 h-4 text-[#0d9488]" />
+            <span>ALL SYSTEMS NORMAL</span>
           </span>
         </div>
       </div>
 
+      {/* 2. TOP METRICS SUMMARY ROW */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">API Request Throughput</span>
+          <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">{traffic} req/s</span>
+        </div>
+
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Microservices Uptime</span>
+          <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">{apiHealth.toFixed(2)}%</span>
+        </div>
+
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Edge Local Latency</span>
+          <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">1.2ms Ping</span>
+        </div>
+
+        <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs">
+          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">AWS Cloud Replication</span>
+          <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">Multi-AZ Active</span>
+        </div>
+      </div>
+
+      {/* 3. SYSTEM ARCHITECTURE CONTENT GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Column 1 & 2: Microservices & Edge Topology */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* Microservices Infrastructure */}
-          <div className="bg-white p-6 rounded-none border border-slate-200 shadow-sm text-slate-800 relative overflow-hidden">
-            
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-6 flex items-center gap-2 text-[#07B2B2] relative z-10">
-              <Server className="w-5 h-5" />
-              Microservices Cluster
+          {/* Microservices Cluster Card */}
+          <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none shadow-2xs space-y-6">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#0d9488] flex items-center gap-2">
+              <Server className="w-4 h-4 text-[#0d9488]" />
+              <span>Microservices Cluster Topology</span>
             </h3>
             
-            <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {/* API Gateway */}
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center shadow-sm relative group">
-                <div className="absolute inset-0 bg-[#07B2B2] opacity-0 group-hover:opacity-10 transition-opacity rounded-xl"></div>
-                <Globe2 className="w-8 h-8 text-cyan-600 mx-auto mb-2" />
-                <h4 className="text-xs font-bold text-slate-800">API Gateway</h4>
+              <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-4 text-center rounded-none shadow-2xs group">
+                <Globe2 className="w-7 h-7 text-[#0d9488] mx-auto mb-2" />
+                <h4 className="text-xs font-black text-[#0f3c4c]">API Gateway</h4>
                 <div className="mt-2 flex justify-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-75"></span>
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-150"></span>
                 </div>
-                <p className="text-[9px] text-slate-500 mt-2 font-mono">{traffic} req/s</p>
+                <p className="text-[10px] text-slate-500 mt-2 font-mono">{traffic} req/s</p>
               </div>
 
               {/* Auth Service */}
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center shadow-sm">
-                <Lock className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
-                <h4 className="text-xs font-bold text-slate-800">IAM Auth</h4>
-                <p className="text-[10px] text-emerald-600 font-bold mt-2">Zero-Trust</p>
-                <p className="text-[9px] text-slate-500 mt-1 font-mono">Scaling: 2 Pods</p>
+              <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-4 text-center rounded-none shadow-2xs">
+                <Lock className="w-7 h-7 text-indigo-600 mx-auto mb-2" />
+                <h4 className="text-xs font-black text-[#0f3c4c]">IAM Auth</h4>
+                <p className="text-[10px] text-emerald-700 font-extrabold mt-2">Zero-Trust</p>
+                <p className="text-[10px] text-slate-500 mt-1 font-mono">2 Active Pods</p>
               </div>
 
               {/* EHR Core */}
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center shadow-sm relative">
-                <Database className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                <h4 className="text-xs font-bold text-slate-800">EHR Core</h4>
-                <p className="text-[10px] text-emerald-600 font-bold mt-2">Active</p>
-                <p className="text-[9px] text-slate-500 mt-1 font-mono">Scaling: 5 Pods</p>
+              <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-4 text-center rounded-none shadow-2xs">
+                <Database className="w-7 h-7 text-amber-600 mx-auto mb-2" />
+                <h4 className="text-xs font-black text-[#0f3c4c]">EHR Core</h4>
+                <p className="text-[10px] text-emerald-700 font-extrabold mt-2">Active</p>
+                <p className="text-[10px] text-slate-500 mt-1 font-mono">5 Active Pods</p>
               </div>
 
               {/* Telemetry/IoT */}
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center shadow-sm">
-                <Radio className="w-8 h-8 text-rose-500 mx-auto mb-2" />
-                <h4 className="text-xs font-bold text-slate-800">IoT Broker</h4>
-                <p className="text-[10px] text-emerald-600 font-bold mt-2">WebSockets</p>
-                <p className="text-[9px] text-slate-500 mt-1 font-mono">124 Devices</p>
+              <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-4 text-center rounded-none shadow-2xs">
+                <Radio className="w-7 h-7 text-rose-500 mx-auto mb-2" />
+                <h4 className="text-xs font-black text-[#0f3c4c]">IoT Broker</h4>
+                <p className="text-[10px] text-emerald-700 font-extrabold mt-2">WebSockets</p>
+                <p className="text-[10px] text-slate-500 mt-1 font-mono">124 Devices</p>
               </div>
             </div>
           </div>
 
           {/* Cloud-Native & Edge Computing */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-slate-800">
-                <Cpu className="w-5 h-5 text-indigo-500" />
-                Edge Processing Nodes
+            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-2xs space-y-3">
+              <h3 className="text-xs font-black uppercase tracking-wider text-[#0f3c4c] flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-[#0d9488]" />
+                <span>Edge Processing Nodes</span>
               </h3>
-              <p className="text-xs text-slate-500 mb-4">
-                Critical patient vitals and local AR rendering are processed directly at the clinic edge before cloud sync to ensure zero-latency care.
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Critical vitals and local rendering are processed directly at the clinic edge before cloud sync to ensure zero-latency care.
               </p>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+              <div className="space-y-2 pt-1">
+                <div className="flex justify-between items-center bg-[#f0fdfa] p-2.5 border border-[#ccfbf1]">
                   <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-slate-600" />
-                    <span className="text-xs font-bold text-slate-700">Clinic Server A (Local)</span>
+                    <Server className="w-4 h-4 text-[#0d9488]" />
+                    <span className="text-xs font-bold text-[#0f3c4c]">Clinic Server A (Local)</span>
                   </div>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">1.2ms Ping</span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 font-bold font-mono">1.2ms Ping</span>
                 </div>
-                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <div className="flex justify-between items-center bg-[#f0fdfa] p-2.5 border border-[#ccfbf1]">
                   <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-slate-600" />
-                    <span className="text-xs font-bold text-slate-700">Clinic Server B (Local)</span>
+                    <Server className="w-4 h-4 text-[#0d9488]" />
+                    <span className="text-xs font-bold text-[#0f3c4c]">Clinic Server B (Local)</span>
                   </div>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">1.4ms Ping</span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 font-bold font-mono">1.4ms Ping</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-indigo-50/80 dark:bg-[#082830] p-5 rounded-none border border-indigo-100 shadow-sm">
-              <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-indigo-800">
-                <Cloud className="w-5 h-5 text-indigo-600" />
-                Cloud Sync Status
-              </h3>
-              <div className="flex items-center justify-center h-24">
-                <div className="text-center">
-                  <Zap className="w-8 h-8 text-indigo-500 mx-auto mb-2 animate-bounce" />
-                  <p className="text-indigo-900 font-black text-xl">Async Sync Active</p>
-                  <p className="text-xs text-indigo-600 font-medium mt-1">Data persisting to AWS Multi-AZ</p>
-                </div>
+            <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-5 rounded-none shadow-2xs flex flex-col justify-between">
+              <div className="space-y-2">
+                <h3 className="text-xs font-black uppercase tracking-wider text-[#0d9488] flex items-center gap-2">
+                  <Cloud className="w-4 h-4 text-[#0d9488]" />
+                  <span>Cloud Replication Engine</span>
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Asynchronous PostgreSQL replication persisting live records to AWS Multi-AZ infrastructure with AES-256 encryption.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-[#ccfbf1] flex items-center justify-between text-xs font-bold text-emerald-700">
+                <span>Async Multi-AZ Sync Active</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Column 3: API-First & Mobile */}
+        {/* Column 3: API-First Engine */}
         <div className="lg:col-span-1 space-y-6">
-          
-          {/* API-First Architecture */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex-1">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-slate-800">
-              <Code className="w-5 h-5 text-[#07B2B2]" />
-              API-First Engine
+          <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-2xs space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#0f3c4c] flex items-center gap-2">
+              <Code className="w-4 h-4 text-[#0d9488]" />
+              <span>API Health &amp; Security</span>
             </h3>
             
-            <div className="mb-6 text-center">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-[#07B2B2] relative">
+            <div className="py-4 text-center">
+              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-[#0d9488] bg-[#e6f4f1]">
                 <div className="text-center">
-                  <span className="block text-2xl font-black text-slate-800">{apiHealth.toFixed(2)}%</span>
-                  <span className="block text-[9px] text-slate-400 font-bold uppercase">Uptime</span>
+                  <span className="block text-2xl font-black font-mono text-[#0f3c4c]">{apiHealth.toFixed(2)}%</span>
+                  <span className="text-[9px] uppercase font-bold text-[#0d9488]">API Uptime</span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-xs p-2 border-b border-slate-100">
-                <span className="font-mono text-slate-600">GET /api/v2/patients</span>
-                <span className="text-emerald-500 font-bold">24ms</span>
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center justify-between p-2 bg-[#f0fdfa] border border-[#ccfbf1]">
+                <span className="text-slate-600 font-medium">SSL / TLS Protocol:</span>
+                <span className="font-extrabold text-[#0d9488] font-mono">TLS v1.3</span>
               </div>
-              <div className="flex justify-between items-center text-xs p-2 border-b border-slate-100">
-                <span className="font-mono text-slate-600">POST /api/v2/telemetry</span>
-                <span className="text-emerald-500 font-bold">12ms</span>
+              <div className="flex items-center justify-between p-2 bg-[#f0fdfa] border border-[#ccfbf1]">
+                <span className="text-slate-600 font-medium">Database Engine:</span>
+                <span className="font-extrabold text-[#0f3c4c] font-mono">Supabase PG16</span>
               </div>
-              <div className="flex justify-between items-center text-xs p-2 border-b border-slate-100">
-                <span className="font-mono text-slate-600">GET /api/v2/billing/claims</span>
-                <span className="text-emerald-500 font-bold">45ms</span>
+              <div className="flex items-center justify-between p-2 bg-[#f0fdfa] border border-[#ccfbf1]">
+                <span className="text-slate-600 font-medium">PDPA / HIPAA Compliance:</span>
+                <span className="font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 border border-emerald-300">100% Certified</span>
               </div>
-            </div>
-            
-            <div className="mt-4">
-              <button className="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-none text-[10px] font-bold transition-colors flex items-center justify-center gap-2">
-                <Code className="w-4 h-4" /> Open Swagger Docs
-              </button>
             </div>
           </div>
-
-          {/* Mobile-First Design & Multi-Platform */}
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 text-slate-800">
-              <Smartphone className="w-5 h-5 text-slate-600" />
-              Multi-Platform
-            </h3>
-            <p className="text-xs text-slate-500 mb-4">
-              Application is fully responsive via Tailwind CSS. Accessible natively via PWA on iPad, iPhone, and Android for roving nurses.
-            </p>
-            <div className="flex justify-around items-center opacity-60">
-              <Smartphone className="w-6 h-6 text-slate-800" />
-              <div className="w-8 h-1 bg-slate-300 rounded"></div>
-              <Server className="w-8 h-8 text-slate-800" />
-              <div className="w-8 h-1 bg-slate-300 rounded"></div>
-              <Globe2 className="w-8 h-8 text-slate-800" />
-            </div>
-          </div>
-
         </div>
+
       </div>
+
     </div>
   );
 }
