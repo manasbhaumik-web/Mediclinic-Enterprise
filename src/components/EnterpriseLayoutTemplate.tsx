@@ -182,12 +182,13 @@ export default function EnterpriseLayoutTemplate({
                 ? 'bg-amber-400/20 text-amber-200 border-amber-400/50 hover:bg-amber-400/30' 
                 : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40 hover:bg-emerald-500/30'
             }`}
-            title="Toggle Privacy Mode (Mask sensitive patient PII)"
+            aria-label={showPII ? 'Screen privacy: Disabled (Patient PII is exposed)' : 'Screen privacy: Active (Patient PII is masked)'}
+            title={showPII ? 'Screen privacy: Disabled (Patient PII exposed on screen)' : 'Screen privacy: Active (Patient PII masked)'}
           >
             {showPII ? (
-              <><Eye className="w-3.5 h-3.5 text-amber-200" /> <span className="hidden sm:inline">Privacy Mode: OFF</span></>
+              <><Eye className="w-3.5 h-3.5 text-amber-200" /> <span className="hidden sm:inline">Screen privacy: Disabled</span></>
             ) : (
-              <><EyeOff className="w-3.5 h-3.5 text-emerald-300" /> <span className="hidden sm:inline">Privacy Mode: ON</span></>
+              <><EyeOff className="w-3.5 h-3.5 text-emerald-300" /> <span className="hidden sm:inline">Screen privacy: Active</span></>
             )}
           </button>
 

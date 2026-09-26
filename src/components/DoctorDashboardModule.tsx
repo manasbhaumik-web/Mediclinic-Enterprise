@@ -4,7 +4,7 @@ import ConsultationRoom from './ConsultationRoom';
 import { 
   Stethoscope, FileText, Calendar, Users, DollarSign, Activity, BrainCircuit, 
   CalendarClock, Clock, ChevronRight, Search, Download, Filter, TrendingUp, 
-  ShieldCheck, CheckCircle2, BarChart3, CreditCard, Building2, RefreshCw, Volume2 
+  ShieldCheck, CheckCircle2, BarChart3, CreditCard, Building2, RefreshCw, Volume2, AlertCircle 
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -39,6 +39,83 @@ export default function DoctorDashboardModule({
   const [internalTab, setInternalTab] = useState<'queue' | 'consultation' | 'reports'>(doctorTab);
   const [calledVisitId, setCalledVisitId] = useState<string | null>(null);
   const [callAnnouncementToast, setCallAnnouncementToast] = useState<string | null>(null);
+  const [sortRule, setSortRule] = useState<'urgency' | 'wait' | 'arrival'>('urgency');
+  const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
+  const [calledTimestampMap, setCalledTimestampMap] = useState<Record<string, string>>({});
+  const [lastSyncedText, setLastSyncedText] = useState<string>('Just now');
+  const [isRefreshingQueue, setIsRefreshingQueue] = useState<boolean>(false);
+
+  const toggleDetails = (visitId: string) => {
+    setExpandedDetails(prev => ({ ...prev, [visitId]: !prev[visitId] }));
+  };
+
+  const handleManualQueueRefresh = () => {
+    setIsRefreshingQueue(true);
+    setTimeout(() => {
+      setIsRefreshingQueue(false);
+      setLastSyncedText('Just now');
+    }, 600);
+  };
+
+  const getChiefComplaintLabel = (subjective?: string) => {
+    if (!subjective) return 'General Outpatient Consultation';
+    const text = subjective.trim();
+    const lower = text.toLowerCase();
+    
+    if (lower.includes('fever') && (lower.includes('throat') || lower.includes('sore'))) return 'Fever + sore throat';
+    if (lower.includes('epigastric') || lower.includes('reflux') || lower.includes('gastritis') || lower.includes('heartburn')) return 'Epigastric pain / reflux';
+    if (lower.includes('back') || lower.includes('lumbago') || lower.includes('myalgia')) return 'Low back pain / myalgia';
+    if (lower.includes('cough') || lower.includes('urti') || lower.includes('cold') || lower.includes('flu')) return 'Cough & cold / URTI';
+    if (lower.includes('hypertension') || lower.includes('bp') || lower.includes('diabetes')) return 'Chronic disease follow-up';
+    if (lower.includes('asthma') || lower.includes('breath') || lower.includes('wheezing')) return 'Asthma / Dyspnea flare';
+    if (lower.includes('rash') || lower.includes('eczema') || lower.includes('skin')) return 'Skin rash / Allergy';
+    if (lower.includes('diarrhea') || lower.includes('vomiting') || lower.includes('food poison')) return 'Gastroenteritis / Diarrhea';
+    
+    if (text.length > 36) return text.substring(0, 33) + '...';
+    return text;
+  };
+
+  const getTriageDetails = (pt?: Patient, visit?: Visit) => {
+    const allergies = pt?.drugAllergies?.length || 0;
+    const waitMins = visit?.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
+    const temp = visit?.soap?.objective?.temperature || 0;
+    
+    if (allergies > 0 || waitMins >= 30 || temp >= 38.0) {
+      return {
+        level: 'HIGH',
+        stripColor: 'border-l-4 border-l-rose-600 dark:border-l-rose-500',
+        badgeBg: 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-rose-300 dark:border-rose-800 font-extrabold',
+        icon: AlertCircle,
+        iconColor: 'text-rose-600 dark:text-rose-400'
+      };
+    } else if (waitMins >= 15 || temp >= 37.3) {
+      return {
+        level: 'MED',
+        stripColor: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
+        badgeBg: 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800 font-extrabold',
+        icon: Clock,
+        iconColor: 'text-amber-600 dark:text-amber-400'
+      };
+    } else {
+      return {
+        level: 'LOW',
+        stripColor: 'border-l-4 border-l-emerald-500 dark:border-l-emerald-400',
+        badgeBg: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800 font-extrabold',
+        icon: CheckCircle2,
+        iconColor: 'text-emerald-600 dark:text-emerald-400'
+      };
+    }
+  };
+
+  const renderAllergyBadge = (drugAllergies: string[] = []) => {
+    if (drugAllergies.length === 0) return null;
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none text-[11px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border-2 border-rose-600 shadow-2xs font-mono shrink-0">
+        <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+        <span>Allergy: {drugAllergies.join(', ')}</span>
+      </span>
+    );
+  };
 
   // Reports Tab States & Datasets
   const [showSampleReports, setShowSampleReports] = useState<boolean>(completedVisits.length === 0);
@@ -133,7 +210,9 @@ export default function DoctorDashboardModule({
 
   // Step 1: Call patient for consultation
   const handleCallPatient = (visitId: string, patientName: string) => {
+    const timeStr = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
     setCalledVisitId(visitId);
+    setCalledTimestampMap(prev => ({ ...prev, [visitId]: timeStr }));
     setActiveConsultationVisitId(visitId);
     setCallAnnouncementToast(`📢 Calling Patient: ${patientName} to Consultation Room 1...`);
     setTimeout(() => setCallAnnouncementToast(null), 4000);
@@ -176,44 +255,127 @@ export default function DoctorDashboardModule({
         <div className="space-y-4 animate-fadeIn">
           <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-5 rounded-none shadow-sm space-y-4">
             
-            {/* QUEUE HEADER TOOLBAR WITH METRICS */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#b2f5ea] dark:border-teal-800/40 pb-4">
-              <div>
-                <h3 className="text-[#0f3c4c] dark:text-[#5eead4] font-black text-sm uppercase tracking-wider flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
-                  Active Outpatient Waiting Queue
-                </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
-                  Follow 3-Step Chronology: 1. Call for Consultation → 2. Start SOAP Consultation → 3. Auto-Return to Queue.
-                </p>
-              </div>
+            {/* QUEUE HEADER TOOLBAR WITH ACTIONABLE METRICS */}
+            {(() => {
+              const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
+              const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
+              const maxWaitMinutes = doctorQueue.reduce((max, v) => {
+                const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
+                return mins > max ? mins : max;
+              }, 0);
 
-              {/* STATS METRIC BADGES */}
-              <div className="flex flex-wrap items-center gap-2 shrink-0">
-                <span className="text-[10px] font-mono bg-[#e0f5f2] dark:bg-[#082830] text-[#0f766e] dark:text-[#5eead4] px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none font-bold shadow-2xs flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" />
-                  Queue Volume: <strong className="text-[#0f3c4c] dark:text-white font-mono text-xs">{doctorQueue.length} Patients</strong>
-                </span>
+              return (
+                <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 p-4 rounded-none space-y-3">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
+                        <Users className="w-5 h-5 text-[#0d9488]" />
+                        Active Outpatient Waiting Queue
+                      </h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
+                        Triaged outpatient consultation queue with severity flags and instant searchability.
+                      </p>
+                    </div>
 
-                {doctorQueue.some(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0) && (
-                  <span className="text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 px-2.5 py-1.5 border border-rose-200 dark:border-rose-800/50 rounded-none shadow-2xs flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                    {doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length} Allergy Alerts
-                  </span>
-                )}
-              </div>
-            </div>
+                    {/* Actionable Metrics Summary Row */}
+                    <div className="flex flex-wrap items-center gap-2 font-mono text-xs font-bold">
+                      <span className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40 px-3 py-1.5 rounded-none flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-[#0d9488]" />
+                        <span>{doctorQueue.length} Waiting</span>
+                      </span>
+
+                      <span className="bg-rose-50 dark:bg-rose-950/70 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 px-3 py-1.5 rounded-none flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                        <span>{highPriorityCount} High Priority</span>
+                      </span>
+
+                      <span className="bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800 px-3 py-1.5 rounded-none flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>{overSlaCount} Over SLA (&gt;20m)</span>
+                      </span>
+
+                      <span className="bg-sky-50 dark:bg-sky-950/70 text-sky-800 dark:text-sky-200 border border-sky-300 dark:border-sky-800 px-3 py-1.5 rounded-none">
+                        Longest Wait: <strong>{maxWaitMinutes} min</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Sorting Controls & Data Freshness Indicator */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#ccfbf1] dark:border-teal-800/40 text-xs font-medium">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                        <Filter className="w-3.5 h-3.5 text-[#0d9488]" /> Sort By:
+                      </span>
+                      <div className="inline-flex bg-white dark:bg-[#0c3844] border border-[#ccfbf1] dark:border-teal-800/40 p-0.5 rounded-none">
+                        {(['urgency', 'wait', 'arrival'] as const).map((r) => (
+                          <button
+                            key={r}
+                            type="button"
+                            onClick={() => setSortRule(r)}
+                            className={`px-3 py-1 text-xs font-bold transition-all cursor-pointer rounded-none focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
+                              sortRule === r
+                                ? 'bg-[#0d9488] text-white shadow-2xs'
+                                : 'text-slate-600 hover:text-slate-900 dark:text-slate-300'
+                            }`}
+                          >
+                            {r === 'urgency' ? 'Clinical urgency' : r === 'wait' ? 'Longest wait' : 'Arrival order'}
+                          </button>
+                        ))}
+                      </div>
+                      <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
+                        ({sortRule === 'urgency' ? 'High-acuity & allergies first' : sortRule === 'wait' ? 'Descending wait time' : 'Registration order'})
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        Last synced: <strong>{lastSyncedText}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleManualQueueRefresh}
+                        disabled={isRefreshingQueue}
+                        className="p-1.5 bg-[#e0f5f2] hover:bg-[#ccfbf1] text-[#0d9488] border border-[#b2f5ea] rounded-none transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                        title="Refresh data sync"
+                        aria-label="Refresh clinical queue data"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingQueue ? 'animate-spin' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* SORTED QUEUE PREPARATION */}
             {(() => {
-              const sortedQueue = [...doctorQueue].sort((a, b) => {
-                const ptA = patientsMap[a.patientId];
-                const ptB = patientsMap[b.patientId];
-                if (!ptA || !ptB) return 0;
-                if (ptA.drugAllergies.length > ptB.drugAllergies.length) return -1;
-                if (ptB.drugAllergies.length > ptA.drugAllergies.length) return 1;
-                return 0;
-              });
+              const sortQueue = (queue: Visit[]) => {
+                const list = [...queue];
+                if (sortRule === 'urgency') {
+                  return list.sort((a, b) => {
+                    const ptA = patientsMap[a.patientId];
+                    const ptB = patientsMap[b.patientId];
+                    const allergiesA = ptA?.drugAllergies?.length || 0;
+                    const allergiesB = ptB?.drugAllergies?.length || 0;
+                    const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
+                    const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
+                    if (allergiesA > 0 && allergiesB === 0) return -1;
+                    if (allergiesB > 0 && allergiesA === 0) return 1;
+                    return waitB - waitA;
+                  });
+                } else if (sortRule === 'wait') {
+                  return list.sort((a, b) => {
+                    const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
+                    const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
+                    return waitB - waitA;
+                  });
+                } else {
+                  return list.sort((a, b) => (a.registeredTime || 0) - (b.registeredTime || 0));
+                }
+              };
+
+              const sortedQueue = sortQueue(doctorQueue);
 
               if (doctorQueue.length === 0) {
                 return (
@@ -234,87 +396,146 @@ export default function DoctorDashboardModule({
                 <div className="space-y-4">
                   {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY) */}
                   {nextPatient && (
-                    <div className="bg-[#0f3c4c] dark:bg-[#07252d] text-white p-5 rounded-none border border-[#0d9488]/40 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative overflow-hidden">
-                      {/* Decorative background flare */}
-                      <div className="absolute -right-10 -top-10 w-48 h-48 bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
-
-                      <div className="space-y-2 z-10">
+                    <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3`}>
+                      
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#0d9488]/40 pb-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs">
+                          <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs font-mono">
                             NEXT IN LINE (#1)
                           </span>
-                          {isNextCalled && (
-                            <span className="bg-emerald-400 text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider animate-pulse flex items-center gap-1 shadow-2xs">
-                              <span className="w-2 h-2 rounded-full bg-[#0f3c4c] animate-ping" />
-                              📢 PATIENT CALLED
-                            </span>
-                          )}
-                          {nextPatient.drugAllergies.length > 0 && (
-                            <span className="bg-rose-500/30 text-rose-200 text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-none border border-rose-400/40">
-                              ⚠️ Allergy Alert ({nextPatient.drugAllergies.join(', ')})
+                          
+                          {/* Urgency Badge */}
+                          {(() => {
+                            const t = getTriageDetails(nextPatient, nextVisit);
+                            const IconComp = t.icon;
+                            return (
+                              <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-none border flex items-center gap-1 font-mono ${t.badgeBg}`}>
+                                <IconComp className={`w-3 h-3 ${t.iconColor}`} />
+                                <span>Triage: {t.level}</span>
+                              </span>
+                            );
+                          })()}
+
+                          {/* Allergy Badge */}
+                          {renderAllergyBadge(nextPatient.drugAllergies)}
+
+                          {/* Called timestamp badge */}
+                          {calledTimestampMap[nextVisit.id] && (
+                            <span className="bg-emerald-400 text-[#0f3c4c] text-[10px] font-black uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center gap-1">
+                              📢 Called at {calledTimestampMap[nextVisit.id]}
                             </span>
                           )}
                         </div>
 
-                        <h3 className="text-xl font-black tracking-tight text-white flex flex-wrap items-baseline gap-2">
-                          <span>{nextPatient.fullName}</span>
-                          <span className="text-xs font-mono text-teal-200/90 font-normal">({nextPatient.gender}, {nextPatient.dob})</span>
-                        </h3>
-
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-teal-100 font-medium pt-0.5">
-                          <span>Reason: <strong className="text-white font-bold">{nextVisit.soap?.subjective || 'General Medical Consultation'}</strong></span>
-                          <span className="opacity-40">•</span>
-                          <span>Panel: <strong className="text-[#5eead4] font-bold">{nextPatient.panelEmployer}</strong></span>
+                        {/* Stepper Indicator */}
+                        <div className="text-[11px] font-mono font-bold text-teal-200 bg-black/30 px-3 py-1 border border-white/10 rounded-none">
+                          {activeConsultationVisitId === nextVisit.id
+                            ? 'Step 3 of 3: Consultation Active'
+                            : calledVisitId === nextVisit.id
+                            ? 'Step 2 of 3: Patient Called'
+                            : 'Step 1 of 3: Patient Ready'}
                         </div>
+                      </div>
 
-                        {/* Triaged Vitals Preview Chips */}
-                        {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
-                          <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[10px]">
-                            <span className="bg-black/25 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                              BP: <strong className="text-white">{nextVisit.soap.objective.bpSystolic}/{nextVisit.soap.objective.bpDiastolic}</strong> mmHg
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="space-y-1.5">
+                          <h3 className="text-xl font-black text-white flex items-baseline gap-2">
+                            <span>{nextPatient.fullName}</span>
+                            <span className="text-xs font-mono text-teal-200 font-normal">ID: {nextPatient.id} · ({nextPatient.gender}, {nextPatient.dob})</span>
+                          </h3>
+
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-teal-100 font-medium">
+                            <span className="font-bold text-white bg-teal-900/60 px-2 py-0.5 border border-teal-500/40">
+                              Complaint: {getChiefComplaintLabel(nextVisit.soap?.subjective)}
                             </span>
-                            <span className="bg-black/25 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                              Temp: <strong className={nextVisit.soap.objective.temperature >= 37.5 ? 'text-rose-300 font-bold' : 'text-white'}>{nextVisit.soap.objective.temperature}°C</strong>
-                            </span>
-                            <span className="bg-black/25 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                              HR: <strong className="text-white">{nextVisit.soap.objective.heartRate}</strong> bpm
+                            <span className="opacity-50">•</span>
+                            <span className="font-mono text-amber-200">
+                              Wait: <strong>{nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0} min</strong>
                             </span>
                           </div>
-                        )}
+
+                          {/* Vitals summary preview */}
+                          {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
+                            <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[10px]">
+                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                                BP: <strong className="text-white">{nextVisit.soap.objective.bpSystolic}/{nextVisit.soap.objective.bpDiastolic}</strong> mmHg
+                              </span>
+                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                                Temp: <strong className={nextVisit.soap.objective.temperature >= 37.5 ? 'text-rose-300 font-bold' : 'text-white'}>{nextVisit.soap.objective.temperature}°C</strong>
+                              </span>
+                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                                HR: <strong className="text-white">{nextVisit.soap.objective.heartRate}</strong> bpm
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Dominant Primary Action & Secondary Toggle */}
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleDetails(nextVisit.id)}
+                            className="px-3.5 py-2.5 rounded-none text-xs font-extrabold bg-white/10 hover:bg-white/20 text-teal-100 border border-white/20 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                          >
+                            {expandedDetails[nextVisit.id] ? 'Hide details' : 'More details'}
+                          </button>
+
+                          {activeConsultationVisitId === nextVisit.id ? (
+                            <button
+                              type="button"
+                              onClick={() => handleStartConsultation(nextVisit.id)}
+                              className="px-5 py-2.5 rounded-none text-xs font-black bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] shadow-md flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                            >
+                              <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
+                              <span>Resume consultation</span>
+                              <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
+                              className="px-5 py-2.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-md flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                            >
+                              <Volume2 className="w-4 h-4 text-white" />
+                              <span>Call patient</span>
+                              <ChevronRight className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
-                      {/* CHRONOLOGY ACTIONS */}
-                      <div className="flex items-center gap-2 z-10 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
-                          className="bg-white/15 hover:bg-white/25 text-white border border-white/30 font-extrabold text-xs px-4 py-3 rounded-none transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs hover:shadow-xs"
-                        >
-                          <Volume2 className="w-4 h-4 text-teal-200" />
-                          <span>Call Patient</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleStartConsultation(nextVisit.id)}
-                          className="bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] font-black text-xs px-5 py-3 rounded-none shadow-md flex items-center gap-2 transition-all cursor-pointer"
-                        >
-                          <Stethoscope className="w-4.5 h-4.5 text-[#0f3c4c]" />
-                          <span>Continue SOAP assessment</span>
-                          <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
-                        </button>
-                      </div>
+                      {/* Expandable Secondary Details Drawer */}
+                      {expandedDetails[nextVisit.id] && (
+                        <div className="pt-3 border-t border-[#0d9488]/40 text-xs text-teal-100 space-y-2 bg-black/20 p-3 rounded-none animate-fadeIn">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <strong className="block text-white mb-0.5">Full Clinical Subjective Note:</strong>
+                              <p className="text-slate-200 leading-relaxed font-sans">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
+                            </div>
+                            <div>
+                              <strong className="block text-white mb-0.5">Panel Employer / Coverage:</strong>
+                              <p className="text-[#5eead4] font-bold">{nextPatient.panelEmployer}</p>
+                            </div>
+                            <div>
+                              <strong className="block text-white mb-0.5">Address &amp; Contact:</strong>
+                              <p className="text-slate-200">{nextPatient.phone} · {nextPatient.address}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {/* REMAINING PATIENTS LIST (#2 ONWARDS - NO DUPLICATION) */}
+                  {/* REMAINING PATIENTS LIST (#2 ONWARDS) */}
                   {remainingQueue.length > 0 ? (
                     <div className="space-y-3 pt-2 border-t border-[#b2f5ea] dark:border-teal-800/40">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider">
-                          Subsequent Queue Items ({remainingQueue.length} Waiting)
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                          <span>Subsequent Queue Items ({remainingQueue.length} Waiting)</span>
                         </h4>
-                        <span className="text-[10px] text-slate-400">Ordered by arrival chronology &amp; triage urgency</span>
+                        <span className="text-[11px] text-slate-500 font-mono font-medium">
+                          Active Sort: <strong className="text-[#0d9488]">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
+                        </span>
                       </div>
 
                       <div className="flex flex-col gap-2.5">
@@ -322,83 +543,123 @@ export default function DoctorDashboardModule({
                           const pt = patientsMap[visit.patientId];
                           if (!pt) return null;
                           const isConsulting = activeConsultationVisitId === visit.id;
-                          const isCalled = calledVisitId === visit.id;
-                          const queuePosition = index + 2; // Position #2, #3...
-
-                          let triageLevel = 'MED';
-                          if (pt.drugAllergies.length > 0) triageLevel = 'HIGH';
-
-                          const waitTimeMinutes = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
-                          const waitTimeColor = waitTimeMinutes >= 30 ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/50' :
-                            waitTimeMinutes >= 15 ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' :
-                              'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50';
+                          const isExpanded = expandedDetails[visit.id];
+                          const queuePosition = index + 2;
+                          const triage = getTriageDetails(pt, visit);
+                          const TriageIcon = triage.icon;
+                          const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
 
                           return (
                             <div
                               key={visit.id}
-                              className={`flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-none border transition-all ${isConsulting
-                                ? 'border-[#0d9488] bg-[#e0f5f2] dark:bg-[#0c3844] shadow-xs'
-                                : 'border-[#b2f5ea] dark:border-teal-800/50 bg-white dark:bg-[#0c3844] hover:bg-[#f7fdfd] dark:hover:bg-[#0e4857]'
-                                }`}
+                              className={`border rounded-none ${triage.stripColor} transition-all p-3 space-y-2.5 ${
+                                isConsulting 
+                                  ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
+                                  : 'bg-white dark:bg-[#0c3844] hover:bg-[#f0fdfa] dark:hover:bg-[#0e4857] border-slate-200 dark:border-teal-800/50'
+                              }`}
                             >
-                              <div className="flex items-center gap-3.5 min-w-0">
-                                <div className="flex flex-col items-center justify-center bg-[#e0f5f2] dark:bg-[#082830] text-[#0f3c4c] dark:text-[#5eead4] rounded-none w-11 h-11 border border-[#b2f5ea] dark:border-teal-800/40 shrink-0 font-mono">
-                                  <span className="text-[9px] font-bold text-[#0d9488]">#</span>
-                                  <span className="text-sm font-black">{queuePosition}</span>
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <h4 className="text-xs font-extrabold text-[#0f3c4c] dark:text-white uppercase tracking-tight truncate">
-                                      {pt.fullName}
-                                    </h4>
-                                    {isCalled && (
-                                      <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider border border-emerald-300 dark:border-emerald-800 animate-pulse">
-                                        📢 Called
-                                      </span>
-                                    )}
-                                    {pt.drugAllergies.length > 0 && (
-                                      <span className="text-[9px] bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider border border-rose-300 dark:border-rose-800">
-                                        Allergy Alert ({pt.drugAllergies.join(', ')})
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="flex flex-wrap items-center gap-2.5 mt-1 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                                    <span className="font-mono bg-slate-100 dark:bg-[#082830] px-1.5 py-0.5 rounded-none text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40">ID: {pt.id}</span>
-                                    <span>Panel: <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{pt.panelEmployer}</strong></span>
-                                    <span className="hidden md:inline text-slate-300 dark:text-slate-600">•</span>
-                                    <span className="truncate">Reason: <strong className="text-slate-700 dark:text-slate-300">{visit.soap?.subjective || 'General Checkup'}</strong></span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2 mt-3 sm:mt-0 flex-wrap sm:justify-end shrink-0">
-                                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-none flex items-center gap-1 border transition-colors ${waitTimeColor}`}>
-                                  <Clock className="w-3 h-3" /> Wait: {waitTimeMinutes}m
-                                </span>
-                                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-none flex items-center gap-1 border ${triageLevel === 'HIGH' ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/50' :
-                                  triageLevel === 'MED' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' :
-                                    'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50'
-                                  }`}>
-                                  <BrainCircuit className="w-3 h-3" /> Triage: {triageLevel}
-                                </span>
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 
-                                <button
-                                  type="button"
-                                  onClick={() => handleCallPatient(visit.id, pt.fullName)}
-                                  className="px-2.5 py-1.5 rounded-none text-[11px] font-bold bg-[#e0f5f2] dark:bg-[#082830] hover:bg-[#0d9488] hover:text-white text-[#0f766e] dark:text-[#5eead4] border border-[#b2f5ea] dark:border-teal-800/40 transition-all cursor-pointer shadow-2xs"
-                                >
-                                  📢 Call
-                                </button>
+                                {/* Left: Queue # + Urgency Badge + Name + Chief Complaint */}
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <div className="w-8 h-8 bg-[#e0f5f2] dark:bg-[#082830] border border-[#b2f5ea] dark:border-teal-800/40 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
+                                    #{queuePosition}
+                                  </div>
 
-                                <button
-                                  type="button"
-                                  onClick={() => handleStartConsultation(visit.id)}
-                                  className="px-3.5 py-1.5 rounded-none text-[11px] font-bold bg-[#0d9488] dark:bg-[#0f766e] hover:bg-[#0f766e] dark:hover:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer"
-                                >
-                                  <Stethoscope className="w-3.5 h-3.5" />
-                                  <span>Start Consultation</span>
-                                </button>
+                                  <div className="min-w-0 space-y-0.5">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">
+                                        {pt.fullName}
+                                      </h4>
+                                      <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 font-bold">ID: {pt.id}</span>
+                                      
+                                      {/* Urgency Badge */}
+                                      <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-none border flex items-center gap-1 font-mono ${triage.badgeBg}`}>
+                                        <TriageIcon className={`w-3 h-3 ${triage.iconColor}`} />
+                                        <span>{triage.level}</span>
+                                      </span>
+
+                                      {/* Standardized Allergy Badge */}
+                                      {renderAllergyBadge(pt.drugAllergies)}
+
+                                      {/* Called Timestamp Badge */}
+                                      {calledTimestampMap[visit.id] && (
+                                        <span className="text-[9px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-none uppercase tracking-wider border border-emerald-300 dark:border-emerald-800 font-mono animate-pulse">
+                                          📢 Called at {calledTimestampMap[visit.id]}
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                                      <span className="font-bold text-[#0d9488] dark:text-[#2dd4bf]">
+                                        Complaint: {getChiefComplaintLabel(visit.soap?.subjective)}
+                                      </span>
+                                      <span className="opacity-40">•</span>
+                                      <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">
+                                        Wait: <strong>{waitMins}m</strong>
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Right: Contextual Primary Action + Secondary Details Toggle */}
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleDetails(visit.id)}
+                                    className="px-2.5 py-1.5 rounded-none text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-[#082830] hover:bg-slate-200 dark:hover:bg-[#0f766e] border border-slate-300 dark:border-teal-800/40 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                  >
+                                    {isExpanded ? 'Hide' : 'More details'}
+                                  </button>
+
+                                  {isConsulting ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStartConsultation(visit.id)}
+                                      className="px-3.5 py-1.5 rounded-none text-xs font-extrabold bg-[#0f3c4c] dark:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                    >
+                                      <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
+                                      <span>Resume</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCallPatient(visit.id, pt.fullName)}
+                                      className="px-3.5 py-1.5 rounded-none text-xs font-extrabold bg-[#0d9488] hover:bg-[#0f766e] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                    >
+                                      <Volume2 className="w-3.5 h-3.5 text-white" />
+                                      <span>Call patient</span>
+                                    </button>
+                                  )}
+                                </div>
                               </div>
+
+                              {/* Secondary Drawer */}
+                              {isExpanded && (
+                                <div className="pt-2.5 mt-2 border-t border-slate-200 dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-[#082830] p-3 rounded-none space-y-2 animate-fadeIn">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <div>
+                                      <strong className="block text-slate-900 dark:text-white font-bold mb-0.5">Full Reason / Symptoms:</strong>
+                                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-sans">{visit.soap?.subjective || 'General Medical Consultation'}</p>
+                                    </div>
+                                    <div>
+                                      <strong className="block text-slate-900 dark:text-white font-bold mb-0.5">Panel Employer:</strong>
+                                      <p className="text-[#0d9488] dark:text-[#2dd4bf] font-bold">{pt.panelEmployer}</p>
+                                    </div>
+                                    <div>
+                                      <strong className="block text-slate-900 dark:text-white font-bold mb-0.5">Demographics &amp; Vitals:</strong>
+                                      <p className="text-slate-600 dark:text-slate-300 font-mono text-[11px]">
+                                        {pt.gender}, DOB: {pt.dob} · Contact: {pt.phone}
+                                      </p>
+                                      {visit.soap?.objective && visit.soap.objective.temperature > 0 && (
+                                        <p className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-1">
+                                          BP: {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg | Temp: {visit.soap.objective.temperature}°C | HR: {visit.soap.objective.heartRate} bpm
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
