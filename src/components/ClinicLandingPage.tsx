@@ -497,14 +497,14 @@ export default function ClinicLandingPage({
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] max-w-3xl mx-auto">
+          <div className="changer-container max-w-3xl mx-auto flex flex-wrap justify-center gap-1.5 p-1">
             <button
               type="button"
               onClick={() => setActiveFeatureTab('emr')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
+              className={`changer-btn flex items-center gap-2 px-5 py-2.5 ${
                 activeFeatureTab === 'emr'
-                  ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
+                  ? 'changer-btn-active'
+                  : 'changer-btn-inactive'
               }`}
             >
               <BarChart3 className="w-4 h-4" />
@@ -514,10 +514,10 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => setActiveFeatureTab('mykad')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
+              className={`changer-btn flex items-center gap-2 px-5 py-2.5 ${
                 activeFeatureTab === 'mykad'
-                  ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
+                  ? 'changer-btn-active'
+                  : 'changer-btn-inactive'
               }`}
             >
               <ShieldCheck className="w-4 h-4" />
@@ -527,10 +527,10 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => setActiveFeatureTab('tpa')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
+              className={`changer-btn flex items-center gap-2 px-5 py-2.5 ${
                 activeFeatureTab === 'tpa'
-                  ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
+                  ? 'changer-btn-active'
+                  : 'changer-btn-inactive'
               }`}
             >
               <Building2 className="w-4 h-4" />
@@ -540,10 +540,10 @@ export default function ClinicLandingPage({
             <button
               type="button"
               onClick={() => setActiveFeatureTab('dispensary')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
+              className={`changer-btn flex items-center gap-2 px-5 py-2.5 ${
                 activeFeatureTab === 'dispensary'
-                  ? 'bg-[#0d9488] text-white shadow-xs'
-                  : 'text-slate-700 hover:text-[#0f3c4c] hover:bg-[#e6f4f1]'
+                  ? 'changer-btn-active'
+                  : 'changer-btn-inactive'
               }`}
             >
               <Pill className="w-4 h-4" />

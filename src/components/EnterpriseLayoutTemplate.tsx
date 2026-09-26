@@ -193,13 +193,13 @@ export default function EnterpriseLayoutTemplate({
           </button>
 
           {/* Language Switcher (EN | BM) */}
-          <div className="bg-[#086b68] rounded-md border border-[#065451] p-0.5 flex">
+          <div className="changer-container">
             <button
               type="button"
               id="lang-toggle-en"
               onClick={() => setActiveLanguage('EN')}
-              className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                activeLanguage === 'EN' ? 'bg-[#0a837f] text-white font-black shadow-xs' : 'text-teal-100 hover:text-white'
+              className={`changer-btn ${
+                activeLanguage === 'EN' ? 'changer-btn-active' : 'changer-btn-inactive'
               }`}
             >
               EN
@@ -208,8 +208,8 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               id="lang-toggle-bm"
               onClick={() => setActiveLanguage('BM')}
-              className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                activeLanguage === 'BM' ? 'bg-[#0a837f] text-white font-black shadow-xs' : 'text-teal-100 hover:text-white'
+              className={`changer-btn ${
+                activeLanguage === 'BM' ? 'changer-btn-active' : 'changer-btn-inactive'
               }`}
             >
               BM
@@ -254,10 +254,8 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               id="sidebar-link-dashboard"
               onClick={() => setActiveTab('dashboard')}
-              className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                activeTab === 'dashboard'
-                  ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                  : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+              className={`nav-btn ${
+                activeTab === 'dashboard' ? 'nav-btn-active' : 'nav-btn-inactive'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -273,10 +271,8 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-registration"
                 onClick={() => setActiveTab('registration')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                  activeTab === 'registration'
-                    ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                    : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                className={`nav-btn ${
+                  activeTab === 'registration' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -293,10 +289,8 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-triage"
                 onClick={() => setActiveTab('triage')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                  activeTab === 'triage'
-                    ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                    : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                className={`nav-btn ${
+                  activeTab === 'triage' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -305,7 +299,7 @@ export default function EnterpriseLayoutTemplate({
                   <span>Triage Module</span>
                 </div>
                 {triageQueueLength > 0 && (
-                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                     activeTab === 'triage' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                   }`}>
                     {triageQueueLength}
@@ -320,10 +314,8 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-appointments"
                 onClick={() => setActiveTab('appointments')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                  activeTab === 'appointments'
-                    ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                    : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                className={`nav-btn ${
+                  activeTab === 'appointments' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -341,10 +333,8 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-queue"
                   onClick={() => setActiveTab('queue')}
-                  className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                    activeTab === 'queue'
-                      ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                      : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                  className={`nav-btn ${
+                    activeTab === 'queue' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -353,7 +343,7 @@ export default function EnterpriseLayoutTemplate({
                     <span>Patient Queue</span>
                   </div>
                   {activeTab !== 'consultation' && doctorQueueLength > 0 && (
-                    <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                    <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                       activeTab === 'queue' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                     }`}>
                       {doctorQueueLength}
@@ -365,10 +355,8 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-consultation"
                   onClick={() => setActiveTab('consultation')}
-                  className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                    activeTab === 'consultation'
-                      ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                      : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                  className={`nav-btn ${
+                    activeTab === 'consultation' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -382,10 +370,8 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-reports"
                   onClick={() => setActiveTab('reports')}
-                  className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                    activeTab === 'reports'
-                      ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                      : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                  className={`nav-btn ${
+                    activeTab === 'reports' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -403,10 +389,8 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-dispensary"
                 onClick={() => setActiveTab('dispensary')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                  activeTab === 'dispensary'
-                    ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                    : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                className={`nav-btn ${
+                  activeTab === 'dispensary' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -415,7 +399,7 @@ export default function EnterpriseLayoutTemplate({
                   <span>{t.dispensary || 'Dispensary'}</span>
                 </div>
                 {pharmacyQueueLength > 0 && (
-                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                     activeTab === 'dispensary' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                   }`}>
                     {pharmacyQueueLength}
@@ -430,10 +414,8 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-billing"
                 onClick={() => setActiveTab('billing')}
-                className={`flex items-center px-3.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none ${
-                  activeTab === 'billing'
-                    ? 'bg-[#0f766e] text-white border border-[#096b62] font-black shadow-inner ring-1 ring-[#2dd4bf]/40'
-                    : 'text-teal-50 hover:bg-[#0f766e]/70 hover:text-white font-semibold'
+                className={`nav-btn ${
+                  activeTab === 'billing' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -442,7 +424,7 @@ export default function EnterpriseLayoutTemplate({
                   <span>{t.billing || 'Billing'}</span>
                 </div>
                 {cashierQueueLength > 0 && (
-                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-md min-w-[16px] flex items-center justify-center ml-2 ${
+                  <span className={`text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
                     activeTab === 'billing' ? 'bg-[#2dd4bf] text-teal-950 font-black animate-pulse' : 'bg-[#0f766e] text-teal-100 border border-[#096b62]'
                   }`}>
                     {cashierQueueLength}

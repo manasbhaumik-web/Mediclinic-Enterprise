@@ -231,16 +231,16 @@ export default function LandingDashboard({
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             {/* Time Horizon Filter Selector */}
-            <div className="flex items-center bg-white p-1 border border-[#ccfbf1] text-xs font-bold rounded-none">
+            <div className="changer-container">
               {(['today', '7days', 'monthly'] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setTimeHorizon(t)}
-                  className={`px-3 py-1.5 transition-all cursor-pointer capitalize rounded-none ${
+                  className={`changer-btn capitalize ${
                     timeHorizon === t 
-                      ? 'bg-[#0f3c4c] text-white shadow-2xs' 
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'changer-btn-active' 
+                      : 'changer-btn-inactive'
                   }`}
                 >
                   {t === 'today' ? 'Today' : t === '7days' ? '7 Days' : 'Monthly'}

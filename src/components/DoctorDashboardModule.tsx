@@ -306,16 +306,16 @@ export default function DoctorDashboardModule({
                       <span className="text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
                         <Filter className="w-3.5 h-3.5 text-[#0d9488]" /> Sort By:
                       </span>
-                      <div className="inline-flex bg-white dark:bg-[#0c3844] border border-[#ccfbf1] dark:border-teal-800/40 p-0.5 rounded-none">
+                      <div className="changer-container">
                         {(['urgency', 'wait', 'arrival'] as const).map((r) => (
                           <button
                             key={r}
                             type="button"
                             onClick={() => setSortRule(r)}
-                            className={`px-3 py-1 text-xs font-bold transition-all cursor-pointer rounded-none focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
+                            className={`changer-btn ${
                               sortRule === r
-                                ? 'bg-[#0d9488] text-white shadow-2xs'
-                                : 'text-slate-600 hover:text-slate-900 dark:text-slate-300'
+                                ? 'changer-btn-active'
+                                : 'changer-btn-inactive'
                             }`}
                           >
                             {r === 'urgency' ? 'Clinical urgency' : r === 'wait' ? 'Longest wait' : 'Arrival order'}
