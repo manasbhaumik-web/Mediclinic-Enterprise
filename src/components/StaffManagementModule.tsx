@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, X, 
-  DollarSign, CheckCircle, Clock, Calendar, AlertCircle 
+  DollarSign, CheckCircle, Clock, Calendar, AlertCircle,
+  FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../lib/supabase';
@@ -33,32 +34,38 @@ export default function StaffManagementModule() {
   const [currentView, setCurrentView] = useState<'list' | 'registration'>('list');
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchStaff = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase.from('staff').select('*').order('name');
+    if (data && !error) {
+      setStaffList(data.map(s => ({
+        id: s.id,
+        name: s.name,
+        department: s.department,
+        role: s.role,
+        status: s.status as any,
+        email: s.email,
+        gender: s.gender,
+        dob: s.dob,
+        icNumber: s.ic_number,
+        phone: s.phone,
+        salaryBase: Number(s.salary_base),
+        paymentStatus: s.payment_status as any,
+        attendanceRate: s.attendance_rate,
+        leaveBalance: s.leave_balance,
+        leavesTaken: s.leaves_taken
+      })));
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const fetchStaff = async () => {
-      const { data, error } = await supabase.from('staff').select('*').order('name');
-      if (data && !error) {
-        setStaffList(data.map(s => ({
-          id: s.id,
-          name: s.name,
-          department: s.department,
-          role: s.role,
-          status: s.status as any,
-          email: s.email,
-          gender: s.gender,
-          dob: s.dob,
-          icNumber: s.ic_number,
-          phone: s.phone,
-          salaryBase: Number(s.salary_base),
-          paymentStatus: s.payment_status as any,
-          attendanceRate: s.attendance_rate,
-          leaveBalance: s.leave_balance,
-          leavesTaken: s.leaves_taken
-        })));
-      }
-    };
-    
     fetchStaff();
     
     const channel = supabase.channel('staff_sync_' + Math.random().toString(36).substring(2, 9))
@@ -70,12 +77,18 @@ export default function StaffManagementModule() {
     };
   }, []);
 
-  const filteredStaff = staffList.filter(s => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredStaff = staffList.filter(s => {
+    const matchesSearch = 
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesDept = departmentFilter === 'All' || s.department.toLowerCase() === departmentFilter.toLowerCase();
+    const matchesStatus = statusFilter === 'All' || s.status.toLowerCase() === statusFilter.toLowerCase();
+
+    return matchesSearch && matchesDept && matchesStatus;
+  });
 
   const activeCount = staffList.filter(s => s.status === 'Active').length;
   const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
@@ -84,7 +97,6 @@ export default function StaffManagementModule() {
   const handleAddStaffSubmit = async (newStaff: StaffMember) => {
     try {
       if (editingStaffId) {
-        // Upsert uses id
         await supabase.from('staff').update({
           name: newStaff.name,
           department: newStaff.department,
@@ -104,8 +116,57 @@ export default function StaffManagementModule() {
         }]);
       }
       setCurrentView('list');
+      fetchStaff();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleLoadSampleRoster = async () => {
+    setIsLoading(true);
+    const sampleStaff = [
+      {
+        name: 'Dr. Sarah Tan',
+        department: 'General Medicine',
+        role: 'Senior GP Physician',
+        email: 'sarah.tan@mediclinic.my',
+        salary_base: 14500,
+        status: 'Active'
+      },
+      {
+        name: 'Pharm. Ahmad Razak',
+        department: 'Pharmacy',
+        role: 'Chief Pharmacist',
+        email: 'ahmad.razak@mediclinic.my',
+        salary_base: 9200,
+        status: 'Active'
+      },
+      {
+        name: 'Nurse Siti Aminah',
+        department: 'Clinical Operations',
+        role: 'Triage Nurse Supervisor',
+        email: 'siti.aminah@mediclinic.my',
+        salary_base: 5800,
+        status: 'Active'
+      },
+      {
+        name: 'Kavita A/P Ramesh',
+        department: 'Administration',
+        role: 'Receptionist & Cashier',
+        email: 'kavita.ramesh@mediclinic.my',
+        salary_base: 3800,
+        status: 'Active'
+      }
+    ];
+
+    try {
+      await supabase.from('staff').insert(sampleStaff);
+      setIsImportModalOpen(false);
+      fetchStaff();
+    } catch (err) {
+      console.error('Failed to insert sample roster', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -114,20 +175,24 @@ export default function StaffManagementModule() {
     if (!staff) return;
     const newStatus = staff.status === 'Active' ? 'Suspended' : 'Active';
     await supabase.from('staff').update({ status: newStatus }).eq('id', id);
+    fetchStaff();
   };
 
   const deleteStaff = async (id: string) => {
     if (confirm('Are you sure you want to permanently delete this staff record?')) {
       await supabase.from('staff').delete().eq('id', id);
+      fetchStaff();
     }
   };
 
   const processPayroll = async (id: string) => {
     await supabase.from('staff').update({ payment_status: 'Paid' }).eq('id', id);
+    fetchStaff();
   };
 
   const revertPayroll = async (id: string) => {
     await supabase.from('staff').update({ payment_status: 'Pending' }).eq('id', id);
+    fetchStaff();
   };
 
   const approveLeave = async (id: string) => {
@@ -137,6 +202,7 @@ export default function StaffManagementModule() {
         leave_balance: staff.leaveBalance - 1, 
         leaves_taken: staff.leavesTaken + 1 
       }).eq('id', id);
+      fetchStaff();
     }
   };
 
@@ -146,39 +212,46 @@ export default function StaffManagementModule() {
       await supabase.from('staff').update({ 
         attendance_rate: Math.max(0, staff.attendanceRate - 2) 
       }).eq('id', id);
+      fetchStaff();
     }
   };
 
   return (
-    <div className="animate-fadeIn max-w-5xl mx-auto space-y-6">
+    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6">
+      
+      {/* Page Title & Actions Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Staff & HR Management</h2>
-          <p className="text-xs text-slate-500">Manage directory, process payroll, and track attendance.</p>
+          <h2 className="text-2xl font-black text-[#0f3c4c] tracking-tight">Staff &amp; HR Management</h2>
+          <p className="text-xs text-slate-500 font-medium">
+            Manage personnel directory, process monthly payroll, and track leave balances.
+          </p>
         </div>
         
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            <input 
-              type="text" 
-              placeholder="Search personnel..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#0d9488] outline-none w-64" 
-            />
-          </div>
+        <div className="flex flex-wrap items-center gap-2.5">
           {activeTab === 'directory' && (
-            <button 
-              onClick={() => {
-                setEditingStaffId(null);
-                setCurrentView('registration');
-              }}
-              className="bg-[#0d9488] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#058A8A] cursor-pointer shadow-sm transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add Staff
-            </button>
+            <>
+              <button 
+                type="button"
+                onClick={() => setIsImportModalOpen(true)}
+                className="bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] border border-[#b2f5ea] px-3.5 py-2 rounded-none text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-[#0d9488]" />
+                <span>Import Staff CSV</span>
+              </button>
+
+              <button 
+                type="button"
+                onClick={() => {
+                  setEditingStaffId(null);
+                  setCurrentView('registration');
+                }}
+                className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-4 py-2 rounded-none text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md transition-all hover:scale-105"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Staff Member</span>
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -194,187 +267,325 @@ export default function StaffManagementModule() {
         />
       ) : (
         <>
-          <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
+          {/* Sub-Tab Selector */}
+          <div className="flex items-center gap-2 border-b border-[#ccfbf1] pb-px text-xs font-bold">
             <button
+              type="button"
               onClick={() => setActiveTab('directory')}
-              className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${
-                activeTab === 'directory' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'
+              className={`px-4 py-2.5 border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+                activeTab === 'directory' 
+                  ? 'border-[#0d9488] text-[#0d9488] font-black' 
+                  : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
               }`}
             >
-              Staff Directory ({activeCount})
+              <User className="w-4 h-4" />
+              <span>Staff Directory ({staffList.length})</span>
             </button>
+
             <button
+              type="button"
               onClick={() => setActiveTab('payroll')}
-              className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${
-                activeTab === 'payroll' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'
+              className={`px-4 py-2.5 border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+                activeTab === 'payroll' 
+                  ? 'border-[#0d9488] text-[#0d9488] font-black' 
+                  : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
               }`}
             >
-              Payroll & Salary
+              <DollarSign className="w-4 h-4" />
+              <span>Payroll &amp; Salary</span>
             </button>
+
             <button
+              type="button"
               onClick={() => setActiveTab('attendance')}
-              className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors ${
-                activeTab === 'attendance' ? 'border-[#0d9488] text-[#0d9488]' : 'border-transparent text-slate-500 hover:text-slate-700'
+              className={`px-4 py-2.5 border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+                activeTab === 'attendance' 
+                  ? 'border-[#0d9488] text-[#0d9488] font-black' 
+                  : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
               }`}
             >
-              Leave & Attendance
+              <Calendar className="w-4 h-4" />
+              <span>Leave &amp; Attendance</span>
             </button>
           </div>
 
+          {/* Directory View */}
           {activeTab === 'directory' && (
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden animate-fadeIn">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500 font-bold text-xs uppercase border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-4">Staff Member</th>
-                    <th className="px-6 py-4">Department & Role</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredStaff.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-slate-400 font-medium">
-                        No staff members found matching your search.
-                      </td>
-                    </tr>
-                  ) : filteredStaff.map((staff) => (
-                    <tr key={staff.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-[#0d9488] shrink-0">
-                            <User className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-800">{staff.name}</p>
-                            <p className="text-[10px] font-mono text-slate-400">{staff.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-slate-800 font-medium">{staff.department}</p>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Shield className="w-3 h-3 text-[#0d9488]" />
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-[#0d9488]">{staff.role}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button 
-                          onClick={() => toggleStatus(staff.id)}
-                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer border transition-colors ${
-                            staff.status === 'Active' 
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
-                              : staff.status === 'Inactive' || staff.status === 'Suspended'
-                              ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-                              : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                          }`}
-                        >
-                          <div className={`w-1.5 h-1.5 rounded-full ${staff.status === 'Active' ? 'bg-emerald-500' : staff.status === 'On Leave' ? 'bg-amber-500' : 'bg-red-500'}`}></div>
-                          {staff.status}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-end gap-2">
-                          <button 
-                            onClick={() => {
-                              setEditingStaffId(staff.id);
-                              setCurrentView('registration');
-                            }}
-                            className="p-2 text-slate-400 hover:text-[#0d9488] bg-white hover:bg-cyan-50 rounded-lg border border-transparent hover:border-cyan-100 transition-all cursor-pointer"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => deleteStaff(staff.id)}
-                            className="p-2 text-slate-400 hover:text-red-500 bg-white hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100 transition-all cursor-pointer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-4">
+              
+              {/* Filter Controls Bar (Only when staff records exist) */}
+              {staffList.length > 0 && (
+                <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+                  <div className="relative w-full md:w-72">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input 
+                      type="text" 
+                      placeholder="Search name, role, department..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-3.5 py-2 bg-[#f7fdfd] border border-[#ccfbf1] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]" 
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div className="flex items-center gap-1.5 text-slate-600 font-bold">
+                      <Filter className="w-3.5 h-3.5 text-[#0d9488]" />
+                      <span>Dept:</span>
+                      <select
+                        value={departmentFilter}
+                        onChange={e => setDepartmentFilter(e.target.value)}
+                        className="bg-[#f7fdfd] border border-[#ccfbf1] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
+                      >
+                        <option value="All">All Departments</option>
+                        <option value="General Medicine">General Medicine</option>
+                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Clinical Operations">Clinical Operations</option>
+                        <option value="Administration">Administration</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-slate-600 font-bold">
+                      <span>Status:</span>
+                      <select
+                        value={statusFilter}
+                        onChange={e => setStatusFilter(e.target.value)}
+                        className="bg-[#f7fdfd] border border-[#ccfbf1] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
+                      >
+                        <option value="All">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="On Leave">On Leave</option>
+                        <option value="Suspended">Suspended</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 1. ONBOARDING EMPTY STATE (When NO staff records exist in DB) */}
+              {staffList.length === 0 && !isLoading && (
+                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-12 text-center space-y-5 shadow-xs max-w-2xl mx-auto my-8">
+                  <div className="w-16 h-16 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488] mx-auto flex items-center justify-center shadow-md">
+                    <UserPlus className="w-8 h-8" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-black text-[#0f3c4c]">Your staff directory is empty</h3>
+                    <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+                      Add clinicians, receptionists, pharmacists, and administrators to manage their profiles, payroll, leave balances, and station access.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingStaffId(null);
+                        setCurrentView('registration');
+                      }}
+                      className="px-6 py-3 bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs rounded-none shadow-md transition-all hover:scale-105 cursor-pointer flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add First Staff Member</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleLoadSampleRoster}
+                      className="px-5 py-3 bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] font-bold text-xs border border-[#b2f5ea] rounded-none transition-colors cursor-pointer flex items-center gap-2"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-[#0d9488]" />
+                      <span>Import Sample Roster</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. SEARCH NO RESULTS STATE (When records exist but search query filters out everything) */}
+              {staffList.length > 0 && filteredStaff.length === 0 && (
+                <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-10 text-center space-y-4">
+                  <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+                  <h4 className="text-base font-black text-[#0f3c4c]">
+                    No staff members found matching &ldquo;{searchQuery}&rdquo;
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Try refining your search terms or clearing current department/status filters.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setDepartmentFilter('All');
+                      setStatusFilter('All');
+                    }}
+                    className="px-4 py-2 bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] font-bold text-xs border border-[#b2f5ea] cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Reset All Filters</span>
+                  </button>
+                </div>
+              )}
+
+              {/* 3. STAFF DIRECTORY TABLE (When records exist) */}
+              {filteredStaff.length > 0 && (
+                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden animate-fadeIn">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
+                      <tr>
+                        <th className="px-6 py-3.5">Staff Member</th>
+                        <th className="px-6 py-3.5">Department &amp; Role</th>
+                        <th className="px-6 py-3.5">Status</th>
+                        <th className="px-6 py-3.5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#ccfbf1]">
+                      {filteredStaff.map((staff) => (
+                        <tr key={staff.id} className="hover:bg-[#f0fdfa] transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] font-black text-xs shrink-0">
+                                {staff.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="font-extrabold text-[#0f3c4c] text-xs">{staff.name}</p>
+                                <p className="text-[10px] font-mono text-slate-500">{staff.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="text-slate-800 font-bold">{staff.department}</p>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Shield className="w-3 h-3 text-[#0d9488]" />
+                              <span className="text-[10px] font-extrabold uppercase tracking-wide text-[#0d9488]">{staff.role}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button 
+                              type="button"
+                              onClick={() => toggleStatus(staff.id)}
+                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-colors ${
+                                staff.status === 'Active' 
+                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+                                  : staff.status === 'On Leave'
+                                  ? 'bg-amber-100 text-amber-800 border-amber-300'
+                                  : 'bg-rose-100 text-rose-800 border-rose-300'
+                              }`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                staff.status === 'Active' ? 'bg-emerald-500' : staff.status === 'On Leave' ? 'bg-amber-500' : 'bg-rose-500'
+                              }`}></span>
+                              {staff.status}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex justify-end gap-2">
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  setEditingStaffId(staff.id);
+                                  setCurrentView('registration');
+                                }}
+                                className="p-1.5 text-slate-600 hover:text-[#0d9488] bg-[#f0fdfa] border border-[#ccfbf1] hover:border-[#0d9488] rounded-none transition-all cursor-pointer"
+                                title="Edit staff record"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => deleteStaff(staff.id)}
+                                className="p-1.5 text-slate-600 hover:text-rose-600 bg-rose-50 border border-rose-200 hover:border-rose-300 rounded-none transition-all cursor-pointer"
+                                title="Delete staff record"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
+          {/* Payroll View */}
           {activeTab === 'payroll' && (
             <div className="space-y-4 animate-fadeIn">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center text-[#0d9488]">
+                <div className="bg-[#f7fdfd] p-4 border border-[#ccfbf1] rounded-none shadow-2xs flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488]">
                     <DollarSign className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase">Est. Monthly Payroll Liability</p>
-                    <p className="text-2xl font-black text-slate-800">RM {totalPayroll.toLocaleString()}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase">Monthly Payroll Liability</p>
+                    <p className="text-2xl font-black text-[#0f3c4c]">RM {totalPayroll.toLocaleString()}</p>
                   </div>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500">
+                <div className="bg-[#f7fdfd] p-4 border border-[#ccfbf1] rounded-none shadow-2xs flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-none bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
                     <AlertCircle className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase">Pending Dispursals</p>
-                    <p className="text-2xl font-black text-slate-800">{pendingPayments} Employees</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase">Pending Disbursals</p>
+                    <p className="text-2xl font-black text-[#0f3c4c]">{pendingPayments} Employees</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-500 font-bold text-xs uppercase border-b border-slate-200">
+              <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
                     <tr>
-                      <th className="px-6 py-4">Employee</th>
-                      <th className="px-6 py-4">Base Salary</th>
-                      <th className="px-6 py-4">Deductions (EPF/Tax)</th>
-                      <th className="px-6 py-4">Net Pay</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4 text-right">Action</th>
+                      <th className="px-6 py-3.5">Employee</th>
+                      <th className="px-6 py-3.5">Base Salary</th>
+                      <th className="px-6 py-3.5">Deductions (EPF/SOCSO)</th>
+                      <th className="px-6 py-3.5">Net Pay</th>
+                      <th className="px-6 py-3.5">Status</th>
+                      <th className="px-6 py-3.5 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredStaff.map((staff) => {
+                  <tbody className="divide-y divide-[#ccfbf1]">
+                    {staffList.map((staff) => {
                       const base = Number(staff.salaryBase) || 0;
-                      const deductions = base * 0.15; // Mock 15% deduction
+                      const deductions = base * 0.13;
                       const netPay = base - deductions;
 
                       return (
-                        <tr key={staff.id} className="hover:bg-slate-50">
-                          <td className="px-6 py-4 font-bold text-slate-800">{staff.name}</td>
+                        <tr key={staff.id} className="hover:bg-[#f0fdfa]">
+                          <td className="px-6 py-4 font-bold text-[#0f3c4c]">{staff.name}</td>
                           <td className="px-6 py-4 font-mono text-slate-600">RM {base.toLocaleString()}</td>
-                          <td className="px-6 py-4 font-mono text-red-500">-RM {deductions.toLocaleString()}</td>
+                          <td className="px-6 py-4 font-mono text-rose-600">-RM {deductions.toLocaleString()}</td>
                           <td className="px-6 py-4 font-mono font-bold text-[#0d9488]">RM {netPay.toLocaleString()}</td>
                           <td className="px-6 py-4">
                             {staff.paymentStatus === 'Paid' ? (
                               <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                                <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-300">
                                   <CheckCircle className="w-3 h-3" /> Paid
                                 </span>
                                 <button 
+                                  type="button"
                                   onClick={() => revertPayroll(staff.id)}
-                                  className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-amber-500 cursor-pointer"
+                                  className="p-1 text-slate-400 hover:text-amber-600 cursor-pointer"
                                   title="Revert to Pending"
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
                             ) : (
-                              <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-300">
                                 <Clock className="w-3 h-3" /> Pending
                               </span>
                             )}
                           </td>
                           <td className="px-6 py-4 text-right">
                             <button
+                              type="button"
                               disabled={staff.paymentStatus === 'Paid'}
                               onClick={() => processPayroll(staff.id)}
-                              className={`text-xs font-bold px-3 py-1.5 rounded transition-colors ${
+                              className={`text-xs font-extrabold px-3 py-1.5 rounded-none transition-colors ${
                                 staff.paymentStatus === 'Paid' 
-                                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                  : 'bg-[#0d9488] hover:bg-[#058A8A] text-white cursor-pointer shadow-sm'
+                                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                  : 'bg-[#0d9488] hover:bg-[#0f766e] text-white cursor-pointer shadow-xs'
                               }`}
                             >
                               Process
@@ -389,59 +600,64 @@ export default function StaffManagementModule() {
             </div>
           )}
 
+          {/* Attendance View */}
           {activeTab === 'attendance' && (
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden animate-fadeIn">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500 font-bold text-xs uppercase border-b border-slate-200">
+            <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden animate-fadeIn">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
                   <tr>
-                    <th className="px-6 py-4">Employee</th>
-                    <th className="px-6 py-4">Attendance Rate</th>
-                    <th className="px-6 py-4">Leaves Taken</th>
-                    <th className="px-6 py-4">Leave Balance</th>
-                    <th className="px-6 py-4 text-right">Admin Actions</th>
+                    <th className="px-6 py-3.5">Employee</th>
+                    <th className="px-6 py-3.5">Attendance Rate</th>
+                    <th className="px-6 py-3.5">Leaves Taken</th>
+                    <th className="px-6 py-3.5">Leave Balance</th>
+                    <th className="px-6 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredStaff.map((staff) => (
-                    <tr key={staff.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 font-bold text-slate-800">
+                <tbody className="divide-y divide-[#ccfbf1]">
+                  {staffList.map((staff) => (
+                    <tr key={staff.id} className="hover:bg-[#f0fdfa]">
+                      <td className="px-6 py-4 font-bold text-[#0f3c4c]">
                         {staff.name}
-                        <p className="text-[10px] text-slate-400 font-normal">{staff.role}</p>
+                        <p className="text-[10px] text-slate-500 font-normal">{staff.role}</p>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-full bg-slate-200 rounded-full h-1.5 max-w-[80px]">
+                          <div className="w-full bg-slate-200 rounded-none h-2 max-w-[80px]">
                             <div 
-                              className={`h-1.5 rounded-full ${staff.attendanceRate > 90 ? 'bg-[#0d9488]' : staff.attendanceRate > 75 ? 'bg-amber-400' : 'bg-red-500'}`}
+                              className={`h-2 ${staff.attendanceRate > 90 ? 'bg-[#0d9488]' : staff.attendanceRate > 75 ? 'bg-amber-500' : 'bg-rose-500'}`}
                               style={{ width: `${staff.attendanceRate}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs font-bold text-slate-600">{staff.attendanceRate}%</span>
+                          <span className="text-xs font-mono font-bold text-[#0f3c4c]">{staff.attendanceRate}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 font-mono text-slate-600">
                         {staff.leavesTaken} Days
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`text-xs font-bold px-2 py-1 rounded ${staff.leaveBalance > 5 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 border ${
+                          staff.leaveBalance > 5 ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300'
+                        }`}>
                           {staff.leaveBalance} Days Left
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button 
+                            type="button"
                             onClick={() => markAbsent(staff.id)}
-                            className="text-[10px] font-bold text-red-600 border border-red-200 hover:bg-red-50 px-2 py-1 rounded cursor-pointer transition-colors"
+                            className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-2 py-1 cursor-pointer transition-colors"
                           >
                             Mark Absent
                           </button>
                           <button 
+                            type="button"
                             disabled={staff.leaveBalance <= 0}
                             onClick={() => approveLeave(staff.id)}
-                            className={`text-[10px] font-bold px-2 py-1 rounded border transition-colors ${
+                            className={`text-[10px] font-bold px-2 py-1 border transition-colors ${
                               staff.leaveBalance <= 0 
                                 ? 'text-slate-400 border-slate-200 bg-slate-50 cursor-not-allowed'
-                                : 'text-[#0d9488] border-cyan-200 hover:bg-cyan-50 cursor-pointer'
+                                : 'text-[#0d9488] bg-[#e0f5f2] border-[#b2f5ea] hover:bg-[#d5f0eb] cursor-pointer'
                             }`}
                           >
                             Approve Leave
@@ -456,6 +672,59 @@ export default function StaffManagementModule() {
           )}
         </>
       )}
+
+      {/* CSV Import Modal Simulation */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#f7fdfd] border border-[#ccfbf1] max-w-md w-full p-6 shadow-2xl space-y-5 relative text-[#0f3c4c]">
+            <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-[#0d9488]" />
+                <h3 className="text-base font-black">Import Staff Roster (CSV)</h3>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setIsImportModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Upload a standard personnel spreadsheet containing employee full name, email, department, role, and salary information.
+            </p>
+
+            <div className="border-2 border-dashed border-[#ccfbf1] bg-[#f0fdfa] p-6 text-center space-y-3">
+              <Upload className="w-8 h-8 text-[#0d9488] mx-auto" />
+              <div className="text-xs text-slate-600">
+                <span className="font-bold text-[#0d9488]">Click to choose CSV file</span> or drag and drop here
+              </div>
+              <span className="text-[10px] text-slate-400 block font-mono">Supported formats: .csv, .xlsx</span>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleLoadSampleRoster}
+                className="w-full py-2.5 bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-black shadow-md cursor-pointer transition-all flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Load Sample Malaysian Medical Roster</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(false)}
+                className="w-full py-2 bg-[#e0f5f2] text-[#0d9488] text-xs font-bold border border-[#b2f5ea] cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
