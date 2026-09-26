@@ -217,25 +217,25 @@ export default function StaffManagementModule() {
   };
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6">
+    <div className="animate-fadeIn w-full space-y-6 pb-8">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#e6f4f1] text-[#0f3c4c] p-5 rounded-none shadow-2xs border border-[#99f6e4] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-white/10 text-teal-100 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 uppercase tracking-wide">
+            <span className="bg-[#0d9488]/10 text-[#0d9488] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
               Workforce Governance
             </span>
-            <span className="flex items-center gap-1 text-[11px] text-teal-200 bg-teal-900/40 px-2 py-0.5 rounded border border-teal-400/20 font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span className="flex items-center gap-1 text-[11px] text-[#0d9488] bg-teal-50 px-2 py-0.5 rounded-none border border-[#99f6e4] font-mono font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               {activeCount} Active Personnel
             </span>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <Users className="w-6 h-6 text-teal-200" />
+          <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] flex items-center gap-2.5">
+            <Users className="w-6 h-6 text-[#0d9488]" />
             Staff &amp; HR Management
           </h1>
-          <p className="text-xs text-teal-100/90 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
             Personnel Directory, Payroll Disbursements, Workstation Credentials, and Leave Attendance Tracker.
           </p>
         </div>
@@ -246,9 +246,9 @@ export default function StaffManagementModule() {
               <button 
                 type="button"
                 onClick={() => setIsImportModalOpen(true)}
-                className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-md flex items-center gap-1.5 border border-white/20 transition-all cursor-pointer"
+                className="bg-white hover:bg-teal-50 text-[#0f3c4c] text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-[#99f6e4] transition-all cursor-pointer shadow-2xs"
               >
-                <FileSpreadsheet className="w-3.5 h-3.5" />
+                <FileSpreadsheet className="w-3.5 h-3.5 text-[#0d9488]" />
                 <span>Import Staff CSV</span>
               </button>
 
@@ -258,7 +258,7 @@ export default function StaffManagementModule() {
                   setEditingStaffId(null);
                   setCurrentView('registration');
                 }}
-                className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-semibold px-3.5 py-2 rounded-md flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
+                className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Staff Member</span>

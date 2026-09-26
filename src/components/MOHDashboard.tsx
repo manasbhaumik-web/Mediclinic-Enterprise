@@ -132,25 +132,25 @@ export default function MOHDashboard({
   ] as const;
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6">
+    <div className="animate-fadeIn w-full space-y-6 pb-8">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#e6f4f1] text-[#0f3c4c] p-5 rounded-none shadow-2xs border border-[#99f6e4] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-white/10 text-teal-100 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 uppercase tracking-wide">
+            <span className="bg-[#0d9488]/10 text-[#0d9488] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
               Public Health Compliance
             </span>
-            <span className="flex items-center gap-1 text-[11px] text-teal-200 bg-teal-900/40 px-2 py-0.5 rounded border border-teal-400/20 font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span className="flex items-center gap-1 text-[11px] text-[#0d9488] bg-teal-50 px-2 py-0.5 rounded-none border border-[#99f6e4] font-mono font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               NIDCS Sync Online
             </span>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <Globe2 className="w-6 h-6 text-teal-200" />
+          <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] flex items-center gap-2.5">
+            <Globe2 className="w-6 h-6 text-[#0d9488]" />
             MOH Regulatory Compliance &amp; Analytics
           </h1>
-          <p className="text-xs text-teal-100/90 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
             NIDCS automated disease reporting, epidemiological surveillance, and population health analytics.
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function MOHDashboard({
             type="button"
             onClick={handleNidcsUpload}
             disabled={isUploading}
-            className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-semibold px-3.5 py-2 rounded-md flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
+            className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
           >
             <UploadCloud className="w-4 h-4" />
             <span>{isUploading ? `Uploading ${uploadPercent}%` : 'Transmit NIDCS Report'}</span>
@@ -192,7 +192,7 @@ export default function MOHDashboard({
       </div>
 
       {/* 3. SUB-TAB NAVIGATION BAR */}
-      <div className="flex items-center gap-1.5 border-b border-[#ccfbf1] pb-px text-xs font-bold overflow-x-auto custom-scrollbar">
+      <div className="flex items-stretch gap-0 bg-[#d5f0eb] border-b border-[#99f6e4] text-xs font-bold h-10 overflow-x-auto custom-scrollbar">
         {tabs.map((tab) => {
           const IconComp = tab.icon;
           const isActive = activeTab === tab.id;
@@ -202,10 +202,10 @@ export default function MOHDashboard({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+              className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 isActive 
-                  ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#f0fdfa]' 
-                  : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'
+                  ? 'bg-[#0a837f] text-white font-black' 
+                  : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'
               }`}
             >
               <IconComp className="w-3.5 h-3.5" />

@@ -107,6 +107,10 @@ export default function AdminModule({
     { id: 'platform', label: 'Platform' }
   ];
 
+  const availableCategories = categories.filter(cat => 
+    filteredModules.some(m => m.category === cat.id)
+  );
+
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-[#0d9488]/20 transition-colors duration-300 ${
       isNightShift ? 'dark bg-[#092e38] text-slate-100' : 'bg-[#edf2f1] text-[#0f3c4c]'
@@ -287,15 +291,15 @@ export default function AdminModule({
       {/* ========================================================================= */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
-        <nav className="w-full bg-[#086b68] text-white border-b border-[#065451] shrink-0 px-4 py-2 flex flex-col md:flex-row md:items-center justify-between gap-3 font-sans">
+        <nav className="w-full bg-[#086b68] text-white border-b border-[#065451] shrink-0 px-4 flex flex-col md:flex-row md:items-stretch justify-between font-sans min-h-[44px]">
           
           {/* Category Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto text-xs">
-            <span className="text-[10px] font-mono uppercase text-teal-200 tracking-wider font-black mr-1 flex items-center gap-1">
+          <div className="flex items-stretch gap-0 overflow-x-auto text-xs">
+            <span className="text-[10px] font-mono uppercase text-teal-200 tracking-wider font-black px-3 flex items-center gap-1 shrink-0">
               <FolderKanban className="w-3.5 h-3.5 text-teal-200" />
               <span>Group:</span>
             </span>
-            {categories.map((cat) => (
+            {availableCategories.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
@@ -304,10 +308,10 @@ export default function AdminModule({
                   const firstInCat = filteredModules.find(m => m.category === cat.id);
                   if (firstInCat) setActiveTab(firstInCat.id as any);
                 }}
-                className={`px-3 py-1 rounded-none text-xs font-extrabold transition-all cursor-pointer ${
+                className={`px-4 py-2.5 rounded-none text-xs font-black transition-all cursor-pointer border-0 flex items-center justify-center h-full ${
                   activeCategory === cat.id 
-                    ? 'bg-[#0a837f] text-white border border-teal-300/40 shadow-xs' 
-                    : 'bg-[#074f4b] text-teal-100 hover:bg-[#065451] hover:text-white'
+                    ? 'bg-[#0a837f] text-white' 
+                    : 'bg-transparent text-teal-100 hover:bg-[#074f4b] hover:text-white'
                 }`}
               >
                 {cat.label}
@@ -316,7 +320,7 @@ export default function AdminModule({
           </div>
 
           {/* Module Tabs within Active Category */}
-          <div className="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar pt-1 md:pt-0">
+          <div className="flex items-stretch space-x-0 overflow-x-auto custom-scrollbar">
             {filteredModules
               .filter(m => m.category === activeCategory)
               .map((mod) => {
@@ -328,10 +332,10 @@ export default function AdminModule({
                     key={mod.id}
                     type="button"
                     onClick={() => handleSelectTab(mod.id as any, mod.category as any)}
-                    className={`flex items-center px-3.5 py-1.5 text-xs cursor-pointer transition-all whitespace-nowrap border ${
+                    className={`flex items-center px-4 py-2.5 text-xs cursor-pointer transition-all whitespace-nowrap border-0 rounded-none h-full ${
                       isActive
-                        ? 'bg-[#0a837f] text-white shadow-md font-black border-teal-300 ring-1 ring-teal-300/50'
-                        : 'bg-[#074f4b]/60 text-teal-100 hover:bg-[#065451] hover:text-white font-semibold border-teal-900/40'
+                        ? 'bg-[#0a837f] text-white font-black'
+                        : 'bg-transparent text-teal-100 hover:bg-[#074f4b] hover:text-white font-bold'
                     }`}
                   >
                     <IconComponent className={`w-3.5 h-3.5 mr-1.5 ${isActive ? 'text-teal-200' : 'text-teal-300'}`} />

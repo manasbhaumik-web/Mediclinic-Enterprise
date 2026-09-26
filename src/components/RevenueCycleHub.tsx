@@ -9,34 +9,34 @@ export default function RevenueCycleHub() {
   const [activeTab, setActiveTab] = useState<'intelligent_billing' | 'leakage' | 'denials'>('intelligent_billing');
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-8">
+    <div className="animate-fadeIn w-full space-y-6 pb-8">
       {/* STRUCTURED CLINICAL HEADER BANNER */}
-      <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#e6f4f1] text-[#0f3c4c] p-5 rounded-none shadow-2xs border border-[#99f6e4] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-white/10 text-teal-100 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 uppercase tracking-wide">
+            <span className="bg-[#0d9488]/10 text-[#0d9488] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
               AI Revenue Engine
             </span>
-            <span className="flex items-center gap-1 text-[11px] text-teal-200 bg-teal-900/40 px-2 py-0.5 rounded border border-teal-400/20 font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span className="flex items-center gap-1 text-[11px] text-[#0d9488] bg-teal-50 px-2 py-0.5 rounded-none border border-[#99f6e4] font-mono font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               96.8% First-Pass Clean Rate
             </span>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <TrendingUp className="w-6 h-6 text-teal-200" />
+          <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] flex items-center gap-2.5">
+            <TrendingUp className="w-6 h-6 text-[#0d9488]" />
             Revenue Cycle Management (RCM)
           </h1>
-          <p className="text-xs text-teal-100/90 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
             AI-driven billing, leakage detection, TPA claim scrubbing, and pre-submission denial prevention.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-md flex items-center gap-1.5 border border-white/20 transition-all">
-            <FileCheck className="w-3.5 h-3.5" />
+          <button className="bg-white hover:bg-teal-50 text-[#0f3c4c] text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-[#99f6e4] transition-all cursor-pointer shadow-2xs">
+            <FileCheck className="w-3.5 h-3.5 text-[#0d9488]" />
             Export Audit Log
           </button>
-          <button className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-semibold px-3.5 py-2 rounded-md flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm">
+          <button className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer">
             <BrainCircuit className="w-4 h-4" />
             Run Denial Scanner
           </button>
@@ -111,22 +111,22 @@ export default function RevenueCycleHub() {
       </div>
 
       {/* NAVIGATION TABS */}
-      <div className="flex items-center gap-1.5 border-b border-[#99f6e4] pb-px text-xs font-bold overflow-x-auto custom-scrollbar">
+      <div className="flex items-stretch gap-0 bg-[#d5f0eb] border-b border-[#99f6e4] text-xs font-bold h-10 overflow-x-auto custom-scrollbar">
         <button 
           onClick={() => setActiveTab('intelligent_billing')}
-          className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'intelligent_billing' ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#e6f4f1]' : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'}`}
+          className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer whitespace-nowrap ${activeTab === 'intelligent_billing' ? 'bg-[#0a837f] text-white font-black' : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'}`}
         >
           Intelligent Billing & Collections
         </button>
         <button 
           onClick={() => setActiveTab('leakage')}
-          className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'leakage' ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#e6f4f1]' : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'}`}
+          className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer whitespace-nowrap ${activeTab === 'leakage' ? 'bg-[#0a837f] text-white font-black' : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'}`}
         >
           Revenue Leakage AI
         </button>
         <button 
           onClick={() => setActiveTab('denials')}
-          className={`px-3.5 py-2.5 rounded-none border-b-2 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'denials' ? 'border-[#0d9488] text-[#0d9488] font-black bg-[#e6f4f1]' : 'border-transparent text-slate-500 hover:text-[#0f3c4c]'}`}
+          className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer whitespace-nowrap ${activeTab === 'denials' ? 'bg-[#0a837f] text-white font-black' : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'}`}
         >
           Pre-Claim Denial Risk Scanner
         </button>

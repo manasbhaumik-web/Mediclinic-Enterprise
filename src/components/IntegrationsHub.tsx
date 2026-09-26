@@ -99,38 +99,38 @@ export default function IntegrationsHub() {
   ];
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto space-y-6 pb-8">
+    <div className="animate-fadeIn w-full space-y-6 pb-8">
       {/* STRUCTURED CLINICAL HEADER BANNER */}
-      <div className="bg-[#0a837f] text-white p-5 rounded-none shadow-md border-b border-[#086b68] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#e6f4f1] text-[#0f3c4c] p-5 rounded-none shadow-2xs border border-[#99f6e4] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-white/10 text-teal-100 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 uppercase tracking-wide">
+            <span className="bg-[#0d9488]/10 text-[#0d9488] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
               Medical Data Ecosystem
             </span>
-            <span className="flex items-center gap-1 text-[11px] text-teal-200 bg-teal-900/40 px-2 py-0.5 rounded border border-teal-400/20 font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span className="flex items-center gap-1 text-[11px] text-[#0d9488] bg-teal-50 px-2 py-0.5 rounded-none border border-[#99f6e4] font-mono font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
               HL7 / FHIR Gateway
             </span>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <Wifi className="w-6 h-6 text-teal-200" />
+          <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] flex items-center gap-2.5">
+            <Wifi className="w-6 h-6 text-[#0d9488]" />
             Interoperability Engine
           </h1>
-          <p className="text-xs text-teal-100/90 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
             Central nervous system for external medical data. Manage active secure connections to national health registries, IoT wearables, and decentralized blockchain nodes.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-[#0f3c4c]/80 backdrop-blur-sm px-4 py-2.5 rounded-lg border border-teal-500/30 flex items-center gap-4">
+          <div className="bg-white px-4 py-2 rounded-none border border-[#99f6e4] flex items-center gap-4 shadow-2xs">
             <div className="text-left">
-              <span className="text-[10px] uppercase font-bold text-teal-200/80 tracking-wider block">Network Status</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Network Status</span>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span className="font-mono text-white text-xs font-bold">{activeConnections}/7 Nodes</span>
+                <span className="font-mono text-[#0f3c4c] text-xs font-black">{activeConnections}/7 Nodes</span>
               </div>
             </div>
 
