@@ -88,7 +88,7 @@ export default function EnterpriseLayoutTemplate({
     }`}>
       
       {/* GLOBAL TOP HEADER BAR */}
-      <header className="bg-[#0a837f] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between border-b border-[#086b68] shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
+      <header className="h-[60px] bg-[#0a837f] text-white px-4 sm:px-6 flex items-center justify-between border-b border-[#086b68] shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
         <div className="flex items-center gap-3 relative">
@@ -136,9 +136,9 @@ export default function EnterpriseLayoutTemplate({
         {/* Right Controls Header */}
         <div className="flex items-center gap-2 sm:gap-2.5">
 
-          {/* Live Clock Pill */}
-          <div className="hidden xl:flex items-center gap-2 bg-[#065451]/60 hover:bg-[#065451] backdrop-blur-md px-3 py-1.5 border border-teal-400/20 rounded-full font-mono text-xs text-teal-50 font-bold shadow-xs transition-all duration-200">
-            <Clock className="w-3.5 h-3.5 text-teal-300 animate-pulse" />
+          {/* Live Clock */}
+          <div className="hidden xl:flex items-center gap-1.5 bg-[#086b68] px-2.5 py-1 border border-[#065451] font-mono text-xs text-white rounded-none font-bold shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-teal-100" />
             <span>{timeString || '13:50:24 MYT'}</span>
           </div>
 
@@ -146,10 +146,10 @@ export default function EnterpriseLayoutTemplate({
           <button
             type="button"
             onClick={() => setIsNightShift(!isNightShift)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer text-[10px] uppercase font-extrabold font-sans shadow-xs hover:scale-105 active:scale-95 ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono shadow-2xs ${
               isNightShift 
-                ? 'bg-indigo-950/90 text-amber-300 border-indigo-400/50 hover:bg-indigo-900 shadow-[0_0_12px_rgba(129,140,248,0.2)]' 
-                : 'bg-amber-400/15 text-amber-200 border-amber-300/40 hover:bg-amber-400/25 hover:border-amber-300/60 shadow-[0_0_12px_rgba(251,191,36,0.15)]'
+                ? 'bg-indigo-950/80 text-amber-300 border-indigo-700/60 hover:bg-indigo-900' 
+                : 'bg-[#086b68] text-white border border-[#065451] hover:bg-[#065451]'
             }`}
             title="Toggle Night Shift Ergonomic Dark Mode"
           >
@@ -165,12 +165,12 @@ export default function EnterpriseLayoutTemplate({
             type="button"
             id="pwa-network-toggle"
             onClick={() => setIsOnline(!isOnline)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-[#065451]/60 hover:bg-[#065451] rounded-full border border-teal-400/20 hover:border-teal-300/40 transition-all duration-200 cursor-pointer text-[10px] uppercase font-extrabold font-sans text-white shadow-xs hover:scale-105 active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#086b68] rounded-none border border-[#065451] hover:bg-[#065451] transition-all cursor-pointer text-[10px] uppercase font-bold font-mono text-white shadow-2xs"
             title="Toggle Simulated PWA Offline/Online Mode"
           >
             {isOnline ? (
               <>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></span>
+                <Wifi className="w-3.5 h-3.5 text-teal-100" />
                 <span className="text-white">{t.online || 'Online'}</span>
               </>
             ) : (
@@ -185,28 +185,28 @@ export default function EnterpriseLayoutTemplate({
           <button
             type="button"
             onClick={() => setShowPII(!showPII)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer text-[10px] uppercase font-extrabold font-sans shadow-xs hover:scale-105 active:scale-95 ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none border transition-all cursor-pointer text-[10px] uppercase font-bold font-mono ${
               showPII 
-                ? 'bg-amber-400/15 text-amber-100 border-amber-400/40 hover:bg-amber-400/25 hover:border-amber-300/60 shadow-[0_0_12px_rgba(251,191,36,0.12)]' 
-                : 'bg-emerald-500/20 text-emerald-100 border-emerald-400/50 hover:bg-emerald-500/30 hover:border-emerald-300/70 shadow-[0_0_12px_rgba(52,211,153,0.2)]'
+                ? 'bg-amber-400/20 text-amber-100 border-amber-400/50 hover:bg-amber-400/30' 
+                : 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40 hover:bg-emerald-500/30'
             }`}
             title={showPII ? 'Privacy mode: Off (Patient PII unmasked)' : 'Privacy mode: On (Patient PII masked for privacy)'}
           >
             {showPII ? (
-              <><Eye className="w-3.5 h-3.5 text-amber-300" /> <span className="hidden sm:inline">Privacy Mode: Off</span></>
+              <><Eye className="w-3.5 h-3.5 text-amber-200" /> <span className="hidden sm:inline">Privacy Mode: Off</span></>
             ) : (
               <><EyeOff className="w-3.5 h-3.5 text-emerald-300" /> <span className="hidden sm:inline">Privacy Mode: On</span></>
             )}
           </button>
 
-          {/* Clear Language Switcher Segmented Control */}
-          <div className="inline-flex bg-[#044341] p-1 border border-teal-400/20 rounded-full font-sans text-xs shadow-inner items-center">
+          {/* Clear Language Switcher */}
+          <div className="inline-flex bg-[#065451] p-0.5 border border-[#086b68] rounded-none font-sans text-xs">
             <button
               type="button"
               id="lang-toggle-en"
               onClick={() => setActiveLanguage('EN')}
-              className={`px-2.5 py-0.5 text-[10px] font-extrabold cursor-pointer rounded-full uppercase transition-all duration-200 ${
-                activeLanguage === 'EN' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black shadow-md shadow-teal-900/40' : 'text-teal-200 hover:text-white'
+              className={`px-2 py-1 text-[10px] font-bold cursor-pointer rounded-none uppercase transition-colors ${
+                activeLanguage === 'EN' ? 'bg-[#0d9488] text-white font-black' : 'text-teal-100 hover:text-white'
               }`}
               title="Switch to English"
             >
@@ -216,8 +216,8 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               id="lang-toggle-bm"
               onClick={() => setActiveLanguage('BM')}
-              className={`px-2.5 py-0.5 text-[10px] font-extrabold cursor-pointer rounded-full uppercase transition-all duration-200 ${
-                activeLanguage === 'BM' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-black shadow-md shadow-teal-900/40' : 'text-teal-200 hover:text-white'
+              className={`px-2 py-1 text-[10px] font-bold cursor-pointer rounded-none uppercase transition-colors ${
+                activeLanguage === 'BM' ? 'bg-[#0d9488] text-white font-black' : 'text-teal-100 hover:text-white'
               }`}
               title="Switch to Bahasa Melayu"
             >
@@ -229,15 +229,15 @@ export default function EnterpriseLayoutTemplate({
           <div className="relative">
             <button 
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 bg-[#065451]/80 hover:bg-[#065451] border border-teal-400/30 hover:border-teal-300/60 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 shadow-xs hover:scale-105 active:scale-95"
+              className="flex items-center gap-2 bg-[#086b68] hover:bg-[#065451] border border-[#065451] px-2.5 py-1 rounded-none cursor-pointer transition-colors shadow-2xs"
             >
-              <div className="w-5 h-5 bg-gradient-to-br from-teal-300 to-emerald-400 text-teal-950 font-sans text-[10px] font-black flex items-center justify-center rounded-full shadow-xs">
+              <div className="w-5 h-5 bg-[#0a837f] text-white font-mono text-[10px] font-black flex items-center justify-center rounded-none">
                 {getUserInitials(userName)}
               </div>
-              <span className="text-white hidden sm:inline text-[11px] font-sans font-extrabold uppercase tracking-wide">
+              <span className="text-teal-100 hidden sm:inline text-xs font-mono font-bold uppercase">
                 {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)} Suite` : 'Suite'}
               </span>
-              <ChevronDown className={`w-3.5 h-3.5 text-teal-200 transition-transform duration-200 ${showUserMenu ? 'rotate-180 text-white' : ''}`} />
+              <ChevronDown className="w-3 h-3 text-teal-200" />
             </button>
 
             {showUserMenu && (

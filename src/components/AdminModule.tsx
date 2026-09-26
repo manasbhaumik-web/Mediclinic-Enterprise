@@ -42,7 +42,7 @@ export default function AdminModule({
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased">
 
       {/* Admin Header */}
-      <header className="bg-[#07B2B2] text-white px-5 py-3 flex items-center justify-between border-b border-cyan-800 shrink-0 shadow-md">
+      <header className="h-[60px] bg-[#07B2B2] text-white px-5 flex items-center justify-between border-b border-cyan-800 shrink-0 shadow-md">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-none shrink-0 flex items-center justify-center">
             <img src="./logo_transparent.svg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
