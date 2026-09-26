@@ -253,7 +253,7 @@ export default function DoctorDashboardModule({
       {/* ========================================================================= */}
       {internalTab === 'queue' && (
         <div className="space-y-4 animate-fadeIn">
-          <div className="bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-5 rounded-none shadow-sm space-y-4">
+          <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-5 rounded-none space-y-4">
             
             {/* QUEUE HEADER TOOLBAR WITH ACTIONABLE METRICS */}
             {(() => {
