@@ -6,9 +6,11 @@ import {
 } from 'lucide-react';
 import { useInventory, DrugItem } from '../context/InventoryContext';
 import DrugRegistration from './DrugRegistration';
+import { useClinicStore } from '../store/useClinicStore';
 
 export default function MedicineManagementModule() {
   const { catalog, logs, addDrug, restockDrug, deleteDrug, disposeDrug, useDrugInternally } = useInventory();
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
   
   // Navigation State
   const [activeTab, setActiveTab] = useState<'catalog' | 'logs' | 'supply_chain'>('catalog');
@@ -29,15 +31,17 @@ export default function MedicineManagementModule() {
   const [useAmount, setUseAmount] = useState('1');
   const [useReason, setUseReason] = useState('Emergency Treatment');
 
-  // Derived State
-  const filteredCatalog = catalog.filter(drug => 
+  // Derived State (Branch Isolated)
+  const branchCatalog = catalog.filter(drug => !drug.tenantId || drug.tenantId === activeBranchId);
+
+  const filteredCatalog = branchCatalog.filter(drug => 
     drug.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     drug.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalItems = catalog.length;
-  const lowStockCount = catalog.filter(d => d.currentStock <= d.minThreshold).length;
-  const controlledRxCount = catalog.filter(d => d.isControlledDrug).length;
+  const totalItems = branchCatalog.length;
+  const lowStockCount = branchCatalog.filter(d => d.currentStock <= d.minThreshold).length;
+  const controlledRxCount = branchCatalog.filter(d => d.isControlledDrug).length;
 
   const handleAddDrugSubmit = (newDrugData: Omit<DrugItem, 'id'>) => {
     addDrug(newDrugData);

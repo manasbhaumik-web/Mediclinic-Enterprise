@@ -25,6 +25,7 @@ const AppointmentCalendarModule = React.lazy(() => import('./components/Appointm
 
 import GlobalSpinner from './components/ui/GlobalSpinner';
 import EnterpriseLayoutTemplate from './components/EnterpriseLayoutTemplate';
+import { useClinicStore } from './store/useClinicStore';
 
 // Import icons
 import {
@@ -162,17 +163,25 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+
+  // Multi-Branch Isolated Datasets
+  const branchVisitsQueue = visitsQueue.filter(v => !v.tenantId || v.tenantId === activeBranchId);
+  const branchCompletedVisits = completedVisits.filter(v => !v.tenantId || v.tenantId === activeBranchId);
+  const branchPatientsList = patientsList.filter(p => !p.tenantId || p.tenantId === activeBranchId);
+  const branchAppointments = appointments.filter(a => !a.tenantId || a.tenantId === activeBranchId);
+
   // Derived maps
   const patientsMap = patientsList.reduce<Record<string, Patient>>((acc, curr) => {
     acc[curr.id] = curr;
     return acc;
   }, {});
 
-  // Categorize flow lists
-  const triageQueue = visitsQueue.filter(v => v.status === 'Awaiting Triage');
-  const doctorQueue = visitsQueue.filter(v => v.status === 'Awaiting Consult' || v.status === 'Consulting');
-  const pharmacyQueue = visitsQueue.filter(v => v.status === 'Awaiting Dispensation');
-  const cashierQueue = visitsQueue.filter(v => v.status === 'Awaiting Billing');
+  // Categorize flow lists (Branch Isolated)
+  const triageQueue = branchVisitsQueue.filter(v => v.status === 'Awaiting Triage');
+  const doctorQueue = branchVisitsQueue.filter(v => v.status === 'Awaiting Consult' || v.status === 'Consulting');
+  const pharmacyQueue = branchVisitsQueue.filter(v => v.status === 'Awaiting Dispensation');
+  const cashierQueue = branchVisitsQueue.filter(v => v.status === 'Awaiting Billing');
 
   const handleTriageComplete = (visitId: string, vitals: any, chiefComplaint: string) => {
     const visit = visitsQueue.find(v => v.id === visitId);
@@ -251,8 +260,8 @@ export default function App() {
             doctorQueue={doctorQueue}
             pharmacyQueue={pharmacyQueue}
             cashierQueue={cashierQueue}
-            completedVisits={completedVisits}
-            patientsList={patientsList}
+            completedVisits={branchCompletedVisits}
+            patientsList={branchPatientsList}
             activeLanguage={activeLanguage}
             onNavigateTab={setActiveTab}
             onOpenLogin={() => setAppView('login')}
@@ -270,8 +279,8 @@ export default function App() {
         await signOut();
       }}
       userRole={userRole as UserRole}
-      completedVisits={completedVisits}
-      totalRegisteredCount={patientsList.length}
+      completedVisits={branchCompletedVisits}
+      totalRegisteredCount={branchPatientsList.length}
       activeLanguage={activeLanguage}
     />;
     return null;
@@ -334,7 +343,7 @@ export default function App() {
                   doctorTab={activeTab === 'reports' ? 'reports' : activeTab === 'consultation' ? 'consultation' : 'queue'}
                   onTabChange={(t) => setActiveTab(t)}
                   doctorQueue={doctorQueue}
-                  completedVisits={completedVisits}
+                  completedVisits={branchCompletedVisits}
                   patientsMap={patientsMap}
                   activeLanguage={activeLanguage}
                   activeConsultationVisitId={activeConsultationVisitId}
@@ -352,8 +361,8 @@ export default function App() {
                   doctorQueue={doctorQueue}
                   pharmacyQueue={pharmacyQueue}
                   cashierQueue={cashierQueue}
-                  completedVisits={completedVisits}
-                  patientsList={patientsList}
+                  completedVisits={branchCompletedVisits}
+                  patientsList={branchPatientsList}
                   activeLanguage={activeLanguage}
                   onNavigateTab={(tab) => {
                     if (!userRole) {
@@ -371,8 +380,8 @@ export default function App() {
                 <PatientRegistrationModule
                   t={t}
                   activeLanguage={activeLanguage}
-                  searchPatients={async (query: string) => patientsList.filter(p => p.fullName.toLowerCase().includes(query.toLowerCase()) || p.icNumber.includes(query))}
-                  totalPatientCount={patientsList.length}
+                  searchPatients={async (query: string) => branchPatientsList.filter(p => p.fullName.toLowerCase().includes(query.toLowerCase()) || p.icNumber.includes(query))}
+                  totalPatientCount={branchPatientsList.length}
                   triageQueue={triageQueue}
                   patientsMap={patientsMap}
                   addPatientToDb={addPatientToDb}
@@ -394,8 +403,8 @@ export default function App() {
               {/* APPOINTMENT CALENDAR MODULE */}
               {activeTab === 'appointments' && (userRole === 'clinic-assistant' || userRole === 'admin') && (
                 <AppointmentCalendarModule
-                  appointments={appointments}
-                  patientsList={patientsList}
+                  appointments={branchAppointments}
+                  patientsList={branchPatientsList}
                   addAppointment={addAppointmentToDb}
                   updateAppointment={updateAppointmentInDb}
                 />

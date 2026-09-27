@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Stethoscope, Plus, Search, CheckCircle, AlertTriangle, X, Trash2, PenTool, ArrowRightLeft, History, Cpu, ShieldCheck, Check, RefreshCw } from 'lucide-react';
 import EquipmentRegistration from './EquipmentRegistration';
 import { supabase } from '../lib/supabase';
+import { useClinicStore } from '../store/useClinicStore';
 
 export interface EquipmentItem {
   id: string;
@@ -133,16 +134,20 @@ export default function EquipmentManagementModule() {
     };
   }, []);
 
-  const filteredEq = equipmentList.filter(eq => 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+
+  const branchEquipmentList = equipmentList.filter(eq => !eq.tenantId || eq.tenantId === activeBranchId);
+
+  const filteredEq = branchEquipmentList.filter(eq => 
     (eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
      eq.serialNumber?.toLowerCase().includes(searchQuery.toLowerCase())) &&
     eq.status !== 'Decommissioned' // Hide decommissioned from active view
   );
   
-  const issuesCount = equipmentList.filter(e => e.status === 'Maintenance').length;
-  const operationalCount = equipmentList.filter(e => e.status === 'Operational').length;
-  const operationalPercentage = equipmentList.length > 0 
-    ? Math.round((operationalCount / equipmentList.length) * 100) 
+  const issuesCount = branchEquipmentList.filter(e => e.status === 'Maintenance').length;
+  const operationalCount = branchEquipmentList.filter(e => e.status === 'Operational').length;
+  const operationalPercentage = branchEquipmentList.length > 0 
+    ? Math.round((operationalCount / branchEquipmentList.length) * 100) 
     : 100;
 
   const handleAddEquipmentSubmit = async (newEqData: Omit<EquipmentItem, 'id'>) => {

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../lib/supabase';
+import { useClinicStore } from '../store/useClinicStore';
 
 export interface StaffMember {
   id: string;
@@ -98,7 +99,11 @@ export default function StaffManagementModule() {
     };
   }, []);
 
-  const filteredStaff = staffList.filter(s => {
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+
+  const branchStaffList = staffList.filter(s => !s.tenantId || s.tenantId === activeBranchId);
+
+  const filteredStaff = branchStaffList.filter(s => {
     const matchesSearch = 
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -111,9 +116,9 @@ export default function StaffManagementModule() {
     return matchesSearch && matchesDept && matchesStatus;
   });
 
-  const activeCount = staffList.filter(s => s.status === 'Active').length;
-  const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
-  const pendingPayments = staffList.filter(s => s.paymentStatus === 'Pending').length;
+  const activeCount = branchStaffList.filter(s => s.status === 'Active').length;
+  const totalPayroll = branchStaffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
+  const pendingPayments = branchStaffList.filter(s => s.paymentStatus === 'Pending').length;
 
   const handleAddStaffSubmit = async (newStaff: StaffMember) => {
     try {
