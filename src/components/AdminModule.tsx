@@ -113,7 +113,7 @@ export default function AdminModule({
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-[#0d9488]/20 transition-colors duration-300 ${
-      isNightShift ? 'dark bg-[#092e38] text-slate-100' : 'bg-[#edf2f1] text-[#0f3c4c]'
+      isNightShift ? 'dark bg-[#07252d] text-slate-100' : 'bg-[#edf2f1] text-[#0f3c4c]'
     }`}>
 
       {/* ========================================================================= */}
@@ -351,7 +351,7 @@ export default function AdminModule({
         {/* ========================================================================= */}
         {/* MAIN CONTENT AREA                                                         */}
         {/* ========================================================================= */}
-        <main className="flex-1 p-5 overflow-y-auto bg-[#edf2f1] text-[#0f3c4c]">
+        <main className="flex-1 p-5 overflow-y-auto bg-[#edf2f1] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-100">
 
           {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
             <StaffManagementModule />
