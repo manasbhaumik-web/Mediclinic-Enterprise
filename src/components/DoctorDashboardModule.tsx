@@ -175,25 +175,25 @@ export default function DoctorDashboardModule({
       return {
         level: 'High',
         stripColor: 'border-l-2 border-l-rose-500 dark:border-l-rose-400',
-        badgeBg: 'bg-rose-50/70 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 font-bold',
+        badgeBg: 'bg-rose-100 text-rose-950 dark:bg-rose-900/90 dark:text-rose-100 border border-rose-300 dark:border-rose-600 font-extrabold',
         icon: AlertCircle,
-        iconColor: 'text-rose-500 dark:text-rose-400'
+        iconColor: 'text-rose-700 dark:text-rose-200'
       };
     } else if (waitMins >= 15 || temp >= 37.3) {
       return {
         level: 'Medium',
         stripColor: 'border-l-2 border-l-amber-500 dark:border-l-amber-400',
-        badgeBg: 'bg-amber-50/70 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-bold',
+        badgeBg: 'bg-amber-100 text-amber-950 dark:bg-amber-900/90 dark:text-amber-100 border border-amber-300 dark:border-amber-600 font-extrabold',
         icon: Clock,
-        iconColor: 'text-amber-500 dark:text-amber-400'
+        iconColor: 'text-amber-700 dark:text-amber-200'
       };
     } else {
       return {
         level: 'Low',
         stripColor: 'border-l-2 border-l-emerald-500 dark:border-l-emerald-400',
-        badgeBg: 'bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold',
+        badgeBg: 'bg-emerald-100 text-emerald-950 dark:bg-emerald-900/90 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-600 font-extrabold',
         icon: CheckCircle2,
-        iconColor: 'text-emerald-500 dark:text-emerald-400'
+        iconColor: 'text-emerald-700 dark:text-emerald-200'
       };
     }
   };
@@ -201,8 +201,8 @@ export default function DoctorDashboardModule({
   const renderAllergyBadge = (drugAllergies: string[] = []) => {
     if (drugAllergies.length === 0) return null;
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-rose-50/70 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 shadow-2xs font-mono shrink-0">
-        <AlertCircle className="w-3 h-3 text-rose-500 dark:text-rose-400 shrink-0" />
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-950 dark:bg-rose-900/90 dark:text-rose-100 border border-rose-300 dark:border-rose-600 shadow-2xs font-mono shrink-0">
+        <AlertCircle className="w-3 h-3 text-rose-700 dark:text-rose-200 shrink-0" />
         <span>Allergy: {drugAllergies.join(', ')}</span>
       </span>
     );
@@ -901,9 +901,6 @@ export default function DoctorDashboardModule({
                             {currentPage === 1 ? 'Subsequent Patients' : 'Patient Queue List'} ({sortedQueue.length} Total · Page {currentPage} of {totalPages})
                           </span>
                         </h4>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
-                          Active Sort: <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
-                        </span>
                       </div>
 
                       <div className="flex flex-col gap-2.5">

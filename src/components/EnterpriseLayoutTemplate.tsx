@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
@@ -52,6 +52,23 @@ export default function EnterpriseLayoutTemplate({
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
   const [isNightShift, setIsNightShift] = useState<boolean>(false);
+
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close workstation settings popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   useEffect(() => {
     const updateClock = () => {
@@ -151,7 +168,7 @@ export default function EnterpriseLayoutTemplate({
           </div>
 
           {/* Combined Workstation Settings & Profile Menu Trigger */}
-          <div className="relative">
+          <div ref={userMenuRef} className="relative">
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
