@@ -40,7 +40,6 @@ export default function DoctorDashboardModule({
   const [calledVisitId, setCalledVisitId] = useState<string | null>(null);
   const [callAnnouncementToast, setCallAnnouncementToast] = useState<string | null>(null);
   const [sortRule, setSortRule] = useState<'urgency' | 'wait' | 'arrival'>('urgency');
-  const [queueFilter, setQueueFilter] = useState<'all' | 'high_priority' | 'allergies' | 'overdue'>('all');
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
   const [calledTimestampMap, setCalledTimestampMap] = useState<Record<string, string>>({});
   const [lastSyncedText, setLastSyncedText] = useState<string>('Just now');
@@ -85,25 +84,25 @@ export default function DoctorDashboardModule({
       return {
         level: 'High',
         stripColor: 'border-l-4 border-l-rose-600 dark:border-l-rose-500',
-        badgeBg: 'bg-rose-100 dark:bg-rose-950 text-rose-950 dark:text-rose-100 border-2 border-rose-600 dark:border-rose-400 font-black',
+        badgeBg: 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-rose-300 dark:border-rose-800 font-extrabold',
         icon: AlertCircle,
-        iconColor: 'text-rose-700 dark:text-rose-300'
+        iconColor: 'text-rose-600 dark:text-rose-400'
       };
     } else if (waitMins >= 15 || temp >= 37.3) {
       return {
         level: 'Medium',
         stripColor: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
-        badgeBg: 'bg-amber-100 dark:bg-amber-950 text-amber-950 dark:text-amber-100 border-2 border-amber-600 dark:border-amber-400 font-black',
+        badgeBg: 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800 font-extrabold',
         icon: Clock,
-        iconColor: 'text-amber-700 dark:text-amber-300'
+        iconColor: 'text-amber-600 dark:text-amber-400'
       };
     } else {
       return {
         level: 'Low',
-        stripColor: 'border-l-4 border-l-emerald-600 dark:border-l-emerald-400',
-        badgeBg: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-100 border-2 border-emerald-600 dark:border-emerald-400 font-black',
+        stripColor: 'border-l-4 border-l-emerald-500 dark:border-l-emerald-400',
+        badgeBg: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800 font-extrabold',
         icon: CheckCircle2,
-        iconColor: 'text-emerald-700 dark:text-emerald-300'
+        iconColor: 'text-emerald-600 dark:text-emerald-400'
       };
     }
   };
@@ -111,8 +110,8 @@ export default function DoctorDashboardModule({
   const renderAllergyBadge = (drugAllergies: string[] = []) => {
     if (drugAllergies.length === 0) return null;
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none text-[11px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-950 text-rose-950 dark:text-rose-100 border-2 border-rose-600 dark:border-rose-400 shadow-2xs font-mono shrink-0">
-        <AlertCircle className="w-3.5 h-3.5 text-rose-700 dark:text-rose-300 shrink-0" />
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none text-[11px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border-2 border-rose-600 shadow-2xs font-mono shrink-0">
+        <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
         <span>Allergy: {drugAllergies.join(', ')}</span>
       </span>
     );
@@ -253,555 +252,471 @@ export default function DoctorDashboardModule({
       {/* 1. SEPARATE PAGE: DEDICATED PATIENT WAITING QUEUE PAGE                   */}
       {/* ========================================================================= */}
       {internalTab === 'queue' && (
-        <div className="space-y-4 animate-fadeIn">
-          <div className="bg-[#f7fdfd] dark:bg-[#07252d] p-5 rounded-none space-y-4">
-            
-            {/* QUEUE HEADER TOOLBAR WITH RUTHLESS VISUAL HIERARCHY & 3 PRIMARY SIGNALS */}
-            {(() => {
-              const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
-              const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
-              const maxWaitMinutes = doctorQueue.reduce((max, v) => {
-                const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
-                return mins > max ? mins : max;
-              }, 0);
+        <div className="animate-fadeIn w-full space-y-6 pb-8">
+          
+          {/* 1. STRUCTURED CLINICAL HEADER BANNER */}
+          <div className="bg-[#e6f4f1] dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 p-5 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:text-[#2dd4bf] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
+                  Clinical Triage &amp; Workflow
+                </span>
+                <span className="flex items-center gap-1 text-[11px] text-[#0d9488] dark:text-[#2dd4bf] bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  Real-time Outpatient Telemetry
+                </span>
+              </div>
+              <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2.5">
+                <Users className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                Doctor Consultation Patient Queue
+              </h1>
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium max-w-2xl leading-relaxed">
+                Triaged outpatient consultation queue organized for quick scanning, high-priority triage escalation, and decisive patient workflow management.
+              </p>
+            </div>
 
-              return (
-                <div className="bg-[#e6f4f1] text-[#0f3c4c] dark:bg-[#082830] dark:text-[#5eead4] p-4 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800/60 space-y-3">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="bg-[#0d9488]/10 text-[#0d9488] dark:text-[#2dd4bf] text-[10px] font-bold px-2 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wider font-mono">
-                          Outpatient Stream
-                        </span>
-                        <span className="flex items-center gap-1 text-[10px] text-[#0d9488] dark:text-[#2dd4bf] bg-white dark:bg-[#061f26] px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                          Live Queue
-                        </span>
-                      </div>
-                      <h1 className="text-lg font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
-                        <Users className="w-5 h-5 text-[#0d9488] dark:text-[#2dd4bf]" />
-                        Doctor Patient Queue
-                      </h1>
-                    </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleManualQueueRefresh}
+                disabled={isRefreshingQueue}
+                className="bg-white hover:bg-teal-50 dark:bg-[#0e4857] dark:hover:bg-[#12596b] text-[#0f3c4c] dark:text-[#5eead4] text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer shadow-2xs"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-[#0d9488] ${isRefreshingQueue ? 'animate-spin' : ''}`} />
+                <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh Queue'}</span>
+              </button>
+            </div>
+          </div>
 
-                    {/* ONLY 3 PRIMARY SIGNALS ABOVE THE QUEUE */}
-                    <div className="grid grid-cols-3 gap-2 font-mono text-xs font-bold">
-                      <div className="bg-white dark:bg-[#061f26] text-[#0f3c4c] dark:text-[#5eead4] border border-[#99f6e4] dark:border-teal-800 px-3 py-2 rounded-none flex items-center gap-2 shadow-2xs">
-                        <Users className="w-4 h-4 text-[#0d9488] shrink-0" />
-                        <div>
-                          <div className="text-[9px] text-slate-500 uppercase tracking-wider font-sans font-bold">Waiting Patients</div>
-                          <div className="text-sm font-black">{doctorQueue.length}</div>
-                        </div>
-                      </div>
+          {/* 2. TOP 4 ACTIONABLE SUMMARY METRIC CARDS */}
+          {(() => {
+            const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
+            const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
+            const maxWaitMinutes = doctorQueue.reduce((max, v) => {
+              const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
+              return mins > max ? mins : max;
+            }, 0);
 
-                      <div className="bg-rose-50 dark:bg-rose-950/70 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 px-3 py-2 rounded-none flex items-center gap-2 shadow-2xs">
-                        <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                        <div>
-                          <div className="text-[9px] text-rose-600 dark:text-rose-300 uppercase tracking-wider font-sans font-bold">High Acuity</div>
-                          <div className="text-sm font-black">{highPriorityCount}</div>
-                        </div>
-                      </div>
-
-                      <div className="bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800 px-3 py-2 rounded-none flex items-center gap-2 shadow-2xs">
-                        <Clock className="w-4 h-4 text-amber-600 shrink-0" />
-                        <div>
-                          <div className="text-[9px] text-amber-600 dark:text-amber-300 uppercase tracking-wider font-sans font-bold">Longest Wait</div>
-                          <div className="text-sm font-black">{maxWaitMinutes}m</div>
-                        </div>
-                      </div>
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patients Waiting</span>
+                    <div className="p-2 bg-teal-50 dark:bg-teal-950/60 rounded-none text-[#0d9488] dark:text-[#2dd4bf]">
+                      <Users className="w-5 h-5" />
                     </div>
                   </div>
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <h3 className="text-2xl font-black text-[#0f3c4c] dark:text-[#5eead4]">{doctorQueue.length}</h3>
+                    <span className="text-xs text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-none font-bold border border-teal-200 dark:border-teal-800">
+                      Active Queue
+                    </span>
+                  </div>
+                </div>
 
-                  {/* QUIETER UTILITY AREA: FILTER PILLS, SORT & SYNC */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-[#ccfbf1] dark:border-teal-800/40 text-xs font-medium">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      {/* Segmented Filter Pills */}
-                      <div className="flex items-center gap-0.5 bg-white dark:bg-[#061f26] border border-[#99f6e4] dark:border-teal-800 p-0.5 rounded-none">
-                        {(['all', 'high_priority', 'allergies', 'overdue'] as const).map(f => (
+                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-rose-600"></div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">High Priority / Allergy</span>
+                    <div className="p-2 bg-rose-50 dark:bg-rose-950/60 rounded-none text-rose-600 dark:text-rose-400">
+                      <AlertCircle className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <h3 className="text-2xl font-black text-rose-700 dark:text-rose-300">{highPriorityCount}</h3>
+                    <span className="text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-none font-bold border border-rose-300 dark:border-rose-800">
+                      Acuity Escalation
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Over SLA (&gt;20 min)</span>
+                    <div className="p-2 bg-amber-50 dark:bg-amber-950/60 rounded-none text-amber-600 dark:text-amber-400">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <h3 className="text-2xl font-black text-amber-700 dark:text-amber-300">{overSlaCount}</h3>
+                    <span className="text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-none font-bold border border-amber-300 dark:border-amber-800">
+                      Turnaround Risk
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-sky-500"></div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Max Waiting Time</span>
+                    <div className="p-2 bg-sky-50 dark:bg-sky-950/60 rounded-none text-sky-600 dark:text-sky-400">
+                      <Activity className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <h3 className="text-2xl font-black text-[#0f3c4c] dark:text-[#5eead4]">{maxWaitMinutes} min</h3>
+                    <span className="text-xs text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-none font-bold border border-sky-300 dark:border-sky-800">
+                      Peak Wait
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* 3. SORTING CONTROLS & FILTER BAR */}
+          <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 p-4 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[#0f3c4c] dark:text-slate-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Sort Queue By:
+              </span>
+              <div className="changer-container">
+                {(['urgency', 'wait', 'arrival'] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setSortRule(r)}
+                    className={`changer-btn ${
+                      sortRule === r
+                        ? 'changer-btn-active'
+                        : 'changer-btn-inactive'
+                    }`}
+                  >
+                    {r === 'urgency' ? 'Clinical Urgency & Allergies' : r === 'wait' ? 'Longest Wait' : 'Arrival Order'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 font-mono text-[11px] text-slate-600 dark:text-slate-300">
+              <span>Active Rule: <strong className="text-[#0d9488] dark:text-[#2dd4bf] font-extrabold">{sortRule === 'urgency' ? 'High-acuity & allergies first' : sortRule === 'wait' ? 'Descending wait time' : 'Registration order'}</strong></span>
+            </div>
+          </div>
+
+          {/* 4. PATIENT QUEUE LIST RENDERING */}
+          {(() => {
+            const sortQueue = (queue: Visit[]) => {
+              const list = [...queue];
+              if (sortRule === 'urgency') {
+                return list.sort((a, b) => {
+                  const ptA = patientsMap[a.patientId];
+                  const ptB = patientsMap[b.patientId];
+                  const allergiesA = ptA?.drugAllergies?.length || 0;
+                  const allergiesB = ptB?.drugAllergies?.length || 0;
+                  const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
+                  const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
+                  if (allergiesA > 0 && allergiesB === 0) return -1;
+                  if (allergiesB > 0 && allergiesA === 0) return 1;
+                  return waitB - waitA;
+                });
+              } else if (sortRule === 'wait') {
+                return list.sort((a, b) => {
+                  const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
+                  const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
+                  return waitB - waitA;
+                });
+              } else {
+                return list.sort((a, b) => (a.registeredTime || 0) - (b.registeredTime || 0));
+              }
+            };
+
+            const sortedQueue = sortQueue(doctorQueue);
+
+            if (doctorQueue.length === 0) {
+              return (
+                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none p-12 border border-[#99f6e4] dark:border-teal-800 text-center text-slate-500 dark:text-slate-400">
+                  <Users className="w-12 h-12 text-[#0d9488] dark:text-[#2dd4bf] mx-auto mb-3 opacity-60" />
+                  <span className="text-xs font-bold block text-[#0f3c4c] dark:text-[#5eead4]">Your patient queue is currently empty.</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Waiting for triage clinic assistants to register and dispatch new outpatients.</span>
+                </div>
+              );
+            }
+
+            const nextVisit = sortedQueue[0];
+            const nextPatient = patientsMap[nextVisit.patientId];
+            const remainingQueue = sortedQueue.slice(1);
+
+            return (
+              <div className="space-y-4">
+                {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY) */}
+                {nextPatient && (
+                  <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3`}>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#0d9488]/40 pb-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs font-mono">
+                          NEXT IN LINE (#1)
+                        </span>
+                        
+                        {/* Urgency Badge */}
+                        {(() => {
+                          const t = getTriageDetails(nextPatient, nextVisit);
+                          const IconComp = t.icon;
+                          return (
+                            <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-none border flex items-center gap-1 font-mono ${t.badgeBg}`}>
+                              <IconComp className={`w-3 h-3 ${t.iconColor}`} />
+                              <span>Triage: {t.level}</span>
+                            </span>
+                          );
+                        })()}
+
+                        {/* Allergy Badge */}
+                        {renderAllergyBadge(nextPatient.drugAllergies)}
+
+                        {/* Called timestamp badge */}
+                        {calledTimestampMap[nextVisit.id] && (
+                          <span className="bg-emerald-400 text-[#0f3c4c] text-[10px] font-black uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center gap-1">
+                            📢 Called at {calledTimestampMap[nextVisit.id]}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Full 3-Step Visual Workflow Tracker */}
+                      <div className="text-[11px] font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center gap-1.5">
+                        <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-extrabold underline'}>
+                          Ready
+                        </span>
+                        <span className="text-teal-400">→</span>
+                        <span className={calledVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                          Called
+                        </span>
+                        <span className="text-teal-400">→</span>
+                        <span className={activeConsultationVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                          In Consultation
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      <div className="space-y-1.5">
+                        <h3 className="text-xl font-black text-white flex items-baseline gap-2">
+                          <span>{nextPatient.fullName}</span>
+                          <span className="text-xs font-mono text-teal-200 font-normal">ID: {nextPatient.id} · ({nextPatient.gender}, {nextPatient.dob})</span>
+                        </h3>
+
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-teal-100 font-medium">
+                          <span className="font-bold text-white bg-teal-900/60 px-2 py-0.5 border border-teal-500/40">
+                            Complaint: {getChiefComplaintLabel(nextVisit.soap?.subjective)}
+                          </span>
+                          <span className="opacity-50">•</span>
+                          <span className="font-mono text-amber-200">
+                            Wait: <strong>{nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0} min</strong>
+                          </span>
+                        </div>
+
+                        {/* Vitals summary preview */}
+                        {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
+                          <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[10px]">
+                            <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                              BP: <strong className="text-white">{nextVisit.soap.objective.bpSystolic}/{nextVisit.soap.objective.bpDiastolic}</strong> mmHg
+                            </span>
+                            <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                              Temp: <strong className={nextVisit.soap.objective.temperature >= 37.5 ? 'text-rose-300 font-bold' : 'text-white'}>{nextVisit.soap.objective.temperature}°C</strong>
+                            </span>
+                            <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                              HR: <strong className="text-white">{nextVisit.soap.objective.heartRate}</strong> bpm
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Dominant Primary Action & Secondary Toggle */}
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => toggleDetails(nextVisit.id)}
+                          className="px-3 py-2 rounded-none text-xs font-bold text-teal-100 hover:text-white underline cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                        >
+                          {expandedDetails[nextVisit.id] ? 'Hide details' : 'More details'}
+                        </button>
+
+                        {activeConsultationVisitId === nextVisit.id ? (
                           <button
-                            key={f}
                             type="button"
-                            onClick={() => setQueueFilter(f)}
-                            className={`px-2.5 py-0.5 text-[11px] font-bold rounded-none transition-all cursor-pointer ${
-                              queueFilter === f
-                                ? 'bg-[#0d9488] text-white shadow-2xs'
-                                : 'text-slate-600 dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#082830]'
+                            onClick={() => handleStartConsultation(nextVisit.id)}
+                            className="px-6 py-2.5 rounded-none text-xs font-black bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                          >
+                            <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
+                            <span>Move to consultation</span>
+                            <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
+                          </button>
+                        ) : calledVisitId === nextVisit.id ? (
+                          <button
+                            type="button"
+                            onClick={() => handleStartConsultation(nextVisit.id)}
+                            className="px-6 py-2.5 rounded-none text-xs font-black bg-emerald-400 hover:bg-emerald-300 text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                          >
+                            <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
+                            <span>Move to consultation</span>
+                            <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
+                            className="px-6 py-2.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                          >
+                            <Volume2 className="w-4 h-4 text-white" />
+                            <span>Call patient</span>
+                            <ChevronRight className="w-4 h-4 text-white" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Expandable Secondary Details Drawer */}
+                    {expandedDetails[nextVisit.id] && (
+                      <div className="pt-3 border-t border-[#0d9488]/40 text-xs text-teal-100 space-y-2 bg-black/20 p-3 rounded-none animate-fadeIn">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <strong className="block text-white mb-0.5">Full Clinical Subjective Note:</strong>
+                            <p className="text-slate-200 leading-relaxed font-sans">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
+                          </div>
+                          <div>
+                            <strong className="block text-white mb-0.5">Panel Employer / Coverage:</strong>
+                            <p className="text-[#5eead4] font-bold">{nextPatient.panelEmployer}</p>
+                          </div>
+                          <div>
+                            <strong className="block text-white mb-0.5">Address &amp; Contact:</strong>
+                            <p className="text-slate-200">{nextPatient.phone} · {nextPatient.address}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* REMAINING PATIENTS LIST (#2 ONWARDS) - ICE MINT COMPACT ROW GRID */}
+                {remainingQueue.length > 0 && (
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2 border-b border-[#99f6e4] dark:border-teal-800 pb-2">
+                      <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                        <span>Subsequent Patients ({remainingQueue.length} Waiting)</span>
+                      </h4>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
+                        Active Sort: <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-2.5">
+                      {remainingQueue.map((visit, index) => {
+                        const pt = patientsMap[visit.patientId];
+                        if (!pt) return null;
+                        const isConsulting = activeConsultationVisitId === visit.id;
+                        const isExpanded = expandedDetails[visit.id];
+                        const queuePosition = index + 2;
+                        const triage = getTriageDetails(pt, visit);
+                        const TriageIcon = triage.icon;
+                        const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
+
+                        return (
+                          <div
+                            key={visit.id}
+                            tabIndex={0}
+                            onClick={() => toggleDetails(visit.id)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
+                            className={`border rounded-none ${triage.stripColor} transition-all p-3.5 cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
+                              isConsulting 
+                                ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
+                                : 'bg-[#e6f4f1] dark:bg-[#082830] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] border-[#99f6e4] dark:border-teal-800'
                             }`}
                           >
-                            {f === 'all' ? 'All Queue' : f === 'high_priority' ? 'High Acuity' : f === 'allergies' ? 'Allergies' : 'Overdue (>20m)'}
-                          </button>
-                        ))}
-                      </div>
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                              
+                              {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
+                              <div className="md:col-span-5 flex items-center gap-3 min-w-0">
+                                <div className="w-7 h-7 bg-[#d5f0eb] dark:bg-[#09333e] border border-[#99f6e4] dark:border-teal-800 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
+                                  #{queuePosition}
+                                </div>
 
-                      {/* Sort Rules */}
-                      <div className="flex items-center gap-1">
-                        <span className="text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] flex items-center gap-1">
-                          <Filter className="w-3 h-3 text-[#0d9488]" /> Sort:
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {(['urgency', 'wait', 'arrival'] as const).map((r) => (
-                            <button
-                              key={r}
-                              type="button"
-                              onClick={() => setSortRule(r)}
-                              className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded-none border ${
-                                sortRule === r
-                                  ? 'bg-[#0f3c4c] text-[#5eead4] border-[#0f3c4c]'
-                                  : 'bg-white dark:bg-[#061f26] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-teal-800'
-                              }`}
-                            >
-                              {r === 'urgency' ? 'Urgency' : r === 'wait' ? 'Wait' : 'Arrival'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                                <div className="min-w-0 space-y-0.5">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <h4 className="text-xs font-black text-[#0f3c4c] dark:text-white uppercase tracking-tight truncate">
+                                      {pt.fullName}
+                                    </h4>
+                                    <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 font-bold">ID: {pt.id}</span>
+                                    
+                                    {/* Urgency Badge */}
+                                    <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-none border flex items-center gap-1 font-mono ${triage.badgeBg}`}>
+                                      <TriageIcon className={`w-3 h-3 ${triage.iconColor}`} />
+                                      <span>{triage.level}</span>
+                                    </span>
 
-                    {/* Quieter Sync Utility */}
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                      <span>Last synced: {lastSyncedText}</span>
-                      <button
-                        type="button"
-                        onClick={handleManualQueueRefresh}
-                        disabled={isRefreshingQueue}
-                        className="px-2 py-0.5 bg-white dark:bg-[#061f26] hover:bg-[#e0f5f2] text-[#0d9488] border border-[#99f6e4] dark:border-teal-800 rounded-none transition-all cursor-pointer font-bold flex items-center gap-1"
-                        title="Sync Queue"
-                        aria-label="Sync Queue"
-                      >
-                        <RefreshCw className={`w-3 h-3 ${isRefreshingQueue ? 'animate-spin' : ''}`} />
-                        <span>Sync</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
+                                    {/* Allergy Badge */}
+                                    {renderAllergyBadge(pt.drugAllergies)}
+                                  </div>
+                                </div>
+                              </div>
 
-            {/* SORTED & FILTERED QUEUE PREPARATION */}
-            {(() => {
-              const filterAndSortQueue = (queue: Visit[]) => {
-                let list = [...queue];
-
-                // Apply Filter
-                if (queueFilter === 'high_priority') {
-                  list = list.filter(v => {
-                    const pt = patientsMap[v.patientId];
-                    const allergies = pt?.drugAllergies?.length || 0;
-                    const waitMins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
-                    return allergies > 0 || waitMins >= 20;
-                  });
-                } else if (queueFilter === 'allergies') {
-                  list = list.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0);
-                } else if (queueFilter === 'overdue') {
-                  list = list.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20);
-                }
-
-                // Apply Sort
-                if (sortRule === 'urgency') {
-                  return list.sort((a, b) => {
-                    const ptA = patientsMap[a.patientId];
-                    const ptB = patientsMap[b.patientId];
-                    const allergiesA = ptA?.drugAllergies?.length || 0;
-                    const allergiesB = ptB?.drugAllergies?.length || 0;
-                    const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
-                    const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
-                    if (allergiesA > 0 && allergiesB === 0) return -1;
-                    if (allergiesB > 0 && allergiesA === 0) return 1;
-                    return waitB - waitA;
-                  });
-                } else if (sortRule === 'wait') {
-                  return list.sort((a, b) => {
-                    const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
-                    const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
-                    return waitB - waitA;
-                  });
-                } else {
-                  return list.sort((a, b) => (a.registeredTime || 0) - (b.registeredTime || 0));
-                }
-              };
-
-              const sortedQueue = filterAndSortQueue(doctorQueue);
-
-              if (sortedQueue.length === 0) {
-                return (
-                  <div className="bg-white dark:bg-[#0c3844] rounded-none p-12 border border-[#b2f5ea] dark:border-teal-800/50 text-center text-slate-400">
-                    <Users className="w-12 h-12 text-[#0d9488] dark:text-[#2dd4bf] mx-auto mb-3 opacity-50" />
-                    <span className="text-xs font-bold block text-[#0f3c4c] dark:text-[#5eead4]">
-                      {queueFilter === 'all' ? 'Your patient queue is currently empty.' : 'No patients match the active filter criteria.'}
-                    </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-                      {queueFilter === 'all' ? 'Waiting for triage clinic assistants to register and dispatch new outpatients.' : 'Try changing or clearing the queue filter.'}
-                    </span>
-                  </div>
-                );
-              }
-
-              const nextVisit = sortedQueue[0];
-              const nextPatient = patientsMap[nextVisit.patientId];
-              const remainingQueue = sortedQueue.slice(1);
-
-              // Extract Needs Attention exception list from remaining patients (High triage, allergies, or wait >= 20m)
-              const needsAttentionList = remainingQueue.filter(v => {
-                const pt = patientsMap[v.patientId];
-                const allergies = pt?.drugAllergies?.length || 0;
-                const waitMins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
-                return allergies > 0 || waitMins >= 20;
-              });
-
-              return (
-                <div className="space-y-4">
-                  {/* FEATURED NEXT PATIENT CARD - CLINICIAN DECISION SEQUENCE WITH HIGH CONTRAST */}
-                  {nextPatient && (
-                    <div className={`bg-[#07252d] dark:bg-[#04171d] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t-2 border-r-2 border-b-2 border-[#0d9488] dark:border-[#5eead4] shadow-xl relative overflow-hidden space-y-4`}>
-                      
-                      {/* Step 1 & 2: Patient Name + Queue Position (#1) + Urgency & Allergy Badges */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#0d9488]/60 pb-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="bg-[#5eead4] text-[#07252d] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs font-mono">
-                            NEXT IN LINE (#1)
-                          </span>
-                          
-                          {/* Urgency Badge with explicit Text + Icon pairing */}
-                          {(() => {
-                            const t = getTriageDetails(nextPatient, nextVisit);
-                            const IconComp = t.icon;
-                            return (
-                              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none border-2 flex items-center gap-1 font-mono ${t.badgeBg}`}>
-                                <IconComp className={`w-3.5 h-3.5 ${t.iconColor}`} />
-                                <span>Triage: {t.level}</span>
-                              </span>
-                            );
-                          })()}
-
-                          {/* Allergy Badge - Unmistakable alert icon + clear label */}
-                          {renderAllergyBadge(nextPatient.drugAllergies)}
-
-                          {/* Called announcement timestamp feedback */}
-                          {calledTimestampMap[nextVisit.id] && (
-                            <span className="bg-emerald-400 text-[#07252d] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none font-mono animate-pulse flex items-center gap-1">
-                              📢 Called at {calledTimestampMap[nextVisit.id]}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* High Contrast Status Indicator */}
-                        <div className="text-[11px] font-mono font-bold bg-[#0b333e] dark:bg-[#061f26] px-3 py-1 border border-[#5eead4]/60 rounded-none flex items-center gap-1.5 text-white">
-                          <span className={activeConsultationVisitId === nextVisit.id ? 'text-[#5eead4] font-black' : calledVisitId === nextVisit.id ? 'text-emerald-300 font-black' : 'text-slate-200 font-bold'}>
-                            Status: {activeConsultationVisitId === nextVisit.id ? 'In Consultation' : calledVisitId === nextVisit.id ? 'Called to Room 1' : 'Ready'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Step 3 & 4: Chief Complaint + Wait Time & Unequivocal Primary Action CTA */}
-                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                        <div className="space-y-2.5">
-                          <h3 className="text-2xl font-black text-white flex items-baseline gap-2.5 tracking-tight">
-                            <span>{nextPatient.fullName}</span>
-                            <span className="text-xs font-mono text-[#ccfbf1] font-bold">ID: {nextPatient.id} · ({nextPatient.gender}, {nextPatient.dob})</span>
-                          </h3>
-
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-white font-medium">
-                            <span className="font-bold text-[#5eead4] bg-[#0b333e] dark:bg-[#061f26] px-3 py-1 border border-[#5eead4]/50 rounded-none">
-                              Complaint: {getChiefComplaintLabel(nextVisit.soap?.subjective)}
-                            </span>
-                            <span className="opacity-50">•</span>
-                            
-                            {/* Explicit Wait-Time Threshold Styling with AAA Contrast */}
-                            {(() => {
-                              const waitMins = nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0;
-                              if (waitMins >= 20) {
-                                return (
-                                  <span className="font-mono text-xs font-black text-rose-100 bg-rose-950 border-2 border-rose-400 px-3 py-1 rounded-none flex items-center gap-1.5 shadow-2xs">
-                                    <Clock className="w-3.5 h-3.5 text-rose-300 animate-pulse" />
-                                    <span>Wait: {waitMins} min (Overdue)</span>
-                                  </span>
-                                );
-                              }
-                              if (waitMins >= 15) {
-                                return (
-                                  <span className="font-mono text-xs font-black text-amber-100 bg-amber-950 border-2 border-amber-400 px-3 py-1 rounded-none flex items-center gap-1.5 shadow-2xs">
-                                    <Clock className="w-3.5 h-3.5 text-amber-300" />
-                                    <span>Wait: {waitMins} min (Target Near)</span>
-                                  </span>
-                                );
-                              }
-                              return (
-                                <span className="font-mono text-xs text-white bg-black/50 px-2.5 py-1 rounded-none border border-teal-400/40">
-                                  Wait: <strong>{waitMins} min</strong>
+                              {/* Col 6-9: Chief Complaint */}
+                              <div className="md:col-span-4 min-w-0">
+                                <span className="text-xs font-bold text-[#0d9488] dark:text-[#2dd4bf] truncate block">
+                                  {getChiefComplaintLabel(visit.soap?.subjective)}
                                 </span>
-                              );
-                            })()}
-                          </div>
-
-                          {/* Step 5: Vitals Summary Preview with Crisp Contrast */}
-                          {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
-                            <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px]">
-                              <span className="bg-[#0b333e] dark:bg-[#061f26] px-3 py-1.5 rounded-none border border-[#5eead4]/40 text-[#ccfbf1]">
-                                BP: <strong className="text-white font-bold">{nextVisit.soap.objective.bpSystolic}/{nextVisit.soap.objective.bpDiastolic}</strong> mmHg
-                              </span>
-                              <span className="bg-[#0b333e] dark:bg-[#061f26] px-3 py-1.5 rounded-none border border-[#5eead4]/40 text-[#ccfbf1]">
-                                Temp: <strong className={nextVisit.soap.objective.temperature >= 37.5 ? 'text-rose-300 font-black' : 'text-white font-bold'}>{nextVisit.soap.objective.temperature}°C</strong>
-                              </span>
-                              <span className="bg-[#0b333e] dark:bg-[#061f26] px-3 py-1.5 rounded-none border border-[#5eead4]/40 text-[#ccfbf1]">
-                                HR: <strong className="text-white font-bold">{nextVisit.soap.objective.heartRate}</strong> bpm
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Step 4: UNEQUIVOCAL DOMINANT PRIMARY "CALL NEXT PATIENT" CTA */}
-                        <div className="flex items-center gap-3 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => toggleDetails(nextVisit.id)}
-                            className="px-3 py-2 rounded-none text-xs font-bold text-teal-200 hover:text-white underline cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
-                          >
-                            {expandedDetails[nextVisit.id] ? 'Hide details' : 'More details'}
-                          </button>
-
-                          {activeConsultationVisitId === nextVisit.id ? (
-                            <button
-                              type="button"
-                              onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="px-6 py-3 rounded-none text-sm font-black bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-                            >
-                              <Stethoscope className="w-5 h-5 text-[#0f3c4c]" />
-                              <span>Resume Consultation</span>
-                              <ChevronRight className="w-5 h-5 text-[#0f3c4c]" />
-                            </button>
-                          ) : calledVisitId === nextVisit.id ? (
-                            <button
-                              type="button"
-                              onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="px-6 py-3 rounded-none text-sm font-black bg-emerald-400 hover:bg-emerald-300 text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-                            >
-                              <Stethoscope className="w-5 h-5 text-[#0f3c4c]" />
-                              <span>Start Consultation</span>
-                              <ChevronRight className="w-5 h-5 text-[#0f3c4c]" />
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
-                              className="px-6 py-3 rounded-none text-sm font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-xl border border-teal-300 flex items-center gap-2.5 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
-                            >
-                              <Volume2 className="w-5 h-5 text-white" />
-                              <span>Call next patient</span>
-                              <ChevronRight className="w-5 h-5 text-white" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Expandable Secondary Details Drawer */}
-                      {expandedDetails[nextVisit.id] && (
-                        <div className="pt-3 border-t border-[#0d9488]/40 text-xs text-teal-100 space-y-2 bg-black/20 p-3 rounded-none animate-fadeIn">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div>
-                              <strong className="block text-white mb-0.5">Full Clinical Subjective Note:</strong>
-                              <p className="text-slate-200 leading-relaxed font-sans">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
-                            </div>
-                            <div>
-                              <strong className="block text-white mb-0.5">Panel Employer / Coverage:</strong>
-                              <p className="text-[#5eead4] font-bold">{nextPatient.panelEmployer}</p>
-                            </div>
-                            <div>
-                              <strong className="block text-white mb-0.5">Address &amp; Contact:</strong>
-                              <p className="text-slate-200">{nextPatient.phone} · {nextPatient.address}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* NEEDS ATTENTION EXCEPTION PINNED BAND WITH CRISP CONTRAST */}
-                  {needsAttentionList.length > 0 && (
-                    <div className="bg-[#fffbeb] dark:bg-[#1a1300] border-2 border-amber-600 dark:border-amber-500 p-4 rounded-none space-y-3 shadow-md">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-amber-700 dark:text-amber-300 shrink-0" />
-                          <h4 className="text-xs font-black text-amber-950 dark:text-amber-100 uppercase tracking-wider font-mono">
-                            Needs Attention ({needsAttentionList.length} High Acuity / Overdue Patients)
-                          </h4>
-                        </div>
-                        <span className="text-[10px] text-amber-900 dark:text-amber-300 font-mono font-bold">
-                          Pinned Triage Exceptions
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                        {needsAttentionList.map(v => {
-                          const pt = patientsMap[v.patientId];
-                          if (!pt) return null;
-                          const waitMins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
-                          return (
-                            <div key={v.id} className="bg-white dark:bg-[#07252d] border-2 border-amber-400 dark:border-amber-700 p-3 rounded-none flex items-center justify-between gap-3 text-xs shadow-xs">
-                              <div className="space-y-1 min-w-0">
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <strong className="font-extrabold text-slate-950 dark:text-white uppercase truncate">{pt.fullName}</strong>
-                                  {renderAllergyBadge(pt.drugAllergies)}
-                                </div>
-                                <div className="text-[11px] text-slate-900 dark:text-slate-100 font-mono font-medium">
-                                  Wait: <strong className={waitMins >= 20 ? 'text-rose-700 dark:text-rose-300 font-black' : 'text-amber-800 dark:text-amber-300 font-black'}>{waitMins}m</strong> · <span className="text-[#0f766e] dark:text-[#5eead4] font-bold">{getChiefComplaintLabel(v.soap?.subjective)}</span>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleCallPatient(v.id, pt.fullName)}
-                                className="px-3 py-1.5 bg-[#b45309] hover:bg-[#92400e] dark:bg-amber-600 dark:hover:bg-amber-500 text-white dark:text-slate-950 text-[11px] font-black rounded-none shrink-0 transition-all cursor-pointer shadow-xs border border-amber-700"
-                              >
-                                Call Priority
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* REMAINING PATIENTS LIST (#2 ONWARDS) - COMPACT ROW GRID WITH HIGH CONTRAST */}
-                  {remainingQueue.length > 0 && (
-                    <div className="space-y-3 pt-3 border-t-2 border-[#99f6e4] dark:border-teal-800/60">
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
-                          <span>Subsequent Patients ({remainingQueue.length} Waiting)</span>
-                        </h4>
-                        <span className="text-[11px] text-slate-800 dark:text-slate-200 font-mono font-medium">
-                          Active Sort: <strong className="text-[#0f766e] dark:text-[#5eead4] font-black">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        {remainingQueue.map((visit, index) => {
-                          const pt = patientsMap[visit.patientId];
-                          if (!pt) return null;
-                          const isConsulting = activeConsultationVisitId === visit.id;
-                          const isExpanded = expandedDetails[visit.id];
-                          const queuePosition = index + 2;
-                          const triage = getTriageDetails(pt, visit);
-                          const TriageIcon = triage.icon;
-                          const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
-
-                          return (
-                            <div
-                              key={visit.id}
-                              tabIndex={0}
-                              onClick={() => toggleDetails(visit.id)}
-                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
-                              className={`border-2 rounded-none ${triage.stripColor} transition-all p-3.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
-                                isConsulting 
-                                  ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
-                                  : 'bg-white dark:bg-[#07252d] hover:bg-[#f0fdfa] dark:hover:bg-[#0c3844] border-slate-300 dark:border-teal-800'
-                              }`}
-                            >
-                              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                                
-                                {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
-                                <div className="md:col-span-5 flex items-center gap-3 min-w-0">
-                                  <div className="w-7 h-7 bg-[#e0f5f2] dark:bg-[#082830] border-2 border-[#0d9488] dark:border-teal-700 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
-                                    #{queuePosition}
-                                  </div>
-
-                                  <div className="min-w-0 space-y-0.5">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <h4 className="text-xs font-black text-slate-950 dark:text-white uppercase tracking-tight truncate">
-                                        {pt.fullName}
-                                      </h4>
-                                      <span className="font-mono text-[10px] text-slate-700 dark:text-slate-300 font-bold">ID: {pt.id}</span>
-                                      
-                                      {/* Urgency Badge (Text + Icon) */}
-                                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-none border-2 flex items-center gap-1 font-mono ${triage.badgeBg}`}>
-                                        <TriageIcon className={`w-3.5 h-3.5 ${triage.iconColor}`} />
-                                        <span>{triage.level}</span>
-                                      </span>
-
-                                      {/* Allergy Badge */}
-                                      {renderAllergyBadge(pt.drugAllergies)}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Col 6-8: Chief Complaint */}
-                                <div className="md:col-span-4 min-w-0">
-                                  <span className="text-xs font-extrabold text-[#0f766e] dark:text-[#5eead4] truncate block">
-                                    {getChiefComplaintLabel(visit.soap?.subjective)}
-                                  </span>
-                                </div>
-
-                                {/* Col 9-10: Dedicated Wait Time Threshold Styling */}
-                                <div className="md:col-span-1 text-left md:text-center">
-                                  {waitMins >= 20 ? (
-                                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-rose-950 dark:text-rose-100 bg-rose-100 dark:bg-rose-950 px-2 py-0.5 border-2 border-rose-600 dark:border-rose-400 font-mono">
-                                      <Clock className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400 animate-pulse" />
-                                      <span>{waitMins}m Overdue</span>
-                                    </span>
-                                  ) : waitMins >= 15 ? (
-                                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-amber-950 dark:text-amber-100 bg-amber-100 dark:bg-amber-950 px-2 py-0.5 border-2 border-amber-600 dark:border-amber-400 font-mono">
-                                      <Clock className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
-                                      <span>{waitMins}m Target</span>
-                                    </span>
-                                  ) : (
-                                    <span className="font-mono text-xs text-slate-900 dark:text-slate-100 font-black bg-slate-100 dark:bg-[#082830] px-2 py-0.5 border border-slate-300 dark:border-teal-800">
-                                      {waitMins}m wait
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* Col 11-12: Distinct Button Hierarchy */}
-                                <div className="md:col-span-2 flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                                  {isConsulting ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStartConsultation(visit.id)}
-                                      className="px-3.5 py-1.5 rounded-none text-xs font-black bg-[#0f3c4c] dark:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
-                                    >
-                                      <Stethoscope className="w-3.5 h-3.5 text-[#5eead4]" />
-                                      <span>Resume</span>
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleCallPatient(visit.id, pt.fullName)}
-                                      className="px-3.5 py-1.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-[#0f766e] text-white border border-[#0d9488] transition-all cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none shadow-2xs"
-                                    >
-                                      <Volume2 className="w-3.5 h-3.5 text-white" />
-                                      <span>Call</span>
-                                    </button>
-                                  )}
-                                  <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90 text-[#0d9488]' : ''}`} />
-                                </div>
                               </div>
 
-                              {/* Expandable Details Drawer */}
-                              {isExpanded && (
-                                <div className="pt-2.5 mt-2 border-t border-slate-200 dark:border-teal-800/40 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-[#082830] p-3 rounded-none space-y-2 animate-fadeIn">
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    <div>
-                                      <strong className="block text-slate-900 dark:text-white font-bold mb-0.5">Full Reason / Symptoms:</strong>
-                                      <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-sans">{visit.soap?.subjective || 'General Medical Consultation'}</p>
-                                    </div>
-                                    <div>
-                                      <strong className="block text-slate-900 dark:text-white font-bold mb-0.5">Panel Employer:</strong>
-                                      <p className="text-[#0f766e] dark:text-[#5eead4] font-bold">{pt.panelEmployer}</p>
-                                    </div>
-                                    <div>
-                                      <strong className="block text-slate-900 dark:text-white font-bold mb-0.5">Demographics &amp; Vitals:</strong>
-                                      <p className="text-slate-700 dark:text-slate-300">{pt.gender}, {pt.dob} · {pt.phone}</p>
-                                    </div>
+                              {/* Col 10: Aligned Wait Time Column */}
+                              <div className="md:col-span-1 font-mono text-xs text-slate-600 dark:text-slate-300 font-bold text-left md:text-center">
+                                <span className={waitMins >= 20 ? 'text-amber-600 dark:text-amber-400 font-black' : ''}>
+                                  {waitMins}m wait
+                                </span>
+                              </div>
+
+                              {/* Col 11-12: Action / Call Button */}
+                              <div className="md:col-span-2 flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                {isConsulting ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStartConsultation(visit.id)}
+                                    className="px-3 py-1.5 rounded-none text-xs font-extrabold bg-[#0f3c4c] dark:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                  >
+                                    <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
+                                    <span>Resume</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCallPatient(visit.id, pt.fullName)}
+                                    className="px-3 py-1.5 rounded-none text-xs font-bold bg-[#d5f0eb] hover:bg-[#0d9488] text-[#0f3c4c] hover:text-white dark:bg-[#09333e] dark:hover:bg-[#0d9488] dark:text-[#5eead4] border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                  >
+                                    <Volume2 className="w-3 h-3" />
+                                    <span>Call</span>
+                                  </button>
+                                )}
+                                <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90 text-[#0d9488]' : ''}`} />
+                              </div>
+                            </div>
+
+                            {/* Expandable Details Drawer */}
+                            {isExpanded && (
+                              <div className="pt-2.5 mt-2 border-t border-[#99f6e4] dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-white/60 dark:bg-[#061f26] p-3 rounded-none space-y-2 animate-fadeIn">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <div>
+                                    <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Full Reason / Symptoms:</strong>
+                                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-sans">{visit.soap?.subjective || 'General Medical Consultation'}</p>
+                                  </div>
+                                  <div>
+                                    <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Panel Employer:</strong>
+                                    <p className="text-[#0d9488] dark:text-[#2dd4bf] font-bold">{pt.panelEmployer}</p>
+                                  </div>
+                                  <div>
+                                    <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Demographics &amp; Vitals:</strong>
+                                    <p className="text-slate-600 dark:text-slate-300">{pt.gender}, {pt.dob} · {pt.phone}</p>
                                   </div>
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 
