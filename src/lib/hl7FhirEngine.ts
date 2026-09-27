@@ -1,8 +1,18 @@
 /**
  * HL7 FHIR R4 (Fast Healthcare Interoperability Resources) Standard Engine
  * Compliant with HL7 FHIR Release 4 (v4.0.1) Specifications
- * Enables bi-directional clinical data exchange between EMRs (Epic, Cerner, Supabase, MOH).
+ * 
+ * TESTING PHASE SAFETY GUARDRAIL:
+ * All external cloud FHIR server connections (e.g. Epic, Cerner, MOH KKM servers)
+ * are HARD-DISCONNECTED and operating in 100% Local Isolated Sandbox Mode.
  */
+
+export const FHIR_CONFIG = {
+  isExternalServerConnected: false, // HARD DISCONNECTED FOR TESTING & PII SAFETY
+  activeMode: 'LOCAL_ISOLATED_SANDBOX',
+  externalEndpointUrl: null as string | null,
+  disconnectionReason: 'Testing Phase Zero-Trust Safety: External cloud FHIR transmission is disabled to prevent accidental PII leakage to third-party servers.'
+};
 
 export interface FHIRIdentifier {
   system: string;
@@ -83,6 +93,7 @@ export interface FHIRBundleResource {
 
 /**
  * Converts internal Patient / Visit records into a standardized HL7 FHIR R4 Bundle.
+ * Executes purely in local memory with zero external endpoint calls.
  */
 export function convertVisitToFHIRBundle(visit: any): FHIRBundleResource {
   const patientId = visit.patientId || visit.id || 'P1001';
@@ -166,7 +177,7 @@ export function convertVisitToFHIRBundle(visit: any): FHIRBundleResource {
 }
 
 /**
- * Validates whether a JSON payload adheres to HL7 FHIR R4 schema.
+ * Validates whether a JSON payload adheres to HL7 FHIR R4 schema locally.
  */
 export function validateFHIRPayload(jsonString: string): { valid: boolean; resourceType?: string; error?: string } {
   try {
@@ -185,4 +196,18 @@ export function validateFHIRPayload(jsonString: string): { valid: boolean; resou
   } catch (err: any) {
     return { valid: false, error: err.message || 'JSON Parse Error' };
   }
+}
+
+/**
+ * Guarded Transmission Attempt to External FHIR Cloud Servers.
+ * Hard-blocked during testing phase.
+ */
+export async function sendFHIRBundleToExternalServer(bundle: FHIRBundleResource): Promise<{ success: boolean; message: string }> {
+  if (!FHIR_CONFIG.isExternalServerConnected) {
+    return {
+      success: false,
+      message: `TRANSMISSION BLOCKED: ${FHIR_CONFIG.disconnectionReason}`
+    };
+  }
+  return { success: false, message: 'External endpoint not configured.' };
 }

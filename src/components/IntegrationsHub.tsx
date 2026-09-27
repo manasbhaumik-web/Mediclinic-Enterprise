@@ -5,7 +5,7 @@ import {
   Wifi, ChevronRight, Fingerprint, Plus, Zap, Cpu, Check, Code, Download, Copy, X,
   Shield, FileText, Lock
 } from 'lucide-react';
-import { convertVisitToFHIRBundle, validateFHIRPayload, FHIRBundleResource } from '../lib/hl7FhirEngine';
+import { convertVisitToFHIRBundle, validateFHIRPayload, FHIRBundleResource, FHIR_CONFIG } from '../lib/hl7FhirEngine';
 import { 
   medicalBlockchain, 
   processTPAAutoPreAuth, 
@@ -428,6 +428,17 @@ export default function IntegrationsHub() {
               <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Testing Phase Zero-Trust Safety Disconnection Banner */}
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-200 text-xs font-mono font-bold flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>FHIR ENGINE MODE: 100% LOCAL ISOLATED SANDBOX</span>
+              </div>
+              <span className="text-[10px] bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 px-2 py-0.5 border border-amber-400 font-extrabold uppercase">
+                External Cloud Endpoints Hard-Disconnected
+              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
