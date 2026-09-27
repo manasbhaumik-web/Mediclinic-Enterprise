@@ -11,6 +11,12 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell 
 } from 'recharts';
+import { 
+  getChiefComplaintLabel, 
+  getRankingRationale, 
+  getTriageDetails 
+} from '../utils/queueSorter';
+import { useQueueFilter } from '../hooks/useQueueFilter';
 
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
@@ -40,23 +46,25 @@ export default function DoctorDashboardModule({
   const [internalTab, setInternalTab] = useState<'queue' | 'consultation' | 'reports'>(doctorTab);
   const [calledVisitId, setCalledVisitId] = useState<string | null>(null);
   const [callAnnouncementToast, setCallAnnouncementToast] = useState<string | null>(null);
-  const [sortRule, setSortRule] = useState<'urgency' | 'wait' | 'arrival'>('urgency');
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
   const [calledTimestampMap, setCalledTimestampMap] = useState<Record<string, string>>({});
   const [lastSyncedText, setLastSyncedText] = useState<string>('Just now');
   const [isRefreshingQueue, setIsRefreshingQueue] = useState<boolean>(false);
   const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number } | null>(null);
-  const [queuePage, setQueuePage] = useState<number>(1);
-  const [queueSearchQuery, setQueueSearchQuery] = useState<string>('');
-  const [acuityFilter, setAcuityFilter] = useState<'all' | 'high' | 'sla'>('all');
-  const [pinnedVisitIds, setPinnedVisitIds] = useState<Record<string, boolean>>({});
-  const [entriesPerPage, setEntriesPerPage] = useState<number>(6);
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
-  const togglePinVisit = (visitId: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setPinnedVisitIds(prev => ({ ...prev, [visitId]: !prev[visitId] }));
-  };
+  // Custom Hook: Extracted queue sorting, filtering, pinning, and pagination
+  const {
+    sortRule, setSortRule,
+    acuityFilter, setAcuityFilter,
+    queueSearchQuery, setQueueSearchQuery,
+    queuePage, currentPage, setQueuePage,
+    entriesPerPage, setEntriesPerPage,
+    pinnedVisitIds, togglePinVisit,
+    sortedQueue, paginatedQueue,
+    nextVisit, nextPatient, remainingQueue,
+    totalPages, startIndex
+  } = useQueueFilter({ queue: doctorQueue, patientsMap, initialEntriesPerPage: 6 });
 
   const copyToClipboard = (text: string, label: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -124,78 +132,6 @@ export default function DoctorDashboardModule({
     playCallChime();
     setPendingCallVisit(null);
     setTimeout(() => setCallAnnouncementToast(null), 4500);
-  };
-
-  const getChiefComplaintLabel = (subjective?: string) => {
-    if (!subjective) return 'General Outpatient Consultation';
-    const text = subjective.trim();
-    const lower = text.toLowerCase();
-    
-    if (lower.includes('fever') && (lower.includes('throat') || lower.includes('sore'))) return 'Fever + sore throat';
-    if (lower.includes('epigastric') || lower.includes('reflux') || lower.includes('gastritis') || lower.includes('heartburn')) return 'Epigastric pain / reflux';
-    if (lower.includes('back') || lower.includes('lumbago') || lower.includes('myalgia')) return 'Low back pain / myalgia';
-    if (lower.includes('cough') || lower.includes('urti') || lower.includes('cold') || lower.includes('flu')) return 'Cough & cold / URTI';
-    if (lower.includes('hypertension') || lower.includes('bp') || lower.includes('diabetes')) return 'Chronic disease follow-up';
-    if (lower.includes('asthma') || lower.includes('breath') || lower.includes('wheezing')) return 'Asthma / Dyspnea flare';
-    if (lower.includes('rash') || lower.includes('eczema') || lower.includes('skin')) return 'Skin rash / Allergy';
-    if (lower.includes('diarrhea') || lower.includes('vomiting') || lower.includes('food poison')) return 'Gastroenteritis / Diarrhea';
-    
-    if (text.length > 36) return text.substring(0, 33) + '...';
-    return text;
-  };
-
-  const getRankingRationale = (pt?: Patient, visit?: Visit, rankIndex: number = 0, activeRule: string = 'urgency') => {
-    if (!pt || !visit) return '';
-    const allergies = pt.drugAllergies?.length || 0;
-    const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
-    const temp = visit.soap?.objective?.temperature || 0;
-
-    if (activeRule === 'urgency') {
-      const reasons: string[] = [];
-      if (allergies > 0) reasons.push(`Drug Allergy (${pt.drugAllergies.join(', ')})`);
-      if (temp >= 38.0) reasons.push(`Fever (${temp}°C)`);
-      if (waitMins >= 20) reasons.push(`SLA Risk (${waitMins}m wait)`);
-      else if (waitMins > 0) reasons.push(`${waitMins}m wait`);
-
-      if (reasons.length === 0) reasons.push('Standard Outpatient Triage');
-      return `Why Rank #${rankIndex + 1}: ${reasons.join(' + ')}`;
-    } else if (activeRule === 'wait') {
-      return `Why Rank #${rankIndex + 1}: Longest wait priority (${waitMins}m wait)`;
-    } else {
-      return `Why Rank #${rankIndex + 1}: Registration arrival order (${visit.date || 'Today'})`;
-    }
-  };
-
-  const getTriageDetails = (pt?: Patient, visit?: Visit) => {
-    const allergies = pt?.drugAllergies?.length || 0;
-    const waitMins = visit?.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
-    const temp = visit?.soap?.objective?.temperature || 0;
-    
-    if (allergies > 0 || waitMins >= 30 || temp >= 38.0) {
-      return {
-        level: 'High',
-        stripColor: 'border-l-2 border-l-rose-500 dark:border-l-rose-400',
-        badgeBg: 'bg-rose-100 text-rose-950 dark:bg-rose-900/90 dark:text-rose-100 border border-rose-300 dark:border-rose-600 font-extrabold',
-        icon: AlertCircle,
-        iconColor: 'text-rose-700 dark:text-rose-200'
-      };
-    } else if (waitMins >= 15 || temp >= 37.3) {
-      return {
-        level: 'Medium',
-        stripColor: 'border-l-2 border-l-amber-500 dark:border-l-amber-400',
-        badgeBg: 'bg-amber-100 text-amber-950 dark:bg-amber-900/90 dark:text-amber-100 border border-amber-300 dark:border-amber-600 font-extrabold',
-        icon: Clock,
-        iconColor: 'text-amber-700 dark:text-amber-200'
-      };
-    } else {
-      return {
-        level: 'Low',
-        stripColor: 'border-l-2 border-l-emerald-500 dark:border-l-emerald-400',
-        badgeBg: 'bg-emerald-100 text-emerald-950 dark:bg-emerald-900/90 dark:text-emerald-100 border border-emerald-300 dark:border-emerald-600 font-extrabold',
-        icon: CheckCircle2,
-        iconColor: 'text-emerald-700 dark:text-emerald-200'
-      };
-    }
   };
 
   const renderAllergyBadge = (drugAllergies: string[] = []) => {
@@ -500,80 +436,14 @@ export default function DoctorDashboardModule({
           })()}
 
           {/* 2. PATIENT QUEUE LIST RENDERING */}
-          {(() => {
-            const sortQueue = (queue: Visit[]) => {
-              let list = [...queue];
-              if (sortRule === 'urgency') {
-                list = list.sort((a, b) => {
-                  const ptA = patientsMap[a.patientId];
-                  const ptB = patientsMap[b.patientId];
-                  const allergiesA = ptA?.drugAllergies?.length || 0;
-                  const allergiesB = ptB?.drugAllergies?.length || 0;
-                  const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
-                  const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
-                  if (allergiesA > 0 && allergiesB === 0) return -1;
-                  if (allergiesB > 0 && allergiesA === 0) return 1;
-                  return waitB - waitA;
-                });
-              } else if (sortRule === 'wait') {
-                list = list.sort((a, b) => {
-                  const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
-                  const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
-                  return waitB - waitA;
-                });
-              } else {
-                list = list.sort((a, b) => (a.registeredTime || 0) - (b.registeredTime || 0));
-              }
-
-              // Pinned items prioritization
-              if (Object.keys(pinnedVisitIds).some(id => pinnedVisitIds[id])) {
-                list.sort((a, b) => (pinnedVisitIds[b.id] ? 1 : 0) - (pinnedVisitIds[a.id] ? 1 : 0));
-              }
-              return list;
-            };
-
-            let sortedQueue = sortQueue(doctorQueue);
-
-            // Filter 1: Acuity / SLA Filter Pills
-            if (acuityFilter === 'high') {
-              sortedQueue = sortedQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0);
-            } else if (acuityFilter === 'sla') {
-              sortedQueue = sortedQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20);
-            }
-
-            // Filter 2: Live Search Query
-            if (queueSearchQuery.trim()) {
-              const q = queueSearchQuery.toLowerCase().trim();
-              sortedQueue = sortedQueue.filter(v => {
-                const pt = patientsMap[v.patientId];
-                const nameMatch = pt?.fullName.toLowerCase().includes(q) || false;
-                const idMatch = pt?.id.toLowerCase().includes(q) || v.id.toLowerCase().includes(q);
-                const complaintMatch = (v.soap?.subjective || '').toLowerCase().includes(q);
-                return nameMatch || idMatch || complaintMatch;
-              });
-            }
-
-            if (doctorQueue.length === 0) {
-              return (
-                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none p-12 border border-[#99f6e4] dark:border-teal-800 text-center text-slate-500 dark:text-slate-400">
-                  <Users className="w-12 h-12 text-[#0d9488] dark:text-[#2dd4bf] mx-auto mb-3 opacity-60" />
-                  <span className="text-xs font-bold block text-[#0f3c4c] dark:text-[#5eead4]">Your patient queue is currently empty.</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Waiting for triage clinic assistants to register and dispatch new outpatients.</span>
-                </div>
-              );
-            }
-
-            const totalPages = Math.max(1, Math.ceil(sortedQueue.length / entriesPerPage));
-            const currentPage = Math.min(Math.max(1, queuePage), totalPages);
-            const startIndex = (currentPage - 1) * entriesPerPage;
-            const paginatedQueue = sortedQueue.slice(startIndex, startIndex + entriesPerPage);
-
-            const nextVisit = currentPage === 1 ? paginatedQueue[0] : null;
-            const nextPatient = nextVisit ? patientsMap[nextVisit.patientId] : null;
-            const remainingQueue = currentPage === 1 ? paginatedQueue.slice(1) : paginatedQueue;
-
-            return (
-              <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 rounded-none overflow-hidden shadow-2xs">
+          {doctorQueue.length === 0 ? (
+            <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none p-12 border border-[#99f6e4] dark:border-teal-800 text-center text-slate-500 dark:text-slate-400">
+              <Users className="w-12 h-12 text-[#0d9488] dark:text-[#2dd4bf] mx-auto mb-3 opacity-60" />
+              <span className="text-xs font-bold block text-[#0f3c4c] dark:text-[#5eead4]">Your patient queue is currently empty.</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Waiting for triage clinic assistants to register and dispatch new outpatients.</span>
+            </div>
+          ) : (
+            <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 rounded-none overflow-hidden shadow-2xs">
                 
                 {/* INTERACTIVE COMMAND & FILTER STRIP */}
                 <div className="bg-[#d5f0eb] dark:bg-[#06242c] border-b border-[#99f6e4] dark:border-teal-800 p-3 px-4 space-y-2.5">
@@ -1146,8 +1016,7 @@ export default function DoctorDashboardModule({
                   </div>
                 </div>
               </div>
-            );
-          })()}
+          )}
         </div>
       )}
 
