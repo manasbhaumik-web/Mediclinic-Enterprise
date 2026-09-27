@@ -4,6 +4,7 @@ import { Patient, Visit, Language } from '../types';
 import MyKadScanner from './MyKadScanner';
 import { useAuth } from '../context/AuthContext';
 import { maskICNumber } from '../utils/piiMasker';
+import { useClinicStore } from '../store/useClinicStore';
 
 interface PatientRegistrationModuleProps {
   t: any;
@@ -206,6 +207,8 @@ export default function PatientRegistrationModule({
     }
   };
 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+
   const handleRegisterSubmit = async () => {
     let targetPatientId = existingPatientId;
 
@@ -220,7 +223,8 @@ export default function PatientRegistrationModule({
         phone: manualForm.phone,
         panelEmployer: manualForm.panelEmployer,
         drugAllergies: allergiesList,
-        registeredDate: new Date().toISOString().split('T')[0]
+        registeredDate: new Date().toISOString().split('T')[0],
+        tenantId: activeBranchId
       };
       await addPatientToDb(newPatient);
       targetPatientId = newPatient.id;
@@ -232,6 +236,7 @@ export default function PatientRegistrationModule({
       patientId: targetPatientId,
       date: new Date().toISOString().split('T')[0],
       registeredTime: Date.now(),
+      tenantId: activeBranchId,
       soap: {
         subjective: manualForm.chiefComplaint || 'Pending Triage',
         objective: {
@@ -262,6 +267,7 @@ export default function PatientRegistrationModule({
       patientId: patient.id,
       date: new Date().toISOString().split('T')[0],
       registeredTime: Date.now(),
+      tenantId: activeBranchId,
       soap: {
         subjective: 'General Consultation',
         objective: { bpSystolic: 0, bpDiastolic: 0, heartRate: 0, temperature: 0, respiratoryRate: 0 },

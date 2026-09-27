@@ -7,6 +7,7 @@
 import { create } from 'zustand';
 import { Patient, Visit, Appointment, UserRole } from '../types';
 import { INITIAL_PATIENTS, MOCK_VISITS_QUEUE } from '../data';
+import { multiTenantManager, ClinicBranchTenant, SUPPORTED_BRANCH_TENANTS } from '../lib/multiTenantManager';
 
 export interface ClinicState {
   // Core Domain State
@@ -15,7 +16,9 @@ export interface ClinicState {
   completedVisits: Visit[];
   appointments: Appointment[];
   
-  // UI & Active Context State
+  // UI & Multi-Branch Context State
+  activeBranchId: string;
+  activeBranch: ClinicBranchTenant;
   activeVisitId: string | null;
   activePatientId: string | null;
   activeRole: UserRole | null;
@@ -23,6 +26,7 @@ export interface ClinicState {
   searchGlobalQuery: string;
 
   // Actions
+  setActiveBranchId: (tenantId: string) => void;
   setPatients: (patients: Patient[]) => void;
   upsertPatient: (patient: Patient) => void;
   setVisitsQueue: (visits: Visit[]) => void;
@@ -34,6 +38,19 @@ export interface ClinicState {
   toggleSidebar: () => void;
 }
 
+const getInitialBranchId = (): string => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const saved = localStorage.getItem('mediclinic_active_branch_v1');
+    if (saved && SUPPORTED_BRANCH_TENANTS.some(b => b.tenantId === saved)) {
+      multiTenantManager.setActiveTenantId(saved);
+      return saved;
+    }
+  }
+  return 'HQ_KL_MAIN';
+};
+
+const initialBranchId = getInitialBranchId();
+
 export const useClinicStore = create<ClinicState>((set) => ({
   patientsMap: INITIAL_PATIENTS.reduce((acc, p) => {
     acc[p.id] = p;
@@ -44,11 +61,27 @@ export const useClinicStore = create<ClinicState>((set) => ({
   completedVisits: [],
   appointments: [],
   
+  activeBranchId: initialBranchId,
+  activeBranch: SUPPORTED_BRANCH_TENANTS.find(b => b.tenantId === initialBranchId) || SUPPORTED_BRANCH_TENANTS[0],
   activeVisitId: null,
   activePatientId: null,
   activeRole: 'doctor',
   isSidebarOpen: true,
   searchGlobalQuery: '',
+
+  setActiveBranchId: (tenantId: string) => {
+    try {
+      multiTenantManager.setActiveTenantId(tenantId);
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('mediclinic_active_branch_v1', tenantId);
+      }
+    } catch (e) {
+      console.warn('Failed to switch tenant ID in manager:', e);
+    }
+
+    const branch = SUPPORTED_BRANCH_TENANTS.find(b => b.tenantId === tenantId) || SUPPORTED_BRANCH_TENANTS[0];
+    set({ activeBranchId: tenantId, activeBranch: branch });
+  },
 
   setPatients: (patients) => set((state) => {
     const newMap = { ...state.patientsMap };

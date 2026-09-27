@@ -5,6 +5,7 @@ import { maskICNumber } from '../utils/piiMasker';
 import Button from './ui/Button';
 import Input from './ui/Input';
 import { Card, CardHeader, CardContent, CardFooter } from './ui/Card';
+import { useClinicStore } from '../store/useClinicStore';
 
 interface TriageModuleProps {
   triageQueue: Visit[];
@@ -13,6 +14,13 @@ interface TriageModuleProps {
 }
 
 export default function TriageModule({ triageQueue, patientsMap, onTriageComplete }: TriageModuleProps) {
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+  const activeBranch = useClinicStore(state => state.activeBranch);
+
+  const filteredTriageQueue = React.useMemo(() => {
+    return triageQueue.filter(v => !v.tenantId || v.tenantId === activeBranchId);
+  }, [triageQueue, activeBranchId]);
+
   const [activeVisitId, setActiveVisitId] = useState<string | null>(null);
   const [vitalsForm, setVitalsForm] = useState({
     temperature: '',
@@ -24,7 +32,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const activeVisit = activeVisitId ? triageQueue.find(v => v.id === activeVisitId) : null;
+  const activeVisit = activeVisitId ? filteredTriageQueue.find(v => v.id === activeVisitId) : null;
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
 
   const handleSelectPatient = (visit: Visit) => {

@@ -3,6 +3,7 @@ import { Visit, Language, TPAConfig } from '../types';
 import { TRANSLATIONS } from '../data';
 import { useSettings } from '../context/SettingsContext';
 import { useAuxiliary } from '../context/AuxiliaryContext';
+import { useClinicStore } from '../store/useClinicStore';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateInvoicePDF } from '../utils/pdfGenerator';
 import StripeCheckout from './StripeCheckout';
@@ -33,9 +34,16 @@ export default function BillingDesk({
   const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+  const activeBranch = useClinicStore(state => state.activeBranch);
+
+  const filteredCashierQueue = React.useMemo(() => {
+    return queue.filter(v => !v.tenantId || v.tenantId === activeBranchId);
+  }, [queue, activeBranchId]);
+
   // Selected visit state
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(
-    queue.length > 0 ? queue[0].id : null
+    filteredCashierQueue.length > 0 ? filteredCashierQueue[0].id : null
   );
 
   // Panel settings state

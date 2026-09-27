@@ -4,6 +4,7 @@ import {
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
   ChevronDown, ChevronRight, LogOut, CalendarClock, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe
 } from 'lucide-react';
+import BranchSwitcher from './BranchSwitcher';
 
 interface EnterpriseLayoutTemplateProps {
   activeTab: string;
@@ -124,9 +125,14 @@ export default function EnterpriseLayoutTemplate({
                 <ChevronDown className="w-3.5 h-3.5 text-teal-100 opacity-80 group-hover:opacity-100 transition-opacity" />
               </h1>
               <span className="text-[10px] text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
-                Shah Alam Main Branch • 24/7 Outpatient
+                Multi-Branch Clinical Network • 24/7 Outpatient
               </span>
             </div>
+          </div>
+
+          {/* Interactive Multi-Branch Switcher */}
+          <div className="hidden sm:block ml-2 border-l border-white/20 pl-3">
+            <BranchSwitcher compact />
           </div>
 
           {/* Clinic Information Popover Tooltip */}

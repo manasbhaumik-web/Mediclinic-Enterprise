@@ -6,6 +6,7 @@ import {
   Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
+import { useClinicStore } from '../store/useClinicStore';
 
 interface DispensaryDashboardProps {
   queue: Visit[];
@@ -24,6 +25,13 @@ export default function DispensaryDashboard({
 }: DispensaryDashboardProps) {
   const t = TRANSLATIONS[activeLanguage];
   const { dispenseDrug } = useInventory();
+  
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+  const activeBranch = useClinicStore(state => state.activeBranch);
+
+  const filteredPharmacyQueue = React.useMemo(() => {
+    return queue.filter(v => !v.tenantId || v.tenantId === activeBranchId);
+  }, [queue, activeBranchId]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -34,7 +42,7 @@ export default function DispensaryDashboard({
 
   // Active Selected Patient ID in pharmacy queue
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(
-    queue.length > 0 ? queue[0].id : null
+    filteredPharmacyQueue.length > 0 ? filteredPharmacyQueue[0].id : null
   );
 
   // Pharmacist Checklist State

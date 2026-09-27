@@ -19,6 +19,7 @@ import RevenueCycleHub from './RevenueCycleHub';
 import SystemArchitectureHub from './SystemArchitectureHub';
 import { useSettings } from '../context/SettingsContext';
 import { Visit, Language } from '../types';
+import BranchSwitcher from './BranchSwitcher';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
@@ -131,8 +132,12 @@ export default function AdminModule({
               <span>Mediclinic Admin Console</span>
             </h1>
             <span className="text-[10px] text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
-              Shah Alam Main Branch • Executive Console
+              Multi-Branch Executive Operations • Enterprise Console
             </span>
+          </div>
+
+          <div className="hidden sm:block ml-2 border-l border-white/20 pl-3">
+            <BranchSwitcher compact />
           </div>
         </div>
 
