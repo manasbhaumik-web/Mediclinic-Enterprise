@@ -2,12 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { 
   Network, Database, ShieldCheck, Activity, Pill, Watch, HeartPulse, 
   RefreshCw, CheckCircle2, AlertTriangle, Link2, Server, Smartphone,
-  Wifi, ChevronRight, Fingerprint, Plus, Zap, Cpu, Check
+  Wifi, ChevronRight, Fingerprint, Plus, Zap, Cpu, Check, Code, Download, Copy, X
 } from 'lucide-react';
+import { convertVisitToFHIRBundle, validateFHIRPayload, FHIRBundleResource } from '../lib/hl7FhirEngine';
 
 export default function IntegrationsHub() {
   const [activeConnections, setActiveConnections] = useState<number>(0);
   const [syncCount, setSyncCount] = useState<number>(14271);
+  const [showFHIRModal, setShowFHIRModal] = useState<boolean>(false);
+  const [fhirJsonOutput, setFhirJsonOutput] = useState<string>('');
+  const [validationInput, setValidationInput] = useState<string>('');
+  const [validationResult, setValidationResult] = useState<{ valid: boolean; resourceType?: string; error?: string } | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
+
+  // Generate initial sample FHIR bundle
+  useEffect(() => {
+    const sampleVisit = {
+      patientId: 'P10084',
+      patientName: 'Ahmad Razak bin Ibrahim',
+      icNumber: '870518-08-5901',
+      phone: '013-4455667',
+      gender: 'Male',
+      dob: '1987-05-18',
+      systolic: 128,
+      diastolic: 82,
+      icdCode: 'E11.9',
+      diagnosis: 'Type 2 Diabetes Mellitus without complications',
+      createdAt: new Date().toISOString()
+    };
+    const bundle = convertVisitToFHIRBundle(sampleVisit);
+    setFhirJsonOutput(JSON.stringify(bundle, null, 2));
+    setValidationInput(JSON.stringify(bundle, null, 2));
+  }, []);
 
   // Simulate constant background data flow
   useEffect(() => {
@@ -24,6 +50,17 @@ export default function IntegrationsHub() {
     }, 800);
     return () => clearInterval(timer);
   }, []);
+
+  const handleValidatePayload = () => {
+    const res = validateFHIRPayload(validationInput);
+    setValidationResult(res);
+  };
+
+  const handleCopyFHIR = () => {
+    navigator.clipboard.writeText(fhirJsonOutput);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const integrations = [
     {
@@ -277,23 +314,150 @@ export default function IntegrationsHub() {
               </div>
               
               {/* Card Footer Action */}
-              <button className="bg-slate-50 border-t border-slate-100 py-2.5 px-4 text-xs font-bold text-slate-700 hover:text-white hover:bg-[#0d9488] flex items-center justify-between transition-colors">
-                Configure Connection <ChevronRight className="w-3.5 h-3.5" />
+              <button 
+                type="button"
+                onClick={() => {
+                  if (integration.id === 'ehr') {
+                    setShowFHIRModal(true);
+                  }
+                }}
+                className="bg-slate-50 border-t border-slate-100 py-2.5 px-4 text-xs font-bold text-slate-700 hover:text-white hover:bg-[#0d9488] flex items-center justify-between transition-colors cursor-pointer"
+              >
+                <span>{integration.id === 'ehr' ? 'Launch FHIR R4 Engine...' : 'Configure Connection'}</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           );
         })}
 
         {/* Deploy New Integration Card */}
-        <button className="bg-[#f7fdfd] rounded-none border-2 border-dashed border-teal-200 hover:border-[#0d9488] hover:bg-teal-50/50 transition-all duration-300 flex flex-col items-center justify-center p-6 text-slate-500 group min-h-[220px]">
-          <div className="w-12 h-12 bg-white rounded-full shadow-sm border border-teal-200 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-[#0d9488] group-hover:text-white transition-all text-[#0d9488]">
-            <Plus className="w-6 h-6" />
+        <button 
+          type="button"
+          onClick={() => setShowFHIRModal(true)}
+          className="bg-[#f7fdfd] dark:bg-[#082830] rounded-none border-2 border-dashed border-teal-200 dark:border-teal-800 hover:border-[#0d9488] hover:bg-teal-50/50 transition-all duration-300 flex flex-col items-center justify-center p-6 text-slate-500 group min-h-[220px] cursor-pointer"
+        >
+          <div className="w-12 h-12 bg-white dark:bg-[#061f26] rounded-full shadow-sm border border-teal-200 dark:border-teal-800 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-[#0d9488] group-hover:text-white transition-all text-[#0d9488]">
+            <Code className="w-6 h-6" />
           </div>
-          <span className="text-xs font-bold text-[#0f3c4c]">Deploy New Integration</span>
-          <span className="text-[10px] text-slate-500 mt-1">Marketplace / Custom API</span>
+          <span className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4]">HL7 FHIR R4 Live Console</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Convert &amp; Validate FHIR JSON</span>
         </button>
 
       </div>
+
+      {/* ========================================================================= */}
+      {/* INTERACTIVE HL7 FHIR R4 ENGINE & SCHEMA VALIDATOR MODAL                    */}
+      {/* ========================================================================= */}
+      {showFHIRModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-4xl w-full p-6 shadow-2xl space-y-5 text-[#0f3c4c] dark:text-slate-100 max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Database className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">
+                    HL7 FHIR R4 Integration Engine &amp; Validator
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                    Fast Healthcare Interoperability Resources (v4.0.1) • RESTful JSON Clinical Exchange
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFHIRModal(false)}
+                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Grid 2 Columns: Live Generated Bundle vs Schema Validator */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              
+              {/* Left Column: Live FHIR Bundle Export */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                    <Code className="w-4 h-4 text-[#0d9488]" />
+                    Generated Patient FHIR Bundle (R4)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyFHIR}
+                    className="text-[10px] font-extrabold bg-[#0d9488] hover:bg-[#0f766e] text-white px-2.5 py-1 flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span>{copied ? 'Copied!' : 'Copy JSON'}</span>
+                  </button>
+                </div>
+
+                <pre className="bg-[#061f26] text-teal-200 text-[11px] font-mono p-3 border border-teal-900 rounded-none h-72 overflow-y-auto leading-relaxed shadow-inner">
+                  {fhirJsonOutput}
+                </pre>
+                <p className="text-[10px] text-slate-500 font-medium">
+                  Includes Patient resource, Blood Pressure Observation LOINC 85354-9, and ICD-10 Condition.
+                </p>
+              </div>
+
+              {/* Right Column: Schema Validator Sandbox */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[#0d9488]" />
+                    FHIR Schema Payload Validator
+                  </span>
+                </div>
+
+                <textarea
+                  value={validationInput}
+                  onChange={(e) => setValidationInput(e.target.value)}
+                  className="w-full bg-white dark:bg-[#061f26] text-slate-800 dark:text-slate-100 font-mono text-[11px] p-3 border border-[#99f6e4] dark:border-teal-800 rounded-none h-56 focus:outline-none focus:ring-1 focus:ring-[#0d9488]"
+                  placeholder="Paste FHIR JSON payload here..."
+                />
+
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    type="button"
+                    onClick={handleValidatePayload}
+                    className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs px-4 py-2 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    Run Schema Validation
+                  </button>
+
+                  {validationResult && (
+                    <div className={`px-3 py-1.5 border text-xs font-bold font-mono flex items-center gap-1.5 ${
+                      validationResult.valid 
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700'
+                        : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700'
+                    }`}>
+                      {validationResult.valid ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
+                      <span>{validationResult.valid ? `Valid ${validationResult.resourceType} Resource` : validationResult.error}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#99f6e4] dark:border-teal-800">
+              <button
+                type="button"
+                onClick={() => setShowFHIRModal(false)}
+                className="px-4 py-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs cursor-pointer shadow-sm"
+              >
+                Close FHIR Console
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
