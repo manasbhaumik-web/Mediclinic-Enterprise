@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Visit, Patient, UserRole, Language } from '../types';
+import { useClinicStore } from '../store/useClinicStore';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
   TrendingUp, ArrowUpRight, ShieldCheck, MapPin, Phone, Building2,
@@ -61,6 +62,7 @@ export default function LandingDashboard({
   onNavigateTab,
   onOpenLogin
 }: LandingDashboardProps) {
+  const activeBranch = useClinicStore(state => state.activeBranch);
 
   // Time Horizon & Filter State
   const [timeHorizon, setTimeHorizon] = useState<'today' | '7days' | 'monthly'>('today');
@@ -640,13 +642,25 @@ export default function LandingDashboard({
         
         {/* Clinic Facility & License Info (7 Cols) */}
         <div className="lg:col-span-7 bg-[#f0fdfa] border border-[#ccfbf1] rounded-none p-6 shadow-xs space-y-5">
+          {/* Prominent Logged-In Active Branch Banner */}
+          <div className="bg-[#e0f5f2] border border-[#99f6e4] p-3 rounded-none flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+              <span className="text-xs text-[#0f3c4c] uppercase tracking-wider font-extrabold">Logged In Active Branch:</span>
+              <strong className="text-sm font-black text-[#0d9488] uppercase font-sans">{activeBranch.branchName}</strong>
+            </div>
+            <span className="text-[10px] bg-[#0d9488] text-white px-2 py-0.5 font-mono font-bold uppercase rounded-none">
+              {activeBranch.stateLocation}
+            </span>
+          </div>
+
           <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-4">
             <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[#0d9488]" />
               Clinic Operating Information & Licensing
             </h3>
             <span className="text-[10px] bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 px-2.5 py-1 rounded-none font-mono font-bold">
-              Reg #KKM-2026-SL-8902
+              {activeBranch.licenseMohNumber || 'Reg #KKM-2026-SL-8902'}
             </span>
           </div>
 
@@ -656,7 +670,7 @@ export default function LandingDashboard({
                 <MapPin className="w-5 h-5 text-[#0d9488] shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-slate-900 font-extrabold mb-1">Location Address</strong>
-                  <span className="leading-relaxed block">Level 2, Menara Medical Suite, Persiaran Central, 40000 Shah Alam, Selangor</span>
+                  <span className="leading-relaxed block">{activeBranch.address || 'Level 2, Menara Medical Suite, Persiaran Central, 40000 Shah Alam, Selangor'}</span>
                 </div>
               </div>
 
@@ -664,7 +678,7 @@ export default function LandingDashboard({
                 <Phone className="w-5 h-5 text-[#0d9488] shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-slate-900 font-extrabold mb-1">24/7 Hotline & Ambulance</strong>
-                  <span className="leading-relaxed block">+60 3-5510 8899 / emergency@mediclinic.my</span>
+                  <span className="leading-relaxed block">{activeBranch.phone || '+60 3-5510 8899 / emergency@mediclinic.my'}</span>
                 </div>
               </div>
             </div>

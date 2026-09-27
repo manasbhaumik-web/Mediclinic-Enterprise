@@ -4,7 +4,7 @@ import {
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
   ChevronDown, ChevronRight, LogOut, CalendarClock, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe
 } from 'lucide-react';
-import BranchSwitcher from './BranchSwitcher';
+import { useClinicStore } from '../store/useClinicStore';
 
 interface EnterpriseLayoutTemplateProps {
   activeTab: string;
@@ -45,6 +45,7 @@ export default function EnterpriseLayoutTemplate({
   cashierQueueLength,
   children
 }: EnterpriseLayoutTemplateProps) {
+  const activeBranch = useClinicStore(state => state.activeBranch);
   // Live Real-Time Clock & Sync timestamp
   const [timeString, setTimeString] = useState<string>('');
   const [lastSyncedTime, setLastSyncedTime] = useState<string>('');
@@ -130,9 +131,11 @@ export default function EnterpriseLayoutTemplate({
             </div>
           </div>
 
-          {/* Interactive Multi-Branch Switcher */}
-          <div className="hidden sm:block ml-2 border-l border-white/20 pl-3">
-            <BranchSwitcher compact />
+          {/* Logged in Active Branch Badge */}
+          <div className="hidden sm:flex items-center gap-1.5 ml-2 border-l border-white/20 pl-3 text-xs text-white">
+            <Building className="w-3.5 h-3.5 text-teal-200 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span className="font-extrabold uppercase tracking-wide text-teal-100">{activeBranch.branchName}</span>
           </div>
 
           {/* Clinic Information Popover Tooltip */}
@@ -146,11 +149,12 @@ export default function EnterpriseLayoutTemplate({
                   Active 24/7
                 </span>
               </div>
-              <div className="space-y-1 text-teal-50 font-mono text-[11px]">
-                <p>📍 Level 2, Menara Medical Suite</p>
-                <p>📋 KKM License: Reg #KKM-2026-SL-8902</p>
-                <p>📞 Emergency Hotline: +60 3-5510 8899</p>
-                <p>🆔 Station Code: MY-APC-KLG-20 (v1.1.2)</p>
+              <div className="space-y-1 text-teal-50 text-[11px]">
+                <p className="font-black text-white text-xs uppercase mb-1">🏢 {activeBranch.branchName}</p>
+                <p>📍 {activeBranch.address || 'Level 2, Menara Medical Suite'}</p>
+                <p>📋 KKM License: {activeBranch.licenseMohNumber || 'Reg #KKM-2026-SL-8902'}</p>
+                <p>📞 Hotline: {activeBranch.phone || '+60 3-5510 8899'}</p>
+                <p className="font-mono text-[10px] text-teal-200 mt-1">Tenant ID: {activeBranch.tenantId}</p>
               </div>
             </div>
           )}

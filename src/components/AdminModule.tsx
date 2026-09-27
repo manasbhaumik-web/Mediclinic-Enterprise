@@ -18,8 +18,8 @@ import SecurityHub from './SecurityHub';
 import RevenueCycleHub from './RevenueCycleHub';
 import SystemArchitectureHub from './SystemArchitectureHub';
 import { useSettings } from '../context/SettingsContext';
+import { useClinicStore } from '../store/useClinicStore';
 import { Visit, Language, UserRole } from '../types';
-import BranchSwitcher from './BranchSwitcher';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
@@ -43,6 +43,7 @@ export default function AdminModule({
   const [activeTab, setActiveTab] = useState<AdminTab>('staff');
   const [activeCategory, setActiveCategory] = useState<AdminCategory>('people');
   const { settings } = useSettings();
+  const activeBranch = useClinicStore(state => state.activeBranch);
 
   // Workstation Header State
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
@@ -143,8 +144,11 @@ export default function AdminModule({
             </span>
           </div>
 
-          <div className="hidden sm:block ml-2 border-l border-white/20 pl-3">
-            <BranchSwitcher compact />
+          {/* Logged in Active Branch Badge */}
+          <div className="hidden sm:flex items-center gap-1.5 ml-2 border-l border-white/20 pl-3 text-xs text-white">
+            <Building className="w-3.5 h-3.5 text-teal-200 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span className="font-extrabold uppercase tracking-wide text-teal-100">{activeBranch.branchName}</span>
           </div>
         </div>
 
