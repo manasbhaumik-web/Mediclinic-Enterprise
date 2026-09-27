@@ -72,63 +72,70 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
   };
 
   return (
-    <div className="bg-[#f7fdfd] rounded-none shadow-xs border border-[#ccfbf1] overflow-hidden animate-fadeIn">
-      {/* Header */}
-      <div className="bg-[#e6f4f1] border-b border-[#ccfbf1] px-6 py-4 flex items-center justify-between">
+    <div className="bg-white rounded-none shadow-md border border-[#99f6e4] overflow-hidden animate-fadeIn flex flex-col max-h-[calc(100vh-140px)]">
+      {/* Header Banner */}
+      <div className="bg-[#e6f4f1] border-b border-[#99f6e4] px-6 py-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button 
+            type="button"
             onClick={onCancel}
-            className="p-2 hover:bg-slate-200 rounded-none text-slate-500 transition-colors cursor-pointer"
+            className="p-2 bg-white/80 border border-[#99f6e4] text-[#0f3c4c] hover:bg-[#0a837f] hover:text-white rounded-none transition-all cursor-pointer"
+            title="Go Back"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <User className="w-5 h-5 text-[#07B2B2]" />
-              Staff Registration
+            <h2 className="text-xl font-black text-[#0f3c4c] flex items-center gap-2.5 tracking-tight">
+              <User className="w-6 h-6 text-[#0a837f]" />
+              Staff Personnel Registration
             </h2>
-            <p className="text-xs text-slate-500">Enter comprehensive personnel details for HR compliance.</p>
+            <p className="text-xs text-[#0a837f] font-semibold mt-0.5">Enter comprehensive personnel details for HR, clinical privileges, and statutory compliance.</p>
           </div>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <button 
+            type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 rounded-none hover:bg-slate-50 transition-colors cursor-pointer"
+            className="px-5 py-2.5 text-xs font-black uppercase tracking-wider text-slate-700 bg-white border border-slate-300 rounded-none hover:bg-slate-100 transition-all cursor-pointer shadow-2xs"
           >
             Cancel
           </button>
           <button 
+            type="button"
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#07B2B2] rounded-none hover:bg-[#058A8A] transition-colors cursor-pointer shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-white bg-[#0a837f] hover:bg-[#076663] rounded-none transition-all cursor-pointer shadow-md"
           >
             <Save className="w-4 h-4" />
-            Save Record
+            Save Staff Record
           </button>
         </div>
       </div>
 
-      <form className="p-6 overflow-y-auto max-h-[75vh] custom-scrollbar space-y-8" onSubmit={handleSubmit}>
+      <form className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6 bg-[#f8fafc]/50" onSubmit={handleSubmit}>
         
         {/* Section 1: Primary & Account Details */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-            <Shield className="w-4 h-4 text-[#07B2B2]" />
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">1. Primary & Account Details</h3>
+        <section className="bg-white border border-[#99f6e4] shadow-xs rounded-none overflow-hidden">
+          <div className="bg-[#e6f4f1] px-5 py-3.5 border-b border-[#99f6e4] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Shield className="w-4 h-4 text-[#0a837f]" />
+              <h3 className="font-black text-[#0f3c4c] text-xs uppercase tracking-wider">1. Primary & Account Details</h3>
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest bg-[#0a837f] text-white px-2.5 py-1 rounded-none">Required System Attributes</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Account Status <span className="text-red-500">*</span></label>
-              <select name="status" value={formData.status} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] bg-white">
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Account Status <span className="text-red-500 font-bold">*</span></label>
+              <select name="status" value={formData.status} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs">
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
                 <option value="Suspended">Suspended</option>
                 <option value="On Leave">On Leave</option>
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Role / Type <span className="text-red-500">*</span></label>
-              <select name="role" value={formData.role} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] bg-white">
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Role / Type <span className="text-red-500 font-bold">*</span></label>
+              <select name="role" value={formData.role} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs">
                 <option value="Physician">Doctor / Physician</option>
                 <option value="Registered Nurse">Registered Nurse</option>
                 <option value="Administration">Administration</option>
@@ -137,174 +144,184 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
                 <option value="System Admin">System Admin</option>
               </select>
             </div>
-            <div className="space-y-1 lg:col-span-2">
-              <label className="text-xs font-bold text-slate-600">Department <span className="text-red-500">*</span></label>
-              <input type="text" name="department" value={formData.department || ''} onChange={handleChange} placeholder="e.g. General Medicine, Front Desk" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" required />
+            <div className="lg:col-span-2">
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Department <span className="text-red-500 font-bold">*</span></label>
+              <input type="text" name="department" value={formData.department || ''} onChange={handleChange} placeholder="e.g. General Medicine, Emergency, Pharmacy" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" required />
             </div>
           </div>
         </section>
 
         {/* Section 2: Personal Information */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-            <User className="w-4 h-4 text-[#07B2B2]" />
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">2. Personal Information</h3>
+        <section className="bg-white border border-[#99f6e4] shadow-xs rounded-none overflow-hidden">
+          <div className="bg-[#e6f4f1] px-5 py-3.5 border-b border-[#99f6e4] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <User className="w-4 h-4 text-[#0a837f]" />
+              <h3 className="font-black text-[#0f3c4c] text-xs uppercase tracking-wider">2. Personal Information</h3>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Full Name <span className="text-red-500">*</span></label>
-              <input type="text" name="name" value={formData.name || ''} onChange={handleChange} placeholder="First Name, Middle Name, Last Name" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" required />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">National ID / Passport Number <span className="text-red-500">*</span></label>
-              <input type="text" name="icNumber" value={formData.icNumber || ''} onChange={handleChange} placeholder="e.g. 900101-14-5555" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] font-mono" required />
-            </div>
-            
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Gender</label>
-              <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] bg-white">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Date of Birth</label>
-              <input type="date" name="dob" value={formData.dob || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+          <div className="p-6 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Full Name <span className="text-red-500 font-bold">*</span></label>
+                <input type="text" name="name" value={formData.name || ''} onChange={handleChange} placeholder="Full Name as per NRIC / Passport" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" required />
+              </div>
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">National ID / Passport Number <span className="text-red-500 font-bold">*</span></label>
+                <input type="text" name="icNumber" value={formData.icNumber || ''} onChange={handleChange} placeholder="e.g. 900101-14-5555" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-mono font-bold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" required />
+              </div>
+              
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Gender</label>
+                <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Date of Birth</label>
+                <input type="date" name="dob" value={formData.dob || ''} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Personal Email <span className="text-red-500 font-bold">*</span></label>
+                <input type="email" name="email" value={formData.email || ''} onChange={handleChange} placeholder="staff.name@mediclinic.my" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" required />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Mobile Phone</label>
+                  <input type="text" name="phone" value={formData.phone || ''} onChange={handleChange} placeholder="01X-XXXXXXX" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Alt Phone</label>
+                  <input type="text" name="altPhone" value={formData.altPhone || ''} onChange={handleChange} placeholder="Optional" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Personal Email <span className="text-red-500">*</span></label>
-              <input type="email" name="email" value={formData.email || ''} onChange={handleChange} placeholder="personal@email.com" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" required />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Mobile Phone</label>
-                <input type="text" name="phone" value={formData.phone || ''} onChange={handleChange} placeholder="01X-XXXXXXX" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div className="p-4 bg-[#e6f4f1]/40 border border-[#99f6e4] rounded-none space-y-3">
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#0f3c4c] flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 text-amber-600" /> Emergency Contact Details
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input type="text" name="emergencyContact.name" value={formData.emergencyContact?.name || ''} onChange={handleChange} placeholder="Emergency Contact Name" className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
+                <input type="text" name="emergencyContact.relationship" value={formData.emergencyContact?.relationship || ''} onChange={handleChange} placeholder="Relationship (e.g. Spouse, Parent)" className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
+                <input type="text" name="emergencyContact.phone" value={formData.emergencyContact?.phone || ''} onChange={handleChange} placeholder="Emergency Contact Phone" className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Alt Phone</label>
-                <input type="text" name="altPhone" value={formData.altPhone || ''} onChange={handleChange} placeholder="Optional" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
-            <h4 className="text-xs font-bold text-slate-700 flex items-center gap-1">
-              <AlertCircle className="w-3.5 h-3.5 text-amber-500" /> Emergency Contact
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <input type="text" name="emergencyContact.name" value={formData.emergencyContact?.name || ''} onChange={handleChange} placeholder="Contact Name" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
-              <input type="text" name="emergencyContact.relationship" value={formData.emergencyContact?.relationship || ''} onChange={handleChange} placeholder="Relationship" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
-              <input type="text" name="emergencyContact.phone" value={formData.emergencyContact?.phone || ''} onChange={handleChange} placeholder="Phone Number" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
             </div>
           </div>
         </section>
 
         {/* Section 3: Professional & Clinical Credentials */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#07B2B2]" />
-              <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">3. Clinical Credentials</h3>
+        <section className="bg-white border border-[#99f6e4] shadow-xs rounded-none overflow-hidden">
+          <div className="bg-[#e6f4f1] px-5 py-3.5 border-b border-[#99f6e4] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <FileText className="w-4 h-4 text-[#0a837f]" />
+              <h3 className="font-black text-[#0f3c4c] text-xs uppercase tracking-wider">3. Clinical & Medical Credentials</h3>
             </div>
-            <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold uppercase">Critical for Compliance</span>
+            <span className="text-[10px] font-black uppercase tracking-widest bg-amber-500 text-white px-2.5 py-1 rounded-none">KKM / MMC Compliance</span>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Specific Job Title</label>
-              <input type="text" name="jobTitle" value={formData.jobTitle || ''} onChange={handleChange} placeholder="e.g. Senior Resident Pediatrician" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Specific Job Title</label>
+              <input type="text" name="jobTitle" value={formData.jobTitle || ''} onChange={handleChange} placeholder="e.g. Senior Resident Medical Officer" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Specialization</label>
-              <input type="text" name="specialization" value={formData.specialization || ''} onChange={handleChange} placeholder="e.g. Cardiology, Dermatology" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Specialization</label>
+              <input type="text" name="specialization" value={formData.specialization || ''} onChange={handleChange} placeholder="e.g. Family Medicine, Pediatrics, Internal Medicine" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Medical License / APC Number</label>
-              <input type="text" name="licenseNumber" value={formData.licenseNumber || ''} onChange={handleChange} placeholder="MMC/NSR/LJM Number" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Medical License / Annual Practising Certificate (APC)</label>
+              <input type="text" name="licenseNumber" value={formData.licenseNumber || ''} onChange={handleChange} placeholder="MMC / NSR / LJM Registration Number" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-mono font-bold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">License Expiry Date</label>
-              <input type="date" name="licenseExpiry" value={formData.licenseExpiry || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">APC License Expiry Date</label>
+              <input type="date" name="licenseExpiry" value={formData.licenseExpiry || ''} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
             </div>
-            <div className="space-y-1 md:col-span-2">
-              <label className="text-xs font-bold text-slate-600">Qualifications / Degrees</label>
-              <input type="text" name="qualifications" value={formData.qualifications || ''} onChange={handleChange} placeholder="e.g. MBBS, B.Sc. Nursing" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div className="md:col-span-2">
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Academic Qualifications / Degrees</label>
+              <input type="text" name="qualifications" value={formData.qualifications || ''} onChange={handleChange} placeholder="e.g. MBBS (Malaya), M.Med (Family Medicine), B.Sc Nursing" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
             </div>
           </div>
         </section>
 
         {/* Section 4: Employment & HR Details */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-            <Briefcase className="w-4 h-4 text-[#07B2B2]" />
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">4. Employment & HR Details</h3>
+        <section className="bg-white border border-[#99f6e4] shadow-xs rounded-none overflow-hidden">
+          <div className="bg-[#e6f4f1] px-5 py-3.5 border-b border-[#99f6e4] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Briefcase className="w-4 h-4 text-[#0a837f]" />
+              <h3 className="font-black text-[#0f3c4c] text-xs uppercase tracking-wider">4. Employment & HR Specifications</h3>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Date of Joining</label>
-              <input type="date" name="dateJoined" value={formData.dateJoined || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Date of Joining</label>
+              <input type="date" name="dateJoined" value={formData.dateJoined || ''} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Employment Status</label>
-              <select name="employmentStatus" value={formData.employmentStatus} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] bg-white">
-                <option value="Full-Time">Full-Time</option>
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Employment Status</label>
+              <select name="employmentStatus" value={formData.employmentStatus} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs">
+                <option value="Full-Time">Full-Time Permanent</option>
                 <option value="Part-Time">Part-Time</option>
-                <option value="Contract">Contract</option>
-                <option value="Locum">Locum (On-Call)</option>
+                <option value="Contract">Fixed Term Contract</option>
+                <option value="Locum">Locum (On-Call Specialist)</option>
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Date of Resignation (If applicable)</label>
-              <input type="date" name="dateResigned" value={formData.dateResigned || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Resignation / Termination Date</label>
+              <input type="date" name="dateResigned" value={formData.dateResigned || ''} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Work Schedule / Shift Profile</label>
-              <input type="text" name="workSchedule" value={formData.workSchedule || ''} onChange={handleChange} placeholder="e.g. 40 hours/week, Night Shifts" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Work Schedule / Shift Roster</label>
+              <input type="text" name="workSchedule" value={formData.workSchedule || ''} onChange={handleChange} placeholder="e.g. Standard 40 hrs/wk, Rotating Roster A" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
             </div>
-            <div className="space-y-1 md:col-span-2">
-              <label className="text-xs font-bold text-slate-600">Supervisor / Reporting Manager</label>
-              <input type="text" name="supervisorId" value={formData.supervisorId || ''} onChange={handleChange} placeholder="Link to another Staff ID" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
+            <div className="md:col-span-2">
+              <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Reporting Supervisor / Head of Department</label>
+              <input type="text" name="supervisorId" value={formData.supervisorId || ''} onChange={handleChange} placeholder="Supervisor Name or Staff Identifier" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
             </div>
           </div>
         </section>
 
         {/* Section 5: Financial & Statutory Details */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-            <CreditCard className="w-4 h-4 text-[#07B2B2]" />
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">5. Financial & Statutory Details</h3>
+        <section className="bg-white border border-[#99f6e4] shadow-xs rounded-none overflow-hidden">
+          <div className="bg-[#e6f4f1] px-5 py-3.5 border-b border-[#99f6e4] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <CreditCard className="w-4 h-4 text-[#0a837f]" />
+              <h3 className="font-black text-[#0f3c4c] text-xs uppercase tracking-wider">5. Financial & Statutory Remuneration</h3>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Base Salary (Monthly) <span className="text-red-500">*</span></label>
-              <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-400 text-sm font-bold">RM</span>
-                <input type="number" name="salaryBase" value={formData.salaryBase || 0} onChange={handleChange} className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] font-mono" required />
+          <div className="p-6 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Base Monthly Salary (MYR) <span className="text-red-500 font-bold">*</span></label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-[#0a837f] text-xs font-black">RM</span>
+                  <input type="number" name="salaryBase" value={formData.salaryBase || 0} onChange={handleChange} className="w-full pl-11 pr-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-mono font-bold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" required />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Income Tax Ref Number (LHDN)</label>
+                <input type="text" name="taxId" value={formData.taxId || ''} onChange={handleChange} placeholder="e.g. SG 1234567809" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-mono font-bold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
+              </div>
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-[#0f3c4c] mb-1.5">Statutory Provident Fund (EPF / KWSP / SOCSO)</label>
+                <input type="text" name="statutoryFundNumber" value={formData.statutoryFundNumber || ''} onChange={handleChange} placeholder="e.g. EPF: 12345678 / SOCSO: 900101145555" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-mono font-bold focus:bg-white focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
               </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Income Tax ID</label>
-              <input type="text" name="taxId" value={formData.taxId || ''} onChange={handleChange} placeholder="Tax reference number" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] font-mono" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Statutory Fund Numbers</label>
-              <input type="text" name="statutoryFundNumber" value={formData.statutoryFundNumber || ''} onChange={handleChange} placeholder="e.g. EPF/SOCSO, CPF" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] font-mono" />
-            </div>
-          </div>
 
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
-            <h4 className="text-xs font-bold text-slate-700 flex items-center gap-1">
-              Bank Account Details (For Payroll)
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <input type="text" name="bankDetails.bankName" value={formData.bankDetails?.bankName || ''} onChange={handleChange} placeholder="Bank Name (e.g. Maybank)" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
-              <input type="text" name="bankDetails.accountHolder" value={formData.bankDetails?.accountHolder || ''} onChange={handleChange} placeholder="Account Holder Name" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2]" />
-              <input type="text" name="bankDetails.accountNumber" value={formData.bankDetails?.accountNumber || ''} onChange={handleChange} placeholder="Account Number" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#07B2B2] font-mono" />
+            <div className="p-4 bg-[#e6f4f1]/40 border border-[#99f6e4] rounded-none space-y-3">
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#0f3c4c]">
+                Direct Salary Disbursement Bank Account
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input type="text" name="bankDetails.bankName" value={formData.bankDetails?.bankName || ''} onChange={handleChange} placeholder="Bank Name (e.g. Maybank, CIMB, Public Bank)" className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
+                <input type="text" name="bankDetails.accountHolder" value={formData.bankDetails?.accountHolder || ''} onChange={handleChange} placeholder="Account Holder Name" className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
+                <input type="text" name="bankDetails.accountNumber" value={formData.bankDetails?.accountNumber || ''} onChange={handleChange} placeholder="Bank Account Number" className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs text-slate-900 font-mono font-bold focus:border-[#0a837f] focus:ring-1 focus:ring-[#0a837f] transition-all shadow-2xs" />
+              </div>
             </div>
           </div>
         </section>

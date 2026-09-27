@@ -45,13 +45,13 @@ export default function ClinicLandingPage({
   // Review Category Filter State
   const [reviewCategory, setReviewCategory] = useState('All');
 
-  // Hero Background Carousel State
+  // Hero Background Carousel State (Custom AI Generated Images)
   const [heroSlide, setHeroSlide] = useState(0);
   const heroImages = [
-    'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1920&q=80',
-    'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1920&q=80'
+    '/ai_hero_slide_1.jpg',
+    '/ai_hero_slide_2.jpg',
+    '/ai_hero_slide_3.jpg',
+    '/ai_hero_slide_4.jpg'
   ];
 
   React.useEffect(() => {
