@@ -440,7 +440,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '012-3456789',
     panelEmployer: 'Petronas Panel',
     drugAllergies: ['Penicillin'],
-    registeredDate: '2026-06-05'
+    registeredDate: '2026-06-05',
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'P002',
@@ -452,7 +454,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '019-8765432',
     panelEmployer: 'Medkad Sdn Bhd',
     drugAllergies: ['NSAID', 'Aspirin'],
-    registeredDate: '2026-06-05'
+    registeredDate: '2026-06-05',
+    tenantId: 'BRANCH_PJ_EXPRESS',
+    branchId: 'BRANCH_PJ_EXPRESS'
   },
   {
     id: 'P003',
@@ -464,7 +468,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '017-4455881',
     panelEmployer: 'None (Self-Pay)',
     drugAllergies: [],
-    registeredDate: '2026-06-05'
+    registeredDate: '2026-06-05',
+    tenantId: 'BRANCH_JB_MEDICAL',
+    branchId: 'BRANCH_JB_MEDICAL'
   },
   {
     id: 'P010',
@@ -476,7 +482,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '012-9841234',
     panelEmployer: 'Petronas Panel',
     drugAllergies: ['Penicillin'],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'BRANCH_PENANG_CARE',
+    branchId: 'BRANCH_PENANG_CARE'
   },
   {
     id: 'P011',
@@ -488,7 +496,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '017-3312984',
     panelEmployer: 'Maybank Panel',
     drugAllergies: ['NSAID', 'Aspirin'],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'P012',
@@ -500,7 +510,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '016-4428901',
     panelEmployer: 'AIA TPA',
     drugAllergies: [],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'BRANCH_PJ_EXPRESS',
+    branchId: 'BRANCH_PJ_EXPRESS'
   },
   {
     id: 'P013',
@@ -512,7 +524,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '013-7721094',
     panelEmployer: 'PMCare',
     drugAllergies: ['Sulfa'],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'BRANCH_JB_MEDICAL',
+    branchId: 'BRANCH_JB_MEDICAL'
   },
   {
     id: 'P014',
@@ -524,7 +538,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '018-9123847',
     panelEmployer: 'Self-Pay (Cash/Card)',
     drugAllergies: [],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'BRANCH_PENANG_CARE',
+    branchId: 'BRANCH_PENANG_CARE'
   },
   {
     id: 'P015',
@@ -536,7 +552,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '012-4491023',
     panelEmployer: 'Medkad',
     drugAllergies: ['Paracetamol'],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'P016',
@@ -548,7 +566,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '019-7123984',
     panelEmployer: 'HealthConnect TPA',
     drugAllergies: [],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'BRANCH_PJ_EXPRESS',
+    branchId: 'BRANCH_PJ_EXPRESS'
   },
   {
     id: 'P017',
@@ -560,7 +580,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '011-28391024',
     panelEmployer: 'Petronas Panel',
     drugAllergies: ['Penicillin'],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'BRANCH_JB_MEDICAL',
+    branchId: 'BRANCH_JB_MEDICAL'
   },
   {
     id: 'P018',
@@ -572,7 +594,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '016-2281930',
     panelEmployer: 'Self-Pay (Cash/Card)',
     drugAllergies: [],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'BRANCH_PENANG_CARE',
+    branchId: 'BRANCH_PENANG_CARE'
   },
   {
     id: 'P019',
@@ -584,7 +608,9 @@ export const INITIAL_PATIENTS: Patient[] = [
     phone: '019-3382910',
     panelEmployer: 'AIA TPA',
     drugAllergies: [],
-    registeredDate: '2026-09-25'
+    registeredDate: '2026-09-25',
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   }
 ];
 
@@ -633,7 +659,9 @@ export const PREVIOUS_VISITS: Visit[] = [
     panelClaimed: 50.00,
     paidAmount: 0,
     paymentMethod: 'Panel',
-    glNumber: 'PET-GL-99321'
+    glNumber: 'PET-GL-99321',
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'V-HIST-02',
@@ -678,7 +706,9 @@ export const PREVIOUS_VISITS: Visit[] = [
     panelClaimed: 65.00,
     paidAmount: 0,
     paymentMethod: 'Panel',
-    glNumber: 'PET-GL-82410'
+    glNumber: 'PET-GL-82410',
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'V-HIST-03',
@@ -723,7 +753,9 @@ export const PREVIOUS_VISITS: Visit[] = [
     panelClaimed: 45.00,
     paidAmount: 0,
     paymentMethod: 'Panel',
-    glNumber: 'MKAD-GL-84941'
+    glNumber: 'MKAD-GL-84941',
+    tenantId: 'BRANCH_PJ_EXPRESS',
+    branchId: 'BRANCH_PJ_EXPRESS'
   }
 ];
 
@@ -742,7 +774,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 50.00,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 45
+    registeredTime: Date.now() - 1000 * 60 * 45,
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'V-MOCK-202',
@@ -758,7 +792,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 45.00,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 20
+    registeredTime: Date.now() - 1000 * 60 * 20,
+    tenantId: 'BRANCH_PJ_EXPRESS',
+    branchId: 'BRANCH_PJ_EXPRESS'
   },
   {
     id: 'V-MOCK-203',
@@ -774,7 +810,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 5
+    registeredTime: Date.now() - 1000 * 60 * 5,
+    tenantId: 'BRANCH_JB_MEDICAL',
+    branchId: 'BRANCH_JB_MEDICAL'
   },
   {
     id: 'V-TRIAGE-010',
@@ -790,7 +828,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 35
+    registeredTime: Date.now() - 1000 * 60 * 35,
+    tenantId: 'BRANCH_PENANG_CARE',
+    branchId: 'BRANCH_PENANG_CARE'
   },
   {
     id: 'V-TRIAGE-011',
@@ -806,7 +846,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 30
+    registeredTime: Date.now() - 1000 * 60 * 30,
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'V-TRIAGE-012',
@@ -822,7 +864,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 25
+    registeredTime: Date.now() - 1000 * 60 * 25,
+    tenantId: 'BRANCH_PJ_EXPRESS',
+    branchId: 'BRANCH_PJ_EXPRESS'
   },
   {
     id: 'V-TRIAGE-013',
@@ -838,7 +882,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 22
+    registeredTime: Date.now() - 1000 * 60 * 22,
+    tenantId: 'BRANCH_JB_MEDICAL',
+    branchId: 'BRANCH_JB_MEDICAL'
   },
   {
     id: 'V-TRIAGE-014',
@@ -854,7 +900,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 18
+    registeredTime: Date.now() - 1000 * 60 * 18,
+    tenantId: 'BRANCH_PENANG_CARE',
+    branchId: 'BRANCH_PENANG_CARE'
   },
   {
     id: 'V-TRIAGE-015',
@@ -870,7 +918,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 15
+    registeredTime: Date.now() - 1000 * 60 * 15,
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   },
   {
     id: 'V-TRIAGE-016',
@@ -886,7 +936,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 12
+    registeredTime: Date.now() - 1000 * 60 * 12,
+    tenantId: 'BRANCH_PJ_EXPRESS',
+    branchId: 'BRANCH_PJ_EXPRESS'
   },
   {
     id: 'V-TRIAGE-017',
@@ -902,7 +954,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 8
+    registeredTime: Date.now() - 1000 * 60 * 8,
+    tenantId: 'BRANCH_JB_MEDICAL',
+    branchId: 'BRANCH_JB_MEDICAL'
   },
   {
     id: 'V-TRIAGE-018',
@@ -918,7 +972,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 5
+    registeredTime: Date.now() - 1000 * 60 * 5,
+    tenantId: 'BRANCH_PENANG_CARE',
+    branchId: 'BRANCH_PENANG_CARE'
   },
   {
     id: 'V-TRIAGE-019',
@@ -934,7 +990,9 @@ export const MOCK_VISITS_QUEUE: Visit[] = [
     totalBill: 0,
     panelClaimed: 0,
     paidAmount: 0,
-    registeredTime: Date.now() - 1000 * 60 * 2
+    registeredTime: Date.now() - 1000 * 60 * 2,
+    tenantId: 'HQ_KL_MAIN',
+    branchId: 'HQ_KL_MAIN'
   }
 ];
 
