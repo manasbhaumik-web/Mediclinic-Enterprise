@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Patient, Visit, Appointment } from '../types';
 import { INITIAL_PATIENTS, MOCK_VISITS_QUEUE } from '../data';
+import { offlineQueueEngine, OfflineAction } from '../lib/offlineQueueEngine';
 
 export function useSupabaseSync() {
   const [patientsList, setPatientsList] = useState<Patient[]>(INITIAL_PATIENTS);
@@ -9,6 +10,16 @@ export function useSupabaseSync() {
   const [completedVisits, setCompletedVisits] = useState<Visit[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isSyncing, setIsSyncing] = useState(true);
+  const [isOnline, setIsOnline] = useState<boolean>(offlineQueueEngine.getIsOnline());
+  const [offlineQueue, setOfflineQueue] = useState<OfflineAction[]>(offlineQueueEngine.getQueue());
+
+  useEffect(() => {
+    const unsubscribe = offlineQueueEngine.subscribe((queue, online) => {
+      setOfflineQueue(queue);
+      setIsOnline(online);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const syncData = async () => {
@@ -364,6 +375,8 @@ export function useSupabaseSync() {
     updateVisitInDb,
     addAppointmentToDb,
     updateAppointmentInDb,
-    isSyncing
+    isSyncing,
+    isOnline,
+    offlineQueue
   };
 }
