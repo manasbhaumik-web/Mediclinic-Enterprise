@@ -377,9 +377,10 @@ export default function DoctorDashboardModule({
             const remainingQueue = sortedQueue.slice(1);
 
             return (
-              <div className="space-y-4">
-                {/* SORTING CONTROLS & FILTER BAR (JUST TOP OF PATIENT QUEUE LIST) */}
-                <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 p-3.5 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+              <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 rounded-none overflow-hidden shadow-2xs">
+                
+                {/* UNIFIED SORTATION HEADER STRIP AT TOP OF PATIENT QUEUE LIST */}
+                <div className="bg-[#d5f0eb] dark:bg-[#06242c] border-b border-[#99f6e4] dark:border-teal-800 p-2.5 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[#0f3c4c] dark:text-slate-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
                       <Filter className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Sort Queue By:
@@ -407,280 +408,283 @@ export default function DoctorDashboardModule({
                   </div>
                 </div>
 
-                {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY) */}
-                {nextPatient && (
-                  <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3`}>
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#0d9488]/40 pb-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs font-mono">
-                          NEXT IN LINE (#1)
-                        </span>
-                        
-                        {/* Urgency Badge */}
-                        {(() => {
-                          const t = getTriageDetails(nextPatient, nextVisit);
-                          const IconComp = t.icon;
-                          return (
-                            <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-none border flex items-center gap-1 font-mono ${t.badgeBg}`}>
-                              <IconComp className={`w-3 h-3 ${t.iconColor}`} />
-                              <span>Triage: {t.level}</span>
+                {/* PATIENT QUEUE LIST BODY */}
+                <div className="p-4 space-y-4">
+                  {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY) */}
+                  {nextPatient && (
+                    <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3`}>
+                      
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#0d9488]/40 pb-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs font-mono">
+                            NEXT IN LINE (#1)
+                          </span>
+                          
+                          {/* Urgency Badge */}
+                          {(() => {
+                            const t = getTriageDetails(nextPatient, nextVisit);
+                            const IconComp = t.icon;
+                            return (
+                              <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-none border flex items-center gap-1 font-mono ${t.badgeBg}`}>
+                                <IconComp className={`w-3 h-3 ${t.iconColor}`} />
+                                <span>Triage: {t.level}</span>
+                              </span>
+                            );
+                          })()}
+
+                          {/* Allergy Badge */}
+                          {renderAllergyBadge(nextPatient.drugAllergies)}
+
+                          {/* Called timestamp badge */}
+                          {calledTimestampMap[nextVisit.id] && (
+                            <span className="bg-emerald-400 text-[#0f3c4c] text-[10px] font-black uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center gap-1">
+                              📢 Called at {calledTimestampMap[nextVisit.id]}
                             </span>
-                          );
-                        })()}
-
-                        {/* Allergy Badge */}
-                        {renderAllergyBadge(nextPatient.drugAllergies)}
-
-                        {/* Called timestamp badge */}
-                        {calledTimestampMap[nextVisit.id] && (
-                          <span className="bg-emerald-400 text-[#0f3c4c] text-[10px] font-black uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center gap-1">
-                            📢 Called at {calledTimestampMap[nextVisit.id]}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Full 3-Step Visual Workflow Tracker */}
-                      <div className="text-[11px] font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center gap-1.5">
-                        <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-extrabold underline'}>
-                          Ready
-                        </span>
-                        <span className="text-teal-400">→</span>
-                        <span className={calledVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
-                          Called
-                        </span>
-                        <span className="text-teal-400">→</span>
-                        <span className={activeConsultationVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
-                          In Consultation
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                      <div className="space-y-1.5">
-                        <h3 className="text-xl font-black text-white flex items-baseline gap-2">
-                          <span>{nextPatient.fullName}</span>
-                          <span className="text-xs font-mono text-teal-200 font-normal">ID: {nextPatient.id} · ({nextPatient.gender}, {nextPatient.dob})</span>
-                        </h3>
-
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-teal-100 font-medium">
-                          <span className="font-bold text-white bg-teal-900/60 px-2 py-0.5 border border-teal-500/40">
-                            Complaint: {getChiefComplaintLabel(nextVisit.soap?.subjective)}
-                          </span>
-                          <span className="opacity-50">•</span>
-                          <span className="font-mono text-amber-200">
-                            Wait: <strong>{nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0} min</strong>
-                          </span>
+                          )}
                         </div>
 
-                        {/* Vitals summary preview */}
-                        {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
-                          <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[10px]">
-                            <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                              BP: <strong className="text-white">{nextVisit.soap.objective.bpSystolic}/{nextVisit.soap.objective.bpDiastolic}</strong> mmHg
-                            </span>
-                            <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                              Temp: <strong className={nextVisit.soap.objective.temperature >= 37.5 ? 'text-rose-300 font-bold' : 'text-white'}>{nextVisit.soap.objective.temperature}°C</strong>
-                            </span>
-                            <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                              HR: <strong className="text-white">{nextVisit.soap.objective.heartRate}</strong> bpm
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Dominant Primary Action & Secondary Toggle */}
-                      <div className="flex items-center gap-2.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => toggleDetails(nextVisit.id)}
-                          className="px-3 py-2 rounded-none text-xs font-bold text-teal-100 hover:text-white underline cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
-                        >
-                          {expandedDetails[nextVisit.id] ? 'Hide details' : 'More details'}
-                        </button>
-
-                        {activeConsultationVisitId === nextVisit.id ? (
-                          <button
-                            type="button"
-                            onClick={() => handleStartConsultation(nextVisit.id)}
-                            className="px-6 py-2.5 rounded-none text-xs font-black bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-                          >
-                            <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
-                            <span>Move to consultation</span>
-                            <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
-                          </button>
-                        ) : calledVisitId === nextVisit.id ? (
-                          <button
-                            type="button"
-                            onClick={() => handleStartConsultation(nextVisit.id)}
-                            className="px-6 py-2.5 rounded-none text-xs font-black bg-emerald-400 hover:bg-emerald-300 text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-                          >
-                            <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
-                            <span>Move to consultation</span>
-                            <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
-                            className="px-6 py-2.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
-                          >
-                            <Volume2 className="w-4 h-4 text-white" />
-                            <span>Call patient</span>
-                            <ChevronRight className="w-4 h-4 text-white" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Expandable Secondary Details Drawer */}
-                    {expandedDetails[nextVisit.id] && (
-                      <div className="pt-3 border-t border-[#0d9488]/40 text-xs text-teal-100 space-y-2 bg-black/20 p-3 rounded-none animate-fadeIn">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div>
-                            <strong className="block text-white mb-0.5">Full Clinical Subjective Note:</strong>
-                            <p className="text-slate-200 leading-relaxed font-sans">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
-                          </div>
-                          <div>
-                            <strong className="block text-white mb-0.5">Panel Employer / Coverage:</strong>
-                            <p className="text-[#5eead4] font-bold">{nextPatient.panelEmployer}</p>
-                          </div>
-                          <div>
-                            <strong className="block text-white mb-0.5">Address &amp; Contact:</strong>
-                            <p className="text-slate-200">{nextPatient.phone} · {nextPatient.address}</p>
-                          </div>
+                        {/* Full 3-Step Visual Workflow Tracker */}
+                        <div className="text-[11px] font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center gap-1.5">
+                          <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-extrabold underline'}>
+                            Ready
+                          </span>
+                          <span className="text-teal-400">→</span>
+                          <span className={calledVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                            Called
+                          </span>
+                          <span className="text-teal-400">→</span>
+                          <span className={activeConsultationVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                            In Consultation
+                          </span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                )}
 
-                {/* REMAINING PATIENTS LIST (#2 ONWARDS) - ICE MINT COMPACT ROW GRID */}
-                {remainingQueue.length > 0 && (
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between flex-wrap gap-2 border-b border-[#99f6e4] dark:border-teal-800 pb-2">
-                      <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
-                        <span>Subsequent Patients ({remainingQueue.length} Waiting)</span>
-                      </h4>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
-                        Active Sort: <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
-                      </span>
-                    </div>
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="space-y-1.5">
+                          <h3 className="text-xl font-black text-white flex items-baseline gap-2">
+                            <span>{nextPatient.fullName}</span>
+                            <span className="text-xs font-mono text-teal-200 font-normal">ID: {nextPatient.id} · ({nextPatient.gender}, {nextPatient.dob})</span>
+                          </h3>
 
-                    <div className="flex flex-col gap-2.5">
-                      {remainingQueue.map((visit, index) => {
-                        const pt = patientsMap[visit.patientId];
-                        if (!pt) return null;
-                        const isConsulting = activeConsultationVisitId === visit.id;
-                        const isExpanded = expandedDetails[visit.id];
-                        const queuePosition = index + 2;
-                        const triage = getTriageDetails(pt, visit);
-                        const TriageIcon = triage.icon;
-                        const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-teal-100 font-medium">
+                            <span className="font-bold text-white bg-teal-900/60 px-2 py-0.5 border border-teal-500/40">
+                              Complaint: {getChiefComplaintLabel(nextVisit.soap?.subjective)}
+                            </span>
+                            <span className="opacity-50">•</span>
+                            <span className="font-mono text-amber-200">
+                              Wait: <strong>{nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0} min</strong>
+                            </span>
+                          </div>
 
-                        return (
-                          <div
-                            key={visit.id}
-                            tabIndex={0}
-                            onClick={() => toggleDetails(visit.id)}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
-                            className={`border rounded-none ${triage.stripColor} transition-all p-3.5 cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
-                              isConsulting 
-                                ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
-                                : 'bg-[#e6f4f1] dark:bg-[#082830] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] border-[#99f6e4] dark:border-teal-800'
-                            }`}
-                          >
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                              
-                              {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
-                              <div className="md:col-span-5 flex items-center gap-3 min-w-0">
-                                <div className="w-7 h-7 bg-[#d5f0eb] dark:bg-[#09333e] border border-[#99f6e4] dark:border-teal-800 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
-                                  #{queuePosition}
-                                </div>
-
-                                <div className="min-w-0 space-y-0.5">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <h4 className="text-xs font-black text-[#0f3c4c] dark:text-white uppercase tracking-tight truncate">
-                                      {pt.fullName}
-                                    </h4>
-                                    <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 font-bold">ID: {pt.id}</span>
-                                    
-                                    {/* Urgency Badge */}
-                                    <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-none border flex items-center gap-1 font-mono ${triage.badgeBg}`}>
-                                      <TriageIcon className={`w-3 h-3 ${triage.iconColor}`} />
-                                      <span>{triage.level}</span>
-                                    </span>
-
-                                    {/* Allergy Badge */}
-                                    {renderAllergyBadge(pt.drugAllergies)}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Col 6-9: Chief Complaint */}
-                              <div className="md:col-span-4 min-w-0">
-                                <span className="text-xs font-bold text-[#0d9488] dark:text-[#2dd4bf] truncate block">
-                                  {getChiefComplaintLabel(visit.soap?.subjective)}
-                                </span>
-                              </div>
-
-                              {/* Col 10: Aligned Wait Time Column */}
-                              <div className="md:col-span-1 font-mono text-xs text-slate-600 dark:text-slate-300 font-bold text-left md:text-center">
-                                <span className={waitMins >= 20 ? 'text-amber-600 dark:text-amber-400 font-black' : ''}>
-                                  {waitMins}m wait
-                                </span>
-                              </div>
-
-                              {/* Col 11-12: Action / Call Button */}
-                              <div className="md:col-span-2 flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                                {isConsulting ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleStartConsultation(visit.id)}
-                                    className="px-3 py-1.5 rounded-none text-xs font-extrabold bg-[#0f3c4c] dark:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
-                                  >
-                                    <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
-                                    <span>Resume</span>
-                                  </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleCallPatient(visit.id, pt.fullName)}
-                                    className="px-3 py-1.5 rounded-none text-xs font-bold bg-[#d5f0eb] hover:bg-[#0d9488] text-[#0f3c4c] hover:text-white dark:bg-[#09333e] dark:hover:bg-[#0d9488] dark:text-[#5eead4] border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
-                                  >
-                                    <Volume2 className="w-3 h-3" />
-                                    <span>Call</span>
-                                  </button>
-                                )}
-                                <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90 text-[#0d9488]' : ''}`} />
-                              </div>
+                          {/* Vitals summary preview */}
+                          {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
+                            <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[10px]">
+                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                                BP: <strong className="text-white">{nextVisit.soap.objective.bpSystolic}/{nextVisit.soap.objective.bpDiastolic}</strong> mmHg
+                              </span>
+                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                                Temp: <strong className={nextVisit.soap.objective.temperature >= 37.5 ? 'text-rose-300 font-bold' : 'text-white'}>{nextVisit.soap.objective.temperature}°C</strong>
+                              </span>
+                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
+                                HR: <strong className="text-white">{nextVisit.soap.objective.heartRate}</strong> bpm
+                              </span>
                             </div>
+                          )}
+                        </div>
 
-                            {/* Expandable Details Drawer */}
-                            {isExpanded && (
-                              <div className="pt-2.5 mt-2 border-t border-[#99f6e4] dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-white/60 dark:bg-[#061f26] p-3 rounded-none space-y-2 animate-fadeIn">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                  <div>
-                                    <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Full Reason / Symptoms:</strong>
-                                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-sans">{visit.soap?.subjective || 'General Medical Consultation'}</p>
+                        {/* Dominant Primary Action & Secondary Toggle */}
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleDetails(nextVisit.id)}
+                            className="px-3 py-2 rounded-none text-xs font-bold text-teal-100 hover:text-white underline cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                          >
+                            {expandedDetails[nextVisit.id] ? 'Hide details' : 'More details'}
+                          </button>
+
+                          {activeConsultationVisitId === nextVisit.id ? (
+                            <button
+                              type="button"
+                              onClick={() => handleStartConsultation(nextVisit.id)}
+                              className="px-6 py-2.5 rounded-none text-xs font-black bg-[#5eead4] hover:bg-[#2dd4bf] text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                            >
+                              <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
+                              <span>Move to consultation</span>
+                              <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
+                            </button>
+                          ) : calledVisitId === nextVisit.id ? (
+                            <button
+                              type="button"
+                              onClick={() => handleStartConsultation(nextVisit.id)}
+                              className="px-6 py-2.5 rounded-none text-xs font-black bg-emerald-400 hover:bg-emerald-300 text-[#0f3c4c] shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                            >
+                              <Stethoscope className="w-4 h-4 text-[#0f3c4c]" />
+                              <span>Move to consultation</span>
+                              <ChevronRight className="w-4 h-4 text-[#0f3c4c]" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
+                              className="px-6 py-2.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
+                            >
+                              <Volume2 className="w-4 h-4 text-white" />
+                              <span>Call patient</span>
+                              <ChevronRight className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Expandable Secondary Details Drawer */}
+                      {expandedDetails[nextVisit.id] && (
+                        <div className="pt-3 border-t border-[#0d9488]/40 text-xs text-teal-100 space-y-2 bg-black/20 p-3 rounded-none animate-fadeIn">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <strong className="block text-white mb-0.5">Full Clinical Subjective Note:</strong>
+                              <p className="text-slate-200 leading-relaxed font-sans">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
+                            </div>
+                            <div>
+                              <strong className="block text-white mb-0.5">Panel Employer / Coverage:</strong>
+                              <p className="text-[#5eead4] font-bold">{nextPatient.panelEmployer}</p>
+                            </div>
+                            <div>
+                              <strong className="block text-white mb-0.5">Address &amp; Contact:</strong>
+                              <p className="text-slate-200">{nextPatient.phone} · {nextPatient.address}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* REMAINING PATIENTS LIST (#2 ONWARDS) - ICE MINT COMPACT ROW GRID */}
+                  {remainingQueue.length > 0 && (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-[#99f6e4] dark:border-teal-800 pb-2">
+                        <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                          <span>Subsequent Patients ({remainingQueue.length} Waiting)</span>
+                        </h4>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
+                          Active Sort: <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-2.5">
+                        {remainingQueue.map((visit, index) => {
+                          const pt = patientsMap[visit.patientId];
+                          if (!pt) return null;
+                          const isConsulting = activeConsultationVisitId === visit.id;
+                          const isExpanded = expandedDetails[visit.id];
+                          const queuePosition = index + 2;
+                          const triage = getTriageDetails(pt, visit);
+                          const TriageIcon = triage.icon;
+                          const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
+
+                          return (
+                            <div
+                              key={visit.id}
+                              tabIndex={0}
+                              onClick={() => toggleDetails(visit.id)}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
+                              className={`border rounded-none ${triage.stripColor} transition-all p-3.5 cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
+                                isConsulting 
+                                  ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
+                                  : 'bg-[#e6f4f1] dark:bg-[#082830] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] border-[#99f6e4] dark:border-teal-800'
+                              }`}
+                            >
+                              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                                
+                                {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
+                                <div className="md:col-span-5 flex items-center gap-3 min-w-0">
+                                  <div className="w-7 h-7 bg-[#d5f0eb] dark:bg-[#09333e] border border-[#99f6e4] dark:border-teal-800 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
+                                    #{queuePosition}
                                   </div>
-                                  <div>
-                                    <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Panel Employer:</strong>
-                                    <p className="text-[#0d9488] dark:text-[#2dd4bf] font-bold">{pt.panelEmployer}</p>
-                                  </div>
-                                  <div>
-                                    <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Demographics &amp; Vitals:</strong>
-                                    <p className="text-slate-600 dark:text-slate-300">{pt.gender}, {pt.dob} · {pt.phone}</p>
+
+                                  <div className="min-w-0 space-y-0.5">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <h4 className="text-xs font-black text-[#0f3c4c] dark:text-white uppercase tracking-tight truncate">
+                                        {pt.fullName}
+                                      </h4>
+                                      <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 font-bold">ID: {pt.id}</span>
+                                      
+                                      {/* Urgency Badge */}
+                                      <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-none border flex items-center gap-1 font-mono ${triage.badgeBg}`}>
+                                        <TriageIcon className={`w-3 h-3 ${triage.iconColor}`} />
+                                        <span>{triage.level}</span>
+                                      </span>
+
+                                      {/* Allergy Badge */}
+                                      {renderAllergyBadge(pt.drugAllergies)}
+                                    </div>
                                   </div>
                                 </div>
+
+                                {/* Col 6-9: Chief Complaint */}
+                                <div className="md:col-span-4 min-w-0">
+                                  <span className="text-xs font-bold text-[#0d9488] dark:text-[#2dd4bf] truncate block">
+                                    {getChiefComplaintLabel(visit.soap?.subjective)}
+                                  </span>
+                                </div>
+
+                                {/* Col 10: Aligned Wait Time Column */}
+                                <div className="md:col-span-1 font-mono text-xs text-slate-600 dark:text-slate-300 font-bold text-left md:text-center">
+                                  <span className={waitMins >= 20 ? 'text-amber-600 dark:text-amber-400 font-black' : ''}>
+                                    {waitMins}m wait
+                                  </span>
+                                </div>
+
+                                {/* Col 11-12: Action / Call Button */}
+                                <div className="md:col-span-2 flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                  {isConsulting ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStartConsultation(visit.id)}
+                                      className="px-3 py-1.5 rounded-none text-xs font-extrabold bg-[#0f3c4c] dark:bg-[#0d9488] text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                    >
+                                      <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
+                                      <span>Resume</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCallPatient(visit.id, pt.fullName)}
+                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-[#d5f0eb] hover:bg-[#0d9488] text-[#0f3c4c] hover:text-white dark:bg-[#09333e] dark:hover:bg-[#0d9488] dark:text-[#5eead4] border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
+                                    >
+                                      <Volume2 className="w-3 h-3" />
+                                      <span>Call</span>
+                                    </button>
+                                  )}
+                                  <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90 text-[#0d9488]' : ''}`} />
+                                </div>
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
+
+                              {/* Expandable Details Drawer */}
+                              {isExpanded && (
+                                <div className="pt-2.5 mt-2 border-t border-[#99f6e4] dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-white/60 dark:bg-[#061f26] p-3 rounded-none space-y-2 animate-fadeIn">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <div>
+                                      <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Full Reason / Symptoms:</strong>
+                                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-sans">{visit.soap?.subjective || 'General Medical Consultation'}</p>
+                                    </div>
+                                    <div>
+                                      <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Panel Employer:</strong>
+                                      <p className="text-[#0d9488] dark:text-[#2dd4bf] font-bold">{pt.panelEmployer}</p>
+                                    </div>
+                                    <div>
+                                      <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Demographics &amp; Vitals:</strong>
+                                      <p className="text-slate-600 dark:text-slate-300">{pt.gender}, {pt.dob} · {pt.phone}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })()}
