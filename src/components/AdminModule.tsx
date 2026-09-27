@@ -365,57 +365,65 @@ export default function AdminModule({
         {/* ========================================================================= */}
         <main className="flex-1 p-5 overflow-y-auto bg-[#edf2f1] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-100">
 
-          {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
-            <StaffManagementModule />
-          )}
+          {(() => {
+            const isAdminOrBranchAdmin = userRole === 'admin' || userRole === 'branch-admin';
 
-          {activeTab === 'medicine' && userRole === 'admin' && settings.modules.medicine && (
-            <MedicineManagementModule />
-          )}
+            return (
+              <>
+                {activeTab === 'staff' && (isAdminOrBranchAdmin || userRole === 'hr') && settings.modules.staff && (
+                  <StaffManagementModule />
+                )}
 
-          {activeTab === 'equipment' && userRole === 'admin' && settings.modules.equipment && (
-            <EquipmentManagementModule />
-          )}
+                {activeTab === 'medicine' && isAdminOrBranchAdmin && settings.modules.medicine && (
+                  <MedicineManagementModule />
+                )}
 
-          {activeTab === 'billing' && userRole === 'admin' && settings.modules.billing && (
-            <BillingManagementModule />
-          )}
+                {activeTab === 'equipment' && isAdminOrBranchAdmin && settings.modules.equipment && (
+                  <EquipmentManagementModule />
+                )}
 
-          {activeTab === 'reports' && userRole === 'admin' && settings.modules.reports && (
-            <ReportsAnalyticsModule />
-          )}
+                {activeTab === 'billing' && isAdminOrBranchAdmin && settings.modules.billing && (
+                  <BillingManagementModule />
+                )}
 
-          {activeTab === 'moh' && userRole === 'admin' && (
-            <MOHDashboard
-              completedVisits={completedVisits}
-              totalRegisteredCount={totalRegisteredCount}
-              activeLanguage={activeLanguage}
-            />
-          )}
+                {activeTab === 'reports' && isAdminOrBranchAdmin && settings.modules.reports && (
+                  <ReportsAnalyticsModule />
+                )}
 
-          {activeTab === 'settings' && userRole === 'admin' && (
-            <SettingsModule />
-          )}
+                {activeTab === 'moh' && isAdminOrBranchAdmin && (
+                  <MOHDashboard
+                    completedVisits={completedVisits}
+                    totalRegisteredCount={totalRegisteredCount}
+                    activeLanguage={activeLanguage}
+                  />
+                )}
 
-          {activeTab === 'integrations' && userRole === 'admin' && (
-            <IntegrationsHub />
-          )}
+                {activeTab === 'settings' && isAdminOrBranchAdmin && (
+                  <SettingsModule />
+                )}
 
-          {activeTab === 'operations' && userRole === 'admin' && (
-            <OperationsHub />
-          )}
+                {activeTab === 'integrations' && isAdminOrBranchAdmin && (
+                  <IntegrationsHub />
+                )}
 
-          {activeTab === 'security' && userRole === 'admin' && (
-            <SecurityHub />
-          )}
+                {activeTab === 'operations' && isAdminOrBranchAdmin && (
+                  <OperationsHub />
+                )}
 
-          {activeTab === 'rcm' && userRole === 'admin' && (
-            <RevenueCycleHub />
-          )}
+                {activeTab === 'security' && isAdminOrBranchAdmin && (
+                  <SecurityHub />
+                )}
 
-          {activeTab === 'architecture' && userRole === 'admin' && (
-            <SystemArchitectureHub />
-          )}
+                {activeTab === 'rcm' && isAdminOrBranchAdmin && (
+                  <RevenueCycleHub />
+                )}
+
+                {activeTab === 'architecture' && isAdminOrBranchAdmin && (
+                  <SystemArchitectureHub />
+                )}
+              </>
+            );
+          })()}
 
         </main>
       </div>
