@@ -369,43 +369,43 @@ export default function MedicineManagementModule() {
 
               {/* CATALOG TABLE (When items exist) */}
               {filteredCatalog.length > 0 && (
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-x-auto">
-                  <table className="w-full text-left text-xs whitespace-nowrap">
-                    <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
+                <div className="enterprise-table-container">
+                  <table className="enterprise-table">
+                    <thead className="enterprise-thead">
                       <tr>
-                        <th className="px-6 py-3.5">Medication Name</th>
-                        <th className="px-6 py-3.5">Stock Level &amp; Threshold</th>
-                        <th className="px-6 py-3.5">Status</th>
-                        <th className="px-6 py-3.5 text-center">Actions</th>
+                        <th className="enterprise-th">Medication Name</th>
+                        <th className="enterprise-th">Stock Level &amp; Threshold</th>
+                        <th className="enterprise-th">Status</th>
+                        <th className="enterprise-th text-center">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#ccfbf1]">
+                    <tbody>
                       {filteredCatalog.map((drug) => {
                         const isLowStock = drug.currentStock <= drug.minThreshold;
                         const stockPercentage = Math.min(100, Math.max(0, (drug.currentStock / (drug.minThreshold * 3)) * 100));
 
                         return (
-                          <tr key={drug.id} className="hover:bg-[#f0fdfa] transition-colors">
-                            <td className="px-6 py-4">
+                          <tr key={drug.id} className="enterprise-tr">
+                            <td className="enterprise-td">
                               <div className="flex items-center gap-2">
-                                <p className="font-extrabold text-[#0f3c4c] text-xs">{drug.name}</p>
+                                <p className="font-extrabold text-[#0f3c4c] dark:text-white text-xs">{drug.name}</p>
                                 {drug.isControlledDrug && (
-                                  <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded-none uppercase border border-amber-300">
+                                  <span className="enterprise-badge-allergy">
                                     Rx Controlled
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[10px] font-bold text-slate-500 tracking-wider">
-                                {drug.category} • ID: <span className="font-mono text-[#0d9488]">{drug.id}</span> • RM {drug.price.toFixed(2)} / {drug.unit}
+                              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-wider">
+                                {drug.category} • ID: <span className="enterprise-id">{drug.id}</span> • RM {drug.price.toFixed(2)} / {drug.unit}
                               </p>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="enterprise-td">
                               <div className="flex flex-col gap-1 w-44">
                                 <div className="flex justify-between items-center text-xs font-bold">
-                                  <span className="font-mono text-[#0f3c4c]">{drug.currentStock} {drug.unit}s</span>
+                                  <span className="font-mono text-[#0f3c4c] dark:text-white">{drug.currentStock} {drug.unit}s</span>
                                   <span className="text-[10px] text-slate-500 font-mono">Min: {drug.minThreshold}</span>
                                 </div>
-                                <div className="w-full bg-slate-200 rounded-none h-1.5">
+                                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-none h-1.5">
                                   <div 
                                     className={`h-1.5 ${isLowStock ? 'bg-rose-500' : 'bg-[#0d9488]'}`}
                                     style={{ width: `${stockPercentage}%` }}
@@ -413,46 +413,43 @@ export default function MedicineManagementModule() {
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="enterprise-td">
                               {isLowStock ? (
-                                <span className="inline-flex items-center gap-1 bg-rose-100 text-rose-800 px-2.5 py-1 rounded-none text-[10px] font-extrabold uppercase border border-rose-300">
+                                <span className="enterprise-badge-allergy">
                                   <AlertTriangle className="w-3 h-3" /> Low Stock
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none text-[10px] font-extrabold uppercase border border-emerald-300">
+                                <span className="enterprise-badge-panel">
                                   <CheckCircle className="w-3 h-3" /> Adequate
                                 </span>
                               )}
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="enterprise-td text-center">
                               <div className="flex justify-center gap-1.5">
                                 <button 
                                   type="button"
-                                  onClick={() => setRestockDrugId(drug.id)}
-                                  className="px-2.5 py-1 text-[10px] font-extrabold uppercase bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-none flex items-center gap-1 cursor-pointer transition-colors"
-                                  title="Restock medication inventory"
+                                  onClick={() => setDetailsDrugId(drug.id)}
+                                  className="enterprise-btn-secondary text-[10px] py-1 px-2.5"
                                 >
-                                  <PackagePlus className="w-3.5 h-3.5" />
-                                  <span>Restock</span>
+                                  Details
                                 </button>
-                                
                                 <button 
                                   type="button"
-                                  onClick={() => setDetailsDrugId(drug.id)}
-                                  className="px-2 py-1 text-[10px] font-bold uppercase bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] border border-[#b2f5ea] rounded-none flex items-center gap-1 cursor-pointer transition-colors"
-                                  title="Pharmacology details"
+                                  onClick={() => {
+                                    setRestockDrugId(drug.id);
+                                    setRestockAmount('100');
+                                  }}
+                                  className="enterprise-btn-action text-[10px] py-1 px-2.5"
                                 >
-                                  <Info className="w-3.5 h-3.5" />
-                                  <span>Details</span>
+                                  Restock
                                 </button>
-                                
                                 <button 
                                   type="button"
                                   onClick={() => handleDelete(drug.id)}
-                                  className="p-1 text-slate-500 hover:text-rose-600 bg-rose-50 border border-rose-200 rounded-none cursor-pointer"
+                                  className="enterprise-btn-secondary text-[10px] py-1 px-2.5 text-rose-600 hover:text-rose-700"
                                   title="Delete drug"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  Delete
                                 </button>
                               </div>
                             </td>

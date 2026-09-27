@@ -220,38 +220,38 @@ export default function SecurityHub() {
           </h3>
           <p className="text-xs text-slate-500 mb-6">Manage granular permissions down to the feature and data field level. Zero-Trust model enforced.</p>
           
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#f7fdfd] text-[#0f3c4c] uppercase border-b border-teal-100 font-bold">
+          <div className="enterprise-table-container overflow-x-auto">
+            <table className="enterprise-table">
+              <thead className="enterprise-thead">
                 <tr>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Clinical Records</th>
-                  <th className="px-4 py-3">Billing Data</th>
-                  <th className="px-4 py-3">System Config</th>
-                  <th className="px-4 py-3">Action</th>
+                  <th className="enterprise-th">Role</th>
+                  <th className="enterprise-th">Clinical Records</th>
+                  <th className="enterprise-th">Billing Data</th>
+                  <th className="enterprise-th">System Config</th>
+                  <th className="enterprise-th">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                <tr className="hover:bg-slate-50">
-                  <td className="px-4 py-4 font-bold text-[#0f3c4c] flex items-center gap-2"><Fingerprint className="w-4 h-4 text-[#0d9488]" /> Super Admin</td>
-                  <td className="px-4 py-4"><span className="bg-teal-100 text-teal-800 px-2 py-1 rounded text-[10px] font-bold border border-teal-200">Full Access</span></td>
-                  <td className="px-4 py-4"><span className="bg-teal-100 text-teal-800 px-2 py-1 rounded text-[10px] font-bold border border-teal-200">Full Access</span></td>
-                  <td className="px-4 py-4"><span className="bg-teal-100 text-teal-800 px-2 py-1 rounded text-[10px] font-bold border border-teal-200">Full Access</span></td>
-                  <td className="px-4 py-4"><button className="text-[#0d9488] font-bold hover:underline">Edit Policy</button></td>
+              <tbody className="divide-y divide-[#e0f5f2] dark:divide-teal-900/30">
+                <tr className="enterprise-tr">
+                  <td className="enterprise-td font-bold text-[#0f3c4c] dark:text-slate-200 flex items-center gap-2"><Fingerprint className="w-4 h-4 text-[#0d9488]" /> Super Admin</td>
+                  <td className="enterprise-td"><span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-none text-[10px] font-bold border border-teal-200">Full Access</span></td>
+                  <td className="enterprise-td"><span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-none text-[10px] font-bold border border-teal-200">Full Access</span></td>
+                  <td className="enterprise-td"><span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-none text-[10px] font-bold border border-teal-200">Full Access</span></td>
+                  <td className="enterprise-td"><button className="text-[#0d9488] font-bold hover:underline">Edit Policy</button></td>
                 </tr>
-                <tr className="hover:bg-slate-50">
-                  <td className="px-4 py-4 font-bold text-[#0f3c4c] flex items-center gap-2"><Stethoscope className="w-4 h-4 text-[#0d9488]" /> Physician</td>
-                  <td className="px-4 py-4"><span className="bg-teal-100 text-teal-800 px-2 py-1 rounded text-[10px] font-bold border border-teal-200">Read/Write</span></td>
-                  <td className="px-4 py-4"><span className="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[10px] font-bold">No Access</span></td>
-                  <td className="px-4 py-4"><span className="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[10px] font-bold">No Access</span></td>
-                  <td className="px-4 py-4"><button className="text-[#0d9488] font-bold hover:underline">Edit Policy</button></td>
+                <tr className="enterprise-tr">
+                  <td className="enterprise-td font-bold text-[#0f3c4c] dark:text-slate-200 flex items-center gap-2"><Stethoscope className="w-4 h-4 text-[#0d9488]" /> Physician</td>
+                  <td className="enterprise-td"><span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-none text-[10px] font-bold border border-teal-200">Read/Write</span></td>
+                  <td className="enterprise-td"><span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-none text-[10px] font-bold">No Access</span></td>
+                  <td className="enterprise-td"><span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-none text-[10px] font-bold">No Access</span></td>
+                  <td className="enterprise-td"><button className="text-[#0d9488] font-bold hover:underline">Edit Policy</button></td>
                 </tr>
-                <tr className="hover:bg-slate-50">
-                  <td className="px-4 py-4 font-bold text-[#0f3c4c] flex items-center gap-2"><FileText className="w-4 h-4 text-[#0d9488]" /> Billing Clinic Assistant</td>
-                  <td className="px-4 py-4"><span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-[10px] font-bold border border-amber-200">Read Only (Masked)</span></td>
-                  <td className="px-4 py-4"><span className="bg-teal-100 text-teal-800 px-2 py-1 rounded text-[10px] font-bold border border-teal-200">Full Access</span></td>
-                  <td className="px-4 py-4"><span className="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[10px] font-bold">No Access</span></td>
-                  <td className="px-4 py-4"><button className="text-[#0d9488] font-bold hover:underline">Edit Policy</button></td>
+                <tr className="enterprise-tr">
+                  <td className="enterprise-td font-bold text-[#0f3c4c] dark:text-slate-200 flex items-center gap-2"><FileText className="w-4 h-4 text-[#0d9488]" /> Billing Clinic Assistant</td>
+                  <td className="enterprise-td"><span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-none text-[10px] font-bold border border-amber-200">Read Only (Masked)</span></td>
+                  <td className="enterprise-td"><span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-none text-[10px] font-bold border border-teal-200">Full Access</span></td>
+                  <td className="enterprise-td"><span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-none text-[10px] font-bold">No Access</span></td>
+                  <td className="enterprise-td"><button className="text-[#0d9488] font-bold hover:underline">Edit Policy</button></td>
                 </tr>
               </tbody>
             </table>

@@ -273,26 +273,26 @@ export default function BillingManagementModule() {
 
           {/* LEDGER TABLE (When transactions exist) */}
           {filteredLedger.length > 0 && (
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-x-auto animate-fadeIn">
-              <table className="w-full text-left text-xs whitespace-nowrap">
-                <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
+            <div className="enterprise-table-container overflow-x-auto animate-fadeIn">
+              <table className="enterprise-table whitespace-nowrap">
+                <thead className="enterprise-thead">
                   <tr>
-                    <th className="px-6 py-3.5">Transaction Details</th>
-                    <th className="px-6 py-3.5">Payment Method</th>
-                    <th className="px-6 py-3.5">Status</th>
-                    <th className="px-6 py-3.5 text-right">Total Amount</th>
+                    <th className="enterprise-th">Transaction Details</th>
+                    <th className="enterprise-th">Payment Method</th>
+                    <th className="enterprise-th">Status</th>
+                    <th className="enterprise-th text-right">Total Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ccfbf1]">
+                <tbody className="divide-y divide-[#e0f5f2] dark:divide-teal-900/30">
                   {filteredLedger.map((trx) => (
-                    <tr key={trx.id} className="hover:bg-[#f0fdfa] transition-colors">
-                      <td className="px-6 py-4">
-                        <p className="font-extrabold text-[#0f3c4c] text-xs">{trx.id}</p>
+                    <tr key={trx.id} className="enterprise-tr">
+                      <td className="enterprise-td">
+                        <p className="enterprise-id">{trx.id}</p>
                         <p className="text-[10px] text-slate-500 font-mono mt-0.5">
                           {new Date(trx.date).toLocaleString()} • Visit: {trx.visitId} • Pt: {trx.patientId}
                         </p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="enterprise-td">
                         <span className={`inline-flex px-2 py-0.5 rounded-none text-[10px] font-extrabold uppercase border ${
                           trx.paymentMethod === 'Cash' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
                           trx.paymentMethod === 'Panel' ? 'bg-sky-100 text-sky-800 border-sky-300' :
@@ -301,7 +301,7 @@ export default function BillingManagementModule() {
                           {trx.paymentMethod}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="enterprise-td">
                         <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold uppercase border px-2 py-0.5 ${
                           trx.status === 'Completed' || trx.status === 'Claim Paid' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'
                         }`}>
@@ -309,7 +309,7 @@ export default function BillingManagementModule() {
                           {trx.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right font-mono font-bold text-[#0f3c4c]">
+                      <td className="enterprise-td text-right font-mono font-bold text-[#0f3c4c] dark:text-slate-200">
                         <p className="text-xs font-black">RM {(trx.paidAmount + trx.panelClaimed).toFixed(2)}</p>
                         {trx.panelClaimed > 0 && (
                           <p className="text-[9px] text-[#0d9488] font-normal">
@@ -329,29 +329,29 @@ export default function BillingManagementModule() {
 
       {/* 5. TPA CLAIMS TAB VIEW */}
       {activeTab === 'claims' && (
-        <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden animate-fadeIn">
-          <table className="w-full text-left text-xs whitespace-nowrap">
-            <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
+        <div className="enterprise-table-container overflow-x-auto animate-fadeIn">
+          <table className="enterprise-table whitespace-nowrap">
+            <thead className="enterprise-thead">
               <tr>
-                <th className="px-6 py-3.5">Claim Details</th>
-                <th className="px-6 py-3.5">Patient / Visit</th>
-                <th className="px-6 py-3.5">Amount Claimed</th>
-                <th className="px-6 py-3.5 text-center">Action</th>
+                <th className="enterprise-th">Claim Details</th>
+                <th className="enterprise-th">Patient / Visit</th>
+                <th className="enterprise-th">Amount Claimed</th>
+                <th className="enterprise-th text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#ccfbf1]">
+            <tbody className="divide-y divide-[#e0f5f2] dark:divide-teal-900/30">
               {filteredClaims.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-slate-500">
+                <tr className="enterprise-tr">
+                  <td colSpan={4} className="enterprise-td text-center py-10 text-slate-500">
                     <ShieldCheck className="w-8 h-8 mx-auto mb-2 text-[#0d9488] opacity-50" />
-                    <p className="text-xs font-bold text-[#0f3c4c]">No panel claims match your criteria.</p>
+                    <p className="text-xs font-bold text-[#0f3c4c] dark:text-slate-300">No panel claims match your criteria.</p>
                   </td>
                 </tr>
               ) : filteredClaims.map((claim) => (
-                <tr key={claim.id} className="hover:bg-[#f0fdfa] transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-[#0f3c4c] flex items-center gap-2">
-                      {claim.id}
+                <tr key={claim.id} className="enterprise-tr">
+                  <td className="enterprise-td">
+                    <p className="font-bold text-[#0f3c4c] dark:text-slate-200 flex items-center gap-2">
+                      <span className="enterprise-id">{claim.id}</span>
                       {claim.status === 'Pending Claim' ? (
                         <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 text-[9px] uppercase font-black">Pending</span>
                       ) : (
@@ -362,25 +362,25 @@ export default function BillingManagementModule() {
                       GL Ref: <span className="font-bold text-[#0d9488]">{claim.glNumber || 'N/A'}</span>
                     </p>
                   </td>
-                  <td className="px-6 py-4">
-                    <p className="text-xs text-[#0f3c4c] font-bold">Pt ID: {claim.patientId}</p>
+                  <td className="enterprise-td">
+                    <p className="text-xs text-[#0f3c4c] dark:text-slate-200 font-bold">Pt ID: {claim.patientId}</p>
                     <p className="text-[10px] text-slate-500 font-mono">Visit: {claim.visitId}</p>
                   </td>
-                  <td className="px-6 py-4 font-mono font-black text-[#0d9488]">
+                  <td className="enterprise-td font-mono font-black text-[#0d9488]">
                     RM {claim.panelClaimed.toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="enterprise-td text-center">
                     {claim.status === 'Pending Claim' ? (
                       <button 
                         type="button"
                         onClick={() => markClaimAsPaid(claim.id)}
-                        className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-3 py-1.5 rounded-none text-[10px] font-extrabold uppercase transition-colors flex items-center gap-1 mx-auto cursor-pointer shadow-2xs"
+                        className="enterprise-btn-action text-[10px] py-1 px-3 mx-auto"
                       >
                         <CheckCircle className="w-3 h-3" />
                         <span>Mark as Paid</span>
                       </button>
                     ) : (
-                      <span className="text-emerald-700 text-xs font-bold flex items-center justify-center gap-1">
+                      <span className="text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center justify-center gap-1">
                         <CheckCircle className="w-3.5 h-3.5" /> Reconciled
                       </span>
                     )}

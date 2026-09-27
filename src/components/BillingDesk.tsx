@@ -304,51 +304,51 @@ export default function BillingDesk({
             </div>
 
             {/* Bill Summary Table breakdown */}
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
-              <table className="w-full text-left text-xs border-collapse" id="active-invoice-breakdown-table">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
-                    <th className="px-3 py-1.5 font-bold">Billing Item Description</th>
-                    <th className="px-3 py-1.5 text-right font-bold w-32">Total Price (MYR)</th>
+            <div className="enterprise-table-container">
+              <table className="enterprise-table" id="active-invoice-breakdown-table">
+                <thead className="enterprise-thead">
+                  <tr>
+                    <th className="enterprise-th">Billing Item Description</th>
+                    <th className="enterprise-th text-right w-32">Total Price (MYR)</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="border-b border-slate-100 text-slate-700">
-                    <td className="px-3 py-2">Consultation Fee (Primary APC Care)</td>
-                    <td className="px-3 py-2 text-right font-mono font-medium">RM{CONSULTATION_FEE.toFixed(2)}</td>
+                <tbody className="divide-y divide-[#e0f5f2] dark:divide-teal-900/30">
+                  <tr className="enterprise-tr">
+                    <td className="enterprise-td">Consultation Fee (Primary APC Care)</td>
+                    <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">RM{CONSULTATION_FEE.toFixed(2)}</td>
                   </tr>
-                  <tr className="border-b border-slate-100 text-slate-700">
-                    <td className="px-3 py-2">Clinical Procedures / Nursing Vitals Audit Fee</td>
-                    <td className="px-3 py-2 text-right font-mono font-medium">RM{PROCEDURE_FEE.toFixed(2)}</td>
+                  <tr className="enterprise-tr">
+                    <td className="enterprise-td">Clinical Procedures / Nursing Vitals Audit Fee</td>
+                    <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">RM{PROCEDURE_FEE.toFixed(2)}</td>
                   </tr>
                   
                   {activeVisit.soap?.plan?.prescription?.length > 0 && (
-                    <tr className="border-b border-slate-100 text-slate-700">
-                      <td className="px-3 py-2">
-                        <span>Dispensed Medications & Pharmacy Compounding Charge</span>
-                        <div className="text-[9px] text-slate-400 pl-2.5 mt-0.5">
+                    <tr className="enterprise-tr">
+                      <td className="enterprise-td">
+                        <span className="font-bold">Dispensed Medications & Pharmacy Compounding Charge</span>
+                        <div className="text-[10px] text-slate-500 pl-2.5 mt-0.5 space-y-0.5 font-mono">
                           {activeVisit.soap.plan.prescription.map((rx, i) => (
                             <div key={i}>• {rx.drugName} (Qty: {rx.quantity} @ RM{rx.pricePerUnit.toFixed(2)})</div>
                           ))}
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-medium">
+                      <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">
                         RM{billingBreakdown.medicationCost.toFixed(2)}
                       </td>
                     </tr>
                   )}
                   
                   {customLineItems.length > 0 && (
-                    <tr className="border-b border-slate-100 text-slate-700">
-                      <td className="px-3 py-2">
-                        <span>Ad-Hoc Charges & Services</span>
-                        <div className="text-[9px] text-slate-400 pl-2.5 mt-0.5 space-y-1">
+                    <tr className="enterprise-tr">
+                      <td className="enterprise-td">
+                        <span className="font-bold">Ad-Hoc Charges & Services</span>
+                        <div className="text-[10px] text-slate-500 pl-2.5 mt-0.5 space-y-1 font-mono">
                           {customLineItems.map((item, i) => (
                             <div key={i} className="flex items-center gap-2">
                               <span>• {item.description} (RM{item.amount.toFixed(2)})</span>
                               <button 
                                 onClick={() => setCustomLineItems(customLineItems.filter((_, idx) => idx !== i))}
-                                className="text-red-400 hover:text-red-600 transition-colors"
+                                className="text-rose-500 hover:text-rose-700 transition-colors"
                                 title="Remove charge"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -357,34 +357,34 @@ export default function BillingDesk({
                           ))}
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-medium">
+                      <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">
                         RM{billingBreakdown.customItemsTotal.toFixed(2)}
                       </td>
                     </tr>
                   )}
 
                   {billingBreakdown.discountAmount > 0 && (
-                    <tr className="border-b border-slate-100 text-red-600 bg-red-50/50">
-                      <td className="px-3 py-2 font-semibold">
+                    <tr className="enterprise-tr bg-rose-50/50 text-rose-700 dark:text-rose-400">
+                      <td className="enterprise-td font-semibold">
                         Manual Discount Applied ({discount.type === 'percentage' ? `${discount.value}%` : 'Fixed Amount'})
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-bold">
+                      <td className="enterprise-td text-right font-mono font-bold">
                         -RM{billingBreakdown.discountAmount.toFixed(2)}
                       </td>
                     </tr>
                   )}
 
-                  <tr className="border-b border-slate-200 bg-slate-50 font-medium text-slate-600 font-mono text-[11px]">
-                    <td className="px-3 py-1.5 text-right font-semibold">Subtotal:</td>
-                    <td className="px-3 py-1.5 text-right font-bold">RM{billingBreakdown.subtotal.toFixed(2)}</td>
+                  <tr className="enterprise-tr bg-[#e0f5f2]/60 dark:bg-[#07252d] font-bold">
+                    <td className="enterprise-td text-right font-semibold">Subtotal:</td>
+                    <td className="enterprise-td text-right font-mono font-bold text-[#0f3c4c] dark:text-[#5eead4]">RM{billingBreakdown.subtotal.toFixed(2)}</td>
                   </tr>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-mono text-[10px]">
-                    <td className="px-3 py-1.5 text-right font-semibold">Malaysian SST Service Tax ({settings.billing.taxRate}%):</td>
-                    <td className="px-3 py-1.5 text-right font-semibold">RM{billingBreakdown.sstTax.toFixed(2)}</td>
+                  <tr className="enterprise-tr bg-[#e0f5f2]/40 dark:bg-[#07252d]">
+                    <td className="enterprise-td text-right font-semibold">Malaysian SST Service Tax ({settings.billing.taxRate}%):</td>
+                    <td className="enterprise-td text-right font-mono font-bold text-slate-600 dark:text-slate-300">RM{billingBreakdown.sstTax.toFixed(2)}</td>
                   </tr>
-                  <tr className="bg-cyan-50/50 font-bold text-slate-800 font-mono text-xs">
-                    <td className="px-3 py-2 text-right text-[#07B2B2] font-bold">Invoice Grand Total:</td>
-                    <td className="px-3 py-2 text-right text-[#07B2B2] font-bold">RM{billingBreakdown.grandTotal.toFixed(2)}</td>
+                  <tr className="bg-[#e0f5f2] dark:bg-[#09323d] font-bold text-[#0f3c4c] dark:text-[#5eead4]">
+                    <td className="enterprise-td text-right font-extrabold uppercase tracking-wide">Invoice Grand Total:</td>
+                    <td className="enterprise-td text-right font-mono font-black text-sm text-[#0d9488] dark:text-[#2dd4bf]">RM{billingBreakdown.grandTotal.toFixed(2)}</td>
                   </tr>
                 </tbody>
               </table>
