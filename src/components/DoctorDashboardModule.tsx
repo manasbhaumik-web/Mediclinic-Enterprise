@@ -4,7 +4,8 @@ import ConsultationRoom from './ConsultationRoom';
 import { 
   Stethoscope, FileText, Calendar, Users, DollarSign, Activity, BrainCircuit, 
   CalendarClock, Clock, ChevronLeft, ChevronRight, Search, Download, Filter, TrendingUp, 
-  ShieldCheck, CheckCircle2, BarChart3, CreditCard, Building2, RefreshCw, Volume2, AlertCircle 
+  ShieldCheck, CheckCircle2, BarChart3, CreditCard, Building2, RefreshCw, Volume2, AlertCircle,
+  Pin, Copy, Check, SlidersHorizontal, Sparkles
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -46,6 +47,54 @@ export default function DoctorDashboardModule({
   const [isRefreshingQueue, setIsRefreshingQueue] = useState<boolean>(false);
   const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number } | null>(null);
   const [queuePage, setQueuePage] = useState<number>(1);
+  const [queueSearchQuery, setQueueSearchQuery] = useState<string>('');
+  const [acuityFilter, setAcuityFilter] = useState<'all' | 'high' | 'sla'>('all');
+  const [pinnedVisitIds, setPinnedVisitIds] = useState<Record<string, boolean>>({});
+  const [entriesPerPage, setEntriesPerPage] = useState<number>(6);
+  const [copiedToast, setCopiedToast] = useState<string | null>(null);
+
+  const togglePinVisit = (visitId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setPinnedVisitIds(prev => ({ ...prev, [visitId]: !prev[visitId] }));
+  };
+
+  const copyToClipboard = (text: string, label: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    navigator.clipboard?.writeText(text);
+    setCopiedToast(`Copied ${label}: ${text}`);
+    setTimeout(() => setCopiedToast(null), 3000);
+  };
+
+  const playCallChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+
+      osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc2.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15);
+
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start(ctx.currentTime + 0.15);
+      osc1.stop(ctx.currentTime + 0.6);
+      osc2.stop(ctx.currentTime + 0.6);
+    } catch (e) {
+      // Ignore
+    }
+  };
 
   const toggleDetails = (visitId: string) => {
     setExpandedDetails(prev => ({ ...prev, [visitId]: !prev[visitId] }));
@@ -53,6 +102,7 @@ export default function DoctorDashboardModule({
 
   const handleManualQueueRefresh = () => {
     setIsRefreshingQueue(true);
+    setQueuePage(1);
     setTimeout(() => {
       setIsRefreshingQueue(false);
       setLastSyncedText('Just now');
@@ -71,6 +121,7 @@ export default function DoctorDashboardModule({
     setCalledTimestampMap(prev => ({ ...prev, [visitId]: `${timeStr} by ${doctorName}` }));
     setActiveConsultationVisitId(visitId);
     setCallAnnouncementToast(`📢 Patient Called: ${patientName} → Consultation Room 1 (${timeStr})`);
+    playCallChime();
     setPendingCallVisit(null);
     setTimeout(() => setCallAnnouncementToast(null), 4500);
   };
@@ -277,14 +328,22 @@ export default function DoctorDashboardModule({
       
       {/* Step 1 Call Announcement Toast */}
       {callAnnouncementToast && (
-        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-teal-500/40 flex items-center gap-3 animate-bounce-slow">
-          <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold">
+        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-none shadow-2xl border border-teal-500/40 flex items-center gap-3 animate-bounce-slow">
+          <div className="w-8 h-8 rounded-none bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold">
             📢
           </div>
           <div>
             <h4 className="text-xs font-bold text-teal-300">Public PA Call System</h4>
             <p className="text-xs text-slate-200 font-medium">{callAnnouncementToast}</p>
           </div>
+        </div>
+      )}
+
+      {/* Copy to Clipboard Toast Notification */}
+      {copiedToast && (
+        <div className="fixed bottom-6 right-6 z-[130] bg-[#0f3c4c] text-[#5eead4] px-4 py-2.5 rounded-none shadow-xl border border-[#99f6e4] flex items-center gap-2 text-xs font-mono font-bold animate-bounce-slow">
+          <Check className="w-4 h-4 text-[#5eead4]" />
+          <span>{copiedToast}</span>
         </div>
       )}
 
@@ -443,9 +502,9 @@ export default function DoctorDashboardModule({
           {/* 2. PATIENT QUEUE LIST RENDERING */}
           {(() => {
             const sortQueue = (queue: Visit[]) => {
-              const list = [...queue];
+              let list = [...queue];
               if (sortRule === 'urgency') {
-                return list.sort((a, b) => {
+                list = list.sort((a, b) => {
                   const ptA = patientsMap[a.patientId];
                   const ptB = patientsMap[b.patientId];
                   const allergiesA = ptA?.drugAllergies?.length || 0;
@@ -457,17 +516,42 @@ export default function DoctorDashboardModule({
                   return waitB - waitA;
                 });
               } else if (sortRule === 'wait') {
-                return list.sort((a, b) => {
+                list = list.sort((a, b) => {
                   const waitA = a.registeredTime ? Math.floor((Date.now() - a.registeredTime) / 60000) : 0;
                   const waitB = b.registeredTime ? Math.floor((Date.now() - b.registeredTime) / 60000) : 0;
                   return waitB - waitA;
                 });
               } else {
-                return list.sort((a, b) => (a.registeredTime || 0) - (b.registeredTime || 0));
+                list = list.sort((a, b) => (a.registeredTime || 0) - (b.registeredTime || 0));
               }
+
+              // Pinned items prioritization
+              if (Object.keys(pinnedVisitIds).some(id => pinnedVisitIds[id])) {
+                list.sort((a, b) => (pinnedVisitIds[b.id] ? 1 : 0) - (pinnedVisitIds[a.id] ? 1 : 0));
+              }
+              return list;
             };
 
-            const sortedQueue = sortQueue(doctorQueue);
+            let sortedQueue = sortQueue(doctorQueue);
+
+            // Filter 1: Acuity / SLA Filter Pills
+            if (acuityFilter === 'high') {
+              sortedQueue = sortedQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0);
+            } else if (acuityFilter === 'sla') {
+              sortedQueue = sortedQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20);
+            }
+
+            // Filter 2: Live Search Query
+            if (queueSearchQuery.trim()) {
+              const q = queueSearchQuery.toLowerCase().trim();
+              sortedQueue = sortedQueue.filter(v => {
+                const pt = patientsMap[v.patientId];
+                const nameMatch = pt?.fullName.toLowerCase().includes(q) || false;
+                const idMatch = pt?.id.toLowerCase().includes(q) || v.id.toLowerCase().includes(q);
+                const complaintMatch = (v.soap?.subjective || '').toLowerCase().includes(q);
+                return nameMatch || idMatch || complaintMatch;
+              });
+            }
 
             if (doctorQueue.length === 0) {
               return (
@@ -479,7 +563,6 @@ export default function DoctorDashboardModule({
               );
             }
 
-            const entriesPerPage = 6;
             const totalPages = Math.max(1, Math.ceil(sortedQueue.length / entriesPerPage));
             const currentPage = Math.min(Math.max(1, queuePage), totalPages);
             const startIndex = (currentPage - 1) * entriesPerPage;
@@ -492,32 +575,111 @@ export default function DoctorDashboardModule({
             return (
               <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 rounded-none overflow-hidden shadow-2xs">
                 
-                {/* UNIFIED SORTATION HEADER STRIP AT TOP OF PATIENT QUEUE LIST */}
-                <div className="bg-[#d5f0eb] dark:bg-[#06242c] border-b border-[#99f6e4] dark:border-teal-800 p-2.5 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[#0f3c4c] dark:text-slate-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
-                      <Filter className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Sort Queue By:
-                    </span>
-                    <div className="changer-container">
-                      {(['urgency', 'wait', 'arrival'] as const).map((r) => (
-                        <button
-                          key={r}
-                          type="button"
-                          onClick={() => { setSortRule(r); setQueuePage(1); }}
-                          className={`changer-btn ${
-                            sortRule === r
-                              ? 'changer-btn-active'
-                              : 'changer-btn-inactive'
-                          }`}
-                        >
-                          {r === 'urgency' ? 'Clinical Urgency & Allergies' : r === 'wait' ? 'Longest Wait' : 'Arrival Order'}
-                        </button>
-                      ))}
+                {/* INTERACTIVE COMMAND & FILTER STRIP */}
+                <div className="bg-[#d5f0eb] dark:bg-[#06242c] border-b border-[#99f6e4] dark:border-teal-800 p-3 px-4 space-y-2.5">
+                  
+                  {/* Row 1: Sortation Rule Changer & Interactive Acuity Chips */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                    
+                    {/* Sort rule buttons */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[#0f3c4c] dark:text-slate-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                        <Filter className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Sort:
+                      </span>
+                      <div className="changer-container">
+                        {(['urgency', 'wait', 'arrival'] as const).map((r) => (
+                          <button
+                            key={r}
+                            type="button"
+                            onClick={() => { setSortRule(r); setQueuePage(1); }}
+                            className={`changer-btn ${
+                              sortRule === r
+                                ? 'changer-btn-active'
+                                : 'changer-btn-inactive'
+                            }`}
+                          >
+                            {r === 'urgency' ? 'Clinical Urgency & Allergies' : r === 'wait' ? 'Longest Wait' : 'Arrival Order'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Acuity & SLA Quick Filter Chips */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => { setAcuityFilter('all'); setQueuePage(1); }}
+                        className={`px-2.5 py-1 text-[11px] font-bold rounded-none border transition-all cursor-pointer ${
+                          acuityFilter === 'all'
+                            ? 'bg-[#0f3c4c] text-white border-[#0f3c4c]'
+                            : 'bg-white/80 dark:bg-[#082830] text-slate-700 dark:text-slate-200 border-[#99f6e4] dark:border-teal-800 hover:bg-[#e0f5f2]'
+                        }`}
+                      >
+                        All ({doctorQueue.length})
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => { setAcuityFilter('high'); setQueuePage(1); }}
+                        className={`px-2.5 py-1 text-[11px] font-bold rounded-none border transition-all cursor-pointer flex items-center gap-1 ${
+                          acuityFilter === 'high'
+                            ? 'bg-rose-600 text-white border-rose-600'
+                            : 'bg-rose-50/80 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60 hover:bg-rose-100'
+                        }`}
+                      >
+                        <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                        <span>High Acuity ({doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => { setAcuityFilter('sla'); setQueuePage(1); }}
+                        className={`px-2.5 py-1 text-[11px] font-bold rounded-none border transition-all cursor-pointer flex items-center gap-1 ${
+                          acuityFilter === 'sla'
+                            ? 'bg-amber-600 text-white border-amber-600'
+                            : 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60 hover:bg-amber-100'
+                        }`}
+                      >
+                        <Clock className="w-3 h-3 text-amber-500 shrink-0" />
+                        <span>&gt;20m SLA ({doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length})</span>
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 font-mono text-[11px] text-slate-600 dark:text-slate-300">
-                    <span>Active Rule: <strong className="text-[#0d9488] dark:text-[#2dd4bf] font-extrabold">{sortRule === 'urgency' ? 'High-acuity & allergies first' : sortRule === 'wait' ? 'Descending wait time' : 'Registration order'}</strong></span>
+                  {/* Row 2: Live Search Input & Entries per page */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-[#99f6e4]/60 dark:border-teal-800/60">
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={queueSearchQuery}
+                        onChange={(e) => { setQueueSearchQuery(e.target.value); setQueuePage(1); }}
+                        placeholder="Filter queue by patient name, IC/ID, or chief complaint..."
+                        className="w-full bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 text-xs pl-8 pr-7 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 focus:outline-none focus:border-[#0d9488] placeholder:text-slate-400 font-sans shadow-2xs"
+                      />
+                      {queueSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => { setQueueSearchQuery(''); setQueuePage(1); }}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold w-4 h-4 flex items-center justify-center cursor-pointer"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3 text-[11px] font-mono text-slate-600 dark:text-slate-300 shrink-0">
+                      <span>Entries per page:</span>
+                      <select
+                        value={entriesPerPage}
+                        onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setQueuePage(1); }}
+                        className="bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 border border-[#99f6e4] dark:border-teal-800 px-2 py-1 text-xs rounded-none font-mono focus:outline-none focus:border-[#0d9488] cursor-pointer"
+                      >
+                        <option value={6}>6 per page</option>
+                        <option value={12}>12 per page</option>
+                        <option value={24}>24 per page</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -525,13 +687,20 @@ export default function DoctorDashboardModule({
                 <div className="p-4 space-y-4">
                   {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY ON PAGE 1) */}
                   {nextPatient && nextVisit && (
-                    <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3`}>
+                    <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3 group hover:border-[#5eead4] transition-all`}>
                       
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#0d9488]/40 pb-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="bg-[#5eead4] text-[#0f3c4c] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs font-mono">
                             NEXT IN LINE (#1)
                           </span>
+
+                          {pinnedVisitIds[nextVisit.id] && (
+                            <span className="bg-amber-400 text-slate-900 text-[10px] font-black uppercase px-2 py-0.5 rounded-none font-mono flex items-center gap-1">
+                              <Pin className="w-3 h-3 fill-slate-900 shrink-0" />
+                              <span>PINNED PRIORITY</span>
+                            </span>
+                          )}
                           
                           {/* Urgency Badge */}
                           {(() => {
@@ -556,19 +725,45 @@ export default function DoctorDashboardModule({
                           )}
                         </div>
 
-                        {/* Full 3-Step Visual Workflow Tracker */}
-                        <div className="text-[11px] font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center gap-1.5">
-                          <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-extrabold underline'}>
-                            Ready
-                          </span>
-                          <span className="text-teal-400">→</span>
-                          <span className={calledVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
-                            Called
-                          </span>
-                          <span className="text-teal-400">→</span>
-                          <span className={activeConsultationVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
-                            In Consultation
-                          </span>
+                        {/* Interactive Actions Header & 3-Step Visual Workflow Tracker */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={(e) => togglePinVisit(nextVisit.id, e)}
+                            title="Toggle Pin Priority"
+                            className={`p-1 px-2 text-[10px] font-mono font-bold border rounded-none flex items-center gap-1 transition-all cursor-pointer ${
+                              pinnedVisitIds[nextVisit.id]
+                                ? 'bg-amber-400 text-slate-900 border-amber-300'
+                                : 'bg-black/30 hover:bg-black/50 text-teal-200 border-teal-500/40'
+                            }`}
+                          >
+                            <Pin className="w-3 h-3" />
+                            <span>{pinnedVisitIds[nextVisit.id] ? 'Pinned' : 'Pin'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => copyToClipboard(nextPatient.id, 'Patient ID', e)}
+                            title="Copy Patient ID"
+                            className="p-1 px-2 text-[10px] font-mono font-bold bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 rounded-none flex items-center gap-1 transition-all cursor-pointer"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>Copy ID</span>
+                          </button>
+
+                          <div className="text-[11px] font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center gap-1.5">
+                            <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-extrabold underline'}>
+                              Ready
+                            </span>
+                            <span className="text-teal-400">→</span>
+                            <span className={calledVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                              Called
+                            </span>
+                            <span className="text-teal-400">→</span>
+                            <span className={activeConsultationVisitId === nextVisit.id ? 'text-emerald-300 font-extrabold underline' : 'text-teal-200 opacity-60'}>
+                              In Consultation
+                            </span>
+                          </div>
                         </div>
                       </div>
 
@@ -595,7 +790,7 @@ export default function DoctorDashboardModule({
                             </span>
                           </div>
 
-                          {/* Vitals summary preview */}
+                          {/* Dynamic Vitals summary preview */}
                           {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
                             <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[10px]">
                               <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
@@ -657,7 +852,7 @@ export default function DoctorDashboardModule({
 
                       {/* Expandable Secondary Details Drawer */}
                       {expandedDetails[nextVisit.id] && (
-                        <div className="pt-3 border-t border-[#0d9488]/40 text-xs text-teal-100 space-y-2 bg-black/20 p-3 rounded-none animate-fadeIn">
+                        <div className="pt-3 border-t border-[#0d9488]/40 text-xs text-teal-100 space-y-3 bg-black/20 p-3 rounded-none animate-fadeIn">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                               <strong className="block text-white mb-0.5">Full Clinical Subjective Note:</strong>
@@ -672,6 +867,26 @@ export default function DoctorDashboardModule({
                               <p className="text-slate-200">{nextPatient.phone} · {nextPatient.address}</p>
                             </div>
                           </div>
+
+                          <div className="flex items-center gap-2 pt-2 border-t border-teal-500/20 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => handleStartConsultation(nextVisit.id)}
+                              className="bg-[#5eead4] text-[#0f3c4c] px-3 py-1 text-xs font-black rounded-none flex items-center gap-1 hover:bg-[#2dd4bf] cursor-pointer"
+                            >
+                              <Stethoscope className="w-3.5 h-3.5" />
+                              <span>Start Clinical Diagnosis</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => copyToClipboard(`${nextPatient.fullName} (${nextPatient.id})`, 'Patient Details', e)}
+                              className="bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 px-3 py-1 text-xs font-bold rounded-none flex items-center gap-1 cursor-pointer"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Full Record</span>
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -683,7 +898,7 @@ export default function DoctorDashboardModule({
                       <div className="flex items-center justify-between flex-wrap gap-2 border-b border-[#99f6e4] dark:border-teal-800 pb-2">
                         <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
                           <span>
-                            {currentPage === 1 ? 'Subsequent Patients' : 'Patient Queue List'} (Page {currentPage} of {totalPages})
+                            {currentPage === 1 ? 'Subsequent Patients' : 'Patient Queue List'} ({sortedQueue.length} Total · Page {currentPage} of {totalPages})
                           </span>
                         </h4>
                         <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
@@ -702,6 +917,7 @@ export default function DoctorDashboardModule({
                           const triage = getTriageDetails(pt, visit);
                           const TriageIcon = triage.icon;
                           const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
+                          const isPinned = pinnedVisitIds[visit.id];
 
                           return (
                             <div
@@ -709,9 +925,11 @@ export default function DoctorDashboardModule({
                               tabIndex={0}
                               onClick={() => toggleDetails(visit.id)}
                               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
-                              className={`border rounded-none ${triage.stripColor} transition-all p-3.5 cursor-pointer shadow-2xs focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
+                              className={`group border rounded-none ${triage.stripColor} transition-all p-3.5 cursor-pointer shadow-2xs hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
                                 isConsulting 
                                   ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
+                                  : isPinned
+                                  ? 'bg-[#d5f0eb] dark:bg-[#09333e] border-[#0d9488]'
                                   : 'bg-[#e6f4f1] dark:bg-[#082830] hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] border-[#99f6e4] dark:border-teal-800'
                               }`}
                             >
@@ -719,17 +937,27 @@ export default function DoctorDashboardModule({
                                 
                                 {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
                                 <div className="md:col-span-5 flex items-center gap-3 min-w-0">
-                                  <div className="w-7 h-7 bg-[#d5f0eb] dark:bg-[#09333e] border border-[#99f6e4] dark:border-teal-800 text-[#0f3c4c] dark:text-[#5eead4] font-mono font-black text-xs flex items-center justify-center shrink-0">
+                                  <div className={`w-7 h-7 font-mono font-black text-xs flex items-center justify-center shrink-0 border ${
+                                    isPinned
+                                      ? 'bg-amber-400 text-slate-900 border-amber-300'
+                                      : 'bg-[#d5f0eb] dark:bg-[#09333e] border-[#99f6e4] dark:border-teal-800 text-[#0f3c4c] dark:text-[#5eead4]'
+                                  }`}>
                                     #{queuePosition}
                                   </div>
 
                                   <div className="min-w-0 space-y-0.5">
                                     <div className="flex flex-wrap items-center gap-2">
-                                      <h4 className="text-xs font-black text-[#0f3c4c] dark:text-white uppercase tracking-tight truncate">
+                                      <h4 className="text-xs font-black text-[#0f3c4c] dark:text-white uppercase tracking-tight truncate group-hover:text-[#0d9488] transition-colors">
                                         {pt.fullName}
                                       </h4>
                                       <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 font-bold">ID: {pt.id}</span>
                                       
+                                      {isPinned && (
+                                        <span className="bg-amber-400 text-slate-900 text-[9px] font-black uppercase px-1.5 py-0.2 rounded-none font-mono">
+                                          Pinned
+                                        </span>
+                                      )}
+
                                       {/* Urgency Badge */}
                                       <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-none border flex items-center gap-1 font-mono ${triage.badgeBg}`}>
                                         <TriageIcon className={`w-3 h-3 ${triage.iconColor}`} />
@@ -762,8 +990,30 @@ export default function DoctorDashboardModule({
                                   </span>
                                 </div>
 
-                                {/* Col 11-12: Action / Call Button */}
-                                <div className="md:col-span-2 flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                {/* Col 11-12: Interactive Quick Actions */}
+                                <div className="md:col-span-2 flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => togglePinVisit(visit.id, e)}
+                                    title={isPinned ? 'Unpin' : 'Pin Priority'}
+                                    className={`p-1.5 rounded-none border transition-all cursor-pointer ${
+                                      isPinned
+                                        ? 'bg-amber-400 text-slate-900 border-amber-300'
+                                        : 'bg-white/80 dark:bg-[#082830] text-slate-500 dark:text-slate-300 border-[#99f6e4] dark:border-teal-800 hover:bg-[#e0f5f2]'
+                                    }`}
+                                  >
+                                    <Pin className="w-3 h-3" />
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => copyToClipboard(pt.id, 'Patient ID', e)}
+                                    title="Copy Patient ID"
+                                    className="p-1.5 rounded-none border bg-white/80 dark:bg-[#082830] text-slate-500 dark:text-slate-300 border-[#99f6e4] dark:border-teal-800 hover:bg-[#e0f5f2] transition-all cursor-pointer"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </button>
+
                                   {isConsulting ? (
                                     <button
                                       type="button"
@@ -789,7 +1039,7 @@ export default function DoctorDashboardModule({
 
                               {/* Expandable Details Drawer */}
                               {isExpanded && (
-                                <div className="pt-2.5 mt-2 border-t border-[#99f6e4] dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-white/60 dark:bg-[#061f26] p-3 rounded-none space-y-2 animate-fadeIn">
+                                <div className="pt-2.5 mt-2 border-t border-[#99f6e4] dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-white/60 dark:bg-[#061f26] p-3 rounded-none space-y-2.5 animate-fadeIn">
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                     <div>
                                       <strong className="block text-[#0f3c4c] dark:text-white font-bold mb-0.5">Full Reason / Symptoms:</strong>
@@ -804,6 +1054,26 @@ export default function DoctorDashboardModule({
                                       <p className="text-slate-600 dark:text-slate-300">{pt.gender}, {pt.dob} · {pt.phone}</p>
                                     </div>
                                   </div>
+
+                                  <div className="flex items-center gap-2 pt-2 border-t border-[#99f6e4]/40 dark:border-teal-800/40 flex-wrap">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStartConsultation(visit.id)}
+                                      className="bg-[#0d9488] hover:bg-[#0f766e] text-white px-3 py-1 text-xs font-bold rounded-none flex items-center gap-1 cursor-pointer"
+                                    >
+                                      <Stethoscope className="w-3.5 h-3.5" />
+                                      <span>Direct Consultation Draft</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={(e) => copyToClipboard(`${pt.fullName} (${pt.id})`, 'Patient Details', e)}
+                                      className="bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-200 border border-[#99f6e4] dark:border-teal-800 px-3 py-1 text-xs font-bold rounded-none flex items-center gap-1 cursor-pointer hover:bg-[#e0f5f2]"
+                                    >
+                                      <Copy className="w-3.5 h-3.5" />
+                                      <span>Copy Record</span>
+                                    </button>
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -814,14 +1084,23 @@ export default function DoctorDashboardModule({
                   )}
                 </div>
 
-                {/* PAGINATION CONTROLS BAR */}
+                {/* PAGINATION CONTROLS BAR & INTERACTIVE KEYBOARD SHORTCUT FOOTER */}
                 <div className="bg-[#d5f0eb] dark:bg-[#06242c] border-t border-[#99f6e4] dark:border-teal-800 p-3 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] font-medium">
-                    Showing <strong className="text-[#0f3c4c] dark:text-[#5eead4]">{startIndex + 1}</strong> to{' '}
-                    <strong className="text-[#0f3c4c] dark:text-[#5eead4]">
-                      {Math.min(startIndex + entriesPerPage, sortedQueue.length)}
-                    </strong>{' '}
-                    of <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortedQueue.length}</strong> patient entries
+                  <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-mono text-[11px] font-medium flex-wrap">
+                    <span>
+                      Showing <strong className="text-[#0f3c4c] dark:text-[#5eead4]">{startIndex + 1}</strong> to{' '}
+                      <strong className="text-[#0f3c4c] dark:text-[#5eead4]">
+                        {Math.min(startIndex + entriesPerPage, sortedQueue.length)}
+                      </strong>{' '}
+                      of <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortedQueue.length}</strong> patient entries
+                    </span>
+
+                    <span className="hidden lg:inline-block text-slate-400">|</span>
+
+                    <span className="hidden lg:flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                      <Sparkles className="w-3 h-3 text-[#0d9488]" />
+                      <span>Interactive: Click row to toggle drawer · Use search for live filter</span>
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-1.5 font-mono">
