@@ -83,26 +83,26 @@ export default function DoctorDashboardModule({
     if (allergies > 0 || waitMins >= 30 || temp >= 38.0) {
       return {
         level: 'High',
-        stripColor: 'border-l-4 border-l-rose-600 dark:border-l-rose-500',
-        badgeBg: 'bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border-rose-300 dark:border-rose-800 font-extrabold',
+        stripColor: 'border-l-2 border-l-rose-500 dark:border-l-rose-400',
+        badgeBg: 'bg-rose-50/70 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 font-bold',
         icon: AlertCircle,
-        iconColor: 'text-rose-600 dark:text-rose-400'
+        iconColor: 'text-rose-500 dark:text-rose-400'
       };
     } else if (waitMins >= 15 || temp >= 37.3) {
       return {
         level: 'Medium',
-        stripColor: 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
-        badgeBg: 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800 font-extrabold',
+        stripColor: 'border-l-2 border-l-amber-500 dark:border-l-amber-400',
+        badgeBg: 'bg-amber-50/70 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-bold',
         icon: Clock,
-        iconColor: 'text-amber-600 dark:text-amber-400'
+        iconColor: 'text-amber-500 dark:text-amber-400'
       };
     } else {
       return {
         level: 'Low',
-        stripColor: 'border-l-4 border-l-emerald-500 dark:border-l-emerald-400',
-        badgeBg: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800 font-extrabold',
+        stripColor: 'border-l-2 border-l-emerald-500 dark:border-l-emerald-400',
+        badgeBg: 'bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold',
         icon: CheckCircle2,
-        iconColor: 'text-emerald-600 dark:text-emerald-400'
+        iconColor: 'text-emerald-500 dark:text-emerald-400'
       };
     }
   };
@@ -110,8 +110,8 @@ export default function DoctorDashboardModule({
   const renderAllergyBadge = (drugAllergies: string[] = []) => {
     if (drugAllergies.length === 0) return null;
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-none text-[11px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border-2 border-rose-600 shadow-2xs font-mono shrink-0">
-        <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-rose-50/70 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 shadow-2xs font-mono shrink-0">
+        <AlertCircle className="w-3 h-3 text-rose-500 dark:text-rose-400 shrink-0" />
         <span>Allergy: {drugAllergies.join(', ')}</span>
       </span>
     );
