@@ -254,93 +254,84 @@ export default function DoctorDashboardModule({
       {internalTab === 'queue' && (
         <div className="animate-fadeIn w-full space-y-6 pb-8">
           
-          {/* 1. MERGED COMBINED HEADER BANNER & SUMMARY METRIC CARD (ULTRA-COMPACT STREAMLINED HEADER BAR) */}
-          <div className="bg-[#e6f4f1] dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 p-2.5 px-3.5 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800 space-y-2">
-            {/* Top Row: Title, Badges & Refresh Action */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-base font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
-                  Doctor Consultation Patient Queue
-                </h1>
-                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:text-[#2dd4bf] text-[10px] font-bold px-2 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
-                  Clinical Triage
-                </span>
-                <span className="flex items-center gap-1 text-[10px] text-[#0d9488] dark:text-[#2dd4bf] bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                  Real-time Telemetry
-                </span>
-              </div>
+          {/* 1. SINGLE INTEGRATED HORIZONTAL CLINICAL COMMAND BAR */}
+          {(() => {
+            const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
+            const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
+            const maxWaitMinutes = doctorQueue.reduce((max, v) => {
+              const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
+              return mins > max ? mins : max;
+            }, 0);
 
-              <button
-                type="button"
-                onClick={handleManualQueueRefresh}
-                disabled={isRefreshingQueue}
-                className="bg-white hover:bg-teal-50 dark:bg-[#0e4857] dark:hover:bg-[#12596b] text-[#0f3c4c] dark:text-[#5eead4] text-[11px] font-bold px-2.5 py-1 rounded-none flex items-center gap-1.5 border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer shadow-2xs shrink-0"
-              >
-                <RefreshCw className={`w-3 h-3 text-[#0d9488] ${isRefreshingQueue ? 'animate-spin' : ''}`} />
-                <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh Queue'}</span>
-              </button>
-            </div>
-
-            {/* Bottom Row: Ultra-Compact 4 Metric Stat Chips */}
-            {(() => {
-              const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
-              const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
-              const maxWaitMinutes = doctorQueue.reduce((max, v) => {
-                const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
-                return mins > max ? mins : max;
-              }, 0);
-
-              return (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 pt-1.5 border-t border-[#99f6e4]/60 dark:border-teal-800/40">
-                  <div className="bg-white/80 dark:bg-[#061f26] border border-[#99f6e4] dark:border-teal-800 px-2.5 py-1.5 rounded-none flex items-center justify-between gap-2 border-l-4 border-l-[#0d9488] shadow-2xs">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Users className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf] shrink-0" />
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase truncate">Waiting</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-sm font-black text-[#0f3c4c] dark:text-[#5eead4]">{doctorQueue.length}</span>
-                      <span className="text-[9px] text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-1 py-0.2 rounded-none font-bold border border-teal-200 dark:border-teal-800">Active</span>
-                    </div>
+            return (
+              <div className="bg-[#e6f4f1] dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                {/* Left: Section Title & Live Telemetry Badge */}
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="p-2 bg-teal-50 dark:bg-teal-950/60 border border-[#99f6e4] dark:border-teal-800 text-[#0d9488] dark:text-[#2dd4bf]">
+                    <Users className="w-5 h-5" />
                   </div>
-
-                  <div className="bg-white/80 dark:bg-[#061f26] border border-[#99f6e4] dark:border-teal-800 px-2.5 py-1.5 rounded-none flex items-center justify-between gap-2 border-l-4 border-l-rose-600 shadow-2xs">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase truncate">High Priority</span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-base font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">
+                        Doctor Consultation Queue
+                      </h1>
+                      <span className="inline-flex items-center gap-1 text-[10px] text-[#0d9488] dark:text-[#2dd4bf] bg-white/80 dark:bg-[#061f26] px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        Live
+                      </span>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-sm font-black text-rose-700 dark:text-rose-300">{highPriorityCount}</span>
-                      <span className="text-[9px] text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-1 py-0.2 rounded-none font-bold border border-rose-300 dark:border-rose-800">Acuity</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/80 dark:bg-[#061f26] border border-[#99f6e4] dark:border-teal-800 px-2.5 py-1.5 rounded-none flex items-center justify-between gap-2 border-l-4 border-l-amber-500 shadow-2xs">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase truncate">Over SLA</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-sm font-black text-amber-700 dark:text-amber-300">{overSlaCount}</span>
-                      <span className="text-[9px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1 py-0.2 rounded-none font-bold border border-amber-300 dark:border-amber-800">Risk</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/80 dark:bg-[#061f26] border border-[#99f6e4] dark:border-teal-800 px-2.5 py-1.5 rounded-none flex items-center justify-between gap-2 border-l-4 border-l-sky-500 shadow-2xs">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Activity className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase truncate">Max Wait</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-sm font-black text-[#0f3c4c] dark:text-[#5eead4]">{maxWaitMinutes}m</span>
-                      <span className="text-[9px] text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-1 py-0.2 rounded-none font-bold border border-sky-300 dark:border-sky-800">Peak</span>
-                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+                      Triaged outpatient waiting list telemetry
+                    </p>
                   </div>
                 </div>
-              );
-            })()}
-          </div>
+
+                {/* Center/Right: 4 Telemetry Stat Badges Bar */}
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
+                    {/* Stat 1: Waiting */}
+                    <div className="bg-white dark:bg-[#061f26] text-[#0f3c4c] dark:text-[#5eead4] px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-[#0d9488] flex items-center gap-2 shadow-2xs">
+                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Waiting:</span>
+                      <strong className="font-black text-sm text-[#0d9488] dark:text-[#2dd4bf]">{doctorQueue.length}</strong>
+                      <span className="text-[9px] bg-teal-50 dark:bg-teal-950 text-[#0d9488] dark:text-teal-300 px-1 py-0.2 rounded-none font-sans font-bold border border-teal-200 dark:border-teal-800">Active</span>
+                    </div>
+
+                    {/* Stat 2: High Priority */}
+                    <div className="bg-white dark:bg-[#061f26] text-rose-700 dark:text-rose-300 px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-rose-600 flex items-center gap-2 shadow-2xs">
+                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Allergy/High:</span>
+                      <strong className="font-black text-sm text-rose-600 dark:text-rose-400">{highPriorityCount}</strong>
+                      <span className="text-[9px] bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 px-1 py-0.2 rounded-none font-sans font-bold border border-rose-200 dark:border-rose-800">Acuity</span>
+                    </div>
+
+                    {/* Stat 3: Over SLA */}
+                    <div className="bg-white dark:bg-[#061f26] text-amber-700 dark:text-amber-300 px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-amber-500 flex items-center gap-2 shadow-2xs">
+                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">&gt;20m SLA:</span>
+                      <strong className="font-black text-sm text-amber-600 dark:text-amber-400">{overSlaCount}</strong>
+                      <span className="text-[9px] bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 px-1 py-0.2 rounded-none font-sans font-bold border border-amber-200 dark:border-amber-800">Risk</span>
+                    </div>
+
+                    {/* Stat 4: Max Wait */}
+                    <div className="bg-white dark:bg-[#061f26] text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-sky-500 flex items-center gap-2 shadow-2xs">
+                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Max Wait:</span>
+                      <strong className="font-black text-sm text-[#0f3c4c] dark:text-[#5eead4]">{maxWaitMinutes}m</strong>
+                      <span className="text-[9px] bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1 py-0.2 rounded-none font-sans font-bold border border-sky-200 dark:border-sky-800">Peak</span>
+                    </div>
+                  </div>
+
+                  {/* Refresh Action Button */}
+                  <button
+                    type="button"
+                    onClick={handleManualQueueRefresh}
+                    disabled={isRefreshingQueue}
+                    className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 text-white ${isRefreshingQueue ? 'animate-spin' : ''}`} />
+                    <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh'}</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 3. SORTING CONTROLS & FILTER BAR */}
           <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 p-4 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
