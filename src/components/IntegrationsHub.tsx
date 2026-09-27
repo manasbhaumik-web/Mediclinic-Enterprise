@@ -2,20 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { 
   Network, Database, ShieldCheck, Activity, Pill, Watch, HeartPulse, 
   RefreshCw, CheckCircle2, AlertTriangle, Link2, Server, Smartphone,
-  Wifi, ChevronRight, Fingerprint, Plus, Zap, Cpu, Check, Code, Download, Copy, X
+  Wifi, ChevronRight, Fingerprint, Plus, Zap, Cpu, Check, Code, Download, Copy, X,
+  Shield, FileText, Lock
 } from 'lucide-react';
 import { convertVisitToFHIRBundle, validateFHIRPayload, FHIRBundleResource } from '../lib/hl7FhirEngine';
+import { 
+  medicalBlockchain, 
+  processTPAAutoPreAuth, 
+  parseAndIngestLISReport, 
+  generateEPrescription, 
+  parseBiometricHardwareFrame,
+  MedicalBlock,
+  TPAClaimPreAuthResponse,
+  LISReportIngest,
+  EPrescriptionPayload,
+  BiometricStreamFrame
+} from '../lib/interoperabilityEngine';
 
 export default function IntegrationsHub() {
   const [activeConnections, setActiveConnections] = useState<number>(0);
   const [syncCount, setSyncCount] = useState<number>(14271);
-  const [showFHIRModal, setShowFHIRModal] = useState<boolean>(false);
+
+  // Modal States for all 7 Interoperability Engines
+  const [activeModal, setActiveModal] = useState<string | null>(null);
+
+  // FHIR State
   const [fhirJsonOutput, setFhirJsonOutput] = useState<string>('');
   const [validationInput, setValidationInput] = useState<string>('');
   const [validationResult, setValidationResult] = useState<{ valid: boolean; resourceType?: string; error?: string } | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
 
-  // Generate initial sample FHIR bundle
+  // TPA Insurance State
+  const [policyNo, setPolicyNo] = useState<string>('TPA-884920-MY');
+  const [claimAmount, setClaimAmount] = useState<number>(350);
+  const [tpaResult, setTpaResult] = useState<TPAClaimPreAuthResponse | null>(null);
+
+  // LIS/RIS State
+  const [lisReport, setLisReport] = useState<LISReportIngest | null>(null);
+
+  // e-Rx State
+  const [eRxResult, setERxResult] = useState<EPrescriptionPayload | null>(null);
+
+  // Biometric Hardware State
+  const [biometricFrame, setBiometricFrame] = useState<BiometricStreamFrame | null>(null);
+
+  // Generate initial samples
   useEffect(() => {
     const sampleVisit = {
       patientId: 'P10084',
@@ -33,6 +64,39 @@ export default function IntegrationsHub() {
     const bundle = convertVisitToFHIRBundle(sampleVisit);
     setFhirJsonOutput(JSON.stringify(bundle, null, 2));
     setValidationInput(JSON.stringify(bundle, null, 2));
+
+    // Sample TPA
+    setTpaResult(processTPAAutoPreAuth({
+      policyNumber: 'TPA-884920-MY',
+      providerCode: 'MEDICLINIC_SHAH_ALAM',
+      patientIc: '870518-08-5901',
+      diagnosisICD10: 'E11.9',
+      requestedAmount: 350
+    }));
+
+    // Sample LIS
+    setLisReport(parseAndIngestLISReport({
+      patientId: 'P10084',
+      testResults: [
+        { testName: 'HbA1c (Glycated Hemoglobin)', code: 'HBA1C', val: 7.2, unit: '%', min: 4.0, max: 6.5 },
+        { testName: 'Serum Cardiac Troponin-I', code: 'TROP', val: 0.08, unit: 'ng/mL', min: 0.00, max: 0.04 }, // Panic
+        { testName: 'Serum Potassium (K)', code: 'K', val: 4.2, unit: 'mmol/L', min: 3.5, max: 5.1 }
+      ]
+    }));
+
+    // Sample e-Rx
+    setERxResult(generateEPrescription('P10084', 'MMC-84920', [
+      { drugName: 'Warfarin 5mg', dosage: '5mg once daily', frequency: 'OD', durationDays: 30 },
+      { drugName: 'Aspirin 100mg', dosage: '100mg once daily', frequency: 'OD', durationDays: 30 }
+    ]));
+
+    // Sample Biometrics
+    setBiometricFrame(parseBiometricHardwareFrame({
+      hr: 124,
+      systolic: 168,
+      diastolic: 98,
+      spo2: 95
+    }));
   }, []);
 
   // Simulate constant background data flow
@@ -316,14 +380,10 @@ export default function IntegrationsHub() {
               {/* Card Footer Action */}
               <button 
                 type="button"
-                onClick={() => {
-                  if (integration.id === 'ehr') {
-                    setShowFHIRModal(true);
-                  }
-                }}
-                className="bg-slate-50 border-t border-slate-100 py-2.5 px-4 text-xs font-bold text-slate-700 hover:text-white hover:bg-[#0d9488] flex items-center justify-between transition-colors cursor-pointer"
+                onClick={() => setActiveModal(integration.id)}
+                className="bg-slate-50 dark:bg-[#09333e] border-t border-slate-100 dark:border-teal-800 py-2.5 px-4 text-xs font-bold text-slate-700 dark:text-teal-200 hover:text-white hover:bg-[#0d9488] flex items-center justify-between transition-colors cursor-pointer"
               >
-                <span>{integration.id === 'ehr' ? 'Launch FHIR R4 Engine...' : 'Configure Connection'}</span>
+                <span>Launch {integration.title}...</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -333,7 +393,7 @@ export default function IntegrationsHub() {
         {/* Deploy New Integration Card */}
         <button 
           type="button"
-          onClick={() => setShowFHIRModal(true)}
+          onClick={() => setActiveModal('ehr')}
           className="bg-[#f7fdfd] dark:bg-[#082830] rounded-none border-2 border-dashed border-teal-200 dark:border-teal-800 hover:border-[#0d9488] hover:bg-teal-50/50 transition-all duration-300 flex flex-col items-center justify-center p-6 text-slate-500 group min-h-[220px] cursor-pointer"
         >
           <div className="w-12 h-12 bg-white dark:bg-[#061f26] rounded-full shadow-sm border border-teal-200 dark:border-teal-800 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-[#0d9488] group-hover:text-white transition-all text-[#0d9488]">
@@ -346,13 +406,13 @@ export default function IntegrationsHub() {
       </div>
 
       {/* ========================================================================= */}
-      {/* INTERACTIVE HL7 FHIR R4 ENGINE & SCHEMA VALIDATOR MODAL                    */}
+      {/* INTERACTIVE MODALS FOR ALL 7 INTEROPERABILITY ENGINE CARDS                  */}
       {/* ========================================================================= */}
-      {showFHIRModal && (
+
+      {/* 1. HL7 FHIR R4 ENGINE MODAL */}
+      {activeModal === 'ehr' && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-4xl w-full p-6 shadow-2xl space-y-5 text-[#0f3c4c] dark:text-slate-100 max-h-[90vh] overflow-y-auto">
-            
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
               <div className="flex items-center gap-2.5">
                 <Database className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
@@ -365,95 +425,358 @@ export default function IntegrationsHub() {
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowFHIRModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
-              >
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Grid 2 Columns: Live Generated Bundle vs Schema Validator */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              
-              {/* Left Column: Live FHIR Bundle Export */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
                     <Code className="w-4 h-4 text-[#0d9488]" />
                     Generated Patient FHIR Bundle (R4)
                   </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyFHIR}
-                    className="text-[10px] font-extrabold bg-[#0d9488] hover:bg-[#0f766e] text-white px-2.5 py-1 flex items-center gap-1 cursor-pointer transition-colors"
-                  >
+                  <button type="button" onClick={handleCopyFHIR} className="text-[10px] font-extrabold bg-[#0d9488] hover:bg-[#0f766e] text-white px-2.5 py-1 flex items-center gap-1 cursor-pointer transition-colors">
                     {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                     <span>{copied ? 'Copied!' : 'Copy JSON'}</span>
                   </button>
                 </div>
-
                 <pre className="bg-[#061f26] text-teal-200 text-[11px] font-mono p-3 border border-teal-900 rounded-none h-72 overflow-y-auto leading-relaxed shadow-inner">
                   {fhirJsonOutput}
                 </pre>
-                <p className="text-[10px] text-slate-500 font-medium">
-                  Includes Patient resource, Blood Pressure Observation LOINC 85354-9, and ICD-10 Condition.
-                </p>
               </div>
 
-              {/* Right Column: Schema Validator Sandbox */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#0d9488]" />
-                    FHIR Schema Payload Validator
-                  </span>
-                </div>
-
+                <span className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[#0d9488]" />
+                  FHIR Schema Payload Validator
+                </span>
                 <textarea
                   value={validationInput}
                   onChange={(e) => setValidationInput(e.target.value)}
                   className="w-full bg-white dark:bg-[#061f26] text-slate-800 dark:text-slate-100 font-mono text-[11px] p-3 border border-[#99f6e4] dark:border-teal-800 rounded-none h-56 focus:outline-none focus:ring-1 focus:ring-[#0d9488]"
                   placeholder="Paste FHIR JSON payload here..."
                 />
-
                 <div className="flex items-center justify-between pt-1">
-                  <button
-                    type="button"
-                    onClick={handleValidatePayload}
-                    className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs px-4 py-2 flex items-center gap-1.5 cursor-pointer shadow-sm"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    Run Schema Validation
+                  <button type="button" onClick={handleValidatePayload} className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs px-4 py-2 flex items-center gap-1.5 cursor-pointer shadow-sm">
+                    <CheckCircle2 className="w-4 h-4" /> Run Schema Validation
                   </button>
-
                   {validationResult && (
                     <div className={`px-3 py-1.5 border text-xs font-bold font-mono flex items-center gap-1.5 ${
-                      validationResult.valid 
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700'
-                        : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700'
+                      validationResult.valid ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300'
                     }`}>
                       {validationResult.valid ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
-                      <span>{validationResult.valid ? `Valid ${validationResult.resourceType} Resource` : validationResult.error}</span>
+                      <span>{validationResult.valid ? `Valid ${validationResult.resourceType}` : validationResult.error}</span>
                     </div>
                   )}
                 </div>
               </div>
-
             </div>
 
-            {/* Modal Footer Actions */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#99f6e4] dark:border-teal-800">
-              <button
-                type="button"
-                onClick={() => setShowFHIRModal(false)}
-                className="px-4 py-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs cursor-pointer shadow-sm"
-              >
-                Close FHIR Console
+            <div className="flex items-center justify-end pt-3 border-t border-[#99f6e4] dark:border-teal-800">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs cursor-pointer shadow-sm">
+                Close Console
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. BLOCKCHAIN LEDGER NODE MODAL */}
+      {activeModal === 'blockchain' && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-3xl w-full p-6 shadow-2xl space-y-4 text-[#0f3c4c] dark:text-slate-100 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Link2 className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">
+                    Blockchain Immutable Medical Ledger Node
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                    Tamper-Proof Proof-of-Work Audit Trail • Cryptographic SHA-256 Record Integrity
+                  </p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
+            <div className="space-y-3">
+              <div className="flex items-center justify-between bg-[#f0fdfa] dark:bg-[#09333e] p-3 border border-[#ccfbf1] dark:border-teal-800">
+                <span className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4]">Chain Status: {medicalBlockchain.verifyChainIntegrity().isValid ? '100% VALID & IMMUTABLE' : 'CORRUPTED'}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    medicalBlockchain.recordAuditBlock('P10084', 'CONSULTATION_SIGN_OFF', 'E11.9', ['Metformin 500mg']);
+                    setSyncCount(prev => prev + 1);
+                  }}
+                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs px-3 py-1.5 cursor-pointer shadow-sm flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Mine New Block...
+                </button>
+              </div>
+
+              <div className="space-y-2 h-72 overflow-y-auto pr-1">
+                {medicalBlockchain.getChain().map((block) => (
+                  <div key={block.index} className="bg-[#061f26] p-3 border border-teal-900 text-xs font-mono text-teal-200 space-y-1">
+                    <div className="flex justify-between font-bold text-[#5eead4]">
+                      <span>BLOCK #{block.index}</span>
+                      <span>Nonce: {block.nonce}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400">Timestamp: {block.timestamp}</p>
+                    <p className="text-[10px] text-slate-300">Hash: <span className="text-emerald-400 font-bold">{block.hash}</span></p>
+                    <p className="text-[10px] text-slate-400">Prev: {block.previousHash}</p>
+                    <div className="pt-1 text-[10px] text-teal-100 border-t border-teal-950">
+                      Action: {block.data.action} | PII Hash: {block.data.piiAuditHash}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end pt-3 border-t border-[#99f6e4] dark:border-teal-800">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-[#0d9488] text-white font-bold text-xs cursor-pointer">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. TPA AUTO-AUTH GATEWAY MODAL */}
+      {activeModal === 'insurance' && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-xl w-full p-6 shadow-2xl space-y-4 text-[#0f3c4c] dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">TPA Auto-Auth Gateway</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">Direct EDI-837 / EDI-270 Insurance Coverage Pre-Clearance</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-teal-200 block mb-1">Policy Number</label>
+                  <input
+                    type="text"
+                    value={policyNo}
+                    onChange={(e) => setPolicyNo(e.target.value)}
+                    className="w-full p-2 bg-white dark:bg-[#061f26] border border-[#99f6e4] dark:border-teal-800 font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-teal-200 block mb-1">Requested Amount (RM)</label>
+                  <input
+                    type="number"
+                    value={claimAmount}
+                    onChange={(e) => setClaimAmount(Number(e.target.value))}
+                    className="w-full p-2 bg-white dark:bg-[#061f26] border border-[#99f6e4] dark:border-teal-800 font-mono font-bold"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTpaResult(processTPAAutoPreAuth({
+                    policyNumber: policyNo,
+                    providerCode: 'MEDICLINIC_SHAH_ALAM',
+                    patientIc: '870518-08-5901',
+                    diagnosisICD10: 'E11.9',
+                    requestedAmount: claimAmount
+                  }));
+                }}
+                className="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold py-2 text-xs shadow-sm cursor-pointer"
+              >
+                Run EDI-837 Pre-Authorization Clearance
+              </button>
+
+              {tpaResult && (
+                <div className={`p-4 border font-mono text-xs space-y-1.5 ${tpaResult.approved ? 'bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200' : 'bg-rose-50 text-rose-900 border-rose-300'}`}>
+                  <div className="font-extrabold flex justify-between">
+                    <span>STATUS: {tpaResult.approved ? 'APPROVED' : 'REJECTED'}</span>
+                    <span>REF: {tpaResult.preAuthRefNumber}</span>
+                  </div>
+                  <p>Insurance Coverage: RM {tpaResult.approvedCoverageAmount.toFixed(2)}</p>
+                  <p>Patient Co-Pay: RM {tpaResult.patientCoPayAmount.toFixed(2)}</p>
+                  <p className="text-[10px] text-teal-700 dark:text-teal-300">Auth Token: {tpaResult.authorizationToken}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end pt-2 border-t border-[#99f6e4] dark:border-teal-800">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-[#0d9488] text-white font-bold text-xs cursor-pointer">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. LIS & RIS DIAGNOSTICS MODAL */}
+      {activeModal === 'labs' && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-2xl w-full p-6 shadow-2xl space-y-4 text-[#0f3c4c] dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Server className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">LIS &amp; RIS Diagnostics Ingestion</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">HL7 Panic Value Detection &amp; Lab Interfacing</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+            </div>
+
+            {lisReport && (
+              <div className="space-y-3 text-xs">
+                <div className="flex justify-between bg-[#f0fdfa] dark:bg-[#09333e] p-2.5 border border-[#ccfbf1] dark:border-teal-800 font-mono">
+                  <span>REPORT: {lisReport.labReportId}</span>
+                  <span className={lisReport.hasPanicAlert ? 'text-rose-600 font-extrabold animate-pulse' : 'text-emerald-600'}>
+                    {lisReport.hasPanicAlert ? 'CRITICAL PANIC ALERT DETECTED' : 'NORMAL RANGE'}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {lisReport.results.map((r) => (
+                    <div key={r.testCode} className={`p-2.5 border flex justify-between items-center ${r.isPanicValue ? 'bg-rose-50 text-rose-900 border-rose-300 dark:bg-rose-950/60 dark:text-rose-200' : 'bg-white dark:bg-[#061f26] border-slate-200 dark:border-teal-900'}`}>
+                      <div>
+                        <p className="font-bold">{r.testName} ({r.testCode})</p>
+                        <p className="text-[10px] opacity-75">Ref: {r.refRangeMin} - {r.refRangeMax} {r.unit}</p>
+                      </div>
+                      <span className="font-mono text-sm font-black">{r.value} {r.unit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end pt-2 border-t border-[#99f6e4] dark:border-teal-800">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-[#0d9488] text-white font-bold text-xs cursor-pointer">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. e-PRESCRIBING NETWORK MODAL */}
+      {activeModal === 'pharmacy' && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-xl w-full p-6 shadow-2xl space-y-4 text-[#0f3c4c] dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Pill className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">e-Prescribing Pharmacy Network</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">Automated Drug-Drug Interaction Safety Scanner</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+            </div>
+
+            {eRxResult && (
+              <div className="space-y-3 text-xs">
+                <div className="bg-[#061f26] p-3 border border-teal-900 text-teal-200 font-mono space-y-1">
+                  <div className="flex justify-between font-bold text-[#5eead4]">
+                    <span>e-Rx ID: {eRxResult.rxId}</span>
+                    <span>STATUS: {eRxResult.dispenseStatus}</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400">Doctor MMC: {eRxResult.prescriberMMLNo}</p>
+                </div>
+
+                {eRxResult.interactionAlerts.length > 0 && (
+                  <div className="p-3 bg-rose-50 border border-rose-300 text-rose-900 dark:bg-rose-950/60 dark:text-rose-200 space-y-1">
+                    <p className="font-extrabold flex items-center gap-1.5"><AlertTriangle className="w-4 h-4 text-rose-600" /> DRUG INTERACTION SAFETY WARNING</p>
+                    {eRxResult.interactionAlerts.map((a, idx) => (
+                      <p key={idx} className="text-[11px] font-mono">{a}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end pt-2 border-t border-[#99f6e4] dark:border-teal-800">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-[#0d9488] text-white font-bold text-xs cursor-pointer">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. IoT WEARABLES BRIDGE MODAL */}
+      {activeModal === 'wearables' && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-xl w-full p-6 shadow-2xl space-y-4 text-[#0f3c4c] dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Watch className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">IoT Wearables &amp; Telemetry Bridge</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">Continuous Biometric Health Monitoring Stream</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+            </div>
+
+            {biometricFrame && (
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3 bg-white dark:bg-[#061f26] border border-slate-200 dark:border-teal-900">
+                  <span className="text-slate-500 block text-[10px] font-bold">HEART RATE</span>
+                  <span className="text-xl font-black text-rose-600 font-mono">{biometricFrame.heartRateBp} bpm</span>
+                </div>
+                <div className="p-3 bg-white dark:bg-[#061f26] border border-slate-200 dark:border-teal-900">
+                  <span className="text-slate-500 block text-[10px] font-bold">BLOOD OXYGEN (SpO2)</span>
+                  <span className="text-xl font-black text-emerald-600 font-mono">{biometricFrame.spO2Percent}%</span>
+                </div>
+                <div className="p-3 bg-white dark:bg-[#061f26] border border-slate-200 dark:border-teal-900">
+                  <span className="text-slate-500 block text-[10px] font-bold">BLOOD PRESSURE</span>
+                  <span className="text-xl font-black text-[#0f3c4c] dark:text-[#5eead4] font-mono">{biometricFrame.systolicBp}/{biometricFrame.diastolicBp} mmHg</span>
+                </div>
+                <div className="p-3 bg-white dark:bg-[#061f26] border border-slate-200 dark:border-teal-900">
+                  <span className="text-slate-500 block text-[10px] font-bold">GLUCOSE LEVEL</span>
+                  <span className="text-xl font-black text-amber-600 font-mono">{biometricFrame.glucoseMmol} mmol/L</span>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end pt-2 border-t border-[#99f6e4] dark:border-teal-800">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-[#0d9488] text-white font-bold text-xs cursor-pointer">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. BIOMETRIC HARDWARE BUS MODAL */}
+      {activeModal === 'devices' && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+          <div className="bg-[#e6f4f1] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800 max-w-xl w-full p-6 shadow-2xl space-y-4 text-[#0f3c4c] dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-[#99f6e4] dark:border-teal-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <HeartPulse className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">Biometric Hardware Device Bus</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">Clinic IP / Serial Device Telemetry Port</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+            </div>
+
+            <div className="space-y-2 text-xs font-mono">
+              <div className="p-2.5 bg-[#061f26] text-teal-200 border border-teal-900 flex justify-between">
+                <span>PORT COM3: Mindray Vital Monitor</span>
+                <span className="text-emerald-400 font-bold">STREAMING (1.2ms)</span>
+              </div>
+              <div className="p-2.5 bg-[#061f26] text-teal-200 border border-teal-900 flex justify-between">
+                <span>PORT COM4: ECG 12-Lead Machine B</span>
+                <span className="text-amber-400 font-bold">CALIBRATION REQ</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end pt-2 border-t border-[#99f6e4] dark:border-teal-800">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-[#0d9488] text-white font-bold text-xs cursor-pointer">Close</button>
+            </div>
           </div>
         </div>
       )}
