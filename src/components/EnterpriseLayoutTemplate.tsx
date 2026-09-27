@@ -115,8 +115,8 @@ export default function EnterpriseLayoutTemplate({
             className="flex items-center gap-3 cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-none"
             tabIndex={0}
           >
-            <div className="w-8 h-8 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
-              <img src="./logo_transparent.svg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
+            <div className="w-8 h-8 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 bg-white/10 border border-white/20 p-0.5">
+              <img src="/logo_3d.jpg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain mix-blend-screen" />
             </div>
             <div>
               <h1 className="text-sm font-black tracking-tight uppercase leading-none font-sans text-white group-hover:text-teal-100 transition-colors flex items-center gap-1.5">

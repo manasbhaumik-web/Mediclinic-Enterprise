@@ -270,8 +270,8 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       <header className="sticky top-0 z-50 h-[60px] bg-[#e0f5f2]/95 backdrop-blur-md border-b border-[#b2f5ea] px-4 lg:px-8 flex items-center justify-between transition-all shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-none shrink-0 flex items-center justify-center">
-            <img src="./logo_transparent.svg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
+          <div className="w-10 h-10 rounded-none shrink-0 flex items-center justify-center bg-[#0d9488]/10 border border-[#99f6e4] p-0.5">
+            <img src="/logo_3d.jpg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
           <div>
             <span className="text-base font-black tracking-tight text-[#0f3c4c] block leading-none">
