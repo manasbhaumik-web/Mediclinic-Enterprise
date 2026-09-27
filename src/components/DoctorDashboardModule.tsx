@@ -265,15 +265,24 @@ export default function DoctorDashboardModule({
               }, 0);
 
               return (
-                <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 p-4 rounded-none space-y-3">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-extrabold text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
-                        <Users className="w-5 h-5 text-[#0d9488]" />
-                        Patient Queue
-                      </h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
-                        Triaged outpatient consultation queue organized for quick scanning and decisive workflow management.
+                <div className="bg-[#e6f4f1] text-[#0f3c4c] dark:bg-[#082830] dark:text-[#5eead4] p-5 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800/60 space-y-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-[#0d9488]/10 text-[#0d9488] dark:text-[#2dd4bf] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
+                          Outpatient Clinical Stream
+                        </span>
+                        <span className="flex items-center gap-1 text-[11px] text-[#0d9488] dark:text-[#2dd4bf] bg-white dark:bg-[#061f26] px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                          Live Waiting Room
+                        </span>
+                      </div>
+                      <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2.5">
+                        <Users className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                        Doctor Consultation Patient Queue
+                      </h1>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 font-medium max-w-2xl leading-relaxed">
+                        Triaged outpatient consultation queue organized for quick scanning, high-priority triage identification, and decisive clinical workflow management.
                       </p>
                     </div>
 
