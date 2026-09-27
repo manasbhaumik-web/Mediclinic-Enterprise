@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ========================================================================= */
+/* MEDICLINIC ENTERPRISE GLOBAL CSS STYLESHEET GOVERNANCE                    */
+/* POLICY: PAGE-LEVEL & MODULE-LEVEL CSS FILES ARE STRICTLY PROHIBITED.     */
+/* ALL STYLING MUST INHERIT FROM THIS SINGLE AUTHORITATIVE CSS SYSTEM.       */
+/* ========================================================================= */
+
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
