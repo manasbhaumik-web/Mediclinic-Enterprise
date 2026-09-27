@@ -254,117 +254,122 @@ export default function DoctorDashboardModule({
       {internalTab === 'queue' && (
         <div className="animate-fadeIn w-full space-y-6 pb-8">
           
-          {/* 1. STRUCTURED CLINICAL HEADER BANNER */}
-          <div className="bg-[#e6f4f1] dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 p-5 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:text-[#2dd4bf] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
-                  Clinical Triage &amp; Workflow
-                </span>
-                <span className="flex items-center gap-1 text-[11px] text-[#0d9488] dark:text-[#2dd4bf] bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                  Real-time Outpatient Telemetry
-                </span>
+          {/* 1. MERGED COMBINED HEADER BANNER & SUMMARY METRIC CARD */}
+          <div className="bg-[#e6f4f1] dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 p-5 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800 space-y-5">
+            {/* Top Section: Header Title, Telemetry Badges & Refresh Button */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#0d9488]/10 text-[#0d9488] dark:text-[#2dd4bf] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
+                    Clinical Triage &amp; Workflow
+                  </span>
+                  <span className="flex items-center gap-1 text-[11px] text-[#0d9488] dark:text-[#2dd4bf] bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    Real-time Outpatient Telemetry
+                  </span>
+                </div>
+                <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2.5">
+                  <Users className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
+                  Doctor Consultation Patient Queue
+                </h1>
+                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium max-w-2xl leading-relaxed">
+                  Triaged outpatient consultation queue organized for quick scanning, high-priority triage escalation, and decisive patient workflow management.
+                </p>
               </div>
-              <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2.5">
-                <Users className="w-6 h-6 text-[#0d9488] dark:text-[#2dd4bf]" />
-                Doctor Consultation Patient Queue
-              </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium max-w-2xl leading-relaxed">
-                Triaged outpatient consultation queue organized for quick scanning, high-priority triage escalation, and decisive patient workflow management.
-              </p>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleManualQueueRefresh}
+                  disabled={isRefreshingQueue}
+                  className="bg-white hover:bg-teal-50 dark:bg-[#0e4857] dark:hover:bg-[#12596b] text-[#0f3c4c] dark:text-[#5eead4] text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer shadow-2xs"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-[#0d9488] ${isRefreshingQueue ? 'animate-spin' : ''}`} />
+                  <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh Queue'}</span>
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleManualQueueRefresh}
-                disabled={isRefreshingQueue}
-                className="bg-white hover:bg-teal-50 dark:bg-[#0e4857] dark:hover:bg-[#12596b] text-[#0f3c4c] dark:text-[#5eead4] text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer shadow-2xs"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 text-[#0d9488] ${isRefreshingQueue ? 'animate-spin' : ''}`} />
-                <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh Queue'}</span>
-              </button>
+            {/* Bottom Section: Embedded 4 Summary Metrics Grid */}
+            <div className="border-t border-[#99f6e4] dark:border-teal-800/60 pt-4">
+              {(() => {
+                const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
+                const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
+                const maxWaitMinutes = doctorQueue.reduce((max, v) => {
+                  const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
+                  return mins > max ? mins : max;
+                }, 0);
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white/80 dark:bg-[#061f26] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patients Waiting</span>
+                        <div className="p-2 bg-teal-50 dark:bg-teal-950/60 rounded-none text-[#0d9488] dark:text-[#2dd4bf]">
+                          <Users className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-baseline justify-between">
+                        <h3 className="text-2xl font-black text-[#0f3c4c] dark:text-[#5eead4]">{doctorQueue.length}</h3>
+                        <span className="text-xs text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-none font-bold border border-teal-200 dark:border-teal-800">
+                          Active Queue
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white/80 dark:bg-[#061f26] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1 h-full bg-rose-600"></div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">High Priority / Allergy</span>
+                        <div className="p-2 bg-rose-50 dark:bg-rose-950/60 rounded-none text-rose-600 dark:text-rose-400">
+                          <AlertCircle className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-baseline justify-between">
+                        <h3 className="text-2xl font-black text-rose-700 dark:text-rose-300">{highPriorityCount}</h3>
+                        <span className="text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-none font-bold border border-rose-300 dark:border-rose-800">
+                          Acuity Escalation
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white/80 dark:bg-[#061f26] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Over SLA (&gt;20 min)</span>
+                        <div className="p-2 bg-amber-50 dark:bg-amber-950/60 rounded-none text-amber-600 dark:text-amber-400">
+                          <Clock className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-baseline justify-between">
+                        <h3 className="text-2xl font-black text-amber-700 dark:text-amber-300">{overSlaCount}</h3>
+                        <span className="text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-none font-bold border border-amber-300 dark:border-amber-800">
+                          Turnaround Risk
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white/80 dark:bg-[#061f26] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1 h-full bg-sky-500"></div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Max Waiting Time</span>
+                        <div className="p-2 bg-sky-50 dark:bg-sky-950/60 rounded-none text-sky-600 dark:text-sky-400">
+                          <Activity className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-baseline justify-between">
+                        <h3 className="text-2xl font-black text-[#0f3c4c] dark:text-[#5eead4]">{maxWaitMinutes} min</h3>
+                        <span className="text-xs text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-none font-bold border border-sky-300 dark:border-sky-800">
+                          Peak Wait
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
-
-          {/* 2. TOP 4 ACTIONABLE SUMMARY METRIC CARDS */}
-          {(() => {
-            const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
-            const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
-            const maxWaitMinutes = doctorQueue.reduce((max, v) => {
-              const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
-              return mins > max ? mins : max;
-            }, 0);
-
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patients Waiting</span>
-                    <div className="p-2 bg-teal-50 dark:bg-teal-950/60 rounded-none text-[#0d9488] dark:text-[#2dd4bf]">
-                      <Users className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-baseline justify-between">
-                    <h3 className="text-2xl font-black text-[#0f3c4c] dark:text-[#5eead4]">{doctorQueue.length}</h3>
-                    <span className="text-xs text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-none font-bold border border-teal-200 dark:border-teal-800">
-                      Active Queue
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-rose-600"></div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">High Priority / Allergy</span>
-                    <div className="p-2 bg-rose-50 dark:bg-rose-950/60 rounded-none text-rose-600 dark:text-rose-400">
-                      <AlertCircle className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-baseline justify-between">
-                    <h3 className="text-2xl font-black text-rose-700 dark:text-rose-300">{highPriorityCount}</h3>
-                    <span className="text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-none font-bold border border-rose-300 dark:border-rose-800">
-                      Acuity Escalation
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Over SLA (&gt;20 min)</span>
-                    <div className="p-2 bg-amber-50 dark:bg-amber-950/60 rounded-none text-amber-600 dark:text-amber-400">
-                      <Clock className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-baseline justify-between">
-                    <h3 className="text-2xl font-black text-amber-700 dark:text-amber-300">{overSlaCount}</h3>
-                    <span className="text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-none font-bold border border-amber-300 dark:border-amber-800">
-                      Turnaround Risk
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-[#e6f4f1] dark:bg-[#082830] rounded-none border border-[#99f6e4] dark:border-teal-800 p-4 shadow-2xs relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-sky-500"></div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Max Waiting Time</span>
-                    <div className="p-2 bg-sky-50 dark:bg-sky-950/60 rounded-none text-sky-600 dark:text-sky-400">
-                      <Activity className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-baseline justify-between">
-                    <h3 className="text-2xl font-black text-[#0f3c4c] dark:text-[#5eead4]">{maxWaitMinutes} min</h3>
-                    <span className="text-xs text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-none font-bold border border-sky-300 dark:border-sky-800">
-                      Peak Wait
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
 
           {/* 3. SORTING CONTROLS & FILTER BAR */}
           <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 p-4 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
