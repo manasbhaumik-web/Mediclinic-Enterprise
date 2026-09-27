@@ -64,7 +64,7 @@ const DEFAULT_30_EQUIPMENT: EquipmentItem[] = [
   { id: 'EQ127', name: 'Thermal Direct Receipt Printer', type: 'IT/Office', serialNumber: 'SN-PRINT-44291', status: 'Operational', nextMaintenance: '2027-03-15', manufacturer: 'Epson POS', assignedRoom: 'Billing & Cashier Desk', custodian: 'Admin Mei Ling', tenantId: 'BRANCH_JB_MEDICAL' },
   { id: 'EQ128', name: 'Wireless Barcode Scanner Unit', type: 'IT/Office', serialNumber: 'SN-BARCODE-88392', status: 'Operational', nextMaintenance: '2027-06-20', manufacturer: 'Honeywell', assignedRoom: 'Pharmacy Counter 1', custodian: 'Pharm. Ahmad Razak', tenantId: 'BRANCH_PENANG_CARE' },
   { id: 'EQ129', name: 'Digital Uroflowmeter System', type: 'Diagnostic', serialNumber: 'SN-URO-11209', status: 'Operational', nextMaintenance: '2026-11-30', manufacturer: 'Laborie Medical', assignedRoom: 'Urology Procedure Room', custodian: 'Dr. Sarah Tan', tenantId: 'HQ_KL_MAIN' },
-  { id: 'EQ130', name: 'Hydraulic Patient Stretcher Trolley', type: 'Furniture', serialNumber: 'SN-TROLLEY-77201', status: 'Operational', nextMaintenance: '2027-01-25', manufacturer: 'Stryker Medical', assignedRoom: 'Patient Holding Area', custodian: 'Nurse Azman Kassim' }
+  { id: 'EQ130', name: 'Hydraulic Patient Stretcher Trolley', type: 'Furniture', serialNumber: 'SN-TROLLEY-77201', status: 'Operational', nextMaintenance: '2027-01-25', manufacturer: 'Stryker Medical', assignedRoom: 'Patient Holding Area', custodian: 'Nurse Azman Kassim', tenantId: 'BRANCH_PJ_EXPRESS' }
 ];
 
 export default function EquipmentManagementModule() {
