@@ -50,6 +50,16 @@ const DEPT_REVENUE_DATA = [
   { name: 'Procedures', value: 15000 },
 ];
 
+const customIceMintTooltipStyle: React.CSSProperties = {
+  backgroundColor: '#06242c',
+  border: '1px solid #99f6e4',
+  borderRadius: '0px',
+  color: '#5eead4',
+  fontSize: '11px',
+  fontFamily: 'monospace',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
+};
+
 export default function ReportsAnalyticsModule() {
   const [activeTab, setActiveTab] = useState<'executive' | 'clinical' | 'financial' | 'inventory' | 'generator'>('executive');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -219,7 +229,7 @@ export default function ReportsAnalyticsModule() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} tickLine={false} />
                   <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(val) => `RM${val/1000}k`} />
-                  <Tooltip contentStyle={{ borderRadius: '6px', fontSize: '12px' }} />
+                  <Tooltip contentStyle={customIceMintTooltipStyle} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
                   <Area type="monotone" dataKey="revenue" name="Gross Revenue" stroke="#0d9488" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
                   <Area type="monotone" dataKey="expenses" name="Operating Expenses" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorExp)" />
@@ -242,7 +252,7 @@ export default function ReportsAnalyticsModule() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="time" stroke="#94a3b8" fontSize={11} tickLine={false} />
                   <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: '6px', fontSize: '12px' }} />
+                  <Tooltip contentStyle={customIceMintTooltipStyle} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
                   <Line type="monotone" dataKey="wait" name="Avg Wait Time (mins)" stroke="#f59e0b" strokeWidth={3} activeDot={{ r: 6 }} />
                   <Line type="monotone" dataKey="consultation" name="Avg Consult Time (mins)" stroke="#0d9488" strokeWidth={3} />
@@ -260,7 +270,7 @@ export default function ReportsAnalyticsModule() {
                     <Pie data={ICD10_DATA} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value">
                       {ICD10_DATA.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '6px' }} />
+                    <Tooltip contentStyle={customIceMintTooltipStyle} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -293,7 +303,7 @@ export default function ReportsAnalyticsModule() {
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
                   <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(val) => `RM${val/1000}k`} />
                   <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={11} tickLine={false} width={100} />
-                  <Tooltip contentStyle={{ borderRadius: '6px', fontSize: '12px' }} cursor={{fill: '#f8fafc'}} />
+                  <Tooltip contentStyle={customIceMintTooltipStyle} cursor={{fill: 'rgba(13, 148, 136, 0.1)'}} />
                   <Bar dataKey="value" name="Revenue" fill="#0d9488" radius={[0, 4, 4, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>

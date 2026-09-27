@@ -53,6 +53,8 @@ export default function DoctorDashboardModule({
   const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number } | null>(null);
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
+  const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
+
   // Custom Hook: Extracted queue sorting, filtering, pinning, and pagination
   const {
     sortRule, setSortRule,
@@ -65,6 +67,30 @@ export default function DoctorDashboardModule({
     nextVisit, nextPatient, remainingQueue,
     totalPages, startIndex
   } = useQueueFilter({ queue: doctorQueue, patientsMap, initialEntriesPerPage: 6 });
+
+  // Global Keyboard Shortcuts (Alt+Q, Alt+C, Alt+F, Alt+R)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!e.altKey) return;
+      const key = e.key.toLowerCase();
+      if (key === 'q') {
+        e.preventDefault();
+        setInternalTab('queue');
+      } else if (key === 'c') {
+        e.preventDefault();
+        setInternalTab('consultation');
+      } else if (key === 'f') {
+        e.preventDefault();
+        const inputEl = document.getElementById('queue-search-input');
+        if (inputEl) inputEl.focus();
+      } else if (key === 'r') {
+        e.preventDefault();
+        handleManualQueueRefresh();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const copyToClipboard = (text: string, label: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -521,10 +547,11 @@ export default function DoctorDashboardModule({
                     <div className="relative flex-1 max-w-md">
                       <Search className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf] absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
+                        id="queue-search-input"
                         type="text"
                         value={queueSearchQuery}
                         onChange={(e) => { setQueueSearchQuery(e.target.value); setQueuePage(1); }}
-                        placeholder="Filter queue by patient name, IC/ID, or chief complaint..."
+                        placeholder="Filter queue by patient name, IC/ID, or chief complaint (Alt+F)..."
                         className="w-full bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 text-xs pl-8 pr-7 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 focus:outline-none focus:border-[#0d9488] placeholder:text-slate-400 font-sans shadow-2xs"
                       />
                       {queueSearchQuery && (
@@ -539,7 +566,33 @@ export default function DoctorDashboardModule({
                     </div>
 
                     <div className="flex items-center gap-3 text-[11px] font-mono text-slate-600 dark:text-slate-300 shrink-0">
-                      <span>Entries per page:</span>
+                      {/* Compact / Comfortable Density Toggle */}
+                      <div className="inline-flex items-center bg-white dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 rounded-none p-0.5 font-mono text-[10px]">
+                        <button
+                          type="button"
+                          onClick={() => setDensity('comfortable')}
+                          className={`px-2 py-0.5 font-bold cursor-pointer transition-all ${
+                            density === 'comfortable'
+                              ? 'bg-[#0d9488] text-white font-black'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-[#e0f5f2]'
+                          }`}
+                        >
+                          Comfortable
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDensity('compact')}
+                          className={`px-2 py-0.5 font-bold cursor-pointer transition-all ${
+                            density === 'compact'
+                              ? 'bg-[#0d9488] text-white font-black'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-[#e0f5f2]'
+                          }`}
+                        >
+                          Compact
+                        </button>
+                      </div>
+
+                      <span>Entries:</span>
                       <select
                         value={entriesPerPage}
                         onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setQueuePage(1); }}
@@ -792,7 +845,7 @@ export default function DoctorDashboardModule({
                               tabIndex={0}
                               onClick={() => toggleDetails(visit.id)}
                               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
-                              className={`group border rounded-none ${triage.stripColor} transition-all p-3.5 cursor-pointer shadow-2xs hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
+                              className={`group border rounded-none ${triage.stripColor} transition-all ${density === 'compact' ? 'p-2' : 'p-3.5'} cursor-pointer shadow-2xs hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none ${
                                 isConsulting 
                                   ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] shadow-xs' 
                                   : isPinned
@@ -964,9 +1017,21 @@ export default function DoctorDashboardModule({
 
                     <span className="hidden lg:inline-block text-slate-400">|</span>
 
-                    <span className="hidden lg:flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    <span className="hidden lg:flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
                       <Sparkles className="w-3 h-3 text-[#0d9488]" />
-                      <span>Interactive: Click row to toggle drawer · Use search for live filter</span>
+                      <span>Shortcuts:</span>
+                      <span className="inline-flex items-center gap-1 bg-white dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-[#0f3c4c] dark:text-[#5eead4] shadow-2xs">
+                        <kbd className="font-mono font-black text-[#0d9488] dark:text-[#2dd4bf]">Alt+Q</kbd> Queue
+                      </span>
+                      <span className="inline-flex items-center gap-1 bg-white dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-[#0f3c4c] dark:text-[#5eead4] shadow-2xs">
+                        <kbd className="font-mono font-black text-[#0d9488] dark:text-[#2dd4bf]">Alt+C</kbd> Consult
+                      </span>
+                      <span className="inline-flex items-center gap-1 bg-white dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-[#0f3c4c] dark:text-[#5eead4] shadow-2xs">
+                        <kbd className="font-mono font-black text-[#0d9488] dark:text-[#2dd4bf]">Alt+F</kbd> Search
+                      </span>
+                      <span className="inline-flex items-center gap-1 bg-white dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-[#0f3c4c] dark:text-[#5eead4] shadow-2xs">
+                        <kbd className="font-mono font-black text-[#0d9488] dark:text-[#2dd4bf]">Alt+R</kbd> Refresh
+                      </span>
                     </span>
                   </div>
 
