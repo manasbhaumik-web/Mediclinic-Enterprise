@@ -3,7 +3,7 @@ import { Patient, Visit, Language } from '../types';
 import ConsultationRoom from './ConsultationRoom';
 import { 
   Stethoscope, FileText, Calendar, Users, DollarSign, Activity, BrainCircuit, 
-  CalendarClock, Clock, ChevronRight, Search, Download, Filter, TrendingUp, 
+  CalendarClock, Clock, ChevronLeft, ChevronRight, Search, Download, Filter, TrendingUp, 
   ShieldCheck, CheckCircle2, BarChart3, CreditCard, Building2, RefreshCw, Volume2, AlertCircle 
 } from 'lucide-react';
 import { 
@@ -45,6 +45,7 @@ export default function DoctorDashboardModule({
   const [lastSyncedText, setLastSyncedText] = useState<string>('Just now');
   const [isRefreshingQueue, setIsRefreshingQueue] = useState<boolean>(false);
   const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number } | null>(null);
+  const [queuePage, setQueuePage] = useState<number>(1);
 
   const toggleDetails = (visitId: string) => {
     setExpandedDetails(prev => ({ ...prev, [visitId]: !prev[visitId] }));
@@ -478,9 +479,15 @@ export default function DoctorDashboardModule({
               );
             }
 
-            const nextVisit = sortedQueue[0];
-            const nextPatient = patientsMap[nextVisit.patientId];
-            const remainingQueue = sortedQueue.slice(1);
+            const entriesPerPage = 6;
+            const totalPages = Math.max(1, Math.ceil(sortedQueue.length / entriesPerPage));
+            const currentPage = Math.min(Math.max(1, queuePage), totalPages);
+            const startIndex = (currentPage - 1) * entriesPerPage;
+            const paginatedQueue = sortedQueue.slice(startIndex, startIndex + entriesPerPage);
+
+            const nextVisit = currentPage === 1 ? paginatedQueue[0] : null;
+            const nextPatient = nextVisit ? patientsMap[nextVisit.patientId] : null;
+            const remainingQueue = currentPage === 1 ? paginatedQueue.slice(1) : paginatedQueue;
 
             return (
               <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 rounded-none overflow-hidden shadow-2xs">
@@ -496,7 +503,7 @@ export default function DoctorDashboardModule({
                         <button
                           key={r}
                           type="button"
-                          onClick={() => setSortRule(r)}
+                          onClick={() => { setSortRule(r); setQueuePage(1); }}
                           className={`changer-btn ${
                             sortRule === r
                               ? 'changer-btn-active'
@@ -516,8 +523,8 @@ export default function DoctorDashboardModule({
 
                 {/* PATIENT QUEUE LIST BODY */}
                 <div className="p-4 space-y-4">
-                  {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY) */}
-                  {nextPatient && (
+                  {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY ON PAGE 1) */}
+                  {nextPatient && nextVisit && (
                     <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3`}>
                       
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#0d9488]/40 pb-3">
@@ -670,12 +677,14 @@ export default function DoctorDashboardModule({
                     </div>
                   )}
 
-                  {/* REMAINING PATIENTS LIST (#2 ONWARDS) - ICE MINT COMPACT ROW GRID */}
+                  {/* REMAINING PATIENTS LIST - ICE MINT COMPACT ROW GRID */}
                   {remainingQueue.length > 0 && (
                     <div className="space-y-3 pt-2">
                       <div className="flex items-center justify-between flex-wrap gap-2 border-b border-[#99f6e4] dark:border-teal-800 pb-2">
                         <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
-                          <span>Subsequent Patients ({remainingQueue.length} Waiting)</span>
+                          <span>
+                            {currentPage === 1 ? 'Subsequent Patients' : 'Patient Queue List'} (Page {currentPage} of {totalPages})
+                          </span>
                         </h4>
                         <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
                           Active Sort: <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortRule === 'urgency' ? 'Clinical Urgency & Allergies' : sortRule === 'wait' ? 'Longest Wait First' : 'Arrival Order'}</strong>
@@ -688,7 +697,8 @@ export default function DoctorDashboardModule({
                           if (!pt) return null;
                           const isConsulting = activeConsultationVisitId === visit.id;
                           const isExpanded = expandedDetails[visit.id];
-                          const queuePosition = index + 2;
+                          const globalRankIndex = currentPage === 1 ? index + 1 : startIndex + index;
+                          const queuePosition = globalRankIndex + 1;
                           const triage = getTriageDetails(pt, visit);
                           const TriageIcon = triage.icon;
                           const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
@@ -733,7 +743,7 @@ export default function DoctorDashboardModule({
                                     {/* Explainable Rank Rationale Pill */}
                                     <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-0.5 flex items-center gap-1">
                                       <span className="font-bold text-[#0d9488] dark:text-[#2dd4bf]">Rationale:</span>
-                                      <span className="truncate">{getRankingRationale(pt, visit, index + 1, sortRule)}</span>
+                                      <span className="truncate">{getRankingRationale(pt, visit, globalRankIndex, sortRule)}</span>
                                     </div>
                                   </div>
                                 </div>
@@ -802,6 +812,62 @@ export default function DoctorDashboardModule({
                       </div>
                     </div>
                   )}
+                </div>
+
+                {/* PAGINATION CONTROLS BAR */}
+                <div className="bg-[#d5f0eb] dark:bg-[#06242c] border-t border-[#99f6e4] dark:border-teal-800 p-3 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] font-medium">
+                    Showing <strong className="text-[#0f3c4c] dark:text-[#5eead4]">{startIndex + 1}</strong> to{' '}
+                    <strong className="text-[#0f3c4c] dark:text-[#5eead4]">
+                      {Math.min(startIndex + entriesPerPage, sortedQueue.length)}
+                    </strong>{' '}
+                    of <strong className="text-[#0d9488] dark:text-[#2dd4bf]">{sortedQueue.length}</strong> patient entries
+                  </div>
+
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <button
+                      type="button"
+                      disabled={currentPage === 1}
+                      onClick={() => setQueuePage(prev => Math.max(1, prev - 1))}
+                      className={`px-2.5 py-1 text-xs rounded-none border flex items-center gap-1 font-bold transition-all ${
+                        currentPage === 1
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'
+                          : 'bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-[#5eead4] border-[#99f6e4] dark:border-teal-800 hover:bg-[#0d9488] hover:text-white cursor-pointer'
+                      }`}
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span>Prev</span>
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => setQueuePage(pageNum)}
+                        className={`w-7 h-7 text-xs rounded-none border font-black flex items-center justify-center transition-all ${
+                          pageNum === currentPage
+                            ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs'
+                            : 'bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-200 border-[#99f6e4] dark:border-teal-800 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857] cursor-pointer'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+
+                    <button
+                      type="button"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setQueuePage(prev => Math.min(totalPages, prev + 1))}
+                      className={`px-2.5 py-1 text-xs rounded-none border flex items-center gap-1 font-bold transition-all ${
+                        currentPage === totalPages
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'
+                          : 'bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-[#5eead4] border-[#99f6e4] dark:border-teal-800 hover:bg-[#0d9488] hover:text-white cursor-pointer'
+                      }`}
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
