@@ -13,7 +13,6 @@ export interface Patient {
   drugAllergies: string[];
   registeredDate: string;
   tenantId?: string;
-  branchId?: string;
 }
 
 export interface VitalSigns {
@@ -73,7 +72,6 @@ export interface Visit {
   mcIssued?: boolean;
   registeredTime?: number;
   tenantId?: string;
-  branchId?: string;
 }
 
 export interface ICD10Code {
@@ -102,5 +100,4 @@ export interface Appointment {
   notes?: string;
   createdAt: string;
   tenantId?: string;
-  branchId?: string;
 }
