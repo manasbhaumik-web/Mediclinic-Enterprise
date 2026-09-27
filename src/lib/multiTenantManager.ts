@@ -11,6 +11,8 @@ export interface ClinicBranchTenant {
   licenseMohNumber: string;
   isHeadquarters: boolean;
   activeStatus: 'OPERATIONAL' | 'MAINTENANCE' | 'OFFLINE';
+  address?: string;
+  phone?: string;
 }
 
 export const SUPPORTED_BRANCH_TENANTS: ClinicBranchTenant[] = [
@@ -20,7 +22,9 @@ export const SUPPORTED_BRANCH_TENANTS: ClinicBranchTenant[] = [
     stateLocation: 'KUALA_LUMPUR',
     licenseMohNumber: 'MOH-KKM-KL-88401',
     isHeadquarters: true,
-    activeStatus: 'OPERATIONAL'
+    activeStatus: 'OPERATIONAL',
+    address: 'No. 20 Jalan Ampang, 50450 Kuala Lumpur',
+    phone: '03-21664000'
   },
   {
     tenantId: 'BRANCH_PJ_EXPRESS',
@@ -28,7 +32,9 @@ export const SUPPORTED_BRANCH_TENANTS: ClinicBranchTenant[] = [
     stateLocation: 'SELANGOR',
     licenseMohNumber: 'MOH-KKM-SEL-44120',
     isHeadquarters: false,
-    activeStatus: 'OPERATIONAL'
+    activeStatus: 'OPERATIONAL',
+    address: 'Level 2, PJ Medical Tower, 46200 Petaling Jaya, Selangor',
+    phone: '03-79558822'
   },
   {
     tenantId: 'BRANCH_JB_MEDICAL',
@@ -36,7 +42,9 @@ export const SUPPORTED_BRANCH_TENANTS: ClinicBranchTenant[] = [
     stateLocation: 'JOHOR',
     licenseMohNumber: 'MOH-KKM-JHB-33019',
     isHeadquarters: false,
-    activeStatus: 'OPERATIONAL'
+    activeStatus: 'OPERATIONAL',
+    address: 'No. 88 Jalan Wong Ah Fook, 80000 Johor Bahru, Johor',
+    phone: '07-2249911'
   },
   {
     tenantId: 'BRANCH_PENANG_CARE',
@@ -44,7 +52,9 @@ export const SUPPORTED_BRANCH_TENANTS: ClinicBranchTenant[] = [
     stateLocation: 'PENANG',
     licenseMohNumber: 'MOH-KKM-PNG-11092',
     isHeadquarters: false,
-    activeStatus: 'OPERATIONAL'
+    activeStatus: 'OPERATIONAL',
+    address: '102 Macalister Road, 10400 George Town, Penang',
+    phone: '04-2283344'
   }
 ];
 
