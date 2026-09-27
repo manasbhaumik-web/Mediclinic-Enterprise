@@ -44,6 +44,7 @@ export default function DoctorDashboardModule({
   const [calledTimestampMap, setCalledTimestampMap] = useState<Record<string, string>>({});
   const [lastSyncedText, setLastSyncedText] = useState<string>('Just now');
   const [isRefreshingQueue, setIsRefreshingQueue] = useState<boolean>(false);
+  const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number } | null>(null);
 
   const toggleDetails = (visitId: string) => {
     setExpandedDetails(prev => ({ ...prev, [visitId]: !prev[visitId] }));
@@ -55,6 +56,22 @@ export default function DoctorDashboardModule({
       setIsRefreshingQueue(false);
       setLastSyncedText('Just now');
     }, 600);
+  };
+
+  const requestCallPatient = (visitId: string, patientName: string, position: number) => {
+    setPendingCallVisit({ visitId, patientName, position });
+  };
+
+  const confirmCallPatient = () => {
+    if (!pendingCallVisit) return;
+    const { visitId, patientName } = pendingCallVisit;
+    const timeStr = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+    setCalledVisitId(visitId);
+    setCalledTimestampMap(prev => ({ ...prev, [visitId]: `${timeStr} by ${doctorName}` }));
+    setActiveConsultationVisitId(visitId);
+    setCallAnnouncementToast(`📢 Patient Called: ${patientName} → Consultation Room 1 (${timeStr})`);
+    setPendingCallVisit(null);
+    setTimeout(() => setCallAnnouncementToast(null), 4500);
   };
 
   const getChiefComplaintLabel = (subjective?: string) => {
@@ -73,6 +90,28 @@ export default function DoctorDashboardModule({
     
     if (text.length > 36) return text.substring(0, 33) + '...';
     return text;
+  };
+
+  const getRankingRationale = (pt?: Patient, visit?: Visit, rankIndex: number = 0, activeRule: string = 'urgency') => {
+    if (!pt || !visit) return '';
+    const allergies = pt.drugAllergies?.length || 0;
+    const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
+    const temp = visit.soap?.objective?.temperature || 0;
+
+    if (activeRule === 'urgency') {
+      const reasons: string[] = [];
+      if (allergies > 0) reasons.push(`Drug Allergy (${pt.drugAllergies.join(', ')})`);
+      if (temp >= 38.0) reasons.push(`Fever (${temp}°C)`);
+      if (waitMins >= 20) reasons.push(`SLA Risk (${waitMins}m wait)`);
+      else if (waitMins > 0) reasons.push(`${waitMins}m wait`);
+
+      if (reasons.length === 0) reasons.push('Standard Outpatient Triage');
+      return `Why Rank #${rankIndex + 1}: ${reasons.join(' + ')}`;
+    } else if (activeRule === 'wait') {
+      return `Why Rank #${rankIndex + 1}: Longest wait priority (${waitMins}m wait)`;
+    } else {
+      return `Why Rank #${rankIndex + 1}: Registration arrival order (${visit.date || 'Today'})`;
+    }
   };
 
   const getTriageDetails = (pt?: Patient, visit?: Visit) => {
@@ -248,13 +287,61 @@ export default function DoctorDashboardModule({
         </div>
       )}
 
+      {/* Healthcare Safety Call Confirmation Modal */}
+      {pendingCallVisit && (
+        <div className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#07252d] border-2 border-[#0d9488] max-w-md w-full p-5 rounded-none shadow-2xl space-y-4 text-[#0f3c4c] dark:text-white">
+            <div className="flex items-center gap-3 border-b border-[#99f6e4] dark:border-teal-800/60 pb-3">
+              <div className="w-9 h-9 bg-teal-50 dark:bg-teal-950 text-[#0d9488] dark:text-[#2dd4bf] border border-[#99f6e4] flex items-center justify-center shrink-0 font-bold text-base">
+                📢
+              </div>
+              <div>
+                <h3 className="text-base font-black">Confirm Patient Call</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Healthcare Safety Verification</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <p className="text-slate-700 dark:text-slate-200 leading-relaxed font-sans">
+                Broadcast public PA announcement and call <strong className="text-[#0f3c4c] dark:text-[#5eead4] font-black text-sm">{pendingCallVisit.patientName}</strong> (Queue Rank <span className="font-mono font-bold text-[#0d9488]">#{pendingCallVisit.position}</span>) to Consultation Room 1 now?
+              </p>
+
+              {pendingCallVisit.position > 1 && (
+                <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-[11px] font-medium flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span>Out-of-turn call notice: Patient is currently ranked #{pendingCallVisit.position} in line.</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setPendingCallVisit(null)}
+                className="px-4 py-2 rounded-none text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmCallPatient}
+                className="px-5 py-2 rounded-none text-xs font-black bg-[#0d9488] hover:bg-[#0f766e] text-white cursor-pointer shadow-md flex items-center gap-1.5"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+                <span>Call patient now</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* 1. SEPARATE PAGE: DEDICATED PATIENT WAITING QUEUE PAGE                   */}
       {/* ========================================================================= */}
       {internalTab === 'queue' && (
-        <div className="animate-fadeIn w-full space-y-6 pb-8">
+        <div className="animate-fadeIn w-full space-y-4 pb-8">
           
-          {/* 1. SINGLE INTEGRATED HORIZONTAL CLINICAL COMMAND BAR */}
+          {/* 1. SINGLE INTEGRATED HORIZONTAL CLINICAL COMMAND BAR & DOMINANT OPERATIONAL ALERT */}
           {(() => {
             const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
             const highPriorityCount = doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length;
@@ -264,70 +351,89 @@ export default function DoctorDashboardModule({
             }, 0);
 
             return (
-              <div className="bg-[#e6f4f1] dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-                {/* Left: Section Title & Live Telemetry Badge */}
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="p-2 bg-teal-50 dark:bg-teal-950/60 border border-[#99f6e4] dark:border-teal-800 text-[#0d9488] dark:text-[#2dd4bf]">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div>
+              <div className="space-y-2">
+                {/* Dominant Operational Alert Strip if Breaches or High Acuity Patients Exist */}
+                {(overSlaCount > 0 || highPriorityCount > 0) && (
+                  <div className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 px-3.5 py-2 rounded-none flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs font-medium shadow-2xs">
                     <div className="flex items-center gap-2">
-                      <h1 className="text-base font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">
-                        Doctor Consultation Queue
-                      </h1>
-                      <span className="inline-flex items-center gap-1 text-[10px] text-[#0d9488] dark:text-[#2dd4bf] bg-white/80 dark:bg-[#061f26] px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                        Live
+                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>
+                        <strong>Operational Alert:</strong> {overSlaCount > 0 ? `${overSlaCount} patient(s) exceeding SLA wait time (>20m)` : ''}
+                        {overSlaCount > 0 && highPriorityCount > 0 ? ' & ' : ''}
+                        {highPriorityCount > 0 ? `${highPriorityCount} high acuity/allergy patient(s) requiring immediate attention` : ''}.
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                      Triaged outpatient waiting list telemetry
-                    </p>
+                    <span className="text-[10px] font-mono uppercase bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 px-2 py-0.5 font-bold shrink-0">
+                      Action Required
+                    </span>
                   </div>
-                </div>
+                )}
 
-                {/* Center/Right: 4 Telemetry Stat Badges Bar */}
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
-                    {/* Stat 1: Waiting */}
-                    <div className="bg-white dark:bg-[#061f26] text-[#0f3c4c] dark:text-[#5eead4] px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-[#0d9488] flex items-center gap-2 shadow-2xs">
-                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Waiting:</span>
-                      <strong className="font-black text-sm text-[#0d9488] dark:text-[#2dd4bf]">{doctorQueue.length}</strong>
-                      <span className="text-[9px] bg-teal-50 dark:bg-teal-950 text-[#0d9488] dark:text-teal-300 px-1 py-0.2 rounded-none font-sans font-bold border border-teal-200 dark:border-teal-800">Active</span>
+                <div className="bg-[#e6f4f1] dark:bg-[#082830] text-[#0f3c4c] dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-[#99f6e4] dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                  {/* Left: Section Title & Live Telemetry Badge */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="p-2 bg-teal-50 dark:bg-teal-950/60 border border-[#99f6e4] dark:border-teal-800 text-[#0d9488] dark:text-[#2dd4bf]">
+                      <Users className="w-5 h-5" />
                     </div>
-
-                    {/* Stat 2: High Priority */}
-                    <div className="bg-white dark:bg-[#061f26] text-rose-700 dark:text-rose-300 px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-rose-600 flex items-center gap-2 shadow-2xs">
-                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Allergy/High:</span>
-                      <strong className="font-black text-sm text-rose-600 dark:text-rose-400">{highPriorityCount}</strong>
-                      <span className="text-[9px] bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 px-1 py-0.2 rounded-none font-sans font-bold border border-rose-200 dark:border-rose-800">Acuity</span>
-                    </div>
-
-                    {/* Stat 3: Over SLA */}
-                    <div className="bg-white dark:bg-[#061f26] text-amber-700 dark:text-amber-300 px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-amber-500 flex items-center gap-2 shadow-2xs">
-                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">&gt;20m SLA:</span>
-                      <strong className="font-black text-sm text-amber-600 dark:text-amber-400">{overSlaCount}</strong>
-                      <span className="text-[9px] bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 px-1 py-0.2 rounded-none font-sans font-bold border border-amber-200 dark:border-amber-800">Risk</span>
-                    </div>
-
-                    {/* Stat 4: Max Wait */}
-                    <div className="bg-white dark:bg-[#061f26] text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-4 border-l-sky-500 flex items-center gap-2 shadow-2xs">
-                      <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Max Wait:</span>
-                      <strong className="font-black text-sm text-[#0f3c4c] dark:text-[#5eead4]">{maxWaitMinutes}m</strong>
-                      <span className="text-[9px] bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1 py-0.2 rounded-none font-sans font-bold border border-sky-200 dark:border-sky-800">Peak</span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-base font-black tracking-tight text-[#0f3c4c] dark:text-[#5eead4]">
+                          Doctor Consultation Queue
+                        </h1>
+                        <span className="inline-flex items-center gap-1 text-[10px] text-[#0d9488] dark:text-[#2dd4bf] bg-white/80 dark:bg-[#061f26] px-2 py-0.5 rounded-none border border-[#99f6e4] dark:border-teal-800 font-mono font-bold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                          Live
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+                        Triaged outpatient waiting list telemetry
+                      </p>
                     </div>
                   </div>
 
-                  {/* Refresh Action Button */}
-                  <button
-                    type="button"
-                    onClick={handleManualQueueRefresh}
-                    disabled={isRefreshingQueue}
-                    className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 text-white ${isRefreshingQueue ? 'animate-spin' : ''}`} />
-                    <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh'}</span>
-                  </button>
+                  {/* Center/Right: 4 Telemetry Stat Badges Bar */}
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
+                      {/* Stat 1: Waiting */}
+                      <div className="bg-white dark:bg-[#061f26] text-[#0f3c4c] dark:text-[#5eead4] px-2.5 py-1.5 rounded-none border border-[#99f6e4] dark:border-teal-800 border-l-2 border-l-[#0d9488] flex items-center gap-2 shadow-2xs">
+                        <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Waiting:</span>
+                        <strong className="font-black text-sm text-[#0d9488] dark:text-[#2dd4bf]">{doctorQueue.length}</strong>
+                        <span className="text-[9px] bg-teal-50/70 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 px-1 py-0.2 rounded-none font-sans font-bold border border-teal-200 dark:border-teal-800/60">Active</span>
+                      </div>
+
+                      {/* Stat 2: High Priority */}
+                      <div className="bg-white dark:bg-[#061f26] text-rose-700 dark:text-rose-300 px-2.5 py-1.5 rounded-none border border-rose-200/80 dark:border-rose-900/40 border-l-2 border-l-rose-400 flex items-center gap-2 shadow-2xs">
+                        <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Allergy/High:</span>
+                        <strong className="font-black text-sm text-rose-600 dark:text-rose-400">{highPriorityCount}</strong>
+                        <span className="text-[9px] bg-rose-50/70 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 px-1 py-0.2 rounded-none font-sans font-bold border border-rose-200 dark:border-rose-800/60">Acuity</span>
+                      </div>
+
+                      {/* Stat 3: Over SLA */}
+                      <div className="bg-white dark:bg-[#061f26] text-amber-700 dark:text-amber-300 px-2.5 py-1.5 rounded-none border border-amber-200/80 dark:border-amber-900/40 border-l-2 border-l-amber-400 flex items-center gap-2 shadow-2xs">
+                        <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">&gt;20m SLA:</span>
+                        <strong className="font-black text-sm text-amber-600 dark:text-amber-400">{overSlaCount}</strong>
+                        <span className="text-[9px] bg-amber-50/70 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 px-1 py-0.2 rounded-none font-sans font-bold border border-amber-200 dark:border-amber-800/60">Risk</span>
+                      </div>
+
+                      {/* Stat 4: Max Wait */}
+                      <div className="bg-white dark:bg-[#061f26] text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-sky-200/80 dark:border-sky-900/40 border-l-2 border-l-sky-400 flex items-center gap-2 shadow-2xs">
+                        <span className="text-[10px] font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Max Wait:</span>
+                        <strong className="font-black text-sm text-[#0f3c4c] dark:text-[#5eead4]">{maxWaitMinutes}m</strong>
+                        <span className="text-[9px] bg-sky-50/70 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 px-1 py-0.2 rounded-none font-sans font-bold border border-sky-200 dark:border-sky-800/60">Peak</span>
+                      </div>
+                    </div>
+
+                    {/* Refresh Action Button */}
+                    <button
+                      type="button"
+                      onClick={handleManualQueueRefresh}
+                      disabled={isRefreshingQueue}
+                      className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 text-white ${isRefreshingQueue ? 'animate-spin' : ''}`} />
+                      <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -466,6 +572,12 @@ export default function DoctorDashboardModule({
                             <span className="text-xs font-mono text-teal-200 font-normal">ID: {nextPatient.id} · ({nextPatient.gender}, {nextPatient.dob})</span>
                           </h3>
 
+                          {/* Rationale Pill: Why Ranked #1 */}
+                          <div className="text-[11px] font-mono text-teal-200 flex items-center gap-1.5 bg-[#082830]/80 px-2.5 py-1 border border-[#0d9488]/40 w-fit">
+                            <span className="font-extrabold text-[#5eead4]">Rank Rationale:</span>
+                            <span>{getRankingRationale(nextPatient, nextVisit, 0, sortRule)}</span>
+                          </div>
+
                           <div className="flex flex-wrap items-center gap-3 text-xs text-teal-100 font-medium">
                             <span className="font-bold text-white bg-teal-900/60 px-2 py-0.5 border border-teal-500/40">
                               Complaint: {getChiefComplaintLabel(nextVisit.soap?.subjective)}
@@ -525,7 +637,7 @@ export default function DoctorDashboardModule({
                           ) : (
                             <button
                               type="button"
-                              onClick={() => handleCallPatient(nextVisit.id, nextPatient.fullName)}
+                              onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
                               className="px-6 py-2.5 rounded-none text-xs font-black bg-[#0d9488] hover:bg-teal-600 text-white shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5eead4] focus-visible:outline-none"
                             >
                               <Volume2 className="w-4 h-4 text-white" />
@@ -617,6 +729,12 @@ export default function DoctorDashboardModule({
                                       {/* Allergy Badge */}
                                       {renderAllergyBadge(pt.drugAllergies)}
                                     </div>
+
+                                    {/* Explainable Rank Rationale Pill */}
+                                    <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-0.5 flex items-center gap-1">
+                                      <span className="font-bold text-[#0d9488] dark:text-[#2dd4bf]">Rationale:</span>
+                                      <span className="truncate">{getRankingRationale(pt, visit, index + 1, sortRule)}</span>
+                                    </div>
                                   </div>
                                 </div>
 
@@ -648,11 +766,11 @@ export default function DoctorDashboardModule({
                                   ) : (
                                     <button
                                       type="button"
-                                      onClick={() => handleCallPatient(visit.id, pt.fullName)}
+                                      onClick={() => requestCallPatient(visit.id, pt.fullName, queuePosition)}
                                       className="px-3 py-1.5 rounded-none text-xs font-bold bg-[#d5f0eb] hover:bg-[#0d9488] text-[#0f3c4c] hover:text-white dark:bg-[#09333e] dark:hover:bg-[#0d9488] dark:text-[#5eead4] border border-[#99f6e4] dark:border-teal-800 transition-all cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-[#0d9488] focus-visible:outline-none"
                                     >
                                       <Volume2 className="w-3 h-3" />
-                                      <span>Call</span>
+                                      <span>Call patient</span>
                                     </button>
                                   )}
                                   <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90 text-[#0d9488]' : ''}`} />
