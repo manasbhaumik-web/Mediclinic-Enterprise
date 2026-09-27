@@ -64,23 +64,23 @@ span.bg-amber-500,
 
 @layer utilities {
   .ice-mint-header {
-    @apply bg-white/95 dark:bg-[#07252d] backdrop-blur-md border-b border-teal-100 dark:border-teal-800 shadow-xs text-[#0f3c4c];
+    @apply bg-[#e0f5f2]/95 backdrop-blur-md border-b border-[#99f6e4] shadow-xs text-[#0f3c4c];
   }
 
   .ice-mint-card {
-    @apply bg-white dark:bg-[#082830] border border-slate-200 dark:border-teal-800 shadow-xs rounded-none overflow-hidden transition-colors duration-200;
+    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none overflow-hidden transition-colors duration-200;
   }
 
   .ice-mint-card-interactive {
-    @apply bg-white dark:bg-[#082830] border border-slate-200 dark:border-teal-800 shadow-xs rounded-none transition-all duration-200 hover:bg-teal-50/40 hover:border-[#0d9488] hover:shadow-sm;
+    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none transition-all duration-200 hover:bg-[#e0f5f2] hover:border-[#5eead4] hover:shadow-sm;
   }
 
   .ice-mint-panel {
-    @apply bg-white dark:bg-[#082830] border border-slate-200 dark:border-teal-800 shadow-sm rounded-none;
+    @apply bg-[#e0f5f2] border border-[#99f6e4] shadow-sm rounded-none;
   }
 
   .mint-badge {
-    @apply bg-teal-50 dark:bg-[#09333e] text-[#0d9488] dark:text-[#5eead4] border border-teal-200 dark:border-teal-800 px-2.5 py-1 rounded-none font-bold text-[10px];
+    @apply bg-[#d5f0eb] text-[#0d9488] border border-[#99f6e4] px-2.5 py-1 rounded-none font-bold text-[10px];
   }
 
   /* Navigation & Switcher Hover / Active Design System */
@@ -97,11 +97,11 @@ span.bg-amber-500,
   }
 
   .changer-container {
-    @apply inline-flex items-stretch bg-white dark:bg-[#07252d] border border-slate-200 dark:border-teal-800/60 rounded-none font-mono p-0 overflow-hidden h-8;
+    @apply inline-flex items-stretch bg-[#d5f0eb] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800/60 rounded-none font-mono p-0 overflow-hidden h-8;
   }
 
   .changer-btn {
-    @apply px-3.5 py-0 text-[11px] font-bold cursor-pointer rounded-none relative outline-none flex items-center justify-center transition-all h-full border-r border-slate-200 dark:border-teal-800/60 last:border-r-0;
+    @apply px-3.5 py-0 text-[11px] font-bold cursor-pointer rounded-none relative outline-none flex items-center justify-center transition-all h-full border-r border-[#99f6e4] dark:border-teal-800/60 last:border-r-0;
   }
 
   .changer-btn-active {
@@ -109,7 +109,7 @@ span.bg-amber-500,
   }
 
   .changer-btn-inactive {
-    @apply text-[#0f3c4c] dark:text-teal-100 hover:text-[#0d9488] hover:bg-teal-50/80 dark:hover:bg-[#086b68] h-full;
+    @apply text-[#0f3c4c] dark:text-teal-100 hover:text-[#0f3c4c] hover:bg-[#e0f5f2] dark:hover:bg-[#086b68] h-full;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -138,6 +138,57 @@ span.bg-amber-500,
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* ========================================================================= */
+  /* STANDARDIZED ENTERPRISE GRID & TABLE DESIGN SYSTEM                       */
+  /* ========================================================================= */
+  .enterprise-table-container {
+    @apply border border-[#99f6e4] dark:border-teal-800/60 overflow-hidden rounded-none bg-white dark:bg-[#082830] shadow-2xs;
+  }
+
+  .enterprise-table {
+    @apply w-full text-left border-collapse text-xs font-sans;
+  }
+
+  .enterprise-thead {
+    @apply bg-[#e0f5f2] dark:bg-[#07252d] text-[#0f3c4c] dark:text-[#5eead4] font-extrabold uppercase tracking-wider border-b border-[#99f6e4] dark:border-teal-800/60 text-[11px];
+  }
+
+  .enterprise-th {
+    @apply p-3 font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider text-[11px] border-b border-[#99f6e4] dark:border-teal-800/60;
+  }
+
+  .enterprise-tr {
+    @apply border-b border-[#e0f5f2]/80 dark:border-teal-900/30 hover:bg-[#e0f5f2]/40 dark:hover:bg-[#0e4857] transition-colors;
+  }
+
+  .enterprise-td {
+    @apply p-3 text-xs text-[#0f3c4c] dark:text-slate-200 align-middle;
+  }
+
+  .enterprise-id {
+    @apply font-mono font-bold text-[#0d9488] dark:text-[#2dd4bf] text-xs;
+  }
+
+  .enterprise-badge-panel {
+    @apply bg-[#d5f0eb] dark:bg-teal-900/40 text-[#0d9488] dark:text-teal-300 border border-[#99f6e4] dark:border-teal-700/60 font-mono text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+  }
+
+  .enterprise-badge-allergy {
+    @apply bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 font-mono text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+  }
+
+  .enterprise-badge-status {
+    @apply bg-[#e0f5f2] dark:bg-teal-950 text-[#0f3c4c] dark:text-teal-200 border border-[#99f6e4] dark:border-teal-800/50 font-mono text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+  }
+
+  .enterprise-btn-action {
+    @apply bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs px-3.5 py-1.5 rounded-none flex items-center justify-center gap-1.5 cursor-pointer border border-[#0d9488] transition-all shadow-2xs active:scale-[0.98];
+  }
+
+  .enterprise-btn-secondary {
+    @apply bg-[#e0f5f2] hover:bg-[#d5f0eb] dark:bg-[#0e4857] dark:hover:bg-[#12596b] text-[#0f3c4c] dark:text-[#5eead4] border border-[#99f6e4] dark:border-teal-700/60 font-extrabold text-xs px-3.5 py-1.5 rounded-none flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-2xs;
   }
 }
 

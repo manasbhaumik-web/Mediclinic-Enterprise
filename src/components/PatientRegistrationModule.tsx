@@ -788,55 +788,51 @@ export default function PatientRegistrationModule({
             </div>
             
             {/* Scannable Patient Table */}
-            <div className="overflow-x-auto border border-[#ccfbf1] dark:border-teal-800/40 rounded-none font-sans">
-              <table className="w-full text-xs text-left font-sans">
-                <thead className="bg-[#e0f5f2]/90 dark:bg-[#07252d] border-b border-[#ccfbf1] dark:border-teal-800/40 font-sans">
-                  <tr className="text-[#0f766e] dark:text-[#5eead4] font-sans text-xs uppercase tracking-wider font-extrabold">
-                    <th className="px-4 py-3.5">ID</th>
-                    <th className="px-4 py-3.5">Patient Name</th>
-                    <th className="px-4 py-3.5">IC / Passport Number</th>
-                    <th className="px-4 py-3.5">Panel Sponsor</th>
-                    <th className="px-4 py-3.5">Drug Allergies</th>
-                    <th className="px-4 py-3.5 text-right">Date Registered</th>
-                    <th className="px-4 py-3.5 text-center">Action</th>
+            <div className="enterprise-table-container">
+              <table className="enterprise-table">
+                <thead className="enterprise-thead">
+                  <tr>
+                    <th className="enterprise-th">ID</th>
+                    <th className="enterprise-th">Patient Name</th>
+                    <th className="enterprise-th">IC / Passport Number</th>
+                    <th className="enterprise-th">Panel Sponsor</th>
+                    <th className="enterprise-th">Drug Allergies</th>
+                    <th className="enterprise-th text-right">Date Registered</th>
+                    <th className="enterprise-th text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ccfbf1]/50 dark:divide-teal-800/30 bg-[#f7fdfd] dark:bg-[#07252d] font-sans">
+                <tbody>
                   {registryResults.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-4 py-12 text-center text-[#0f766e] dark:text-teal-400 font-sans font-medium">
+                    <tr className="enterprise-tr">
+                      <td colSpan={7} className="enterprise-td text-center text-[#0f766e] dark:text-teal-400 font-medium py-12">
                         No patient records found matching your search term.
                       </td>
                     </tr>
                   ) : (
                     registryResults.map(p => (
-                      <tr key={p.id} className="hover:bg-[#e0f5f2]/40 dark:hover:bg-[#0d3b47]/40 transition-colors">
-                        <td className="px-4 py-3.5 font-mono text-[#0f766e] dark:text-teal-300 text-xs font-bold">
+                      <tr key={p.id} className="enterprise-tr">
+                        <td className="enterprise-td enterprise-id">
                           {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
                         </td>
-                        <td className="px-4 py-3.5">
-                          <span className="font-bold text-xs capitalize text-[#0f3c4c] dark:text-[#5eead4] block font-sans">
+                        <td className="enterprise-td">
+                          <span className="font-bold text-xs capitalize text-[#0f3c4c] dark:text-[#5eead4] block">
                             {p.fullName.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 font-mono text-xs text-[#0f766e] dark:text-teal-300">
+                        <td className="enterprise-td font-mono text-xs text-[#0f766e] dark:text-teal-300">
                           {maskICNumber(p.icNumber, showPII)}
                         </td>
-                        <td className="px-4 py-3.5">
-                          <span className={`inline-block px-2.5 py-1 rounded-none text-[10px] font-sans font-bold uppercase tracking-wide border ${
-                            p.panelEmployer === 'None (Self-Pay)' 
-                              ? 'bg-slate-100 dark:bg-[#082830] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-teal-900' 
-                              : 'bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border-[#0d9488]/20 dark:border-teal-700/50'
-                          }`}>
+                        <td className="enterprise-td">
+                          <span className={p.panelEmployer === 'None (Self-Pay)' ? 'enterprise-badge-status' : 'enterprise-badge-panel'}>
                             {p.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : p.panelEmployer}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5">
+                        <td className="enterprise-td">
                           {p.drugAllergies.length === 0
-                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">No known allergies</span>
+                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic">No known allergies</span>
                             : <div className="flex flex-wrap gap-1.5">
                                 {p.drugAllergies.map((a, i) => (
-                                  <span key={i} className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-[11px] font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
+                                  <span key={i} className="enterprise-badge-allergy">
                                     <ShieldAlert className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />
                                     <span>Allergy: {a}</span>
                                   </span>
@@ -844,13 +840,13 @@ export default function PatientRegistrationModule({
                               </div>
                           }
                         </td>
-                        <td className="px-4 py-3.5 text-[#0f766e] dark:text-teal-300 font-mono text-xs text-right">
+                        <td className="enterprise-td font-mono text-xs text-[#0f766e] dark:text-teal-300 text-right">
                           {p.registeredDate}
                         </td>
-                        <td className="px-4 py-3.5 text-center">
+                        <td className="enterprise-td text-center">
                           <button
                             onClick={() => handleCreateTicket(p)}
-                            className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1.5"
+                            className="enterprise-btn-action inline-flex"
                             title={`Start consultation visit for ${p.fullName}`}
                           >
                             <UserCheck className="w-3.5 h-3.5" /> Start Visit

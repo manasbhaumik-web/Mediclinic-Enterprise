@@ -413,41 +413,39 @@ export default function EquipmentManagementModule() {
           )}
 
           {activeTab === 'logs' && (
-            <div className="bg-[#e6f4f1] border border-[#99f6e4] rounded-none shadow-sm overflow-hidden animate-fadeIn">
-              <div className="bg-[#f7fdfd] px-5 py-3 border-b border-teal-100 flex justify-between items-center">
-                <h3 className="font-bold text-sm text-[#0f3c4c] flex items-center gap-2">
+            <div className="enterprise-table-container animate-fadeIn">
+              <div className="bg-[#e0f5f2] dark:bg-[#07252d] px-5 py-3 border-b border-[#99f6e4] dark:border-teal-800/60 flex justify-between items-center">
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-2">
                   <History className="w-4 h-4 text-[#0d9488]" />
-                  Equipment Audit & Disposal Logs
+                  Equipment Audit &amp; Disposal Logs
                 </h3>
               </div>
               {logs.length === 0 ? (
                 <div className="p-10 text-center text-slate-400">
-                  <History className="w-10 h-10 mx-auto mb-2 opacity-50 text-slate-300" />
-                  <p className="text-sm font-medium">No maintenance or disposal logs found.</p>
+                  <History className="w-10 h-10 mx-auto mb-2 opacity-50 text-[#0d9488]" />
+                  <p className="text-xs font-bold text-[#0f3c4c] dark:text-slate-300">No maintenance or disposal logs found.</p>
                 </div>
               ) : (
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#f7fdfd] text-[#0f3c4c] font-bold text-xs uppercase border-b border-teal-100">
+                <table className="enterprise-table">
+                  <thead className="enterprise-thead">
                     <tr>
-                      <th className="px-6 py-3">Date</th>
-                      <th className="px-6 py-3">Device Name</th>
-                      <th className="px-6 py-3">Action</th>
-                      <th className="px-6 py-3">Notes</th>
+                      <th className="enterprise-th">Date</th>
+                      <th className="enterprise-th">Device Name</th>
+                      <th className="enterprise-th">Action</th>
+                      <th className="enterprise-th">Notes</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody>
                     {logs.map(log => (
-                      <tr key={log.id} className="hover:bg-slate-50">
-                        <td className="px-6 py-3 font-mono text-xs text-slate-500">{log.date}</td>
-                        <td className="px-6 py-3 font-bold text-[#0f3c4c]">{log.equipmentName}</td>
-                        <td className="px-6 py-3">
-                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                            log.action === 'Decommissioned' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-teal-100 text-teal-800 border border-teal-200'
-                          }`}>
+                      <tr key={log.id} className="enterprise-tr">
+                        <td className="enterprise-td font-mono text-xs text-slate-500 dark:text-teal-300">{log.date}</td>
+                        <td className="enterprise-td font-bold text-[#0f3c4c] dark:text-white">{log.equipmentName}</td>
+                        <td className="enterprise-td">
+                          <span className={log.action === 'Decommissioned' ? 'enterprise-badge-allergy' : 'enterprise-badge-panel'}>
                             {log.action}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-slate-600 text-xs italic">{log.notes}</td>
+                        <td className="enterprise-td text-slate-600 dark:text-slate-300 text-xs italic">{log.notes}</td>
                       </tr>
                     ))}
                   </tbody>
