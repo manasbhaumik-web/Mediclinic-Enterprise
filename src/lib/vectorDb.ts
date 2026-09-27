@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { ICD10_CATALOG } from '../data';
+import { sanitizeClinicalTextForAI } from '../utils/piiMasker';
 
 export interface VectorMatch {
   id: string;
@@ -102,12 +103,15 @@ const LOCAL_VECTOR_INDEX = ICD10_CATALOG.map((item, idx) => ({
 
 /**
  * Searches the Vector Database for semantic matches against natural language queries / symptoms.
+ * Sanitizes input through Zero-Trust PII guardrails prior to embedding generation.
  * Attempts Supabase pgvector RPC first, falling back smoothly to in-memory vector index.
  */
 export async function searchVectorDatabase(query: string, matchCount: number = 5): Promise<VectorMatch[]> {
   if (!query.trim()) return [];
 
-  const queryEmbedding = generateMedicalEmbedding(query);
+  // Zero-Trust Guardrail: Sanitize and strip PII before vector embedding generation
+  const { sanitizedText } = sanitizeClinicalTextForAI(query);
+  const queryEmbedding = generateMedicalEmbedding(sanitizedText);
 
   try {
     // Attempt Supabase pgvector RPC search
