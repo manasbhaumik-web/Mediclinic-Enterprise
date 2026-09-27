@@ -333,36 +333,7 @@ export default function DoctorDashboardModule({
             );
           })()}
 
-          {/* 3. SORTING CONTROLS & FILTER BAR */}
-          <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 p-4 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[#0f3c4c] dark:text-slate-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Sort Queue By:
-              </span>
-              <div className="changer-container">
-                {(['urgency', 'wait', 'arrival'] as const).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setSortRule(r)}
-                    className={`changer-btn ${
-                      sortRule === r
-                        ? 'changer-btn-active'
-                        : 'changer-btn-inactive'
-                    }`}
-                  >
-                    {r === 'urgency' ? 'Clinical Urgency & Allergies' : r === 'wait' ? 'Longest Wait' : 'Arrival Order'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 font-mono text-[11px] text-slate-600 dark:text-slate-300">
-              <span>Active Rule: <strong className="text-[#0d9488] dark:text-[#2dd4bf] font-extrabold">{sortRule === 'urgency' ? 'High-acuity & allergies first' : sortRule === 'wait' ? 'Descending wait time' : 'Registration order'}</strong></span>
-            </div>
-          </div>
-
-          {/* 4. PATIENT QUEUE LIST RENDERING */}
+          {/* 2. PATIENT QUEUE LIST RENDERING */}
           {(() => {
             const sortQueue = (queue: Visit[]) => {
               const list = [...queue];
@@ -407,6 +378,35 @@ export default function DoctorDashboardModule({
 
             return (
               <div className="space-y-4">
+                {/* SORTING CONTROLS & FILTER BAR (JUST TOP OF PATIENT QUEUE LIST) */}
+                <div className="bg-[#e6f4f1] dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 p-3.5 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[#0f3c4c] dark:text-slate-200 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1">
+                      <Filter className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" /> Sort Queue By:
+                    </span>
+                    <div className="changer-container">
+                      {(['urgency', 'wait', 'arrival'] as const).map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => setSortRule(r)}
+                          className={`changer-btn ${
+                            sortRule === r
+                              ? 'changer-btn-active'
+                              : 'changer-btn-inactive'
+                          }`}
+                        >
+                          {r === 'urgency' ? 'Clinical Urgency & Allergies' : r === 'wait' ? 'Longest Wait' : 'Arrival Order'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 font-mono text-[11px] text-slate-600 dark:text-slate-300">
+                    <span>Active Rule: <strong className="text-[#0d9488] dark:text-[#2dd4bf] font-extrabold">{sortRule === 'urgency' ? 'High-acuity & allergies first' : sortRule === 'wait' ? 'Descending wait time' : 'Registration order'}</strong></span>
+                  </div>
+                </div>
+
                 {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY) */}
                 {nextPatient && (
                   <div className={`bg-[#0f3c4c] text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-[#0d9488]/40 shadow-md relative overflow-hidden space-y-3`}>
