@@ -64,23 +64,23 @@ span.bg-amber-500,
 
 @layer utilities {
   .ice-mint-header {
-    @apply bg-[#e0f5f2]/95 backdrop-blur-md border-b border-[#99f6e4] shadow-xs text-[#0f3c4c];
+    @apply bg-white/95 dark:bg-[#07252d] backdrop-blur-md border-b border-teal-100 dark:border-teal-800 shadow-xs text-[#0f3c4c];
   }
 
   .ice-mint-card {
-    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none overflow-hidden transition-colors duration-200;
+    @apply bg-white dark:bg-[#082830] border border-slate-200 dark:border-teal-800 shadow-xs rounded-none overflow-hidden transition-colors duration-200;
   }
 
   .ice-mint-card-interactive {
-    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none transition-all duration-200 hover:bg-[#e0f5f2] hover:border-[#5eead4] hover:shadow-sm;
+    @apply bg-white dark:bg-[#082830] border border-slate-200 dark:border-teal-800 shadow-xs rounded-none transition-all duration-200 hover:bg-teal-50/40 hover:border-[#0d9488] hover:shadow-sm;
   }
 
   .ice-mint-panel {
-    @apply bg-[#e0f5f2] border border-[#99f6e4] shadow-sm rounded-none;
+    @apply bg-white dark:bg-[#082830] border border-slate-200 dark:border-teal-800 shadow-sm rounded-none;
   }
 
   .mint-badge {
-    @apply bg-[#d5f0eb] text-[#0d9488] border border-[#99f6e4] px-2.5 py-1 rounded-none font-bold text-[10px];
+    @apply bg-teal-50 dark:bg-[#09333e] text-[#0d9488] dark:text-[#5eead4] border border-teal-200 dark:border-teal-800 px-2.5 py-1 rounded-none font-bold text-[10px];
   }
 
   /* Navigation & Switcher Hover / Active Design System */
@@ -97,11 +97,11 @@ span.bg-amber-500,
   }
 
   .changer-container {
-    @apply inline-flex items-stretch bg-[#d5f0eb] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800/60 rounded-none font-mono p-0 overflow-hidden h-8;
+    @apply inline-flex items-stretch bg-white dark:bg-[#07252d] border border-slate-200 dark:border-teal-800/60 rounded-none font-mono p-0 overflow-hidden h-8;
   }
 
   .changer-btn {
-    @apply px-3.5 py-0 text-[11px] font-bold cursor-pointer rounded-none relative outline-none flex items-center justify-center transition-all h-full border-r border-[#99f6e4] dark:border-teal-800/60 last:border-r-0;
+    @apply px-3.5 py-0 text-[11px] font-bold cursor-pointer rounded-none relative outline-none flex items-center justify-center transition-all h-full border-r border-slate-200 dark:border-teal-800/60 last:border-r-0;
   }
 
   .changer-btn-active {
@@ -109,7 +109,7 @@ span.bg-amber-500,
   }
 
   .changer-btn-inactive {
-    @apply text-[#0f3c4c] dark:text-teal-100 hover:text-[#0f3c4c] hover:bg-[#e0f5f2] dark:hover:bg-[#086b68] h-full;
+    @apply text-[#0f3c4c] dark:text-teal-100 hover:text-[#0d9488] hover:bg-teal-50/80 dark:hover:bg-[#086b68] h-full;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
