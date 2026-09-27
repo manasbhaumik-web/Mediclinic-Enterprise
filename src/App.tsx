@@ -44,7 +44,7 @@ export default function App() {
 
   const handleLogin = async (role: UserRole) => {
     await signIn(role);
-    if (role === 'admin' || role === 'hr') {
+    if (role === 'admin' || role === 'hr' || role === 'branch-admin') {
       setAppView('admin');
     } else {
       setAppView('suite');
@@ -269,7 +269,7 @@ export default function App() {
         setAppView('login');
         await signOut();
       }}
-      userRole={userRole as 'admin' | 'hr'}
+      userRole={userRole as UserRole}
       completedVisits={completedVisits}
       totalRegisteredCount={patientsList.length}
       activeLanguage={activeLanguage}

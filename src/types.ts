@@ -1,5 +1,5 @@
 export type Language = 'EN' | 'BM';
-export type UserRole = 'doctor' | 'pharmacist' | 'clinic-assistant' | 'admin' | 'hr';
+export type UserRole = 'doctor' | 'pharmacist' | 'clinic-assistant' | 'admin' | 'hr' | 'branch-admin';
 
 export interface Patient {
   id: string;
@@ -13,6 +13,7 @@ export interface Patient {
   drugAllergies: string[];
   registeredDate: string;
   tenantId?: string;
+  branchId?: string;
 }
 
 export interface VitalSigns {
@@ -72,6 +73,7 @@ export interface Visit {
   mcIssued?: boolean;
   registeredTime?: number;
   tenantId?: string;
+  branchId?: string;
 }
 
 export interface ICD10Code {
@@ -99,4 +101,6 @@ export interface Appointment {
   doctorId?: string;
   notes?: string;
   createdAt: string;
+  tenantId?: string;
+  branchId?: string;
 }

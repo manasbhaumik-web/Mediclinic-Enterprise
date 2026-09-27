@@ -18,12 +18,12 @@ import SecurityHub from './SecurityHub';
 import RevenueCycleHub from './RevenueCycleHub';
 import SystemArchitectureHub from './SystemArchitectureHub';
 import { useSettings } from '../context/SettingsContext';
-import { Visit, Language } from '../types';
+import { Visit, Language, UserRole } from '../types';
 import BranchSwitcher from './BranchSwitcher';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
-  userRole: 'admin' | 'hr';
+  userRole: UserRole;
   completedVisits?: Visit[];
   totalRegisteredCount?: number;
   activeLanguage?: Language;
@@ -62,7 +62,11 @@ export default function AdminModule({
     return () => clearInterval(interval);
   }, []);
 
-  const adminName = userRole === 'admin' ? 'System Administrator' : 'HR Executive';
+  const adminName = userRole === 'admin' 
+    ? 'System Administrator (HQ)' 
+    : userRole === 'branch-admin' 
+    ? 'Branch Administrator' 
+    : 'HR Executive';
 
   // Navigation module definition with categories
   const modules = [
@@ -96,7 +100,10 @@ export default function AdminModule({
 
   const filteredModules = modules.filter(m => {
     if (!m.enabled) return false;
-    if (m.roleReq === 'admin' && userRole !== 'admin') return false;
+    if (userRole === 'hr') {
+      return m.id === 'staff';
+    }
+    if (m.roleReq === 'admin' && userRole !== 'admin' && userRole !== 'branch-admin') return false;
     return true;
   });
 

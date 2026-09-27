@@ -43,11 +43,19 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
     },
     {
       id: 'admin' as UserRole,
-      title: 'Admin',
-      name: 'System Admin',
-      detail: 'Full IT Control',
+      title: 'Admin (HQ)',
+      name: 'HQ Super Admin',
+      detail: 'Full IT & Compliance',
       icon: ShieldCheck,
       username: 'sysadmin'
+    },
+    {
+      id: 'branch-admin' as UserRole,
+      title: 'Branch Admin',
+      name: 'Farid Ismail (PJ)',
+      detail: 'Branch Operations Only',
+      icon: Building2,
+      username: 'branch_admin_pj'
     },
     {
       id: 'hr' as UserRole,
@@ -174,7 +182,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
             </div>
 
             {/* Persona Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
               {personas.map((p) => {
                 const IconComponent = p.icon;
                 const isSelected = role === p.id;

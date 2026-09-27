@@ -59,6 +59,15 @@ const ROLE_PERMISSIONS: Record<UserRole, Set<ClinicalPermission>> = {
     'VIEW_FINANCIAL_REPORTS',
     'MANAGE_STAFF_ACCOUNTS',
   ]),
+  'branch-admin': new Set([
+    'VIEW_FULL_NRIC',
+    'COLLECT_PAYMENT',
+    'APPLY_BILLING_DISCOUNT',
+    'VIEW_FINANCIAL_REPORTS',
+    'MANAGE_INVENTORY_STOCK',
+    'MANAGE_STAFF_ACCOUNTS',
+    'CONFIGURE_SYSTEM_SETTINGS',
+  ]),
 };
 
 export class RBACPermissionEngine {
