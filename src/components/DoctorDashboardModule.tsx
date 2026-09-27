@@ -604,15 +604,15 @@ export default function DoctorDashboardModule({
                       </div>
                     </div>
 
-                    {/* Acuity & SLA Quick Filter Chips */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Acuity & SLA Quick Filter Chips Container */}
+                    <div className="inline-flex items-stretch bg-white dark:bg-[#082830] border border-[#99f6e4] dark:border-teal-800 rounded-none p-0 overflow-hidden h-8">
                       <button
                         type="button"
                         onClick={() => { setAcuityFilter('all'); setQueuePage(1); }}
-                        className={`px-2.5 py-1 text-[11px] font-bold rounded-none border transition-all cursor-pointer ${
+                        className={`px-3 py-0 text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center border-r border-[#99f6e4] dark:border-teal-800 h-full ${
                           acuityFilter === 'all'
-                            ? 'bg-[#0f3c4c] text-white border-[#0f3c4c]'
-                            : 'bg-white/80 dark:bg-[#082830] text-slate-700 dark:text-slate-200 border-[#99f6e4] dark:border-teal-800 hover:bg-[#e0f5f2]'
+                            ? 'bg-[#0d9488] text-white font-black'
+                            : 'text-[#0f3c4c] dark:text-slate-200 hover:bg-[#e0f5f2] dark:hover:bg-[#0e4857]'
                         }`}
                       >
                         All ({doctorQueue.length})
@@ -621,10 +621,10 @@ export default function DoctorDashboardModule({
                       <button
                         type="button"
                         onClick={() => { setAcuityFilter('high'); setQueuePage(1); }}
-                        className={`px-2.5 py-1 text-[11px] font-bold rounded-none border transition-all cursor-pointer flex items-center gap-1 ${
+                        className={`px-3 py-0 text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1 border-r border-[#99f6e4] dark:border-teal-800 h-full ${
                           acuityFilter === 'high'
-                            ? 'bg-rose-600 text-white border-rose-600'
-                            : 'bg-rose-50/80 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60 hover:bg-rose-100'
+                            ? 'bg-rose-600 text-white font-black'
+                            : 'text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40'
                         }`}
                       >
                         <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
@@ -634,10 +634,10 @@ export default function DoctorDashboardModule({
                       <button
                         type="button"
                         onClick={() => { setAcuityFilter('sla'); setQueuePage(1); }}
-                        className={`px-2.5 py-1 text-[11px] font-bold rounded-none border transition-all cursor-pointer flex items-center gap-1 ${
+                        className={`px-3 py-0 text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1 h-full ${
                           acuityFilter === 'sla'
-                            ? 'bg-amber-600 text-white border-amber-600'
-                            : 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60 hover:bg-amber-100'
+                            ? 'bg-amber-600 text-white font-black'
+                            : 'text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40'
                         }`}
                       >
                         <Clock className="w-3 h-3 text-amber-500 shrink-0" />

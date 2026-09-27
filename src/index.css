@@ -97,19 +97,19 @@ span.bg-amber-500,
   }
 
   .changer-container {
-    @apply inline-flex bg-[#065451] dark:bg-[#07252d] p-0.5 border border-[#086b68] dark:border-teal-800/60 rounded-none font-mono;
+    @apply inline-flex items-stretch bg-[#d5f0eb] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800/60 rounded-none font-mono p-0 overflow-hidden h-8;
   }
 
   .changer-btn {
-    @apply px-3 py-1 text-[11px] font-bold cursor-pointer rounded-none relative outline-none;
+    @apply px-3.5 py-0 text-[11px] font-bold cursor-pointer rounded-none relative outline-none flex items-center justify-center transition-all h-full border-r border-[#99f6e4] dark:border-teal-800/60 last:border-r-0;
   }
 
   .changer-btn-active {
-    @apply bg-[#0d9488] text-white font-black;
+    @apply bg-[#0d9488] text-white font-black h-full shadow-none;
   }
 
   .changer-btn-inactive {
-    @apply text-teal-100 hover:text-white hover:bg-[#086b68];
+    @apply text-[#0f3c4c] dark:text-teal-100 hover:text-[#0f3c4c] hover:bg-[#e0f5f2] dark:hover:bg-[#086b68] h-full;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
