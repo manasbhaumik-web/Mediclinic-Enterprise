@@ -530,19 +530,19 @@ export default function PlanTab({
                 <span>No medication items added. Search above to add items to prescription plan.</span>
               </div>
             ) : (
-              <div className="border border-[#b2f5ea] dark:border-teal-800/40 overflow-hidden rounded-none">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead className="bg-[#e0f5f2] dark:bg-[#07252d] text-[#0f3c4c] dark:text-[#5eead4] font-bold border-b border-[#b2f5ea] dark:border-teal-800/40">
+              <div className="enterprise-table-container">
+                <table className="enterprise-table">
+                  <thead className="enterprise-thead">
                     <tr>
-                      <th className="p-2">Medication</th>
-                      <th className="p-2">Dosage / Instructions</th>
-                      <th className="p-2">Frequency</th>
-                      <th className="p-2">Qty</th>
-                      <th className="p-2 text-right font-mono">Price</th>
-                      <th className="p-2 text-center">Action</th>
+                      <th className="enterprise-th">Medication</th>
+                      <th className="enterprise-th">Dosage / Instructions</th>
+                      <th className="enterprise-th">Frequency</th>
+                      <th className="enterprise-th">Qty</th>
+                      <th className="enterprise-th text-right font-mono">Price</th>
+                      <th className="enterprise-th text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-teal-800/30 bg-white dark:bg-[#082830]">
+                  <tbody className="divide-y divide-[#e0f5f2] dark:divide-teal-900/30 bg-white dark:bg-[#082830]">
                     {rxList.map((item) => (
                       <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-[#0c3844] transition-colors">
                         <td className="p-2 font-bold text-[#0f3c4c] dark:text-white">
