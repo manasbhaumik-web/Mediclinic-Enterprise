@@ -5,10 +5,18 @@
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-html, body {
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+html, body, button, input, select, textarea, p, span, div, td, th, table, code, pre, [class*="font-"] {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.font-mono, [class*="font-mono"], .enterprise-id {
+  font-variant-numeric: tabular-nums;
+}
+
+body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f7fdfd;
@@ -169,19 +177,20 @@ span.bg-amber-500,
   }
 
   .enterprise-id {
-    @apply font-mono font-bold text-[#0d9488] dark:text-[#2dd4bf] text-xs;
+    @apply font-bold text-[#0d9488] dark:text-[#2dd4bf] text-xs;
+    font-variant-numeric: tabular-nums;
   }
 
   .enterprise-badge-panel {
-    @apply bg-[#d5f0eb] dark:bg-teal-900/40 text-[#0d9488] dark:text-teal-300 border border-[#99f6e4] dark:border-teal-700/60 font-mono text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+    @apply bg-[#d5f0eb] dark:bg-teal-900/40 text-[#0d9488] dark:text-teal-300 border border-[#99f6e4] dark:border-teal-700/60 text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
   }
 
   .enterprise-badge-allergy {
-    @apply bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 font-mono text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+    @apply bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
   }
 
   .enterprise-badge-status {
-    @apply bg-[#e0f5f2] dark:bg-teal-950 text-[#0f3c4c] dark:text-teal-200 border border-[#99f6e4] dark:border-teal-800/50 font-mono text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+    @apply bg-[#e0f5f2] dark:bg-teal-950 text-[#0f3c4c] dark:text-teal-200 border border-[#99f6e4] dark:border-teal-800/50 text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
   }
 
   .enterprise-btn-action {
