@@ -51,7 +51,7 @@ export default function ClinicLandingPage({
     '/ai_hero_slide_1.jpg',
     '/ai_hero_slide_2.jpg',
     '/ai_hero_slide_3.jpg',
-    '/ai_hero_slide_4.jpg'
+    '/hero_banner.jpg'
   ];
 
   React.useEffect(() => {
