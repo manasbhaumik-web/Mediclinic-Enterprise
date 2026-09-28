@@ -282,14 +282,14 @@ export default function PatientRegistrationModule({
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-[#0d9488] text-white px-6 py-4 rounded-none shadow-2xl flex items-center gap-3 z-50 animate-slideUp font-sans text-xs border border-[#ccfbf1]">
-          <CheckCircle2 className="w-5 h-5 text-[#5eead4]" />
+        <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center gap-3 z-50 animate-slideUp font-sans text-xs border border-line-subtle">
+          <CheckCircle2 className="w-5 h-5 text-teal-300" />
           <span className="font-bold tracking-wide">{toastMessage}</span>
         </div>
       )}
 
       {/* Sub-Navigation Buttons Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 bg-[#f0fdfa] dark:bg-[#082830] p-2 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 shadow-xs" role="tablist" aria-label="Patient Registration Sub Navigation">
+      <div className="flex flex-wrap items-center gap-2 bg-surface-muted dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs" role="tablist" aria-label="Patient Registration Sub Navigation">
         <button
           role="tab"
           aria-selected={activeSubTab === 'queue'}
@@ -298,8 +298,8 @@ export default function PatientRegistrationModule({
           onClick={() => setActiveSubTab('queue')}
           className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'queue' 
-              ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs' 
-              : 'bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#ccfbf1] dark:border-teal-800/30 hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47]'
+              ? 'bg-primary text-white border-brand shadow-xs' 
+              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           Waiting Room Monitor
@@ -312,8 +312,8 @@ export default function PatientRegistrationModule({
           onClick={() => setActiveSubTab('form')}
           className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'form' 
-              ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs' 
-              : 'bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#ccfbf1] dark:border-teal-800/30 hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47]'
+              ? 'bg-primary text-white border-brand shadow-xs' 
+              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           Registration Form
@@ -326,8 +326,8 @@ export default function PatientRegistrationModule({
           onClick={() => setActiveSubTab('registry')}
           className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'registry' 
-              ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-xs' 
-              : 'bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#ccfbf1] dark:border-teal-800/30 hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47]'
+              ? 'bg-primary text-white border-brand shadow-xs' 
+              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           Patient Registry
@@ -336,34 +336,34 @@ export default function PatientRegistrationModule({
 
       {/* WAITING ROOM MONITOR */}
       {activeSubTab === 'queue' && (
-        <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs font-sans">
+        <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
           <div className="p-6">
-            <div className="flex justify-between items-center mb-6 border-b border-[#ccfbf1] dark:border-teal-800/40 pb-4">
+            <div className="flex justify-between items-center mb-6 border-b border-line-subtle dark:border-teal-800/40 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-[#0d9488]/10 dark:bg-teal-900/40 border border-[#0d9488]/20 flex items-center justify-center rounded-none">
-                  <Clock className="w-5 h-5 text-[#0d9488] dark:text-[#5eead4]" />
+                <div className="w-9 h-9 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
+                  <Clock className="w-5 h-5 text-accent dark:text-teal-300" />
                 </div>
                 <div>
-                  <h3 className="font-black text-base uppercase tracking-tight text-[#0f3c4c] dark:text-[#5eead4] font-sans">
+                  <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">
                     Live Waiting Room Monitor
                   </h3>
-                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans font-medium">Real-time triage queue and patient waiting statuses</p>
+                  <p className="text-xs text-accent dark:text-teal-300 font-sans font-medium">Real-time triage queue and patient waiting statuses</p>
                 </div>
               </div>
               
-              <span className="bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border border-[#0d9488]/20 font-bold px-3 py-1 rounded-none text-xs font-mono">
+              <span className="bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 border border-brand/20 font-bold px-3 py-1 rounded-none text-xs font-mono">
                 {triageQueue.length} Patient(s) Waiting
               </span>
             </div>
             
             {triageQueue.length === 0 ? (
-              <div className="text-center py-16 text-[#0f766e] dark:text-teal-400 font-sans">
+              <div className="text-center py-16 text-accent dark:text-teal-400 font-sans">
                 <Users className="w-14 h-14 mx-auto opacity-40 mb-3" />
-                <p className="font-extrabold text-base text-[#0f3c4c] dark:text-[#5eead4]">Waiting Room is Empty</p>
+                <p className="font-bold text-base text-ink dark:text-teal-300">Waiting Room is Empty</p>
                 <p className="text-xs mt-1 font-sans">All registered patients have been triaged or cleared.</p>
                 <button 
                   onClick={() => setActiveSubTab('form')}
-                  className="mt-6 mx-auto bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-4 py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center gap-2 shadow-xs"
+                  className="mt-6 mx-auto bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center gap-2 shadow-xs"
                 >
                   <Plus className="w-4 h-4" /> Register New Patient
                 </button>
@@ -381,13 +381,13 @@ export default function PatientRegistrationModule({
                   if (waitMins > 30) waitStatusColor = 'rose';
 
                   return (
-                    <div key={visit.id} className="p-4 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2]/40 dark:hover:bg-[#0d3b47]/40 shadow-2xs flex flex-col transition-colors relative border-l-4 border-l-[#0d9488]">
+                    <div key={visit.id} className="p-4 rounded-none border border-line-subtle dark:border-teal-800/40 bg-surface dark:bg-night-900 hover:bg-surface-accent/40 dark:hover:bg-night-800/40 shadow-2xs flex flex-col transition-colors relative border-l-4 border-l-brand">
                       
                       <div className="flex justify-between items-start">
-                        <span className="text-[10px] font-mono font-bold bg-[#0d9488]/10 dark:bg-teal-900/40 text-[#0d9488] dark:text-teal-200 px-2 py-0.5 rounded-none border border-[#0d9488]/20 tracking-wider">
+                        <span className="text-2xs font-mono font-bold bg-primary/10 dark:bg-teal-900/40 text-accent dark:text-teal-200 px-2 py-0.5 rounded-none border border-brand/20 tracking-wider">
                           # {visit.id.substring(0, 8).toUpperCase()}
                         </span>
-                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-none flex items-center gap-1 border ${
+                        <span className={`text-2xs font-mono font-bold px-2 py-0.5 rounded-none flex items-center gap-1 border ${
                           waitStatusColor === 'rose' ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800' :
                           waitStatusColor === 'amber' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800' :
                           'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
@@ -398,27 +398,27 @@ export default function PatientRegistrationModule({
                       
                       <div className="mt-3 font-sans">
                         <div className="flex justify-between items-start mb-1">
-                          <h4 className="font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase text-sm truncate">{pt?.fullName}</h4>
-                          <span className="font-mono text-xs text-[#0f766e] dark:text-teal-300">IC: {maskICNumber(pt?.icNumber, showPII)}</span>
+                          <h4 className="type-heading-caps text-ink dark:text-teal-300 truncate">{pt?.fullName}</h4>
+                          <span className="font-mono text-xs text-accent dark:text-teal-300">IC: {maskICNumber(pt?.icNumber, showPII)}</span>
                         </div>
                         
                         <div className="text-xs text-slate-500 mt-2 space-y-2">
                           {pt?.panelEmployer !== 'None (Self-Pay)' && (
-                            <span className="inline-block text-[#0d9488] dark:text-teal-200 font-sans font-bold bg-[#0d9488]/10 dark:bg-teal-900/40 px-2 py-0.5 rounded-none text-[10px] uppercase tracking-wide border border-[#0d9488]/20">
+                            <span className="inline-block text-accent dark:text-teal-200 font-sans font-bold bg-primary/10 dark:bg-teal-900/40 px-2 py-0.5 rounded-none text-2xs uppercase tracking-wider border border-brand/20">
                               Panel: {pt?.panelEmployer}
                             </span>
                           )}
-                          <div className="flex items-center gap-1.5 text-[#0f3c4c] dark:text-slate-200 bg-[#f0fdfa] dark:bg-[#082830] p-2 rounded-none border border-[#ccfbf1] dark:border-teal-800/40 font-mono text-[11px]">
-                            <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#5eead4]" />
+                          <div className="flex items-center gap-1.5 text-ink dark:text-slate-200 bg-surface-muted dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 font-mono text-2xs">
+                            <Activity className="w-4 h-4 text-accent dark:text-teal-300" />
                             <span>Triage: {visit.soap?.objective?.temperature}°C • HR {visit.soap?.objective?.heartRate} • BP {visit.soap?.objective?.bpSystolic}/{visit.soap?.objective?.bpDiastolic}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-[#ccfbf1] dark:border-teal-800/30 flex gap-2 font-sans">
+                      <div className="mt-4 pt-3 border-t border-line-subtle dark:border-teal-800/30 flex gap-2 font-sans">
                         <button 
                           onClick={() => showToast(`${pt?.fullName} flagged as Priority for Doctor`)} 
-                          className="flex-1 py-1.5 text-xs font-sans font-bold bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-none shadow-xs uppercase tracking-wider flex items-center justify-center gap-1"
+                          className="flex-1 py-1.5 text-xs font-sans font-bold bg-primary hover:bg-primary-hover text-white rounded-none shadow-xs uppercase tracking-wider flex items-center justify-center gap-1"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" /> Priority
                         </button>
@@ -445,19 +445,19 @@ export default function PatientRegistrationModule({
       {activeSubTab === 'form' && (
         <div className="animate-fadeIn font-sans">
           {registrationStep === 'id_check' ? (
-            <div className="max-w-md mx-auto mt-8 bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs p-8 font-sans">
+            <div className="max-w-md mx-auto mt-8 bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-8 font-sans">
               <div className="text-center space-y-6">
-                <div className="mx-auto w-14 h-14 bg-[#0d9488]/10 dark:bg-teal-900/40 rounded-none flex items-center justify-center border border-[#0d9488]/20">
-                  <Search className="w-7 h-7 text-[#0d9488] dark:text-[#5eead4]" />
+                <div className="mx-auto w-14 h-14 bg-primary/10 dark:bg-teal-900/40 rounded-none flex items-center justify-center border border-brand/20">
+                  <Search className="w-7 h-7 text-accent dark:text-teal-300" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-sans">Identify Patient</h3>
-                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
+                  <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">Identify Patient</h3>
+                  <p className="text-xs text-accent dark:text-teal-300 font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
                 </div>
                 
                 <form onSubmit={handleIdCheckSubmit} className="space-y-4 text-left font-sans">
                   <div>
-                    <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">
+                    <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
                       NRIC / Passport Number <span className="text-rose-500">*</span>
                     </label>
                     <input
@@ -466,29 +466,29 @@ export default function PatientRegistrationModule({
                       onChange={(e) => setIdCheckValue(e.target.value)}
                       placeholder="e.g. 900101-14-5555"
                       required
-                      className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3.5 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                      className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
                     />
                   </div>
                   <button 
                     type="submit" 
-                    className="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
+                    className="w-full bg-primary hover:bg-primary-hover text-white font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
                   >
                     Check Database <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
                 
                 <div className="relative flex py-2 items-center">
-                  <div className="flex-grow border-t border-[#ccfbf1] dark:border-teal-800/40"></div>
-                  <span className="flex-shrink-0 mx-4 text-[#0f766e] dark:text-teal-300 text-xs uppercase font-sans font-bold">Or</span>
-                  <div className="flex-grow border-t border-[#ccfbf1] dark:border-teal-800/40"></div>
+                  <div className="flex-grow border-t border-line-subtle dark:border-teal-800/40"></div>
+                  <span className="flex-shrink-0 mx-4 text-accent dark:text-teal-300 text-xs uppercase font-sans font-bold">Or</span>
+                  <div className="flex-grow border-t border-line-subtle dark:border-teal-800/40"></div>
                 </div>
                 
                 <button 
                   type="button" 
                   onClick={() => setIsMyKadOpen(true)}
-                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47] text-[#0f766e] dark:text-[#5eead4] border border-[#ccfbf1] dark:border-teal-800/50 font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
+                  className="w-full bg-surface dark:bg-night-900 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 border border-line-subtle dark:border-teal-800/50 font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
                 >
-                  <Globe className="w-4 h-4 text-[#0d9488] dark:text-[#5eead4]" /> Scan PWA MyKad
+                  <Globe className="w-4 h-4 text-accent dark:text-teal-300" /> Scan PWA MyKad
                 </button>
               </div>
             </div>
@@ -496,31 +496,31 @@ export default function PatientRegistrationModule({
             <div className="max-w-4xl mx-auto font-sans">
               
               {/* Wizard Stepper */}
-              <div className="mb-6 flex items-center justify-between relative bg-[#f0fdfa] dark:bg-[#082830] p-4 border border-[#ccfbf1] dark:border-teal-800/40 rounded-none font-sans">
+              <div className="mb-6 flex items-center justify-between relative bg-surface-muted dark:bg-night-850 p-4 border border-line-subtle dark:border-teal-800/40 rounded-none font-sans">
                 {[1, 2].map(stepNum => (
                   <div key={stepNum} className={`flex items-center gap-3 ${formStep >= stepNum ? '' : 'opacity-50'}`}>
                     <div className={`w-7 h-7 rounded-none flex items-center justify-center font-bold text-xs font-sans transition-colors ${
                       formStep === stepNum 
-                        ? 'bg-[#0d9488] text-white' 
+                        ? 'bg-primary text-white' 
                         : formStep > stepNum 
                         ? 'bg-emerald-600 text-white' 
-                        : 'bg-[#f7fdfd] dark:bg-[#07252d] text-[#0f766e] border border-[#ccfbf1]'
+                        : 'bg-surface dark:bg-night-900 text-accent border border-line-subtle'
                     }`}>
                       {formStep > stepNum ? <Check className="w-4 h-4" /> : stepNum}
                     </div>
-                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-[#0f3c4c] dark:text-[#5eead4]">
+                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-ink dark:text-teal-300">
                       {stepNum === 1 ? '1. Patient Demographics' : '2. Billing & Medical Alerts'}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative font-sans">
+              <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative font-sans">
                 <div className="absolute top-4 right-4 z-10">
                   <button 
                     type="button" 
                     onClick={handleClearForm} 
-                    className="text-xs font-sans font-bold text-[#0f766e] dark:text-teal-400 hover:text-[#0d9488] flex items-center gap-1 bg-[#f7fdfd] dark:bg-[#07252d] px-3 py-1.5 border border-[#ccfbf1] dark:border-teal-800/40"
+                    className="text-xs font-sans font-bold text-accent dark:text-teal-400 hover:text-accent flex items-center gap-1 bg-surface dark:bg-night-900 px-3 py-1.5 border border-line-subtle dark:border-teal-800/40"
                   >
                     <RotateCcw className="w-3.5 h-3.5" /> Restart
                   </button>
@@ -530,7 +530,7 @@ export default function PatientRegistrationModule({
                 {formStep === 1 && (
                   <div className="space-y-6 font-sans">
                     <div>
-                      <h3 className="text-base font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-sans">
+                      <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">
                         Patient Demographics
                       </h3>
                       {existingPatientId && (
@@ -542,71 +542,71 @@ export default function PatientRegistrationModule({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Full Name *</label>
+                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Full Name *</label>
                         <input 
                           type="text"
                           required
                           value={manualForm.fullName}
                           onChange={(e) => setManualForm({ ...manualForm, fullName: e.target.value })}
                           placeholder="e.g. MOHD HAFIZ BIN RAZALI"
-                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-[#0f3c4c] dark:text-slate-100 font-bold focus:border-[#0d9488] outline-none font-sans"
+                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 font-bold focus:border-brand outline-none font-sans"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">IC / Passport Number *</label>
+                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">IC / Passport Number *</label>
                         <input 
                           type="text"
                           required
                           value={manualForm.icNumber}
                           onChange={(e) => setManualForm({ ...manualForm, icNumber: e.target.value })}
                           placeholder="YYMMDD-XX-XXXX"
-                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
                         />
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Gender</label>
+                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Gender</label>
                         <select 
                           value={manualForm.gender} 
                           onChange={(e) => setManualForm({ ...manualForm, gender: e.target.value as 'Male' | 'Female' })}
-                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-ink dark:text-slate-100 focus:border-brand outline-none"
                         >
                           <option value="Male">Male / Lelaki</option>
                           <option value="Female">Female / Perempuan</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Date of Birth</label>
+                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Date of Birth</label>
                         <input 
                           type="date"
                           value={manualForm.dob}
                           onChange={(e) => setManualForm({ ...manualForm, dob: e.target.value })}
-                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Phone Number *</label>
+                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Phone Number *</label>
                         <input 
                           type="text"
                           required
                           value={manualForm.phone}
                           onChange={(e) => setManualForm({ ...manualForm, phone: e.target.value })}
                           placeholder="e.g. 012-3456789"
-                          className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider mb-1 font-sans">Residential Address</label>
+                      <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Residential Address</label>
                       <input 
                         type="text"
                         value={manualForm.address}
                         onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
                         placeholder="Enter full residential address..."
-                        className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none font-sans"
+                        className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 focus:border-brand outline-none font-sans"
                       />
                     </div>
                   </div>
@@ -616,15 +616,15 @@ export default function PatientRegistrationModule({
                 {formStep === 2 && (
                   <div className="space-y-6 font-sans">
                     <div>
-                      <h3 className="text-base font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] font-sans">
+                      <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">
                         Billing Sponsor & Medical Alerts
                       </h3>
-                      <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans mt-0.5">Configure insurance panels and drug allergies</p>
+                      <p className="text-xs text-accent dark:text-teal-300 font-sans mt-0.5">Configure insurance panels and drug allergies</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider font-sans">Panel / Corporate Sponsor</label>
+                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider font-sans">Panel / Corporate Sponsor</label>
                         <div className="flex gap-2">
                           <select
                             value={manualForm.panelEmployer}
@@ -632,7 +632,7 @@ export default function PatientRegistrationModule({
                               setManualForm({ ...manualForm, panelEmployer: e.target.value });
                               setCoverageStatus(e.target.value === 'None (Self-Pay)' ? 'verified' : 'unverified');
                             }}
-                            className="flex-1 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                            className="flex-1 bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-ink dark:text-slate-100 focus:border-brand outline-none"
                           >
                             <option value="None (Self-Pay)">Self-Pay (No sponsor claim co-pays)</option>
                             <option value="Petronas Panel">Petronas Panel (Cover RM500 limit)</option>
@@ -649,7 +649,7 @@ export default function PatientRegistrationModule({
                               className={`px-3 py-2 font-sans text-xs font-bold rounded-none uppercase transition-colors flex items-center gap-1 ${
                                 coverageStatus === 'verified'
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
-                                  : 'bg-[#0d9488] text-white hover:bg-[#0f766e]'
+                                  : 'bg-primary text-white hover:bg-primary-hover'
                               }`}
                             >
                               {isVerifyingCoverage ? <Loader2 className="w-4 h-4 animate-spin" /> : coverageStatus === 'verified' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
@@ -660,7 +660,7 @@ export default function PatientRegistrationModule({
                       </div>
 
                       <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-[#0f766e] dark:text-[#5eead4] uppercase tracking-wider font-sans">Drug Allergies</label>
+                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider font-sans">Drug Allergies</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -668,12 +668,12 @@ export default function PatientRegistrationModule({
                             onChange={(e) => setAllergyInput(e.target.value)}
                             placeholder="e.g. Penicillin, Aspirin..."
                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAllergyTag())}
-                            className="flex-1 bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 focus:border-[#0d9488] outline-none"
+                            className="flex-1 bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-ink dark:text-slate-100 focus:border-brand outline-none"
                           />
                           <button 
                             type="button" 
                             onClick={handleAddAllergyTag}
-                            className="bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] dark:hover:bg-[#0d3b47] text-[#0f766e] dark:text-[#5eead4] border border-[#ccfbf1] dark:border-teal-800/50 font-bold text-xs px-3 py-2 rounded-none font-sans uppercase"
+                            className="bg-surface dark:bg-night-900 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 border border-line-subtle dark:border-teal-800/50 font-bold text-xs px-3 py-2 rounded-none font-sans uppercase"
                           >
                             + Add
                           </button>
@@ -694,12 +694,12 @@ export default function PatientRegistrationModule({
                 )}
 
                 {/* Footer buttons */}
-                <div className="mt-8 pt-4 border-t border-[#ccfbf1] dark:border-teal-800/40 flex items-center justify-between font-sans">
+                <div className="mt-8 pt-4 border-t border-line-subtle dark:border-teal-800/40 flex items-center justify-between font-sans">
                   {formStep > 1 ? (
                     <button 
                       type="button" 
                       onClick={() => setFormStep(1)}
-                      className="bg-[#f7fdfd] dark:bg-[#07252d] hover:bg-[#e0f5f2] text-[#0f766e] dark:text-teal-300 border border-[#ccfbf1] font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5"
+                      className="bg-surface dark:bg-night-900 hover:bg-surface-accent text-accent dark:text-teal-300 border border-line-subtle font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5"
                     >
                       <ArrowLeft className="w-4 h-4" /> Back
                     </button>
@@ -709,7 +709,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={proceedToNextStep}
-                      className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
+                      className="bg-primary hover:bg-primary-hover text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
                     >
                       Next Step <ArrowRight className="w-4 h-4" />
                     </button>
@@ -731,25 +731,25 @@ export default function PatientRegistrationModule({
 
       {/* PATIENT REGISTRY TABLE TAB */}
       {activeSubTab === 'registry' && (
-        <div className="bg-[#f0fdfa] dark:bg-[#082830] border border-[#ccfbf1] dark:border-teal-800/40 rounded-none shadow-xs font-sans">
+        <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
           <div className="p-6 space-y-6">
             
             {/* Header section with primary action button and total count badge */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ccfbf1] dark:border-teal-800/40 pb-4 font-sans">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line-subtle dark:border-teal-800/40 pb-4 font-sans">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#0d9488]/10 dark:bg-teal-900/40 border border-[#0d9488]/20 flex items-center justify-center rounded-none">
-                  <FolderCheck className="w-5 h-5 text-[#0d9488] dark:text-[#5eead4]" />
+                <div className="w-10 h-10 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
+                  <FolderCheck className="w-5 h-5 text-accent dark:text-teal-300" />
                 </div>
                 <div>
-                  <h3 className="font-black text-lg text-[#0f3c4c] dark:text-[#5eead4] font-sans">
+                  <h3 className="type-section-title text-ink dark:text-teal-300 font-sans">
                     Patient Registry
                   </h3>
-                  <p className="text-xs text-[#0f766e] dark:text-teal-300 font-sans font-medium">Search patient records, review medical allergies, and initiate clinical visits</p>
+                  <p className="text-xs text-accent dark:text-teal-300 font-sans font-medium">Search patient records, review medical allergies, and initiate clinical visits</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-3 font-sans">
-                <span className="bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border border-[#0d9488]/20 font-bold px-3 py-1.5 rounded-none text-xs font-sans">
+                <span className="bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 border border-brand/20 font-bold px-3 py-1.5 rounded-none text-xs font-sans">
                   {totalPatientCount} Registered Patients
                 </span>
                 <button
@@ -757,7 +757,7 @@ export default function PatientRegistrationModule({
                     setActiveSubTab('form');
                     setRegistrationStep('id_check');
                   }}
-                  className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-4 py-2 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-2"
+                  className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> Register New Patient
                 </button>
@@ -767,25 +767,25 @@ export default function PatientRegistrationModule({
             {/* Integrated Search Input & Guidance */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans">
               <div className="relative flex-1 max-w-lg w-full">
-                <Search className="w-4 h-4 text-[#0d9488] dark:text-[#5eead4] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-accent dark:text-teal-300 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search by Patient Name, NRIC (e.g. 900101-14-5555), or ID..."
                   value={patientRegistrySearch}
                   onChange={(e) => setPatientRegistrySearch(e.target.value)}
-                  className="w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/60 rounded-none pl-9 pr-3 py-2 text-xs font-sans text-[#0f3c4c] dark:text-slate-100 placeholder-[#0f766e]/60 dark:placeholder-teal-400/60 focus:border-[#0d9488] outline-none font-medium"
+                  className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none pl-9 pr-3 py-2 text-xs font-sans text-ink dark:text-slate-100 placeholder-primary/60 dark:placeholder-teal-400/60 focus:border-brand outline-none font-medium"
                 />
               </div>
-              <span className="text-[11px] text-[#0f766e] dark:text-teal-300 font-mono">
+              <span className="text-2xs text-accent dark:text-teal-300 font-mono">
                 Partial matches supported • IC auto-format enabled
               </span>
             </div>
             
             {/* Scannable Patient Table */}
-            <div className="overflow-x-auto border border-[#ccfbf1] dark:border-teal-800/40 rounded-none font-sans">
+            <div className="overflow-x-auto border border-line-subtle dark:border-teal-800/40 rounded-none font-sans">
               <table className="w-full text-xs text-left font-sans">
-                <thead className="bg-[#e0f5f2]/90 dark:bg-[#07252d] border-b border-[#ccfbf1] dark:border-teal-800/40 font-sans">
-                  <tr className="text-[#0f766e] dark:text-[#5eead4] font-sans text-xs uppercase tracking-wider font-extrabold">
+                <thead className="bg-surface-accent/90 dark:bg-night-900 border-b border-line-subtle dark:border-teal-800/40 font-sans">
+                  <tr className="text-accent dark:text-teal-300 font-sans text-xs uppercase tracking-wider font-bold">
                     <th className="px-4 py-3.5">ID</th>
                     <th className="px-4 py-3.5">Patient Name</th>
                     <th className="px-4 py-3.5">IC / Passport Number</th>
@@ -795,32 +795,32 @@ export default function PatientRegistrationModule({
                     <th className="px-4 py-3.5 text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ccfbf1]/50 dark:divide-teal-800/30 bg-[#f7fdfd] dark:bg-[#07252d] font-sans">
+                <tbody className="divide-y divide-line-subtle/50 dark:divide-teal-800/30 bg-surface dark:bg-night-900 font-sans">
                   {registryResults.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-4 py-12 text-center text-[#0f766e] dark:text-teal-400 font-sans font-medium">
+                      <td colSpan={7} className="px-4 py-12 text-center text-accent dark:text-teal-400 font-sans font-medium">
                         No patient records found matching your search term.
                       </td>
                     </tr>
                   ) : (
                     registryResults.map(p => (
-                      <tr key={p.id} className="hover:bg-[#e0f5f2]/40 dark:hover:bg-[#0d3b47]/40 transition-colors">
-                        <td className="px-4 py-3.5 font-mono text-[#0f766e] dark:text-teal-300 text-xs font-bold">
+                      <tr key={p.id} className="hover:bg-surface-accent/40 dark:hover:bg-night-800/40 transition-colors">
+                        <td className="px-4 py-3.5 font-mono text-accent dark:text-teal-300 text-xs font-bold">
                           {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className="font-bold text-xs capitalize text-[#0f3c4c] dark:text-[#5eead4] block font-sans">
+                          <span className="font-bold text-xs capitalize text-ink dark:text-teal-300 block font-sans">
                             {p.fullName.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 font-mono text-xs text-[#0f766e] dark:text-teal-300">
+                        <td className="px-4 py-3.5 font-mono text-xs text-accent dark:text-teal-300">
                           {maskICNumber(p.icNumber, showPII)}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className={`inline-block px-2.5 py-1 rounded-none text-[10px] font-sans font-bold uppercase tracking-wide border ${
+                          <span className={`inline-block px-2.5 py-1 rounded-none text-2xs font-sans font-bold uppercase tracking-wider border ${
                             p.panelEmployer === 'None (Self-Pay)' 
-                              ? 'bg-slate-100 dark:bg-[#082830] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-teal-900' 
-                              : 'bg-[#0d9488]/10 text-[#0d9488] dark:bg-teal-900/40 dark:text-teal-200 border-[#0d9488]/20 dark:border-teal-700/50'
+                              ? 'bg-slate-100 dark:bg-night-850 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-teal-900' 
+                              : 'bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 border-brand/20 dark:border-teal-700/50'
                           }`}>
                             {p.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : p.panelEmployer}
                           </span>
@@ -830,7 +830,7 @@ export default function PatientRegistrationModule({
                             ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">No known allergies</span>
                             : <div className="flex flex-wrap gap-1.5">
                                 {p.drugAllergies.map((a, i) => (
-                                  <span key={i} className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-[11px] font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
+                                  <span key={i} className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-2xs font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
                                     <ShieldAlert className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />
                                     <span>Allergy: {a}</span>
                                   </span>
@@ -838,13 +838,13 @@ export default function PatientRegistrationModule({
                               </div>
                           }
                         </td>
-                        <td className="px-4 py-3.5 text-[#0f766e] dark:text-teal-300 font-mono text-xs text-right">
+                        <td className="px-4 py-3.5 text-accent dark:text-teal-300 font-mono text-xs text-right">
                           {p.registeredDate}
                         </td>
                         <td className="px-4 py-3.5 text-center">
                           <button
                             onClick={() => handleCreateTicket(p)}
-                            className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1.5"
+                            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1.5"
                             title={`Start consultation visit for ${p.fullName}`}
                           >
                             <UserCheck className="w-3.5 h-3.5" /> Start Visit

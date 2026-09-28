@@ -37,9 +37,9 @@ export default function Input({ icon, error, label, className = '', id, ...props
         <input
           id={generatedId}
           className={`
-            w-full bg-[#f7fdfd] dark:bg-[#07252d] border border-[#ccfbf1] dark:border-teal-800/40 text-slate-900 dark:text-white rounded-none outline-none 
+            w-full bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 text-slate-900 dark:text-white rounded-none outline-none 
             transition-all duration-200 placeholder:text-slate-400
-            focus:ring-2 focus:ring-[#0d9488]/20 focus:border-[#0d9488] focus:bg-white dark:focus:bg-[#0c3844]
+            focus:ring-2 focus:ring-brand/20 focus:border-brand focus:bg-white dark:focus:bg-night-800
             ${icon ? 'pl-10' : 'pl-4'} 
             pr-4 py-2.5 sm:text-sm
             ${error ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : ''}

@@ -46,13 +46,13 @@ export default function SubjectiveTab({
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Header bar & quick actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#e0f5f2] dark:bg-[#082830] p-3.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs">
         <div>
-          <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
+          <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+            <MessageSquare className="w-4 h-4 text-accent dark:text-teal-400" />
             Subjective History &amp; Presenting Complaints
           </h4>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Record patient history, symptoms timeline, and pain scale.</p>
+          <p className="text-2xs text-slate-500 dark:text-slate-400 font-medium">Record patient history, symptoms timeline, and pain scale.</p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -64,18 +64,18 @@ export default function SubjectiveTab({
               }
             }}
             disabled={patientPastVisits.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[11px] font-bold transition-all shadow-xs border bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] hover:border-[#0d9488] disabled:opacity-40 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-2xs font-bold transition-all shadow-xs border bg-white dark:bg-night-700 text-accent dark:text-teal-300 border-line dark:border-teal-700/50 hover:bg-surface-accent dark:hover:bg-night-600 hover:border-brand disabled:opacity-40 cursor-pointer"
           >
-            <Copy className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" />
+            <Copy className="w-3.5 h-3.5 text-accent dark:text-teal-400" />
             Copy Previous
           </button>
           <button 
             type="button"
             onClick={handleVoiceToText}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-[11px] font-bold transition-all shadow-xs border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-2xs font-bold transition-all shadow-xs border cursor-pointer ${
               isListening 
                 ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800 animate-pulse' 
-                : 'bg-[#0f766e] dark:bg-[#0d9488] text-white border-[#0f766e] dark:border-[#0d9488] hover:bg-[#0d9488] dark:hover:bg-[#14b8a6]'
+                : 'bg-primary dark:bg-primary text-white border-primary dark:border-brand hover:bg-primary dark:hover:bg-teal-500'
             }`}
           >
             {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
@@ -88,21 +88,21 @@ export default function SubjectiveTab({
       <div className="relative group">
         <textarea
           id="soap-subjective-input"
-          className="w-full bg-white dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/50 focus:border-[#0d9488] focus:ring-3 focus:ring-[#0d9488]/15 rounded-none px-4 py-3.5 text-xs text-[#0f3c4c] dark:text-[#f8fafc] transition-all outline-none shadow-xs resize-y min-h-[190px] leading-relaxed font-sans placeholder:text-slate-400"
+          className="w-full bg-white dark:bg-night-900 border border-line dark:border-teal-800/50 focus:border-brand focus:ring-3 focus:ring-brand/15 rounded-none px-4 py-3.5 text-xs text-ink dark:text-slate-50 transition-all outline-none shadow-xs resize-y min-h-[190px] leading-relaxed font-sans placeholder:text-slate-400"
           value={subjective}
           onChange={(e) => setSubjective(e.target.value)}
           placeholder="Record presenting symptoms, onset duration, severity, localized area, aggravating factors, and patient medical history..."
         />
-        <div className="absolute bottom-3 right-3 text-[10px] text-slate-400 dark:text-slate-400 font-mono pointer-events-none bg-slate-50/80 dark:bg-[#082830] px-2 py-0.5 rounded-none border border-slate-200 dark:border-teal-800/40">
+        <div className="absolute bottom-3 right-3 text-2xs text-slate-400 dark:text-slate-400 font-mono pointer-events-none bg-slate-50/80 dark:bg-night-850 px-2 py-0.5 rounded-none border border-slate-200 dark:border-teal-800/40">
           {subjective.length} characters
         </div>
       </div>
 
       {/* Malaysia clinical quick complaint templates */}
-      <div className="bg-[#f7fdfd] dark:bg-[#0c3844] border border-[#b2f5ea] dark:border-teal-800/50 rounded-none p-3.5 shadow-xs space-y-2">
+      <div className="bg-surface dark:bg-night-800 border border-line dark:border-teal-800/50 rounded-none p-3.5 shadow-xs space-y-2">
         <div className="flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-[#0d9488] dark:text-[#2dd4bf]" />
-          <span className="text-[11px] font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider">
+          <Sparkles className="w-3.5 h-3.5 text-accent dark:text-teal-400" />
+          <span className="text-2xs font-bold text-ink dark:text-teal-300 uppercase tracking-wider">
             Clinical Symptom Quick-Templates:
           </span>
         </div>
@@ -112,9 +112,9 @@ export default function SubjectiveTab({
               key={i}
               type="button"
               onClick={() => handleApplySymptomTemplate(tpl)}
-              className="py-1.5 px-3 bg-white dark:bg-[#0e4857] hover:bg-[#e0f5f2] dark:hover:bg-[#12596b] border border-[#b2f5ea] dark:border-teal-700/50 text-[11px] font-medium text-[#0f766e] dark:text-[#5eead4] rounded-none cursor-pointer transition-all hover:border-[#0d9488] shadow-2xs hover:shadow-xs flex items-center gap-1"
+              className="py-1.5 px-3 bg-white dark:bg-night-700 hover:bg-surface-accent dark:hover:bg-night-600 border border-line dark:border-teal-700/50 text-2xs font-medium text-accent dark:text-teal-300 rounded-none cursor-pointer transition-all hover:border-brand shadow-2xs hover:shadow-xs flex items-center gap-1"
             >
-              <span className="text-[#0d9488] dark:text-[#2dd4bf] font-bold">+</span>
+              <span className="text-accent dark:text-teal-400 font-bold">+</span>
               <span>{tpl}</span>
             </button>
           ))}

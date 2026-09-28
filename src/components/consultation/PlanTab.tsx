@@ -11,6 +11,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { useAuth } from '../../context/AuthContext';
 import { DRUG_DATABASE } from '../../data';
 
+import { palette, seriesColors } from '../../theme/palette';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
@@ -226,7 +227,7 @@ export default function PlanTab({
       quantity: 10,
       pricePerUnit: drug.pricePerUnit || 0.50,
       expiryDate: `${new Date().getFullYear() + 2}-12-31`,
-      pillColor: drug.pillColor || '#0d9488',
+      pillColor: drug.pillColor || palette.brand,
       capsuleStyle: drug.capsuleStyle || 'solid'
     };
     setRxList([...rxList, newRx]);
@@ -246,7 +247,7 @@ export default function PlanTab({
       quantity: 1,
       pricePerUnit: 12.00,
       expiryDate: `${new Date().getFullYear() + 1}-12-31`,
-      pillColor: '#f43f5e',
+      pillColor: seriesColors.rose,
       capsuleStyle: 'solid'
     };
     setRxList([...rxList, newRx]);
@@ -261,7 +262,7 @@ export default function PlanTab({
   };
 
   return (
-    <div className="space-y-4 animate-fadeIn relative text-[#0f3c4c] dark:text-slate-100">
+    <div className="space-y-4 animate-fadeIn relative text-ink dark:text-slate-100">
       
       {/* ------------------------------------------------------------------------- */}
       {/* PERSISTENT AI DRUG INTERACTION SAFETY BANNER                             */}
@@ -270,9 +271,9 @@ export default function PlanTab({
         <div className="bg-rose-600 text-white p-3 rounded-none shadow-sm flex items-start gap-3 border border-rose-700">
           <AlertTriangle className="w-5 h-5 shrink-0 text-white mt-0.5" />
           <div>
-            <h4 className="font-black text-xs uppercase tracking-wider">AI SAFETY ALERT: Drug Contraindication Conflict Detected!</h4>
-            <p className="text-[11px] mt-0.5 opacity-95">Patient registered allergies conflict with active prescription choices.</p>
-            <ul className="text-[10px] mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded-none">
+            <h4 className="type-label">AI SAFETY ALERT: Drug Contraindication Conflict Detected!</h4>
+            <p className="text-2xs mt-0.5 opacity-95">Patient registered allergies conflict with active prescription choices.</p>
+            <ul className="text-2xs mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded-none">
               {allergyAlerts.map((alert, idx) => (
                 <li key={idx}><span className="font-bold">{alert.drugName}</span> belongs to <span className="font-bold underline uppercase">{alert.allergyGroup}</span> family.</li>
               ))}
@@ -280,12 +281,12 @@ export default function PlanTab({
           </div>
         </div>
       ) : rxList.length > 0 ? (
-        <div className="bg-[#e0f5f2] dark:bg-[#0c3844] text-[#0f766e] dark:text-[#5eead4] p-2.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 flex items-center justify-between text-xs font-bold shadow-2xs">
+        <div className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-300 p-2.5 rounded-none border border-line dark:border-teal-800/50 flex items-center justify-between text-xs font-bold shadow-2xs">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" />
+            <CheckCircle2 className="w-4 h-4 text-accent dark:text-teal-400" />
             <span>AI Interaction Check: Pass (Zero Drug-Allergy Contraindications)</span>
           </div>
-          <span className="font-mono text-[10px] bg-white dark:bg-[#07252d] px-2 py-0.5 border border-[#b2f5ea] text-[#0d9488]">
+          <span className="font-mono text-2xs bg-white dark:bg-night-900 px-2 py-0.5 border border-line text-accent">
             {rxList.length} Items Prescribed
           </span>
         </div>
@@ -294,43 +295,43 @@ export default function PlanTab({
       {/* ------------------------------------------------------------------------- */}
       {/* 4 STRUCTURED SUB-TABS NAVIGATION BAR                                      */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex border border-[#b2f5ea] dark:border-teal-800/40 bg-[#f7fdfd] dark:bg-[#07252d] p-1 rounded-none gap-1" role="tablist">
+      <div className="flex border border-line dark:border-teal-800/40 bg-surface dark:bg-night-900 p-1 rounded-none gap-1" role="tablist">
         
         <button
           type="button"
           onClick={() => setSubTab('medication')}
-          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'medication'
-              ? 'bg-[#0d9488] text-white shadow-2xs'
-              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+              ? 'bg-primary text-white shadow-2xs'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           <Pill className="w-4 h-4" />
           <span>1. Medication Prescribing</span>
-          {rxList.length > 0 && <span className="bg-white text-[#0d9488] px-1 font-mono text-[10px] font-black">{rxList.length}</span>}
+          {rxList.length > 0 && <span className="bg-white text-accent px-1 font-mono text-2xs font-bold">{rxList.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('investigations')}
-          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'investigations'
-              ? 'bg-[#0d9488] text-white shadow-2xs'
-              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+              ? 'bg-primary text-white shadow-2xs'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           <TestTube className="w-4 h-4" />
           <span>2. Lab &amp; Investigations</span>
-          {selectedLabs.length > 0 && <span className="bg-[#e0f5f2] text-[#0f766e] px-1 font-mono text-[10px] font-bold">{selectedLabs.length}</span>}
+          {selectedLabs.length > 0 && <span className="bg-surface-accent text-accent px-1 font-mono text-2xs font-bold">{selectedLabs.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('documents')}
-          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'documents'
-              ? 'bg-[#0d9488] text-white shadow-2xs'
-              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+              ? 'bg-primary text-white shadow-2xs'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -341,10 +342,10 @@ export default function PlanTab({
         <button
           type="button"
           onClick={() => setSubTab('summary')}
-          className={`flex-1 py-2 px-3 text-xs font-extrabold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'summary'
-              ? 'bg-[#0d9488] text-white shadow-2xs'
-              : 'text-[#0f3c4c] dark:text-slate-300 hover:bg-[#e0f5f2] dark:hover:bg-[#0c3844]'
+              ? 'bg-primary text-white shadow-2xs'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           <FileCheck className="w-4 h-4" />
@@ -361,30 +362,30 @@ export default function PlanTab({
           
           {/* CONTEXT-AWARE PEDIATRIC DOSAGE CALCULATOR ASSIST */}
           {!showPediatricCalc ? (
-            <div className="bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-2.5 rounded-none flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+            <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-2.5 rounded-none flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-[#0d9488]" />
+                <Activity className="w-4 h-4 text-accent" />
                 <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAge})</span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPediatricCalc(true)}
-                className="text-[10px] font-bold text-[#0d9488] dark:text-[#2dd4bf] border border-[#b2f5ea] dark:border-teal-800/50 px-2.5 py-1 hover:bg-[#e0f5f2] cursor-pointer"
+                className="text-2xs font-bold text-accent dark:text-teal-400 border border-line dark:border-teal-800/50 px-2.5 py-1 hover:bg-surface-accent cursor-pointer"
               >
                 + Show Pediatric Dose Assist
               </button>
             </div>
           ) : (
-            <div className="bg-[#e0f5f2] dark:bg-[#082830] p-3.5 rounded-none border border-[#b2f5ea] dark:border-teal-800/50 shadow-xs space-y-2.5">
-              <div className="flex items-center justify-between border-b border-[#b2f5ea] dark:border-teal-800/40 pb-2">
-                <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-1.5 tracking-wider">
-                  <Activity className="w-4 h-4 text-[#0d9488] dark:text-[#2dd4bf]" /> Pediatric Weight-Based Dosage Calculator
+            <div className="bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs space-y-2.5">
+              <div className="flex items-center justify-between border-b border-line dark:border-teal-800/40 pb-2">
+                <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+                  <Activity className="w-4 h-4 text-accent dark:text-teal-400" /> Pediatric Weight-Based Dosage Calculator
                 </h4>
-                <div className="flex items-center gap-2 font-mono text-[10px]">
-                  <span className="bg-white dark:bg-[#07252d] text-[#0f766e] dark:text-[#5eead4] px-2 py-0.5 border border-[#b2f5ea]">
+                <div className="flex items-center gap-2 font-mono text-2xs">
+                  <span className="bg-white dark:bg-night-900 text-accent dark:text-teal-300 px-2 py-0.5 border border-line">
                     Triage Recorded Today
                   </span>
-                  <span className="bg-white dark:bg-[#07252d] text-[#0f766e] dark:text-[#5eead4] px-2 py-0.5 border border-[#b2f5ea]">
+                  <span className="bg-white dark:bg-night-900 text-accent dark:text-teal-300 px-2 py-0.5 border border-line">
                     Range: 10 - 15 mg/kg
                   </span>
                   <span className="bg-rose-50 text-rose-700 px-2 py-0.5 border border-rose-200 font-bold">
@@ -400,12 +401,12 @@ export default function PlanTab({
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                  <label className="block text-2xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                     Patient Body Weight (kg)
                   </label>
                   <Input 
                     type="number" 
-                    className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
+                    className="w-full text-xs px-3 py-1.5 border border-line dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-brand outline-none bg-white dark:bg-night-900 text-ink dark:text-white font-bold"
                     value={patientWeight}
                     onChange={e => setPatientWeight(e.target.value)}
                     placeholder="e.g. 12"
@@ -416,10 +417,10 @@ export default function PlanTab({
                         key={w}
                         type="button"
                         onClick={() => setPatientWeight(w)}
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded-none border transition-all ${
+                        className={`text-2xs font-bold px-2 py-0.5 rounded-none border transition-all ${
                           patientWeight === w 
-                            ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                            : 'bg-white dark:bg-[#0e4857] text-[#0f766e] dark:text-[#5eead4] border-[#b2f5ea] dark:border-teal-700/50 hover:bg-[#e0f5f2] cursor-pointer'
+                            ? 'bg-primary text-white border-brand' 
+                            : 'bg-white dark:bg-night-700 text-accent dark:text-teal-300 border-line dark:border-teal-700/50 hover:bg-surface-accent cursor-pointer'
                         }`}
                       >
                         {w}kg
@@ -429,13 +430,13 @@ export default function PlanTab({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                  <label className="block text-2xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                     Liquid Formulation Concentration
                   </label>
                   <select
                     value={medConcentration}
                     onChange={e => setMedConcentration(e.target.value)}
-                    className="w-full text-xs px-3 py-1.5 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-bold"
+                    className="w-full text-xs px-3 py-1.5 border border-line dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-brand outline-none bg-white dark:bg-night-900 text-ink dark:text-white font-bold"
                   >
                     <option value="24">120mg / 5ml (Standard Syrup)</option>
                     <option value="50">250mg / 5ml (Forte Syrup)</option>
@@ -445,24 +446,24 @@ export default function PlanTab({
 
                 <div>
                   {calculatedDose ? (
-                    <div className="bg-white dark:bg-[#07252d] border border-[#0d9488] p-2 rounded-none text-center">
-                      <span className="text-[10px] text-slate-400 font-bold block uppercase">Recommended Single Dose</span>
-                      <span className="text-sm font-mono font-black text-[#0d9488] dark:text-[#2dd4bf]">
+                    <div className="bg-white dark:bg-night-900 border border-brand p-2 rounded-none text-center">
+                      <span className="text-2xs text-slate-400 font-bold block uppercase">Recommended Single Dose</span>
+                      <span className="text-sm font-mono font-bold text-accent dark:text-teal-400">
                         {calculatedDose.toFixed(1)} ml TDS
                       </span>
                       <button
                         type="button"
                         onClick={handleAddPediatricSyrup}
-                        className="mt-1 w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-[10px] uppercase py-1 rounded-none transition-colors"
+                        className="mt-1 w-full bg-primary hover:bg-primary-hover text-white font-bold text-2xs uppercase py-1 rounded-none transition-colors"
                       >
                         + Add Syrup to Rx List
                       </button>
-                      <p className="text-[9px] text-amber-700 dark:text-amber-300 font-bold mt-1.5 leading-tight">
+                      <p className="text-2xs text-amber-700 dark:text-amber-300 font-bold mt-1.5 leading-tight">
                         ⚠️ Requires clinical verification by attending physician.
                       </p>
                     </div>
                   ) : (
-                    <div className="p-2.5 text-center text-slate-400 border border-dashed border-slate-300 dark:border-teal-800/40 text-[11px]">
+                    <div className="p-2.5 text-center text-slate-400 border border-dashed border-slate-300 dark:border-teal-800/40 text-2xs">
                       Enter child weight to calculate dose.
                     </div>
                   )}
@@ -473,13 +474,13 @@ export default function PlanTab({
 
           {/* SEARCH DRUG CATALOG */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-tight">
+            <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase tracking-tight">
               Prescribe Medication (Trade / Generic / Brand Search) <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
               <Input 
                 type="text"
-                className="w-full text-xs px-3 py-2 border border-[#b2f5ea] dark:border-teal-800/50 rounded-none focus:ring-2 focus:ring-[#0d9488] outline-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-medium"
+                className="w-full text-xs px-3 py-2 border border-line dark:border-teal-800/50 rounded-none focus:ring-2 focus:ring-brand outline-none bg-white dark:bg-night-900 text-ink dark:text-white font-medium"
                 value={searchDrugQuery}
                 onChange={e => setSearchDrugQuery(e.target.value)}
                 placeholder="Type medication name (e.g. Paracetamol, Panadol, Augmentin, Ponstan, Zyrtec)..."
@@ -487,24 +488,24 @@ export default function PlanTab({
 
               {/* AUTOCOMPLETE DROPDOWN */}
               {drugSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-30 bg-white dark:bg-[#07252d] border-2 border-[#0d9488] shadow-xl max-h-60 overflow-y-auto rounded-none mt-1">
+                <div className="absolute top-full left-0 right-0 z-30 bg-white dark:bg-night-900 border-2 border-brand shadow-xl max-h-60 overflow-y-auto rounded-none mt-1">
                   {drugSuggestions.map(drug => (
                     <div
                       key={drug.id}
                       onClick={() => handleAddDrug(drug)}
-                      className="p-2.5 border-b border-slate-100 dark:border-teal-800/30 hover:bg-[#f0fdfa] dark:hover:bg-[#0c3844] cursor-pointer flex items-center justify-between text-xs transition-colors"
+                      className="p-2.5 border-b border-slate-100 dark:border-teal-800/30 hover:bg-surface-muted dark:hover:bg-night-800 cursor-pointer flex items-center justify-between text-xs transition-colors"
                     >
                       <div>
-                        <strong className="text-[#0f3c4c] dark:text-[#5eead4] font-bold block">{drug.name}</strong>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                        <strong className="text-ink dark:text-teal-300 font-bold block">{drug.name}</strong>
+                        <span className="text-2xs text-slate-500 dark:text-slate-400 font-medium">
                           Category: {drug.category} | Class: {drug.allergyGroup || 'General'}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs font-mono font-bold text-[#0d9488] dark:text-[#2dd4bf] block">
+                        <span className="text-xs font-mono font-bold text-accent dark:text-teal-400 block">
                           RM {(drug.pricePerUnit || 0.5).toFixed(2)}
                         </span>
-                        <span className="text-[10px] text-slate-400">Stock: {drug.currentStock || 100}</span>
+                        <span className="text-2xs text-slate-400">Stock: {drug.currentStock || 100}</span>
                       </div>
                     </div>
                   ))}
@@ -515,24 +516,24 @@ export default function PlanTab({
 
           {/* PRESCRIPTION LIST TABLE */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider flex items-center justify-between">
+            <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-between">
               <span>Active Prescription Items ({rxList.length})</span>
               {rxList.length > 0 && (
-                <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] font-normal">
+                <span className="text-slate-500 dark:text-slate-400 font-mono text-2xs font-normal">
                   Subtotal: RM {(rxList.reduce((acc, r) => acc + ((r.pricePerUnit || 0.5) * (r.quantity || 1)), 0)).toFixed(2)}
                 </span>
               )}
             </h4>
 
             {rxList.length === 0 ? (
-              <div className="p-6 text-center bg-slate-50 dark:bg-[#082830] border border-dashed border-slate-300 dark:border-teal-800/40 text-slate-400 text-xs">
+              <div className="p-6 text-center bg-slate-50 dark:bg-night-850 border border-dashed border-slate-300 dark:border-teal-800/40 text-slate-400 text-xs">
                 <Pill className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
                 <span>No medication items added. Search above to add items to prescription plan.</span>
               </div>
             ) : (
-              <div className="border border-[#b2f5ea] dark:border-teal-800/40 overflow-hidden rounded-none">
+              <div className="border border-line dark:border-teal-800/40 overflow-hidden rounded-none">
                 <table className="w-full text-left border-collapse text-xs">
-                  <thead className="bg-[#e0f5f2] dark:bg-[#07252d] text-[#0f3c4c] dark:text-[#5eead4] font-bold border-b border-[#b2f5ea] dark:border-teal-800/40">
+                  <thead className="bg-surface-accent dark:bg-night-900 text-ink dark:text-teal-300 font-bold border-b border-line dark:border-teal-800/40">
                     <tr>
                       <th className="p-2">Medication</th>
                       <th className="p-2">Dosage / Instructions</th>
@@ -542,10 +543,10 @@ export default function PlanTab({
                       <th className="p-2 text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-teal-800/30 bg-white dark:bg-[#082830]">
+                  <tbody className="divide-y divide-slate-100 dark:divide-teal-800/30 bg-white dark:bg-night-850">
                     {rxList.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-[#0c3844] transition-colors">
-                        <td className="p-2 font-bold text-[#0f3c4c] dark:text-white">
+                      <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-night-800 transition-colors">
+                        <td className="p-2 font-bold text-ink dark:text-white">
                           {item.drugName}
                         </td>
                         <td className="p-2 text-slate-600 dark:text-slate-300">
@@ -589,12 +590,12 @@ export default function PlanTab({
 
           {/* DISPENSING PHARMACY MEMO */}
           <div>
-            <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
+            <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase mb-1">
               Internal Pharmacy Memo / Notes for Dispensing Pharmacist
             </label>
             <Input 
               type="text"
-              className="w-full text-xs px-3 py-2 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white"
+              className="w-full text-xs px-3 py-2 border border-line dark:border-teal-800/40 rounded-none bg-white dark:bg-night-900 text-ink dark:text-white"
               value={pharmacyMemo}
               onChange={e => setPharmacyMemo(e.target.value)}
               placeholder="e.g. Split tablets into half doses, patient requested original trade pack..."
@@ -610,14 +611,14 @@ export default function PlanTab({
       {subTab === 'investigations' && (
         <div className="space-y-4 animate-fadeIn">
           
-          <div className="bg-[#f0fdfa] dark:bg-[#07252d] border border-[#b2f5ea] dark:border-teal-800/40 p-3 rounded-none flex items-center justify-between">
+          <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-3 rounded-none flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-black uppercase text-[#0f3c4c] dark:text-[#5eead4] flex items-center gap-1.5">
-                <Microscope className="w-4 h-4 text-[#0d9488]" /> Diagnostic Lab &amp; Imaging Requisition
+              <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+                <Microscope className="w-4 h-4 text-accent" /> Diagnostic Lab &amp; Imaging Requisition
               </h4>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Select laboratory investigations to order for this clinical encounter.</p>
+              <p className="text-2xs text-slate-500 dark:text-slate-400 mt-0.5">Select laboratory investigations to order for this clinical encounter.</p>
             </div>
-            <span className="text-xs font-mono font-bold text-[#0d9488] bg-white dark:bg-[#082830] px-2.5 py-1 border border-[#b2f5ea]">
+            <span className="text-xs font-mono font-bold text-accent bg-white dark:bg-night-850 px-2.5 py-1 border border-line">
               {selectedLabs.length} Tests Selected
             </span>
           </div>
@@ -632,8 +633,8 @@ export default function PlanTab({
                   onClick={() => toggleLabSelection(test.name)}
                   className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${
                     isSelected
-                      ? 'bg-[#e0f5f2] dark:bg-[#0c3844] border-[#0d9488] text-[#0f3c4c] dark:text-white shadow-2xs font-bold'
-                      : 'bg-white dark:bg-[#07252d] border-slate-200 dark:border-teal-800/40 text-slate-700 dark:text-slate-300 hover:border-[#b2f5ea]'
+                      ? 'bg-surface-accent dark:bg-night-800 border-brand text-ink dark:text-white shadow-2xs font-bold'
+                      : 'bg-white dark:bg-night-900 border-slate-200 dark:border-teal-800/40 text-slate-700 dark:text-slate-300 hover:border-line'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -641,16 +642,16 @@ export default function PlanTab({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => {}} // Handled by parent div
-                      className="w-4 h-4 text-[#0d9488] rounded-none focus:ring-0 cursor-pointer"
+                      className="w-4 h-4 text-accent rounded-none focus:ring-0 cursor-pointer"
                     />
                     <div>
                       <strong className="text-xs block">{test.name}</strong>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                      <span className="text-2xs text-slate-500 dark:text-slate-400 font-medium">
                         Category: {test.category} | TAT: {test.estTime}
                       </span>
                     </div>
                   </div>
-                  {isSelected && <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />}
+                  {isSelected && <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />}
                 </div>
               );
             })}
@@ -658,12 +659,12 @@ export default function PlanTab({
 
           {/* CLINICAL INDICATIONS / NOTES FOR LAB */}
           <div>
-            <label className="block text-xs font-bold text-[#0f3c4c] dark:text-[#5eead4] uppercase mb-1">
+            <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase mb-1">
               Clinical Rationale &amp; Indications for Investigations
             </label>
             <Input 
               type="text"
-              className="w-full text-xs px-3 py-2 border border-[#b2f5ea] dark:border-teal-800/40 rounded-none bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white"
+              className="w-full text-xs px-3 py-2 border border-line dark:border-teal-800/40 rounded-none bg-white dark:bg-night-900 text-ink dark:text-white"
               value={labReason}
               onChange={e => setLabReason(e.target.value)}
               placeholder="e.g. Evaluate fever origin, rule out urinary tract infection..."
@@ -682,12 +683,12 @@ export default function PlanTab({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* MEDICAL CERTIFICATE ISSUANCE CARD */}
-            <div className="border border-[#b2f5ea] dark:border-teal-800/40 bg-white dark:bg-[#07252d] p-4 rounded-none space-y-3">
+            <div className="border border-line dark:border-teal-800/40 bg-white dark:bg-night-900 p-4 rounded-none space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-                <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#0d9488]" /> Digital Medical Certificate (MC)
+                <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-accent" /> Digital Medical Certificate (MC)
                 </h4>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-none border ${
+                <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
                   mcGenerated ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-500 border-slate-200'
                 }`}>
                   {mcGenerated ? 'ISSUED' : 'NOT ISSUED'}
@@ -696,7 +697,7 @@ export default function PlanTab({
 
               <div className="space-y-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Duration (Days)</label>
+                  <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Duration (Days)</label>
                   <Input 
                     type="number"
                     min="1"
@@ -708,7 +709,7 @@ export default function PlanTab({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Clinical Diagnosis / Reason</label>
+                  <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Clinical Diagnosis / Reason</label>
                   <Input 
                     type="text"
                     value={mcReason}
@@ -721,10 +722,10 @@ export default function PlanTab({
               <button
                 type="button"
                 onClick={() => setMcGenerated(true)}
-                className={`w-full py-2 text-xs font-extrabold uppercase rounded-none border transition-colors cursor-pointer ${
+                className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
                   mcGenerated
                     ? 'bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700'
-                    : 'bg-[#0d9488] text-white border-[#0f766e] hover:bg-[#0f766e]'
+                    : 'bg-primary text-white border-primary hover:bg-primary-hover'
                 }`}
               >
                 {mcGenerated ? '✓ Medical Certificate (MC) Created & Attached' : 'Create medical certificate'}
@@ -732,12 +733,12 @@ export default function PlanTab({
             </div>
 
             {/* SPECIALIST REFERRAL LETTER CARD */}
-            <div className="border border-[#b2f5ea] dark:border-teal-800/40 bg-white dark:bg-[#07252d] p-4 rounded-none space-y-3">
+            <div className="border border-line dark:border-teal-800/40 bg-white dark:bg-night-900 p-4 rounded-none space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-                <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center gap-2">
-                  <Share className="w-4 h-4 text-[#0d9488]" /> Specialist Referral Note
+                <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-2">
+                  <Share className="w-4 h-4 text-accent" /> Specialist Referral Note
                 </h4>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-none border ${
+                <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
                   referralGenerated ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-slate-100 text-slate-500 border-slate-200'
                 }`}>
                   {referralGenerated ? 'ATTACHED' : 'NONE'}
@@ -746,7 +747,7 @@ export default function PlanTab({
 
               <div className="space-y-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Target Hospital / Clinic</label>
+                  <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Target Hospital / Clinic</label>
                   <Input 
                     type="text"
                     value={referralDetails.hospital}
@@ -757,7 +758,7 @@ export default function PlanTab({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Specialty Department</label>
+                  <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Specialty Department</label>
                   <Input 
                     type="text"
                     value={referralDetails.department}
@@ -771,10 +772,10 @@ export default function PlanTab({
               <button
                 type="button"
                 onClick={() => setReferralGenerated(true)}
-                className={`w-full py-2 text-xs font-extrabold uppercase rounded-none border transition-colors cursor-pointer ${
+                className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
                   referralGenerated
                     ? 'bg-indigo-600 text-white border-indigo-700 hover:bg-indigo-700'
-                    : 'bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-200 border-[#b2f5ea] dark:border-teal-800/40 hover:bg-[#e0f5f2]'
+                    : 'bg-white dark:bg-night-900 text-ink dark:text-slate-200 border-line dark:border-teal-800/40 hover:bg-surface-accent'
                 }`}
               >
                 {referralGenerated ? '✓ Specialist Referral Created & Attached' : 'Create referral draft'}
@@ -792,8 +793,8 @@ export default function PlanTab({
       {subTab === 'summary' && (
         <div className="space-y-4 animate-fadeIn">
           
-          <div className="border border-[#b2f5ea] dark:border-teal-800/40 bg-[#f7fdfd] dark:bg-[#07252d] p-4 rounded-none space-y-3">
-            <h4 className="text-xs font-black text-[#0f3c4c] dark:text-[#5eead4] uppercase flex items-center justify-between border-b border-[#b2f5ea] pb-2">
+          <div className="border border-line dark:border-teal-800/40 bg-surface dark:bg-night-900 p-4 rounded-none space-y-3">
+            <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-between border-b border-line pb-2">
               <span>Full Order &amp; Plan Verification Summary</span>
               <span className="font-mono text-emerald-600 font-bold">Ready for Final Sign-Off</span>
             </h4>
@@ -801,14 +802,14 @@ export default function PlanTab({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               
               {/* Prescribed Drugs List Summary */}
-              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+              <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
                   1. Prescribed Medications ({rxList.length})
                 </span>
                 {rxList.length === 0 ? (
-                  <p className="text-slate-400 text-[11px] italic">No medications prescribed.</p>
+                  <p className="text-slate-400 text-2xs italic">No medications prescribed.</p>
                 ) : (
-                  <ul className="space-y-1 font-mono text-[11px]">
+                  <ul className="space-y-1 font-mono text-2xs">
                     {rxList.map(r => (
                       <li key={r.id} className="flex justify-between border-b border-slate-100 dark:border-teal-800/20 py-0.5">
                         <span>{r.drugName} ({r.dosage})</span>
@@ -820,17 +821,17 @@ export default function PlanTab({
               </div>
 
               {/* Lab Requisitions Summary */}
-              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+              <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
                   2. Diagnostic Investigations ({selectedLabs.length})
                 </span>
                 {selectedLabs.length === 0 ? (
-                  <p className="text-slate-400 text-[11px] italic">No lab tests ordered.</p>
+                  <p className="text-slate-400 text-2xs italic">No lab tests ordered.</p>
                 ) : (
-                  <ul className="space-y-1 text-[11px] font-mono">
+                  <ul className="space-y-1 text-2xs font-mono">
                     {selectedLabs.map((lab, i) => (
                       <li key={i} className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                        <span className="w-1.5 h-1.5 bg-[#0d9488] rounded-full"></span>
+                        <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                         <span>{lab}</span>
                       </li>
                     ))}
@@ -839,24 +840,24 @@ export default function PlanTab({
               </div>
 
               {/* Certificates & Notes Summary */}
-              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+              <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
                   3. Certificates &amp; Referrals
                 </span>
-                <p className="text-[11px] text-slate-700 dark:text-slate-300">
+                <p className="text-2xs text-slate-700 dark:text-slate-300">
                   MC Status: <strong>{mcGenerated ? `Issued (${mcDays} Days)` : 'None'}</strong>
                 </p>
-                <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-1">
+                <p className="text-2xs text-slate-700 dark:text-slate-300 mt-1">
                   Referral: <strong>{referralGenerated ? `Specialist Note attached for ${referralDetails.hospital}` : 'None'}</strong>
                 </p>
               </div>
 
               {/* Dispensing Notes Summary */}
-              <div className="bg-white dark:bg-[#082830] p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-                <span className="font-extrabold text-[11px] text-[#0f3c4c] dark:text-[#5eead4] uppercase block mb-1.5">
+              <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+                <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
                   4. Dispensing Memo
                 </span>
-                <p className="text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                <p className="text-2xs font-mono text-slate-600 dark:text-slate-300">
                   {pharmacyMemo || 'No additional dispensing notes.'}
                 </p>
               </div>
@@ -872,17 +873,17 @@ export default function PlanTab({
       {/* ========================================================================= */}
       {pendingAllergyDrug && (
         <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#07252d] border-2 border-rose-600 max-w-lg w-full p-6 rounded-none space-y-4 shadow-2xl text-[#0f3c4c] dark:text-white">
+          <div className="bg-white dark:bg-night-900 border-2 border-rose-600 max-w-lg w-full p-6 rounded-none space-y-4 shadow-2xl text-ink dark:text-white">
             <div className="flex items-center gap-3 text-rose-600">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="font-black text-sm uppercase tracking-wide">CRITICAL DRUG CONTRAINDICATION ALERT</h3>
+              <h3 className="type-heading-caps">CRITICAL DRUG CONTRAINDICATION ALERT</h3>
             </div>
             
             <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium space-y-2">
               <p>
-                Patient <strong className="text-[#0f3c4c] dark:text-[#5eead4]">{currentPatient.fullName}</strong> has registered allergies matching <strong className="text-rose-600 uppercase underline font-extrabold">{pendingAllergyDrug.allergyGroup || pendingAllergyDrug.name}</strong>.
+                Patient <strong className="text-ink dark:text-teal-300">{currentPatient.fullName}</strong> has registered allergies matching <strong className="text-rose-600 uppercase underline font-bold">{pendingAllergyDrug.allergyGroup || pendingAllergyDrug.name}</strong>.
               </p>
-              <div className="bg-rose-50 dark:bg-rose-950/60 p-3 border border-rose-200 dark:border-rose-800 font-mono text-[11px] text-rose-900 dark:text-rose-200">
+              <div className="bg-rose-50 dark:bg-rose-950/60 p-3 border border-rose-200 dark:border-rose-800 font-mono text-2xs text-rose-900 dark:text-rose-200">
                 <p><strong>Drug Class:</strong> {pendingAllergyDrug.allergyGroup || 'NSAID / Anti-inflammatory'}</p>
                 <p><strong>Reaction History:</strong> {currentPatient.drugAllergies.join(', ') || 'Severe Bronchospasm & Urticaria'}</p>
               </div>
@@ -892,7 +893,7 @@ export default function PlanTab({
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+              <label className="block text-2xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                 Required Clinical Rationale for Override *
               </label>
               <Input
@@ -900,7 +901,7 @@ export default function PlanTab({
                 value={overrideRationale}
                 onChange={e => setOverrideRationale(e.target.value)}
                 placeholder="e.g. Desensitization protocol active / benefit outweighs risk"
-                className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-rose-500 bg-white dark:bg-[#082830] text-[#0f3c4c] dark:text-white"
+                className="w-full text-xs p-2 border border-slate-300 dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-rose-500 bg-white dark:bg-night-850 text-ink dark:text-white"
               />
             </div>
 
@@ -921,7 +922,7 @@ export default function PlanTab({
                   setPendingAllergyDrug(null);
                   setOverrideRationale('');
                 }}
-                className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 text-xs font-black rounded-none disabled:opacity-50 cursor-pointer shadow-xs"
+                className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 text-xs font-bold rounded-none disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 Confirm Override &amp; Add Drug
               </button>

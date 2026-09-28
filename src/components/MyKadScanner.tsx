@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, ShieldAlert, CheckCircle, RefreshCw, ScanLine } from 'lucide-react';
 
+import ProgressBar from './ui/ProgressBar';
 interface MyKadData {
   fullName: string;
   icNumber: string;
@@ -103,10 +104,10 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
 
   return (
     <div id="mykad-scanner-modal" role="dialog" aria-modal="true" aria-labelledby="mykad-scanner-title" className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+      <div className="bg-white rounded-none shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
         
         {/* Header */}
-        <div className="bg-[#07B2B2] px-5 py-4 text-white flex items-center justify-between">
+        <div className="bg-primary px-5 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ScanLine className="w-5 h-5 text-cyan-300" />
             <h3 id="mykad-scanner-title" className="font-semibold tracking-wide">MyKad Smart OCR & Reader</h3>
@@ -115,7 +116,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
             id="close-scanner-btn" 
             onClick={onClose}
             aria-label="Close MyKad scanner modal"
-            className="text-white/80 hover:text-white transition-colors text-xl font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none rounded-sm px-1"
+            className="text-white/80 hover:text-white transition-colors text-xl font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none rounded-none px-1"
           >
             &times;
           </button>
@@ -123,7 +124,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
 
         {/* Diagnostic Simulator Area */}
         <div className="p-5 space-y-4">
-          <div className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex items-start gap-2">
+          <div className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-2.5 rounded-none border border-slate-100 flex items-start gap-2">
             <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
             <span>
               <strong>Smart PWA Simulation</strong> Mode active. Select a simulated Malaysian citizen ID chip sequence below, then test the real-time card capture triggers.
@@ -131,7 +132,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
           </div>
 
           {/* Scanner Window Screen */}
-          <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-950 border-2 border-[#07B2B2] shadow-inner flex flex-col items-center justify-center text-white">
+          <div className="relative aspect-video rounded-none overflow-hidden bg-slate-950 border-2 border-brand shadow-inner flex flex-col items-center justify-center text-white">
             {videoStreamActive ? (
               <video 
                 ref={videoRef} 
@@ -144,12 +145,12 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
               <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-slate-950">
                 <Camera className="w-10 h-10 text-cyan-500 animate-pulse mb-2" />
                 <span className="text-xs font-mono text-slate-400">PWA CHIP OCR ACTIVE</span>
-                <span className="text-[10px] text-slate-500 mt-1">Align Malaysian IC with blue frame markings</span>
+                <span className="text-2xs text-slate-500 mt-1">Align Malaysian IC with blue frame markings</span>
               </div>
             )}
 
             {/* Simulated frame overlay */}
-            <div className="absolute inset-8 border border-dashed border-cyan-500 rounded flex items-center justify-center pointer-events-none">
+            <div className="absolute inset-8 border border-dashed border-cyan-500 rounded-none flex items-center justify-center pointer-events-none">
               <div className="w-8 h-8 absolute top-0 left-0 border-t-2 border-l-2 border-cyan-400"></div>
               <div className="w-8 h-8 absolute top-0 right-0 border-t-2 border-r-2 border-cyan-400"></div>
               <div className="w-8 h-8 absolute bottom-0 left-0 border-b-2 border-l-2 border-cyan-400"></div>
@@ -157,25 +158,22 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
 
               {/* Laser line scan animated */}
               {isScanning && (
-                <div 
-                  className="absolute w-full h-0.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-bounce"
-                  style={{ top: `${scanProgress}%` }}
-                />
+                <div className="scan-line" />
               )}
             </div>
 
             {/* Chip Reader Highlight */}
-            <div className="absolute top-1/2 left-8 w-12 h-10 border border-amber-500 bg-amber-500/10 rounded pointer-events-none flex items-center justify-center">
-              <span className="text-[8px] font-mono text-amber-400 uppercase tracking-tight">CHIP RFID</span>
+            <div className="absolute top-1/2 left-8 w-12 h-10 border border-amber-500 bg-amber-500/10 rounded-none pointer-events-none flex items-center justify-center">
+              <span className="text-2xs font-mono text-amber-400 uppercase tracking-tight">CHIP RFID</span>
             </div>
 
             {/* Scanned result indicator splash */}
             {scanSuccess && (
-              <div className="absolute inset-0 bg-[#07B2B2]/90 flex flex-col items-center justify-center text-white transition-opacity duration-300">
+              <div className="absolute inset-0 bg-primary/90 flex flex-col items-center justify-center text-white transition-opacity duration-300">
                 <CheckCircle className="w-12 h-12 text-cyan-400 animate-bounce mb-2" />
                 <span className="font-mono text-sm tracking-wide font-semibold text-emerald-300">CARD CHIP READ!</span>
                 <span className="text-xs text-emerald-100 font-mono mt-1">{selectedKad.fullName}</span>
-                <span className="text-[10px] text-[#86efac] mt-0.5">{selectedKad.icNumber}</span>
+                <span className="text-2xs text-green-300 mt-0.5">{selectedKad.icNumber}</span>
               </div>
             )}
           </div>
@@ -195,14 +193,14 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
                     setSelectedKad(kad);
                     setScanSuccess(false);
                   }}
-                  className={`p-2.5 rounded-lg border text-left flex flex-col transition-all cursor-pointer ${
+                  className={`p-2.5 rounded-none border text-left flex flex-col transition-all cursor-pointer ${
                     selectedKad.icNumber === kad.icNumber 
-                      ? 'border-[#07B2B2] bg-cyan-50/50 text-[#07B2B2] font-medium ring-2 ring-cyan-600/10' 
+                      ? 'border-brand bg-cyan-50/50 text-accent font-medium ring-2 ring-cyan-600/10' 
                       : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
                   }`}
                 >
                   <span className="font-medium truncate">{kad.fullName}</span>
-                  <span className="text-[10px] text-slate-400 mt-0.5">{kad.icNumber}</span>
+                  <span className="text-2xs text-slate-400 mt-0.5">{kad.icNumber}</span>
                 </button>
               ))}
             </div>
@@ -210,16 +208,11 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
 
           {/* Progress gauge bar */}
           {isScanning && (
-            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-              <div 
-                className="bg-[#07B2B2] h-2 transition-all duration-150"
-                style={{ width: `${scanProgress}%` }}
-              />
-            </div>
+            <ProgressBar value={scanProgress} pill label="Scan progress" />
           )}
 
           {/* Prompt info */}
-          <div className="text-[10px] text-slate-400 bg-slate-50 p-2 rounded text-center">
+          <div className="text-2xs text-slate-400 bg-slate-50 p-2 rounded-none text-center">
             PWA biometric validation connects over ISO/IEC 7816 chip reader protocols.
           </div>
         </div>
@@ -238,7 +231,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
             id="simulate-scan-start-btn"
             onClick={triggerScan}
             disabled={isScanning}
-            className="bg-[#07B2B2] text-white px-5 py-2 rounded-none text-xs font-medium hover:bg-[#058A8A] transition-colors flex items-center gap-2 focus:ring-2 focus:ring-cyan-600 focus:outline-none cursor-pointer disabled:opacity-60"
+            className="bg-primary text-white px-5 py-2 rounded-none text-xs font-medium hover:bg-primary-hover transition-colors flex items-center gap-2 focus:ring-2 focus:ring-cyan-600 focus:outline-none cursor-pointer disabled:opacity-60"
           >
             <Camera className="w-4 h-4" />
             {isScanning ? `${scanProgress}% Extracting Data...` : 'Initialize MyKad Scan'}

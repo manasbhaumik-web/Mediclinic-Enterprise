@@ -2,132 +2,271 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/* ========================================================================= */
+/* DESIGN TOKENS                                                             */
+/* Semantic colours switch automatically under `.dark` (Night Shift); the    */
+/* `chrome`, `night` and partner palettes are fixed in both modes.           */
+/* ========================================================================= */
 @theme {
+  /* Typography — two families only */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;  /* IDs, codes, figures */
+
+  /* Four weights only: 400 body · 500 secondary UI · 600 labels & card titles · 700 headings & emphasis.
+     (Tailwind's extrabold/black are not used.) */
+
+  /* Smallest UI text (dense staff tables, badges). Replaces ad-hoc 8–11px sizes. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+
+  /* Surfaces (light ice-mint) */
+  --color-canvas: #f3f8f7;          /* workspace background behind cards */
+  --color-surface: #fbfefe;         /* cards, page background */
+  --color-surface-muted: #f5fcfa;   /* nested panels, table stripes */
+  --color-surface-accent: #eef9f6;  /* ice-mint cards, headers, soft buttons */
+  --color-surface-strong: #e0f4ef;  /* hover / pressed on accent surfaces */
+
+  /* Lines */
+  --color-line-subtle: #dcf6ef;
+  --color-line: #bfeee3;
+  --color-line-strong: #8fe3d3;
+
+  /* Text */
+  --color-ink: #0f3c4c;             /* headings and primary text */
+  --color-deep: #0f3c4c;            /* dark feature panels; fixed in both modes */
+  --color-accent: #0f766e;          /* teal text, links, icons (AA on light surfaces) */
+
+  /* Brand */
+  --color-brand: #0d9488;           /* borders, focus rings, highlights */
+  --color-primary: #0f766e;         /* filled buttons (AA with white text) */
+  --color-primary-hover: #115e59;
+
+  /* Staff app chrome (header bar, sub-navigation) */
+  --color-chrome: #0a837f;
+  --color-chrome-nav: #0d9488;
+  --color-chrome-active: #0f766e;
+  --color-chrome-deep: #086b68;
+  --color-chrome-line: #065451;
+  --color-chrome-hover: #074f4b;
+
+  /* Night Shift palette */
+  --color-night-950: #061f26;
+  --color-night-900: #07252d;
+  --color-night-850: #082830;
+  --color-night-800: #0c3844;
+  --color-night-700: #0e4857;
+  --color-night-600: #12596b;
+
+  /* Partner brand colours */
+  --color-stripe: #635bff;
+  --color-stripe-hover: #524bde;
+  --color-tng: #0052a5;             /* Touch 'n Go eWallet */
+
+  /* Shadows */
+  --shadow-glow-danger: 0 0 15px rgb(239 68 68 / 0.15);
+  --shadow-bar-up: 0 -4px 16px rgb(15 60 76 / 0.08);  /* bottom-docked action bars */
+}
+
+.dark {
+  --color-canvas: #07252d;
+  --color-surface: #082830;
+  --color-surface-muted: #09333e;
+  --color-surface-accent: #082830;
+  --color-surface-strong: #0e4857;
+
+  --color-line-subtle: rgb(45 212 191 / 0.2);
+  --color-line: rgb(45 212 191 / 0.25);
+  --color-line-strong: rgb(45 212 191 / 0.4);
+
+  --color-ink: #5eead4;
+  --color-accent: #2dd4bf;
+
+  --color-brand: #14b8a6;
+  --color-primary: #0d9488;
+  --color-primary-hover: #0f766e;
 }
 
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f7fdfd;
-  color: #0f3c4c;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
 }
 
-/* Enforce flat, sharp square corners (zero border-radius) across ALL cards, buttons, inputs, tabs, div containers, and workspace elements */
-button,
-input,
-select,
-textarea,
-div,
-section,
-article,
-header,
-nav,
-aside,
-main,
-form,
-fieldset,
-label,
-p,
-h1, h2, h3, h4, h5, h6,
-[role="tab"],
-[role="dialog"],
-.ice-mint-card,
-.ice-mint-panel,
-.mint-badge,
-.card,
-.panel {
-  border-radius: 0px !important;
+.dark {
+  color: #f8fafc;
 }
 
-/* EXCEPTIONS: Preserve round circle corners ONLY for blinking/pulsing indicator dots, ping rings, and live status dots */
-.rounded-full.animate-pulse,
-.rounded-full.animate-ping,
-.animate-pulse,
-.animate-ping,
-.status-dot,
-span.bg-emerald-400,
-span.bg-emerald-500,
-span.bg-teal-400,
-span.bg-teal-500,
-span.bg-rose-500,
-span.bg-red-500,
-span.bg-amber-500,
-[class*="w-2"].rounded-full,
-[class*="w-3"].rounded-full,
-[class*="h-2"].rounded-full,
-[class*="h-3"].rounded-full {
-  border-radius: 9999px !important;
+/* Keep emphasis inside the four-weight scale (browser default "bolder" resolves to 900 inside bold text). */
+b,
+strong {
+  font-weight: 700;
 }
 
+/* ========================================================================= */
+/* COMPONENT CLASSES                                                         */
+/* ========================================================================= */
+@layer components {
+  /* ----------------------------------------------------------------------- */
+  /* Type roles — every heading uses one of these instead of ad-hoc sizes    */
+  /* ----------------------------------------------------------------------- */
+  .type-brand {              /* product wordmark in app headers */
+    @apply text-sm font-bold uppercase tracking-tight leading-none;
+  }
+  .type-display {            /* landing hero headline */
+    @apply text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight;
+  }
+  .type-page-title {         /* one per screen */
+    @apply text-xl font-bold tracking-tight leading-tight;
+  }
+  .type-section-title {      /* section / panel headings */
+    @apply text-lg font-bold tracking-tight leading-snug;
+  }
+  .type-section-title-lg {   /* marketing-page section headings */
+    @apply text-2xl sm:text-3xl font-bold tracking-tight leading-tight;
+  }
+  .type-card-title {         /* card, list-item and dialog headings */
+    @apply text-sm font-semibold leading-snug;
+  }
+  .type-card-title-lg {      /* marketing-page card headings */
+    @apply text-base font-semibold leading-snug;
+  }
+  .type-metric {             /* KPI values */
+    @apply text-2xl font-bold tracking-tight leading-none;
+  }
+  .type-heading-caps {       /* uppercase panel / table-group headings */
+    @apply text-xs font-bold uppercase tracking-wider;
+  }
+  .type-label {              /* eyebrows, field labels, badges */
+    @apply text-2xs font-semibold uppercase tracking-wider;
+  }
 
-@layer utilities {
   .ice-mint-header {
-    @apply bg-[#e0f5f2]/95 backdrop-blur-md border-b border-[#99f6e4] shadow-xs text-[#0f3c4c];
+    @apply bg-surface-accent/95 backdrop-blur-md border-b border-line shadow-xs text-ink;
   }
 
   .ice-mint-card {
-    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none overflow-hidden transition-colors duration-200;
+    @apply bg-surface-accent border border-line shadow-xs rounded-none overflow-hidden transition-colors duration-200;
   }
 
   .ice-mint-card-interactive {
-    @apply bg-[#e6f4f1] border border-[#99f6e4] shadow-xs rounded-none transition-all duration-200 hover:bg-[#e0f5f2] hover:border-[#5eead4] hover:shadow-sm;
+    @apply bg-surface-accent border border-line shadow-xs rounded-none transition-all duration-200 hover:bg-surface-strong hover:border-line-strong hover:shadow-sm;
   }
 
   .ice-mint-panel {
-    @apply bg-[#e0f5f2] border border-[#99f6e4] shadow-sm rounded-none;
+    @apply bg-surface-accent border border-line shadow-sm rounded-none;
   }
 
   .mint-badge {
-    @apply bg-[#d5f0eb] text-[#0d9488] border border-[#99f6e4] px-2.5 py-1 rounded-none font-bold text-[10px];
+    @apply bg-surface-strong text-accent border border-line px-2.5 py-1 rounded-none font-bold text-2xs;
   }
 
-  /* Navigation & Switcher Hover / Active Design System */
+  /* Navigation & switcher buttons */
   .nav-btn {
-    @apply h-full flex items-center px-4 rounded-none text-xs font-bold cursor-pointer whitespace-nowrap border-0 outline-none focus-visible:ring-2 focus-visible:ring-[#2dd4bf] focus-visible:outline-none;
+    @apply h-full flex items-center px-4 rounded-none text-xs font-bold cursor-pointer whitespace-nowrap border-0 outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none;
   }
 
   .nav-btn-inactive {
-    @apply text-teal-50 hover:bg-[#0f766e] hover:text-white border-0 font-semibold;
+    @apply text-teal-50 hover:bg-chrome-active hover:text-white border-0 font-semibold;
   }
 
   .nav-btn-active {
-    @apply bg-[#0f766e] text-white border-0 font-black shadow-none ring-0;
+    @apply bg-chrome-active text-white border-0 font-bold shadow-none ring-0;
   }
 
   .changer-container {
-    @apply inline-flex items-stretch bg-[#d5f0eb] dark:bg-[#07252d] border border-[#99f6e4] dark:border-teal-800/60 rounded-none font-mono p-0 overflow-hidden h-8;
+    @apply inline-flex items-stretch bg-surface-strong dark:bg-night-900 border border-line rounded-none font-mono p-0 overflow-hidden h-8;
   }
 
   .changer-btn {
-    @apply px-3.5 py-0 text-[11px] font-bold cursor-pointer rounded-none relative outline-none flex items-center justify-center transition-all h-full border-r border-[#99f6e4] dark:border-teal-800/60 last:border-r-0;
+    @apply px-3.5 py-0 text-2xs font-bold cursor-pointer rounded-none relative outline-none flex items-center justify-center transition-all h-full border-r border-line last:border-r-0;
   }
 
   .changer-btn-active {
-    @apply bg-[#0d9488] text-white font-black h-full shadow-none;
+    @apply bg-primary text-white font-bold h-full shadow-none;
   }
 
   .changer-btn-inactive {
-    @apply text-[#0f3c4c] dark:text-teal-100 hover:text-[#0f3c4c] hover:bg-[#e0f5f2] dark:hover:bg-[#086b68] h-full;
+    @apply text-ink dark:text-teal-100 hover:bg-surface-accent dark:hover:bg-chrome-deep h-full;
   }
 
+  /* Progress bars: native <progress class="progress progress-md progress-primary"> */
+  .progress {
+    @apply block w-full appearance-none border-0 overflow-hidden rounded-none bg-slate-100 dark:bg-night-950;
+    --progress-fill: var(--color-primary);
+  }
+  .progress-sm { @apply h-1.5; }
+  .progress-md { @apply h-2; }
+  .progress-pill { @apply rounded-full; }
+  .progress-pulse { @apply animate-pulse; }
+  .progress-primary { --progress-fill: var(--color-primary); }
+  .progress-success { --progress-fill: var(--color-emerald-500); }
+  .progress-warning { --progress-fill: var(--color-amber-500); }
+  .progress-danger { --progress-fill: var(--color-rose-500); }
+  .progress::-webkit-progress-bar { background: transparent; }
+  .progress::-webkit-progress-value { background: var(--progress-fill); transition: width 0.3s ease; }
+  .progress::-moz-progress-bar { background: var(--progress-fill); }
+
+  /* Chart legend colour key (colour comes from chart data via the SVG fill attribute) */
+  .legend-swatch { @apply w-3 h-3 shrink-0; }
+  .legend-swatch-sm { @apply w-2.5 h-2.5; }
+
+  /* MyKad scanner sweep line */
+  .scan-line {
+    @apply absolute inset-x-0 h-0.5 bg-red-500 shadow-[0_0_8px_rgb(239_68_68/0.8)];
+    animation: scanSweep 1.6s ease-in-out infinite alternate;
+  }
+
+  /* Landing hero background slides */
+  .hero-slide { @apply absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-in-out; }
+  .hero-slide-1 { background-image: url('/ai_hero_slide_1.jpg'); }
+  .hero-slide-2 { background-image: url('/ai_hero_slide_2.jpg'); }
+  .hero-slide-3 { background-image: url('/ai_hero_slide_3.jpg'); }
+  .hero-slide-4 { background-image: url('/ai_hero_slide_4.jpg'); }
+
+  /* Boot screen shown by index.html before React mounts */
+  .app-preloader {
+    @apply fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-surface text-ink font-sans;
+  }
+  .app-preloader-mark { @apply relative flex items-center justify-center mb-6; }
+  .app-preloader-ring {
+    @apply w-20 h-20 rounded-full bg-brand/15;
+    animation: pulseRing 2s ease-in-out infinite;
+  }
+  .app-preloader-logo { @apply absolute flex items-center p-3 bg-white border-2 border-brand; }
+  .app-preloader-logo img { @apply w-10 h-10; }
+  .app-preloader-title { @apply m-0 text-base font-bold uppercase tracking-wider text-ink; }
+  .app-preloader-status { @apply mt-1.5 text-xs font-bold text-accent; }
+  .app-preloader-track { @apply relative mt-4 w-[180px] h-[5px] overflow-hidden bg-surface-accent border border-line; }
+  .app-preloader-bar {
+    @apply w-[60px] h-full bg-brand;
+    animation: barSlide 1.5s linear infinite;
+  }
+
+  /* Uncaught-error banner injected by index.html */
+  .app-error-overlay {
+    @apply fixed top-0 left-0 z-[9999] w-full p-5 bg-red-600 text-white font-mono text-xs whitespace-pre-wrap;
+  }
+}
+
+@layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #f0fdfa;
+    background: var(--color-surface-muted);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #99f6e4;
+    background: var(--color-line);
     border-radius: 9999px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #0d9488;
+    background: var(--color-brand);
   }
 
   .no-scrollbar::-webkit-scrollbar,
@@ -152,6 +291,21 @@ span.bg-amber-500,
   }
 }
 
+@keyframes scanSweep {
+  from { top: 0%; }
+  to { top: 100%; }
+}
+
+@keyframes pulseRing {
+  0%, 100% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.3; }
+}
+
+@keyframes barSlide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(200%); }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -164,141 +318,54 @@ span.bg-amber-500,
 }
 
 /* ========================================================================= */
-/* NIGHT SHIFT / DARK MODE COMPONENT CONTRAST ELEVATION                       */
+/* NIGHT SHIFT: STANDARD TAILWIND NEUTRALS & STATUS COLOURS                  */
+/* Token-based classes switch on their own; these rules adapt components     */
+/* that still use Tailwind's white/slate/status palette directly.            */
 /* ========================================================================= */
 
-.dark,
-.dark body {
-  background-color: #07252d !important;
-  color: #f8fafc !important;
-}
-
-/* Global Gradient Removal Enforcement */
-[class*="bg-gradient"],
-.bg-gradient-to-r,
-.bg-gradient-to-l,
-.bg-gradient-to-t,
-.bg-gradient-to-b,
-.bg-gradient-to-tr,
-.bg-gradient-to-tl,
-.bg-gradient-to-br,
-.bg-gradient-to-bl,
-[class*="bg-radial"] {
-  background-image: none !important;
-}
-
-/* Override background gradients in Dark / Night Mode */
-.dark [class*="bg-gradient"],
-.dark .bg-gradient-to-r,
-.dark .bg-gradient-to-l,
-.dark .bg-gradient-to-t,
-.dark .bg-gradient-to-b,
-.dark .bg-gradient-to-tr,
-.dark .bg-gradient-to-tl,
-.dark .bg-gradient-to-br,
-.dark .bg-gradient-to-bl {
-  background-image: none !important;
-  background-color: #0c3844 !important;
-  border-color: rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Main workspace area and main wrapper in Dark Mode */
-.dark main,
-.dark .bg-\[\#edf2f1\],
-.dark [class*="bg-[#edf2f1]"] {
-  background-color: #07252d !important;
-  color: #f8fafc !important;
-}
-
-/* Cards, Banners, and Panels in Dark Mode */
+/* Cards and panels */
 .dark .bg-white,
 .dark .bg-slate-50,
-.dark .bg-slate-100,
-.dark .bg-slate-200,
 .dark [class*="bg-white"],
-.dark [class*="bg-slate-50"],
-.dark [class*="bg-slate-100"],
-.dark [class*="bg-slate-200"],
-.dark [class*="bg-[#f7fdfd]"],
-.dark [class*="bg-[#f0fdfa]"],
-.dark [class*="bg-[#e0f5f2]"],
-.dark [class*="bg-[#e6f4f1]"],
-.dark [class*="bg-[#edf2f1]"],
-.dark [class*="bg-[#d5f0eb]"],
-.dark .ice-mint-card,
-.dark .ice-mint-card-interactive,
-.dark .ice-mint-panel,
-.dark .ice-mint-header {
-  background-color: #082830 !important;
-  color: #f8fafc !important;
-  border-color: rgba(45, 212, 191, 0.25) !important;
-}
-
-/* Sub-cards and nested containers inside dark cards */
-.dark .bg-\[\#f0fdfa\],
-.dark [class*="bg-[#f0fdfa]"],
-.dark .bg-slate-50\/50,
 .dark [class*="bg-slate-50"] {
-  background-color: #09333e !important;
-  border-color: rgba(45, 212, 191, 0.2) !important;
+  background-color: var(--color-night-850) !important;
+  color: #f8fafc !important;
+  border-color: rgb(45 212 191 / 0.25) !important;
 }
 
-/* Secondary Buttons in Dark Mode */
+/* Soft (secondary) buttons */
 .dark button.bg-white,
 .dark button.bg-slate-50,
 .dark button.bg-slate-100,
 .dark button[class*="bg-white"],
 .dark button[class*="bg-slate-50"],
 .dark button[class*="bg-slate-100"],
-.dark button[class*="bg-[#e0f5f2]"],
-.dark button[class*="bg-[#f0fdfa]"],
-.dark button[class*="bg-[#f7fdfd]"],
-.dark button[class*="bg-[#e6f4f1]"] {
-  background-color: #0e4857 !important;
+.dark button[class*="bg-surface"] {
+  background-color: var(--color-night-700) !important;
   color: #5eead4 !important;
-  border-color: rgba(45, 212, 191, 0.4) !important;
+  border-color: rgb(45 212 191 / 0.4) !important;
 }
 
 .dark button.bg-white:hover,
 .dark button.bg-slate-50:hover,
 .dark button[class*="bg-white"]:hover,
 .dark button[class*="bg-slate-50"]:hover,
-.dark button[class*="bg-[#e0f5f2]"]:hover,
-.dark button[class*="bg-[#f0fdfa]"]:hover,
-.dark button[class*="bg-[#e6f4f1]"]:hover {
-  background-color: #12596b !important;
+.dark button[class*="bg-surface"]:hover {
+  background-color: var(--color-night-600) !important;
   color: #ffffff !important;
 }
 
-/* Primary Teal Buttons in Dark Mode */
-.dark button.bg-\[\#0a837f\],
-.dark button[class*="bg-[#0a837f]"],
-.dark button.bg-\[\#0d9488\],
-.dark button[class*="bg-[#0d9488]"],
-.dark button.bg-\[\#0f766e\],
-.dark button[class*="bg-[#0f766e]"] {
-  background-color: #0d9488 !important;
-  color: #ffffff !important;
-  border-color: #14b8a6 !important;
-}
-
-.dark button.bg-\[\#0a837f\]:hover,
-.dark button[class*="bg-[#0a837f]"]:hover,
-.dark button.bg-\[\#0d9488\]:hover,
-.dark button[class*="bg-[#0d9488]"]:hover {
-  background-color: #0f766e !important;
-  color: #ffffff !important;
-}
-
-/* Dark Mode Table Headers & Rows */
+/* Table headers and rows */
 .dark tr.bg-slate-100,
 .dark thead tr,
 .dark .bg-slate-100,
 .dark .bg-slate-200,
+.dark [class*="bg-slate-100"],
+.dark [class*="bg-slate-200"],
 .dark thead {
-  background-color: #061f26 !important;
+  background-color: var(--color-night-950) !important;
   color: #cbd5e1 !important;
-  border-color: rgba(45, 212, 191, 0.25) !important;
+  border-color: rgb(45 212 191 / 0.25) !important;
 }
 
 .dark thead th {
@@ -306,8 +373,8 @@ span.bg-amber-500,
 }
 
 .dark tbody tr {
-  background-color: #082830;
-  border-color: rgba(45, 212, 191, 0.15) !important;
+  background-color: var(--color-night-850);
+  border-color: rgb(45 212 191 / 0.15) !important;
 }
 
 .dark tbody tr:nth-child(even) {
@@ -315,10 +382,10 @@ span.bg-amber-500,
 }
 
 .dark tbody tr:hover {
-  background-color: #0e4857 !important;
+  background-color: var(--color-night-700) !important;
 }
 
-/* High-Contrast Text Legibility in Dark Mode */
+/* Neutral text */
 .dark .text-slate-900,
 .dark .text-slate-800,
 .dark [class*="text-slate-900"],
@@ -340,28 +407,13 @@ span.bg-amber-500,
   color: #94a3b8 !important;
 }
 
-.dark .text-\[\#0d9488\],
-.dark [class*="text-[#0d9488]"] {
-  color: #2dd4bf !important;
-}
-
-.dark .text-\[\#0f3c4c\],
-.dark [class*="text-[#0f3c4c]"] {
-  color: #5eead4 !important;
-}
-
-.dark .text-\[\#0f766e\],
-.dark [class*="text-[#0f766e]"] {
-  color: #5eead4 !important;
-}
-
-/* Dark Mode Input & Select Dropdowns */
+/* Inputs */
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: #061f26 !important;
+  background-color: var(--color-night-950) !important;
   color: #f8fafc !important;
-  border-color: rgba(45, 212, 191, 0.35) !important;
+  border-color: rgb(45 212 191 / 0.35) !important;
 }
 
 .dark input::placeholder,
@@ -370,63 +422,63 @@ span.bg-amber-500,
 }
 
 .dark select option {
-  background-color: #07252d !important;
+  background-color: var(--color-night-900) !important;
   color: #f8fafc !important;
 }
 
-/* High-Contrast Badges & Status Indicators in Dark Mode */
+/* Status badges */
 .dark .bg-teal-50,
 .dark .bg-teal-100,
 .dark [class*="bg-teal-50"],
 .dark [class*="bg-teal-100"] {
-  background-color: rgba(13, 148, 136, 0.35) !important;
+  background-color: rgb(13 148 136 / 0.35) !important;
   color: #2dd4bf !important;
-  border-color: rgba(45, 212, 191, 0.4) !important;
+  border-color: rgb(45 212 191 / 0.4) !important;
 }
 
 .dark .bg-emerald-50,
 .dark .bg-emerald-100,
 .dark [class*="bg-emerald-50"],
 .dark [class*="bg-emerald-100"] {
-  background-color: rgba(16, 185, 129, 0.3) !important;
+  background-color: rgb(16 185 129 / 0.3) !important;
   color: #34d399 !important;
-  border-color: rgba(52, 211, 153, 0.4) !important;
+  border-color: rgb(52 211 153 / 0.4) !important;
 }
 
 .dark .bg-amber-50,
 .dark .bg-amber-100,
 .dark [class*="bg-amber-50"],
 .dark [class*="bg-amber-100"] {
-  background-color: rgba(245, 158, 11, 0.3) !important;
+  background-color: rgb(245 158 11 / 0.3) !important;
   color: #fbbf24 !important;
-  border-color: rgba(251, 191, 36, 0.4) !important;
+  border-color: rgb(251 191 36 / 0.4) !important;
 }
 
 .dark .bg-purple-50,
 .dark .bg-purple-100,
 .dark [class*="bg-purple-50"],
 .dark [class*="bg-purple-100"] {
-  background-color: rgba(168, 85, 247, 0.3) !important;
+  background-color: rgb(168 85 247 / 0.3) !important;
   color: #c084fc !important;
-  border-color: rgba(192, 132, 252, 0.4) !important;
+  border-color: rgb(192 132 252 / 0.4) !important;
 }
 
 .dark .bg-sky-50,
 .dark .bg-sky-100,
 .dark [class*="bg-sky-50"],
 .dark [class*="bg-sky-100"] {
-  background-color: rgba(14, 165, 233, 0.3) !important;
+  background-color: rgb(14 165 233 / 0.3) !important;
   color: #38bdf8 !important;
-  border-color: rgba(56, 189, 248, 0.4) !important;
+  border-color: rgb(56 189 248 / 0.4) !important;
 }
 
 .dark .bg-rose-50,
 .dark .bg-rose-100,
 .dark [class*="bg-rose-50"],
 .dark [class*="bg-rose-100"] {
-  background-color: rgba(244, 63, 94, 0.25) !important;
+  background-color: rgb(244 63 94 / 0.25) !important;
   color: #f87171 !important;
-  border-color: rgba(248, 113, 113, 0.4) !important;
+  border-color: rgb(248 113 113 / 0.4) !important;
 }
 
 .dark .text-teal-800,
@@ -454,29 +506,21 @@ span.bg-amber-500,
   color: #38bdf8 !important;
 }
 
-/* Borders in Dark Mode */
+/* Neutral borders */
 .dark .border-slate-200,
 .dark .border-slate-100,
-.dark .border-slate-300,
-.dark .border-\[\#99f6e4\],
-.dark [class*="border-[#99f6e4]"],
-.dark .border-\[\#5eead4\],
-.dark [class*="border-[#5eead4]"],
-.dark .border-\[\#ccfbf1\],
-.dark [class*="border-[#ccfbf1]"],
-.dark .border-\[\#b2f5ea\],
-.dark [class*="border-[#b2f5ea]"] {
-  border-color: rgba(45, 212, 191, 0.25) !important;
+.dark .border-slate-300 {
+  border-color: rgb(45 212 191 / 0.25) !important;
 }
 
 .dark .border-t-slate-100,
 .dark .border-b-slate-100,
 .dark .border-b-slate-200,
 .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(45, 212, 191, 0.15) !important;
+  border-color: rgb(45 212 191 / 0.15) !important;
 }
 
-/* Table Row & Card Hover Highlights in Dark Mode */
+/* Hover highlights */
 .dark .hover\:bg-slate-50:hover,
 .dark .hover\:bg-slate-50\/70:hover,
 .dark .hover\:bg-teal-50:hover {

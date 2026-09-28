@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import logoUrl from '../assets/logo_transparent.svg';
 import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
   Building, ShieldAlert, LogOut, Server, Database, Bell, Globe2, TrendingUp,
@@ -112,25 +113,25 @@ export default function AdminModule({
   );
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-[#0d9488]/20 transition-colors duration-300 ${
-      isNightShift ? 'dark bg-[#07252d] text-slate-100' : 'bg-[#edf2f1] text-[#0f3c4c]'
+    <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
+      isNightShift ? 'dark bg-night-900 text-slate-100' : 'bg-canvas text-ink'
     }`}>
 
       {/* ========================================================================= */}
       {/* GLOBAL TOP ADMIN HEADER BAR                                               */}
       {/* ========================================================================= */}
-      <header className="h-[60px] bg-[#0a837f] text-white px-4 sm:px-6 flex items-center justify-between border-b border-[#086b68] shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
+      <header className="h-[60px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
         
         {/* Left: Product Title & Branch Context */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-none shrink-0 flex items-center justify-center">
-            <img src="./logo_transparent.svg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
+            <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-sm font-black tracking-tight uppercase leading-none font-sans text-white flex items-center gap-2">
+            <h1 className="type-brand font-sans text-white flex items-center gap-2">
               <span>Mediclinic Admin Console</span>
             </h1>
-            <span className="text-[10px] text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
+            <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
               Shah Alam Main Branch • Executive Console
             </span>
           </div>
@@ -150,7 +151,7 @@ export default function AdminModule({
           {/* Notifications Bell */}
           <button 
             type="button"
-            className="relative p-1.5 text-teal-100 hover:text-white cursor-pointer transition-colors bg-[#086b68] border border-[#065451]"
+            className="relative p-1.5 text-teal-100 hover:text-white cursor-pointer transition-colors bg-chrome-deep border border-chrome-line"
             title="Alerts"
           >
             <Bell className="w-4 h-4" />
@@ -159,7 +160,7 @@ export default function AdminModule({
           </button>
 
           {/* Live Clock */}
-          <div className="hidden xl:flex items-center gap-1.5 bg-[#086b68] px-2.5 py-1 border border-[#065451] font-mono text-xs text-white rounded-none font-bold shadow-2xs">
+          <div className="hidden xl:flex items-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-chrome-line font-mono text-xs text-white rounded-none font-bold shadow-2xs">
             <Clock className="w-3.5 h-3.5 text-teal-100" />
             <span>{timeString || '14:20:15 MYT'}</span>
           </div>
@@ -169,15 +170,15 @@ export default function AdminModule({
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 bg-[#086b68] hover:bg-[#065451] border border-[#065451] px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs"
+              className="flex items-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-chrome-line px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs"
               title="Console Settings"
             >
-              <div className="w-6 h-6 bg-[#0a837f] text-white font-mono text-[11px] font-black flex items-center justify-center rounded-none border border-teal-300/40">
+              <div className="w-6 h-6 bg-chrome text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none border border-teal-300/40">
                 {userRole === 'admin' ? 'AD' : 'HR'}
               </div>
               <div className="text-left hidden sm:block">
                 <p className="text-white text-xs font-bold leading-none">{adminName}</p>
-                <p className="text-[9px] text-teal-100 font-mono uppercase tracking-wider mt-0.5">
+                <p className="text-2xs text-teal-100 font-mono uppercase tracking-wider mt-0.5">
                   {userRole.toUpperCase()} Console
                 </p>
               </div>
@@ -187,21 +188,21 @@ export default function AdminModule({
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 top-12 w-72 bg-[#07252d] border border-teal-800/80 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
+              <div className="absolute right-0 top-12 w-72 bg-night-900 border border-teal-800/80 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
                 <div className="flex items-center justify-between border-b border-teal-800/40 pb-2.5">
                   <div>
-                    <p className="font-extrabold text-sm text-[#5eead4]">{adminName}</p>
-                    <p className="text-[10px] text-teal-200 font-mono uppercase">{userRole.toUpperCase()} Suite • Station #04</p>
+                    <p className="font-bold text-sm text-teal-300">{adminName}</p>
+                    <p className="text-2xs text-teal-200 font-mono uppercase">{userRole.toUpperCase()} Suite • Station #04</p>
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active session"></span>
                 </div>
 
                 {/* Console Settings Controls */}
                 <div className="space-y-2.5 pt-1">
-                  <p className="text-[10px] font-mono uppercase text-teal-300 tracking-wider font-extrabold">Console Settings</p>
+                  <p className="text-2xs font-mono uppercase text-teal-300 tracking-wider font-bold">Console Settings</p>
                   
                   {/* Theme Switch */}
-                  <div className="flex items-center justify-between bg-[#0b333d] p-2 border border-teal-900/60">
+                  <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-200" />}
                       <span>Theme Mode</span>
@@ -209,7 +210,7 @@ export default function AdminModule({
                     <button
                       type="button"
                       onClick={() => setIsNightShift(!isNightShift)}
-                      className={`px-2.5 py-1 text-[10px] font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                      className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
                         isNightShift ? 'bg-indigo-950 text-amber-300 border-indigo-700' : 'bg-teal-700 text-white border-teal-600'
                       }`}
                     >
@@ -218,7 +219,7 @@ export default function AdminModule({
                   </div>
 
                   {/* PII Privacy Mask Toggle */}
-                  <div className="flex items-center justify-between bg-[#0b333d] p-2 border border-teal-900/60">
+                  <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {showPII ? <Eye className="w-3.5 h-3.5 text-teal-300" /> : <EyeOff className="w-3.5 h-3.5 text-rose-300" />}
                       <span>Mask Patient PII</span>
@@ -226,7 +227,7 @@ export default function AdminModule({
                     <button
                       type="button"
                       onClick={() => setShowPII(!showPII)}
-                      className={`px-2.5 py-1 text-[10px] font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                      className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
                         showPII ? 'bg-teal-700 text-white border-teal-600' : 'bg-rose-950 text-rose-300 border-rose-800'
                       }`}
                     >
@@ -235,7 +236,7 @@ export default function AdminModule({
                   </div>
 
                   {/* Network Simulator Toggle */}
-                  <div className="flex items-center justify-between bg-[#0b333d] p-2 border border-teal-900/60">
+                  <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-400" /> : <WifiOff className="w-3.5 h-3.5 text-rose-400" />}
                       <span>Network Sync</span>
@@ -243,7 +244,7 @@ export default function AdminModule({
                     <button
                       type="button"
                       onClick={() => setIsOnline(!isOnline)}
-                      className={`px-2.5 py-1 text-[10px] font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                      className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
                         isOnline ? 'bg-emerald-950 text-emerald-300 border-emerald-700' : 'bg-rose-950 text-rose-300 border-rose-800'
                       }`}
                     >
@@ -276,7 +277,7 @@ export default function AdminModule({
           <button
             type="button"
             onClick={() => onNavigate('landing')}
-            className="flex items-center gap-1.5 bg-[#086b68] hover:bg-rose-700 text-teal-100 hover:text-white px-3 py-1.5 border border-[#065451] hover:border-rose-600 transition-colors text-xs font-extrabold cursor-pointer"
+            className="flex items-center gap-1.5 bg-chrome-deep hover:bg-rose-700 text-teal-100 hover:text-white px-3 py-1.5 border border-chrome-line hover:border-rose-600 transition-colors text-xs font-bold cursor-pointer"
             title="Exit Admin Console"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -291,11 +292,11 @@ export default function AdminModule({
       {/* ========================================================================= */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
-        <nav className="w-full bg-[#086b68] text-white border-b border-[#065451] shrink-0 px-4 flex flex-col md:flex-row md:items-stretch justify-between font-sans min-h-[44px]">
+        <nav className="w-full bg-chrome-deep text-white border-b border-chrome-line shrink-0 px-4 flex flex-col md:flex-row md:items-stretch justify-between font-sans min-h-[44px]">
           
           {/* Category Filter Pills */}
           <div className="flex items-stretch gap-0 overflow-x-auto text-xs">
-            <span className="text-[10px] font-mono uppercase text-teal-200 tracking-wider font-black px-3 flex items-center gap-1 shrink-0">
+            <span className="text-2xs font-mono uppercase text-teal-200 tracking-wider font-bold px-3 flex items-center gap-1 shrink-0">
               <FolderKanban className="w-3.5 h-3.5 text-teal-200" />
               <span>Group:</span>
             </span>
@@ -308,10 +309,10 @@ export default function AdminModule({
                   const firstInCat = filteredModules.find(m => m.category === cat.id);
                   if (firstInCat) setActiveTab(firstInCat.id as any);
                 }}
-                className={`px-4 py-2.5 rounded-none text-xs font-black transition-all cursor-pointer border-0 flex items-center justify-center h-full ${
+                className={`px-4 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer border-0 flex items-center justify-center h-full ${
                   activeCategory === cat.id 
-                    ? 'bg-[#0a837f] text-white' 
-                    : 'bg-transparent text-teal-100 hover:bg-[#074f4b] hover:text-white'
+                    ? 'bg-chrome text-white' 
+                    : 'bg-transparent text-teal-100 hover:bg-chrome-hover hover:text-white'
                 }`}
               >
                 {cat.label}
@@ -334,8 +335,8 @@ export default function AdminModule({
                     onClick={() => handleSelectTab(mod.id as any, mod.category as any)}
                     className={`flex items-center px-4 py-2.5 text-xs cursor-pointer transition-all whitespace-nowrap border-0 rounded-none h-full ${
                       isActive
-                        ? 'bg-[#0a837f] text-white font-black'
-                        : 'bg-transparent text-teal-100 hover:bg-[#074f4b] hover:text-white font-bold'
+                        ? 'bg-chrome text-white font-bold'
+                        : 'bg-transparent text-teal-100 hover:bg-chrome-hover hover:text-white font-bold'
                     }`}
                   >
                     <IconComponent className={`w-3.5 h-3.5 mr-1.5 ${isActive ? 'text-teal-200' : 'text-teal-300'}`} />
@@ -351,7 +352,7 @@ export default function AdminModule({
         {/* ========================================================================= */}
         {/* MAIN CONTENT AREA                                                         */}
         {/* ========================================================================= */}
-        <main className="flex-1 p-5 overflow-y-auto bg-[#edf2f1] dark:bg-[#07252d] text-[#0f3c4c] dark:text-slate-100">
+        <main className="flex-1 p-5 overflow-y-auto bg-canvas dark:bg-night-900 text-ink dark:text-slate-100">
 
           {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
             <StaffManagementModule />
@@ -411,10 +412,10 @@ export default function AdminModule({
       {/* Sign Out Confirmation Modal */}
       {showSignOutConfirm && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
-          <div className="bg-[#07252d] border border-rose-500/50 max-w-md w-full p-6 shadow-2xl space-y-4 text-white">
+          <div className="bg-night-900 border border-rose-500/50 max-w-md w-full p-6 shadow-2xl space-y-4 text-white">
             <div className="flex items-center gap-3 text-rose-400">
               <LogOut className="w-6 h-6 shrink-0" />
-              <h3 className="text-lg font-black uppercase tracking-tight text-white">Confirm Console Termination</h3>
+              <h3 className="type-heading-caps text-white">Confirm Console Termination</h3>
             </div>
             <p className="text-xs text-teal-100/80 leading-relaxed">
               Are you sure you want to terminate your administrative session? Unsaved configuration changes will be safely persisted to Supabase.
@@ -423,7 +424,7 @@ export default function AdminModule({
               <button
                 type="button"
                 onClick={() => setShowSignOutConfirm(false)}
-                className="px-4 py-2 bg-[#0b333d] hover:bg-[#0f4350] text-teal-100 font-bold text-xs border border-teal-800/80 cursor-pointer"
+                className="px-4 py-2 bg-night-800 hover:bg-night-700 text-teal-100 font-bold text-xs border border-teal-800/80 cursor-pointer"
               >
                 Cancel
               </button>
@@ -433,7 +434,7 @@ export default function AdminModule({
                   setShowSignOutConfirm(false);
                   onNavigate('landing');
                 }}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs cursor-pointer shadow-md"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer shadow-md"
               >
                 Terminate Session
               </button>

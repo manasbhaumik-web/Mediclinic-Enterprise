@@ -214,19 +214,19 @@ export default function EquipmentManagementModule() {
       ) : (
         <>
           {/* STRUCTURED CLINICAL HEADER BANNER */}
-          <div className="bg-[#e6f4f1] text-[#0f3c4c] p-5 rounded-none shadow-2xs border border-[#99f6e4] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="bg-[#0d9488]/10 text-[#0d9488] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
+                <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
                   Medical Hardware Lifecycle
                 </span>
-                <span className="flex items-center gap-1 text-[11px] text-[#0d9488] bg-teal-50 px-2 py-0.5 rounded-none border border-[#99f6e4] font-mono font-bold">
+                <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                   {operationalPercentage}% Fleet Operational
                 </span>
               </div>
-              <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] flex items-center gap-2.5">
-                <Stethoscope className="w-6 h-6 text-[#0d9488]" />
+              <h1 className="type-page-title text-ink flex items-center gap-2.5">
+                <Stethoscope className="w-6 h-6 text-accent" />
                 Equipment & Asset Management
               </h1>
               <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
@@ -237,14 +237,14 @@ export default function EquipmentManagementModule() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => setActiveTab(activeTab === 'catalog' ? 'logs' : 'catalog')}
-                className="bg-white hover:bg-teal-50 text-[#0f3c4c] text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-[#99f6e4] transition-all cursor-pointer shadow-2xs"
+                className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
               >
-                <History className="w-3.5 h-3.5 text-[#0d9488]" />
+                <History className="w-3.5 h-3.5 text-accent" />
                 {activeTab === 'catalog' ? 'View Audit Logs' : 'View Catalog'}
               </button>
               <button 
                 onClick={() => setCurrentView('registration')}
-                className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
+                className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 Log Equipment
@@ -254,64 +254,64 @@ export default function EquipmentManagementModule() {
 
           {/* TOP 4 SUMMARY METRIC CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
+            <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Fleet Assets</span>
-                <div className="p-2 bg-teal-50 rounded-lg text-[#0d9488]">
+                <div className="p-2 bg-teal-50 rounded-none text-accent">
                   <Cpu className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-2 flex items-baseline justify-between">
-                <h3 className="text-2xl font-black text-[#0f3c4c]">{equipmentList.length} Units</h3>
+                <h3 className="type-metric text-ink">{equipmentList.length} Units</h3>
                 <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium">
                   Registered
                 </span>
               </div>
             </div>
 
-            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
+            <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Calibration Flags</span>
-                <div className={`p-2 rounded-lg ${issuesCount > 0 ? 'bg-red-50 text-red-600' : 'bg-teal-50 text-[#0d9488]'}`}>
+                <div className={`p-2 rounded-none ${issuesCount > 0 ? 'bg-red-50 text-red-600' : 'bg-teal-50 text-accent'}`}>
                   <AlertTriangle className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-2 flex items-baseline justify-between">
-                <h3 className="text-2xl font-black text-[#0f3c4c]">{issuesCount} Devices</h3>
+                <h3 className="type-metric text-ink">{issuesCount} Devices</h3>
                 <span className={`text-xs px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium ${issuesCount > 0 ? 'text-red-600 bg-red-50 border border-red-200' : 'text-emerald-600 bg-emerald-50'}`}>
                   {issuesCount > 0 ? 'Requires Service' : 'All Clear'}
                 </span>
               </div>
             </div>
 
-            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
+            <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Operational Health</span>
-                <div className="p-2 bg-teal-50 rounded-lg text-[#0d9488]">
+                <div className="p-2 bg-teal-50 rounded-none text-accent">
                   <CheckCircle className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-2 flex items-baseline justify-between">
-                <h3 className="text-2xl font-black text-[#0f3c4c]">{operationalPercentage}%</h3>
+                <h3 className="type-metric text-ink">{operationalPercentage}%</h3>
                 <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium">
                   {operationalCount} Ready
                 </span>
               </div>
             </div>
 
-            <div className="bg-[#e6f4f1] rounded-none border border-[#99f6e4] p-4 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#0d9488]"></div>
+            <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Audit Records</span>
-                <div className="p-2 bg-teal-50 rounded-lg text-[#0d9488]">
+                <div className="p-2 bg-teal-50 rounded-none text-accent">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-2 flex items-baseline justify-between">
-                <h3 className="text-2xl font-black text-[#0f3c4c]">{logs.length} Logs</h3>
+                <h3 className="type-metric text-ink">{logs.length} Logs</h3>
                 <span className="text-xs text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium border border-teal-200">
                   Audited
                 </span>
@@ -326,7 +326,7 @@ export default function EquipmentManagementModule() {
                 onClick={() => setActiveTab('catalog')}
                 className={`pb-3 text-sm font-bold transition-colors border-b-2 flex items-center gap-2 ${
                   activeTab === 'catalog' 
-                    ? 'border-[#0d9488] text-[#0d9488]' 
+                    ? 'border-brand text-accent' 
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >
@@ -337,7 +337,7 @@ export default function EquipmentManagementModule() {
                 onClick={() => setActiveTab('logs')}
                 className={`pb-3 text-sm font-bold transition-colors border-b-2 flex items-center gap-2 ${
                   activeTab === 'logs' 
-                    ? 'border-[#0d9488] text-[#0d9488]' 
+                    ? 'border-brand text-accent' 
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >
@@ -354,7 +354,7 @@ export default function EquipmentManagementModule() {
                   placeholder="Search serial number or device..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-1.5 border border-slate-300 rounded-md text-xs focus:ring-2 focus:ring-[#0d9488] outline-none w-64 shadow-sm" 
+                  className="pl-9 pr-4 py-1.5 border border-slate-300 rounded-none text-xs focus:ring-2 focus:ring-brand outline-none w-64 shadow-sm" 
                 />
               </div>
             )}
@@ -369,10 +369,10 @@ export default function EquipmentManagementModule() {
                      No active equipment matches your criteria.
                    </div>
                 ) : filteredEq.map(eq => (
-                   <div key={eq.id} className={`flex flex-col h-full p-5 rounded-none border shadow-sm transition-all hover:shadow-md ${eq.status === 'Maintenance' ? 'border-red-200 bg-red-50/50' : 'border-[#99f6e4] bg-[#e6f4f1]'}`}>
+                   <div key={eq.id} className={`flex flex-col h-full p-5 rounded-none border shadow-sm transition-all hover:shadow-md ${eq.status === 'Maintenance' ? 'border-red-200 bg-red-50/50' : 'border-line bg-surface-accent'}`}>
                      <div className="flex justify-between items-start mb-3">
-                       <h3 className="font-bold text-[#0f3c4c] leading-tight">{eq.name}</h3>
-                       <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded tracking-wide ${eq.status === 'Maintenance' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}`}>
+                       <h3 className="font-bold text-ink leading-tight">{eq.name}</h3>
+                       <span className={`text-2xs uppercase font-bold px-2 py-0.5 rounded tracking-wider ${eq.status === 'Maintenance' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}`}>
                          {eq.status}
                        </span>
                      </div>
@@ -389,13 +389,13 @@ export default function EquipmentManagementModule() {
                      <div className="flex gap-2 mt-auto pt-4 border-t border-slate-100">
                        <button 
                          onClick={() => setMaintainEqId(eq.id)}
-                         className="flex-1 py-1.5 border border-slate-200 bg-slate-50 hover:bg-teal-50 hover:border-teal-200 hover:text-[#0d9488] text-slate-700 rounded-md text-[10px] font-bold uppercase flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                         className="flex-1 py-1.5 border border-slate-200 bg-slate-50 hover:bg-teal-50 hover:border-teal-200 hover:text-accent text-slate-700 rounded-none text-2xs font-bold uppercase flex items-center justify-center gap-1 cursor-pointer transition-colors"
                        >
                          <PenTool className="w-3 h-3" /> Log Service
                        </button>
                        <button 
                          onClick={() => setDisposeEqId(eq.id)}
-                         className="flex-1 py-1.5 border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-[10px] font-bold uppercase flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                         className="flex-1 py-1.5 border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 rounded-none text-2xs font-bold uppercase flex items-center justify-center gap-1 cursor-pointer transition-colors"
                        >
                          <Trash2 className="w-3 h-3" /> Dispose
                        </button>
@@ -407,10 +407,10 @@ export default function EquipmentManagementModule() {
           )}
 
           {activeTab === 'logs' && (
-            <div className="bg-[#e6f4f1] border border-[#99f6e4] rounded-none shadow-sm overflow-hidden animate-fadeIn">
-              <div className="bg-[#f7fdfd] px-5 py-3 border-b border-teal-100 flex justify-between items-center">
-                <h3 className="font-bold text-sm text-[#0f3c4c] flex items-center gap-2">
-                  <History className="w-4 h-4 text-[#0d9488]" />
+            <div className="bg-surface-accent border border-line rounded-none shadow-sm overflow-hidden animate-fadeIn">
+              <div className="bg-surface px-5 py-3 border-b border-teal-100 flex justify-between items-center">
+                <h3 className="type-card-title text-ink flex items-center gap-2">
+                  <History className="w-4 h-4 text-accent" />
                   Equipment Audit & Disposal Logs
                 </h3>
               </div>
@@ -421,7 +421,7 @@ export default function EquipmentManagementModule() {
                 </div>
               ) : (
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#f7fdfd] text-[#0f3c4c] font-bold text-xs uppercase border-b border-teal-100">
+                  <thead className="bg-surface text-ink font-bold text-xs uppercase border-b border-teal-100">
                     <tr>
                       <th className="px-6 py-3">Date</th>
                       <th className="px-6 py-3">Device Name</th>
@@ -433,9 +433,9 @@ export default function EquipmentManagementModule() {
                     {logs.map(log => (
                       <tr key={log.id} className="hover:bg-slate-50">
                         <td className="px-6 py-3 font-mono text-xs text-slate-500">{log.date}</td>
-                        <td className="px-6 py-3 font-bold text-[#0f3c4c]">{log.equipmentName}</td>
+                        <td className="px-6 py-3 font-bold text-ink">{log.equipmentName}</td>
                         <td className="px-6 py-3">
-                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                          <span className={`px-2 py-1 rounded text-2xs font-bold uppercase ${
                             log.action === 'Decommissioned' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-teal-100 text-teal-800 border border-teal-200'
                           }`}>
                             {log.action}
@@ -456,15 +456,15 @@ export default function EquipmentManagementModule() {
           {maintainEqId && (
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white w-full max-w-sm rounded-none shadow-xl overflow-hidden animate-slideUp border border-slate-200">
-                <div className="flex items-center justify-between p-4 border-b border-teal-100 bg-[#f7fdfd]">
-                  <h3 className="font-bold text-[#0f3c4c] flex items-center gap-2 text-sm"><PenTool className="w-4 h-4 text-[#0d9488]"/> Log Service / Calibration</h3>
+                <div className="flex items-center justify-between p-4 border-b border-teal-100 bg-surface">
+                  <h3 className="type-card-title text-ink flex items-center gap-2"><PenTool className="w-4 h-4 text-accent"/> Log Service / Calibration</h3>
                   <button onClick={() => setMaintainEqId(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
                 </div>
                 <form onSubmit={handleMaintain} className="p-5 space-y-4 text-center">
-                  <p className="text-xs text-slate-600 leading-relaxed">Mark <strong className="text-[#0f3c4c]">{equipmentList.find(e => e.id === maintainEqId)?.name}</strong> as Operational and reset its calibration schedule?</p>
+                  <p className="text-xs text-slate-600 leading-relaxed">Mark <strong className="text-ink">{equipmentList.find(e => e.id === maintainEqId)?.name}</strong> as Operational and reset its calibration schedule?</p>
                   <div className="pt-2 flex gap-3">
-                    <button type="button" onClick={() => setMaintainEqId(null)} className="flex-1 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md font-bold text-xs cursor-pointer">Cancel</button>
-                    <button type="submit" className="flex-1 py-2 bg-[#0d9488] text-white hover:bg-[#0f766e] rounded-md font-bold text-xs shadow-sm cursor-pointer">Confirm Service</button>
+                    <button type="button" onClick={() => setMaintainEqId(null)} className="flex-1 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-none font-bold text-xs cursor-pointer">Cancel</button>
+                    <button type="submit" className="flex-1 py-2 bg-primary text-white hover:bg-primary-hover rounded-none font-bold text-xs shadow-sm cursor-pointer">Confirm Service</button>
                   </div>
                 </form>
               </div>
@@ -476,14 +476,14 @@ export default function EquipmentManagementModule() {
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white w-full max-w-sm rounded-none shadow-xl overflow-hidden animate-slideUp border border-slate-200">
                 <div className="flex items-center justify-between p-4 border-b border-red-100 bg-red-50">
-                  <h3 className="font-bold text-red-900 flex items-center gap-2 text-sm"><Trash2 className="w-4 h-4 text-red-600"/> Decommission Device</h3>
+                  <h3 className="type-card-title text-red-900 flex items-center gap-2"><Trash2 className="w-4 h-4 text-red-600"/> Decommission Device</h3>
                   <button onClick={() => setDisposeEqId(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
                 </div>
                 <form onSubmit={handleDispose} className="p-5 space-y-4 text-center">
-                  <p className="text-xs text-slate-600 leading-relaxed">Are you sure you want to permanently decommission <strong className="text-[#0f3c4c]">{equipmentList.find(e => e.id === disposeEqId)?.name}</strong>? It will be removed from active fleet grid.</p>
+                  <p className="text-xs text-slate-600 leading-relaxed">Are you sure you want to permanently decommission <strong className="text-ink">{equipmentList.find(e => e.id === disposeEqId)?.name}</strong>? It will be removed from active fleet grid.</p>
                   <div className="pt-2 flex gap-3">
-                    <button type="button" onClick={() => setDisposeEqId(null)} className="flex-1 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md font-bold text-xs cursor-pointer">Cancel</button>
-                    <button type="submit" className="flex-1 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md font-bold text-xs shadow-sm cursor-pointer">Decommission</button>
+                    <button type="button" onClick={() => setDisposeEqId(null)} className="flex-1 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-none font-bold text-xs cursor-pointer">Cancel</button>
+                    <button type="submit" className="flex-1 py-2 bg-red-600 text-white hover:bg-red-700 rounded-none font-bold text-xs shadow-sm cursor-pointer">Decommission</button>
                   </div>
                 </form>
               </div>

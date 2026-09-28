@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logoUrl from '../assets/logo_transparent.svg';
 import { Language } from '../types';
 import { 
   Stethoscope, Pill, ShieldCheck, Activity, Heart, Calendar, Clock, 
@@ -48,10 +49,7 @@ export default function ClinicLandingPage({
   // Hero Background Carousel State (Custom AI Generated Images)
   const [heroSlide, setHeroSlide] = useState(0);
   const heroImages = [
-    '/ai_hero_slide_1.jpg',
-    '/ai_hero_slide_2.jpg',
-    '/ai_hero_slide_3.jpg',
-    '/ai_hero_slide_4.jpg'
+    'hero-slide-1', 'hero-slide-2', 'hero-slide-3', 'hero-slide-4'
   ];
 
   React.useEffect(() => {
@@ -121,7 +119,7 @@ export default function ClinicLandingPage({
       title: 'MD (UKM), MMC Reg #48291',
       role: isBM ? 'Doktor Perubatan & Keluarga Senior' : 'Senior General Practitioner & Family Physician',
       specialty: 'General Medicine',
-      bgColor: 'bg-[#0d9488]',
+      bgColor: 'bg-primary',
       status: isBM ? 'Bertugas - Bilik 101' : 'On Duty - Suite 101',
       availabilityState: isBM ? 'Sedia Ada Sekarang' : 'Available Now',
       nextSlot: isBM ? 'Slot Seterusnya: 10:15 AM' : 'Next: 10:15 AM',
@@ -136,7 +134,7 @@ export default function ClinicLandingPage({
       title: 'B.Pharm (UM), Registered Pharmacist',
       role: isBM ? 'Ketua Pegawai Farmasi Klinikal' : 'Chief Pharmacist & Clinical Formulator',
       specialty: 'Pharmacy',
-      bgColor: 'bg-[#0f766e]',
+      bgColor: 'bg-primary',
       status: isBM ? 'Aktif - Farmasi' : 'Active - Dispensary',
       availabilityState: isBM ? 'Di Farmasi' : 'In Dispensary',
       nextSlot: isBM ? 'Serahan < 4m' : 'Fulfillment < 4m',
@@ -151,7 +149,7 @@ export default function ClinicLandingPage({
       title: 'MBBS (Malaya), MMed Pediatrics',
       role: isBM ? 'Kanak-Kanak & Pakar Pediatrik' : 'Consultant Pediatrician',
       specialty: 'Pediatrics',
-      bgColor: 'bg-[#0284c7]',
+      bgColor: 'bg-sky-600',
       status: isBM ? 'Bertugas - Bilik 204' : 'On Duty - Suite 204',
       availabilityState: isBM ? 'Sedia Ada Sekarang' : 'Available Now',
       nextSlot: isBM ? 'Slot Seterusnya: 10:30 AM' : 'Next: 10:30 AM',
@@ -231,33 +229,32 @@ export default function ClinicLandingPage({
     : testimonials.filter(t => t.category === reviewCategory);
 
   return (
-    <div className="min-h-screen bg-[#f7fdfd] text-[#0f3c4c] font-sans selection:bg-[#0d9488] selection:text-white relative">
+    <div className="min-h-screen pb-[76px] sm:pb-0 bg-surface text-ink font-sans selection:bg-primary selection:text-white relative">
       
       {/* ========================================================================= */}
       {/* 0. STICKY TOP REAL-TIME TICKER & PULSE BANNER                             */}
       {/* ========================================================================= */}
-      <div className="bg-[#0f766e] text-teal-50 text-[11px] font-semibold py-1.5 px-4 flex items-center justify-between border-b border-[#0d9488] relative z-50">
+      <div className="bg-primary text-teal-50 text-xs font-semibold py-1.5 px-4 flex items-center justify-between border-b border-brand relative z-50">
         <div className="flex items-center gap-4 overflow-hidden whitespace-nowrap max-w-6xl mx-auto w-full justify-between">
           <div className="flex items-center gap-2 shrink-0">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
             </span>
-            <span className="font-extrabold text-white tracking-wide">
+            <span className="font-bold text-white tracking-wide">
               {isBM ? 'KLINIK BEROPERASI 24/7' : '24/7 CLINIC LIVE STATUS'}
             </span>
-            <span className="bg-teal-900/80 text-teal-200 text-[9px] font-mono px-1.5 py-0.5 rounded border border-teal-700">
+            <span className="hidden sm:inline bg-teal-900/80 text-teal-50 text-xs font-mono px-1.5 py-0.5 rounded border border-teal-700">
               [DEMO TELEMETRY]
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-6 text-[11px]">
+          <div className="hidden md:flex items-center gap-6 text-xs">
             <span className="flex items-center gap-1.5"><Stethoscope className="w-3.5 h-3.5 text-teal-200" /> Suite 101: <strong className="text-white">Dr. Sarah Tan</strong> ({isBM ? 'Bertugas' : 'On Duty'})</span>
-            <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-teal-200" /> {isBM ? 'Purata Masa Menunggu:' : 'Est. Wait Time:'} <strong className="text-white font-mono">11 mins</strong></span>
-            <span className="flex items-center gap-1.5"><Pill className="w-3.5 h-3.5 text-emerald-300" /> {isBM ? 'Bekalan Farmasi:' : 'Pharmacy Inventory:'} <strong className="text-emerald-300">100% Ready</strong></span>
+            <span className="flex items-center gap-1.5"><Pill className="w-3.5 h-3.5 text-emerald-300" /> {isBM ? 'Bekalan Farmasi:' : 'Pharmacy Inventory:'} <strong className="text-white">100% Ready</strong></span>
           </div>
           <a 
             href="tel:+60355108899" 
-            className="text-emerald-300 hover:text-white font-extrabold cursor-pointer text-[10px] shrink-0 flex items-center gap-1"
+            className="text-white hover:text-teal-100 font-bold cursor-pointer text-xs py-1 shrink-0 flex items-center gap-1"
           >
             <Phone className="w-3 h-3 text-emerald-300" />
             <span>+60 3-5510 8899</span>
@@ -268,28 +265,28 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 1. STICKY TOP NAVIGATION HEADER                                             */}
       {/* ========================================================================= */}
-      <header className="sticky top-0 z-50 h-[60px] bg-[#e0f5f2]/95 backdrop-blur-md border-b border-[#b2f5ea] px-4 lg:px-8 flex items-center justify-between transition-all shadow-xs">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-50 h-[60px] bg-surface-accent/95 backdrop-blur-md border-b border-line px-4 lg:px-8 flex items-center justify-between transition-all shadow-xs">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-none shrink-0 flex items-center justify-center">
-            <img src="./logo_transparent.svg" alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
+            <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <span className="text-base font-black tracking-tight text-[#0f3c4c] block leading-none">
-              MEDICLINIC <span className="text-[#0d9488]">ENTERPRISE</span>
+            <span className="text-base font-bold tracking-tight text-ink block leading-none">
+              MEDICLINIC <span className="text-accent">ENTERPRISE</span>
             </span>
-            <span className="text-[10px] text-slate-500 font-medium tracking-wide">
+            <span className="hidden sm:block text-xs text-slate-600 font-medium tracking-wide">
               {isBM ? 'Pusat Perubatan Pesakit Luar 24/7 Shah Alam' : '24/7 Outpatient Medical Clinic Shah Alam'}
             </span>
           </div>
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 text-xs font-bold text-slate-700">
-          <a href="#services" className="hover:text-[#0d9488] transition-colors">{isBM ? 'Perkhidmatan' : 'Services'}</a>
-          <a href="#doctors" className="hover:text-[#0d9488] transition-colors">{isBM ? 'Doktor' : 'Doctors'}</a>
-          <a href="#panels" className="hover:text-[#0d9488] transition-colors">{isBM ? 'Panel Insurans' : 'Panel Coverage'}</a>
-          <a href="#location" className="hover:text-[#0d9488] transition-colors">{isBM ? 'Lokasi & Arah' : 'Location'}</a>
-          <a href="#faq" className="hover:text-[#0d9488] transition-colors">FAQ</a>
+        <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-700 whitespace-nowrap">
+          <a href="#services" className="py-3 hover:text-accent transition-colors inline-flex items-center min-h-[44px]">{isBM ? 'Perkhidmatan' : 'Services'}</a>
+          <a href="#doctors" className="py-3 hover:text-accent transition-colors inline-flex items-center min-h-[44px]">{isBM ? 'Doktor' : 'Doctors'}</a>
+          <a href="#panels" className="py-3 hover:text-accent transition-colors inline-flex items-center min-h-[44px]">{isBM ? 'Panel Insurans' : 'Panel Coverage'}</a>
+          <a href="#location" className="py-3 hover:text-accent transition-colors inline-flex items-center min-h-[44px]">{isBM ? 'Lokasi & Arah' : 'Location'}</a>
+          <a href="#faq" className="py-3 hover:text-accent transition-colors inline-flex items-center min-h-[44px]">FAQ</a>
         </nav>
 
         {/* Header Actions */}
@@ -298,10 +295,11 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={() => onToggleLanguage(activeLanguage === 'EN' ? 'BM' : 'EN')}
-            className="px-2.5 py-1.5 text-[11px] font-bold rounded-none border border-[#ccfbf1] bg-[#f7fdfd] hover:bg-[#e6f4f1] text-[#0d9488] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+            aria-label={activeLanguage === 'EN' ? 'Tukar ke Bahasa Malaysia' : 'Switch to English'}
+            className="min-h-[44px] px-3 text-xs font-bold rounded-none border border-line-subtle bg-surface hover:bg-surface-accent text-accent transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
             title="Toggle Bahasa Malaysia / English"
           >
-            <Globe className="w-3.5 h-3.5 text-[#0d9488]" />
+            <Globe className="w-3.5 h-3.5 text-accent" />
             <span>{activeLanguage === 'EN' ? 'BM' : 'EN'}</span>
           </button>
 
@@ -309,7 +307,7 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={() => setIsBookingOpen(true)}
-            className="px-4 py-2 text-xs font-black rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white shadow-md shadow-teal-500/20 flex items-center gap-1.5 transition-all hover:scale-105 cursor-pointer"
+            className="hidden sm:flex whitespace-nowrap min-h-[44px] px-4 text-xs font-bold rounded-none bg-primary hover:bg-primary-hover text-white shadow-md shadow-teal-500/20 items-center gap-1.5 transition-all hover:scale-105 cursor-pointer"
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
@@ -319,32 +317,33 @@ export default function ClinicLandingPage({
           <button
             type="button"
             onClick={onOpenLogin}
-            className="px-3 py-2 text-xs font-bold rounded-none bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0f3c4c] border border-[#b2f5ea] flex items-center gap-1 transition-all cursor-pointer"
+            className="hidden lg:flex min-h-[44px] px-3 text-xs font-bold rounded-none bg-surface-accent hover:bg-surface-strong text-ink border border-line items-center gap-1 transition-all cursor-pointer"
             title="Portal Staff Login"
           >
-            <LogIn className="w-3.5 h-3.5 text-[#0d9488]" />
-            <span className="hidden sm:inline">{isBM ? 'Staf' : 'Staff'}</span>
+            <LogIn className="w-3.5 h-3.5 text-accent" />
+            <span>{isBM ? 'Staf' : 'Staff'}</span>
           </button>
 
           {/* Mobile Menu Toggle */}
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-[#0f3c4c] cursor-pointer"
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
+            className="lg:hidden w-11 h-11 flex items-center justify-center rounded-none bg-surface border border-line-subtle text-slate-700 hover:text-ink cursor-pointer"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
-      </header>
 
       {/* Mobile Menu Drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-[65px] z-40 bg-[#f0fdfa] border-b border-[#ccfbf1] p-6 space-y-4 shadow-xl animate-fadeIn">
+        <div className="lg:hidden absolute inset-x-0 top-full z-40 max-h-[calc(100vh-60px)] overflow-y-auto bg-surface-muted border-b border-line-subtle p-6 space-y-4 shadow-xl animate-fadeIn">
           <nav className="flex flex-col space-y-3 font-semibold text-sm text-slate-700">
             <a 
               href="#services" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
             >
               <span>{isBM ? 'Perkhidmatan Perubatan' : 'Medical Services'}</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -352,7 +351,7 @@ export default function ClinicLandingPage({
             <a 
               href="#doctors" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
             >
               <span>{isBM ? 'Doktor & Pakar' : 'Resident Doctors'}</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -360,7 +359,7 @@ export default function ClinicLandingPage({
             <a 
               href="#panels" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
             >
               <span>{isBM ? 'Panel Insurans Korporat' : 'Corporate Insurance Panels'}</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -368,7 +367,7 @@ export default function ClinicLandingPage({
             <a 
               href="#location" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
             >
               <span>{isBM ? 'Lokasi & Peta' : 'Location & Directions'}</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -376,43 +375,50 @@ export default function ClinicLandingPage({
             <a 
               href="#faq" 
               onClick={() => setIsMobileMenuOpen(false)} 
-              className="px-3 py-2 rounded-none hover:bg-[#f7fdfd] hover:text-[#0d9488] flex items-center justify-between"
+              className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
             >
               <span>FAQ</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </a>
           </nav>
           
-          <div className="pt-4 border-t border-[#ccfbf1] flex flex-col gap-2">
+          <div className="pt-4 border-t border-line-subtle flex flex-col gap-2">
             <button
               type="button"
               onClick={() => { setIsMobileMenuOpen(false); setIsBookingOpen(true); }}
-              className="w-full py-3 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md"
+              className="w-full py-3 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md min-h-[44px]"
             >
               <Calendar className="w-4 h-4" />
               <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
             </button>
+            <button
+              type="button"
+              onClick={() => { setIsMobileMenuOpen(false); onOpenLogin(); }}
+              className="w-full py-3 rounded-none bg-surface-accent hover:bg-surface-strong text-ink border border-line font-bold text-xs flex items-center justify-center gap-2 min-h-[44px]"
+            >
+              <LogIn className="w-4 h-4 text-accent" />
+              <span>{isBM ? 'Log Masuk Staf' : 'Staff login'}</span>
+            </button>
           </div>
         </div>
       )}
+      </header>
 
       {/* ========================================================================= */}
       {/* 2. HERO SECTION                                                           */}
       {/* ========================================================================= */}
-      <section className="relative pt-10 pb-14 px-4 lg:px-8 bg-[#f7fdfd] overflow-hidden border-b border-[#ccfbf1]">
+      <section className="relative pt-10 pb-14 px-4 lg:px-8 bg-surface overflow-hidden border-b border-line-subtle">
         
         {/* Animated Sliding Background Image Carousel */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          {heroImages.map((imgUrl, idx) => (
-            <div 
-              key={imgUrl}
-              className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-in-out ${
+          {heroImages.map((slideClass, idx) => (
+            <div
+              key={slideClass}
+              className={`hero-slide ${slideClass} ${
                 idx === heroSlide ? 'opacity-35 scale-105' : 'opacity-0 scale-100'
               }`}
-              style={{ backgroundImage: `url('${imgUrl}')` }}
             />
           ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#f7fdfd]/95 via-[#f7fdfd]/75 to-[#f7fdfd]" />
         </div>
 
         <div className="max-w-5xl mx-auto relative z-10 space-y-7">
@@ -420,35 +426,38 @@ export default function ClinicLandingPage({
           {/* Centered Hero Content Header */}
           <div className="text-center max-w-3xl mx-auto space-y-5">
             
-            <div className="inline-flex items-center gap-2 bg-[#e6f4f1] border border-[#ccfbf1] px-3.5 py-1 rounded-full text-xs font-bold text-[#0d9488] shadow-2xs">
-              <Clock className="w-3.5 h-3.5 text-[#0d9488]" />
-              <span>{isBM ? 'Klinik Outpatient & Kecemasan 24 Jam Shah Alam' : 'Shah Alam 24/7 Outpatient & Urgent Care Clinic'}</span>
+            <div className="inline-flex items-center gap-2 bg-surface-accent border border-line-subtle pl-3.5 pr-1 py-0.5 rounded-full text-xs font-bold text-accent shadow-2xs">
+              <Activity className="w-3.5 h-3.5 text-accent" />
+              <span>{isBM ? 'Diagnosis pintar · Rawatan tepat' : 'Next-gen healthcare · Smart diagnostics'}</span>
               
-              {/* Slide Dots Indicator */}
-              <div className="flex items-center gap-1 ml-2 border-l border-teal-300/60 pl-2">
+              {/* Slide Dots Indicator (24px hit area around each dot) */}
+              <div className="flex items-center ml-1 border-l border-teal-300/60 pl-1">
                 {heroImages.map((_, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setHeroSlide(i)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${i === heroSlide ? 'bg-[#0d9488] w-3' : 'bg-teal-300'}`}
-                    title={`Slide ${i + 1}`}
-                  />
+                    className="w-6 h-6 flex items-center justify-center cursor-pointer"
+                    aria-label={`Show slide ${i + 1}`}
+                    aria-current={i === heroSlide}
+                  >
+                    <span className={`block h-1.5 rounded-full transition-all ${i === heroSlide ? 'bg-primary w-3' : 'bg-teal-400 w-1.5'}`} />
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Strategic Marketing Banner Slogan */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0f3c4c] tracking-tight leading-[1.12]">
+            {/* Plain-language headline: what the clinic is and where */}
+            <h1 className="type-display text-ink">
               {isBM ? (
-                <>Peneraju Kecemerlangan Kesihatan—<span className="text-[#0d9488]">Diagnosis Pintar &amp; Rawatan 24 Jam.</span></>
+                <>Klinik Pesakit Luar &amp; Rawatan Segera <span className="text-accent">24 Jam di Shah Alam</span></>
               ) : (
-                <>Pioneering Next-Gen Healthcare—<span className="text-[#0d9488]">Smart Diagnostics &amp; 24/7 Precision Care.</span></>
+                <>24/7 Outpatient &amp; Urgent Care <span className="text-accent">in Shah Alam</span></>
               )}
             </h1>
 
-            {/* Bold Teal Sub-Slogan */}
-            <p className="text-[#0d9488] font-bold text-base sm:text-lg max-w-3xl mx-auto leading-relaxed tracking-wide">
+            {/* Supporting line */}
+            <p className="text-slate-700 font-semibold text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
               {isBM 
                 ? 'Nikmati rawatan mesra 24/7 tanpa janji temu, pendaftaran pantas MyKad, dan kelulusan panel TPA korporat 100% tanpa tunai.'
                 : 'Experience seamless 24/7 walk-in care, instant MyKad check-in, and 100% cashless corporate TPA panel approval.'
@@ -460,7 +469,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={() => setIsBookingOpen(true)}
-                className="w-full sm:w-auto px-8 py-4 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-sm shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                className="w-full sm:w-auto px-8 py-4 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer min-h-[44px]"
               >
                 <Calendar className="w-4 h-4" />
                 <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
@@ -468,25 +477,25 @@ export default function ClinicLandingPage({
               </button>
 
               <a
-                href="#live-queue"
-                className="w-full sm:w-auto px-7 py-4 rounded-none bg-[#f7fdfd] hover:bg-[#e0f5f2] text-[#0f3c4c] border border-[#ccfbf1] font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
+                href="#doctors"
+                className="w-full sm:w-auto px-7 py-4 rounded-none bg-surface hover:bg-surface-accent text-ink border border-line-subtle font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs min-h-[44px]"
               >
-                <Clock className="w-4 h-4 text-[#0d9488]" />
+                <Clock className="w-4 h-4 text-accent" />
                 <span>{isBM ? 'Semak Masa Menunggu' : 'Check live wait time'}</span>
               </a>
             </div>
 
             {/* Compact Status Strip */}
             <div className="pt-3 max-w-3xl mx-auto">
-              <div className="bg-[#e0f5f2]/90 border border-[#b2f5ea] rounded-none p-3 flex flex-wrap items-center justify-around gap-4 text-xs text-slate-700 font-bold shadow-xs">
+              <div className="bg-surface-accent/90 border border-line rounded-none p-3 flex flex-wrap items-center justify-around gap-4 text-xs text-slate-700 font-bold shadow-xs">
                 <span className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>{isBM ? 'Buka 24/7 (Hari Ini)' : 'Open 24/7'}</span>
                 </span>
                 <span className="text-slate-300 hidden sm:inline">•</span>
                 <span className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-[#0d9488]" />
-                  <span>{isBM ? 'Anggaran Masa Menunggu:' : 'Current estimated wait:'} <strong className="font-mono text-[#0d9488]">11 min</strong></span>
+                  <Clock className="w-3.5 h-3.5 text-accent" />
+                  <span>{isBM ? 'Anggaran Masa Menunggu:' : 'Current estimated wait:'} <strong className="font-mono text-accent">11 min</strong></span>
                 </span>
                 <span className="text-slate-300 hidden sm:inline">•</span>
                 <span className="flex items-center gap-1.5">
@@ -496,6 +505,16 @@ export default function ClinicLandingPage({
               </div>
             </div>
 
+            {/* Life-threatening emergency guidance */}
+            <p className="max-w-3xl mx-auto flex items-start sm:items-center justify-center gap-2 text-sm text-rose-800 font-semibold text-left sm:text-center">
+              <AlertTriangle className="w-4 h-4 text-rose-700 shrink-0 mt-0.5 sm:mt-0" />
+              <span>
+                {isBM ? 'Kecemasan yang mengancam nyawa? ' : 'Life-threatening emergency? '}
+                <a href="tel:999" className="underline underline-offset-2 font-bold hover:text-rose-950 inline-block py-3.5 -my-3.5">{isBM ? 'Hubungi 999' : 'Call 999'}</a>
+                {isBM ? ' atau pergi ke Jabatan Kecemasan hospital terdekat.' : ' or go to the nearest hospital A&E.'}
+              </span>
+            </p>
+
           </div>
 
         </div>
@@ -504,13 +523,13 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 3. QUICK-TASK CARDS SECTION                                               */}
       {/* ========================================================================= */}
-      <section className="py-12 px-4 lg:px-8 bg-[#f0fdfa] border-b border-[#ccfbf1]">
+      <section className="py-12 px-4 lg:px-8 bg-surface-muted border-b border-line-subtle">
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="text-center space-y-1">
-            <span className="text-xs font-black uppercase tracking-widest text-[#0d9488]">
+            <span className="text-xs font-bold uppercase tracking-wider text-accent">
               {isBM ? 'Bantuan Pantas Pesakit' : 'How Can We Help You Today?'}
             </span>
-            <h2 className="text-xl sm:text-2xl font-black text-[#0f3c4c]">
+            <h2 className="type-section-title-lg text-ink">
               {isBM ? 'Pilih Perkhidmatan Kesihatan Anda' : 'Select Your Quick Service Task'}
             </h2>
           </div>
@@ -518,12 +537,12 @@ export default function ClinicLandingPage({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             {/* Task Card 1 */}
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-xs hover:border-[#0d9488] hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+            <div className="bg-surface border border-line-subtle p-5 rounded-none shadow-xs hover:border-brand hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-none bg-[#e6f4f1] text-[#0d9488] flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-none bg-surface-accent text-accent flex items-center justify-center font-bold">
                   <Stethoscope className="w-5 h-5" />
                 </div>
-                <h3 className="font-black text-base text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">
+                <h3 className="type-card-title-lg text-ink group-hover:text-accent transition-colors">
                   {isBM ? 'Jumpa Doktor Outpatient' : 'See a doctor'}
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
@@ -533,7 +552,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={() => setIsBookingOpen(true)}
-                className="w-full py-2 px-3 bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full py-2 px-3 bg-primary hover:bg-primary-hover text-white font-bold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
               >
                 <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -541,21 +560,21 @@ export default function ClinicLandingPage({
             </div>
 
             {/* Task Card 2 */}
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-xs hover:border-[#0d9488] hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+            <div className="bg-surface border border-line-subtle p-5 rounded-none shadow-xs hover:border-brand hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-none bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
                   <CreditCard className="w-5 h-5" />
                 </div>
-                <h3 className="font-black text-base text-[#0f3c4c] group-hover:text-emerald-700 transition-colors">
+                <h3 className="type-card-title-lg text-ink group-hover:text-emerald-700 transition-colors">
                   {isBM ? 'Semak Insurans / Panel' : 'Check panel coverage'}
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  {isBM ? 'Sahkan kelayakan kad panel korporat tanpa tunai anda.' : 'Verify your cashless corporate panel card &amp; e-GL eligibility.'}
+                  {isBM ? 'Sahkan kelayakan kad panel korporat tanpa tunai anda.' : 'Verify your cashless corporate panel card & e-GL eligibility.'}
                 </p>
               </div>
               <a
                 href="#panels"
-                className="w-full py-2 px-3 bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] border border-[#b2f5ea] font-extrabold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full py-2 px-3 bg-surface-accent hover:bg-surface-strong text-accent border border-line font-bold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
               >
                 <span>{isBM ? 'Semak Panel' : 'Check panel coverage'}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -563,22 +582,22 @@ export default function ClinicLandingPage({
             </div>
 
             {/* Task Card 3 */}
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-xs hover:border-[#0284c7] hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+            <div className="bg-surface border border-line-subtle p-5 rounded-none shadow-xs hover:border-sky-600 hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-none bg-sky-50 text-[#0284c7] flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-none bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
                   <Heart className="w-5 h-5" />
                 </div>
-                <h3 className="font-black text-base text-[#0f3c4c] group-hover:text-[#0284c7] transition-colors">
+                <h3 className="type-card-title-lg text-ink group-hover:text-sky-600 transition-colors">
                   {isBM ? 'Pediatrik & Imunisasi' : 'Child vaccination'}
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  {isBM ? 'Pemeriksaan bayi & suntikan imunisasi KKM berjadual.' : 'Gentle pediatric care &amp; KKM scheduled child vaccinations.'}
+                  {isBM ? 'Pemeriksaan bayi & suntikan imunisasi KKM berjadual.' : 'Gentle pediatric care & KKM scheduled child vaccinations.'}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => openDoctorBooking('Dr. Michael Wong')}
-                className="w-full py-2 px-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full py-2 px-3 bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
               >
                 <span>{isBM ? 'Pediatrik' : 'Book paediatrics'}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -586,24 +605,28 @@ export default function ClinicLandingPage({
             </div>
 
             {/* Task Card 4 */}
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-5 rounded-none shadow-xs hover:border-rose-500 hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+            <div className="bg-surface border border-line-subtle p-5 rounded-none shadow-xs hover:border-rose-500 hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-none bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
                   <ShieldAlert className="w-5 h-5" />
                 </div>
-                <h3 className="font-black text-base text-[#0f3c4c] group-hover:text-rose-600 transition-colors">
+                <h3 className="type-card-title-lg text-ink group-hover:text-rose-600 transition-colors">
                   {isBM ? 'Kecemasan Ringan 24/7' : 'Urgent minor injuries'}
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  {isBM ? 'Jahitan luka, rawatan lecuran & nebulizer asma serta-merta.' : '24/7 acute wound suturing, dressings &amp; asthma nebulization.'}
+                  {isBM ? 'Jahitan luka, rawatan lecuran & nebulizer asma serta-merta.' : '24/7 acute wound suturing, dressings & asthma nebulization.'}
+                </p>
+                <p className="text-xs text-rose-800 font-semibold">
+                  {isBM ? 'Mengancam nyawa? ' : 'Life-threatening? '}
+                  <a href="tel:999" className="underline underline-offset-2 font-bold inline-block py-3.5 -my-3.5">{isBM ? 'Hubungi 999' : 'Call 999'}</a>
                 </p>
               </div>
               <a
                 href="tel:+60355108899"
-                className="w-full py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full py-2.5 px-3 bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>{isBM ? 'Panggil Kecemasan' : 'Call emergency'}</span>
+                <span>{isBM ? 'Hubungi Klinik (Rawatan Segera)' : 'Call clinic (urgent care)'}</span>
               </a>
             </div>
 
@@ -614,14 +637,14 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 4. WHY PATIENTS CHOOSE US (4 CORE BENEFITS)                               */}
       {/* ========================================================================= */}
-      <section className="py-16 px-4 lg:px-8 bg-[#f7fdfd]">
+      <section className="py-16 px-4 lg:px-8 bg-surface">
         <div className="max-w-6xl mx-auto space-y-10">
           
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-black uppercase tracking-widest text-[#0d9488]">
+            <span className="text-xs font-bold uppercase tracking-wider text-accent">
               {isBM ? 'Kelebihan Utama' : 'Why Patients Choose Us'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#0f3c4c]">
+            <h2 className="type-section-title-lg text-ink">
               {isBM ? 'Penjagaan Kesihatan Berfokuskan Pesakit' : 'Patient-Centered Healthcare Experience'}
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm">
@@ -631,11 +654,11 @@ export default function ClinicLandingPage({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-6 rounded-none space-y-3 shadow-2xs">
-              <div className="w-10 h-10 bg-[#0d9488] text-white rounded-none flex items-center justify-center font-extrabold text-sm">
+            <div className="bg-surface-muted border border-line-subtle p-6 rounded-none space-y-3 shadow-2xs">
+              <div className="w-10 h-10 bg-primary text-white rounded-none flex items-center justify-center font-bold text-sm">
                 1
               </div>
-              <h3 className="text-base font-black text-[#0f3c4c]">
+              <h3 className="type-card-title-lg text-ink">
                 {isBM ? 'Pendaftaran MyKad Pantas' : 'Fast MyKad check-in'}
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -646,11 +669,11 @@ export default function ClinicLandingPage({
               </p>
             </div>
 
-            <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-6 rounded-none space-y-3 shadow-2xs">
-              <div className="w-10 h-10 bg-[#0d9488] text-white rounded-none flex items-center justify-center font-extrabold text-sm">
+            <div className="bg-surface-muted border border-line-subtle p-6 rounded-none space-y-3 shadow-2xs">
+              <div className="w-10 h-10 bg-primary text-white rounded-none flex items-center justify-center font-bold text-sm">
                 2
               </div>
-              <h3 className="text-base font-black text-[#0f3c4c]">
+              <h3 className="type-card-title-lg text-ink">
                 {isBM ? 'Farmasi Setempat' : 'On-site pharmacy'}
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -661,14 +684,14 @@ export default function ClinicLandingPage({
               </p>
             </div>
 
-            <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-6 rounded-none space-y-3 shadow-2xs">
-              <div className="w-10 h-10 bg-[#0d9488] text-white rounded-none flex items-center justify-center font-extrabold text-sm">
+            <div className="bg-surface-muted border border-line-subtle p-6 rounded-none space-y-3 shadow-2xs">
+              <div className="w-10 h-10 bg-primary text-white rounded-none flex items-center justify-center font-bold text-sm">
                 3
               </div>
-              <h3 className="text-base font-black text-[#0f3c4c]">
+              <h3 className="type-card-title-lg text-ink">
                 {isBM ? 'Panel Insurans Tanpa Tunai' : 'Cashless panel billing'}
               </h3>
-              <p className="text-xs text-slate-[#0f3c4c] text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-ink text-xs text-slate-600 leading-relaxed">
                 {isBM 
                   ? 'Tuntutan e-GL terus dengan PMCare, MiCare, HealthMetrics dan 150+ panel.' 
                   : 'Direct e-GL authorization with PMCare, MiCare, Petronas, and 150+ panels.'
@@ -676,17 +699,17 @@ export default function ClinicLandingPage({
               </p>
             </div>
 
-            <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-6 rounded-none space-y-3 shadow-2xs">
-              <div className="w-10 h-10 bg-[#0d9488] text-white rounded-none flex items-center justify-center font-extrabold text-sm">
+            <div className="bg-surface-muted border border-line-subtle p-6 rounded-none space-y-3 shadow-2xs">
+              <div className="w-10 h-10 bg-primary text-white rounded-none flex items-center justify-center font-bold text-sm">
                 4
               </div>
-              <h3 className="text-base font-black text-[#0f3c4c]">
+              <h3 className="type-card-title-lg text-ink">
                 {isBM ? 'Akses Perubatan 24/7' : '24/7 access'}
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 {isBM 
                   ? 'Pintu klinik sentiasa terbuka 24 jam sehari untuk sebarang kecemasan ringan.' 
-                  : 'Always open 24 hours a day, 7 days a week for general &amp; urgent medical needs.'
+                  : 'Always open 24 hours a day, 7 days a week for general & urgent medical needs.'
                 }
               </p>
             </div>
@@ -699,17 +722,17 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 5. MEDICAL SERVICES BENTO GRID                                            */}
       {/* ========================================================================= */}
-      <section id="services" className="py-20 px-4 lg:px-8 bg-[#f0fdfa] border-t border-[#ccfbf1]">
+      <section id="services" className="py-20 px-4 lg:px-8 bg-surface-muted border-t border-line-subtle">
         <div className="max-w-6xl mx-auto space-y-10">
           
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
             <div className="space-y-3 max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-[#0d9488] bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#ccfbf1]">
-                <Activity className="w-3.5 h-3.5 text-[#0d9488]" />
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-accent bg-surface-accent px-3.5 py-1 rounded-full border border-line-subtle">
+                <Activity className="w-3.5 h-3.5 text-accent" />
                 <span>{isBM ? 'Perkhidmatan Perubatan Outpatient' : 'Comprehensive Outpatient Services'}</span>
               </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#0f3c4c] tracking-tight">
+              <h2 className="type-section-title-lg text-ink">
                 {isBM ? 'Rawatan Perubatan & Pakar Kami' : 'Doctor Consultations & Urgent Care'}
               </h2>
               <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
@@ -725,62 +748,63 @@ export default function ClinicLandingPage({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* FEATURED HERO CARD (Spans 7 Cols on Desktop) */}
-            <div className="lg:col-span-7 bg-[#f7fdfd] border border-[#b2f5ea] rounded-none p-7 shadow-xs space-y-6 relative overflow-hidden group hover:border-[#0d9488] transition-all">
-              <div className="h-1 bg-[#0d9488] absolute top-0 left-0 right-0" />
+            <div className="lg:col-span-7 bg-surface border border-line rounded-none p-7 shadow-xs space-y-6 relative overflow-hidden group hover:border-brand transition-all">
+              <div className="h-1 bg-primary absolute top-0 left-0 right-0" />
               
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-none bg-[#0d9488] text-white flex items-center justify-center shadow-md shadow-teal-500/20">
+                  <div className="w-12 h-12 rounded-none bg-primary text-white flex items-center justify-center shadow-md shadow-teal-500/20">
                     <Stethoscope className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#0d9488] block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-accent block">
                       {isBM ? 'Suite Konsultasi Utama' : 'Primary Consultation Suite'}
                     </span>
-                    <h3 className="text-xl font-black text-[#0f3c4c] group-hover:text-[#0d9488] transition-colors">
-                      {isBM ? 'Konsultasi Rawatan Am & Kecemasan Ringan' : 'Doctor consultations and urgent care, open 24/7'}
+                    <h3 className="type-card-title-lg text-ink group-hover:text-accent transition-colors">
+                      {isBM ? 'Konsultasi Doktor Am' : 'General practice consultations'}
                     </h3>
                   </div>
                 </div>
 
-                <span className="hidden sm:inline-flex text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none border border-emerald-200">
-                  🟢 Suite 101 Active
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none border border-emerald-200">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                  Suite 101 Active
                 </span>
               </div>
 
               <p className="text-xs text-slate-700 leading-relaxed font-normal relative z-10">
                 {isBM 
-                  ? 'Konsultasi diagnostik menyeluruh, pengurusan demam & penyakit akut, pemeriksaan tekanan darah/gula, serta prosedur surgeri kecil oleh doktor bertauliah MMC.'
-                  : 'Comprehensive diagnostic consultations, acute illness management, chronic condition monitoring, and minor surgical procedures by senior MMC-registered physicians.'
+                  ? 'Diagnosis dan rawatan penyakit harian, serta penjagaan berterusan untuk penyakit kronik, oleh doktor berdaftar MMC.'
+                  : 'Diagnosis and treatment for everyday illnesses, plus ongoing care for long-term conditions, by MMC-registered doctors.'
                 }
               </p>
 
               {/* Key Clinical Checklist */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 relative z-10 text-xs font-semibold text-slate-800">
-                <div className="flex items-center gap-2 bg-[#f0fdfa] p-2.5 rounded-none border border-[#ccfbf1]">
-                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
+                <div className="flex items-center gap-2 bg-surface-muted p-2.5 rounded-none border border-line-subtle">
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
                   <span>{isBM ? 'Demam Akut & Selsema Viral' : 'Acute Fever & Viral Flu'}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-[#f0fdfa] p-2.5 rounded-none border border-[#ccfbf1]">
-                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
+                <div className="flex items-center gap-2 bg-surface-muted p-2.5 rounded-none border border-line-subtle">
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
                   <span>{isBM ? 'Kawalan Darah Tinggi & Kencing Manis' : 'Hypertension & Diabetes Care'}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-[#f0fdfa] p-2.5 rounded-none border border-[#ccfbf1]">
-                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
-                  <span>{isBM ? 'Jahitan Luka & Cuci Luka 24/7' : '24/7 Wound Suturing & Dressing'}</span>
+                <div className="flex items-center gap-2 bg-surface-muted p-2.5 rounded-none border border-line-subtle">
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
+                  <span>{isBM ? 'Batuk, Selsema & Sakit Tekak' : 'Cough, Cold & Sore Throat'}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-[#f0fdfa] p-2.5 rounded-none border border-[#ccfbf1]">
-                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
-                  <span>{isBM ? 'Rawatan Nebulizer Asma' : 'Asthma Nebulizer Treatment'}</span>
+                <div className="flex items-center gap-2 bg-surface-muted p-2.5 rounded-none border border-line-subtle">
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
+                  <span>{isBM ? 'Masalah Perut & Gastrik' : 'Stomach & Gastric Complaints'}</span>
                 </div>
               </div>
 
               {/* Action Footer */}
-              <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-[#b2f5ea] relative z-10">
+              <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-line relative z-10">
                 <button
                   type="button"
                   onClick={() => setIsBookingOpen(true)}
-                  className="px-5 py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer min-h-[44px]"
                 >
                   <Calendar className="w-4 h-4" />
                   <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
@@ -790,20 +814,20 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 2: PHARMACY (Spans 5 Cols) */}
-            <div className="lg:col-span-5 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group relative overflow-hidden">
-              <div className="h-1 bg-[#0d9488] absolute top-0 left-0 right-0" />
+            <div className="lg:col-span-5 bg-surface border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-brand hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="h-1 bg-primary absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs group-hover:scale-105 transition-transform">
                     <Pill className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-none border border-emerald-200">
+                  <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-none border border-emerald-200">
                     KKM Approved
                   </span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <h3 className="text-lg font-black text-[#0f3c4c] group-hover:text-emerald-700 transition-colors">
+                  <h3 className="type-card-title-lg text-ink group-hover:text-emerald-700 transition-colors">
                     {isBM ? 'Farmasi & Dispensari Bekalan Ubat' : 'On-Site Pharmacy & Dispensing'}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -817,20 +841,20 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 3: PEDIATRICS (Spans 4 Cols) */}
-            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0284c7] hover:shadow-md transition-all group relative overflow-hidden">
-              <div className="h-1 bg-[#0284c7] absolute top-0 left-0 right-0" />
+            <div className="lg:col-span-4 bg-surface border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-sky-600 hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="h-1 bg-sky-600 absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-none bg-sky-50 border border-sky-200 flex items-center justify-center text-[#0284c7] shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-11 h-11 rounded-none bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600 shadow-2xs group-hover:scale-105 transition-transform">
                     <Heart className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-none border border-sky-200">
+                  <span className="text-xs font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-none border border-sky-200">
                     Child Friendly
                   </span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <h3 className="text-base font-black text-[#0f3c4c] group-hover:text-[#0284c7] transition-colors">
+                  <h3 className="type-card-title-lg text-ink group-hover:text-sky-600 transition-colors">
                     {isBM ? 'Pediatrik & Imunisasi Kanak-Kanak' : 'Child Vaccination & Paediatrics'}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -844,20 +868,20 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 4: CORPORATE PANEL (Spans 4 Cols) */}
-            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-indigo-600 hover:shadow-md transition-all group relative overflow-hidden">
+            <div className="lg:col-span-4 bg-surface border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-indigo-600 hover:shadow-md transition-all group relative overflow-hidden">
               <div className="h-1 bg-indigo-600 absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="w-11 h-11 rounded-none bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-2xs group-hover:scale-105 transition-transform">
                     <CreditCard className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-none border border-indigo-200">
+                  <span className="text-xs font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-none border border-indigo-200">
                     150+ Panels
                   </span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <h3 className="text-base font-black text-[#0f3c4c] group-hover:text-indigo-700 transition-colors">
+                  <h3 className="type-card-title-lg text-ink group-hover:text-indigo-700 transition-colors">
                     {isBM ? 'Semak Insurans Panel Tanpa Tunai' : 'Check your cashless medical coverage'}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -871,20 +895,20 @@ export default function ClinicLandingPage({
             </div>
 
             {/* CARD 5: HEALTH SCREENING (Spans 4 Cols) */}
-            <div className="lg:col-span-4 bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-[#0d9488] hover:shadow-md transition-all group relative overflow-hidden">
-              <div className="h-1 bg-[#0d9488] absolute top-0 left-0 right-0" />
+            <div className="lg:col-span-4 bg-surface border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-brand hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="h-1 bg-primary absolute top-0 left-0 right-0" />
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-11 h-11 rounded-none bg-surface-accent border border-line-subtle flex items-center justify-center text-accent shadow-2xs group-hover:scale-105 transition-transform">
                     <Activity className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-none border border-teal-200">
+                  <span className="text-xs font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-none border border-teal-200">
                     Full Profiling
                   </span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <h3 className="text-[#0f3c4c] text-base font-black group-hover:text-[#0d9488] transition-colors">
+                  <h3 className="type-card-title-lg text-ink group-hover:text-accent transition-colors">
                     {isBM ? 'Pemeriksaan Kesihatan Eksekutif' : 'Executive Health Screening'}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -905,11 +929,11 @@ export default function ClinicLandingPage({
                 </div>
                 <div className="space-y-1 text-center md:text-left">
                   <div className="flex items-center justify-center md:justify-start gap-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded-none border border-rose-200">
+                    <span className="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded-none border border-rose-200">
                       24/7 Urgent Care
                     </span>
                   </div>
-                  <h3 className="text-lg font-black text-[#0f3c4c]">
+                  <h3 className="type-card-title-lg text-ink">
                     {isBM ? 'Rawatan Kecemasan 24 Jam & Pembedahan Kecil' : '24-Hour Urgent Care & Minor Surgical Procedures'}
                   </h3>
                   <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
@@ -921,14 +945,18 @@ export default function ClinicLandingPage({
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
+              <div className="flex flex-col items-stretch md:items-end gap-2 shrink-0 w-full md:w-auto">
                 <a
                   href="tel:+60355108899"
-                  className="w-full md:w-auto px-6 py-3 rounded-none bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full md:w-auto px-6 py-3 rounded-none bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px]"
                 >
                   <Phone className="w-4 h-4" />
-                  <span>+60 3-5510 8899</span>
+                  <span>{isBM ? 'Hubungi Klinik: +60 3-5510 8899' : 'Call clinic: +60 3-5510 8899'}</span>
                 </a>
+                <span className="text-xs text-rose-800 font-semibold text-center md:text-right">
+                  {isBM ? 'Mengancam nyawa? ' : 'Life-threatening? '}
+                  <a href="tel:999" className="underline underline-offset-2 font-bold inline-block py-3.5 -my-3.5">{isBM ? 'Hubungi 999' : 'Call 999'}</a>
+                </span>
               </div>
             </div>
 
@@ -940,30 +968,30 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 6. ON-DUTY RESIDENT DOCTORS                                               */}
       {/* ========================================================================= */}
-      <section id="doctors" className="py-20 px-4 lg:px-8 bg-[#f7fdfd] border-t border-[#ccfbf1]">
+      <section id="doctors" className="py-20 px-4 lg:px-8 bg-surface border-t border-line-subtle">
         <div className="max-w-6xl mx-auto space-y-10">
           
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-center md:text-left">
-              <span className="text-xs font-black uppercase tracking-widest text-[#0d9488]">
+              <span className="text-xs font-bold uppercase tracking-wider text-accent">
                 {isBM ? 'Staf Perubatan Bertauliah' : 'Resident Physicians'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#0f3c4c]">
+              <h2 className="type-section-title-lg text-ink">
                 {isBM ? 'Doktor Perubatan & Pakar Resident' : 'Resident Medical Doctors & Specialists'}
               </h2>
             </div>
 
             {/* Department Filter Pills */}
-            <div className="flex items-center gap-2 text-xs font-bold bg-[#f0fdfa] p-1.5 rounded-none border border-[#ccfbf1]">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-bold bg-surface-muted p-1.5 rounded-none border border-line-subtle">
               {['All', 'General Medicine', 'Pediatrics', 'Pharmacy'].map((dept) => (
                 <button
                   key={dept}
                   type="button"
                   onClick={() => setDoctorSpecialty(dept)}
-                  className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                  className={`min-h-[44px] px-3 py-1.5 rounded-none transition-colors cursor-pointer ${
                     doctorSpecialty === dept 
-                      ? 'bg-[#0d9488] text-white shadow-2xs' 
-                      : 'text-slate-700 hover:text-[#0f3c4c]'
+                      ? 'bg-primary text-white shadow-2xs' 
+                      : 'text-slate-700 hover:text-ink'
                   }`}
                 >
                   {dept}
@@ -979,34 +1007,34 @@ export default function ClinicLandingPage({
                 
                 {/* Availability State Pill */}
                 <div className="absolute top-4 right-4">
-                  <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-none flex items-center gap-1 border bg-emerald-100 text-emerald-800 border-emerald-300">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-none flex items-center gap-1 border bg-emerald-100 text-emerald-800 border-emerald-300">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     {doc.availabilityState}
                   </span>
                 </div>
 
-                <div className={`w-20 h-20 rounded-none ${doc.bgColor} mx-auto flex items-center justify-center text-white text-2xl font-black shadow-md group-hover:scale-105 transition-transform border border-teal-600`}>
+                <div className={`w-20 h-20 rounded-none ${doc.bgColor} mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-md group-hover:scale-105 transition-transform border border-teal-600`}>
                   {doc.id}
                 </div>
                 
                 <div className="space-y-1">
-                  <div className="flex items-center justify-center gap-1 text-amber-500 text-xs font-bold">
+                  <div className="flex items-center justify-center gap-1 text-amber-800 text-xs font-bold">
                     <Star className="w-3.5 h-3.5 fill-amber-400" />
                     <span>{doc.rating} ({doc.experience})</span>
                   </div>
-                  <h3 className="text-base font-extrabold text-[#0f3c4c]">{doc.name}</h3>
-                  <span className="text-xs text-[#0d9488] font-semibold block">{doc.title}</span>
-                  <span className="text-[11px] text-slate-500 block pt-0.5">{doc.role}</span>
-                  <span className="text-[10px] text-slate-400 block">Languages: {doc.languages}</span>
+                  <h3 className="type-card-title-lg text-ink">{doc.name}</h3>
+                  <span className="text-xs text-accent font-semibold block">{doc.title}</span>
+                  <span className="text-xs text-slate-600 block pt-0.5">{doc.role}</span>
+                  <span className="text-xs text-slate-600 block">Languages: {doc.languages}</span>
                 </div>
                 
                 {/* Live Slot Status Box */}
-                <div className="p-3 bg-[#e0f5f2] border border-[#b2f5ea] rounded-none flex items-center justify-between text-[11px] font-bold text-slate-700 shadow-2xs">
-                  <span className="flex items-center gap-1.5 text-[#0f3c4c]">
-                    <Clock className="w-3.5 h-3.5 text-[#0d9488]" />
+                <div className="p-3 bg-surface-accent border border-line rounded-none flex items-center justify-between text-xs font-bold text-slate-700 shadow-2xs">
+                  <span className="flex items-center gap-1.5 text-ink">
+                    <Clock className="w-3.5 h-3.5 text-accent" />
                     <span>{doc.nextSlot}</span>
                   </span>
-                  <span className="font-mono text-[#0d9488] bg-white px-2 py-0.5 border border-[#ccfbf1] text-[10px]">
+                  <span className="font-mono text-accent bg-white px-2 py-0.5 border border-line-subtle text-xs">
                     {doc.queueCount} {isBM ? 'Menunggu' : 'Queued'}
                   </span>
                 </div>
@@ -1014,7 +1042,7 @@ export default function ClinicLandingPage({
                 <button
                   type="button"
                   onClick={() => openDoctorBooking(doc.name)}
-                  className="w-full py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                  className="w-full py-2.5 rounded-none bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs min-h-[44px]"
                 >
                   <Calendar className="w-3.5 h-3.5" />
                   <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
@@ -1030,7 +1058,7 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 7. PANELS & PRACTICAL INFORMATION SECTION                                 */}
       {/* ========================================================================= */}
-      <section id="panels" className="py-16 px-4 lg:px-8 bg-[#f0fdfa] border-t border-[#ccfbf1]">
+      <section id="panels" className="py-16 px-4 lg:px-8 bg-surface-muted border-t border-line-subtle">
         <div className="max-w-6xl mx-auto space-y-12">
           
           {/* Panel Search & Eligibility Checker */}
@@ -1040,10 +1068,10 @@ export default function ClinicLandingPage({
               <div className="lg:col-span-2 space-y-4">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="space-y-1 text-center md:text-left">
-                    <span className="text-xs font-black uppercase tracking-widest text-[#0d9488]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-accent">
                       {isBM ? 'Perlindungan Insurans Korporat' : 'Cashless Corporate Panel Coverage'}
                     </span>
-                    <h3 className="text-xl font-extrabold text-[#0f3c4c]">
+                    <h3 className="type-card-title-lg text-ink">
                       {isBM ? 'Panel TPA & Insurans Diterima' : 'Search Supported Corporate Panels'}
                     </h3>
                   </div>
@@ -1056,7 +1084,7 @@ export default function ClinicLandingPage({
                       placeholder={isBM ? 'Cari nama panel...' : 'Search panel...'}
                       value={panelSearch}
                       onChange={e => setPanelSearch(e.target.value)}
-                      className="w-full pl-9.5 pr-3.5 py-2.5 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]"
+                      className="w-full pl-9.5 pr-3.5 py-2.5 rounded-none bg-surface border border-line-subtle text-xs text-ink placeholder-slate-400 focus:outline-none focus:border-brand"
                     />
                   </div>
                 </div>
@@ -1067,10 +1095,10 @@ export default function ClinicLandingPage({
                       key={idx} 
                       type="button"
                       onClick={() => setSelectedPanelCheck(panel)}
-                      className={`px-3 py-1.5 rounded-none border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs ${
+                      className={`min-h-[44px] px-3 py-1.5 rounded-none border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs ${
                         selectedPanelCheck === panel 
-                          ? 'bg-[#0d9488] text-white border-[#0d9488]' 
-                          : 'bg-[#f7fdfd] border-[#ccfbf1] text-slate-700 hover:border-[#0d9488] hover:text-[#0d9488]'
+                          ? 'bg-primary text-white border-brand' 
+                          : 'bg-surface border-line-subtle text-slate-700 hover:border-brand hover:text-accent'
                       }`}
                     >
                       <CreditCard className="w-3.5 h-3.5" />
@@ -1078,31 +1106,31 @@ export default function ClinicLandingPage({
                     </button>
                   ))}
                   {filteredPanels.length === 0 && (
-                    <div className="text-slate-500 text-xs py-2">No matching corporate panel found.</div>
+                    <div className="text-slate-600 text-xs py-2">No matching corporate panel found.</div>
                   )}
                 </div>
               </div>
 
               {/* Panel Checker Box */}
-              <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none p-5 space-y-4 shadow-sm">
-                <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
-                  <span className="text-xs font-black text-[#0f3c4c] flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#0d9488]" /> {isBM ? 'Semakan Panel' : 'Panel Eligibility Check'}
+              <div className="bg-surface border border-line-subtle rounded-none p-5 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-line-subtle pb-3">
+                  <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-accent" /> {isBM ? 'Semakan Panel' : 'Panel Eligibility Check'}
                   </span>
-                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
                     DEMO CHECKER
                   </span>
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">
+                    <label className="text-xs font-bold uppercase text-slate-600 block mb-1">
                       {isBM ? 'Pilih Panel TPA' : 'Selected TPA Panel'}
                     </label>
                     <select
                       value={selectedPanelCheck}
                       onChange={e => setSelectedPanelCheck(e.target.value)}
-                      className="w-full p-2.5 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] text-xs font-bold text-[#0f3c4c] focus:outline-none"
+                      className="w-full p-2.5 rounded-none bg-surface-accent border border-line text-xs font-bold text-ink focus:outline-none"
                     >
                       {tpaPanels.map((p, i) => (
                         <option key={i} value={p}>{p}</option>
@@ -1111,7 +1139,7 @@ export default function ClinicLandingPage({
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-500 block mb-1">
+                    <label className="text-xs font-bold uppercase text-slate-600 block mb-1">
                       {isBM ? 'No. Staff / Kad Pengenalan' : 'Staff / IC Reference ID'}
                     </label>
                     <input
@@ -1119,25 +1147,25 @@ export default function ClinicLandingPage({
                       value={panelEmpId}
                       onChange={e => setPanelEmpId(e.target.value)}
                       placeholder="Enter Staff ID..."
-                      className="w-full p-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-xs font-mono font-bold text-[#0f3c4c] focus:outline-none"
+                      className="w-full p-2.5 rounded-none bg-surface-muted border border-line-subtle text-xs font-mono font-bold text-ink focus:outline-none"
                     />
                   </div>
 
-                  <div className="p-3 bg-[#e0f5f2] border border-[#b2f5ea] rounded-none space-y-1 text-[11px]">
+                  <div className="p-3 bg-surface-accent border border-line rounded-none space-y-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-600">Consultation Coverage:</span>
                       <span className="font-bold text-emerald-700">100% Cashless</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Medication Allowance:</span>
-                      <span className="font-bold text-[#0d9488]">RM 250 / Visit</span>
+                      <span className="font-bold text-accent">RM 250 / Visit</span>
                     </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setIsBookingOpen(true)}
-                    className="w-full py-2.5 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs rounded-none transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 bg-primary hover:bg-primary-hover text-white font-bold text-xs rounded-none transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
                   >
                     <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
                   </button>
@@ -1151,31 +1179,31 @@ export default function ClinicLandingPage({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
             
             {/* What to bring */}
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none space-y-4">
-              <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
-                <Info className="w-4 h-4 text-[#0d9488]" />
+            <div className="bg-surface border border-line-subtle p-6 rounded-none space-y-4">
+              <h3 className="type-card-title-lg text-ink flex items-center gap-2">
+                <Info className="w-4 h-4 text-accent" />
                 <span>{isBM ? 'Dokumen Perlu Dibawa' : 'What to Bring for Your Visit'}</span>
               </h3>
               <ul className="space-y-2.5 text-xs text-slate-700 font-medium">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span><strong>MyKad / MyKid / Passport:</strong> Required for identity verification and fast check-in.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span><strong>Corporate Panel Card / e-GL:</strong> Digital Guarantee Letter via TPA app or physical panel card.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span><strong>Current Medications / Prescriptions:</strong> Helps doctor cross-check drug interactions.</span>
                 </li>
               </ul>
             </div>
 
             {/* Travel Context & Parking */}
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-6 rounded-none space-y-4" id="location">
-              <h3 className="text-base font-black text-[#0f3c4c] flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#0d9488]" />
+            <div className="bg-surface border border-line-subtle p-6 rounded-none space-y-4" id="location">
+              <h3 className="type-card-title-lg text-ink flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-accent" />
                 <span>{isBM ? 'Lokasi & Kemudahan Parkir' : 'Location & Transport Access'}</span>
               </h3>
               <div className="space-y-2.5 text-xs text-slate-700">
@@ -1183,15 +1211,15 @@ export default function ClinicLandingPage({
                   <strong>Address:</strong> Level 2, Menara Medical Suite, Persiaran Central, 40000 Shah Alam, Selangor.
                 </p>
                 <div className="flex items-start gap-2">
-                  <Car className="w-4 h-4 text-[#0d9488] shrink-0 mt-0.5" />
+                  <Car className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span><strong>Parking:</strong> Underground visitor parking at Bays A &amp; B (First 1 hr free for patients).</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Bus className="w-4 h-4 text-[#0d9488] shrink-0 mt-0.5" />
+                  <Bus className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span><strong>Public Transit:</strong> 5 mins taxi from LRT Glenmarie / KTM Shah Alam station.</span>
                 </div>
-                <p className="text-[11px] text-slate-500 pt-1 font-semibold">
-                  📍 Serving patients across Shah Alam, Subang Jaya, Puchong, Klang, and surrounding Klang Valley areas.
+                <p className="text-xs text-slate-600 pt-1 font-semibold">
+                  Serving patients across Shah Alam, Subang Jaya, Puchong, Klang, and surrounding Klang Valley areas.
                 </p>
               </div>
             </div>
@@ -1202,7 +1230,7 @@ export default function ClinicLandingPage({
           <div className="bg-amber-50 border border-amber-300 p-4 rounded-none flex items-start gap-3 text-xs text-amber-900">
             <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <strong className="font-black block text-amber-950 uppercase text-[11px] tracking-wide">
+              <strong className="font-bold block text-amber-950 uppercase text-xs tracking-wider">
                 {isBM ? 'AMARAN KECEMASAN SERIUS' : 'CRITICAL EMERGENCY SAFETY NOTICE'}
               </strong>
               <span>
@@ -1220,16 +1248,16 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 8. REVIEWS & FAQ SECTION                                                  */}
       {/* ========================================================================= */}
-      <section id="faq" className="py-20 px-4 lg:px-8 bg-[#f7fdfd] border-t border-[#ccfbf1]">
+      <section id="faq" className="py-20 px-4 lg:px-8 bg-surface border-t border-line-subtle">
         <div className="max-w-4xl mx-auto space-y-12">
           
           {/* Patient Reviews */}
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <span className="text-xs font-black uppercase tracking-widest text-[#0d9488]">
+              <span className="text-xs font-bold uppercase tracking-wider text-accent">
                 {isBM ? 'Maklum Balas Pesakit' : 'Patient Reviews'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#0f3c4c]">
+              <h2 className="type-section-title-lg text-ink">
                 {isBM ? 'Apa Kata Pesakit Kami' : 'What Our Patients Say'}
               </h2>
             </div>
@@ -1248,10 +1276,10 @@ export default function ClinicLandingPage({
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-[#ccfbf1] flex items-center justify-between text-[11px]">
+                  <div className="pt-3 border-t border-line-subtle flex items-center justify-between text-xs">
                     <div>
-                      <div className="font-extrabold text-[#0f3c4c]">{t.name}</div>
-                      <div className="text-[10px] text-[#0d9488]">{t.role}</div>
+                      <div className="font-bold text-ink">{t.name}</div>
+                      <div className="text-xs text-accent">{t.role}</div>
                     </div>
                   </div>
                 </div>
@@ -1260,9 +1288,9 @@ export default function ClinicLandingPage({
           </div>
 
           {/* FAQ Accordion */}
-          <div className="space-y-6 pt-6 border-t border-[#ccfbf1]">
+          <div className="space-y-6 pt-6 border-t border-line-subtle">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-black text-[#0f3c4c]">
+              <h2 className="type-section-title-lg text-ink">
                 {isBM ? 'Soalan Lazim (FAQ)' : 'Frequently Asked Questions'}
               </h2>
             </div>
@@ -1275,17 +1303,17 @@ export default function ClinicLandingPage({
                     <button
                       type="button"
                       onClick={() => toggleFaq(idx)}
-                      className="w-full p-4 text-left flex items-center justify-between gap-4 cursor-pointer focus:outline-none"
+                      className="w-full p-4 text-left flex items-center justify-between gap-4 cursor-pointer focus:outline-none min-h-[44px]"
                     >
-                      <span className="text-xs font-extrabold text-[#0f3c4c] flex items-center gap-2">
-                        <HelpCircle className="w-4 h-4 text-[#0d9488] shrink-0" />
+                      <span className="text-xs font-bold text-ink flex items-center gap-2">
+                        <HelpCircle className="w-4 h-4 text-accent shrink-0" />
                         {faq.q}
                       </span>
-                      <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#0d9488]' : ''}`} />
+                      <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-accent' : ''}`} />
                     </button>
 
                     {isOpen && (
-                      <div className="px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-[#ccfbf1] pt-3 animate-fadeIn">
+                      <div className="px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-line-subtle pt-3 animate-fadeIn">
                         {faq.a}
                       </div>
                     )}
@@ -1305,24 +1333,24 @@ export default function ClinicLandingPage({
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           
           <div className="space-y-3">
-            <span className="text-base font-black text-white block tracking-tight">MEDICLINIC ENTERPRISE</span>
-            <p className="text-slate-400 leading-relaxed text-[11px]">
+            <span className="text-base font-bold text-white block tracking-tight">MEDICLINIC ENTERPRISE</span>
+            <p className="text-slate-400 leading-relaxed text-xs">
               Shah Alam&apos;s premier 24/7 outpatient medical facility equipped with biometric MyKad scanner, EMR integration, and corporate panel coverage.
             </p>
-            <span className="text-[10px] text-slate-500 font-mono block">KKM Reg #KKM-2026-SL-8902</span>
+            <span className="text-xs text-slate-400 font-mono block">KKM Reg #KKM-2026-SL-8902</span>
           </div>
 
           <div className="space-y-2">
-            <h4 className="font-bold text-white uppercase text-[11px] tracking-wider">Contact &amp; Emergency</h4>
+            <h4 className="type-label text-white">Contact &amp; Emergency</h4>
             <div className="space-y-2 pt-1">
-              <a href="tel:+60355108899" className="block flex items-center gap-2 hover:text-white"><Phone className="w-3.5 h-3.5 text-teal-400" /> +60 3-5510 8899</a>
+              <a href="tel:+60355108899" className="block flex items-center gap-2 hover:text-white min-h-[44px]"><Phone className="w-3.5 h-3.5 text-teal-400" /> +60 3-5510 8899</a>
               <span className="block flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-teal-400" /> emergency@mediclinic.my</span>
               <span className="block flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-teal-400" /> 24 Hours / 7 Days Open</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <h4 className="font-bold text-white uppercase text-[11px] tracking-wider">Location Address</h4>
+            <h4 className="type-label text-white">Location Address</h4>
             <div className="space-y-1 leading-relaxed pt-1">
               <span className="block flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
@@ -1332,12 +1360,12 @@ export default function ClinicLandingPage({
           </div>
 
           <div className="space-y-2">
-            <h4 className="font-bold text-white uppercase text-[11px] tracking-wider">Portals &amp; Access</h4>
+            <h4 className="type-label text-white">Portals &amp; Access</h4>
             <div className="space-y-2 pt-1">
               <button
                 type="button"
                 onClick={onOpenLogin}
-                className="w-full py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-md"
+                className="w-full py-2.5 rounded-none bg-primary hover:bg-primary-hover text-white font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-md min-h-[44px]"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Staff Portal Access</span>
@@ -1347,32 +1375,51 @@ export default function ClinicLandingPage({
 
         </div>
 
-        <div className="max-w-6xl mx-auto pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
+        <div className="max-w-6xl mx-auto pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <span>&copy; 2026 MediClinic Enterprise. All rights reserved.</span>
           <div className="flex gap-4">
-            <a href="#services" className="hover:text-white">Privacy Policy</a>
-            <a href="#services" className="hover:text-white">Terms of Service</a>
-            <a href="#services" className="hover:text-white">PDPA Compliance</a>
+            <a href="#services" className="hover:text-white inline-flex items-center min-h-[44px]">Privacy Policy</a>
+            <a href="#services" className="hover:text-white inline-flex items-center min-h-[44px]">Terms of Service</a>
+            <a href="#services" className="hover:text-white inline-flex items-center min-h-[44px]">PDPA Compliance</a>
           </div>
         </div>
       </footer>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
+      {/* Mobile sticky action bar */}
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 grid grid-cols-2 gap-2 p-3 bg-surface/95 backdrop-blur-md border-t border-line shadow-bar-up">
+        <a
+          href="tel:+60355108899"
+          className="min-h-[48px] rounded-none bg-surface-accent border border-line text-ink text-sm font-bold flex items-center justify-center gap-2"
+        >
+          <Phone className="w-4 h-4 text-accent" />
+          <span>{isBM ? 'Hubungi Klinik' : 'Call clinic'}</span>
+        </a>
         <button
           type="button"
           onClick={() => setIsBookingOpen(true)}
-          className="px-4 py-3 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-black shadow-2xl flex items-center gap-2 transition-all hover:scale-105 cursor-pointer ring-2 ring-white/80"
+          className="min-h-[48px] rounded-none bg-primary hover:bg-primary-hover text-white text-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
         >
           <Calendar className="w-4 h-4" />
-          <span className="hidden sm:inline">{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
+          <span>{isBM ? 'Tempah' : 'Book'}</span>
+        </button>
+      </div>
+
+      {/* Floating Action Button (tablet & desktop) */}
+      <div className="hidden sm:flex fixed bottom-6 right-6 z-40 flex-col gap-3 items-end">
+        <button
+          type="button"
+          onClick={() => setIsBookingOpen(true)}
+          className="px-4 py-3 rounded-none bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xl flex items-center gap-2 transition-all hover:scale-105 cursor-pointer ring-2 ring-white/80 min-h-[44px]"
+        >
+          <Calendar className="w-4 h-4" />
+          <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
         </button>
 
         <button
           type="button"
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="w-10 h-10 rounded-none bg-[#f7fdfd] border border-[#ccfbf1] text-slate-700 hover:text-[#0d9488] hover:border-[#0d9488] shadow-md flex items-center justify-center transition-all cursor-pointer"
+          className="w-11 h-11 rounded-none bg-surface border border-line-subtle text-slate-700 hover:text-accent hover:border-brand shadow-md flex items-center justify-center transition-all cursor-pointer"
         >
           <ArrowUp className="w-4 h-4" />
         </button>
@@ -1383,19 +1430,19 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {isBookingOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none max-w-lg w-full p-6 shadow-2xl space-y-5 relative text-[#0f3c4c]">
+          <div className="bg-surface border border-line-subtle rounded-none max-w-lg w-full p-6 shadow-2xl space-y-5 relative text-ink">
             
-            <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-4">
+            <div className="flex items-center justify-between border-b border-line-subtle pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488]">
+                <div className="w-8 h-8 rounded-none bg-surface-accent border border-line-subtle flex items-center justify-center text-accent">
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-[#0f3c4c]">
+                  <h3 className="type-card-title-lg text-ink">
                     {isBM ? 'Tempah Janji Temu Doktor' : 'Book Doctor Appointment'}
                   </h3>
                   {selectedDoctor && (
-                    <span className="text-[11px] text-[#0d9488] font-semibold block">
+                    <span className="text-xs text-accent font-semibold block">
                       Preferred: {selectedDoctor}
                     </span>
                   )}
@@ -1405,7 +1452,7 @@ export default function ClinicLandingPage({
               <button
                 type="button"
                 onClick={() => setIsBookingOpen(false)}
-                className="w-8 h-8 rounded-none bg-[#e6f4f1] text-slate-500 hover:text-[#0f3c4c] flex items-center justify-center text-sm cursor-pointer"
+                className="w-8 h-8 rounded-none bg-surface-accent text-slate-500 hover:text-ink flex items-center justify-center text-sm cursor-pointer"
               >
                 ✕
               </button>
@@ -1416,24 +1463,24 @@ export default function ClinicLandingPage({
                 <div className="w-16 h-16 rounded-none bg-emerald-100 border border-emerald-300 text-emerald-600 mx-auto flex items-center justify-center shadow-md">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h4 className="text-xl font-black text-[#0f3c4c]">{isBM ? 'Janji Temu Disahkan!' : 'Appointment Reserved!'}</h4>
+                <h4 className="type-section-title text-ink">{isBM ? 'Janji Temu Disahkan!' : 'Appointment Reserved!'}</h4>
                 <p className="text-xs text-slate-600 leading-relaxed max-w-xs mx-auto">
-                  {isBM ? 'Terima kasih,' : 'Thank you,'} <strong className="text-[#0d9488]">{bookingForm.fullName}</strong>. {isBM ? 'Rujukan giliran anda ialah' : 'Your queue reference is'} <strong className="text-mono font-bold text-amber-600">#APT-8902</strong>.
+                  {isBM ? 'Terima kasih,' : 'Thank you,'} <strong className="text-accent">{bookingForm.fullName}</strong>. {isBM ? 'Rujukan giliran anda ialah' : 'Your queue reference is'} <strong className="text-mono font-bold text-amber-600">#APT-8902</strong>.
                 </p>
-                <div className="p-4 bg-[#f0fdfa] rounded-none border border-[#ccfbf1] text-left text-xs space-y-2">
+                <div className="p-4 bg-surface-muted rounded-none border border-line-subtle text-left text-xs space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Service:</span>
                     <strong className="text-slate-800">{bookingForm.service}</strong>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Date &amp; Time:</span>
-                    <strong className="text-[#0d9488]">{bookingForm.preferredDate || 'Today'} @ {bookingForm.preferredTime}</strong>
+                    <strong className="text-accent">{bookingForm.preferredDate || 'Today'} @ {bookingForm.preferredTime}</strong>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={resetBooking}
-                  className="px-6 py-2.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-xs transition-colors cursor-pointer"
+                  className="px-6 py-2.5 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs transition-colors cursor-pointer inline-flex items-center min-h-[44px]"
                 >
                   Done
                 </button>
@@ -1441,11 +1488,11 @@ export default function ClinicLandingPage({
             ) : (
               <form onSubmit={handleBookingSubmit} className="space-y-4 text-xs">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Full Patient Name *</label>
+                  <label className="block text-xs uppercase font-bold text-slate-500 mb-1">Full Patient Name *</label>
                   <input
                     type="text"
                     required
-                    className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                    className="w-full px-3.5 py-2.5 rounded-none bg-surface-muted border border-line-subtle text-ink focus:outline-none focus:border-brand"
                     placeholder="e.g. Ahmad Firdaus Bin Ismail"
                     value={bookingForm.fullName}
                     onChange={e => setBookingForm({ ...bookingForm, fullName: e.target.value })}
@@ -1454,22 +1501,22 @@ export default function ClinicLandingPage({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">MyKad IC Number *</label>
+                    <label className="block text-xs uppercase font-bold text-slate-500 mb-1">MyKad IC Number *</label>
                     <input
                       type="text"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] font-mono focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-surface-muted border border-line-subtle text-ink font-mono focus:outline-none focus:border-brand"
                       placeholder="YYMMDD-XX-XXXX"
                       value={bookingForm.icNumber}
                       onChange={e => setBookingForm({ ...bookingForm, icNumber: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Phone Number *</label>
+                    <label className="block text-xs uppercase font-bold text-slate-500 mb-1">Phone Number *</label>
                     <input
                       type="text"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-surface-muted border border-line-subtle text-ink focus:outline-none focus:border-brand"
                       placeholder="+60 12-345 6789"
                       value={bookingForm.phone}
                       onChange={e => setBookingForm({ ...bookingForm, phone: e.target.value })}
@@ -1478,9 +1525,9 @@ export default function ClinicLandingPage({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Medical Specialty *</label>
+                  <label className="block text-xs uppercase font-bold text-slate-500 mb-1">Medical Specialty *</label>
                   <select
-                    className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                    className="w-full px-3.5 py-2.5 rounded-none bg-surface-muted border border-line-subtle text-ink focus:outline-none focus:border-brand"
                     value={bookingForm.service}
                     onChange={e => setBookingForm({ ...bookingForm, service: e.target.value })}
                   >
@@ -1493,18 +1540,18 @@ export default function ClinicLandingPage({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Preferred Date</label>
+                    <label className="block text-xs uppercase font-bold text-slate-500 mb-1">Preferred Date</label>
                     <input
                       type="date"
-                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-surface-muted border border-line-subtle text-ink focus:outline-none focus:border-brand"
                       value={bookingForm.preferredDate}
                       onChange={e => setBookingForm({ ...bookingForm, preferredDate: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Preferred Time</label>
+                    <label className="block text-xs uppercase font-bold text-slate-500 mb-1">Preferred Time</label>
                     <select
-                      className="w-full px-3.5 py-2.5 rounded-none bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f3c4c] focus:outline-none focus:border-[#0d9488]"
+                      className="w-full px-3.5 py-2.5 rounded-none bg-surface-muted border border-line-subtle text-ink focus:outline-none focus:border-brand"
                       value={bookingForm.preferredTime}
                       onChange={e => setBookingForm({ ...bookingForm, preferredTime: e.target.value })}
                     >
@@ -1517,14 +1564,14 @@ export default function ClinicLandingPage({
                   </div>
                 </div>
 
-                <div className="text-[10px] text-slate-500 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#0d9488]" />
+                <div className="text-xs text-slate-500 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-accent" />
                   <span>Protected under Malaysia PDPA Act 2010.</span>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-none bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-xs shadow-md transition-all cursor-pointer mt-2"
+                  className="w-full py-3.5 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-md transition-all cursor-pointer mt-2 inline-flex items-center min-h-[44px]"
                 >
                   Confirm Appointment Booking
                 </button>

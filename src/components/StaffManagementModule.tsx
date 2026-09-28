@@ -7,6 +7,7 @@ import {
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../lib/supabase';
 
+import ProgressBar from './ui/ProgressBar';
 export interface StaffMember {
   id: string;
   name: string;
@@ -240,19 +241,19 @@ export default function StaffManagementModule() {
     <div className="animate-fadeIn w-full space-y-6 pb-8">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-[#e6f4f1] text-[#0f3c4c] p-5 rounded-none shadow-2xs border border-[#99f6e4] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-[#0d9488]/10 text-[#0d9488] text-[11px] font-bold px-2.5 py-0.5 rounded-none border border-[#0d9488]/20 uppercase tracking-wide">
+            <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               Workforce Governance
             </span>
-            <span className="flex items-center gap-1 text-[11px] text-[#0d9488] bg-teal-50 px-2 py-0.5 rounded-none border border-[#99f6e4] font-mono font-bold">
+            <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               {activeCount} Active Personnel
             </span>
           </div>
-          <h1 className="text-xl font-black tracking-tight text-[#0f3c4c] flex items-center gap-2.5">
-            <Users className="w-6 h-6 text-[#0d9488]" />
+          <h1 className="type-page-title text-ink flex items-center gap-2.5">
+            <Users className="w-6 h-6 text-accent" />
             Staff &amp; HR Management
           </h1>
           <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
@@ -266,9 +267,9 @@ export default function StaffManagementModule() {
               <button 
                 type="button"
                 onClick={() => setIsImportModalOpen(true)}
-                className="bg-white hover:bg-teal-50 text-[#0f3c4c] text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-[#99f6e4] transition-all cursor-pointer shadow-2xs"
+                className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
               >
-                <FileSpreadsheet className="w-3.5 h-3.5 text-[#0d9488]" />
+                <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
                 <span>Import Staff CSV</span>
               </button>
 
@@ -278,7 +279,7 @@ export default function StaffManagementModule() {
                   setEditingStaffId(null);
                   setCurrentView('registration');
                 }}
-                className="bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
+                className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Staff Member</span>
@@ -290,24 +291,24 @@ export default function StaffManagementModule() {
 
       {/* 2. TOP METRICS CARDS ROW (Gives immediate structure & balance) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
-          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Registered Personnel</span>
-          <span className="text-xl font-black font-mono text-[#0f3c4c] block mt-0.5">{staffList.length} Members</span>
+        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Registered Personnel</span>
+          <span className="text-xl font-bold font-mono text-ink block mt-0.5">{staffList.length} Members</span>
         </div>
 
-        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
-          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Active Duty Staff</span>
-          <span className="text-xl font-black font-mono text-emerald-700 block mt-0.5">{activeCount} Active</span>
+        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Active Duty Staff</span>
+          <span className="text-xl font-bold font-mono text-emerald-700 block mt-0.5">{activeCount} Active</span>
         </div>
 
-        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
-          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Est. Monthly Payroll</span>
-          <span className="text-xl font-black font-mono text-[#0d9488] block mt-0.5">RM {totalPayroll.toLocaleString()}</span>
+        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Est. Monthly Payroll</span>
+          <span className="text-xl font-bold font-mono text-accent block mt-0.5">RM {totalPayroll.toLocaleString()}</span>
         </div>
 
-        <div className="bg-[#e6f4f1] border border-[#99f6e4] p-3.5 rounded-none shadow-2xs">
-          <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Pending Disbursals</span>
-          <span className="text-xl font-black font-mono text-amber-700 block mt-0.5">{pendingPayments} Pending</span>
+        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Pending Disbursals</span>
+          <span className="text-xl font-bold font-mono text-amber-700 block mt-0.5">{pendingPayments} Pending</span>
         </div>
       </div>
 
@@ -323,14 +324,14 @@ export default function StaffManagementModule() {
       ) : (
         <>
           {/* 3. SUB-TAB NAVIGATION SEGMENTED CONTROL */}
-          <div className="flex items-stretch gap-0 bg-[#d5f0eb] border-b border-[#99f6e4] text-xs font-bold h-10 overflow-x-auto">
+          <div className="flex items-stretch gap-0 bg-surface-strong border-b border-line text-xs font-bold h-10 overflow-x-auto">
             <button
               type="button"
               onClick={() => setActiveTab('directory')}
               className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'directory' 
-                  ? 'bg-[#0a837f] text-white font-black' 
-                  : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'
+                  ? 'bg-chrome text-white font-bold' 
+                  : 'bg-transparent text-ink hover:bg-surface-strong font-bold'
               }`}
             >
               <User className="w-4 h-4" />
@@ -342,8 +343,8 @@ export default function StaffManagementModule() {
               onClick={() => setActiveTab('payroll')}
               className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'payroll' 
-                  ? 'bg-[#0a837f] text-white font-black' 
-                  : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'
+                  ? 'bg-chrome text-white font-bold' 
+                  : 'bg-transparent text-ink hover:bg-surface-strong font-bold'
               }`}
             >
               <DollarSign className="w-4 h-4" />
@@ -355,8 +356,8 @@ export default function StaffManagementModule() {
               onClick={() => setActiveTab('attendance')}
               className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
                 activeTab === 'attendance' 
-                  ? 'bg-[#0a837f] text-white font-black' 
-                  : 'bg-transparent text-[#0f3c4c] hover:bg-[#c3ebe3] font-bold'
+                  ? 'bg-chrome text-white font-bold' 
+                  : 'bg-transparent text-ink hover:bg-surface-strong font-bold'
               }`}
             >
               <Calendar className="w-4 h-4" />
@@ -370,7 +371,7 @@ export default function StaffManagementModule() {
               
               {/* Search & Filter Bar (Only when staff records exist) */}
               {staffList.length > 0 && (
-                <div className="bg-[#f0fdfa] border border-[#ccfbf1] p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+                <div className="bg-surface-muted border border-line-subtle p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
                   <div className="relative w-full md:w-72">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input 
@@ -378,18 +379,18 @@ export default function StaffManagementModule() {
                       placeholder="Search name, role, department..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-3.5 py-2 bg-[#e6f4f1] border border-[#99f6e4] text-xs text-[#0f3c4c] placeholder-slate-400 focus:outline-none focus:border-[#0d9488]" 
+                      className="w-full pl-9 pr-3.5 py-2 bg-surface-accent border border-line text-xs text-ink placeholder-slate-400 focus:outline-none focus:border-brand" 
                     />
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                     <div className="flex items-center gap-1.5 text-slate-600 font-bold">
-                      <Filter className="w-3.5 h-3.5 text-[#0d9488]" />
+                      <Filter className="w-3.5 h-3.5 text-accent" />
                       <span>Dept:</span>
                       <select
                         value={departmentFilter}
                         onChange={e => setDepartmentFilter(e.target.value)}
-                        className="bg-[#e6f4f1] border border-[#99f6e4] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
+                        className="bg-surface-accent border border-line px-2.5 py-1.5 text-xs text-ink font-bold focus:outline-none"
                       >
                         <option value="All">All Departments</option>
                         <option value="General Medicine">General Medicine</option>
@@ -404,7 +405,7 @@ export default function StaffManagementModule() {
                       <select
                         value={statusFilter}
                         onChange={e => setStatusFilter(e.target.value)}
-                        className="bg-[#e6f4f1] border border-[#99f6e4] px-2.5 py-1.5 text-xs text-[#0f3c4c] font-bold focus:outline-none"
+                        className="bg-surface-accent border border-line px-2.5 py-1.5 text-xs text-ink font-bold focus:outline-none"
                       >
                         <option value="All">All Statuses</option>
                         <option value="Active">Active</option>
@@ -421,14 +422,14 @@ export default function StaffManagementModule() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-2">
                   
                   {/* Left Column: Hero Onboarding Card */}
-                  <div className="lg:col-span-7 bg-[#e6f4f1] border border-[#99f6e4] p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
+                  <div className="lg:col-span-7 bg-surface-accent border border-line p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
                     <div className="space-y-4">
-                      <div className="w-14 h-14 rounded-none bg-[#e0f5f2] border border-[#b2f5ea] text-[#0d9488] flex items-center justify-center shadow-md">
+                      <div className="w-14 h-14 rounded-none bg-surface-accent border border-line text-accent flex items-center justify-center shadow-md">
                         <UserPlus className="w-7 h-7" />
                       </div>
                       
                       <div className="space-y-2">
-                        <h3 className="text-xl font-black text-[#0f3c4c]">Your staff directory is empty</h3>
+                        <h3 className="type-section-title text-ink">Your staff directory is empty</h3>
                         <p className="text-xs text-slate-600 leading-relaxed">
                           Add clinicians, receptionists, pharmacists, and administrators to manage their profiles, payroll, leave balances, and station access.
                         </p>
@@ -442,7 +443,7 @@ export default function StaffManagementModule() {
                           setEditingStaffId(null);
                           setCurrentView('registration');
                         }}
-                        className="w-full sm:w-auto px-6 py-3 bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs rounded-none shadow-md transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary-hover text-white font-bold text-xs rounded-none shadow-md transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
                       >
                         <Plus className="w-4 h-4" />
                         <span>Add First Staff Member</span>
@@ -451,50 +452,50 @@ export default function StaffManagementModule() {
                       <button
                         type="button"
                         onClick={handleLoadSampleRoster}
-                        className="w-full sm:w-auto px-5 py-3 bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] font-bold text-xs border border-[#b2f5ea] rounded-none transition-colors cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-5 py-3 bg-surface-accent hover:bg-surface-strong text-accent font-bold text-xs border border-line rounded-none transition-colors cursor-pointer flex items-center justify-center gap-2"
                       >
-                        <FileSpreadsheet className="w-4 h-4 text-[#0d9488]" />
+                        <FileSpreadsheet className="w-4 h-4 text-accent" />
                         <span>Import Sample Roster</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Right Column: Quick Onboarding Workflow Guide */}
-                  <div className="lg:col-span-5 bg-[#f0fdfa] border border-[#ccfbf1] p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
+                  <div className="lg:col-span-5 bg-surface-muted border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
                     <div className="space-y-3">
-                      <h4 className="text-xs font-black uppercase tracking-wider text-[#0d9488] flex items-center gap-1.5">
-                        <Activity className="w-3.5 h-3.5 text-[#0d9488]" />
+                      <h4 className="type-label text-accent flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-accent" />
                         <span>Quick Onboarding Guide</span>
                       </h4>
 
                       <div className="space-y-3 text-xs">
-                        <div className="flex items-start gap-3 p-2.5 bg-[#e6f4f1] border border-[#99f6e4]">
-                          <span className="w-5 h-5 bg-[#0d9488] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">1</span>
+                        <div className="flex items-start gap-3 p-2.5 bg-surface-accent border border-line">
+                          <span className="w-5 h-5 bg-primary text-white font-mono font-bold text-2xs flex items-center justify-center shrink-0">1</span>
                           <div>
-                            <strong className="text-[#0f3c4c] block font-extrabold">Register Personnel</strong>
-                            <span className="text-[11px] text-slate-600">Enter MyKad IC/Passport, contact details &amp; credentials.</span>
+                            <strong className="text-ink block font-bold">Register Personnel</strong>
+                            <span className="text-2xs text-slate-600">Enter MyKad IC/Passport, contact details &amp; credentials.</span>
                           </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-2.5 bg-[#f7fdfd] border border-[#ccfbf1]">
-                          <span className="w-5 h-5 bg-[#0d9488] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">2</span>
+                        <div className="flex items-start gap-3 p-2.5 bg-surface border border-line-subtle">
+                          <span className="w-5 h-5 bg-primary text-white font-mono font-bold text-2xs flex items-center justify-center shrink-0">2</span>
                           <div>
-                            <strong className="text-[#0f3c4c] block font-extrabold">Assign Workstation Role</strong>
-                            <span className="text-[11px] text-slate-600">Assign Doctor, Pharmacist, Triage Nurse or Cashier suite.</span>
+                            <strong className="text-ink block font-bold">Assign Workstation Role</strong>
+                            <span className="text-2xs text-slate-600">Assign Doctor, Pharmacist, Triage Nurse or Cashier suite.</span>
                           </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-2.5 bg-[#f7fdfd] border border-[#ccfbf1]">
-                          <span className="w-5 h-5 bg-[#0d9488] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">3</span>
+                        <div className="flex items-start gap-3 p-2.5 bg-surface border border-line-subtle">
+                          <span className="w-5 h-5 bg-primary text-white font-mono font-bold text-2xs flex items-center justify-center shrink-0">3</span>
                           <div>
-                            <strong className="text-[#0f3c4c] block font-extrabold">Configure Payroll &amp; Benefits</strong>
-                            <span className="text-[11px] text-slate-600">Set base salary, EPF/SOCSO deductions &amp; annual leave.</span>
+                            <strong className="text-ink block font-bold">Configure Payroll &amp; Benefits</strong>
+                            <span className="text-2xs text-slate-600">Set base salary, EPF/SOCSO deductions &amp; annual leave.</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-[#ccfbf1] text-[11px] text-[#0d9488] font-bold flex items-center justify-between">
+                    <div className="pt-2 border-t border-line-subtle text-2xs text-accent font-bold flex items-center justify-between">
                       <span>PDPA 2010 Compliant System</span>
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     </div>
@@ -505,9 +506,9 @@ export default function StaffManagementModule() {
 
               {/* SEARCH NO RESULTS STATE */}
               {staffList.length > 0 && filteredStaff.length === 0 && (
-                <div className="bg-[#f7fdfd] border border-[#ccfbf1] p-10 text-center space-y-4">
+                <div className="bg-surface border border-line-subtle p-10 text-center space-y-4">
                   <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
-                  <h4 className="text-base font-black text-[#0f3c4c]">
+                  <h4 className="type-card-title text-ink">
                     No staff members found matching &ldquo;{searchQuery}&rdquo;
                   </h4>
                   <p className="text-xs text-slate-500">
@@ -520,7 +521,7 @@ export default function StaffManagementModule() {
                       setDepartmentFilter('All');
                       setStatusFilter('All');
                     }}
-                    className="px-4 py-2 bg-[#e0f5f2] hover:bg-[#d5f0eb] text-[#0d9488] font-bold text-xs border border-[#b2f5ea] cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 py-2 bg-surface-accent hover:bg-surface-strong text-accent font-bold text-xs border border-line cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Reset All Filters</span>
@@ -530,9 +531,9 @@ export default function StaffManagementModule() {
 
               {/* STAFF DIRECTORY TABLE (When records exist) */}
               {filteredStaff.length > 0 && (
-                <div className="bg-[#e6f4f1] border border-[#99f6e4] rounded-none shadow-xs overflow-hidden animate-fadeIn">
+                <div className="bg-surface-accent border border-line rounded-none shadow-xs overflow-hidden animate-fadeIn">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-[#d5f0eb] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#99f6e4]">
+                    <thead className="bg-surface-strong text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
                       <tr>
                         <th className="px-6 py-3.5">Staff Member</th>
                         <th className="px-6 py-3.5">Department &amp; Role</th>
@@ -540,32 +541,32 @@ export default function StaffManagementModule() {
                         <th className="px-6 py-3.5 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#ccfbf1]">
+                    <tbody className="divide-y divide-line-subtle">
                       {filteredStaff.map((staff) => (
-                        <tr key={staff.id} className="hover:bg-[#f0fdfa] transition-colors">
+                        <tr key={staff.id} className="hover:bg-surface-muted transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-none bg-[#e6f4f1] border border-[#ccfbf1] flex items-center justify-center text-[#0d9488] font-black text-xs shrink-0">
+                              <div className="w-9 h-9 rounded-none bg-surface-accent border border-line-subtle flex items-center justify-center text-accent font-bold text-xs shrink-0">
                                 {staff.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                               </div>
                               <div>
-                                <p className="font-extrabold text-[#0f3c4c] text-xs">{staff.name}</p>
-                                <p className="text-[10px] font-mono text-slate-500">{staff.email}</p>
+                                <p className="font-bold text-ink text-xs">{staff.name}</p>
+                                <p className="text-2xs font-mono text-slate-500">{staff.email}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <p className="text-slate-800 font-bold">{staff.department}</p>
                             <div className="flex items-center gap-1 mt-0.5">
-                              <Shield className="w-3 h-3 text-[#0d9488]" />
-                              <span className="text-[10px] font-extrabold uppercase tracking-wide text-[#0d9488]">{staff.role}</span>
+                              <Shield className="w-3 h-3 text-accent" />
+                              <span className="text-2xs font-bold uppercase tracking-wider text-accent">{staff.role}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <button 
                               type="button"
                               onClick={() => toggleStatus(staff.id)}
-                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-colors ${
+                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-none text-2xs font-bold uppercase tracking-wider cursor-pointer border transition-colors ${
                                 staff.status === 'Active' 
                                   ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
                                   : staff.status === 'On Leave'
@@ -587,7 +588,7 @@ export default function StaffManagementModule() {
                                   setEditingStaffId(staff.id);
                                   setCurrentView('registration');
                                 }}
-                                className="p-1.5 text-slate-600 hover:text-[#0d9488] bg-[#f0fdfa] border border-[#ccfbf1] hover:border-[#0d9488] rounded-none transition-all cursor-pointer"
+                                className="p-1.5 text-slate-600 hover:text-accent bg-surface-muted border border-line-subtle hover:border-brand rounded-none transition-all cursor-pointer"
                                 title="Edit staff record"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
@@ -614,9 +615,9 @@ export default function StaffManagementModule() {
           {/* Payroll View */}
           {activeTab === 'payroll' && (
             <div className="space-y-4 animate-fadeIn">
-              <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden">
+              <div className="bg-surface border border-line-subtle rounded-none shadow-2xs overflow-hidden">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
+                  <thead className="bg-surface-accent text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
                     <tr>
                       <th className="px-6 py-3.5">Employee</th>
                       <th className="px-6 py-3.5">Base Salary</th>
@@ -626,22 +627,22 @@ export default function StaffManagementModule() {
                       <th className="px-6 py-3.5 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#ccfbf1]">
+                  <tbody className="divide-y divide-line-subtle">
                     {staffList.map((staff) => {
                       const base = Number(staff.salaryBase) || 0;
                       const deductions = base * 0.13;
                       const netPay = base - deductions;
 
                       return (
-                        <tr key={staff.id} className="hover:bg-[#f0fdfa]">
-                          <td className="px-6 py-4 font-bold text-[#0f3c4c]">{staff.name}</td>
+                        <tr key={staff.id} className="hover:bg-surface-muted">
+                          <td className="px-6 py-4 font-bold text-ink">{staff.name}</td>
                           <td className="px-6 py-4 font-mono text-slate-600">RM {base.toLocaleString()}</td>
                           <td className="px-6 py-4 font-mono text-rose-600">-RM {deductions.toLocaleString()}</td>
-                          <td className="px-6 py-4 font-mono font-bold text-[#0d9488]">RM {netPay.toLocaleString()}</td>
+                          <td className="px-6 py-4 font-mono font-bold text-accent">RM {netPay.toLocaleString()}</td>
                           <td className="px-6 py-4">
                             {staff.paymentStatus === 'Paid' ? (
                               <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-300">
+                                <span className="inline-flex items-center gap-1 text-2xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-300">
                                   <CheckCircle className="w-3 h-3" /> Paid
                                 </span>
                                 <button 
@@ -654,7 +655,7 @@ export default function StaffManagementModule() {
                                 </button>
                               </div>
                             ) : (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-300">
+                              <span className="inline-flex items-center gap-1 text-2xs font-bold text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-300">
                                 <Clock className="w-3 h-3" /> Pending
                               </span>
                             )}
@@ -664,10 +665,10 @@ export default function StaffManagementModule() {
                               type="button"
                               disabled={staff.paymentStatus === 'Paid'}
                               onClick={() => processPayroll(staff.id)}
-                              className={`text-xs font-extrabold px-3 py-1.5 rounded-none transition-colors ${
+                              className={`text-xs font-bold px-3 py-1.5 rounded-none transition-colors ${
                                 staff.paymentStatus === 'Paid' 
                                   ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                  : 'bg-[#0d9488] hover:bg-[#0f766e] text-white cursor-pointer shadow-xs'
+                                  : 'bg-primary hover:bg-primary-hover text-white cursor-pointer shadow-xs'
                               }`}
                             >
                               Process
@@ -684,9 +685,9 @@ export default function StaffManagementModule() {
 
           {/* Attendance View */}
           {activeTab === 'attendance' && (
-            <div className="bg-[#f7fdfd] border border-[#ccfbf1] rounded-none shadow-2xs overflow-hidden animate-fadeIn">
+            <div className="bg-surface border border-line-subtle rounded-none shadow-2xs overflow-hidden animate-fadeIn">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#e0f5f2] text-[#0f3c4c] font-black uppercase text-[10px] tracking-wider border-b border-[#b2f5ea]">
+                <thead className="bg-surface-accent text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
                   <tr>
                     <th className="px-6 py-3.5">Employee</th>
                     <th className="px-6 py-3.5">Attendance Rate</th>
@@ -695,29 +696,24 @@ export default function StaffManagementModule() {
                     <th className="px-6 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ccfbf1]">
+                <tbody className="divide-y divide-line-subtle">
                   {staffList.map((staff) => (
-                    <tr key={staff.id} className="hover:bg-[#f0fdfa]">
-                      <td className="px-6 py-4 font-bold text-[#0f3c4c]">
+                    <tr key={staff.id} className="hover:bg-surface-muted">
+                      <td className="px-6 py-4 font-bold text-ink">
                         {staff.name}
-                        <p className="text-[10px] text-slate-500 font-normal">{staff.role}</p>
+                        <p className="text-2xs text-slate-500 font-normal">{staff.role}</p>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-full bg-slate-200 rounded-none h-2 max-w-[80px]">
-                            <div 
-                              className={`h-2 ${staff.attendanceRate > 90 ? 'bg-[#0d9488]' : staff.attendanceRate > 75 ? 'bg-amber-500' : 'bg-rose-500'}`}
-                              style={{ width: `${staff.attendanceRate}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#0f3c4c]">{staff.attendanceRate}%</span>
+                          <ProgressBar value={staff.attendanceRate} className="max-w-[80px]" tone={staff.attendanceRate > 90 ? 'primary' : staff.attendanceRate > 75 ? 'warning' : 'danger'} />
+                          <span className="text-xs font-mono font-bold text-ink">{staff.attendanceRate}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 font-mono text-slate-600">
                         {staff.leavesTaken} Days
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`text-[11px] font-bold px-2 py-0.5 border ${
+                        <span className={`text-2xs font-bold px-2 py-0.5 border ${
                           staff.leaveBalance > 5 ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300'
                         }`}>
                           {staff.leaveBalance} Days Left
@@ -728,7 +724,7 @@ export default function StaffManagementModule() {
                           <button 
                             type="button"
                             onClick={() => markAbsent(staff.id)}
-                            className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-2 py-1 cursor-pointer transition-colors"
+                            className="text-2xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-2 py-1 cursor-pointer transition-colors"
                           >
                             Mark Absent
                           </button>
@@ -736,10 +732,10 @@ export default function StaffManagementModule() {
                             type="button"
                             disabled={staff.leaveBalance <= 0}
                             onClick={() => approveLeave(staff.id)}
-                            className={`text-[10px] font-bold px-2 py-1 border transition-colors ${
+                            className={`text-2xs font-bold px-2 py-1 border transition-colors ${
                               staff.leaveBalance <= 0 
                                 ? 'text-slate-400 border-slate-200 bg-slate-50 cursor-not-allowed'
-                                : 'text-[#0d9488] bg-[#e0f5f2] border-[#b2f5ea] hover:bg-[#d5f0eb] cursor-pointer'
+                                : 'text-accent bg-surface-accent border-line hover:bg-surface-strong cursor-pointer'
                             }`}
                           >
                             Approve Leave
@@ -758,11 +754,11 @@ export default function StaffManagementModule() {
       {/* CSV Import Modal */}
       {isImportModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
-          <div className="bg-[#f7fdfd] border border-[#ccfbf1] max-w-md w-full p-6 shadow-2xl space-y-5 relative text-[#0f3c4c]">
-            <div className="flex items-center justify-between border-b border-[#ccfbf1] pb-3">
+          <div className="bg-surface border border-line-subtle max-w-md w-full p-6 shadow-2xl space-y-5 relative text-ink">
+            <div className="flex items-center justify-between border-b border-line-subtle pb-3">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="w-5 h-5 text-[#0d9488]" />
-                <h3 className="text-base font-black">Import Staff Roster (CSV)</h3>
+                <FileSpreadsheet className="w-5 h-5 text-accent" />
+                <h3 className="type-card-title">Import Staff Roster (CSV)</h3>
               </div>
               <button 
                 type="button"
@@ -777,19 +773,19 @@ export default function StaffManagementModule() {
               Upload a standard personnel spreadsheet containing employee full name, email, department, role, and salary information.
             </p>
 
-            <div className="border-2 border-dashed border-[#ccfbf1] bg-[#f0fdfa] p-6 text-center space-y-3">
-              <Upload className="w-8 h-8 text-[#0d9488] mx-auto" />
+            <div className="border-2 border-dashed border-line-subtle bg-surface-muted p-6 text-center space-y-3">
+              <Upload className="w-8 h-8 text-accent mx-auto" />
               <div className="text-xs text-slate-600">
-                <span className="font-bold text-[#0d9488]">Click to choose CSV file</span> or drag and drop here
+                <span className="font-bold text-accent">Click to choose CSV file</span> or drag and drop here
               </div>
-              <span className="text-[10px] text-slate-400 block font-mono">Supported formats: .csv, .xlsx</span>
+              <span className="text-2xs text-slate-400 block font-mono">Supported formats: .csv, .xlsx</span>
             </div>
 
             <div className="pt-2 flex flex-col gap-2">
               <button
                 type="button"
                 onClick={handleLoadSampleRoster}
-                className="w-full py-2.5 bg-[#0d9488] hover:bg-[#0f766e] text-white text-xs font-black shadow-md cursor-pointer transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-md cursor-pointer transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Load Sample Malaysian Medical Roster</span>
@@ -798,7 +794,7 @@ export default function StaffManagementModule() {
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(false)}
-                className="w-full py-2 bg-[#e0f5f2] text-[#0d9488] text-xs font-bold border border-[#b2f5ea] cursor-pointer"
+                className="w-full py-2 bg-surface-accent text-accent text-xs font-bold border border-line cursor-pointer"
               >
                 Cancel
               </button>

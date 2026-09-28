@@ -4,6 +4,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { supabase } from '../lib/supabase';
 
+import { palette } from '../theme/palette';
 // Initialize Stripe with the publishable key from env (if available)
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
@@ -60,11 +61,11 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
 
   if (isSuccess) {
     return (
-      <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-xl max-w-md w-full mx-auto text-center animate-scaleUp">
-        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="bg-white p-8 rounded-none border border-slate-200 shadow-xl max-w-md w-full mx-auto text-center animate-scaleUp">
+        <div className="w-16 h-16 bg-emerald-100 rounded-none flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-emerald-600" />
         </div>
-        <h3 className="text-xl font-bold text-slate-800">Payment Successful</h3>
+        <h3 className="type-section-title text-slate-800">Payment Successful</h3>
         <p className="text-slate-500 mt-2 text-sm">Your payment of <strong>RM{amount.toFixed(2)}</strong> has been processed securely.</p>
         <p className="text-xs text-slate-400 mt-4">Redirecting you back to your portal...</p>
       </div>
@@ -72,9 +73,9 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn">
+    <div className="bg-white rounded-none shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn">
       {/* Stripe Header */}
-      <div className="bg-[#635BFF] p-6 text-white flex flex-col justify-center items-center relative">
+      <div className="bg-stripe p-6 text-white flex flex-col justify-center items-center relative">
         <button 
           onClick={onCancel}
           type="button"
@@ -82,10 +83,10 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
-        <div className="text-sm font-medium opacity-90 uppercase tracking-widest mt-1">
+        <div className="text-sm font-medium opacity-90 uppercase tracking-wider mt-1">
           Klinik Malaysia
         </div>
-        <div className="text-3xl font-bold mt-2">
+        <div className="type-metric mt-2">
           RM {amount.toFixed(2)}
         </div>
         <div className="text-xs opacity-75 mt-1 font-mono">
@@ -96,12 +97,12 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <div className="bg-slate-100 p-2 rounded-lg">
+            <div className="bg-slate-100 p-2 rounded-none">
               <Lock className="w-4 h-4 text-slate-500" />
             </div>
             <span className="text-xs font-bold text-slate-500 uppercase">Secure Checkout</span>
           </div>
-          <span className="bg-[#635BFF]/10 text-[#635BFF] text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <span className="bg-stripe/10 text-stripe text-2xs font-bold px-2 py-0.5 rounded-full">
             Powered by Stripe
           </span>
         </div>
@@ -110,7 +111,7 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
           <PaymentElement />
           
           {error && (
-            <div className="text-red-500 text-xs font-medium bg-red-50 p-2 rounded border border-red-100 flex items-start gap-1.5">
+            <div className="text-red-500 text-xs font-medium bg-red-50 p-2 rounded-none border border-red-100 flex items-start gap-1.5">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -119,7 +120,7 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
           <button 
             type="submit" 
             disabled={!stripe || isProcessing}
-            className="w-full bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold py-3 rounded-none transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
+            className="w-full bg-stripe hover:bg-stripe-hover text-white font-bold py-3 rounded-none transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
           >
             {isProcessing ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -129,7 +130,7 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
           </button>
         </form>
 
-        <div className="mt-6 flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
+        <div className="mt-6 flex items-center justify-center gap-1.5 text-2xs text-slate-400">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Payments are securely encrypted</span>
         </div>
@@ -168,11 +169,11 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
 
   if (isSuccess) {
     return (
-      <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-xl max-w-md w-full mx-auto text-center animate-scaleUp">
-        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="bg-white p-8 rounded-none border border-slate-200 shadow-xl max-w-md w-full mx-auto text-center animate-scaleUp">
+        <div className="w-16 h-16 bg-emerald-100 rounded-none flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-emerald-600" />
         </div>
-        <h3 className="text-xl font-bold text-slate-800">Payment Successful</h3>
+        <h3 className="type-section-title text-slate-800">Payment Successful</h3>
         <p className="text-slate-500 mt-2 text-sm">Your payment of <strong>RM{amount.toFixed(2)}</strong> has been processed securely.</p>
         <p className="text-xs text-slate-400 mt-4">Redirecting you back to your portal...</p>
       </div>
@@ -180,13 +181,13 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn relative">
-      <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-[10px] font-bold text-center py-0.5 z-10 uppercase tracking-widest">
+    <div className="bg-white rounded-none shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn relative">
+      <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-2xs font-bold text-center py-0.5 z-10 uppercase tracking-wider">
         Development Mock Mode
       </div>
       
       {/* Stripe Header */}
-      <div className="bg-[#635BFF] p-6 pt-8 text-white flex flex-col justify-center items-center relative">
+      <div className="bg-stripe p-6 pt-8 text-white flex flex-col justify-center items-center relative">
         <button 
           onClick={onCancel}
           type="button"
@@ -194,10 +195,10 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
-        <div className="text-sm font-medium opacity-90 uppercase tracking-widest mt-1">
+        <div className="text-sm font-medium opacity-90 uppercase tracking-wider mt-1">
           Klinik Malaysia
         </div>
-        <div className="text-3xl font-bold mt-2">
+        <div className="type-metric mt-2">
           RM {amount.toFixed(2)}
         </div>
         <div className="text-xs opacity-75 mt-1 font-mono">
@@ -207,7 +208,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
 
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
-          <div className="bg-slate-100 p-2 rounded-lg">
+          <div className="bg-slate-100 p-2 rounded-none">
             <Lock className="w-4 h-4 text-slate-500" />
           </div>
           <span className="text-xs font-bold text-slate-500 uppercase">Simulated Checkout</span>
@@ -218,7 +219,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
             <label className="block text-xs font-bold text-slate-700 mb-1">Email</label>
             <input 
               type="email" 
-              className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none"
+              className="w-full border border-slate-300 rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
               placeholder="patient@example.com"
               required
             />
@@ -226,14 +227,14 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
 
           <div className="pt-2">
             <label className="block text-xs font-bold text-slate-700 mb-1">Card Information</label>
-            <div className="border border-slate-300 rounded-md overflow-hidden flex flex-col">
+            <div className="border border-slate-300 rounded-none overflow-hidden flex flex-col">
               <div className="relative border-b border-slate-200">
                 <CreditCard className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                 <input 
                   type="text" 
                   value={cardNumber}
                   onChange={(e) => setCardNumber(e.target.value)}
-                  className="w-full px-3 py-2 pl-9 text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none"
+                  className="w-full px-3 py-2 pl-9 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
                   placeholder="1234 5678 9012 3456"
                   maxLength={19}
                   required
@@ -244,7 +245,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
                   type="text" 
                   value={expiry}
                   onChange={(e) => setExpiry(e.target.value)}
-                  className="w-1/2 border-r border-slate-200 px-3 py-2 text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none"
+                  className="w-1/2 border-r border-slate-200 px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
                   placeholder="MM / YY"
                   maxLength={5}
                   required
@@ -253,7 +254,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
                   type="text" 
                   value={cvc}
                   onChange={(e) => setCvc(e.target.value)}
-                  className="w-1/2 px-3 py-2 text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none"
+                  className="w-1/2 px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
                   placeholder="CVC"
                   maxLength={4}
                   required
@@ -268,7 +269,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
               type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none"
+              className="w-full border border-slate-300 rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
               placeholder="Full Name"
               required
             />
@@ -277,7 +278,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
           <button 
             type="submit" 
             disabled={isProcessing}
-            className="w-full bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold py-3 rounded-none transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
+            className="w-full bg-stripe hover:bg-stripe-hover text-white font-bold py-3 rounded-none transition-colors mt-6 flex justify-center items-center gap-2 disabled:opacity-75 cursor-pointer"
           >
             {isProcessing ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -287,7 +288,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
           </button>
         </form>
 
-        <div className="mt-6 flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
+        <div className="mt-6 flex items-center justify-center gap-1.5 text-2xs text-slate-400">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Payments are securely encrypted</span>
         </div>
@@ -346,8 +347,8 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
   // We are using real Stripe, but waiting for the Edge function to return clientSecret
   if (!clientSecret) {
     return (
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-auto p-12 flex flex-col items-center justify-center gap-4 border border-slate-200">
-        <Loader2 className="w-8 h-8 text-[#635BFF] animate-spin" />
+      <div className="bg-white rounded-none shadow-xl max-w-md w-full mx-auto p-12 flex flex-col items-center justify-center gap-4 border border-slate-200">
+        <Loader2 className="w-8 h-8 text-stripe animate-spin" />
         <span className="text-sm font-medium text-slate-500">Initializing secure checkout...</span>
       </div>
     );
@@ -358,7 +359,7 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
     appearance: {
       theme: 'stripe' as const,
       variables: {
-        colorPrimary: '#635BFF',
+        colorPrimary: palette.stripe,
       }
     },
   };

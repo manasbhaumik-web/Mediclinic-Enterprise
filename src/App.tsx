@@ -213,12 +213,12 @@ export default function App() {
       />
     );
     if (appView === 'telemetry') return (
-      <div className="min-h-screen bg-[#f7fdfd] flex flex-col font-sans selection:bg-[#0d9488] selection:text-white">
-        <div className="sticky top-0 z-50 bg-[#e0f5f2]/95 backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between border-b border-[#b2f5ea] shadow-xs">
+      <div className="min-h-screen bg-surface flex flex-col font-sans selection:bg-primary selection:text-white">
+        <div className="sticky top-0 z-50 bg-surface-accent/95 backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between border-b border-line shadow-xs">
           <button
             type="button"
             onClick={() => setAppView('landing')}
-            className="text-xs font-extrabold bg-[#f7fdfd] hover:bg-[#e6f4f1] px-3.5 py-2 rounded-none border border-[#ccfbf1] text-[#0d9488] flex items-center gap-2 cursor-pointer transition-colors shadow-2xs"
+            className="text-xs font-bold bg-surface hover:bg-surface-accent px-3.5 py-2 rounded-none border border-line-subtle text-accent flex items-center gap-2 cursor-pointer transition-colors shadow-2xs"
           >
             ← Back to Public Website
           </button>
@@ -228,7 +228,7 @@ export default function App() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="text-xs font-mono text-slate-900 font-black tracking-tight">
+            <span className="text-xs font-mono text-slate-900 font-bold tracking-tight">
               LIVE OPERATIONAL TELEMETRY DASHBOARD
             </span>
           </div>
@@ -236,7 +236,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setAppView('login')}
-            className="text-xs font-extrabold bg-[#0d9488] hover:bg-[#0f766e] px-4 py-2 rounded-none text-white flex items-center gap-2 cursor-pointer transition-all shadow-md shadow-teal-500/20 hover:scale-105"
+            className="text-xs font-bold bg-primary hover:bg-primary-hover px-4 py-2 rounded-none text-white flex items-center gap-2 cursor-pointer transition-all shadow-md shadow-teal-500/20 hover:scale-105"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Staff Portal Login</span>
