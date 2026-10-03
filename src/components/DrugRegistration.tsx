@@ -74,7 +74,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
     <div className="bg-white rounded-none shadow-md border border-line overflow-hidden animate-fadeIn flex flex-col max-h-[calc(100vh-140px)]">
       {/* Header Banner */}
       <div className="bg-surface-accent border-b border-line px-6 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -84,7 +84,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="type-section-title text-ink flex items-center gap-2.5">
+            <h2 className="type-section-title text-ink flex items-center justify-center gap-2.5">
               <Pill className="w-6 h-6 text-accent" />
               Add New Medication / Drug Registration
             </h2>
@@ -92,7 +92,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -103,7 +103,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
           <button 
             type="button"
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-chrome hover:bg-primary-hover rounded-none transition-all cursor-pointer shadow-md"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-chrome hover:bg-primary-hover rounded-none transition-all cursor-pointer shadow-md"
           >
             <Save className="w-4 h-4" />
             Save to Catalog
@@ -116,7 +116,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 1: Core Drug Identification */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <Info className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">1. Core Drug Identification</h3>
             </div>
@@ -144,7 +144,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 2: Strength & Form */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <Pill className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">2. Strength & Dosage Specifications</h3>
             </div>
@@ -185,7 +185,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 3: Inventory & Packaging Controls */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <Package className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">3. Inventory & Stock Controls</h3>
             </div>
@@ -208,7 +208,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
               <input type="number" name="minThreshold" min="0" value={formData.minThreshold} onChange={handleChange} className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-mono font-bold focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-all shadow-2xs" />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-2xs font-bold uppercase tracking-wider text-ink mb-1.5 flex items-center gap-1.5">
+              <label className="block text-2xs font-bold uppercase tracking-wider text-ink mb-1.5 flex items-center justify-center gap-1.5">
                 <Thermometer className="w-3.5 h-3.5 text-accent" /> Storage Conditions & Temperature
               </label>
               <input type="text" name="storageConditions" value={formData.storageConditions || ''} onChange={handleChange} placeholder="e.g. Room Temp (15-25°C), Cold Chain Refrigerated (2-8°C)" className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-all shadow-2xs placeholder:text-slate-400 placeholder:font-normal" />
@@ -219,7 +219,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 4: Clinical & Safety Flags */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <ShieldAlert className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">4. Clinical & Safety Flags</h3>
             </div>
@@ -228,8 +228,8 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
           
           <div className="p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="flex items-center bg-purple-50 border border-purple-200 rounded-none px-4 py-3">
-                <label className="relative inline-flex items-center cursor-pointer">
+              <div className="flex items-center justify-center bg-purple-50 border border-purple-200 rounded-none px-4 py-3">
+                <label className="relative inline-flex items-center justify-center cursor-pointer">
                   <input type="checkbox" name="isControlledDrug" checked={formData.isControlledDrug} onChange={handleChange} className="sr-only peer" />
                   <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-none after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                   <div className="ml-3">
@@ -268,7 +268,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
             
             {/* Prescribing Defaults */}
             <div className="p-4 bg-surface-accent/40 border border-line rounded-none space-y-3">
-              <h4 className="type-label text-ink flex items-center gap-1.5">
+              <h4 className="type-label text-ink flex items-center justify-center gap-1.5">
                 <FileText className="w-4 h-4 text-accent" /> Standard EMR Prescribing Defaults
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -282,7 +282,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 5: Pricing & Tariff Details */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <DollarSign className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">5. Financial & Tariff Pricing</h3>
             </div>
@@ -310,8 +310,8 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
               </div>
             </div>
 
-            <div className="flex items-center bg-emerald-50 border border-emerald-200 rounded-none px-4 py-3 w-fit">
-              <label className="relative inline-flex items-center cursor-pointer">
+            <div className="flex items-center justify-center bg-emerald-50 border border-emerald-200 rounded-none px-4 py-3 w-fit">
+              <label className="relative inline-flex items-center justify-center cursor-pointer">
                 <input type="checkbox" name="isInsuranceClaimable" checked={formData.isInsuranceClaimable} onChange={handleChange} className="sr-only peer" />
                 <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-none after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                 <div className="ml-3">

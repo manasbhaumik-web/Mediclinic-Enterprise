@@ -22,16 +22,16 @@ export default function SystemArchitectureHub() {
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               Infrastructure Topology
             </span>
-            <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               All Systems Normal
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
             <Server className="w-6 h-6 text-accent" />
             System Architecture &amp; Cloud Engine
           </h1>
@@ -40,8 +40,8 @@ export default function SystemArchitectureHub() {
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <span className="bg-white text-deep px-3 py-1.5 border border-line text-xs font-mono font-bold flex items-center gap-1.5 shadow-2xs">
+        <div className="flex items-center justify-center gap-3">
+          <span className="bg-white text-deep px-3 py-1.5 border border-line text-xs font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs">
             <Wifi className="w-3.5 h-3.5 text-emerald-600" />
             <span>LATENCY: 1.2ms</span>
           </span>
@@ -79,7 +79,7 @@ export default function SystemArchitectureHub() {
           
           {/* Microservices Cluster Card */}
           <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-6">
-            <h3 className="type-label text-accent flex items-center gap-2">
+            <h3 className="type-label text-accent flex items-center justify-center gap-2">
               <Server className="w-4 h-4 text-accent" />
               <span>Microservices Cluster Topology</span>
             </h3>
@@ -126,7 +126,7 @@ export default function SystemArchitectureHub() {
           {/* Cloud-Native & Edge Computing */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-3">
-              <h3 className="type-label text-ink flex items-center gap-2">
+              <h3 className="type-label text-ink flex items-center justify-center gap-2">
                 <Cpu className="w-4 h-4 text-accent" />
                 <span>Edge Processing Nodes</span>
               </h3>
@@ -135,14 +135,14 @@ export default function SystemArchitectureHub() {
               </p>
               <div className="space-y-2 pt-1">
                 <div className="flex justify-between items-center bg-surface-muted p-2.5 border border-line-subtle">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <Server className="w-4 h-4 text-accent" />
                     <span className="text-xs font-bold text-ink">Clinic Server A (Local)</span>
                   </div>
                   <span className="text-2xs bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 font-bold font-mono">1.2ms Ping</span>
                 </div>
                 <div className="flex justify-between items-center bg-surface-muted p-2.5 border border-line-subtle">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <Server className="w-4 h-4 text-accent" />
                     <span className="text-xs font-bold text-ink">Clinic Server B (Local)</span>
                   </div>
@@ -153,7 +153,7 @@ export default function SystemArchitectureHub() {
 
             <div className="bg-surface-muted border border-line-subtle p-5 rounded-none shadow-2xs flex flex-col justify-between">
               <div className="space-y-2">
-                <h3 className="type-label text-accent flex items-center gap-2">
+                <h3 className="type-label text-accent flex items-center justify-center gap-2">
                   <Cloud className="w-4 h-4 text-accent" />
                   <span>Cloud Replication Engine</span>
                 </h3>
@@ -173,7 +173,7 @@ export default function SystemArchitectureHub() {
         {/* Column 3: API-First Engine */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-4">
-            <h3 className="type-label text-ink flex items-center gap-2">
+            <h3 className="type-label text-ink flex items-center justify-center gap-2">
               <Code className="w-4 h-4 text-accent" />
               <span>API Health &amp; Security</span>
             </h3>

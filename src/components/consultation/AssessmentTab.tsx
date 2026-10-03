@@ -43,7 +43,7 @@ export default function AssessmentTab({
       {/* Header bar */}
       <div className="bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs flex items-center justify-between">
         <div>
-          <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+          <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
             <Stethoscope className="w-4 h-4 text-accent dark:text-teal-400" />
             Assessment &amp; Clinical Diagnostic Classification
           </h4>
@@ -85,7 +85,7 @@ export default function AssessmentTab({
         </div>
         
         <div className="relative">
-          <div className="relative flex items-center">
+          <div className="relative flex items-center justify-center">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <Input
               type="text"
@@ -144,7 +144,7 @@ export default function AssessmentTab({
       {selectedICD ? (
         <div id="selected-icd-indicator" className="bg-surface-accent dark:bg-night-850 border-2 border-brand dark:border-teal-400 p-4 rounded-none shadow-xs">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-2xs bg-primary text-white px-2.5 py-0.5 rounded-none font-mono font-bold tracking-wide flex items-center gap-1">
+            <span className="text-2xs bg-primary text-white px-2.5 py-0.5 rounded-none font-mono font-bold tracking-wide flex items-center justify-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
               Assigned ICD-10 Code: {selectedICD.code}
             </span>
@@ -160,7 +160,7 @@ export default function AssessmentTab({
           <span className="text-2xs text-slate-500 dark:text-slate-400 font-medium block mt-1">Classification Category: {selectedICD.category}</span>
         </div>
       ) : (
-        <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 rounded-none border border-rose-200 dark:border-rose-800/50 text-xs font-medium flex items-center gap-2.5 shadow-2xs">
+        <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 rounded-none border border-rose-200 dark:border-rose-800/50 text-xs font-medium flex items-center justify-center gap-2.5 shadow-2xs">
           <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
           <span>Please search and select a diagnostic classification code (ICD-10) to complete clinical sign-off.</span>
         </div>

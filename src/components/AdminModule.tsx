@@ -123,12 +123,12 @@ export default function AdminModule({
       <header className="h-[60px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
         
         {/* Left: Product Title & Branch Context */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <div className="w-8 h-8 rounded-none shrink-0 flex items-center justify-center">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="type-brand font-sans text-white flex items-center gap-2">
+            <h1 className="type-brand font-sans text-white flex items-center justify-center gap-2">
               <span>Mediclinic Admin Console</span>
             </h1>
             <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
@@ -139,14 +139,14 @@ export default function AdminModule({
 
         {/* Center: Offline Warning Indicator */}
         {!isOnline && (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase animate-pulse">
+          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase animate-pulse">
             <WifiOff className="w-3.5 h-3.5 text-rose-300" />
             <span>Offline Simulation Mode</span>
           </div>
         )}
 
         {/* Right Controls: Notifications & Workstation Settings */}
-        <div className="flex items-center gap-3 relative">
+        <div className="flex items-center justify-center gap-3 relative">
           
           {/* Notifications Bell */}
           <button 
@@ -160,7 +160,7 @@ export default function AdminModule({
           </button>
 
           {/* Live Clock */}
-          <div className="hidden xl:flex items-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-chrome-line font-mono text-xs text-white rounded-none font-bold shadow-2xs">
+          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-chrome-line font-mono text-xs text-white rounded-none font-bold shadow-2xs">
             <Clock className="w-3.5 h-3.5 text-teal-100" />
             <span>{timeString || '14:20:15 MYT'}</span>
           </div>
@@ -170,7 +170,7 @@ export default function AdminModule({
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-chrome-line px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs"
+              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-chrome-line px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs"
               title="Console Settings"
             >
               <div className="w-6 h-6 bg-chrome text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none border border-teal-300/40">
@@ -203,7 +203,7 @@ export default function AdminModule({
                   
                   {/* Theme Switch */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
+                    <span className="text-teal-100 font-medium flex items-center justify-center gap-1.5">
                       {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-200" />}
                       <span>Theme Mode</span>
                     </span>
@@ -220,7 +220,7 @@ export default function AdminModule({
 
                   {/* PII Privacy Mask Toggle */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
+                    <span className="text-teal-100 font-medium flex items-center justify-center gap-1.5">
                       {showPII ? <Eye className="w-3.5 h-3.5 text-teal-300" /> : <EyeOff className="w-3.5 h-3.5 text-rose-300" />}
                       <span>Mask Patient PII</span>
                     </span>
@@ -237,7 +237,7 @@ export default function AdminModule({
 
                   {/* Network Simulator Toggle */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
+                    <span className="text-teal-100 font-medium flex items-center justify-center gap-1.5">
                       {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-400" /> : <WifiOff className="w-3.5 h-3.5 text-rose-400" />}
                       <span>Network Sync</span>
                     </span>
@@ -263,7 +263,7 @@ export default function AdminModule({
                     }}
                     className="w-full text-left px-3 py-2 bg-rose-950/50 hover:bg-rose-900/80 text-rose-200 border border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center justify-center gap-2">
                       <LogOut className="w-4 h-4 text-rose-400" /> Terminate Session...
                     </span>
                     <ChevronRight className="w-3.5 h-3.5 text-rose-300" />
@@ -277,7 +277,7 @@ export default function AdminModule({
           <button
             type="button"
             onClick={() => onNavigate('landing')}
-            className="flex items-center gap-1.5 bg-chrome-deep hover:bg-rose-700 text-teal-100 hover:text-white px-3 py-1.5 border border-chrome-line hover:border-rose-600 transition-colors text-xs font-bold cursor-pointer"
+            className="flex items-center justify-center gap-1.5 bg-chrome-deep hover:bg-rose-700 text-teal-100 hover:text-white px-3 py-1.5 border border-chrome-line hover:border-rose-600 transition-colors text-xs font-bold cursor-pointer"
             title="Exit Admin Console"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -296,7 +296,7 @@ export default function AdminModule({
           
           {/* Category Filter Pills */}
           <div className="flex items-stretch gap-0 overflow-x-auto text-xs">
-            <span className="text-2xs font-mono uppercase text-teal-200 tracking-wider font-bold px-3 flex items-center gap-1 shrink-0">
+            <span className="text-2xs font-mono uppercase text-teal-200 tracking-wider font-bold px-3 flex items-center justify-center gap-1 shrink-0">
               <FolderKanban className="w-3.5 h-3.5 text-teal-200" />
               <span>Group:</span>
             </span>
@@ -413,7 +413,7 @@ export default function AdminModule({
       {showSignOutConfirm && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-night-900 border border-rose-500/50 max-w-md w-full p-6 shadow-2xl space-y-4 text-white">
-            <div className="flex items-center gap-3 text-rose-400">
+            <div className="flex items-center justify-center gap-3 text-rose-400">
               <LogOut className="w-6 h-6 shrink-0" />
               <h3 className="type-heading-caps text-white">Confirm Console Termination</h3>
             </div>

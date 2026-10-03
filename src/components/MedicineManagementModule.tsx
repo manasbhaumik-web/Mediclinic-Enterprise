@@ -136,16 +136,16 @@ export default function MedicineManagementModule() {
           {/* 1. STRUCTURED PAGE HEADER BANNER */}
           <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
                   Clinical Pharmacy Governance
                 </span>
-                <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+                <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                   Dispensary Ready
                 </span>
               </div>
-              <h1 className="type-page-title text-ink flex items-center gap-2.5">
+              <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
                 <Pill className="w-6 h-6 text-accent" />
                 Medicine &amp; Inventory Management
               </h1>
@@ -154,12 +154,12 @@ export default function MedicineManagementModule() {
               </p>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center gap-3">
               {activeTab === 'catalog' && (
                 <button 
                   type="button"
                   onClick={() => setCurrentView('registration')}
-                  className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
+                  className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Register New Medication</span>
@@ -302,7 +302,7 @@ export default function MedicineManagementModule() {
                   {/* Right Workflow Guide */}
                   <div className="lg:col-span-5 bg-surface-muted border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
                     <div className="space-y-3">
-                      <h4 className="type-label text-accent flex items-center gap-1.5">
+                      <h4 className="type-label text-accent flex items-center justify-center gap-1.5">
                         <Activity className="w-3.5 h-3.5 text-accent" />
                         <span>Inventory Management Guide</span>
                       </h4>
@@ -356,7 +356,7 @@ export default function MedicineManagementModule() {
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="px-4 py-2 bg-surface-accent hover:bg-surface-strong text-accent font-bold text-xs border border-line cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 py-2 bg-surface-accent hover:bg-surface-strong text-accent font-bold text-xs border border-line cursor-pointer inline-flex items-center justify-center gap-1.5"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Reset Search Filter</span>
@@ -384,7 +384,7 @@ export default function MedicineManagementModule() {
                         return (
                           <tr key={drug.id} className="hover:bg-surface-muted transition-colors">
                             <td className="px-6 py-4">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center justify-center gap-2">
                                 <p className="font-bold text-ink text-xs">{drug.name}</p>
                                 {drug.isControlledDrug && (
                                   <span className="bg-amber-100 text-amber-900 text-2xs font-bold px-1.5 py-0.5 rounded-none uppercase border border-amber-300">
@@ -407,11 +407,11 @@ export default function MedicineManagementModule() {
                             </td>
                             <td className="px-6 py-4">
                               {isLowStock ? (
-                                <span className="inline-flex items-center gap-1 bg-rose-100 text-rose-800 px-2.5 py-1 rounded-none text-2xs font-bold uppercase border border-rose-300">
+                                <span className="inline-flex items-center justify-center gap-1 bg-rose-100 text-rose-800 px-2.5 py-1 rounded-none text-2xs font-bold uppercase border border-rose-300">
                                   <AlertTriangle className="w-3 h-3" /> Low Stock
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none text-2xs font-bold uppercase border border-emerald-300">
+                                <span className="inline-flex items-center justify-center gap-1 bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none text-2xs font-bold uppercase border border-emerald-300">
                                   <CheckCircle className="w-3 h-3" /> Adequate
                                 </span>
                               )}
@@ -421,7 +421,7 @@ export default function MedicineManagementModule() {
                                 <button 
                                   type="button"
                                   onClick={() => setRestockDrugId(drug.id)}
-                                  className="px-2.5 py-1 text-2xs font-bold uppercase bg-primary hover:bg-primary-hover text-white rounded-none flex items-center gap-1 cursor-pointer transition-colors"
+                                  className="px-2.5 py-1 text-2xs font-bold uppercase bg-primary hover:bg-primary-hover text-white rounded-none flex items-center justify-center gap-1 cursor-pointer transition-colors"
                                   title="Restock medication inventory"
                                 >
                                   <PackagePlus className="w-3.5 h-3.5" />
@@ -431,7 +431,7 @@ export default function MedicineManagementModule() {
                                 <button 
                                   type="button"
                                   onClick={() => setDetailsDrugId(drug.id)}
-                                  className="px-2 py-1 text-2xs font-bold uppercase bg-surface-accent hover:bg-surface-strong text-accent border border-line rounded-none flex items-center gap-1 cursor-pointer transition-colors"
+                                  className="px-2 py-1 text-2xs font-bold uppercase bg-surface-accent hover:bg-surface-strong text-accent border border-line rounded-none flex items-center justify-center gap-1 cursor-pointer transition-colors"
                                   title="Pharmacology details"
                                 >
                                   <Info className="w-3.5 h-3.5" />
@@ -461,7 +461,7 @@ export default function MedicineManagementModule() {
           {/* LOGS TAB */}
           {activeTab === 'logs' && (
             <div className="bg-surface border border-line-subtle rounded-none shadow-2xs p-5 space-y-4">
-              <h3 className="type-card-title text-ink flex items-center gap-2">
+              <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
                 <History className="w-5 h-5 text-accent" />
                 <span>Dispensary Usage &amp; Restock History</span>
               </h3>
@@ -508,7 +508,7 @@ export default function MedicineManagementModule() {
           {/* SUPPLY CHAIN TAB */}
           {activeTab === 'supply_chain' && (
             <div className="bg-surface border border-line-subtle rounded-none shadow-2xs p-6 space-y-6">
-              <div className="flex items-center gap-3 border-b border-line-subtle pb-4">
+              <div className="flex items-center justify-center gap-3 border-b border-line-subtle pb-4">
                 <div className="w-10 h-10 bg-surface-accent border border-line text-accent flex items-center justify-center font-bold">
                   <Zap className="w-5 h-5" />
                 </div>
@@ -539,7 +539,7 @@ export default function MedicineManagementModule() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-surface border border-line-subtle max-w-md w-full p-6 shadow-2xl space-y-4 text-ink">
             <div className="flex items-center justify-between border-b border-line-subtle pb-3">
-              <h3 className="type-card-title flex items-center gap-2">
+              <h3 className="type-card-title flex items-center justify-center gap-2">
                 <PackagePlus className="w-5 h-5 text-accent" />
                 <span>Restock Inventory Batch</span>
               </h3>

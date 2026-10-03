@@ -282,7 +282,7 @@ export default function PatientRegistrationModule({
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center gap-3 z-50 animate-slideUp font-sans text-xs border border-line-subtle">
+        <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center justify-center gap-3 z-50 animate-slideUp font-sans text-xs border border-line-subtle">
           <CheckCircle2 className="w-5 h-5 text-teal-300" />
           <span className="font-bold tracking-wide">{toastMessage}</span>
         </div>
@@ -339,7 +339,7 @@ export default function PatientRegistrationModule({
         <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6 border-b border-line-subtle dark:border-teal-800/40 pb-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <div className="w-9 h-9 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
                   <Clock className="w-5 h-5 text-accent dark:text-teal-300" />
                 </div>
@@ -363,7 +363,7 @@ export default function PatientRegistrationModule({
                 <p className="text-xs mt-1 font-sans">All registered patients have been triaged or cleared.</p>
                 <button 
                   onClick={() => setActiveSubTab('form')}
-                  className="mt-6 mx-auto bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center gap-2 shadow-xs"
+                  className="mt-6 mx-auto bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
                 >
                   <Plus className="w-4 h-4" /> Register New Patient
                 </button>
@@ -408,7 +408,7 @@ export default function PatientRegistrationModule({
                               Panel: {pt?.panelEmployer}
                             </span>
                           )}
-                          <div className="flex items-center gap-1.5 text-ink dark:text-slate-200 bg-surface-muted dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 font-mono text-2xs">
+                          <div className="flex items-center justify-center gap-1.5 text-ink dark:text-slate-200 bg-surface-muted dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 font-mono text-2xs">
                             <Activity className="w-4 h-4 text-accent dark:text-teal-300" />
                             <span>Triage: {visit.soap?.objective?.temperature}°C • HR {visit.soap?.objective?.heartRate} • BP {visit.soap?.objective?.bpSystolic}/{visit.soap?.objective?.bpDiastolic}</span>
                           </div>
@@ -520,7 +520,7 @@ export default function PatientRegistrationModule({
                   <button 
                     type="button" 
                     onClick={handleClearForm} 
-                    className="text-xs font-sans font-bold text-accent dark:text-teal-400 hover:text-accent flex items-center gap-1 bg-surface dark:bg-night-900 px-3 py-1.5 border border-line-subtle dark:border-teal-800/40"
+                    className="text-xs font-sans font-bold text-accent dark:text-teal-400 hover:text-accent flex items-center justify-center gap-1 bg-surface dark:bg-night-900 px-3 py-1.5 border border-line-subtle dark:border-teal-800/40"
                   >
                     <RotateCcw className="w-3.5 h-3.5" /> Restart
                   </button>
@@ -534,7 +534,7 @@ export default function PatientRegistrationModule({
                         Patient Demographics
                       </h3>
                       {existingPatientId && (
-                        <div className="mt-2 inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-1 rounded-none text-xs font-sans font-bold border border-emerald-300 dark:border-emerald-800">
+                        <div className="mt-2 inline-flex items-center justify-center gap-1.5 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-1 rounded-none text-xs font-sans font-bold border border-emerald-300 dark:border-emerald-800">
                           <UserCheck className="w-4 h-4" /> Existing Record Found - Auto-populated
                         </div>
                       )}
@@ -681,7 +681,7 @@ export default function PatientRegistrationModule({
                         {allergiesList.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-2">
                             {allergiesList.map((tag, idx) => (
-                              <span key={idx} className="inline-flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-sans font-bold px-2.5 py-1 border border-rose-200 dark:border-rose-800/60 rounded-none">
+                              <span key={idx} className="inline-flex items-center justify-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-sans font-bold px-2.5 py-1 border border-rose-200 dark:border-rose-800/60 rounded-none">
                                 {tag}
                                 <button type="button" onClick={() => handleRemoveAllergyTag(idx)} className="text-rose-400 hover:text-rose-700 cursor-pointer text-xs">&times;</button>
                               </span>
@@ -699,7 +699,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={() => setFormStep(1)}
-                      className="bg-surface dark:bg-night-900 hover:bg-surface-accent text-accent dark:text-teal-300 border border-line-subtle font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5"
+                      className="bg-surface dark:bg-night-900 hover:bg-surface-accent text-accent dark:text-teal-300 border border-line-subtle font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5"
                     >
                       <ArrowLeft className="w-4 h-4" /> Back
                     </button>
@@ -709,7 +709,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={proceedToNextStep}
-                      className="bg-primary hover:bg-primary-hover text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
+                      className="bg-primary hover:bg-primary-hover text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       Next Step <ArrowRight className="w-4 h-4" />
                     </button>
@@ -717,7 +717,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={handleRegisterSubmit} 
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center gap-1.5 shadow-xs"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       <UserCheck className="w-4 h-4" /> Route to Triage Queue
                     </button>
@@ -736,7 +736,7 @@ export default function PatientRegistrationModule({
             
             {/* Header section with primary action button and total count badge */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line-subtle dark:border-teal-800/40 pb-4 font-sans">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <div className="w-10 h-10 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
                   <FolderCheck className="w-5 h-5 text-accent dark:text-teal-300" />
                 </div>
@@ -757,7 +757,7 @@ export default function PatientRegistrationModule({
                     setActiveSubTab('form');
                     setRegistrationStep('id_check');
                   }}
-                  className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-2"
+                  className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> Register New Patient
                 </button>
@@ -830,7 +830,7 @@ export default function PatientRegistrationModule({
                             ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">No known allergies</span>
                             : <div className="flex flex-wrap gap-1.5">
                                 {p.drugAllergies.map((a, i) => (
-                                  <span key={i} className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-2xs font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
+                                  <span key={i} className="inline-flex items-center justify-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-2xs font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
                                     <ShieldAlert className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />
                                     <span>Allergy: {a}</span>
                                   </span>
@@ -844,7 +844,7 @@ export default function PatientRegistrationModule({
                         <td className="px-4 py-3.5 text-center">
                           <button
                             onClick={() => handleCreateTicket(p)}
-                            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center gap-1.5"
+                            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center justify-center gap-1.5"
                             title={`Start consultation visit for ${p.fullName}`}
                           >
                             <UserCheck className="w-3.5 h-3.5" /> Start Visit

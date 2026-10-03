@@ -108,7 +108,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
         
         {/* Header */}
         <div className="bg-primary px-5 py-4 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <ScanLine className="w-5 h-5 text-cyan-300" />
             <h3 id="mykad-scanner-title" className="font-semibold tracking-wide">MyKad Smart OCR & Reader</h3>
           </div>
@@ -180,7 +180,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
 
           {/* Quick Mock Card Selectors */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
+            <label className="block text-xs font-medium text-slate-700 mb-1.5 flex items-center justify-center gap-1.5">
               <RefreshCw className="w-3.5 h-3.5 text-slate-500 animate-spin-slow" />
               Select Malaysian MyKad to load into RFID Reader:
             </label>
@@ -231,7 +231,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
             id="simulate-scan-start-btn"
             onClick={triggerScan}
             disabled={isScanning}
-            className="bg-primary text-white px-5 py-2 rounded-none text-xs font-medium hover:bg-primary-hover transition-colors flex items-center gap-2 focus:ring-2 focus:ring-cyan-600 focus:outline-none cursor-pointer disabled:opacity-60"
+            className="bg-primary text-white px-5 py-2 rounded-none text-xs font-medium hover:bg-primary-hover transition-colors flex items-center justify-center gap-2 focus:ring-2 focus:ring-cyan-600 focus:outline-none cursor-pointer disabled:opacity-60"
           >
             <Camera className="w-4 h-4" />
             {isScanning ? `${scanProgress}% Extracting Data...` : 'Initialize MyKad Scan'}

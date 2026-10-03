@@ -60,7 +60,7 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
     <div className="bg-white rounded-none shadow-md border border-line overflow-hidden animate-fadeIn flex flex-col max-h-[calc(100vh-140px)]">
       {/* Header Banner */}
       <div className="bg-surface-accent border-b border-line px-6 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -70,7 +70,7 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="type-section-title text-ink flex items-center gap-2.5">
+            <h2 className="type-section-title text-ink flex items-center justify-center gap-2.5">
               <Stethoscope className="w-6 h-6 text-accent" />
               Register New Equipment Asset
             </h2>
@@ -78,7 +78,7 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -89,7 +89,7 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
           <button 
             type="button"
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-chrome hover:bg-primary-hover rounded-none transition-all cursor-pointer shadow-md"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-chrome hover:bg-primary-hover rounded-none transition-all cursor-pointer shadow-md"
           >
             <Save className="w-4 h-4" />
             Save Equipment
@@ -102,7 +102,7 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
         {/* Section 1: Asset Identification & Classification */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <Cpu className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">1. Asset Identification & Specification</h3>
             </div>
@@ -143,7 +143,7 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
         {/* Section 2: Purchase & Financial Details */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <DollarSign className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">2. Acquisition & Financial Valuation</h3>
             </div>
@@ -188,7 +188,7 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
         {/* Section 3: Location & Operational Status */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <MapPin className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">3. Location & Custody Tracking</h3>
             </div>
@@ -216,11 +216,11 @@ export default function EquipmentRegistration({ onCancel, onSubmit }: EquipmentR
         {/* Section 4: Calibration & Preventive Maintenance */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <Wrench className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">4. Calibration & Preventive Maintenance</h3>
             </div>
-            <span className="text-2xs font-bold uppercase tracking-wider bg-chrome text-white px-2.5 py-1 rounded-none flex items-center gap-1">
+            <span className="text-2xs font-bold uppercase tracking-wider bg-chrome text-white px-2.5 py-1 rounded-none flex items-center justify-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" /> KKM Compliance Auditable
             </span>
           </div>

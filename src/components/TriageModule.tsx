@@ -66,7 +66,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
     <div className="space-y-6 animate-fadeIn relative font-sans text-slate-800">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center gap-3 z-50 animate-slideUp border border-teal-400">
+        <div className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center justify-center gap-3 z-50 animate-slideUp border border-teal-400">
           <CheckCircle2 className="w-5 h-5 text-teal-200" />
           <span className="font-bold text-sm tracking-wide">{toastMessage}</span>
         </div>
@@ -78,7 +78,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
         <div className="lg:col-span-1 space-y-4">
           <Card className="flex flex-col h-[calc(100vh-140px)] rounded-none border-line-subtle dark:border-teal-800/40">
             <CardHeader className="bg-surface-muted dark:bg-night-850 flex justify-between items-center py-4 border-b border-line-subtle dark:border-teal-800/40">
-              <h3 className="type-heading-caps text-ink dark:text-teal-300 flex items-center gap-2">
+              <h3 className="type-heading-caps text-ink dark:text-teal-300 flex items-center justify-center gap-2">
                 <Users className="w-4 h-4 text-accent" />
                 Awaiting Triage
               </h3>
@@ -112,7 +112,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                     >
                       <div className="flex justify-between items-start mb-1.5">
                         <span className="font-bold text-sm text-ink dark:text-white truncate pr-2 uppercase">{pt?.fullName}</span>
-                        <span className="text-2xs font-mono font-bold text-accent dark:text-teal-400 bg-surface-accent dark:bg-night-850 px-2 py-0.5 border border-line dark:border-teal-800/40 flex items-center gap-1 shrink-0 rounded-none">
+                        <span className="text-2xs font-mono font-bold text-accent dark:text-teal-400 bg-surface-accent dark:bg-night-850 px-2 py-0.5 border border-line dark:border-teal-800/40 flex items-center justify-center gap-1 shrink-0 rounded-none">
                           <Clock className="w-3 h-3" /> {waitMins}m
                         </span>
                       </div>
@@ -134,7 +134,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                   <h2 className="type-heading-caps text-ink dark:text-white">{activePatient.fullName}</h2>
                   <p className="text-xs text-slate-600 dark:text-slate-300 font-mono mt-0.5">Age: {new Date().getFullYear() - new Date(activePatient.dob).getFullYear()} • IC: {activePatient.icNumber}</p>
                 </div>
-                <div className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-400 border border-line dark:border-teal-800/40 text-xs font-mono font-bold px-3 py-1 rounded-none flex items-center gap-1.5 uppercase">
+                <div className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-400 border border-line dark:border-teal-800/40 text-xs font-mono font-bold px-3 py-1 rounded-none flex items-center justify-center gap-1.5 uppercase">
                   <Activity className="w-3.5 h-3.5 text-accent" /> Triaging Active
                 </div>
               </CardHeader>
@@ -143,7 +143,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                 <form id="triage-form" onSubmit={handleSubmitTriage} className="space-y-6 max-w-2xl">
                   
                   <div className="space-y-3">
-                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center gap-2">
+                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center justify-center gap-2">
                       <Stethoscope className="w-4 h-4 text-accent" /> Vitals Examination
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -181,7 +181,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center gap-2">
+                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center justify-center gap-2">
                       <FileText className="w-4 h-4 text-accent" /> Chief Complaint
                     </h4>
                     <textarea

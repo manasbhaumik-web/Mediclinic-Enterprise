@@ -282,7 +282,7 @@ export default function PlanTab({
         </div>
       ) : rxList.length > 0 ? (
         <div className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-300 p-2.5 rounded-none border border-line dark:border-teal-800/50 flex items-center justify-between text-xs font-bold shadow-2xs">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-accent dark:text-teal-400" />
             <span>AI Interaction Check: Pass (Zero Drug-Allergy Contraindications)</span>
           </div>
@@ -363,7 +363,7 @@ export default function PlanTab({
           {/* CONTEXT-AWARE PEDIATRIC DOSAGE CALCULATOR ASSIST */}
           {!showPediatricCalc ? (
             <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-2.5 rounded-none flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <Activity className="w-4 h-4 text-accent" />
                 <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAge})</span>
               </div>
@@ -378,10 +378,10 @@ export default function PlanTab({
           ) : (
             <div className="bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs space-y-2.5">
               <div className="flex items-center justify-between border-b border-line dark:border-teal-800/40 pb-2">
-                <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+                <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
                   <Activity className="w-4 h-4 text-accent dark:text-teal-400" /> Pediatric Weight-Based Dosage Calculator
                 </h4>
-                <div className="flex items-center gap-2 font-mono text-2xs">
+                <div className="flex items-center justify-center gap-2 font-mono text-2xs">
                   <span className="bg-white dark:bg-night-900 text-accent dark:text-teal-300 px-2 py-0.5 border border-line">
                     Triage Recorded Today
                   </span>
@@ -613,7 +613,7 @@ export default function PlanTab({
           
           <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-3 rounded-none flex items-center justify-between">
             <div>
-              <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+              <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
                 <Microscope className="w-4 h-4 text-accent" /> Diagnostic Lab &amp; Imaging Requisition
               </h4>
               <p className="text-2xs text-slate-500 dark:text-slate-400 mt-0.5">Select laboratory investigations to order for this clinical encounter.</p>
@@ -637,7 +637,7 @@ export default function PlanTab({
                       : 'bg-white dark:bg-night-900 border-slate-200 dark:border-teal-800/40 text-slate-700 dark:text-slate-300 hover:border-line'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center justify-center gap-2.5">
                     <input 
                       type="checkbox"
                       checked={isSelected}
@@ -685,7 +685,7 @@ export default function PlanTab({
             {/* MEDICAL CERTIFICATE ISSUANCE CARD */}
             <div className="border border-line dark:border-teal-800/40 bg-white dark:bg-night-900 p-4 rounded-none space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-                <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-2">
+                <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-2">
                   <FileText className="w-4 h-4 text-accent" /> Digital Medical Certificate (MC)
                 </h4>
                 <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
@@ -735,7 +735,7 @@ export default function PlanTab({
             {/* SPECIALIST REFERRAL LETTER CARD */}
             <div className="border border-line dark:border-teal-800/40 bg-white dark:bg-night-900 p-4 rounded-none space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-                <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-2">
+                <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-2">
                   <Share className="w-4 h-4 text-accent" /> Specialist Referral Note
                 </h4>
                 <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
@@ -830,7 +830,7 @@ export default function PlanTab({
                 ) : (
                   <ul className="space-y-1 text-2xs font-mono">
                     {selectedLabs.map((lab, i) => (
-                      <li key={i} className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                      <li key={i} className="flex items-center justify-center gap-1.5 text-slate-700 dark:text-slate-300">
                         <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                         <span>{lab}</span>
                       </li>
@@ -874,7 +874,7 @@ export default function PlanTab({
       {pendingAllergyDrug && (
         <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white dark:bg-night-900 border-2 border-rose-600 max-w-lg w-full p-6 rounded-none space-y-4 shadow-2xl text-ink dark:text-white">
-            <div className="flex items-center gap-3 text-rose-600">
+            <div className="flex items-center justify-center gap-3 text-rose-600">
               <AlertTriangle className="w-6 h-6 shrink-0" />
               <h3 className="type-heading-caps">CRITICAL DRUG CONTRAINDICATION ALERT</h3>
             </div>

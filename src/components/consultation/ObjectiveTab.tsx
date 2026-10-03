@@ -49,19 +49,19 @@ export default function ObjectiveTab({
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs">
         <div>
-          <div className="flex items-center gap-2">
-            <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+          <div className="flex items-center justify-center gap-2">
+            <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
               <Activity className="w-4 h-4 text-accent dark:text-teal-400" />
               Objective Vitals &amp; Hardware Examination
             </h4>
-            <span className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50 px-2 py-0.5 rounded-none text-2xs font-bold">
+            <span className="flex items-center justify-center gap-1 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50 px-2 py-0.5 rounded-none text-2xs font-bold">
               <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" /> Triage Locked
             </span>
           </div>
           <p className="text-2xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Physical examination readings captured at check-in station.</p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center justify-center gap-2 shrink-0">
           <button 
             type="button"
             onClick={() => {
@@ -70,7 +70,7 @@ export default function ObjectiveTab({
               }
             }}
             disabled={patientPastVisits.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-2xs font-bold transition-all shadow-xs border bg-white dark:bg-night-700 text-accent dark:text-teal-300 border-line dark:border-teal-700/50 hover:bg-surface-accent dark:hover:bg-night-600 disabled:opacity-40 cursor-pointer"
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-none text-2xs font-bold transition-all shadow-xs border bg-white dark:bg-night-700 text-accent dark:text-teal-300 border-line dark:border-teal-700/50 hover:bg-surface-accent dark:hover:bg-night-600 disabled:opacity-40 cursor-pointer"
           >
             <Copy className="w-3.5 h-3.5 text-accent dark:text-teal-400" />
             Copy Previous
@@ -94,11 +94,11 @@ export default function ObjectiveTab({
       {/* Vitals Trending Sparkline */}
       {patientPastVisits.length > 1 && (
         <div className="bg-surface dark:bg-night-800 rounded-none p-3 border border-line dark:border-teal-800/50 flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <LineChart className="w-4 h-4 text-accent dark:text-teal-400" />
             <span className="text-2xs font-bold text-ink dark:text-teal-300 uppercase tracking-wider">Longitudinal BP Trend (Last 3 Visits)</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3">
             {patientPastVisits.slice(0, 3).map((v, i) => (
               <div key={i} className="flex flex-col items-center bg-white dark:bg-night-850 px-2.5 py-1 rounded-none border border-line dark:border-teal-800/40">
                 <span className="text-2xs text-slate-400 dark:text-slate-400 font-mono">{v.date.substring(5)}</span>
@@ -210,35 +210,35 @@ export default function ObjectiveTab({
 
       {/* IoT Medical Device Telemetry */}
       <div className="bg-deep dark:bg-night-850 text-white p-4 rounded-none shadow-md border border-brand/40">
-        <h4 className="type-label text-teal-200 dark:text-teal-300 mb-3 flex items-center gap-2">
+        <h4 className="type-label text-teal-200 dark:text-teal-300 mb-3 flex items-center justify-center gap-2">
           <Cpu className="w-4 h-4 text-emerald-400 dark:text-emerald-400" />
           IoT Medical Hardware Telemetry Gateway
         </h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-primary/40 dark:bg-night-800 p-2.5 rounded-none border border-brand/40 flex flex-col justify-between">
             <span className="text-2xs text-teal-100 dark:text-teal-200 font-bold uppercase block">Omron BP-X Reader</span>
-            <span className="text-2xs text-emerald-400 dark:text-emerald-400 font-bold flex items-center gap-1.5 mt-1.5">
+            <span className="text-2xs text-emerald-400 dark:text-emerald-400 font-bold flex items-center justify-center gap-1.5 mt-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               Connected
             </span>
           </div>
           <div className="bg-primary/40 dark:bg-night-800 p-2.5 rounded-none border border-brand/40 flex flex-col justify-between">
             <span className="text-2xs text-teal-100 dark:text-teal-200 font-bold uppercase block">Nellcor Oximeter</span>
-            <span className="text-2xs text-emerald-400 dark:text-emerald-400 font-bold flex items-center gap-1.5 mt-1.5">
+            <span className="text-2xs text-emerald-400 dark:text-emerald-400 font-bold flex items-center justify-center gap-1.5 mt-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               Connected
             </span>
           </div>
           <div className="bg-primary/40 dark:bg-night-800 p-2.5 rounded-none border border-brand/40 flex flex-col justify-between">
             <span className="text-2xs text-teal-100 dark:text-teal-200 font-bold uppercase block">Welch Allyn Temp</span>
-            <span className="text-2xs text-emerald-400 dark:text-emerald-400 font-bold flex items-center gap-1.5 mt-1.5">
+            <span className="text-2xs text-emerald-400 dark:text-emerald-400 font-bold flex items-center justify-center gap-1.5 mt-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               Connected
             </span>
           </div>
           <div className="bg-primary/40 dark:bg-night-800 p-2.5 rounded-none border border-brand/40 flex flex-col justify-between">
             <span className="text-2xs text-teal-100 dark:text-teal-200 font-bold uppercase block">Digital Weight Scale</span>
-            <span className="text-2xs text-slate-300 dark:text-slate-400 font-medium flex items-center gap-1.5 mt-1.5">
+            <span className="text-2xs text-slate-300 dark:text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-1.5">
               <Bluetooth className="w-3 h-3 text-slate-400" />
               Standby
             </span>
@@ -248,7 +248,7 @@ export default function ObjectiveTab({
 
       {/* AR Medical Imaging Support */}
       <div className="bg-surface-accent dark:bg-night-850 p-4 rounded-none border border-line dark:border-teal-800/50 shadow-xs">
-        <h4 className="type-label text-ink dark:text-teal-300 mb-1 flex items-center gap-2">
+        <h4 className="type-label text-ink dark:text-teal-300 mb-1 flex items-center justify-center gap-2">
           <Brain className="w-4 h-4 text-accent dark:text-teal-400" />
           Augmented Reality (AR) Diagnostic Overlay
         </h4>
@@ -259,7 +259,7 @@ export default function ObjectiveTab({
           <button 
             type="button"
             onClick={() => alert('Launching HoloLens AR Diagnostic Spatial Stream...')}
-            className="bg-primary dark:bg-primary hover:bg-primary-hover text-white px-3.5 py-1.5 rounded-none text-2xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="bg-primary dark:bg-primary hover:bg-primary-hover text-white px-3.5 py-1.5 rounded-none text-2xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
           >
             <Eye className="w-3.5 h-3.5" />
             Launch AR Spatial View

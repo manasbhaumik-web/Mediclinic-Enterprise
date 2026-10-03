@@ -210,7 +210,7 @@ export default function BillingDesk({
       {/* 1. BILLING QUEUES PATIENTS (Left Column - 35%) */}
       <div className="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-none p-4 space-y-4">
         
-        <div className="flex items-center gap-1.5 text-accent font-semibold text-xs border-b border-slate-200 pb-2 mb-1.5">
+        <div className="flex items-center justify-center gap-1.5 text-accent font-semibold text-xs border-b border-slate-200 pb-2 mb-1.5">
           <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
           <span>{t.totalBilling}</span>
           <span className="bg-emerald-100 text-accent px-2 py-0.5 rounded-full text-2xs font-mono font-bold">
@@ -333,7 +333,7 @@ export default function BillingDesk({
                         <span>Ad-Hoc Charges & Services</span>
                         <div className="text-2xs text-slate-400 pl-2.5 mt-0.5 space-y-1">
                           {customLineItems.map((item, i) => (
-                            <div key={i} className="flex items-center gap-2">
+                            <div key={i} className="flex items-center justify-center gap-2">
                               <span>• {item.description} (RM{item.amount.toFixed(2)})</span>
                               <button 
                                 onClick={() => setCustomLineItems(customLineItems.filter((_, idx) => idx !== i))}
@@ -382,7 +382,7 @@ export default function BillingDesk({
             {/* Manual Adjustments Controls */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
               <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
-                <h5 className="type-label text-slate-600 mb-2 flex items-center gap-1"><Plus className="w-3 h-3" /> Add Ad-Hoc Charge</h5>
+                <h5 className="type-label text-slate-600 mb-2 flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Add Ad-Hoc Charge</h5>
                 <div className="flex gap-2">
                   <input type="text" placeholder="Description" value={customDesc} onChange={e => setCustomDesc(e.target.value)} className="flex-1 text-xs border border-slate-300 px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none" />
                   <input type="number" placeholder="RM" value={customAmount} onChange={e => setCustomAmount(e.target.value)} className="w-20 text-xs border border-slate-300 px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none font-mono" />
@@ -398,7 +398,7 @@ export default function BillingDesk({
               </div>
 
               <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
-                <h5 className="type-label text-slate-600 mb-2 flex items-center gap-1"><Percent className="w-3 h-3" /> Apply Discount</h5>
+                <h5 className="type-label text-slate-600 mb-2 flex items-center justify-center gap-1"><Percent className="w-3 h-3" /> Apply Discount</h5>
                 <div className="flex gap-2">
                   <select value={discountType} onChange={e => setDiscountType(e.target.value as 'fixed' | 'percentage')} className="text-xs border border-slate-300 px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none bg-white">
                     <option value="fixed">Fixed RM</option>
@@ -423,7 +423,7 @@ export default function BillingDesk({
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <h4 className="type-label text-indigo-800">AI Compliance Assistant</h4>
-                  <span className="bg-emerald-100 text-emerald-700 text-2xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <span className="bg-emerald-100 text-emerald-700 text-2xs font-bold px-1.5 py-0.5 rounded flex items-center justify-center gap-1">
                     <CheckCircle2 className="w-3 h-3" /> Ready for Claim
                   </span>
                 </div>
@@ -436,7 +436,7 @@ export default function BillingDesk({
             {/* Panel claims integration toggle with dynamic divisions */}
             <div className="bg-slate-50 p-3.5 rounded-none border border-slate-200 space-y-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700 uppercase tracking-tight flex items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-tight flex items-center justify-center gap-1.5">
                   <ClipboardCheck className="w-4 h-4 text-accent" />
                   TPA Panel Claims Sponsorship Coverage
                 </span>
@@ -715,7 +715,7 @@ export default function BillingDesk({
               )}
             </div>
 
-            <div className="flex items-center gap-3 pt-4">
+            <div className="flex items-center justify-center gap-3 pt-4">
               <button
                 type="button"
                 onClick={() => {

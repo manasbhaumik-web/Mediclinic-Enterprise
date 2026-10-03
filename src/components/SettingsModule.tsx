@@ -49,16 +49,16 @@ export default function SettingsModule() {
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               System Governance
             </span>
-            <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               Policy v2.4 Active
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
             <Settings className="w-6 h-6 text-accent" />
             Global Configuration
           </h1>
@@ -67,12 +67,12 @@ export default function SettingsModule() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs">
+        <div className="flex items-center justify-center gap-3">
+          <button className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs">
             <RotateCcw className="w-3.5 h-3.5 text-accent" />
             Reset Defaults
           </button>
-          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer">
+          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer">
             <Save className="w-4 h-4" />
             Save Changes
           </button>
@@ -91,7 +91,7 @@ export default function SettingsModule() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">{activeModulesCount} / 5</h3>
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium">
+            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium">
               <Check className="w-3 h-3" /> Enabled
             </span>
           </div>
@@ -107,7 +107,7 @@ export default function SettingsModule() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">{settings.billing.taxRate}%</h3>
-            <span className="text-xs text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium border border-teal-200">
+            <span className="text-xs text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium border border-teal-200">
               Auto-Checkout
             </span>
           </div>
@@ -123,7 +123,7 @@ export default function SettingsModule() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">{activeHardwareCount} / 3</h3>
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium">
+            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium">
               Ready
             </span>
           </div>
@@ -139,7 +139,7 @@ export default function SettingsModule() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">Synced</h3>
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium">
+            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium">
               Enterprise Policy
             </span>
           </div>
@@ -148,7 +148,7 @@ export default function SettingsModule() {
 
       {/* 1. FINANCIAL PARAMETERS */}
       <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
-        <div className="bg-surface-muted px-5 py-3 border-b border-line-subtle flex items-center gap-2">
+        <div className="bg-surface-muted px-5 py-3 border-b border-line-subtle flex items-center justify-center gap-2">
           <Percent className="w-4 h-4 text-accent" />
           <h3 className="type-card-title text-ink">Financial Parameters & Billing Rules</h3>
         </div>
@@ -189,7 +189,7 @@ export default function SettingsModule() {
       {/* 2. MODULE ENABLEMENT */}
       <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
         <div className="bg-surface-muted px-5 py-3 border-b border-line-subtle flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-accent" />
             <h3 className="type-card-title text-ink">Administration Module Enablement</h3>
           </div>
@@ -202,7 +202,7 @@ export default function SettingsModule() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <Users className="w-4 h-4" />
                 </div>
@@ -211,14 +211,14 @@ export default function SettingsModule() {
                   <p className="text-2xs text-slate-500">Manage doctors, nurses, shifts, and rosters.</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center justify-center cursor-pointer">
                 <input type="checkbox" checked={settings.modules.staff} onChange={() => handleModuleToggle('staff')} className="sr-only peer" />
                 <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <Pill className="w-4 h-4" />
                 </div>
@@ -227,14 +227,14 @@ export default function SettingsModule() {
                   <p className="text-2xs text-slate-500">Stock levels, reorder points, and pharmacy catalog.</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center justify-center cursor-pointer">
                 <input type="checkbox" checked={settings.modules.medicine} onChange={() => handleModuleToggle('medicine')} className="sr-only peer" />
                 <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <Stethoscope className="w-4 h-4" />
                 </div>
@@ -243,14 +243,14 @@ export default function SettingsModule() {
                   <p className="text-2xs text-slate-500">Device calibration logs and maintenance cycles.</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center justify-center cursor-pointer">
                 <input type="checkbox" checked={settings.modules.equipment} onChange={() => handleModuleToggle('equipment')} className="sr-only peer" />
                 <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <DollarSign className="w-4 h-4" />
                 </div>
@@ -259,14 +259,14 @@ export default function SettingsModule() {
                   <p className="text-2xs text-slate-500">Reconcile patient bills and insurance claims.</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center justify-center cursor-pointer">
                 <input type="checkbox" checked={settings.modules.billing} onChange={() => handleModuleToggle('billing')} className="sr-only peer" />
                 <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all md:col-span-2">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <FileSpreadsheet className="w-4 h-4" />
                 </div>
@@ -275,7 +275,7 @@ export default function SettingsModule() {
                   <p className="text-2xs text-slate-500">Generate MOH audit reports, revenue breakdowns, and clinical data exports.</p>
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center justify-center cursor-pointer">
                 <input type="checkbox" checked={settings.modules.reports} onChange={() => handleModuleToggle('reports')} className="sr-only peer" />
                 <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
               </label>
@@ -287,7 +287,7 @@ export default function SettingsModule() {
       {/* 3. HARDWARE PERIPHERAL INTEGRATIONS */}
       <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
         <div className="bg-surface px-5 py-3 border-b border-teal-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Smartphone className="w-4 h-4 text-accent" />
             <h3 className="type-card-title text-ink">Physical Hardware Peripheral Bus</h3>
           </div>
@@ -306,7 +306,7 @@ export default function SettingsModule() {
                 <div className={`p-2.5 rounded-none ${settings.hardware.mykadScanner ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'}`}>
                   <CreditCard className="w-5 h-5" />
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex items-center justify-center cursor-pointer">
                   <input type="checkbox" checked={settings.hardware.mykadScanner} onChange={() => handleHardwareToggle('mykadScanner')} className="sr-only peer" />
                   <div className="w-8 h-4.5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
                 </label>
@@ -327,7 +327,7 @@ export default function SettingsModule() {
                 <div className={`p-2.5 rounded-none ${settings.hardware.receiptPrinter ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'}`}>
                   <Printer className="w-5 h-5" />
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex items-center justify-center cursor-pointer">
                   <input type="checkbox" checked={settings.hardware.receiptPrinter} onChange={() => handleHardwareToggle('receiptPrinter')} className="sr-only peer" />
                   <div className="w-8 h-4.5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
                 </label>
@@ -348,7 +348,7 @@ export default function SettingsModule() {
                 <div className={`p-2.5 rounded-none ${settings.hardware.barcodeScanner ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'}`}>
                   <ScanLine className="w-5 h-5" />
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex items-center justify-center cursor-pointer">
                   <input type="checkbox" checked={settings.hardware.barcodeScanner} onChange={() => handleHardwareToggle('barcodeScanner')} className="sr-only peer" />
                   <div className="w-8 h-4.5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
                 </label>

@@ -30,7 +30,7 @@ export default function Input({ icon, error, label, className = '', id, ...props
       )}
       <div className="relative">
         {icon && (
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center justify-center pointer-events-none text-slate-400">
             {icon}
           </div>
         )}

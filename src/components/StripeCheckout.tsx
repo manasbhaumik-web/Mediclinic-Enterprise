@@ -96,7 +96,7 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
 
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <div className="bg-slate-100 p-2 rounded-none">
               <Lock className="w-4 h-4 text-slate-500" />
             </div>
@@ -207,7 +207,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
       </div>
 
       <div className="p-6">
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center justify-center gap-2 mb-6">
           <div className="bg-slate-100 p-2 rounded-none">
             <Lock className="w-4 h-4 text-slate-500" />
           </div>

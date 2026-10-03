@@ -218,12 +218,12 @@ export default function App() {
           <button
             type="button"
             onClick={() => setAppView('landing')}
-            className="text-xs font-bold bg-surface hover:bg-surface-accent px-3.5 py-2 rounded-none border border-line-subtle text-accent flex items-center gap-2 cursor-pointer transition-colors shadow-2xs"
+            className="text-xs font-bold bg-surface hover:bg-surface-accent px-3.5 py-2 rounded-none border border-line-subtle text-accent flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-2xs"
           >
             ← Back to Public Website
           </button>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -236,7 +236,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setAppView('login')}
-            className="text-xs font-bold bg-primary hover:bg-primary-hover px-4 py-2 rounded-none text-white flex items-center gap-2 cursor-pointer transition-all shadow-md shadow-teal-500/20 hover:scale-105"
+            className="text-xs font-bold bg-primary hover:bg-primary-hover px-4 py-2 rounded-none text-white flex items-center justify-center gap-2 cursor-pointer transition-all shadow-md shadow-teal-500/20 hover:scale-105"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Staff Portal Login</span>
@@ -296,7 +296,7 @@ export default function App() {
         <AuxiliaryProvider>
           {/* Global Toast for WhatsApp */}
           {whatsappToast && (
-            <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-none shadow-xl flex items-center gap-3">
+            <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-none shadow-xl flex items-center justify-center gap-3">
               <MessageCircle className="w-5 h-5" />
               <div>
                 <p className="font-bold text-sm">WhatsApp Sent</p>

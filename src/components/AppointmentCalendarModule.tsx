@@ -105,7 +105,7 @@ export default function AppointmentCalendarModule({
     <div className="space-y-6 animate-fadeIn">
       {/* Top Header Controls Toolbar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface-muted dark:bg-night-850 p-4 rounded-none shadow-xs border border-line-subtle dark:border-teal-800/40">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <div className="w-10 h-10 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
             <Calendar className="w-5 h-5 text-accent dark:text-teal-300" />
           </div>
@@ -118,13 +118,13 @@ export default function AppointmentCalendarModule({
         <div className="flex flex-wrap items-center gap-2.5">
           <button 
             onClick={() => setCurrentDate(new Date())}
-            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-2 rounded-none transition-colors shadow-xs uppercase tracking-wider font-mono flex items-center gap-1.5"
+            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-2 rounded-none transition-colors shadow-xs uppercase tracking-wider font-mono flex items-center justify-center gap-1.5"
           >
             <Clock className="w-3.5 h-3.5" />
             Today
           </button>
           
-          <div className="flex items-center bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/50 rounded-none p-0.5">
+          <div className="flex items-center justify-center bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/50 rounded-none p-0.5">
             <button 
               onClick={() => setCurrentDate(addDays(currentDate, -7))}
               className="p-1.5 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 rounded-none transition-colors"
@@ -144,7 +144,7 @@ export default function AppointmentCalendarModule({
             </button>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/50 px-2 py-1">
+          <div className="flex items-center justify-center gap-1.5 bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/50 px-2 py-1">
             <Filter className="w-3.5 h-3.5 text-accent dark:text-teal-300" />
             <select 
               value={slotDuration} 
@@ -186,7 +186,7 @@ export default function AppointmentCalendarModule({
                         : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
                     }`}
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center justify-center gap-2">
                       <span className={`w-2 h-2 rounded-none ${isToday ? (isSelected ? 'bg-white' : 'bg-primary dark:bg-teal-300') : 'bg-transparent'}`} />
                       <span>{format(day, 'EEEE')}</span>
                     </span>
@@ -225,7 +225,7 @@ export default function AppointmentCalendarModule({
             
             {/* Header bar */}
             <div className="bg-surface-accent/60 dark:bg-night-900 border-b border-line-subtle dark:border-teal-800/40 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-center gap-2.5">
                 <h3 className="type-heading-caps text-ink dark:text-teal-300 font-mono">
                   {format(currentDate, 'EEEE, MMMM d, yyyy')}
                 </h3>
@@ -235,7 +235,7 @@ export default function AppointmentCalendarModule({
                   </span>
                 )}
               </div>
-              <div className="text-xs font-mono font-bold text-accent dark:text-teal-300 flex items-center gap-2">
+              <div className="text-xs font-mono font-bold text-accent dark:text-teal-300 flex items-center justify-center gap-2">
                 <Activity className="w-3.5 h-3.5 text-accent dark:text-teal-300" />
                 <span>{timeSlots.length} Slots ({slotDuration}m interval)</span>
               </div>
@@ -267,7 +267,7 @@ export default function AppointmentCalendarModule({
                       }`}>
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
                           <div>
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-center justify-center gap-2 flex-wrap">
                               <h4 className="type-card-title text-ink dark:text-teal-300">
                                 {appointment.patientName}
                               </h4>
@@ -277,13 +277,13 @@ export default function AppointmentCalendarModule({
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs text-accent dark:text-teal-300 flex items-center gap-4 mt-1 font-mono">
-                              <span className="flex items-center gap-1"><Phone className="w-3 h-3 text-accent dark:text-teal-300" /> {appointment.patientPhone}</span>
-                              <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-accent dark:text-teal-300" /> {appointment.durationMinutes} min</span>
+                            <div className="text-xs text-accent dark:text-teal-300 flex items-center justify-center gap-4 mt-1 font-mono">
+                              <span className="flex items-center justify-center gap-1"><Phone className="w-3 h-3 text-accent dark:text-teal-300" /> {appointment.patientPhone}</span>
+                              <span className="flex items-center justify-center gap-1"><Clock className="w-3 h-3 text-accent dark:text-teal-300" /> {appointment.durationMinutes} min</span>
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-center gap-2">
                             <span className={`text-2xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-none font-mono border ${
                               appointment.status === 'Completed' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' :
                               appointment.status === 'Cancelled' ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800' :
@@ -307,19 +307,19 @@ export default function AppointmentCalendarModule({
                           <div className="mt-3 pt-2.5 border-t border-line-subtle dark:border-teal-800/30 flex flex-wrap gap-2">
                             <button 
                               onClick={() => handleStatusChange(appointment.id, 'Completed')} 
-                              className="bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center gap-1 transition-colors font-mono"
+                              className="bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" /> Mark Arrived
                             </button>
                             <button 
                               onClick={() => handleStatusChange(appointment.id, 'No-Show')} 
-                              className="bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/30 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center gap-1 transition-colors font-mono"
+                              className="bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/30 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
                             >
                               <AlertCircle className="w-3.5 h-3.5" /> No-Show
                             </button>
                             <button 
                               onClick={() => handleStatusChange(appointment.id, 'Cancelled')} 
-                              className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center gap-1 transition-colors font-mono"
+                              className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
                             >
                               <XCircle className="w-3.5 h-3.5" /> Cancel Slot
                             </button>
@@ -332,7 +332,7 @@ export default function AppointmentCalendarModule({
 
                 // Empty Slot Button
                 return (
-                  <div key={time.toISOString()} className="flex items-center gap-3 group">
+                  <div key={time.toISOString()} className="flex items-center justify-center gap-3 group">
                     <div className="w-20 sm:w-24 text-right pr-2 shrink-0">
                       <span className="font-mono text-xs font-bold text-accent/70 dark:text-teal-400/60 group-hover:text-accent transition-colors">
                         {format(time, 'hh:mm a')}

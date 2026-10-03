@@ -139,16 +139,16 @@ export default function MOHDashboard({
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               Public Health Compliance
             </span>
-            <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               NIDCS Sync Online
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
             <Globe2 className="w-6 h-6 text-accent" />
             MOH Regulatory Compliance &amp; Analytics
           </h1>
@@ -157,12 +157,12 @@ export default function MOHDashboard({
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
             onClick={handleNidcsUpload}
             disabled={isUploading}
-            className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
           >
             <UploadCloud className="w-4 h-4" />
             <span>{isUploading ? `Uploading ${uploadPercent}%` : 'Transmit NIDCS Report'}</span>
@@ -224,7 +224,7 @@ export default function MOHDashboard({
           {/* Patient Volume hourly chart */}
           <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="type-card-title text-ink flex items-center gap-2">
+              <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
                 <BarChart3 className="w-4 h-4 text-accent" />
                 <span>Hourly Outpatient Volume Telemetry</span>
               </h3>
@@ -249,7 +249,7 @@ export default function MOHDashboard({
           {/* ICD-10 Diagnoses distribution */}
           <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="type-card-title text-ink flex items-center gap-2">
+              <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
                 <Target className="w-4 h-4 text-accent" />
                 <span>Top Outpatient ICD-10 Diagnoses Distribution</span>
               </h3>
@@ -275,7 +275,7 @@ export default function MOHDashboard({
       {/* POPULATION HEALTH */}
       {activeTab === 'population' && (
         <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
+          <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
             <Users className="w-5 h-5 text-accent" />
             <span>Epidemiological Surveillance &amp; Population Health</span>
           </h3>
@@ -288,7 +288,7 @@ export default function MOHDashboard({
       {/* COMPARATIVE */}
       {activeTab === 'comparative' && (
         <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
+          <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
             <BarChart3 className="w-5 h-5 text-accent" />
             <span>National Healthcare Benchmarking</span>
           </h3>
@@ -310,7 +310,7 @@ export default function MOHDashboard({
       {/* FINANCIAL */}
       {activeTab === 'financial' && (
         <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
+          <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
             <DollarSign className="w-5 h-5 text-accent" />
             <span>Predictive Financial Revenue Forecasting</span>
           </h3>
@@ -332,7 +332,7 @@ export default function MOHDashboard({
       {/* PROVIDER */}
       {activeTab === 'provider' && (
         <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
+          <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
             <Activity className="w-5 h-5 text-accent" />
             <span>Resident Physician Efficiency Metrics</span>
           </h3>
@@ -357,7 +357,7 @@ export default function MOHDashboard({
       {/* WORKFLOW */}
       {activeTab === 'workflow' && (
         <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
+          <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
             <Brain className="w-5 h-5 text-accent" />
             <span>AI Clinical Workflow Optimization</span>
           </h3>
@@ -370,7 +370,7 @@ export default function MOHDashboard({
       {/* OUTCOMES */}
       {activeTab === 'outcomes' && (
         <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
+          <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
             <Target className="w-5 h-5 text-accent" />
             <span>Treatment Protocol Efficacy &amp; Outcomes</span>
           </h3>

@@ -23,16 +23,16 @@ export default function OperationsHub() {
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               AI Logistics & Flow
             </span>
-            <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
               Real-time Telemetry
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
             <BrainCircuit className="w-6 h-6 text-accent" />
             Operational Excellence Engine
           </h1>
@@ -41,12 +41,12 @@ export default function OperationsHub() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs">
+        <div className="flex items-center justify-center gap-3">
+          <button className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs">
             <RefreshCw className="w-3.5 h-3.5 text-accent" />
             Sync Telemetry
           </button>
-          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer">
+          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer">
             <Zap className="w-4 h-4 text-amber-300" />
             Apply AI Schedule
           </button>
@@ -65,7 +65,7 @@ export default function OperationsHub() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">{trafficCount}</h3>
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium">
+            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium">
               <MoveUpRight className="w-3 h-3" /> 12% under cap
             </span>
           </div>
@@ -81,7 +81,7 @@ export default function OperationsHub() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">{waitAvg} mins</h3>
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium">
+            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium">
               Target &lt;20m
             </span>
           </div>
@@ -97,7 +97,7 @@ export default function OperationsHub() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">94.2%</h3>
-            <span className="text-xs text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium border border-teal-200">
+            <span className="text-xs text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium border border-teal-200">
               ML Scheduled
             </span>
           </div>
@@ -113,7 +113,7 @@ export default function OperationsHub() {
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">Auto-PO</h3>
-            <span className="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-medium border border-amber-200">
+            <span className="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium border border-amber-200">
               2 Low Stock Flags
             </span>
           </div>
@@ -126,7 +126,7 @@ export default function OperationsHub() {
         <div className="space-y-6">
           <div className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
             <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between">
-              <h2 className="type-card-title text-ink flex items-center gap-2">
+              <h2 className="type-card-title text-ink flex items-center justify-center gap-2">
                 <CalendarDays className="w-4 h-4 text-accent" />
                 Smart Scheduling Engine
               </h2>
@@ -147,13 +147,13 @@ export default function OperationsHub() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-surface border border-teal-100 rounded-none p-3">
                     <p className="text-2xs text-slate-500 font-bold uppercase mb-1">Room 1 (Consult)</p>
-                    <p className="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                    <p className="text-xs font-bold text-emerald-600 flex items-center justify-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Occupied - Dr. Sarah
                     </p>
                   </div>
                   <div className="bg-surface border border-teal-100 rounded-none p-3">
                     <p className="text-2xs text-slate-500 font-bold uppercase mb-1">Room 2 (Treatment)</p>
-                    <p className="text-xs font-bold text-amber-600 flex items-center gap-1.5">
+                    <p className="text-xs font-bold text-amber-600 flex items-center justify-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-amber-500"></span> Prep - Nurse Ali
                     </p>
                   </div>
@@ -164,7 +164,7 @@ export default function OperationsHub() {
 
           <div className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
             <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between">
-              <h2 className="type-card-title text-ink flex items-center gap-2">
+              <h2 className="type-card-title text-ink flex items-center justify-center gap-2">
                 <Wrench className="w-4 h-4 text-amber-600" />
                 Predictive Maintenance
               </h2>
@@ -188,7 +188,7 @@ export default function OperationsHub() {
         <div className="space-y-6">
           <div className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden h-full">
             <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between">
-              <h2 className="type-card-title text-ink flex items-center gap-2">
+              <h2 className="type-card-title text-ink flex items-center justify-center gap-2">
                 <PackageSearch className="w-4 h-4 text-accent" />
                 Automated Inventory Management
               </h2>
@@ -214,14 +214,14 @@ export default function OperationsHub() {
 
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="font-bold text-red-600 flex items-center gap-1"><Zap className="w-3 h-3"/> Lisinopril 10mg</span>
+                  <span className="font-bold text-red-600 flex items-center justify-center gap-1"><Zap className="w-3 h-3"/> Lisinopril 10mg</span>
                   <span className="text-red-500 font-bold">12 units left (Critical)</span>
                 </div>
                 <ProgressBar value={8} size="sm" tone="danger" pulse />
               </div>
 
               <div className="mt-6 p-4 border border-teal-200 bg-surface rounded-none">
-                <p className="text-xs font-bold text-ink mb-1.5 flex items-center gap-2">
+                <p className="text-xs font-bold text-ink mb-1.5 flex items-center justify-center gap-2">
                   <Truck className="w-4 h-4 text-accent" /> AI Purchasing Insights
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed">

@@ -23,7 +23,7 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
   return (
     <div className="md:col-span-1 bg-surface dark:bg-night-900 border-r border-line dark:border-teal-800/40 p-4 h-full overflow-y-auto flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+        <h3 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
           <History className="w-4 h-4 text-accent dark:text-teal-400" />
           Longitudinal Medical Timeline
         </h3>

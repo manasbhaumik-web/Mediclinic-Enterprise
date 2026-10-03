@@ -104,6 +104,15 @@ strong {
   font-weight: 700;
 }
 
+/* Base button alignment safeguard: ensure all buttons align text and flex items centered */
+button {
+  text-align: center;
+}
+button.flex:not(.justify-start):not(.justify-end):not(.justify-between):not(.text-left),
+button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):not(.text-left) {
+  justify-content: center;
+}
+
 /* ========================================================================= */
 /* COMPONENT CLASSES                                                         */
 /* ========================================================================= */

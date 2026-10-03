@@ -51,16 +51,16 @@ export default function BillingManagementModule() {
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               Financial Revenue &amp; Claims
             </span>
-            <span className="flex items-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               SST {settings.billing.taxRate}% Active
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
             <DollarSign className="w-6 h-6 text-accent" />
             Billing &amp; TPA Claims Management
           </h1>
@@ -69,10 +69,10 @@ export default function BillingManagementModule() {
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
-            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
+            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
             <span>Export Financials</span>
@@ -209,7 +209,7 @@ export default function BillingManagementModule() {
               {/* Right Workflow Guide */}
               <div className="lg:col-span-5 bg-surface-muted border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
                 <div className="space-y-3">
-                  <h4 className="type-label text-accent flex items-center gap-1.5">
+                  <h4 className="type-label text-accent flex items-center justify-center gap-1.5">
                     <Activity className="w-3.5 h-3.5 text-accent" />
                     <span>Financial Billing Workflow</span>
                   </h4>
@@ -263,7 +263,7 @@ export default function BillingManagementModule() {
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="px-4 py-2 bg-surface-accent hover:bg-surface-strong text-accent font-bold text-xs border border-line cursor-pointer inline-flex items-center gap-1.5"
+                className="px-4 py-2 bg-surface-accent hover:bg-surface-strong text-accent font-bold text-xs border border-line cursor-pointer inline-flex items-center justify-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Reset Search Filter</span>
@@ -350,7 +350,7 @@ export default function BillingManagementModule() {
               ) : filteredClaims.map((claim) => (
                 <tr key={claim.id} className="hover:bg-surface-muted transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-bold text-ink flex items-center gap-2">
+                    <p className="font-bold text-ink flex items-center justify-center gap-2">
                       {claim.id}
                       {claim.status === 'Pending Claim' ? (
                         <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 text-2xs uppercase font-bold">Pending</span>
@@ -374,7 +374,7 @@ export default function BillingManagementModule() {
                       <button 
                         type="button"
                         onClick={() => markClaimAsPaid(claim.id)}
-                        className="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 rounded-none text-2xs font-bold uppercase transition-colors flex items-center gap-1 mx-auto cursor-pointer shadow-2xs"
+                        className="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 rounded-none text-2xs font-bold uppercase transition-colors flex items-center justify-center gap-1 mx-auto cursor-pointer shadow-2xs"
                       >
                         <CheckCircle className="w-3 h-3" />
                         <span>Mark as Paid</span>
@@ -396,7 +396,7 @@ export default function BillingManagementModule() {
       {activeTab === 'reconciliation' && (
         <div className="space-y-6 animate-fadeIn">
           <div className="bg-surface-muted border border-line-subtle p-6 rounded-none shadow-2xs space-y-2">
-            <h3 className="type-card-title text-ink flex items-center gap-2">
+            <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
               <UploadCloud className="w-5 h-5 text-accent" /> Automated TPA Statement Reconciliation
             </h3>
             <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">

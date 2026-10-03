@@ -75,7 +75,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
     <div className="bg-white rounded-none shadow-md border border-line overflow-hidden animate-fadeIn flex flex-col max-h-[calc(100vh-140px)]">
       {/* Header Banner */}
       <div className="bg-surface-accent border-b border-line px-6 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -85,7 +85,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="type-section-title text-ink flex items-center gap-2.5">
+            <h2 className="type-section-title text-ink flex items-center justify-center gap-2.5">
               <User className="w-6 h-6 text-accent" />
               Staff Personnel Registration
             </h2>
@@ -93,7 +93,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -104,7 +104,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
           <button 
             type="button"
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-chrome hover:bg-primary-hover rounded-none transition-all cursor-pointer shadow-md"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-chrome hover:bg-primary-hover rounded-none transition-all cursor-pointer shadow-md"
           >
             <Save className="w-4 h-4" />
             Save Staff Record
@@ -117,7 +117,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
         {/* Section 1: Primary & Account Details */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <Shield className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">1. Primary & Account Details</h3>
             </div>
@@ -154,7 +154,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
         {/* Section 2: Personal Information */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <User className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">2. Personal Information</h3>
             </div>
@@ -201,7 +201,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
             </div>
 
             <div className="p-4 bg-surface-accent/40 border border-line rounded-none space-y-3">
-              <h4 className="type-label text-ink flex items-center gap-1.5">
+              <h4 className="type-label text-ink flex items-center justify-center gap-1.5">
                 <AlertCircle className="w-4 h-4 text-amber-600" /> Emergency Contact Details
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -216,7 +216,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
         {/* Section 3: Professional & Clinical Credentials */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <FileText className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">3. Clinical & Medical Credentials</h3>
             </div>
@@ -250,7 +250,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
         {/* Section 4: Employment & HR Details */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <Briefcase className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">4. Employment & HR Specifications</h3>
             </div>
@@ -288,7 +288,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
         {/* Section 5: Financial & Statutory Details */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center gap-2.5">
               <CreditCard className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">5. Financial & Statutory Remuneration</h3>
             </div>

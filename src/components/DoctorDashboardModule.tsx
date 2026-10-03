@@ -166,7 +166,7 @@ export default function DoctorDashboardModule({
   const renderAllergyBadge = (drugAllergies: string[] = []) => {
     if (drugAllergies.length === 0) return null;
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none text-2xs font-bold uppercase tracking-wider bg-rose-100 text-rose-950 dark:bg-rose-900/90 dark:text-rose-100 border border-rose-300 dark:border-rose-600 shadow-2xs font-mono shrink-0">
+      <span className="inline-flex items-center justify-center gap-1.5 px-2 py-0.5 rounded-none text-2xs font-bold uppercase tracking-wider bg-rose-100 text-rose-950 dark:bg-rose-900/90 dark:text-rose-100 border border-rose-300 dark:border-rose-600 shadow-2xs font-mono shrink-0">
         <AlertCircle className="w-3 h-3 text-rose-700 dark:text-rose-200 shrink-0" />
         <span>Allergy: {drugAllergies.join(', ')}</span>
       </span>
@@ -293,7 +293,7 @@ export default function DoctorDashboardModule({
       
       {/* Step 1 Call Announcement Toast */}
       {callAnnouncementToast && (
-        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-none shadow-2xl border border-teal-500/40 flex items-center gap-3 animate-bounce-slow">
+        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-none shadow-2xl border border-teal-500/40 flex items-center justify-center gap-3 animate-bounce-slow">
           <div className="w-8 h-8 rounded-none bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold">
             📢
           </div>
@@ -306,7 +306,7 @@ export default function DoctorDashboardModule({
 
       {/* Copy to Clipboard Toast Notification */}
       {copiedToast && (
-        <div className="fixed bottom-6 right-6 z-[130] bg-deep text-teal-300 px-4 py-2.5 rounded-none shadow-xl border border-line flex items-center gap-2 text-xs font-mono font-bold animate-bounce-slow">
+        <div className="fixed bottom-6 right-6 z-[130] bg-deep text-teal-300 px-4 py-2.5 rounded-none shadow-xl border border-line flex items-center justify-center gap-2 text-xs font-mono font-bold animate-bounce-slow">
           <Check className="w-4 h-4 text-teal-300" />
           <span>{copiedToast}</span>
         </div>
@@ -316,7 +316,7 @@ export default function DoctorDashboardModule({
       {pendingCallVisit && (
         <div className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white dark:bg-night-900 border-2 border-brand max-w-md w-full p-5 rounded-none shadow-2xl space-y-4 text-ink dark:text-white">
-            <div className="flex items-center gap-3 border-b border-line dark:border-teal-800/60 pb-3">
+            <div className="flex items-center justify-center gap-3 border-b border-line dark:border-teal-800/60 pb-3">
               <div className="w-9 h-9 bg-teal-50 dark:bg-teal-950 text-accent dark:text-teal-400 border border-line flex items-center justify-center shrink-0 font-bold text-base">
                 📢
               </div>
@@ -332,7 +332,7 @@ export default function DoctorDashboardModule({
               </p>
 
               {pendingCallVisit.position > 1 && (
-                <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center gap-2">
+                <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center justify-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
                   <span>Out-of-turn call notice: Patient is currently ranked #{pendingCallVisit.position} in line.</span>
                 </div>
@@ -350,7 +350,7 @@ export default function DoctorDashboardModule({
               <button
                 type="button"
                 onClick={confirmCallPatient}
-                className="px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-primary-hover text-white cursor-pointer shadow-md flex items-center gap-1.5"
+                className="px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-primary-hover text-white cursor-pointer shadow-md flex items-center justify-center gap-1.5"
               >
                 <Volume2 className="w-3.5 h-3.5" />
                 <span>Call patient now</span>
@@ -380,7 +380,7 @@ export default function DoctorDashboardModule({
                 {/* Dominant Operational Alert Strip if Breaches or High Acuity Patients Exist */}
                 {(overSlaCount > 0 || highPriorityCount > 0) && (
                   <div className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 px-3.5 py-2 rounded-none flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs font-medium shadow-2xs">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                       <span>
                         <strong>Operational Alert:</strong> {overSlaCount > 0 ? `${overSlaCount} patient(s) exceeding SLA wait time (>20m)` : ''}
@@ -396,16 +396,16 @@ export default function DoctorDashboardModule({
 
                 <div className="bg-surface-accent dark:bg-night-850 text-ink dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-line dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                   {/* Left: Section Title & Live Telemetry Badge */}
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center justify-center gap-3 shrink-0">
                     <div className="p-2 bg-teal-50 dark:bg-teal-950/60 border border-line dark:border-teal-800 text-accent dark:text-teal-400">
                       <Users className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         <h1 className="type-page-title text-ink dark:text-teal-300">
                           Doctor Consultation Queue
                         </h1>
-                        <span className="inline-flex items-center gap-1 text-2xs text-accent dark:text-teal-400 bg-white/80 dark:bg-night-950 px-2 py-0.5 rounded-none border border-line dark:border-teal-800 font-mono font-bold">
+                        <span className="inline-flex items-center justify-center gap-1 text-2xs text-accent dark:text-teal-400 bg-white/80 dark:bg-night-950 px-2 py-0.5 rounded-none border border-line dark:border-teal-800 font-mono font-bold">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
                           Live
                         </span>
@@ -418,30 +418,30 @@ export default function DoctorDashboardModule({
 
                   {/* Center/Right: 4 Telemetry Stat Badges Bar */}
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
+                    <div className="flex items-center justify-center gap-2 text-xs font-mono flex-wrap">
                       {/* Stat 1: Waiting */}
-                      <div className="bg-white dark:bg-night-950 text-ink dark:text-teal-300 px-2.5 py-1.5 rounded-none border border-line dark:border-teal-800 border-l-2 border-l-brand flex items-center gap-2 shadow-2xs">
+                      <div className="bg-white dark:bg-night-950 text-ink dark:text-teal-300 px-2.5 py-1.5 rounded-none border border-line dark:border-teal-800 border-l-2 border-l-brand flex items-center justify-center gap-2 shadow-2xs">
                         <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Waiting:</span>
                         <strong className="font-bold text-sm text-accent dark:text-teal-400">{doctorQueue.length}</strong>
                         <span className="text-2xs bg-teal-50/70 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 px-1 py-0.2 rounded-none font-sans font-bold border border-teal-200 dark:border-teal-800/60">Active</span>
                       </div>
 
                       {/* Stat 2: High Priority */}
-                      <div className="bg-white dark:bg-night-950 text-rose-700 dark:text-rose-300 px-2.5 py-1.5 rounded-none border border-rose-200/80 dark:border-rose-900/40 border-l-2 border-l-rose-400 flex items-center gap-2 shadow-2xs">
+                      <div className="bg-white dark:bg-night-950 text-rose-700 dark:text-rose-300 px-2.5 py-1.5 rounded-none border border-rose-200/80 dark:border-rose-900/40 border-l-2 border-l-rose-400 flex items-center justify-center gap-2 shadow-2xs">
                         <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Allergy/High:</span>
                         <strong className="font-bold text-sm text-rose-600 dark:text-rose-400">{highPriorityCount}</strong>
                         <span className="text-2xs bg-rose-50/70 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 px-1 py-0.2 rounded-none font-sans font-bold border border-rose-200 dark:border-rose-800/60">Acuity</span>
                       </div>
 
                       {/* Stat 3: Over SLA */}
-                      <div className="bg-white dark:bg-night-950 text-amber-700 dark:text-amber-300 px-2.5 py-1.5 rounded-none border border-amber-200/80 dark:border-amber-900/40 border-l-2 border-l-amber-400 flex items-center gap-2 shadow-2xs">
+                      <div className="bg-white dark:bg-night-950 text-amber-700 dark:text-amber-300 px-2.5 py-1.5 rounded-none border border-amber-200/80 dark:border-amber-900/40 border-l-2 border-l-amber-400 flex items-center justify-center gap-2 shadow-2xs">
                         <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">&gt;20m SLA:</span>
                         <strong className="font-bold text-sm text-amber-600 dark:text-amber-400">{overSlaCount}</strong>
                         <span className="text-2xs bg-amber-50/70 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 px-1 py-0.2 rounded-none font-sans font-bold border border-amber-200 dark:border-amber-800/60">Risk</span>
                       </div>
 
                       {/* Stat 4: Max Wait */}
-                      <div className="bg-white dark:bg-night-950 text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-sky-200/80 dark:border-sky-900/40 border-l-2 border-l-sky-400 flex items-center gap-2 shadow-2xs">
+                      <div className="bg-white dark:bg-night-950 text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-sky-200/80 dark:border-sky-900/40 border-l-2 border-l-sky-400 flex items-center justify-center gap-2 shadow-2xs">
                         <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Max Wait:</span>
                         <strong className="font-bold text-sm text-ink dark:text-teal-300">{maxWaitMinutes}m</strong>
                         <span className="text-2xs bg-sky-50/70 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 px-1 py-0.2 rounded-none font-sans font-bold border border-sky-200 dark:border-sky-800/60">Peak</span>
@@ -453,7 +453,7 @@ export default function DoctorDashboardModule({
                       type="button"
                       onClick={handleManualQueueRefresh}
                       disabled={isRefreshingQueue}
-                      className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3 py-2 rounded-none flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0"
+                      className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 text-white ${isRefreshingQueue ? 'animate-spin' : ''}`} />
                       <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh'}</span>
@@ -481,8 +481,8 @@ export default function DoctorDashboardModule({
                   <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
                     
                     {/* Sort rule buttons */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-ink dark:text-slate-200 font-bold uppercase tracking-wider text-2xs flex items-center gap-1">
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      <span className="text-ink dark:text-slate-200 font-bold uppercase tracking-wider text-2xs flex items-center justify-center gap-1">
                         <Filter className="w-3.5 h-3.5 text-accent dark:text-teal-400" /> Sort:
                       </span>
                       <div className="changer-container">
@@ -568,9 +568,9 @@ export default function DoctorDashboardModule({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 text-2xs font-mono text-slate-600 dark:text-slate-300 shrink-0">
+                    <div className="flex items-center justify-center gap-3 text-2xs font-mono text-slate-600 dark:text-slate-300 shrink-0">
                       {/* Compact / Comfortable Density Toggle */}
-                      <div className="inline-flex items-center bg-white dark:bg-night-850 border border-line dark:border-teal-800 rounded-none p-0.5 font-mono text-2xs">
+                      <div className="inline-flex items-center justify-center bg-white dark:bg-night-850 border border-line dark:border-teal-800 rounded-none p-0.5 font-mono text-2xs">
                         <button
                           type="button"
                           onClick={() => setDensity('comfortable')}
@@ -622,7 +622,7 @@ export default function DoctorDashboardModule({
                           </span>
 
                           {pinnedVisitIds[nextVisit.id] && (
-                            <span className="bg-amber-400 text-slate-900 text-2xs font-bold uppercase px-2 py-0.5 rounded-none font-mono flex items-center gap-1">
+                            <span className="bg-amber-400 text-slate-900 text-2xs font-bold uppercase px-2 py-0.5 rounded-none font-mono flex items-center justify-center gap-1">
                               <Pin className="w-3 h-3 fill-slate-900 shrink-0" />
                               <span>PINNED PRIORITY</span>
                             </span>
@@ -645,14 +645,14 @@ export default function DoctorDashboardModule({
 
                           {/* Called timestamp badge */}
                           {calledTimestampMap[nextVisit.id] && (
-                            <span className="bg-emerald-400 text-ink text-2xs font-bold uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center gap-1">
+                            <span className="bg-emerald-400 text-ink text-2xs font-bold uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center justify-center gap-1">
                               📢 Called at {calledTimestampMap[nextVisit.id]}
                             </span>
                           )}
                         </div>
 
                         {/* Interactive Actions Header & 3-Step Visual Workflow Tracker */}
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center justify-center gap-2 flex-wrap">
                           <button
                             type="button"
                             onClick={(e) => togglePinVisit(nextVisit.id, e)}
@@ -671,13 +671,13 @@ export default function DoctorDashboardModule({
                             type="button"
                             onClick={(e) => copyToClipboard(nextPatient.id, 'Patient ID', e)}
                             title="Copy Patient ID"
-                            className="p-1 px-2 text-2xs font-mono font-bold bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 rounded-none flex items-center gap-1 transition-all cursor-pointer"
+                            className="p-1 px-2 text-2xs font-mono font-bold bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 rounded-none flex items-center justify-center gap-1 transition-all cursor-pointer"
                           >
                             <Copy className="w-3 h-3" />
                             <span>Copy ID</span>
                           </button>
 
-                          <div className="text-2xs font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center gap-1.5">
+                          <div className="text-2xs font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center justify-center gap-1.5">
                             <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-bold underline'}>
                               Ready
                             </span>
@@ -701,7 +701,7 @@ export default function DoctorDashboardModule({
                           </h3>
 
                           {/* Rationale Pill: Why Ranked #1 */}
-                          <div className="text-2xs font-mono text-teal-200 flex items-center gap-1.5 bg-night-850/80 px-2.5 py-1 border border-brand/40 w-fit">
+                          <div className="text-2xs font-mono text-teal-200 flex items-center justify-center gap-1.5 bg-night-850/80 px-2.5 py-1 border border-brand/40 w-fit">
                             <span className="font-bold text-teal-300">Rank Rationale:</span>
                             <span>{getRankingRationale(nextPatient, nextVisit, 0, sortRule)}</span>
                           </div>
@@ -733,7 +733,7 @@ export default function DoctorDashboardModule({
                         </div>
 
                         {/* Dominant Primary Action & Secondary Toggle */}
-                        <div className="flex items-center gap-2.5 shrink-0">
+                        <div className="flex items-center justify-center gap-2.5 shrink-0">
                           <button
                             type="button"
                             onClick={() => toggleDetails(nextVisit.id)}
@@ -746,7 +746,7 @@ export default function DoctorDashboardModule({
                             <button
                               type="button"
                               onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-teal-300 hover:bg-teal-400 text-deep shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-teal-300 hover:bg-teal-400 text-deep shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
                             >
                               <Stethoscope className="w-4 h-4 text-ink" />
                               <span>Move to consultation</span>
@@ -756,7 +756,7 @@ export default function DoctorDashboardModule({
                             <button
                               type="button"
                               onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-ink shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-ink shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
                             >
                               <Stethoscope className="w-4 h-4 text-ink" />
                               <span>Move to consultation</span>
@@ -766,7 +766,7 @@ export default function DoctorDashboardModule({
                             <button
                               type="button"
                               onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
-                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-primary hover:bg-teal-600 text-white shadow-lg flex items-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:outline-none"
+                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-primary hover:bg-teal-600 text-white shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:outline-none"
                             >
                               <Volume2 className="w-4 h-4 text-white" />
                               <span>Call patient</span>
@@ -794,11 +794,11 @@ export default function DoctorDashboardModule({
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 pt-2 border-t border-teal-500/20 flex-wrap">
+                          <div className="flex items-center justify-center gap-2 pt-2 border-t border-teal-500/20 flex-wrap">
                             <button
                               type="button"
                               onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="bg-teal-300 text-deep px-3 py-1 text-xs font-bold rounded-none flex items-center gap-1 hover:bg-teal-400 cursor-pointer"
+                              className="bg-teal-300 text-deep px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 hover:bg-teal-400 cursor-pointer"
                             >
                               <Stethoscope className="w-3.5 h-3.5" />
                               <span>Start Clinical Diagnosis</span>
@@ -807,7 +807,7 @@ export default function DoctorDashboardModule({
                             <button
                               type="button"
                               onClick={(e) => copyToClipboard(`${nextPatient.fullName} (${nextPatient.id})`, 'Patient Details', e)}
-                              className="bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 px-3 py-1 text-xs font-bold rounded-none flex items-center gap-1 cursor-pointer"
+                              className="bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 cursor-pointer"
                             >
                               <Copy className="w-3.5 h-3.5" />
                               <span>Copy Full Record</span>
@@ -822,7 +822,7 @@ export default function DoctorDashboardModule({
                   {remainingQueue.length > 0 && (
                     <div className="space-y-3 pt-2">
                       <div className="flex items-center justify-between flex-wrap gap-2 border-b border-line dark:border-teal-800 pb-2">
-                        <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+                        <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
                           <span>
                             {currentPage === 1 ? 'Subsequent Patients' : 'Patient Queue List'} ({sortedQueue.length} Total · Page {currentPage} of {totalPages})
                           </span>
@@ -859,7 +859,7 @@ export default function DoctorDashboardModule({
                               <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                                 
                                 {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
-                                <div className="md:col-span-5 flex items-center gap-3 min-w-0">
+                                <div className="md:col-span-5 flex items-center justify-center gap-3 min-w-0">
                                   <div className={`w-7 h-7 font-mono font-bold text-xs flex items-center justify-center shrink-0 border ${
                                     isPinned
                                       ? 'bg-amber-400 text-slate-900 border-amber-300'
@@ -892,7 +892,7 @@ export default function DoctorDashboardModule({
                                     </div>
 
                                     {/* Explainable Rank Rationale Pill */}
-                                    <div className="text-2xs font-mono text-slate-500 dark:text-slate-400 pt-0.5 flex items-center gap-1">
+                                    <div className="text-2xs font-mono text-slate-500 dark:text-slate-400 pt-0.5 flex items-center justify-center gap-1">
                                       <span className="font-bold text-accent dark:text-teal-400">Rationale:</span>
                                       <span className="truncate">{getRankingRationale(pt, visit, globalRankIndex, sortRule)}</span>
                                     </div>
@@ -941,7 +941,7 @@ export default function DoctorDashboardModule({
                                     <button
                                       type="button"
                                       onClick={() => handleStartConsultation(visit.id)}
-                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-deep dark:bg-primary text-white shadow-xs flex items-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-deep dark:bg-primary text-white shadow-xs flex items-center justify-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                                     >
                                       <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
                                       <span>Resume</span>
@@ -950,7 +950,7 @@ export default function DoctorDashboardModule({
                                     <button
                                       type="button"
                                       onClick={() => requestCallPatient(visit.id, pt.fullName, queuePosition)}
-                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-surface-strong hover:bg-primary text-ink hover:text-white dark:bg-night-800 dark:hover:bg-primary dark:text-teal-300 border border-line dark:border-teal-800 transition-all cursor-pointer flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-surface-strong hover:bg-primary text-ink hover:text-white dark:bg-night-800 dark:hover:bg-primary dark:text-teal-300 border border-line dark:border-teal-800 transition-all cursor-pointer flex items-center justify-center gap-1 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                                     >
                                       <Volume2 className="w-3 h-3" />
                                       <span>Call patient</span>
@@ -978,11 +978,11 @@ export default function DoctorDashboardModule({
                                     </div>
                                   </div>
 
-                                  <div className="flex items-center gap-2 pt-2 border-t border-line/40 dark:border-teal-800/40 flex-wrap">
+                                  <div className="flex items-center justify-center gap-2 pt-2 border-t border-line/40 dark:border-teal-800/40 flex-wrap">
                                     <button
                                       type="button"
                                       onClick={() => handleStartConsultation(visit.id)}
-                                      className="bg-primary hover:bg-primary-hover text-white px-3 py-1 text-xs font-bold rounded-none flex items-center gap-1 cursor-pointer"
+                                      className="bg-primary hover:bg-primary-hover text-white px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 cursor-pointer"
                                     >
                                       <Stethoscope className="w-3.5 h-3.5" />
                                       <span>Direct Consultation Draft</span>
@@ -991,7 +991,7 @@ export default function DoctorDashboardModule({
                                     <button
                                       type="button"
                                       onClick={(e) => copyToClipboard(`${pt.fullName} (${pt.id})`, 'Patient Details', e)}
-                                      className="bg-white dark:bg-night-850 text-ink dark:text-slate-200 border border-line dark:border-teal-800 px-3 py-1 text-xs font-bold rounded-none flex items-center gap-1 cursor-pointer hover:bg-surface-accent"
+                                      className="bg-white dark:bg-night-850 text-ink dark:text-slate-200 border border-line dark:border-teal-800 px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 cursor-pointer hover:bg-surface-accent"
                                     >
                                       <Copy className="w-3.5 h-3.5" />
                                       <span>Copy Record</span>
@@ -1009,7 +1009,7 @@ export default function DoctorDashboardModule({
 
                 {/* PAGINATION CONTROLS BAR & INTERACTIVE KEYBOARD SHORTCUT FOOTER */}
                 <div className="bg-surface-strong dark:bg-night-950 border-t border-line dark:border-teal-800 p-3 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-mono text-2xs font-medium flex-wrap">
+                  <div className="flex items-center justify-center gap-3 text-slate-600 dark:text-slate-300 font-mono text-2xs font-medium flex-wrap">
                     <span>
                       Showing <strong className="text-ink dark:text-teal-300">{startIndex + 1}</strong> to{' '}
                       <strong className="text-ink dark:text-teal-300">
@@ -1020,25 +1020,25 @@ export default function DoctorDashboardModule({
 
                     <span className="hidden lg:inline-block text-slate-400">|</span>
 
-                    <span className="hidden lg:flex items-center gap-1.5 text-2xs text-slate-500 dark:text-slate-400">
+                    <span className="hidden lg:flex items-center justify-center gap-1.5 text-2xs text-slate-500 dark:text-slate-400">
                       <Sparkles className="w-3 h-3 text-accent" />
                       <span>Shortcuts:</span>
-                      <span className="inline-flex items-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
+                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
                         <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+Q</kbd> Queue
                       </span>
-                      <span className="inline-flex items-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
+                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
                         <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+C</kbd> Consult
                       </span>
-                      <span className="inline-flex items-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
+                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
                         <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+F</kbd> Search
                       </span>
-                      <span className="inline-flex items-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
+                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
                         <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+R</kbd> Refresh
                       </span>
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 font-mono">
+                  <div className="flex items-center justify-center gap-1.5 font-mono">
                     <button
                       type="button"
                       disabled={currentPage === 1}
@@ -1119,7 +1119,7 @@ export default function DoctorDashboardModule({
               <button
                 type="button"
                 onClick={() => setInternalTab('queue')}
-                className="mt-5 px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-teal-700 text-white shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
+                className="mt-5 px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-teal-700 text-white shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <Users className="w-4 h-4" />
                 <span>Go to Patient Waiting Queue</span>
@@ -1135,8 +1135,8 @@ export default function DoctorDashboardModule({
           {/* Header & Controls Toolbar */}
           <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none shadow-xs">
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
+                <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-2">
                   <BarChart3 className="w-5 h-5 text-accent dark:text-teal-300" />
                   Doctor Monthly Clinical &amp; Revenue Performance
                 </h2>
@@ -1177,7 +1177,7 @@ export default function DoctorDashboardModule({
 
               <button
                 onClick={handleExportCSV}
-                className="px-4 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-xs rounded-none cursor-pointer focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:outline-none"
+                className="px-4 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors shadow-xs rounded-none cursor-pointer focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:outline-none"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export CSV</span>
@@ -1193,7 +1193,7 @@ export default function DoctorDashboardModule({
                 <span className="text-2xs text-slate-500 dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono block mb-1">Total Encounters</span>
                 <div className="flex items-baseline gap-2">
                   <span className="type-metric text-ink dark:text-white">{aggregatePatients}</span>
-                  <span className="text-2xs font-bold text-accent dark:text-teal-300 flex items-center gap-0.5 font-mono">
+                  <span className="text-2xs font-bold text-accent dark:text-teal-300 flex items-center justify-center gap-0.5 font-mono">
                     <TrendingUp className="w-3 h-3" /> +14.2%
                   </span>
                 </div>
@@ -1255,7 +1255,7 @@ export default function DoctorDashboardModule({
             <div className="lg:col-span-2 bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none space-y-4 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
+                  <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-2">
                     <TrendingUp className="w-4 h-4 text-accent" />
                     Daily Encounter Velocity &amp; Revenue Growth
                   </h3>
@@ -1263,8 +1263,8 @@ export default function DoctorDashboardModule({
                     Patient volume vs gross financial yield throughout September 2026.
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-xs font-bold font-mono">
-                  <span className="flex items-center gap-1.5 text-accent dark:text-teal-300">
+                <div className="flex items-center justify-center gap-3 text-xs font-bold font-mono">
+                  <span className="flex items-center justify-center gap-1.5 text-accent dark:text-teal-300">
                     <span className="w-3 h-3 bg-primary inline-block rounded-none"></span> Revenue (RM)
                   </span>
                 </div>
@@ -1295,7 +1295,7 @@ export default function DoctorDashboardModule({
             {/* Pie Chart: Payment Route Distribution */}
             <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none space-y-4 flex flex-col justify-between shadow-xs">
               <div>
-                <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
+                <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-2">
                   <CreditCard className="w-4 h-4 text-accent" />
                   Corporate Panel &amp; Payment Mix
                 </h3>
@@ -1328,7 +1328,7 @@ export default function DoctorDashboardModule({
               <div className="space-y-1.5 pt-2 border-t border-line-subtle dark:border-teal-800/40">
                 {samplePaymentMix.map((item) => (
                   <div key={item.name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <LegendSwatch color={item.color} size="sm" />
                       <span className="text-slate-700 dark:text-slate-300 font-bold">{item.name}</span>
                     </div>
@@ -1343,7 +1343,7 @@ export default function DoctorDashboardModule({
           <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 rounded-none overflow-hidden space-y-0 shadow-xs">
             {/* Filter Bar */}
             <div className="p-4 bg-surface-muted dark:bg-night-850 border-b border-line-subtle dark:border-teal-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <Calendar className="w-4 h-4 text-accent" />
                 <h3 className="type-card-title text-ink dark:text-teal-300">Detailed Encounter &amp; Fee Ledger</h3>
                 <span className="text-xs font-mono bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-300 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none font-bold">
@@ -1365,7 +1365,7 @@ export default function DoctorDashboardModule({
                 </div>
 
                 {/* Payment Method Filter */}
-                <div className="flex items-center gap-1.5 bg-surface dark:bg-night-900 border border-line dark:border-teal-800/40 px-2.5 py-1.5 rounded-none">
+                <div className="flex items-center justify-center gap-1.5 bg-surface dark:bg-night-900 border border-line dark:border-teal-800/40 px-2.5 py-1.5 rounded-none">
                   <Filter className="w-3.5 h-3.5 text-accent" />
                   <select
                     value={reportPaymentFilter}
@@ -1447,7 +1447,7 @@ export default function DoctorDashboardModule({
               <span className="font-mono">
                 Showing {filteredEncounters.length} of {displayEncounters.length} encounters
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <span className="font-bold text-ink dark:text-teal-200">Subtotal Fees:</span>
                 <span className="font-mono font-bold text-accent dark:text-teal-300 text-sm">RM {aggregateFees.toFixed(2)}</span>
               </div>
