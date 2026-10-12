@@ -325,7 +325,7 @@ export default function DoctorDashboardModule({
       {pendingCallVisit && (
         <div className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white dark:bg-night-900 border-2 border-brand max-w-md w-full p-5 rounded-none shadow-2xl space-y-4 text-ink dark:text-white">
-            <div className="flex items-center justify-center gap-3 border-b border-line dark:border-teal-800/60 pb-3">
+            <div className="flex items-center gap-3 border-b border-line dark:border-teal-800/60 pb-3">
               <div className="w-9 h-9 bg-teal-50 dark:bg-teal-950 text-accent dark:text-teal-400 border border-line flex items-center justify-center shrink-0 font-bold text-base">
                 📢
               </div>
@@ -341,7 +341,7 @@ export default function DoctorDashboardModule({
               </p>
 
               {pendingCallVisit.position > 1 && (
-                <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center justify-center gap-2">
+                <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
                   <span>Out-of-turn call notice: Patient is currently ranked #{pendingCallVisit.position} in line.</span>
                 </div>
@@ -389,7 +389,7 @@ export default function DoctorDashboardModule({
                 {/* Dominant Operational Alert Strip if Breaches or High Acuity Patients Exist */}
                 {(overSlaCount > 0 || highPriorityCount > 0) && (
                   <div className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 px-3.5 py-2 rounded-none flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs font-medium shadow-2xs">
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                       <span>
                         <strong>Operational Alert:</strong> {overSlaCount > 0 ? `${overSlaCount} patient(s) exceeding SLA wait time (>20m)` : ''}
@@ -405,12 +405,12 @@ export default function DoctorDashboardModule({
 
                 <div className="bg-surface-accent dark:bg-night-850 text-ink dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-line dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                   {/* Left: Section Title & Live Telemetry Badge */}
-                  <div className="flex items-center justify-center gap-3 shrink-0">
+                  <div className="flex items-center gap-3 shrink-0">
                     <div className="p-2 bg-teal-50 dark:bg-teal-950/60 border border-line dark:border-teal-800 text-accent dark:text-teal-400">
                       <Users className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center gap-2">
                         <h1 className="type-page-title text-ink dark:text-teal-300">
                           Doctor Consultation Queue
                         </h1>
@@ -427,7 +427,7 @@ export default function DoctorDashboardModule({
 
                   {/* Center/Right: 4 Telemetry Stat Badges Bar */}
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <div className="flex items-center justify-center gap-2 text-xs font-mono flex-wrap">
+                    <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
                       {/* Stat 1: Waiting */}
                       <div className="bg-white dark:bg-night-950 text-ink dark:text-teal-300 px-2.5 py-1.5 rounded-none border border-line dark:border-teal-800 border-l-2 border-l-brand flex items-center justify-center gap-2 shadow-2xs">
                         <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Waiting:</span>
@@ -490,8 +490,8 @@ export default function DoctorDashboardModule({
                   <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
                     
                     {/* Sort rule buttons */}
-                    <div className="flex items-center justify-center gap-2 flex-wrap">
-                      <span className="text-ink dark:text-slate-200 font-bold uppercase tracking-wider text-2xs flex items-center justify-center gap-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-ink dark:text-slate-200 font-bold uppercase tracking-wider text-2xs flex items-center gap-1">
                         <Filter className="w-3.5 h-3.5 text-accent dark:text-teal-400" /> Sort:
                       </span>
                       <div className="changer-container">
@@ -577,7 +577,7 @@ export default function DoctorDashboardModule({
                       )}
                     </div>
 
-                    <div className="flex items-center justify-center gap-3 text-2xs font-mono text-slate-600 dark:text-slate-300 shrink-0">
+                    <div className="flex items-center gap-3 text-2xs font-mono text-slate-600 dark:text-slate-300 shrink-0">
                       {/* Compact / Comfortable Density Toggle */}
                       <div className="inline-flex items-center justify-center bg-white dark:bg-night-850 border border-line dark:border-teal-800 rounded-none p-0.5 font-mono text-2xs">
                         <button
@@ -661,7 +661,7 @@ export default function DoctorDashboardModule({
                         </div>
 
                         {/* Interactive Actions Header & 3-Step Visual Workflow Tracker */}
-                        <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <button
                             type="button"
                             onClick={(e) => togglePinVisit(nextVisit.id, e)}
@@ -742,7 +742,7 @@ export default function DoctorDashboardModule({
                         </div>
 
                         {/* Dominant Primary Action & Secondary Toggle */}
-                        <div className="flex items-center justify-center gap-2.5 shrink-0">
+                        <div className="flex items-center gap-2.5 shrink-0">
                           <button
                             type="button"
                             onClick={() => toggleDetails(nextVisit.id)}
@@ -803,7 +803,7 @@ export default function DoctorDashboardModule({
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-center gap-2 pt-2 border-t border-teal-500/20 flex-wrap">
+                          <div className="flex items-center gap-2 pt-2 border-t border-teal-500/20 flex-wrap">
                             <button
                               type="button"
                               onClick={() => handleStartConsultation(nextVisit.id)}
@@ -831,7 +831,7 @@ export default function DoctorDashboardModule({
                   {remainingQueue.length > 0 && (
                     <div className="space-y-3 pt-2">
                       <div className="flex items-center justify-between flex-wrap gap-2 border-b border-line dark:border-teal-800 pb-2">
-                        <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
+                        <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
                           <span>
                             {currentPage === 1 ? 'Subsequent Patients' : 'Patient Queue List'} ({sortedQueue.length} Total · Page {currentPage} of {totalPages})
                           </span>
@@ -868,7 +868,7 @@ export default function DoctorDashboardModule({
                               <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                                 
                                 {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
-                                <div className="md:col-span-5 flex items-center justify-center gap-3 min-w-0">
+                                <div className="md:col-span-5 flex items-center gap-3 min-w-0">
                                   <div className={`w-7 h-7 font-mono font-bold text-xs flex items-center justify-center shrink-0 border ${
                                     isPinned
                                       ? 'bg-amber-400 text-slate-900 border-amber-300'
@@ -901,7 +901,7 @@ export default function DoctorDashboardModule({
                                     </div>
 
                                     {/* Explainable Rank Rationale Pill */}
-                                    <div className="text-2xs font-mono text-slate-500 dark:text-slate-400 pt-0.5 flex items-center justify-center gap-1">
+                                    <div className="text-2xs font-mono text-slate-500 dark:text-slate-400 pt-0.5 flex items-center gap-1">
                                       <span className="font-bold text-accent dark:text-teal-400">Rationale:</span>
                                       <span className="truncate">{getRankingRationale(pt, visit, globalRankIndex, sortRule)}</span>
                                     </div>
@@ -987,7 +987,7 @@ export default function DoctorDashboardModule({
                                     </div>
                                   </div>
 
-                                  <div className="flex items-center justify-center gap-2 pt-2 border-t border-line/40 dark:border-teal-800/40 flex-wrap">
+                                  <div className="flex items-center gap-2 pt-2 border-t border-line/40 dark:border-teal-800/40 flex-wrap">
                                     <button
                                       type="button"
                                       onClick={() => handleStartConsultation(visit.id)}
@@ -1018,7 +1018,7 @@ export default function DoctorDashboardModule({
 
                 {/* PAGINATION CONTROLS BAR & INTERACTIVE KEYBOARD SHORTCUT FOOTER */}
                 <div className="bg-surface-strong dark:bg-night-950 border-t border-line dark:border-teal-800 p-3 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center justify-center gap-3 text-slate-600 dark:text-slate-300 font-mono text-2xs font-medium flex-wrap">
+                  <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-mono text-2xs font-medium flex-wrap">
                     <span>
                       Showing <strong className="text-ink dark:text-teal-300">{startIndex + 1}</strong> to{' '}
                       <strong className="text-ink dark:text-teal-300">
@@ -1029,7 +1029,7 @@ export default function DoctorDashboardModule({
 
                     <span className="hidden lg:inline-block text-slate-400">|</span>
 
-                    <span className="hidden lg:flex items-center justify-center gap-1.5 text-2xs text-slate-500 dark:text-slate-400">
+                    <span className="hidden lg:flex items-center gap-1.5 text-2xs text-slate-500 dark:text-slate-400">
                       <Sparkles className="w-3 h-3 text-accent" />
                       <span>Shortcuts:</span>
                       <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
@@ -1047,7 +1047,7 @@ export default function DoctorDashboardModule({
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-center gap-1.5 font-mono">
+                  <div className="flex items-center gap-1.5 font-mono">
                     <button
                       type="button"
                       disabled={currentPage === 1}
@@ -1144,8 +1144,8 @@ export default function DoctorDashboardModule({
           {/* Header & Controls Toolbar */}
           <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none shadow-xs">
             <div>
-              <div className="flex items-center justify-center gap-2">
-                <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
+                <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-accent dark:text-teal-300" />
                   Doctor Monthly Clinical &amp; Revenue Performance
                 </h2>
@@ -1202,7 +1202,7 @@ export default function DoctorDashboardModule({
                 <span className="text-2xs text-slate-500 dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono block mb-1">Total Encounters</span>
                 <div className="flex items-baseline gap-2">
                   <span className="type-metric text-ink dark:text-white">{aggregatePatients}</span>
-                  <span className="text-2xs font-bold text-accent dark:text-teal-300 flex items-center justify-center gap-0.5 font-mono">
+                  <span className="text-2xs font-bold text-accent dark:text-teal-300 flex items-center gap-0.5 font-mono">
                     <TrendingUp className="w-3 h-3" /> +14.2%
                   </span>
                 </div>
@@ -1264,7 +1264,7 @@ export default function DoctorDashboardModule({
             <div className="lg:col-span-2 bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none space-y-4 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-2">
+                  <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-accent" />
                     Daily Encounter Velocity &amp; Revenue Growth
                   </h3>
@@ -1272,8 +1272,8 @@ export default function DoctorDashboardModule({
                     Patient volume vs gross financial yield throughout September 2026.
                   </p>
                 </div>
-                <div className="flex items-center justify-center gap-3 text-xs font-bold font-mono">
-                  <span className="flex items-center justify-center gap-1.5 text-accent dark:text-teal-300">
+                <div className="flex items-center gap-3 text-xs font-bold font-mono">
+                  <span className="flex items-center gap-1.5 text-accent dark:text-teal-300">
                     <span className="w-3 h-3 bg-primary inline-block rounded-none"></span> Revenue (RM)
                   </span>
                 </div>
@@ -1304,7 +1304,7 @@ export default function DoctorDashboardModule({
             {/* Pie Chart: Payment Route Distribution */}
             <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none space-y-4 flex flex-col justify-between shadow-xs">
               <div>
-                <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-2">
+                <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-accent" />
                   Corporate Panel &amp; Payment Mix
                 </h3>
@@ -1337,7 +1337,7 @@ export default function DoctorDashboardModule({
               <div className="space-y-1.5 pt-2 border-t border-line-subtle dark:border-teal-800/40">
                 {samplePaymentMix.map((item) => (
                   <div key={item.name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center gap-2">
                       <LegendSwatch color={item.color} size="sm" />
                       <span className="text-slate-700 dark:text-slate-300 font-bold">{item.name}</span>
                     </div>
@@ -1352,7 +1352,7 @@ export default function DoctorDashboardModule({
           <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 rounded-none overflow-hidden space-y-0 shadow-xs">
             {/* Filter Bar */}
             <div className="p-4 bg-surface-muted dark:bg-night-850 border-b border-line-subtle dark:border-teal-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-accent" />
                 <h3 className="type-card-title text-ink dark:text-teal-300">Detailed Encounter &amp; Fee Ledger</h3>
                 <span className="text-xs font-mono bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-300 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none font-bold">
@@ -1456,7 +1456,7 @@ export default function DoctorDashboardModule({
               <span className="font-mono">
                 Showing {filteredEncounters.length} of {displayEncounters.length} encounters
               </span>
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
                 <span className="font-bold text-ink dark:text-teal-200">Subtotal Fees:</span>
                 <span className="font-mono font-bold text-accent dark:text-teal-300 text-sm">RM {aggregateFees.toFixed(2)}</span>
               </div>

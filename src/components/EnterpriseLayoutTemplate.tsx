@@ -111,7 +111,7 @@ export default function EnterpriseLayoutTemplate({
       <header className="h-[60px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
-        <div className="flex items-center justify-center gap-3 relative">
+        <div className="flex items-center gap-3 relative">
           <div 
             onMouseEnter={() => setShowClinicInfoTooltip(true)}
             onMouseLeave={() => setShowClinicInfoTooltip(false)}
@@ -122,7 +122,7 @@ export default function EnterpriseLayoutTemplate({
               <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="type-brand font-sans text-white group-hover:text-teal-100 transition-colors flex items-center justify-center gap-1.5">
+              <h1 className="type-brand font-sans text-white group-hover:text-teal-100 transition-colors flex items-center gap-1.5">
                 <span>{t.clinicName || 'MEDICLINIC ENTERPRISE'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-teal-100 opacity-80 group-hover:opacity-100 transition-opacity" />
               </h1>
@@ -143,7 +143,7 @@ export default function EnterpriseLayoutTemplate({
           {showClinicInfoTooltip && (
             <div className="absolute top-12 left-0 z-50 bg-chrome-deep border border-chrome-line p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-white font-sans">
               <div className="flex items-center justify-between border-b border-chrome-line pb-2">
-                <span className="font-bold text-white uppercase flex items-center justify-center gap-1.5">
+                <span className="font-bold text-white uppercase flex items-center gap-1.5">
                   <Building className="w-3.5 h-3.5 text-teal-100" /> Clinic Info & License
                 </span>
                 <span className="px-2 py-0.5 bg-emerald-400/20 text-emerald-200 font-mono text-2xs font-bold uppercase rounded-none border border-emerald-400/40">
@@ -170,7 +170,7 @@ export default function EnterpriseLayoutTemplate({
         )}
 
         {/* Right Controls: Consolidated Workstation Settings & User Menu */}
-        <div className="flex items-center justify-center gap-3 relative">
+        <div className="flex items-center gap-3 relative">
 
           {/* Live Clock */}
           <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-chrome-line font-mono text-xs text-white rounded-none font-bold shadow-2xs">
@@ -217,7 +217,7 @@ export default function EnterpriseLayoutTemplate({
                   
                   {/* 1. Day / Night Shift Mode Toggle */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
-                    <span className="text-teal-100 font-medium flex items-center justify-center gap-1.5">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-200" />}
                       <span>Theme Mode</span>
                     </span>
@@ -234,7 +234,7 @@ export default function EnterpriseLayoutTemplate({
 
                   {/* 2. Privacy Mode (PII Masking) Toggle */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
-                    <span className="text-teal-100 font-medium flex items-center justify-center gap-1.5">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {showPII ? <Eye className="w-3.5 h-3.5 text-amber-200" /> : <EyeOff className="w-3.5 h-3.5 text-emerald-300" />}
                       <span>Privacy Mask</span>
                     </span>
@@ -251,7 +251,7 @@ export default function EnterpriseLayoutTemplate({
 
                   {/* 3. PWA Network State Simulator */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
-                    <span className="text-teal-100 font-medium flex items-center justify-center gap-1.5">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isOnline ? <Wifi className="w-3.5 h-3.5 text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-300" />}
                       <span>Network State</span>
                     </span>
@@ -268,7 +268,7 @@ export default function EnterpriseLayoutTemplate({
 
                   {/* 4. Language Switcher */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
-                    <span className="text-teal-100 font-medium flex items-center justify-center gap-1.5">
+                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       <Globe className="w-3.5 h-3.5 text-teal-200" />
                       <span>Language</span>
                     </span>
@@ -301,7 +301,7 @@ export default function EnterpriseLayoutTemplate({
                     }}
                     className="w-full text-left px-3 py-2 bg-rose-950/50 hover:bg-rose-900/80 text-rose-200 border border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
                   >
-                    <span className="flex items-center justify-center gap-2">
+                    <span className="flex items-center gap-2">
                       <LogOut className="w-4 h-4 text-rose-400" /> Sign Out Workstation...
                     </span>
                     <ChevronRight className="w-3.5 h-3.5 text-rose-300" />
@@ -330,7 +330,7 @@ export default function EnterpriseLayoutTemplate({
                 activeTab === 'dashboard' ? 'nav-btn-active' : 'nav-btn-inactive'
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
                 {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                 <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-white' : 'text-teal-200'}`} />
                 <span>{t.dashboard || 'Dashboard'}</span>
@@ -347,7 +347,7 @@ export default function EnterpriseLayoutTemplate({
                   activeTab === 'registration' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center gap-2">
                   {activeTab === 'registration' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                   <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-white' : 'text-teal-200'}`} />
                   <span>{t.patientRegistration || 'Patients & Registry'}</span>
@@ -365,7 +365,7 @@ export default function EnterpriseLayoutTemplate({
                   activeTab === 'triage' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center gap-2">
                   {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                   <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-white' : 'text-teal-200'}`} />
                   <span>Triage Module</span>
@@ -390,7 +390,7 @@ export default function EnterpriseLayoutTemplate({
                   activeTab === 'appointments' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center gap-2">
                   {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                   <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-white' : 'text-teal-200'}`} />
                   <span>Appointments</span>
@@ -409,7 +409,7 @@ export default function EnterpriseLayoutTemplate({
                     activeTab === 'queue' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center gap-2">
                     {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                     <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-white' : 'text-teal-200'}`} />
                     <span>Patient Queue</span>
@@ -431,7 +431,7 @@ export default function EnterpriseLayoutTemplate({
                     activeTab === 'consultation' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center gap-2">
                     {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                     <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-white' : 'text-teal-200'}`} />
                     <span>Consultation Suite</span>
@@ -446,7 +446,7 @@ export default function EnterpriseLayoutTemplate({
                     activeTab === 'reports' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center gap-2">
                     {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                     <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-white' : 'text-teal-200'}`} />
                     <span>Monthly Reports</span>
@@ -465,7 +465,7 @@ export default function EnterpriseLayoutTemplate({
                   activeTab === 'dispensary' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center gap-2">
                   {activeTab === 'dispensary' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                   <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-white' : 'text-teal-200'}`} />
                   <span>{t.dispensary || 'Dispensary'}</span>
@@ -490,7 +490,7 @@ export default function EnterpriseLayoutTemplate({
                   activeTab === 'billing' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center gap-2">
                   {activeTab === 'billing' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
                   <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-white' : 'text-teal-200'}`} />
                   <span>{t.billing || 'Billing'}</span>
@@ -507,8 +507,8 @@ export default function EnterpriseLayoutTemplate({
           </div>
 
           {/* Sync Status & Sync Now Action */}
-          <div className="hidden lg:flex items-center justify-center space-x-3 text-xs text-teal-50 font-sans pl-4 border-l border-primary ml-4">
-            <div className="flex items-center justify-center gap-1.5">
+          <div className="hidden lg:flex items-center space-x-3 text-xs text-teal-50 font-sans pl-4 border-l border-primary ml-4">
+            <div className="flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>

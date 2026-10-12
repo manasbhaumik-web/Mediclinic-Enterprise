@@ -86,7 +86,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
         <div className="lg:col-span-1 space-y-4">
           <Card className="flex flex-col h-[calc(100vh-140px)] rounded-none border-line-subtle dark:border-teal-800/40">
             <CardHeader className="bg-surface-muted dark:bg-night-850 flex justify-between items-center py-4 border-b border-line-subtle dark:border-teal-800/40">
-              <h3 className="type-heading-caps text-ink dark:text-teal-300 flex items-center justify-center gap-2">
+              <h3 className="type-heading-caps text-ink dark:text-teal-300 flex items-center gap-2">
                 <Users className="w-4 h-4 text-accent" />
                 Awaiting Triage
               </h3>
@@ -151,7 +151,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                 <form id="triage-form" onSubmit={handleSubmitTriage} className="space-y-6 max-w-2xl">
                   
                   <div className="space-y-3">
-                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center justify-center gap-2">
+                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center gap-2">
                       <Stethoscope className="w-4 h-4 text-accent" /> Vitals Examination
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -189,7 +189,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center justify-center gap-2">
+                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-accent" /> Chief Complaint
                     </h4>
                     <textarea

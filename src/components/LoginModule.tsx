@@ -94,7 +94,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
           <div className="relative z-10 space-y-10">
             
             {/* Header Branding */}
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center">
                 <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
               </div>
@@ -121,7 +121,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
             {/* Live Operational Uptime Badge */}
             <div className="p-3.5 rounded-none bg-white/10 backdrop-blur-md border border-white/15 space-y-2">
               <div className="flex items-center justify-between text-2xs font-bold text-white">
-                <span className="flex items-center justify-center gap-1.5">
+                <span className="flex items-center gap-1.5">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
@@ -139,7 +139,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
 
           {/* Security Footer Badge */}
           <div className="relative z-10 pt-8 border-t border-white/15 flex items-center justify-between text-xs font-semibold text-teal-100">
-            <span className="flex items-center justify-center gap-1.5 text-2xs">
+            <span className="flex items-center gap-1.5 text-2xs">
               <ShieldCheck className="w-4 h-4 text-emerald-300" />
               AES-256 Encrypted Session
             </span>
@@ -173,7 +173,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
           {/* STEP 1: SELECT PERSONA */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-slate-500">
-              <span className="flex items-center justify-center gap-1.5 text-accent">
+              <span className="flex items-center gap-1.5 text-accent">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-2xs font-bold">1</span>
                 <span>Select Staff Persona</span>
               </span>
@@ -207,7 +207,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
 
             {/* Active Persona Sub-Banner */}
             <div className="p-3 bg-surface-accent border border-line rounded-none flex items-center justify-between text-xs">
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-none bg-primary text-white flex items-center justify-center font-bold text-xs shadow-2xs">
                   {currentPersona.name.split(' ').map(n => n[0]).join('')}
                 </div>
@@ -225,7 +225,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
           {/* STEP 2: AUTHENTICATE CREDENTIALS */}
           <div className="space-y-4">
             <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-slate-500">
-              <span className="flex items-center justify-center gap-1.5 text-accent">
+              <span className="flex items-center gap-1.5 text-accent">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-2xs font-bold">2</span>
                 <span>Authenticate Credentials</span>
               </span>
@@ -242,7 +242,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
                   {(role === 'admin' || role === 'hr') ? 'Admin/HR Username' : 'Staff ID / Clinical Email'}
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center justify-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     {(role === 'admin' || role === 'hr') ? <UserCog className="w-4 h-4 text-accent" /> : <User className="w-4 h-4 text-accent" />}
                   </div>
                   <input
@@ -263,7 +263,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
                   <a href="#" className="text-2xs text-accent font-bold hover:underline">Forgot Password?</a>
                 </div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center justify-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Lock className="w-4 h-4 text-accent" />
                   </div>
                   <input

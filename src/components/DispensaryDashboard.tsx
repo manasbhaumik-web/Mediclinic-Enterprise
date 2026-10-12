@@ -122,7 +122,7 @@ export default function DispensaryDashboard({
       {/* Clean Enterprise Greetings Banner */}
       <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 border-l-4 border-l-brand p-5 rounded-none shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-2">
+          <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
             <Pill className="w-5 h-5 text-accent" />
             <span>{getGreeting()}, {pharmacistName}</span>
           </h2>
@@ -221,7 +221,7 @@ export default function DispensaryDashboard({
             {/* PHARMACY MEMO DISPLAY */}
             {activeVisit.soap?.plan?.pharmacyMemo && (
               <div className="bg-amber-50 border border-amber-200 rounded-none p-3">
-                <h5 className="type-label text-amber-800 flex items-center justify-center gap-1.5 mb-1">
+                <h5 className="type-label text-amber-800 flex items-center gap-1.5 mb-1">
                   <AlertCircle className="w-4 h-4" /> Doctor's Instructions
                 </h5>
                 <p className="text-sm text-amber-950 dark:text-amber-100 leading-relaxed font-medium">
@@ -232,7 +232,7 @@ export default function DispensaryDashboard({
 
             {/* Grid display for active prescriptions */}
             <div>
-              <h5 className="type-label text-accent mb-2 font-sans flex items-center justify-center gap-1">
+              <h5 className="type-label text-accent mb-2 font-sans flex items-center gap-1">
                 <FileText className="w-3.5 h-3.5" />
                 {t.prescribedMeds}
               </h5>
@@ -262,7 +262,7 @@ export default function DispensaryDashboard({
                         
                         {/* Drug Name with dual BM/EN dosage translations */}
                         <div className="flex-1 space-y-1.5">
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center gap-2">
                             <h6 className="font-bold text-sm text-slate-800 tracking-tight">{rx.drugName}</h6>
                             <span className="bg-slate-200 text-slate-700 text-xs font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
                               Qty: {rx.quantity}
@@ -351,7 +351,7 @@ export default function DispensaryDashboard({
 
             {/* Pharmacist Safety validation inputs checklist */}
             <div className="bg-emerald-50/50 p-3.5 rounded-none border border-cyan-600/10 space-y-2">
-              <span className="text-2xs font-bold text-emerald-800 uppercase tracking-wider flex items-center justify-center gap-1 mb-1">
+              <span className="text-2xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1 mb-1">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 Dual-Verification Clinical Pharmacy Checks
               </span>

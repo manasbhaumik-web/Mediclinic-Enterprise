@@ -51,7 +51,7 @@ export default function BillingManagementModule() {
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               Financial Revenue &amp; Claims
             </span>
@@ -60,7 +60,7 @@ export default function BillingManagementModule() {
               SST {settings.billing.taxRate}% Active
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center gap-2.5">
             <DollarSign className="w-6 h-6 text-accent" />
             Billing &amp; TPA Claims Management
           </h1>
@@ -69,7 +69,7 @@ export default function BillingManagementModule() {
           </p>
         </div>
         
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <button 
             type="button"
             className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
@@ -209,7 +209,7 @@ export default function BillingManagementModule() {
               {/* Right Workflow Guide */}
               <div className="lg:col-span-5 bg-surface-muted border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
                 <div className="space-y-3">
-                  <h4 className="type-label text-accent flex items-center justify-center gap-1.5">
+                  <h4 className="type-label text-accent flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5 text-accent" />
                     <span>Financial Billing Workflow</span>
                   </h4>
@@ -396,7 +396,7 @@ export default function BillingManagementModule() {
       {activeTab === 'reconciliation' && (
         <div className="space-y-6 animate-fadeIn">
           <div className="bg-surface-muted border border-line-subtle p-6 rounded-none shadow-2xs space-y-2">
-            <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
+            <h3 className="type-card-title text-ink flex items-center gap-2">
               <UploadCloud className="w-5 h-5 text-accent" /> Automated TPA Statement Reconciliation
             </h3>
             <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">

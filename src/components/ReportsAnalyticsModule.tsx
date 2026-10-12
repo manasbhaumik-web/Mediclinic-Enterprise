@@ -71,7 +71,7 @@ export default function ReportsAnalyticsModule() {
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               Executive & Clinical Intelligence
             </span>
@@ -80,7 +80,7 @@ export default function ReportsAnalyticsModule() {
               BI Engine v3.1 Online
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center gap-2.5">
             <FileText className="w-6 h-6 text-accent" />
             Enterprise Reports & Analytics
           </h1>
@@ -89,7 +89,7 @@ export default function ReportsAnalyticsModule() {
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <button 
             onClick={() => setActiveTab('generator')}
             className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
@@ -384,7 +384,7 @@ export default function ReportsAnalyticsModule() {
       {/* TAB 5: REPORT GENERATOR */}
       {activeTab === 'generator' && (
         <div className="bg-surface p-6 rounded-none shadow-sm border border-line-subtle max-w-2xl mx-auto animate-fadeIn">
-          <div className="flex items-center justify-center gap-3 mb-6 border-b border-teal-100 bg-surface -mx-6 -mt-6 p-5">
+          <div className="flex items-center gap-3 mb-6 border-b border-teal-100 bg-surface -mx-6 -mt-6 p-5">
             <div className="bg-teal-100 p-2 rounded-none text-accent"><Filter className="w-5 h-5" /></div>
             <div>
               <h3 className="type-card-title text-ink">Custom Report Exporter</h3>

@@ -74,7 +74,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
     <div className="bg-white rounded-none shadow-md border border-line overflow-hidden animate-fadeIn flex flex-col max-h-[calc(100vh-140px)]">
       {/* Header Banner */}
       <div className="bg-surface-accent border-b border-line px-6 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -84,7 +84,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="type-section-title text-ink flex items-center justify-center gap-2.5">
+            <h2 className="type-section-title text-ink flex items-center gap-2.5">
               <Pill className="w-6 h-6 text-accent" />
               Add New Medication / Drug Registration
             </h2>
@@ -92,7 +92,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
           </div>
         </div>
         
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <button 
             type="button"
             onClick={onCancel}
@@ -116,7 +116,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 1: Core Drug Identification */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-center gap-2.5">
               <Info className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">1. Core Drug Identification</h3>
             </div>
@@ -144,7 +144,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 2: Strength & Form */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-center gap-2.5">
               <Pill className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">2. Strength & Dosage Specifications</h3>
             </div>
@@ -185,7 +185,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 3: Inventory & Packaging Controls */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-center gap-2.5">
               <Package className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">3. Inventory & Stock Controls</h3>
             </div>
@@ -219,7 +219,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 4: Clinical & Safety Flags */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-center gap-2.5">
               <ShieldAlert className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">4. Clinical & Safety Flags</h3>
             </div>
@@ -268,7 +268,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
             
             {/* Prescribing Defaults */}
             <div className="p-4 bg-surface-accent/40 border border-line rounded-none space-y-3">
-              <h4 className="type-label text-ink flex items-center justify-center gap-1.5">
+              <h4 className="type-label text-ink flex items-center gap-1.5">
                 <FileText className="w-4 h-4 text-accent" /> Standard EMR Prescribing Defaults
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -282,7 +282,7 @@ export default function DrugRegistration({ onCancel, onSubmit }: DrugRegistratio
         {/* Section 5: Pricing & Tariff Details */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
           <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center justify-between">
-            <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-center gap-2.5">
               <DollarSign className="w-4 h-4 text-accent" />
               <h3 className="type-label text-ink">5. Financial & Tariff Pricing</h3>
             </div>
