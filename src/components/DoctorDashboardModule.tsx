@@ -485,7 +485,7 @@ export default function DoctorDashboardModule({
                     value={queueSearchQuery}
                     onChange={(e) => { setQueueSearchQuery(e.target.value); setQueuePage(1); }}
                     placeholder="Search by patient name, IC/ID or complaint (Alt+F)"
-                    className="w-full h-11 bg-white text-ink text-sm pl-10 pr-9 border border-line focus:outline-none focus:border-brand placeholder:text-slate-500"
+                    className="w-full h-11 bg-surface text-ink text-sm pl-10 pr-9 border border-line focus:outline-none focus:border-brand placeholder:text-slate-500"
                   />
                   {queueSearchQuery && (
                     <button
@@ -513,7 +513,7 @@ export default function DoctorDashboardModule({
                       className={`h-10 px-3.5 text-sm font-semibold flex items-center gap-2 border transition-colors cursor-pointer ${
                         acuityFilter === f.id
                           ? 'bg-primary text-white border-primary'
-                          : 'bg-white text-ink border-line hover:bg-surface-accent'
+                          : 'bg-surface text-ink border-line hover:bg-surface-accent'
                       }`}
                     >
                       <span>{f.label}</span>
@@ -528,14 +528,14 @@ export default function DoctorDashboardModule({
 
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sort by</span>
-                  <div className="flex border border-line bg-white">
+                  <div className="flex border border-line bg-surface">
                     {(['urgency', 'wait', 'arrival'] as const).map((r) => (
                       <button
                         key={r}
                         type="button"
                         onClick={() => { setSortRule(r); setQueuePage(1); }}
                         className={`h-10 px-3.5 text-sm font-semibold transition-colors cursor-pointer ${
-                          sortRule === r ? 'bg-primary text-white' : 'bg-white text-ink hover:bg-surface-accent'
+                          sortRule === r ? 'bg-primary text-white' : 'bg-surface text-ink hover:bg-surface-accent'
                         }`}
                       >
                         {r === 'urgency' ? 'Urgency' : r === 'wait' ? 'Longest wait' : 'Arrival'}
@@ -655,7 +655,7 @@ export default function DoctorDashboardModule({
                         <button
                           type="button"
                           onClick={() => toggleDetails(nextVisit.id)}
-                          className="h-11 bg-white text-accent border border-primary text-sm font-semibold hover:bg-surface-accent transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                          className="h-11 bg-surface text-accent border border-primary text-sm font-semibold hover:bg-surface-accent transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                         >
                           {expandedDetails[nextVisit.id] ? 'Hide details' : 'View details'}
                         </button>
@@ -667,7 +667,7 @@ export default function DoctorDashboardModule({
                             className={`flex-1 h-11 border text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                               pinnedVisitIds[nextVisit.id]
                                 ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                : 'bg-white text-ink border-line hover:bg-surface-accent'
+                                : 'bg-surface text-ink border-line hover:bg-surface-accent'
                             }`}
                           >
                             <Pin className="w-4 h-4" />
@@ -677,7 +677,7 @@ export default function DoctorDashboardModule({
                             type="button"
                             onClick={(e) => copyToClipboard(nextPatient.id, 'Patient ID', e)}
                             title="Copy patient ID"
-                            className="flex-1 h-11 bg-white text-ink border border-line text-sm font-semibold flex items-center justify-center gap-2 hover:bg-surface-accent transition-colors cursor-pointer"
+                            className="flex-1 h-11 bg-surface text-ink border border-line text-sm font-semibold flex items-center justify-center gap-2 hover:bg-surface-accent transition-colors cursor-pointer"
                           >
                             <Copy className="w-4 h-4" />
                             <span>Copy ID</span>
@@ -714,7 +714,7 @@ export default function DoctorDashboardModule({
                           <button
                             type="button"
                             onClick={(e) => copyToClipboard(`${nextPatient.fullName} (${nextPatient.id})`, 'Patient Details', e)}
-                            className="h-10 px-4 bg-white text-ink border border-line text-sm font-semibold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
+                            className="h-10 px-4 bg-surface text-ink border border-line text-sm font-semibold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
                           >
                             <Copy className="w-4 h-4" />
                             <span>Copy full record</span>
@@ -775,7 +775,7 @@ export default function DoctorDashboardModule({
                         <div
                           key={visit.id}
                           className={`border-b border-line-subtle transition-colors ${
-                            isConsulting ? 'bg-surface-accent' : isPinned ? 'bg-surface-muted' : 'bg-white hover:bg-surface-muted'
+                            isConsulting ? 'bg-surface-accent' : isPinned ? 'bg-surface-muted' : 'bg-surface hover:bg-surface-muted'
                           }`}
                         >
                           <div
@@ -828,7 +828,7 @@ export default function DoctorDashboardModule({
                                 aria-label={isPinned ? 'Unpin patient' : 'Pin patient'}
                                 title={isPinned ? 'Unpin' : 'Pin priority'}
                                 className={`w-11 h-11 border flex items-center justify-center transition-colors cursor-pointer ${
-                                  isPinned ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-white text-ink border-line hover:bg-surface-accent'
+                                  isPinned ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-surface text-ink border-line hover:bg-surface-accent'
                                 }`}
                               >
                                 <Pin className="w-4 h-4" />
@@ -838,7 +838,7 @@ export default function DoctorDashboardModule({
                                 onClick={(e) => copyToClipboard(pt.id, 'Patient ID', e)}
                                 aria-label="Copy patient ID"
                                 title="Copy patient ID"
-                                className="w-11 h-11 bg-white text-ink border border-line flex items-center justify-center hover:bg-surface-accent transition-colors cursor-pointer"
+                                className="w-11 h-11 bg-surface text-ink border border-line flex items-center justify-center hover:bg-surface-accent transition-colors cursor-pointer"
                               >
                                 <Copy className="w-4 h-4" />
                               </button>
@@ -891,7 +891,7 @@ export default function DoctorDashboardModule({
                                 <button
                                   type="button"
                                   onClick={(e) => copyToClipboard(`${pt.fullName} (${pt.id})`, 'Patient Details', e)}
-                                  className="h-10 px-4 bg-white text-ink border border-line text-sm font-semibold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
+                                  className="h-10 px-4 bg-surface text-ink border border-line text-sm font-semibold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
                                 >
                                   <Copy className="w-4 h-4" />
                                   <span>Copy record</span>
@@ -915,7 +915,7 @@ export default function DoctorDashboardModule({
                     <span className="hidden lg:flex items-center gap-2">
                       <span className="font-semibold">Shortcuts</span>
                       {[['Alt+Q', 'Queue'], ['Alt+C', 'Consult'], ['Alt+F', 'Search'], ['Alt+R', 'Refresh']].map(([key, label]) => (
-                        <span key={key} className="border border-line bg-white px-2 py-0.5 text-ink">
+                        <span key={key} className="border border-line bg-surface px-2 py-0.5 text-ink">
                           <kbd className="font-sans font-semibold">{key}</kbd> {label}
                         </span>
                       ))}
@@ -928,7 +928,7 @@ export default function DoctorDashboardModule({
                       <select
                         value={entriesPerPage}
                         onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setQueuePage(1); }}
-                        className="h-10 bg-white text-ink border border-line px-2 text-sm focus:outline-none focus:border-brand cursor-pointer"
+                        className="h-10 bg-surface text-ink border border-line px-2 text-sm focus:outline-none focus:border-brand cursor-pointer"
                       >
                         <option value={6}>6</option>
                         <option value={12}>12</option>
@@ -942,8 +942,8 @@ export default function DoctorDashboardModule({
                       onClick={() => setQueuePage(prev => Math.max(1, prev - 1))}
                       className={`h-10 px-3.5 text-sm font-semibold border flex items-center gap-1 transition-colors ${
                         currentPage === 1
-                          ? 'bg-white text-slate-400 border-line-subtle cursor-not-allowed'
-                          : 'bg-white text-ink border-line hover:bg-surface-accent cursor-pointer'
+                          ? 'bg-surface text-slate-400 border-line-subtle cursor-not-allowed'
+                          : 'bg-surface text-ink border-line hover:bg-surface-accent cursor-pointer'
                       }`}
                     >
                       <ChevronLeft className="w-4 h-4" />
@@ -959,7 +959,7 @@ export default function DoctorDashboardModule({
                         className={`w-10 h-10 text-sm font-semibold border flex items-center justify-center transition-colors cursor-pointer ${
                           pageNum === currentPage
                             ? 'bg-primary text-white border-primary'
-                            : 'bg-white text-ink border-line hover:bg-surface-accent'
+                            : 'bg-surface text-ink border-line hover:bg-surface-accent'
                         }`}
                       >
                         {pageNum}
@@ -972,8 +972,8 @@ export default function DoctorDashboardModule({
                       onClick={() => setQueuePage(prev => Math.min(totalPages, prev + 1))}
                       className={`h-10 px-3.5 text-sm font-semibold border flex items-center gap-1 transition-colors ${
                         currentPage === totalPages
-                          ? 'bg-white text-slate-400 border-line-subtle cursor-not-allowed'
-                          : 'bg-white text-ink border-line hover:bg-surface-accent cursor-pointer'
+                          ? 'bg-surface text-slate-400 border-line-subtle cursor-not-allowed'
+                          : 'bg-surface text-ink border-line hover:bg-surface-accent cursor-pointer'
                       }`}
                     >
                       <span>Next</span>

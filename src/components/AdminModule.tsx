@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import logoUrl from '../assets/logo_transparent.svg';
+import ThemeSelector from './ui/ThemeSelector';
 import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
   Building, ShieldAlert, LogOut, Server, Database, Bell, Globe2, TrendingUp,
@@ -217,6 +218,9 @@ export default function AdminModule({
                       {isNightShift ? 'Night' : 'Day'}
                     </button>
                   </div>
+
+                  {/* Colour theme (Ice Mint / Sky Blue) */}
+                  <ThemeSelector variant="menu" />
 
                   {/* PII Privacy Mask Toggle */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">

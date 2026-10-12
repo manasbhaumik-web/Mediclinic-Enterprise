@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import logoUrl from '../assets/logo_transparent.svg';
+import ThemeSelector from './ui/ThemeSelector';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
@@ -221,6 +222,9 @@ export default function EnterpriseLayoutTemplate({
                       {isNightShift ? 'Night Shift' : 'Day Mode'}
                     </button>
                   </div>
+
+                  {/* Colour theme (Ice Mint / Sky Blue) */}
+                  <ThemeSelector variant="menu" />
 
                   {/* 2. Privacy Mode (PII Masking) Toggle */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">

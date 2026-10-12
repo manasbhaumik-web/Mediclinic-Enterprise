@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import logoUrl from '../assets/logo_transparent.svg';
+import ThemeSelector from './ui/ThemeSelector';
 import { Language } from '../types';
 import { 
   Stethoscope, Pill, ShieldCheck, Activity, Heart, Calendar, Clock, 
@@ -291,6 +292,9 @@ export default function ClinicLandingPage({
 
         {/* Header Actions */}
         <div className="flex items-center gap-2.5">
+          {/* Colour theme */}
+          <ThemeSelector variant="light" className="hidden sm:flex" />
+
           {/* Language Toggle */}
           <button
             type="button"

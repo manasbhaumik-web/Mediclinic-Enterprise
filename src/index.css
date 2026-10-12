@@ -549,3 +549,79 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .hover\:bg-teal-50:hover {
   background-color: #124e5e !important;
 }
+
+/* ========================================================================= */
+/* COLOUR THEME: SKY BLUE                                                    */
+/* Selected with <html data-theme="sky"> (see hooks/useColorTheme). Ice Mint */
+/* is the default and needs no attribute. Semantic tokens are swapped, and   */
+/* Tailwind's teal ramp is remapped to sky so raw `teal-*` classes follow.   */
+/* ========================================================================= */
+[data-theme="sky"] {
+  --color-canvas: #f1f7fc;
+  --color-surface: #fbfdff;
+  --color-surface-muted: #f4f9fe;
+  --color-surface-accent: #eaf4fc;
+  --color-surface-strong: #d9ebf9;
+
+  --color-line-subtle: #d6e9f7;
+  --color-line: #b7d9f2;
+  --color-line-strong: #85c0e8;
+
+  --color-ink: #0c3a5a;
+  --color-deep: #0c3a5a;
+  --color-accent: #0369a1;
+
+  --color-brand: #0284c7;
+  --color-primary: #0369a1;
+  --color-primary-hover: #075985;
+
+  --color-chrome: #0a6ca8;
+  --color-chrome-nav: #0b5f93;
+  --color-chrome-active: #08507c;
+  --color-chrome-deep: #075a8c;
+  --color-chrome-line: #064466;
+  --color-chrome-hover: #06476e;
+
+  --color-night-950: #051c2c;
+  --color-night-900: #072436;
+  --color-night-850: #082a3f;
+  --color-night-800: #0c3a55;
+  --color-night-700: #0e4a6b;
+  --color-night-600: #135b83;
+
+  --color-teal-50: #f0f9ff;
+  --color-teal-100: #e0f2fe;
+  --color-teal-200: #bae6fd;
+  --color-teal-300: #7dd3fc;
+  --color-teal-400: #38bdf8;
+  --color-teal-500: #0ea5e9;
+  --color-teal-600: #0284c7;
+  --color-teal-700: #0369a1;
+  --color-teal-800: #075985;
+  --color-teal-900: #0c4a6e;
+  --color-teal-950: #082f49;
+}
+
+/* Night Shift under Sky Blue */
+[data-theme="sky"] .dark,
+[data-theme="sky"].dark {
+  --color-chart-grid: rgb(148 163 184 / 0.28);
+
+  --color-canvas: #072436;
+  --color-surface: #082a3f;
+  --color-surface-muted: #0a3550;
+  --color-surface-accent: #082a3f;
+  --color-surface-strong: #0e4a6b;
+
+  --color-line-subtle: rgb(56 189 248 / 0.2);
+  --color-line: rgb(56 189 248 / 0.25);
+  --color-line-strong: rgb(56 189 248 / 0.4);
+
+  --color-ink: #7dd3fc;
+  --color-accent: #38bdf8;
+
+  --color-brand: #0ea5e9;
+  --color-primary: #0284c7;
+  --color-primary-hover: #0369a1;
+}
+
