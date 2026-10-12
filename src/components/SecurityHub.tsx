@@ -224,11 +224,11 @@ export default function SecurityHub() {
             <table className="w-full text-left text-xs">
               <thead className="bg-surface text-ink uppercase border-b border-teal-100 font-bold">
                 <tr>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Clinical Records</th>
-                  <th className="px-4 py-3">Billing Data</th>
-                  <th className="px-4 py-3">System Config</th>
-                  <th className="px-4 py-3">Action</th>
+                  <th className="enterprise-th">Role</th>
+                  <th className="enterprise-th">Clinical Records</th>
+                  <th className="enterprise-th">Billing Data</th>
+                  <th className="enterprise-th">System Config</th>
+                  <th className="enterprise-th">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

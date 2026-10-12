@@ -8,6 +8,7 @@ import {
   XCircle, AlertCircle, ChevronLeft, ChevronRight, Check, Activity, Filter
 } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay, parseISO, setHours, setMinutes } from 'date-fns';
+import { useClinicStore } from '../store/useClinicStore';
 
 interface AppointmentCalendarProps {
   appointments: Appointment[];
@@ -22,6 +23,13 @@ export default function AppointmentCalendarModule({
   addAppointment,
   updateAppointment
 }: AppointmentCalendarProps) {
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+  const activeBranch = useClinicStore(state => state.activeBranch);
+
+  const filteredAppointments = useMemo(() => {
+    return appointments.filter(a => !(a as any).tenantId || (a as any).tenantId === activeBranchId);
+  }, [appointments, activeBranchId]);
+
   // Configurable settings
   const [slotDuration, setSlotDuration] = useState(30); // minutes
   const clinicStartTime = 9; // 9 AM

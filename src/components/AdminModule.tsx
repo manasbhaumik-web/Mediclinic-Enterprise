@@ -19,11 +19,12 @@ import SecurityHub from './SecurityHub';
 import RevenueCycleHub from './RevenueCycleHub';
 import SystemArchitectureHub from './SystemArchitectureHub';
 import { useSettings } from '../context/SettingsContext';
-import { Visit, Language } from '../types';
+import { useClinicStore } from '../store/useClinicStore';
+import { Visit, Language, UserRole } from '../types';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
-  userRole: 'admin' | 'hr';
+  userRole: UserRole;
   completedVisits?: Visit[];
   totalRegisteredCount?: number;
   activeLanguage?: Language;
@@ -43,6 +44,7 @@ export default function AdminModule({
   const [activeTab, setActiveTab] = useState<AdminTab>('staff');
   const [activeCategory, setActiveCategory] = useState<AdminCategory>('people');
   const { settings } = useSettings();
+  const activeBranch = useClinicStore(state => state.activeBranch);
 
   // Workstation Header State
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
@@ -62,7 +64,11 @@ export default function AdminModule({
     return () => clearInterval(interval);
   }, []);
 
-  const adminName = userRole === 'admin' ? 'System Administrator' : 'HR Executive';
+  const adminName = userRole === 'admin' 
+    ? 'System Administrator (HQ)' 
+    : userRole === 'branch-admin' 
+    ? 'Branch Administrator' 
+    : 'HR Executive';
 
   // Navigation module definition with categories
   const modules = [
@@ -96,7 +102,10 @@ export default function AdminModule({
 
   const filteredModules = modules.filter(m => {
     if (!m.enabled) return false;
-    if (m.roleReq === 'admin' && userRole !== 'admin') return false;
+    if (userRole === 'hr') {
+      return m.id === 'staff';
+    }
+    if (m.roleReq === 'admin' && userRole !== 'admin' && userRole !== 'branch-admin') return false;
     return true;
   });
 
@@ -132,8 +141,15 @@ export default function AdminModule({
               <span>Mediclinic Admin Console</span>
             </h1>
             <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
-              Shah Alam Main Branch • Executive Console
+              Multi-Branch Executive Operations • Enterprise Console
             </span>
+          </div>
+
+          {/* Logged in Active Branch Badge */}
+          <div className="hidden sm:flex items-center gap-1.5 ml-2 border-l border-white/20 pl-3 text-xs text-white">
+            <Building className="w-3.5 h-3.5 text-teal-200 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span className="font-extrabold uppercase tracking-wide text-teal-100">{activeBranch.branchName}</span>
           </div>
         </div>
 
@@ -354,57 +370,65 @@ export default function AdminModule({
         {/* ========================================================================= */}
         <main className="flex-1 p-5 overflow-y-auto bg-canvas dark:bg-night-900 text-ink dark:text-slate-100">
 
-          {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
-            <StaffManagementModule />
-          )}
+          {(() => {
+            const isAdminOrBranchAdmin = userRole === 'admin' || userRole === 'branch-admin';
 
-          {activeTab === 'medicine' && userRole === 'admin' && settings.modules.medicine && (
-            <MedicineManagementModule />
-          )}
+            return (
+              <>
+                {activeTab === 'staff' && (isAdminOrBranchAdmin || userRole === 'hr') && settings.modules.staff && (
+                  <StaffManagementModule />
+                )}
 
-          {activeTab === 'equipment' && userRole === 'admin' && settings.modules.equipment && (
-            <EquipmentManagementModule />
-          )}
+                {activeTab === 'medicine' && isAdminOrBranchAdmin && settings.modules.medicine && (
+                  <MedicineManagementModule />
+                )}
 
-          {activeTab === 'billing' && userRole === 'admin' && settings.modules.billing && (
-            <BillingManagementModule />
-          )}
+                {activeTab === 'equipment' && isAdminOrBranchAdmin && settings.modules.equipment && (
+                  <EquipmentManagementModule />
+                )}
 
-          {activeTab === 'reports' && userRole === 'admin' && settings.modules.reports && (
-            <ReportsAnalyticsModule />
-          )}
+                {activeTab === 'billing' && isAdminOrBranchAdmin && settings.modules.billing && (
+                  <BillingManagementModule />
+                )}
 
-          {activeTab === 'moh' && userRole === 'admin' && (
-            <MOHDashboard
-              completedVisits={completedVisits}
-              totalRegisteredCount={totalRegisteredCount}
-              activeLanguage={activeLanguage}
-            />
-          )}
+                {activeTab === 'reports' && isAdminOrBranchAdmin && settings.modules.reports && (
+                  <ReportsAnalyticsModule />
+                )}
 
-          {activeTab === 'settings' && userRole === 'admin' && (
-            <SettingsModule />
-          )}
+                {activeTab === 'moh' && isAdminOrBranchAdmin && (
+                  <MOHDashboard
+                    completedVisits={completedVisits}
+                    totalRegisteredCount={totalRegisteredCount}
+                    activeLanguage={activeLanguage}
+                  />
+                )}
 
-          {activeTab === 'integrations' && userRole === 'admin' && (
-            <IntegrationsHub />
-          )}
+                {activeTab === 'settings' && isAdminOrBranchAdmin && (
+                  <SettingsModule />
+                )}
 
-          {activeTab === 'operations' && userRole === 'admin' && (
-            <OperationsHub />
-          )}
+                {activeTab === 'integrations' && isAdminOrBranchAdmin && (
+                  <IntegrationsHub />
+                )}
 
-          {activeTab === 'security' && userRole === 'admin' && (
-            <SecurityHub />
-          )}
+                {activeTab === 'operations' && isAdminOrBranchAdmin && (
+                  <OperationsHub />
+                )}
 
-          {activeTab === 'rcm' && userRole === 'admin' && (
-            <RevenueCycleHub />
-          )}
+                {activeTab === 'security' && isAdminOrBranchAdmin && (
+                  <SecurityHub />
+                )}
 
-          {activeTab === 'architecture' && userRole === 'admin' && (
-            <SystemArchitectureHub />
-          )}
+                {activeTab === 'rcm' && isAdminOrBranchAdmin && (
+                  <RevenueCycleHub />
+                )}
+
+                {activeTab === 'architecture' && isAdminOrBranchAdmin && (
+                  <SystemArchitectureHub />
+                )}
+              </>
+            );
+          })()}
 
         </main>
       </div>

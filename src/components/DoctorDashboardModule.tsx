@@ -17,6 +17,7 @@ import {
   getTriageDetails 
 } from '../utils/queueSorter';
 import { useQueueFilter } from '../hooks/useQueueFilter';
+import { useClinicStore } from '../store/useClinicStore';
 
 import LegendSwatch from './ui/LegendSwatch';
 import { chartTheme } from '../theme/chartTheme';
@@ -58,6 +59,14 @@ export default function DoctorDashboardModule({
 
   const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+  const activeBranch = useClinicStore(state => state.activeBranch);
+
+  // Filter doctor queue by active branch tenant ID
+  const branchFilteredQueue = React.useMemo(() => {
+    return doctorQueue.filter(v => !v.tenantId || v.tenantId === activeBranchId);
+  }, [doctorQueue, activeBranchId]);
+
   // Custom Hook: Extracted queue sorting, filtering, pinning, and pagination
   const {
     sortRule, setSortRule,
@@ -69,7 +78,7 @@ export default function DoctorDashboardModule({
     sortedQueue, paginatedQueue,
     nextVisit, nextPatient, remainingQueue,
     totalPages, startIndex
-  } = useQueueFilter({ queue: doctorQueue, patientsMap, initialEntriesPerPage: 6 });
+  } = useQueueFilter({ queue: branchFilteredQueue, patientsMap, initialEntriesPerPage: 6 });
 
   // Global Keyboard Shortcuts (Alt+Q, Alt+C, Alt+F, Alt+R)
   React.useEffect(() => {

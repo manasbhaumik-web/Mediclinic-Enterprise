@@ -4,6 +4,7 @@ import { Patient, Visit, Language } from '../types';
 import MyKadScanner from './MyKadScanner';
 import { useAuth } from '../context/AuthContext';
 import { maskICNumber } from '../utils/piiMasker';
+import { useClinicStore } from '../store/useClinicStore';
 
 interface PatientRegistrationModuleProps {
   t: any;
@@ -206,6 +207,8 @@ export default function PatientRegistrationModule({
     }
   };
 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+
   const handleRegisterSubmit = async () => {
     let targetPatientId = existingPatientId;
 
@@ -220,7 +223,8 @@ export default function PatientRegistrationModule({
         phone: manualForm.phone,
         panelEmployer: manualForm.panelEmployer,
         drugAllergies: allergiesList,
-        registeredDate: new Date().toISOString().split('T')[0]
+        registeredDate: new Date().toISOString().split('T')[0],
+        tenantId: activeBranchId
       };
       await addPatientToDb(newPatient);
       targetPatientId = newPatient.id;
@@ -232,6 +236,7 @@ export default function PatientRegistrationModule({
       patientId: targetPatientId,
       date: new Date().toISOString().split('T')[0],
       registeredTime: Date.now(),
+      tenantId: activeBranchId,
       soap: {
         subjective: manualForm.chiefComplaint || 'Pending Triage',
         objective: {
@@ -262,6 +267,7 @@ export default function PatientRegistrationModule({
       patientId: patient.id,
       date: new Date().toISOString().split('T')[0],
       registeredTime: Date.now(),
+      tenantId: activeBranchId,
       soap: {
         subjective: 'General Consultation',
         objective: { bpSystolic: 0, bpDiastolic: 0, heartRate: 0, temperature: 0, respiratoryRate: 0 },
@@ -804,30 +810,26 @@ export default function PatientRegistrationModule({
                     </tr>
                   ) : (
                     registryResults.map(p => (
-                      <tr key={p.id} className="hover:bg-surface-accent/40 dark:hover:bg-night-800/40 transition-colors">
-                        <td className="px-4 py-3.5 font-mono text-accent dark:text-teal-300 text-xs font-bold">
+                      <tr key={p.id} className="enterprise-tr">
+                        <td className="enterprise-td enterprise-id">
                           {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
                         </td>
-                        <td className="px-4 py-3.5">
-                          <span className="font-bold text-xs capitalize text-ink dark:text-teal-300 block font-sans">
+                        <td className="enterprise-td">
+                          <span className="font-bold text-xs capitalize text-ink block">
                             {p.fullName.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 font-mono text-xs text-accent dark:text-teal-300">
+                        <td className="enterprise-td font-mono text-xs text-[#0f766e]">
                           {maskICNumber(p.icNumber, showPII)}
                         </td>
-                        <td className="px-4 py-3.5">
-                          <span className={`inline-block px-2.5 py-1 rounded-none text-2xs font-sans font-bold uppercase tracking-wider border ${
-                            p.panelEmployer === 'None (Self-Pay)' 
-                              ? 'bg-slate-100 dark:bg-night-850 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-teal-900' 
-                              : 'bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 border-brand/20 dark:border-teal-700/50'
-                          }`}>
+                        <td className="enterprise-td">
+                          <span className={p.panelEmployer === 'None (Self-Pay)' ? 'enterprise-badge-status' : 'enterprise-badge-panel'}>
                             {p.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : p.panelEmployer}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5">
+                        <td className="enterprise-td">
                           {p.drugAllergies.length === 0
-                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">No known allergies</span>
+                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic">No known allergies</span>
                             : <div className="flex flex-wrap gap-1.5">
                                 {p.drugAllergies.map((a, i) => (
                                   <span key={i} className="inline-flex items-center justify-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-2xs font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
@@ -841,7 +843,7 @@ export default function PatientRegistrationModule({
                         <td className="px-4 py-3.5 text-accent dark:text-teal-300 font-mono text-xs text-right">
                           {p.registeredDate}
                         </td>
-                        <td className="px-4 py-3.5 text-center">
+                        <td className="enterprise-td text-center">
                           <button
                             onClick={() => handleCreateTicket(p)}
                             className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center justify-center gap-1.5"

@@ -535,12 +535,12 @@ export default function PlanTab({
                 <table className="w-full text-left border-collapse text-xs">
                   <thead className="bg-surface-accent dark:bg-night-900 text-ink dark:text-teal-300 font-bold border-b border-line dark:border-teal-800/40">
                     <tr>
-                      <th className="p-2">Medication</th>
-                      <th className="p-2">Dosage / Instructions</th>
-                      <th className="p-2">Frequency</th>
-                      <th className="p-2">Qty</th>
-                      <th className="p-2 text-right font-mono">Price</th>
-                      <th className="p-2 text-center">Action</th>
+                      <th className="enterprise-th">Medication</th>
+                      <th className="enterprise-th">Dosage / Instructions</th>
+                      <th className="enterprise-th">Frequency</th>
+                      <th className="enterprise-th">Qty</th>
+                      <th className="enterprise-th text-right font-mono">Price</th>
+                      <th className="enterprise-th text-center">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-teal-800/30 bg-white dark:bg-night-850">
@@ -549,11 +549,51 @@ export default function PlanTab({
                         <td className="p-2 font-bold text-ink dark:text-white">
                           {item.drugName}
                         </td>
-                        <td className="p-2 text-slate-600 dark:text-slate-300">
-                          {item.dosage}
+                        <td className="p-2 min-w-[200px]">
+                          <input
+                            type="text"
+                            value={item.dosage}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setRxList(rxList.map(r => r.id === item.id ? { ...r, dosage: val } : r));
+                            }}
+                            placeholder="e.g. Take 1 tab TDS after meals"
+                            className="w-full px-2 py-1 border border-slate-300 dark:border-teal-800/60 rounded-none text-xs bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-sans focus:border-[#0d9488] focus:outline-none"
+                          />
                         </td>
-                        <td className="p-2 text-slate-600 dark:text-slate-300 font-mono">
-                          {item.frequency}
+                        <td className="p-2 min-w-[150px]">
+                          <select
+                            value={['1 Tab BD', '1 Tab TDS', '1 Tab QDS', '1 Tab Daily', '1 Tab Stat', '1 Tab PRN', '1 Cap BD', '1 Cap TDS', '1-2 Puffs BD', 'Apply Thin Layer BD'].includes(item.frequency) ? item.frequency : 'CUSTOM'}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val !== 'CUSTOM') {
+                                setRxList(rxList.map(r => r.id === item.id ? { ...r, frequency: val } : r));
+                              }
+                            }}
+                            className="w-full px-1.5 py-1 border border-slate-300 dark:border-teal-800/60 rounded-none text-xs bg-white dark:bg-[#07252d] text-[#0f3c4c] dark:text-white font-mono focus:border-[#0d9488] focus:outline-none mb-1"
+                          >
+                            <option value="1 Tab BD">1 Tab BD (2x/day)</option>
+                            <option value="1 Tab TDS">1 Tab TDS (3x/day)</option>
+                            <option value="1 Tab QDS">1 Tab QDS (4x/day)</option>
+                            <option value="1 Tab Daily">1 Tab Daily (1x/day)</option>
+                            <option value="1 Tab Stat">1 Tab Stat (Immediately)</option>
+                            <option value="1 Tab PRN">1 Tab PRN (As needed)</option>
+                            <option value="1 Cap BD">1 Cap BD (2x/day)</option>
+                            <option value="1 Cap TDS">1 Cap TDS (3x/day)</option>
+                            <option value="1-2 Puffs BD">1-2 Puffs BD</option>
+                            <option value="Apply Thin Layer BD">Apply Thin Layer BD</option>
+                            <option value="CUSTOM">Custom Frequency...</option>
+                          </select>
+                          <input
+                            type="text"
+                            value={item.frequency}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setRxList(rxList.map(r => r.id === item.id ? { ...r, frequency: val } : r));
+                            }}
+                            placeholder="Custom Frequency"
+                            className="w-full px-2 py-0.5 border border-slate-200 dark:border-teal-900/60 rounded-none text-[11px] bg-slate-50 dark:bg-[#061f26] text-slate-700 dark:text-teal-200 font-mono focus:border-[#0d9488] focus:outline-none"
+                          />
                         </td>
                         <td className="p-2">
                           <input

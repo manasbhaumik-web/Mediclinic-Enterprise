@@ -277,22 +277,22 @@ export default function BillingManagementModule() {
               <table className="w-full text-left text-xs whitespace-nowrap">
                 <thead className="bg-surface-accent text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
                   <tr>
-                    <th className="px-6 py-3.5">Transaction Details</th>
-                    <th className="px-6 py-3.5">Payment Method</th>
-                    <th className="px-6 py-3.5">Status</th>
-                    <th className="px-6 py-3.5 text-right">Total Amount</th>
+                    <th className="enterprise-th">Transaction Details</th>
+                    <th className="enterprise-th">Payment Method</th>
+                    <th className="enterprise-th">Status</th>
+                    <th className="enterprise-th text-right">Total Amount</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line-subtle">
                   {filteredLedger.map((trx) => (
-                    <tr key={trx.id} className="hover:bg-surface-muted transition-colors">
-                      <td className="px-6 py-4">
-                        <p className="font-bold text-ink text-xs">{trx.id}</p>
+                    <tr key={trx.id} className="enterprise-tr">
+                      <td className="enterprise-td">
+                        <p className="enterprise-id">{trx.id}</p>
                         <p className="text-2xs text-slate-500 font-mono mt-0.5">
                           {new Date(trx.date).toLocaleString()} • Visit: {trx.visitId} • Pt: {trx.patientId}
                         </p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="enterprise-td">
                         <span className={`inline-flex px-2 py-0.5 rounded-none text-2xs font-bold uppercase border ${
                           trx.paymentMethod === 'Cash' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
                           trx.paymentMethod === 'Panel' ? 'bg-sky-100 text-sky-800 border-sky-300' :
@@ -301,7 +301,7 @@ export default function BillingManagementModule() {
                           {trx.paymentMethod}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="enterprise-td">
                         <span className={`inline-flex items-center gap-1 text-2xs font-bold uppercase border px-2 py-0.5 ${
                           trx.status === 'Completed' || trx.status === 'Claim Paid' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'
                         }`}>
@@ -333,25 +333,25 @@ export default function BillingManagementModule() {
           <table className="w-full text-left text-xs whitespace-nowrap">
             <thead className="bg-surface-accent text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
               <tr>
-                <th className="px-6 py-3.5">Claim Details</th>
-                <th className="px-6 py-3.5">Patient / Visit</th>
-                <th className="px-6 py-3.5">Amount Claimed</th>
-                <th className="px-6 py-3.5 text-center">Action</th>
+                <th className="enterprise-th">Claim Details</th>
+                <th className="enterprise-th">Patient / Visit</th>
+                <th className="enterprise-th">Amount Claimed</th>
+                <th className="enterprise-th text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line-subtle">
               {filteredClaims.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-slate-500">
+                <tr className="enterprise-tr">
+                  <td colSpan={4} className="enterprise-td text-center py-10 text-slate-500">
                     <ShieldCheck className="w-8 h-8 mx-auto mb-2 text-accent opacity-50" />
-                    <p className="text-xs font-bold text-ink">No panel claims match your criteria.</p>
+                    <p className="text-xs font-bold text-ink dark:text-slate-300">No panel claims match your criteria.</p>
                   </td>
                 </tr>
               ) : filteredClaims.map((claim) => (
-                <tr key={claim.id} className="hover:bg-surface-muted transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-ink flex items-center justify-center gap-2">
-                      {claim.id}
+                <tr key={claim.id} className="enterprise-tr">
+                  <td className="enterprise-td">
+                    <p className="font-bold text-ink dark:text-slate-200 flex items-center gap-2">
+                      <span className="enterprise-id">{claim.id}</span>
                       {claim.status === 'Pending Claim' ? (
                         <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 text-2xs uppercase font-bold">Pending</span>
                       ) : (
@@ -369,7 +369,7 @@ export default function BillingManagementModule() {
                   <td className="px-6 py-4 font-mono font-bold text-accent">
                     RM {claim.panelClaimed.toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="enterprise-td text-center">
                     {claim.status === 'Pending Claim' ? (
                       <button 
                         type="button"
@@ -380,7 +380,7 @@ export default function BillingManagementModule() {
                         <span>Mark as Paid</span>
                       </button>
                     ) : (
-                      <span className="text-emerald-700 text-xs font-bold flex items-center justify-center gap-1">
+                      <span className="text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center justify-center gap-1">
                         <CheckCircle className="w-3.5 h-3.5" /> Reconciled
                       </span>
                     )}

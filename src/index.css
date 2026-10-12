@@ -1,4 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+
+/* ========================================================================= */
+/* MEDICLINIC ENTERPRISE GLOBAL CSS STYLESHEET GOVERNANCE                    */
+/* POLICY: PAGE-LEVEL & MODULE-LEVEL CSS FILES ARE STRICTLY PROHIBITED.     */
+/* ALL STYLING MUST INHERIT FROM THIS SINGLE AUTHORITATIVE CSS SYSTEM.       */
+/* ========================================================================= */
 
 @variant dark (&:where(.dark, .dark *));
 
@@ -98,7 +105,6 @@
 }
 
 body {
-  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-surface);
@@ -323,6 +329,58 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* ========================================================================= */
+  /* STANDARDIZED ENTERPRISE GRID & TABLE DESIGN SYSTEM                       */
+  /* ========================================================================= */
+  .enterprise-table-container {
+    @apply border border-[#99f6e4] dark:border-teal-800/60 overflow-hidden rounded-none bg-white dark:bg-[#082830] shadow-2xs;
+  }
+
+  .enterprise-table {
+    @apply w-full text-left border-collapse text-xs font-sans;
+  }
+
+  .enterprise-thead {
+    @apply bg-[#e0f5f2] dark:bg-[#07252d] text-[#0f3c4c] dark:text-[#5eead4] font-extrabold uppercase tracking-wider border-b border-[#99f6e4] dark:border-teal-800/60 text-[11px];
+  }
+
+  .enterprise-th {
+    @apply p-3 font-extrabold text-[#0f3c4c] dark:text-[#5eead4] uppercase tracking-wider text-[11px] border-b border-[#99f6e4] dark:border-teal-800/60;
+  }
+
+  .enterprise-tr {
+    @apply border-b border-[#e0f5f2]/80 dark:border-teal-900/30 hover:bg-[#e0f5f2]/40 dark:hover:bg-[#0e4857] transition-colors;
+  }
+
+  .enterprise-td {
+    @apply p-3 text-xs text-[#0f3c4c] dark:text-slate-200 align-middle;
+  }
+
+  .enterprise-id {
+    @apply font-bold text-[#0d9488] dark:text-[#2dd4bf] text-xs;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .enterprise-badge-panel {
+    @apply bg-[#d5f0eb] dark:bg-teal-900/40 text-[#0d9488] dark:text-teal-300 border border-[#99f6e4] dark:border-teal-700/60 text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+  }
+
+  .enterprise-badge-allergy {
+    @apply bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+  }
+
+  .enterprise-badge-status {
+    @apply bg-[#e0f5f2] dark:bg-teal-950 text-[#0f3c4c] dark:text-teal-200 border border-[#99f6e4] dark:border-teal-800/50 text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wide inline-flex items-center gap-1;
+  }
+
+  .enterprise-btn-action {
+    @apply bg-[#0d9488] hover:bg-[#0f766e] text-white font-extrabold text-xs px-3.5 py-1.5 rounded-none flex items-center justify-center gap-1.5 cursor-pointer border border-[#0d9488] transition-all shadow-2xs active:scale-[0.98];
+  }
+
+  .enterprise-btn-secondary {
+    @apply bg-[#e0f5f2] hover:bg-[#d5f0eb] dark:bg-[#0e4857] dark:hover:bg-[#12596b] text-[#0f3c4c] dark:text-[#5eead4] border border-[#99f6e4] dark:border-teal-700/60 font-extrabold text-xs px-3.5 py-1.5 rounded-none flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-2xs;
   }
 }
 

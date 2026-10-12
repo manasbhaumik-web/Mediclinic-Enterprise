@@ -336,16 +336,18 @@ export default function ReportsAnalyticsModule() {
               Fast Moving Inventory 
               <span className="text-2xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold border border-emerald-200">High Turnover</span>
             </h3>
-            <table className="w-full text-left text-sm">
-              <thead className="bg-surface-muted text-ink text-xs border-b border-teal-100 font-bold">
-                <tr><th className="px-3 py-2">Item</th><th className="px-3 py-2">Stock Level</th><th className="px-3 py-2">Velocity (30d)</th></tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
-                <tr><td className="px-3 py-2 font-bold text-ink">Paracetamol 500mg</td><td className="px-3 py-2 text-red-600 font-bold">120 tabs</td><td className="px-3 py-2">3,400 tabs</td></tr>
-                <tr><td className="px-3 py-2 font-bold text-ink">Amoxicillin 250mg</td><td className="px-3 py-2 text-accent font-bold">850 caps</td><td className="px-3 py-2">1,200 caps</td></tr>
-                <tr><td className="px-3 py-2 font-bold text-ink">Loratadine 10mg</td><td className="px-3 py-2 text-amber-600 font-bold">450 tabs</td><td className="px-3 py-2">800 tabs</td></tr>
-              </tbody>
-            </table>
+            <div className="enterprise-table-container">
+              <table className="enterprise-table">
+                <thead className="enterprise-thead">
+                  <tr><th className="enterprise-th">Item</th><th className="enterprise-th">Stock Level</th><th className="enterprise-th">Velocity (30d)</th></tr>
+                </thead>
+                <tbody className="divide-y divide-line-subtle">
+                  <tr className="enterprise-tr"><td className="enterprise-td font-bold text-ink dark:text-slate-200">Paracetamol 500mg</td><td className="enterprise-td text-rose-600 dark:text-rose-400 font-bold">120 tabs</td><td className="enterprise-td">3,400 tabs</td></tr>
+                  <tr className="enterprise-tr"><td className="enterprise-td font-bold text-ink dark:text-slate-200">Amoxicillin 250mg</td><td className="enterprise-td text-accent font-bold">850 caps</td><td className="enterprise-td">1,200 caps</td></tr>
+                  <tr className="enterprise-tr"><td className="enterprise-td font-bold text-ink dark:text-slate-200">Loratadine 10mg</td><td className="enterprise-td text-amber-600 dark:text-amber-400 font-bold">450 tabs</td><td className="enterprise-td">800 tabs</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="bg-surface p-5 rounded-none shadow-sm border border-line-subtle">

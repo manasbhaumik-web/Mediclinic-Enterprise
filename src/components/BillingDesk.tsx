@@ -3,6 +3,7 @@ import { Visit, Language, TPAConfig } from '../types';
 import { TRANSLATIONS } from '../data';
 import { useSettings } from '../context/SettingsContext';
 import { useAuxiliary } from '../context/AuxiliaryContext';
+import { useClinicStore } from '../store/useClinicStore';
 import { QRCodeSVG } from 'qrcode.react';
 import StripeCheckout from './StripeCheckout';
 import { 
@@ -32,9 +33,16 @@ export default function BillingDesk({
   const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+  const activeBranch = useClinicStore(state => state.activeBranch);
+
+  const filteredCashierQueue = React.useMemo(() => {
+    return queue.filter(v => !v.tenantId || v.tenantId === activeBranchId);
+  }, [queue, activeBranchId]);
+
   // Selected visit state
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(
-    queue.length > 0 ? queue[0].id : null
+    filteredCashierQueue.length > 0 ? filteredCashierQueue[0].id : null
   );
 
   // Panel settings state
@@ -301,14 +309,14 @@ export default function BillingDesk({
                     <th className="px-3 py-1.5 text-right font-bold w-32">Total Price (MYR)</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="border-b border-slate-100 text-slate-700">
-                    <td className="px-3 py-2">Consultation Fee (Primary APC Care)</td>
-                    <td className="px-3 py-2 text-right font-mono font-medium">RM{CONSULTATION_FEE.toFixed(2)}</td>
+                <tbody className="divide-y divide-[#e0f5f2] dark:divide-teal-900/30">
+                  <tr className="enterprise-tr">
+                    <td className="enterprise-td">Consultation Fee (Primary APC Care)</td>
+                    <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">RM{CONSULTATION_FEE.toFixed(2)}</td>
                   </tr>
-                  <tr className="border-b border-slate-100 text-slate-700">
-                    <td className="px-3 py-2">Clinical Procedures / Nursing Vitals Audit Fee</td>
-                    <td className="px-3 py-2 text-right font-mono font-medium">RM{PROCEDURE_FEE.toFixed(2)}</td>
+                  <tr className="enterprise-tr">
+                    <td className="enterprise-td">Clinical Procedures / Nursing Vitals Audit Fee</td>
+                    <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">RM{PROCEDURE_FEE.toFixed(2)}</td>
                   </tr>
                   
                   {activeVisit.soap?.plan?.prescription?.length > 0 && (
@@ -321,7 +329,7 @@ export default function BillingDesk({
                           ))}
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-medium">
+                      <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">
                         RM{billingBreakdown.medicationCost.toFixed(2)}
                       </td>
                     </tr>
@@ -337,7 +345,7 @@ export default function BillingDesk({
                               <span>• {item.description} (RM{item.amount.toFixed(2)})</span>
                               <button 
                                 onClick={() => setCustomLineItems(customLineItems.filter((_, idx) => idx !== i))}
-                                className="text-red-400 hover:text-red-600 transition-colors"
+                                className="text-rose-500 hover:text-rose-700 transition-colors"
                                 title="Remove charge"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -346,18 +354,18 @@ export default function BillingDesk({
                           ))}
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-medium">
+                      <td className="enterprise-td text-right font-mono font-bold text-[#0d9488]">
                         RM{billingBreakdown.customItemsTotal.toFixed(2)}
                       </td>
                     </tr>
                   )}
 
                   {billingBreakdown.discountAmount > 0 && (
-                    <tr className="border-b border-slate-100 text-red-600 bg-red-50/50">
-                      <td className="px-3 py-2 font-semibold">
+                    <tr className="enterprise-tr bg-rose-50/50 text-rose-700 dark:text-rose-400">
+                      <td className="enterprise-td font-semibold">
                         Manual Discount Applied ({discount.type === 'percentage' ? `${discount.value}%` : 'Fixed Amount'})
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-bold">
+                      <td className="enterprise-td text-right font-mono font-bold">
                         -RM{billingBreakdown.discountAmount.toFixed(2)}
                       </td>
                     </tr>

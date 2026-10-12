@@ -6,10 +6,12 @@ import {
 } from 'lucide-react';
 import { useInventory, DrugItem } from '../context/InventoryContext';
 import DrugRegistration from './DrugRegistration';
+import { useClinicStore } from '../store/useClinicStore';
 
 import ProgressBar from './ui/ProgressBar';
 export default function MedicineManagementModule() {
   const { catalog, logs, addDrug, restockDrug, deleteDrug, disposeDrug, useDrugInternally } = useInventory();
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
   
   // Navigation State
   const [activeTab, setActiveTab] = useState<'catalog' | 'logs' | 'supply_chain'>('catalog');
@@ -30,15 +32,17 @@ export default function MedicineManagementModule() {
   const [useAmount, setUseAmount] = useState('1');
   const [useReason, setUseReason] = useState('Emergency Treatment');
 
-  // Derived State
-  const filteredCatalog = catalog.filter(drug => 
+  // Derived State (Branch Isolated)
+  const branchCatalog = catalog.filter(drug => !drug.tenantId || drug.tenantId === activeBranchId);
+
+  const filteredCatalog = branchCatalog.filter(drug => 
     drug.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     drug.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalItems = catalog.length;
-  const lowStockCount = catalog.filter(d => d.currentStock <= d.minThreshold).length;
-  const controlledRxCount = catalog.filter(d => d.isControlledDrug).length;
+  const totalItems = branchCatalog.length;
+  const lowStockCount = branchCatalog.filter(d => d.currentStock <= d.minThreshold).length;
+  const controlledRxCount = branchCatalog.filter(d => d.isControlledDrug).length;
 
   const handleAddDrugSubmit = (newDrugData: Omit<DrugItem, 'id'>) => {
     addDrug(newDrugData);
@@ -370,10 +374,10 @@ export default function MedicineManagementModule() {
                   <table className="w-full text-left text-xs whitespace-nowrap">
                     <thead className="bg-surface-accent text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
                       <tr>
-                        <th className="px-6 py-3.5">Medication Name</th>
-                        <th className="px-6 py-3.5">Stock Level &amp; Threshold</th>
-                        <th className="px-6 py-3.5">Status</th>
-                        <th className="px-6 py-3.5 text-center">Actions</th>
+                        <th className="enterprise-th">Medication Name</th>
+                        <th className="enterprise-th">Stock Level &amp; Threshold</th>
+                        <th className="enterprise-th">Status</th>
+                        <th className="enterprise-th text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-line-subtle">
@@ -396,16 +400,22 @@ export default function MedicineManagementModule() {
                                 {drug.category} • ID: <span className="font-mono text-accent">{drug.id}</span> • RM {drug.price.toFixed(2)} / {drug.unit}
                               </p>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="enterprise-td">
                               <div className="flex flex-col gap-1 w-44">
                                 <div className="flex justify-between items-center text-xs font-bold">
-                                  <span className="font-mono text-ink">{drug.currentStock} {drug.unit}s</span>
+                                  <span className="font-mono text-ink dark:text-white">{drug.currentStock} {drug.unit}s</span>
                                   <span className="text-2xs text-slate-500 font-mono">Min: {drug.minThreshold}</span>
+                                </div>
+                                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-none h-1.5">
+                                  <div 
+                                    className={`h-1.5 ${isLowStock ? 'bg-rose-500' : 'bg-primary'}`}
+                                    style={{ width: `${stockPercentage}%` }}
+                                  ></div>
                                 </div>
                                 <ProgressBar value={stockPercentage} size="sm" tone={isLowStock ? 'danger' : 'primary'} />
                               </div>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="enterprise-td">
                               {isLowStock ? (
                                 <span className="inline-flex items-center justify-center gap-1 bg-rose-100 text-rose-800 px-2.5 py-1 rounded-none text-2xs font-bold uppercase border border-rose-300">
                                   <AlertTriangle className="w-3 h-3" /> Low Stock
@@ -416,35 +426,32 @@ export default function MedicineManagementModule() {
                                 </span>
                               )}
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="enterprise-td text-center">
                               <div className="flex justify-center gap-1.5">
                                 <button 
                                   type="button"
-                                  onClick={() => setRestockDrugId(drug.id)}
-                                  className="px-2.5 py-1 text-2xs font-bold uppercase bg-primary hover:bg-primary-hover text-white rounded-none flex items-center justify-center gap-1 cursor-pointer transition-colors"
-                                  title="Restock medication inventory"
+                                  onClick={() => setDetailsDrugId(drug.id)}
+                                  className="enterprise-btn-secondary text-2xs py-1 px-2.5"
                                 >
-                                  <PackagePlus className="w-3.5 h-3.5" />
-                                  <span>Restock</span>
+                                  Details
                                 </button>
-                                
                                 <button 
                                   type="button"
-                                  onClick={() => setDetailsDrugId(drug.id)}
-                                  className="px-2 py-1 text-2xs font-bold uppercase bg-surface-accent hover:bg-surface-strong text-accent border border-line rounded-none flex items-center justify-center gap-1 cursor-pointer transition-colors"
-                                  title="Pharmacology details"
+                                  onClick={() => {
+                                    setRestockDrugId(drug.id);
+                                    setRestockAmount('100');
+                                  }}
+                                  className="enterprise-btn-action text-2xs py-1 px-2.5"
                                 >
-                                  <Info className="w-3.5 h-3.5" />
-                                  <span>Details</span>
+                                  Restock
                                 </button>
-                                
                                 <button 
                                   type="button"
                                   onClick={() => handleDelete(drug.id)}
-                                  className="p-1 text-slate-500 hover:text-rose-600 bg-rose-50 border border-rose-200 rounded-none cursor-pointer"
+                                  className="enterprise-btn-secondary text-[10px] py-1 px-2.5 text-rose-600 hover:text-rose-700"
                                   title="Delete drug"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  Delete
                                 </button>
                               </div>
                             </td>

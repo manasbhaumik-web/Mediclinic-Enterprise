@@ -1,5 +1,5 @@
 export type Language = 'EN' | 'BM';
-export type UserRole = 'doctor' | 'pharmacist' | 'clinic-assistant' | 'admin' | 'hr';
+export type UserRole = 'doctor' | 'pharmacist' | 'clinic-assistant' | 'admin' | 'hr' | 'branch-admin';
 
 export interface Patient {
   id: string;
@@ -12,6 +12,7 @@ export interface Patient {
   panelEmployer: string; // Petronas, Maxis, Intel, Maybank, MiCare, None (Self-Pay)
   drugAllergies: string[];
   registeredDate: string;
+  tenantId?: string;
 }
 
 export interface VitalSigns {
@@ -70,6 +71,7 @@ export interface Visit {
   glNumber?: string;
   mcIssued?: boolean;
   registeredTime?: number;
+  tenantId?: string;
 }
 
 export interface ICD10Code {
@@ -97,4 +99,5 @@ export interface Appointment {
   doctorId?: string;
   notes?: string;
   createdAt: string;
+  tenantId?: string;
 }

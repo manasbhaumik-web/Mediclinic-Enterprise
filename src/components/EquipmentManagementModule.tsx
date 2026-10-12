@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Stethoscope, Plus, Search, CheckCircle, AlertTriangle, X, Trash2, PenTool, ArrowRightLeft, History, Cpu, ShieldCheck, Check, RefreshCw } from 'lucide-react';
 import EquipmentRegistration from './EquipmentRegistration';
 import { supabase } from '../lib/supabase';
+import { useClinicStore } from '../store/useClinicStore';
 
 export interface EquipmentItem {
   id: string;
@@ -23,6 +24,7 @@ export interface EquipmentItem {
   nextMaintenance: string; 
   maintenanceFrequency?: string;
   safetyCertification?: string;
+  tenantId?: string;
 }
 
 export interface EquipmentLog {
@@ -34,36 +36,36 @@ export interface EquipmentLog {
 }
 
 const DEFAULT_30_EQUIPMENT: EquipmentItem[] = [
-  { id: 'EQ101', name: 'Digital 12-Lead ECG Machine', type: 'Diagnostic', serialNumber: 'SN-ECG-90812', status: 'Operational', nextMaintenance: '2026-10-15', manufacturer: 'Philips Healthcare', assignedRoom: 'Consultation Room 1', custodian: 'Dr. Sarah Tan' },
-  { id: 'EQ102', name: 'Ultrasound Diagnostic System', type: 'Imaging', serialNumber: 'SN-US-77401', status: 'Operational', nextMaintenance: '2026-11-20', manufacturer: 'Mindray', assignedRoom: 'Imaging Suite 2', custodian: 'Dr. Priya Nair' },
-  { id: 'EQ103', name: 'Automated External Defibrillator (AED)', type: 'Diagnostic', serialNumber: 'SN-AED-44102', status: 'Operational', nextMaintenance: '2026-09-30', manufacturer: 'Zoll Medical', assignedRoom: 'Emergency Triage', custodian: 'Nurse Siti Aminah' },
-  { id: 'EQ104', name: 'Vital Signs Patient Monitor', type: 'Diagnostic', serialNumber: 'SN-MON-33921', status: 'Operational', nextMaintenance: '2026-12-05', manufacturer: 'Edan Instruments', assignedRoom: 'Observation Room A', custodian: 'Nurse Jessica Lim' },
-  { id: 'EQ105', name: 'Digital Chest X-Ray Unit', type: 'Imaging', serialNumber: 'SN-XRAY-10293', status: 'Operational', nextMaintenance: '2026-10-30', manufacturer: 'Fujifilm Healthcare', assignedRoom: 'Radiology Room 1', custodian: 'Tech. Rajan Pillai' },
-  { id: 'EQ106', name: 'Benchtop Autoclave Sterilizer', type: 'Sanitization', serialNumber: 'SN-STER-88392', status: 'Operational', nextMaintenance: '2026-10-10', manufacturer: 'Tuttnauer', assignedRoom: 'Sterilization Room', custodian: 'Nurse Azman Kassim' },
-  { id: 'EQ107', name: 'Automated Hematology Analyzer', type: 'Laboratory', serialNumber: 'SN-HEM-55201', status: 'Operational', nextMaintenance: '2026-11-15', manufacturer: 'Sysmex Corporation', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai' },
-  { id: 'EQ108', name: 'Clinical Biochemistry Analyzer', type: 'Laboratory', serialNumber: 'SN-BIO-99201', status: 'Operational', nextMaintenance: '2026-12-01', manufacturer: 'Roche Diagnostics', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai' },
-  { id: 'EQ109', name: 'ENT Examination Workstation', type: 'Diagnostic', serialNumber: 'SN-ENT-33102', status: 'Operational', nextMaintenance: '2027-01-15', manufacturer: 'ATMOS Medical', assignedRoom: 'ENT Suite', custodian: 'Dr. Marcus Wong' },
-  { id: 'EQ110', name: 'Slit Lamp Ophthalmoscope', type: 'Diagnostic', serialNumber: 'SN-OPHTH-66491', status: 'Operational', nextMaintenance: '2026-10-25', manufacturer: 'Carl Zeiss Meditec', assignedRoom: 'Eye Consultation Room', custodian: 'Dr. Kenneth Lee' },
-  { id: 'EQ111', name: 'Dental Delivery Chair Unit', type: 'Surgical', serialNumber: 'SN-DEN-88392', status: 'Operational', nextMaintenance: '2026-11-05', manufacturer: 'Dentsply Sirona', assignedRoom: 'Dental Suite 1', custodian: 'Dr. Marcus Wong' },
-  { id: 'EQ112', name: 'Electric ICU Patient Bed System', type: 'Furniture', serialNumber: 'SN-BED-11029', status: 'Operational', nextMaintenance: '2027-04-05', manufacturer: 'Hill-Rom', assignedRoom: 'Observation Room B', custodian: 'Nurse Chloe Tay' },
-  { id: 'EQ113', name: 'Micro-Syringe Infusion Pump', type: 'Diagnostic', serialNumber: 'SN-PUMP-44392', status: 'Operational', nextMaintenance: '2026-10-10', manufacturer: 'Terumo Corporation', assignedRoom: 'Treatment Bay 1', custodian: 'Nurse Siti Aminah' },
-  { id: 'EQ114', name: 'Medical High-Suction Unit', type: 'Surgical', serialNumber: 'SN-SUC-88219', status: 'Operational', nextMaintenance: '2026-10-11', manufacturer: 'Atmos Healthcare', assignedRoom: 'Procedure Room 1', custodian: 'Nurse Azman Kassim' },
-  { id: 'EQ115', name: 'Heavy-Duty Nebulizer Compressor', type: 'Diagnostic', serialNumber: 'SN-NEB-22910', status: 'Operational', nextMaintenance: '2027-02-01', manufacturer: 'Omron Healthcare', assignedRoom: 'Pediatric Treatment Bay', custodian: 'Dr. Marcus Wong' },
-  { id: 'EQ116', name: 'Vaccine Cold-Chain Refrigerator', type: 'Sanitization', serialNumber: 'SN-FRIG-99302', status: 'Operational', nextMaintenance: '2026-09-30', manufacturer: 'Dometic Medical', assignedRoom: 'Pharmacy Dispensary', custodian: 'Pharm. Ahmad Razak' },
-  { id: 'EQ117', name: 'Medical Oxygen Concentrator 10L', type: 'Diagnostic', serialNumber: 'SN-O2-33920', status: 'Operational', nextMaintenance: '2026-11-14', manufacturer: 'Philips Respironics', assignedRoom: 'Emergency Bay 2', custodian: 'Nurse Siti Aminah' },
-  { id: 'EQ118', name: 'Finger Pulse Oximeter Unit A', type: 'Diagnostic', serialNumber: 'SN-OXY-88102', status: 'Operational', nextMaintenance: '2027-03-01', manufacturer: 'Choicemmed', assignedRoom: 'Triage Counter', custodian: 'Nurse Jessica Lim' },
-  { id: 'EQ119', name: 'Digital Blood Pressure Monitor B', type: 'Diagnostic', serialNumber: 'SN-BPM-55392', status: 'Operational', nextMaintenance: '2026-12-10', manufacturer: 'Omron Healthcare', assignedRoom: 'Triage Counter 2', custodian: 'Nurse Siti Aminah' },
-  { id: 'EQ120', name: 'Refrigerated Laboratory Centrifuge', type: 'Laboratory', serialNumber: 'SN-CENT-77291', status: 'Operational', nextMaintenance: '2026-10-20', manufacturer: 'Beckman Coulter', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai' },
-  { id: 'EQ121', name: 'Binocular LED Microscope', type: 'Laboratory', serialNumber: 'SN-MIC-11928', status: 'Operational', nextMaintenance: '2027-03-22', manufacturer: 'Olympus Corporation', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai' },
-  { id: 'EQ122', name: 'Otoscope & Ophthalmoscope Wall Set', type: 'Diagnostic', serialNumber: 'SN-OTO-99201', status: 'Operational', nextMaintenance: '2027-01-10', manufacturer: 'Welch Allyn', assignedRoom: 'Consultation Room 3', custodian: 'Dr. Marcus Wong' },
-  { id: 'EQ123', name: 'Non-Contact Infrared Thermometer', type: 'Diagnostic', serialNumber: 'SN-TEMP-44192', status: 'Operational', nextMaintenance: '2026-11-05', manufacturer: 'Braun Healthcare', assignedRoom: 'Front Desk Triage', custodian: 'Admin Mei Ling' },
-  { id: 'EQ124', name: 'Surgical LED Shadowless Light', type: 'Surgical', serialNumber: 'SN-LIGHT-66392', status: 'Operational', nextMaintenance: '2026-11-18', manufacturer: 'Dr. Mach', assignedRoom: 'Minor Surgery Theatre', custodian: 'Dr. Sarah Tan' },
-  { id: 'EQ125', name: 'Emergency Crash Cart Trolley', type: 'Surgical', serialNumber: 'SN-CART-22910', status: 'Operational', nextMaintenance: '2026-10-01', manufacturer: 'Metro Healthcare', assignedRoom: 'Emergency Resuscitation', custodian: 'Nurse Siti Aminah' },
-  { id: 'EQ126', name: 'MyKad Smart Card Optical Reader', type: 'IT/Office', serialNumber: 'SN-MYKAD-99102', status: 'Operational', nextMaintenance: '2027-04-01', manufacturer: 'Identiv Systems', assignedRoom: 'Patient Registration Desk', custodian: 'Admin Mei Ling' },
-  { id: 'EQ127', name: 'Thermal Direct Receipt Printer', type: 'IT/Office', serialNumber: 'SN-PRINT-44291', status: 'Operational', nextMaintenance: '2027-03-15', manufacturer: 'Epson POS', assignedRoom: 'Billing & Cashier Desk', custodian: 'Admin Mei Ling' },
-  { id: 'EQ128', name: 'Wireless Barcode Scanner Unit', type: 'IT/Office', serialNumber: 'SN-BARCODE-88392', status: 'Operational', nextMaintenance: '2027-06-20', manufacturer: 'Honeywell', assignedRoom: 'Pharmacy Counter 1', custodian: 'Pharm. Ahmad Razak' },
-  { id: 'EQ129', name: 'Digital Uroflowmeter System', type: 'Diagnostic', serialNumber: 'SN-URO-11209', status: 'Operational', nextMaintenance: '2026-11-30', manufacturer: 'Laborie Medical', assignedRoom: 'Urology Procedure Room', custodian: 'Dr. Sarah Tan' },
-  { id: 'EQ130', name: 'Hydraulic Patient Stretcher Trolley', type: 'Furniture', serialNumber: 'SN-TROLLEY-77201', status: 'Operational', nextMaintenance: '2027-01-25', manufacturer: 'Stryker Medical', assignedRoom: 'Patient Holding Area', custodian: 'Nurse Azman Kassim' }
+  { id: 'EQ101', name: 'Digital 12-Lead ECG Machine', type: 'Diagnostic', serialNumber: 'SN-ECG-90812', status: 'Operational', nextMaintenance: '2026-10-15', manufacturer: 'Philips Healthcare', assignedRoom: 'Consultation Room 1', custodian: 'Dr. Sarah Tan', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ102', name: 'Ultrasound Diagnostic System', type: 'Imaging', serialNumber: 'SN-US-77401', status: 'Operational', nextMaintenance: '2026-11-20', manufacturer: 'Mindray', assignedRoom: 'Imaging Suite 2', custodian: 'Dr. Priya Nair', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ103', name: 'Automated External Defibrillator (AED)', type: 'Diagnostic', serialNumber: 'SN-AED-44102', status: 'Operational', nextMaintenance: '2026-09-30', manufacturer: 'Zoll Medical', assignedRoom: 'Emergency Triage', custodian: 'Nurse Siti Aminah', tenantId: 'BRANCH_PJ_EXPRESS' },
+  { id: 'EQ104', name: 'Vital Signs Patient Monitor', type: 'Diagnostic', serialNumber: 'SN-MON-33921', status: 'Operational', nextMaintenance: '2026-12-05', manufacturer: 'Edan Instruments', assignedRoom: 'Observation Room A', custodian: 'Nurse Jessica Lim', tenantId: 'BRANCH_PJ_EXPRESS' },
+  { id: 'EQ105', name: 'Digital Chest X-Ray Unit', type: 'Imaging', serialNumber: 'SN-XRAY-10293', status: 'Operational', nextMaintenance: '2026-10-30', manufacturer: 'Fujifilm Healthcare', assignedRoom: 'Radiology Room 1', custodian: 'Tech. Rajan Pillai', tenantId: 'BRANCH_JB_MEDICAL' },
+  { id: 'EQ106', name: 'Benchtop Autoclave Sterilizer', type: 'Sanitization', serialNumber: 'SN-STER-88392', status: 'Operational', nextMaintenance: '2026-10-10', manufacturer: 'Tuttnauer', assignedRoom: 'Sterilization Room', custodian: 'Nurse Azman Kassim', tenantId: 'BRANCH_JB_MEDICAL' },
+  { id: 'EQ107', name: 'Automated Hematology Analyzer', type: 'Laboratory', serialNumber: 'SN-HEM-55201', status: 'Operational', nextMaintenance: '2026-11-15', manufacturer: 'Sysmex Corporation', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai', tenantId: 'BRANCH_PENANG_CARE' },
+  { id: 'EQ108', name: 'Clinical Biochemistry Analyzer', type: 'Laboratory', serialNumber: 'SN-BIO-99201', status: 'Operational', nextMaintenance: '2026-12-01', manufacturer: 'Roche Diagnostics', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai', tenantId: 'BRANCH_PENANG_CARE' },
+  { id: 'EQ109', name: 'ENT Examination Workstation', type: 'Diagnostic', serialNumber: 'SN-ENT-33102', status: 'Operational', nextMaintenance: '2027-01-15', manufacturer: 'ATMOS Medical', assignedRoom: 'ENT Suite', custodian: 'Dr. Marcus Wong', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ110', name: 'Slit Lamp Ophthalmoscope', type: 'Diagnostic', serialNumber: 'SN-OPHTH-66491', status: 'Operational', nextMaintenance: '2026-10-25', manufacturer: 'Carl Zeiss Meditec', assignedRoom: 'Eye Consultation Room', custodian: 'Dr. Kenneth Lee', tenantId: 'BRANCH_PJ_EXPRESS' },
+  { id: 'EQ111', name: 'Dental Delivery Chair Unit', type: 'Surgical', serialNumber: 'SN-DEN-88392', status: 'Operational', nextMaintenance: '2026-11-05', manufacturer: 'Dentsply Sirona', assignedRoom: 'Dental Suite 1', custodian: 'Dr. Marcus Wong', tenantId: 'BRANCH_JB_MEDICAL' },
+  { id: 'EQ112', name: 'Electric ICU Patient Bed System', type: 'Furniture', serialNumber: 'SN-BED-11029', status: 'Operational', nextMaintenance: '2027-04-05', manufacturer: 'Hill-Rom', assignedRoom: 'Observation Room B', custodian: 'Nurse Chloe Tay', tenantId: 'BRANCH_PENANG_CARE' },
+  { id: 'EQ113', name: 'Micro-Syringe Infusion Pump', type: 'Diagnostic', serialNumber: 'SN-PUMP-44392', status: 'Operational', nextMaintenance: '2026-10-10', manufacturer: 'Terumo Corporation', assignedRoom: 'Treatment Bay 1', custodian: 'Nurse Siti Aminah', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ114', name: 'Medical High-Suction Unit', type: 'Surgical', serialNumber: 'SN-SUC-88219', status: 'Operational', nextMaintenance: '2026-10-11', manufacturer: 'Atmos Healthcare', assignedRoom: 'Procedure Room 1', custodian: 'Nurse Azman Kassim', tenantId: 'BRANCH_PJ_EXPRESS' },
+  { id: 'EQ115', name: 'Heavy-Duty Nebulizer Compressor', type: 'Diagnostic', serialNumber: 'SN-NEB-22910', status: 'Operational', nextMaintenance: '2027-02-01', manufacturer: 'Omron Healthcare', assignedRoom: 'Pediatric Treatment Bay', custodian: 'Dr. Marcus Wong', tenantId: 'BRANCH_JB_MEDICAL' },
+  { id: 'EQ116', name: 'Vaccine Cold-Chain Refrigerator', type: 'Sanitization', serialNumber: 'SN-FRIG-99302', status: 'Operational', nextMaintenance: '2026-09-30', manufacturer: 'Dometic Medical', assignedRoom: 'Pharmacy Dispensary', custodian: 'Pharm. Ahmad Razak', tenantId: 'BRANCH_PENANG_CARE' },
+  { id: 'EQ117', name: 'Medical Oxygen Concentrator 10L', type: 'Diagnostic', serialNumber: 'SN-O2-33920', status: 'Operational', nextMaintenance: '2026-11-14', manufacturer: 'Philips Respironics', assignedRoom: 'Emergency Bay 2', custodian: 'Nurse Siti Aminah', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ118', name: 'Finger Pulse Oximeter Unit A', type: 'Diagnostic', serialNumber: 'SN-OXY-88102', status: 'Operational', nextMaintenance: '2027-03-01', manufacturer: 'Choicemmed', assignedRoom: 'Triage Counter', custodian: 'Nurse Jessica Lim', tenantId: 'BRANCH_PJ_EXPRESS' },
+  { id: 'EQ119', name: 'Digital Blood Pressure Monitor B', type: 'Diagnostic', serialNumber: 'SN-BPM-55392', status: 'Operational', nextMaintenance: '2026-12-10', manufacturer: 'Omron Healthcare', assignedRoom: 'Triage Counter 2', custodian: 'Nurse Siti Aminah', tenantId: 'BRANCH_JB_MEDICAL' },
+  { id: 'EQ120', name: 'Refrigerated Laboratory Centrifuge', type: 'Laboratory', serialNumber: 'SN-CENT-77291', status: 'Operational', nextMaintenance: '2026-10-20', manufacturer: 'Beckman Coulter', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai', tenantId: 'BRANCH_PENANG_CARE' },
+  { id: 'EQ121', name: 'Binocular LED Microscope', type: 'Laboratory', serialNumber: 'SN-MIC-11928', status: 'Operational', nextMaintenance: '2027-03-22', manufacturer: 'Olympus Corporation', assignedRoom: 'Pathology Lab', custodian: 'Tech. Rajan Pillai', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ122', name: 'Otoscope & Ophthalmoscope Wall Set', type: 'Diagnostic', serialNumber: 'SN-OTO-99201', status: 'Operational', nextMaintenance: '2027-01-10', manufacturer: 'Welch Allyn', assignedRoom: 'Consultation Room 3', custodian: 'Dr. Marcus Wong', tenantId: 'BRANCH_PJ_EXPRESS' },
+  { id: 'EQ123', name: 'Non-Contact Infrared Thermometer', type: 'Diagnostic', serialNumber: 'SN-TEMP-44192', status: 'Operational', nextMaintenance: '2026-11-05', manufacturer: 'Braun Healthcare', assignedRoom: 'Front Desk Triage', custodian: 'Admin Mei Ling', tenantId: 'BRANCH_JB_MEDICAL' },
+  { id: 'EQ124', name: 'Surgical LED Shadowless Light', type: 'Surgical', serialNumber: 'SN-LIGHT-66392', status: 'Operational', nextMaintenance: '2026-11-18', manufacturer: 'Dr. Mach', assignedRoom: 'Minor Surgery Theatre', custodian: 'Dr. Sarah Tan', tenantId: 'BRANCH_PENANG_CARE' },
+  { id: 'EQ125', name: 'Emergency Crash Cart Trolley', type: 'Surgical', serialNumber: 'SN-CART-22910', status: 'Operational', nextMaintenance: '2026-10-01', manufacturer: 'Metro Healthcare', assignedRoom: 'Emergency Resuscitation', custodian: 'Nurse Siti Aminah', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ126', name: 'MyKad Smart Card Optical Reader', type: 'IT/Office', serialNumber: 'SN-MYKAD-99102', status: 'Operational', nextMaintenance: '2027-04-01', manufacturer: 'Identiv Systems', assignedRoom: 'Patient Registration Desk', custodian: 'Admin Mei Ling', tenantId: 'BRANCH_PJ_EXPRESS' },
+  { id: 'EQ127', name: 'Thermal Direct Receipt Printer', type: 'IT/Office', serialNumber: 'SN-PRINT-44291', status: 'Operational', nextMaintenance: '2027-03-15', manufacturer: 'Epson POS', assignedRoom: 'Billing & Cashier Desk', custodian: 'Admin Mei Ling', tenantId: 'BRANCH_JB_MEDICAL' },
+  { id: 'EQ128', name: 'Wireless Barcode Scanner Unit', type: 'IT/Office', serialNumber: 'SN-BARCODE-88392', status: 'Operational', nextMaintenance: '2027-06-20', manufacturer: 'Honeywell', assignedRoom: 'Pharmacy Counter 1', custodian: 'Pharm. Ahmad Razak', tenantId: 'BRANCH_PENANG_CARE' },
+  { id: 'EQ129', name: 'Digital Uroflowmeter System', type: 'Diagnostic', serialNumber: 'SN-URO-11209', status: 'Operational', nextMaintenance: '2026-11-30', manufacturer: 'Laborie Medical', assignedRoom: 'Urology Procedure Room', custodian: 'Dr. Sarah Tan', tenantId: 'HQ_KL_MAIN' },
+  { id: 'EQ130', name: 'Hydraulic Patient Stretcher Trolley', type: 'Furniture', serialNumber: 'SN-TROLLEY-77201', status: 'Operational', nextMaintenance: '2027-01-25', manufacturer: 'Stryker Medical', assignedRoom: 'Patient Holding Area', custodian: 'Nurse Azman Kassim', tenantId: 'BRANCH_PJ_EXPRESS' }
 ];
 
 export default function EquipmentManagementModule() {
@@ -132,16 +134,20 @@ export default function EquipmentManagementModule() {
     };
   }, []);
 
-  const filteredEq = equipmentList.filter(eq => 
+  const activeBranchId = useClinicStore(state => state.activeBranchId);
+
+  const branchEquipmentList = equipmentList.filter(eq => !eq.tenantId || eq.tenantId === activeBranchId);
+
+  const filteredEq = branchEquipmentList.filter(eq => 
     (eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
      eq.serialNumber?.toLowerCase().includes(searchQuery.toLowerCase())) &&
     eq.status !== 'Decommissioned' // Hide decommissioned from active view
   );
   
-  const issuesCount = equipmentList.filter(e => e.status === 'Maintenance').length;
-  const operationalCount = equipmentList.filter(e => e.status === 'Operational').length;
-  const operationalPercentage = equipmentList.length > 0 
-    ? Math.round((operationalCount / equipmentList.length) * 100) 
+  const issuesCount = branchEquipmentList.filter(e => e.status === 'Maintenance').length;
+  const operationalCount = branchEquipmentList.filter(e => e.status === 'Operational').length;
+  const operationalPercentage = branchEquipmentList.length > 0 
+    ? Math.round((operationalCount / branchEquipmentList.length) * 100) 
     : 100;
 
   const handleAddEquipmentSubmit = async (newEqData: Omit<EquipmentItem, 'id'>) => {
@@ -407,41 +413,39 @@ export default function EquipmentManagementModule() {
           )}
 
           {activeTab === 'logs' && (
-            <div className="bg-surface-accent border border-line rounded-none shadow-sm overflow-hidden animate-fadeIn">
-              <div className="bg-surface px-5 py-3 border-b border-teal-100 flex justify-between items-center">
-                <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
+            <div className="enterprise-table-container animate-fadeIn">
+              <div className="bg-surface-accent px-5 py-3 border-b border-line flex justify-between items-center">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-ink flex items-center gap-2">
                   <History className="w-4 h-4 text-accent" />
-                  Equipment Audit & Disposal Logs
+                  Equipment Audit &amp; Disposal Logs
                 </h3>
               </div>
               {logs.length === 0 ? (
                 <div className="p-10 text-center text-slate-400">
-                  <History className="w-10 h-10 mx-auto mb-2 opacity-50 text-slate-300" />
-                  <p className="text-sm font-medium">No maintenance or disposal logs found.</p>
+                  <History className="w-10 h-10 mx-auto mb-2 opacity-50 text-[#0d9488]" />
+                  <p className="text-xs font-bold text-[#0f3c4c] dark:text-slate-300">No maintenance or disposal logs found.</p>
                 </div>
               ) : (
                 <table className="w-full text-left text-sm">
                   <thead className="bg-surface text-ink font-bold text-xs uppercase border-b border-teal-100">
                     <tr>
-                      <th className="px-6 py-3">Date</th>
-                      <th className="px-6 py-3">Device Name</th>
-                      <th className="px-6 py-3">Action</th>
-                      <th className="px-6 py-3">Notes</th>
+                      <th className="enterprise-th">Date</th>
+                      <th className="enterprise-th">Device Name</th>
+                      <th className="enterprise-th">Action</th>
+                      <th className="enterprise-th">Notes</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody>
                     {logs.map(log => (
-                      <tr key={log.id} className="hover:bg-slate-50">
-                        <td className="px-6 py-3 font-mono text-xs text-slate-500">{log.date}</td>
-                        <td className="px-6 py-3 font-bold text-ink">{log.equipmentName}</td>
-                        <td className="px-6 py-3">
-                          <span className={`px-2 py-1 rounded text-2xs font-bold uppercase ${
-                            log.action === 'Decommissioned' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-teal-100 text-teal-800 border border-teal-200'
-                          }`}>
+                      <tr key={log.id} className="enterprise-tr">
+                        <td className="enterprise-td font-mono text-xs text-slate-500">{log.date}</td>
+                        <td className="enterprise-td font-bold text-ink dark:text-white">{log.equipmentName}</td>
+                        <td className="enterprise-td">
+                          <span className={log.action === 'Decommissioned' ? 'enterprise-badge-allergy' : 'enterprise-badge-panel'}>
                             {log.action}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-slate-600 text-xs italic">{log.notes}</td>
+                        <td className="enterprise-td text-slate-600 dark:text-slate-300 text-xs italic">{log.notes}</td>
                       </tr>
                     ))}
                   </tbody>
