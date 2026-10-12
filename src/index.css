@@ -8,16 +8,21 @@
 /* `chrome`, `night` and partner palettes are fixed in both modes.           */
 /* ========================================================================= */
 @theme {
-  /* Typography — two families only */
+  /* Typography — one family (Inter). Figures and IDs stay in Inter with tabular numerals;
+     real monospace is reserved for code/payload blocks (--font-code). */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;  /* IDs, codes, figures */
+  --font-mono: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-code: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Four weights only: 400 body · 500 secondary UI · 600 labels & card titles · 700 headings & emphasis.
      (Tailwind's extrabold/black are not used.) */
 
-  /* Smallest UI text (dense staff tables, badges). Replaces ad-hoc 8–11px sizes. */
-  --text-2xs: 0.6875rem;
+  /* Size scale — nothing in the app is smaller than 12px:
+     12 labels, badges, table headers · 13 secondary text · 14 body · 16 emphasis. */
+  --text-2xs: 0.75rem;
   --text-2xs--line-height: 1rem;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.125rem;
 
   /* Surfaces (light ice-mint) */
   --color-canvas: #f3f8f7;          /* workspace background behind cards */
@@ -96,6 +101,15 @@ body {
 
 .dark {
   color: #f8fafc;
+}
+
+/* Figures, IDs and times read in Inter; tabular numerals keep columns aligned. */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+pre,
+code {
+  font-family: var(--font-code);
 }
 
 /* Keep emphasis inside the four-weight scale (browser default "bolder" resolves to 900 inside bold text). */

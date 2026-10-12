@@ -221,8 +221,8 @@ export default function ReportsAnalyticsModule() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartTheme.grid} />
-                  <XAxis dataKey="month" stroke={chartTheme.axis} fontSize={11} tickLine={false} />
-                  <YAxis stroke={chartTheme.axis} fontSize={11} tickLine={false} tickFormatter={(val) => `RM${val/1000}k`} />
+                  <XAxis dataKey="month" stroke={chartTheme.axis} fontSize={12} tickLine={false} />
+                  <YAxis stroke={chartTheme.axis} fontSize={12} tickLine={false} tickFormatter={(val) => `RM${val/1000}k`} />
                   <Tooltip contentStyle={chartTheme.tooltip} />
                   <Legend iconType="circle" wrapperStyle={chartTheme.legend} />
                   <Area type="monotone" dataKey="revenue" name="Gross Revenue" stroke={palette.brand} strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
@@ -244,8 +244,8 @@ export default function ReportsAnalyticsModule() {
               <ResponsiveContainer>
                 <LineChart data={WAIT_TIME_DATA} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartTheme.grid} />
-                  <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={11} tickLine={false} />
-                  <YAxis stroke={chartTheme.axis} fontSize={11} tickLine={false} />
+                  <XAxis dataKey="time" stroke={chartTheme.axis} fontSize={12} tickLine={false} />
+                  <YAxis stroke={chartTheme.axis} fontSize={12} tickLine={false} />
                   <Tooltip contentStyle={chartTheme.tooltip} />
                   <Legend iconType="circle" wrapperStyle={chartTheme.legend} />
                   <Line type="monotone" dataKey="wait" name="Avg Wait Time (mins)" stroke={seriesColors.amber} strokeWidth={3} activeDot={chartTheme.activeDot} />
@@ -295,8 +295,8 @@ export default function ReportsAnalyticsModule() {
               <ResponsiveContainer>
                 <BarChart layout="vertical" data={DEPT_REVENUE_DATA} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={chartTheme.grid} />
-                  <XAxis type="number" stroke={chartTheme.axis} fontSize={11} tickLine={false} tickFormatter={(val) => `RM${val/1000}k`} />
-                  <YAxis dataKey="name" type="category" stroke={chartTheme.axis} fontSize={11} tickLine={false} width={100} />
+                  <XAxis type="number" stroke={chartTheme.axis} fontSize={12} tickLine={false} tickFormatter={(val) => `RM${val/1000}k`} />
+                  <YAxis dataKey="name" type="category" stroke={chartTheme.axis} fontSize={12} tickLine={false} width={100} />
                   <Tooltip contentStyle={chartTheme.tooltip} cursor={chartTheme.cursor} />
                   <Bar dataKey="value" name="Revenue" fill={palette.brand} radius={[0, 4, 4, 0]} barSize={24} />
                 </BarChart>

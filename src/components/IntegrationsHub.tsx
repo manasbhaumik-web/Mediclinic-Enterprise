@@ -453,7 +453,7 @@ export default function IntegrationsHub() {
                     <span>{copied ? 'Copied!' : 'Copy JSON'}</span>
                   </button>
                 </div>
-                <pre className="bg-night-950 text-teal-200 text-2xs font-mono p-3 border border-teal-900 rounded-none h-72 overflow-y-auto leading-relaxed shadow-inner">
+                <pre className="bg-night-950 text-teal-200 text-2xs font-code p-3 border border-teal-900 rounded-none h-72 overflow-y-auto leading-relaxed shadow-inner">
                   {fhirJsonOutput}
                 </pre>
               </div>

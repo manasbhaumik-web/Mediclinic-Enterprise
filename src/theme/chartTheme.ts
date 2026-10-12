@@ -7,9 +7,9 @@ import { palette, seriesColors } from './palette';
 export const chartTheme = {
   grid: palette.lineSubtle,
   axis: seriesColors.slateLight,
-  // Font sizes follow the CSS type scale: 11px = text-2xs, 12px = text-xs.
-  tick: { fontSize: 11, fill: seriesColors.slateDark },
-  tickSmall: { fontSize: 11, fill: seriesColors.slateLight },
+  // Font sizes follow the CSS type scale: nothing below 12px (text-2xs).
+  tick: { fontSize: 12, fill: seriesColors.slateDark },
+  tickSmall: { fontSize: 12, fill: seriesColors.slateLight },
   tooltip: {
     backgroundColor: palette.ink,
     color: palette.white,

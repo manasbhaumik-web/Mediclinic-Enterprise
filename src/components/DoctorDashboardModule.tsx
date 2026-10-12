@@ -472,596 +472,494 @@ export default function DoctorDashboardModule({
               <span className="text-2xs text-slate-500 dark:text-slate-400 mt-0.5 block">Waiting for triage clinic assistants to register and dispatch new outpatients.</span>
             </div>
           ) : (
-            <div className="bg-surface-accent dark:bg-night-850 border border-line dark:border-teal-800 rounded-none overflow-hidden shadow-2xs">
-                
-                {/* INTERACTIVE COMMAND & FILTER STRIP */}
-                <div className="bg-surface-strong dark:bg-night-950 border-b border-line dark:border-teal-800 p-3 px-4 space-y-2.5">
-                  
-                  {/* Row 1: Sortation Rule Changer & Interactive Acuity Chips */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-                    
-                    {/* Sort rule buttons */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-ink dark:text-slate-200 font-bold uppercase tracking-wider text-2xs flex items-center gap-1">
-                        <Filter className="w-3.5 h-3.5 text-accent dark:text-teal-400" /> Sort:
-                      </span>
-                      <div className="changer-container">
-                        {(['urgency', 'wait', 'arrival'] as const).map((r) => (
-                          <button
-                            key={r}
-                            type="button"
-                            onClick={() => { setSortRule(r); setQueuePage(1); }}
-                            className={`changer-btn ${
-                              sortRule === r
-                                ? 'changer-btn-active'
-                                : 'changer-btn-inactive'
-                            }`}
-                          >
-                            {r === 'urgency' ? 'Clinical Urgency & Allergies' : r === 'wait' ? 'Longest Wait' : 'Arrival Order'}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+            <div className="space-y-5">
 
-                    {/* Acuity & SLA Quick Filter Chips Container */}
-                    <div className="inline-flex items-stretch bg-white dark:bg-night-850 border border-line dark:border-teal-800 rounded-none p-0 overflow-hidden h-8">
-                      <button
-                        type="button"
-                        onClick={() => { setAcuityFilter('all'); setQueuePage(1); }}
-                        className={`px-3 py-0 text-2xs font-bold transition-all cursor-pointer flex items-center justify-center border-r border-line dark:border-teal-800 h-full ${
-                          acuityFilter === 'all'
-                            ? 'bg-primary text-white font-bold'
-                            : 'text-ink dark:text-slate-200 hover:bg-surface-accent dark:hover:bg-night-700'
-                        }`}
-                      >
-                        All ({doctorQueue.length})
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => { setAcuityFilter('high'); setQueuePage(1); }}
-                        className={`px-3 py-0 text-2xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 border-r border-line dark:border-teal-800 h-full ${
-                          acuityFilter === 'high'
-                            ? 'bg-rose-600 text-white font-bold'
-                            : 'text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40'
-                        }`}
-                      >
-                        <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
-                        <span>High Acuity ({doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length})</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => { setAcuityFilter('sla'); setQueuePage(1); }}
-                        className={`px-3 py-0 text-2xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 h-full ${
-                          acuityFilter === 'sla'
-                            ? 'bg-amber-600 text-white font-bold'
-                            : 'text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40'
-                        }`}
-                      >
-                        <Clock className="w-3 h-3 text-amber-500 shrink-0" />
-                        <span>&gt;20m SLA ({doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length})</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Row 2: Live Search Input & Entries per page */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-line/60 dark:border-teal-800/60">
-                    <div className="relative flex-1 max-w-md">
-                      <Search className="w-3.5 h-3.5 text-accent dark:text-teal-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        id="queue-search-input"
-                        type="text"
-                        value={queueSearchQuery}
-                        onChange={(e) => { setQueueSearchQuery(e.target.value); setQueuePage(1); }}
-                        placeholder="Filter queue by patient name, IC/ID, or chief complaint (Alt+F)..."
-                        className="w-full bg-white dark:bg-night-850 text-ink dark:text-slate-100 text-xs pl-8 pr-7 py-1.5 rounded-none border border-line dark:border-teal-800 focus:outline-none focus:border-brand placeholder:text-slate-400 font-sans shadow-2xs"
-                      />
-                      {queueSearchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => { setQueueSearchQuery(''); setQueuePage(1); }}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold w-4 h-4 flex items-center justify-center cursor-pointer"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-3 text-2xs font-mono text-slate-600 dark:text-slate-300 shrink-0">
-                      {/* Compact / Comfortable Density Toggle */}
-                      <div className="inline-flex items-center justify-center bg-white dark:bg-night-850 border border-line dark:border-teal-800 rounded-none p-0.5 font-mono text-2xs">
-                        <button
-                          type="button"
-                          onClick={() => setDensity('comfortable')}
-                          className={`px-2 py-0.5 font-bold cursor-pointer transition-all ${
-                            density === 'comfortable'
-                              ? 'bg-primary text-white font-bold'
-                              : 'text-slate-600 dark:text-slate-300 hover:bg-surface-accent'
-                          }`}
-                        >
-                          Comfortable
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDensity('compact')}
-                          className={`px-2 py-0.5 font-bold cursor-pointer transition-all ${
-                            density === 'compact'
-                              ? 'bg-primary text-white font-bold'
-                              : 'text-slate-600 dark:text-slate-300 hover:bg-surface-accent'
-                          }`}
-                        >
-                          Compact
-                        </button>
-                      </div>
-
-                      <span>Entries:</span>
-                      <select
-                        value={entriesPerPage}
-                        onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setQueuePage(1); }}
-                        className="bg-white dark:bg-night-850 text-ink dark:text-slate-100 border border-line dark:border-teal-800 px-2 py-1 text-xs rounded-none font-mono focus:outline-none focus:border-brand cursor-pointer"
-                      >
-                        <option value={6}>6 per page</option>
-                        <option value={12}>12 per page</option>
-                        <option value={24}>24 per page</option>
-                      </select>
-                    </div>
-                  </div>
+              {/* TOOLBAR: SEARCH, FILTER, SORT */}
+              <div className="bg-surface border border-line-subtle p-4 flex flex-wrap items-center gap-x-7 gap-y-4">
+                <div className="relative flex-1 basis-72 min-w-60">
+                  <label htmlFor="queue-search-input" className="sr-only">Search the queue</label>
+                  <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    id="queue-search-input"
+                    type="text"
+                    value={queueSearchQuery}
+                    onChange={(e) => { setQueueSearchQuery(e.target.value); setQueuePage(1); }}
+                    placeholder="Search by patient name, IC/ID or complaint (Alt+F)"
+                    className="w-full h-11 bg-white text-ink text-sm pl-10 pr-9 border border-line focus:outline-none focus:border-brand placeholder:text-slate-500"
+                  />
+                  {queueSearchQuery && (
+                    <button
+                      type="button"
+                      aria-label="Clear search"
+                      onClick={() => { setQueueSearchQuery(''); setQueuePage(1); }}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 text-slate-500 hover:text-ink text-base font-bold flex items-center justify-center cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
 
-                {/* PATIENT QUEUE LIST BODY */}
-                <div className="p-4 space-y-4">
-                  {/* HERO BANNER: CALL NEXT PATIENT (#1 ONLY ON PAGE 1) */}
-                  {nextPatient && nextVisit && (
-                    <div className={`bg-deep text-white p-5 rounded-none ${getTriageDetails(nextPatient, nextVisit).stripColor} border-t border-r border-b border-brand/40 shadow-md relative overflow-hidden space-y-3 group hover:border-line-strong transition-all`}>
-                      
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand/40 pb-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="bg-teal-300 text-deep text-2xs font-bold uppercase px-2.5 py-0.5 rounded-none tracking-wider shadow-2xs font-mono">
-                            NEXT IN LINE (#1)
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Show</span>
+                  {([
+                    { id: 'all', label: 'All', count: doctorQueue.length, warn: false },
+                    { id: 'high', label: 'High acuity', count: doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length, warn: false },
+                    { id: 'sla', label: 'Over 20 min', count: doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length, warn: true },
+                  ] as const).map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => { setAcuityFilter(f.id); setQueuePage(1); }}
+                      className={`h-10 px-3.5 text-sm font-semibold flex items-center gap-2 border transition-colors cursor-pointer ${
+                        acuityFilter === f.id
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-white text-ink border-line hover:bg-surface-accent'
+                      }`}
+                    >
+                      <span>{f.label}</span>
+                      <span className={`text-xs font-bold px-1.5 ${
+                        acuityFilter === f.id
+                          ? 'bg-white/20 text-white'
+                          : f.warn ? 'bg-amber-100 text-amber-900' : 'bg-surface-accent text-ink'
+                      }`}>{f.count}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sort by</span>
+                  <div className="flex border border-line bg-white">
+                    {(['urgency', 'wait', 'arrival'] as const).map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => { setSortRule(r); setQueuePage(1); }}
+                        className={`h-10 px-3.5 text-sm font-semibold transition-colors cursor-pointer ${
+                          sortRule === r ? 'bg-primary text-white' : 'bg-white text-ink hover:bg-surface-accent'
+                        }`}
+                      >
+                        {r === 'urgency' ? 'Urgency' : r === 'wait' ? 'Longest wait' : 'Arrival'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* NEXT IN LINE (#1 ONLY ON PAGE 1) */}
+              {nextPatient && nextVisit && (() => {
+                const heroTriage = getTriageDetails(nextPatient, nextVisit);
+                const heroWait = nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0;
+                const obj = nextVisit.soap?.objective;
+                const stepIndex = activeConsultationVisitId === nextVisit.id ? 2 : calledVisitId === nextVisit.id ? 1 : 0;
+                return (
+                  <section aria-label="Next patient in line" className="bg-surface border border-line shadow-2xs">
+                    <div className="bg-surface-accent border-b border-line-subtle px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="bg-primary text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5">Next in line</span>
+                        {pinnedVisitIds[nextVisit.id] && (
+                          <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold uppercase px-2.5 py-1 flex items-center gap-1.5">
+                            <Pin className="w-3 h-3 shrink-0" />
+                            <span>Pinned priority</span>
                           </span>
+                        )}
+                        {calledTimestampMap[nextVisit.id] && (
+                          <span className="bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold px-2.5 py-1">
+                            Called at {calledTimestampMap[nextVisit.id]}
+                          </span>
+                        )}
+                      </div>
 
-                          {pinnedVisitIds[nextVisit.id] && (
-                            <span className="bg-amber-400 text-slate-900 text-2xs font-bold uppercase px-2 py-0.5 rounded-none font-mono flex items-center justify-center gap-1">
-                              <Pin className="w-3 h-3 fill-slate-900 shrink-0" />
-                              <span>PINNED PRIORITY</span>
-                            </span>
-                          )}
-                          
-                          {/* Urgency Badge */}
-                          {(() => {
-                            const t = getTriageDetails(nextPatient, nextVisit);
-                            const IconComp = t.icon;
-                            return (
-                              <span className={`text-2xs font-bold uppercase px-2.5 py-0.5 rounded-none border flex items-center gap-1 font-mono ${t.badgeBg}`}>
-                                <IconComp className={`w-3 h-3 ${t.iconColor}`} />
-                                <span>Triage: {t.level}</span>
-                              </span>
-                            );
-                          })()}
+                      <ol className="flex items-center gap-2.5 text-sm font-semibold">
+                        {['Ready', 'Called', 'In consultation'].map((label, i) => (
+                          <React.Fragment key={label}>
+                            {i > 0 && <li aria-hidden="true" className="w-7 h-0.5 bg-line" />}
+                            <li className={`flex items-center gap-2 ${i === stepIndex ? 'text-accent' : 'text-slate-600'}`} aria-current={i === stepIndex ? 'step' : undefined}>
+                              <span className={`w-[22px] h-[22px] rounded-full text-xs font-bold flex items-center justify-center ${
+                                i === stepIndex ? 'bg-primary text-white' : i < stepIndex ? 'bg-surface-strong text-accent' : 'border-2 border-line text-slate-600'
+                              }`}>{i + 1}</span>
+                              {label}
+                            </li>
+                          </React.Fragment>
+                        ))}
+                      </ol>
+                    </div>
 
-                          {/* Allergy Badge */}
+                    <div className="p-6 flex flex-wrap items-start justify-between gap-x-10 gap-y-6">
+                      <div className="flex-1 basis-[34rem] min-w-0 space-y-4">
+                        <div className="space-y-1.5">
+                          <h3 className="text-2xl font-bold text-ink leading-tight">{nextPatient.fullName}</h3>
+                          <p className="text-sm text-slate-600">ID {nextPatient.id} · {nextPatient.gender} · Born {nextPatient.dob}</p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <span className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 flex items-center gap-1.5 ${heroTriage.badgeBg}`}>
+                            <heroTriage.icon className={`w-3.5 h-3.5 ${heroTriage.iconColor}`} />
+                            <span>Triage: {heroTriage.level}</span>
+                          </span>
                           {renderAllergyBadge(nextPatient.drugAllergies)}
+                        </div>
 
-                          {/* Called timestamp badge */}
-                          {calledTimestampMap[nextVisit.id] && (
-                            <span className="bg-emerald-400 text-ink text-2xs font-bold uppercase px-2 py-0.5 rounded-none font-mono animate-pulse flex items-center justify-center gap-1">
-                              📢 Called at {calledTimestampMap[nextVisit.id]}
-                            </span>
+                        <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-3">
+                          <div className="bg-surface-muted border border-line-subtle px-3.5 py-3 col-span-2 min-w-0">
+                            <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Chief complaint</div>
+                            <div className="mt-1 text-base font-semibold text-ink">{getChiefComplaintLabel(nextVisit.soap?.subjective)}</div>
+                          </div>
+                          <div className={`px-3.5 py-3 border ${heroWait >= 20 ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
+                            <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Waiting</div>
+                            <div className="mt-1 text-base font-bold">{heroWait} min</div>
+                          </div>
+                          {obj && obj.temperature > 0 && (
+                            <>
+                              <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
+                                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Blood pressure</div>
+                                <div className="mt-1 text-base font-semibold text-ink">{obj.bpSystolic}/{obj.bpDiastolic} <span className="text-xs font-medium text-slate-600">mmHg</span></div>
+                              </div>
+                              <div className={`px-3.5 py-3 border ${obj.temperature >= 37.5 ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
+                                <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Temperature</div>
+                                <div className="mt-1 text-base font-bold">{obj.temperature}°C</div>
+                              </div>
+                              <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
+                                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Heart rate</div>
+                                <div className="mt-1 text-base font-semibold text-ink">{obj.heartRate} <span className="text-xs font-medium text-slate-600">bpm</span></div>
+                              </div>
+                            </>
                           )}
                         </div>
 
-                        {/* Interactive Actions Header & 3-Step Visual Workflow Tracker */}
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="bg-surface-accent px-3.5 py-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                          <span className="text-xs font-bold uppercase tracking-wider text-accent">Why ranked first</span>
+                          <span className="text-sm text-ink">{getRankingRationale(nextPatient, nextVisit, 0, sortRule)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-none basis-60 flex flex-col gap-2.5">
+                        {activeConsultationVisitId === nextVisit.id || calledVisitId === nextVisit.id ? (
+                          <button
+                            type="button"
+                            onClick={() => handleStartConsultation(nextVisit.id)}
+                            className="h-[52px] bg-primary hover:bg-primary-hover text-white text-base font-bold flex items-center justify-center gap-2.5 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                          >
+                            <Stethoscope className="w-[18px] h-[18px]" />
+                            <span>Move to consultation</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
+                            className="h-[52px] bg-primary hover:bg-primary-hover text-white text-base font-bold flex items-center justify-center gap-2.5 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                          >
+                            <Volume2 className="w-[18px] h-[18px]" />
+                            <span>Call patient</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => toggleDetails(nextVisit.id)}
+                          className="h-11 bg-white text-accent border border-primary text-sm font-semibold hover:bg-surface-accent transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                        >
+                          {expandedDetails[nextVisit.id] ? 'Hide details' : 'View details'}
+                        </button>
+                        <div className="flex gap-2.5">
                           <button
                             type="button"
                             onClick={(e) => togglePinVisit(nextVisit.id, e)}
-                            title="Toggle Pin Priority"
-                            className={`p-1 px-2 text-2xs font-mono font-bold border rounded-none flex items-center gap-1 transition-all cursor-pointer ${
+                            title="Toggle pin priority"
+                            className={`flex-1 h-11 border text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                               pinnedVisitIds[nextVisit.id]
-                                ? 'bg-amber-400 text-slate-900 border-amber-300'
-                                : 'bg-black/30 hover:bg-black/50 text-teal-200 border-teal-500/40'
+                                ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                : 'bg-white text-ink border-line hover:bg-surface-accent'
                             }`}
                           >
-                            <Pin className="w-3 h-3" />
+                            <Pin className="w-4 h-4" />
                             <span>{pinnedVisitIds[nextVisit.id] ? 'Pinned' : 'Pin'}</span>
                           </button>
-
                           <button
                             type="button"
                             onClick={(e) => copyToClipboard(nextPatient.id, 'Patient ID', e)}
-                            title="Copy Patient ID"
-                            className="p-1 px-2 text-2xs font-mono font-bold bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 rounded-none flex items-center justify-center gap-1 transition-all cursor-pointer"
+                            title="Copy patient ID"
+                            className="flex-1 h-11 bg-white text-ink border border-line text-sm font-semibold flex items-center justify-center gap-2 hover:bg-surface-accent transition-colors cursor-pointer"
                           >
-                            <Copy className="w-3 h-3" />
+                            <Copy className="w-4 h-4" />
                             <span>Copy ID</span>
                           </button>
-
-                          <div className="text-2xs font-mono font-bold bg-black/40 px-3 py-1 border border-teal-500/30 rounded-none flex items-center justify-center gap-1.5">
-                            <span className={activeConsultationVisitId === nextVisit.id ? 'text-teal-200' : calledVisitId === nextVisit.id ? 'text-teal-200' : 'text-emerald-300 font-bold underline'}>
-                              Ready
-                            </span>
-                            <span className="text-teal-400">→</span>
-                            <span className={calledVisitId === nextVisit.id ? 'text-emerald-300 font-bold underline' : 'text-teal-200 opacity-60'}>
-                              Called
-                            </span>
-                            <span className="text-teal-400">→</span>
-                            <span className={activeConsultationVisitId === nextVisit.id ? 'text-emerald-300 font-bold underline' : 'text-teal-200 opacity-60'}>
-                              In Consultation
-                            </span>
-                          </div>
                         </div>
                       </div>
+                    </div>
 
-                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                        <div className="space-y-1.5">
-                          <h3 className="type-section-title text-white flex items-baseline gap-2">
-                            <span>{nextPatient.fullName}</span>
-                            <span className="text-xs font-mono text-teal-200 font-normal">ID: {nextPatient.id} · ({nextPatient.gender}, {nextPatient.dob})</span>
-                          </h3>
-
-                          {/* Rationale Pill: Why Ranked #1 */}
-                          <div className="text-2xs font-mono text-teal-200 flex items-center justify-center gap-1.5 bg-night-850/80 px-2.5 py-1 border border-brand/40 w-fit">
-                            <span className="font-bold text-teal-300">Rank Rationale:</span>
-                            <span>{getRankingRationale(nextPatient, nextVisit, 0, sortRule)}</span>
+                    {expandedDetails[nextVisit.id] && (
+                      <div className="border-t border-line-subtle bg-surface-muted px-6 py-4 text-sm text-ink space-y-4 animate-fadeIn">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full clinical subjective note</strong>
+                            <p className="leading-relaxed">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
                           </div>
-
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-teal-100 font-medium">
-                            <span className="font-bold text-white bg-teal-900/60 px-2 py-0.5 border border-teal-500/40">
-                              Complaint: {getChiefComplaintLabel(nextVisit.soap?.subjective)}
-                            </span>
-                            <span className="opacity-50">•</span>
-                            <span className="font-mono text-amber-200">
-                              Wait: <strong>{nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0} min</strong>
-                            </span>
+                          <div>
+                            <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Panel employer / coverage</strong>
+                            <p className="font-semibold text-accent">{nextPatient.panelEmployer}</p>
                           </div>
-
-                          {/* Dynamic Vitals summary preview */}
-                          {nextVisit.soap?.objective && nextVisit.soap.objective.temperature > 0 && (
-                            <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-2xs">
-                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                                BP: <strong className="text-white">{nextVisit.soap.objective.bpSystolic}/{nextVisit.soap.objective.bpDiastolic}</strong> mmHg
-                              </span>
-                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                                Temp: <strong className={nextVisit.soap.objective.temperature >= 37.5 ? 'text-rose-300 font-bold' : 'text-white'}>{nextVisit.soap.objective.temperature}°C</strong>
-                              </span>
-                              <span className="bg-black/30 px-2 py-0.5 rounded-none border border-white/10 text-teal-200">
-                                HR: <strong className="text-white">{nextVisit.soap.objective.heartRate}</strong> bpm
-                              </span>
-                            </div>
-                          )}
+                          <div>
+                            <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Address &amp; contact</strong>
+                            <p>{nextPatient.phone} · {nextPatient.address}</p>
+                          </div>
                         </div>
-
-                        {/* Dominant Primary Action & Secondary Toggle */}
-                        <div className="flex items-center gap-2.5 shrink-0">
+                        <div className="flex items-center gap-2 pt-3 border-t border-line-subtle flex-wrap">
                           <button
                             type="button"
-                            onClick={() => toggleDetails(nextVisit.id)}
-                            className="px-3 py-2 rounded-none text-xs font-bold text-teal-100 hover:text-white underline cursor-pointer focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:outline-none"
+                            onClick={() => handleStartConsultation(nextVisit.id)}
+                            className="h-10 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold flex items-center gap-2 cursor-pointer"
                           >
-                            {expandedDetails[nextVisit.id] ? 'Hide details' : 'More details'}
+                            <Stethoscope className="w-4 h-4" />
+                            <span>Start clinical diagnosis</span>
                           </button>
-
-                          {activeConsultationVisitId === nextVisit.id ? (
-                            <button
-                              type="button"
-                              onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-teal-300 hover:bg-teal-400 text-deep shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-                            >
-                              <Stethoscope className="w-4 h-4 text-ink" />
-                              <span>Move to consultation</span>
-                              <ChevronRight className="w-4 h-4 text-ink" />
-                            </button>
-                          ) : calledVisitId === nextVisit.id ? (
-                            <button
-                              type="button"
-                              onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-ink shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-                            >
-                              <Stethoscope className="w-4 h-4 text-ink" />
-                              <span>Move to consultation</span>
-                              <ChevronRight className="w-4 h-4 text-ink" />
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
-                              className="px-6 py-2.5 rounded-none text-xs font-bold bg-primary hover:bg-teal-600 text-white shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:outline-none"
-                            >
-                              <Volume2 className="w-4 h-4 text-white" />
-                              <span>Call patient</span>
-                              <ChevronRight className="w-4 h-4 text-white" />
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => copyToClipboard(`${nextPatient.fullName} (${nextPatient.id})`, 'Patient Details', e)}
+                            className="h-10 px-4 bg-white text-ink border border-line text-sm font-semibold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
+                          >
+                            <Copy className="w-4 h-4" />
+                            <span>Copy full record</span>
+                          </button>
                         </div>
                       </div>
+                    )}
+                  </section>
+                );
+              })()}
 
-                      {/* Expandable Secondary Details Drawer */}
-                      {expandedDetails[nextVisit.id] && (
-                        <div className="pt-3 border-t border-brand/40 text-xs text-teal-100 space-y-3 bg-black/20 p-3 rounded-none animate-fadeIn">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div>
-                              <strong className="block text-white mb-0.5">Full Clinical Subjective Note:</strong>
-                              <p className="text-slate-200 leading-relaxed font-sans">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
-                            </div>
-                            <div>
-                              <strong className="block text-white mb-0.5">Panel Employer / Coverage:</strong>
-                              <p className="text-teal-300 font-bold">{nextPatient.panelEmployer}</p>
-                            </div>
-                            <div>
-                              <strong className="block text-white mb-0.5">Address &amp; Contact:</strong>
-                              <p className="text-slate-200">{nextPatient.phone} · {nextPatient.address}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 pt-2 border-t border-teal-500/20 flex-wrap">
-                            <button
-                              type="button"
-                              onClick={() => handleStartConsultation(nextVisit.id)}
-                              className="bg-teal-300 text-deep px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 hover:bg-teal-400 cursor-pointer"
-                            >
-                              <Stethoscope className="w-3.5 h-3.5" />
-                              <span>Start Clinical Diagnosis</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={(e) => copyToClipboard(`${nextPatient.fullName} (${nextPatient.id})`, 'Patient Details', e)}
-                              className="bg-black/30 hover:bg-black/50 text-teal-200 border border-teal-500/40 px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 cursor-pointer"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>Copy Full Record</span>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* REMAINING PATIENTS LIST - ICE MINT COMPACT ROW GRID */}
-                  {remainingQueue.length > 0 && (
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-line dark:border-teal-800 pb-2">
-                        <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
-                          <span>
-                            {currentPage === 1 ? 'Subsequent Patients' : 'Patient Queue List'} ({sortedQueue.length} Total · Page {currentPage} of {totalPages})
-                          </span>
-                        </h4>
-                      </div>
-
-                      <div className="flex flex-col gap-2.5">
-                        {remainingQueue.map((visit, index) => {
-                          const pt = patientsMap[visit.patientId];
-                          if (!pt) return null;
-                          const isConsulting = activeConsultationVisitId === visit.id;
-                          const isExpanded = expandedDetails[visit.id];
-                          const globalRankIndex = currentPage === 1 ? index + 1 : startIndex + index;
-                          const queuePosition = globalRankIndex + 1;
-                          const triage = getTriageDetails(pt, visit);
-                          const TriageIcon = triage.icon;
-                          const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
-                          const isPinned = pinnedVisitIds[visit.id];
-
-                          return (
-                            <div
-                              key={visit.id}
-                              tabIndex={0}
-                              onClick={() => toggleDetails(visit.id)}
-                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
-                              className={`group border rounded-none ${triage.stripColor} transition-all ${density === 'compact' ? 'p-2' : 'p-3.5'} cursor-pointer shadow-2xs hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
-                                isConsulting 
-                                  ? 'bg-surface-accent dark:bg-night-800 border-brand shadow-xs' 
-                                  : isPinned
-                                  ? 'bg-surface-strong dark:bg-night-800 border-brand'
-                                  : 'bg-surface-accent dark:bg-night-850 hover:bg-surface-accent dark:hover:bg-night-700 border-line dark:border-teal-800'
-                              }`}
-                            >
-                              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                                
-                                {/* Col 1-5: Queue # + Name + ID + Triage & Allergy */}
-                                <div className="md:col-span-5 flex items-center gap-3 min-w-0">
-                                  <div className={`w-7 h-7 font-mono font-bold text-xs flex items-center justify-center shrink-0 border ${
-                                    isPinned
-                                      ? 'bg-amber-400 text-slate-900 border-amber-300'
-                                      : 'bg-surface-strong dark:bg-night-800 border-line dark:border-teal-800 text-ink dark:text-teal-300'
-                                  }`}>
-                                    #{queuePosition}
-                                  </div>
-
-                                  <div className="min-w-0 space-y-0.5">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <h4 className="type-label text-ink dark:text-white truncate group-hover:text-accent transition-colors">
-                                        {pt.fullName}
-                                      </h4>
-                                      <span className="font-mono text-2xs text-slate-500 dark:text-slate-400 font-bold">ID: {pt.id}</span>
-                                      
-                                      {isPinned && (
-                                        <span className="bg-amber-400 text-slate-900 text-2xs font-bold uppercase px-1.5 py-0.2 rounded-none font-mono">
-                                          Pinned
-                                        </span>
-                                      )}
-
-                                      {/* Urgency Badge */}
-                                      <span className={`text-2xs font-bold uppercase px-2 py-0.5 rounded-none border flex items-center gap-1 font-mono ${triage.badgeBg}`}>
-                                        <TriageIcon className={`w-3 h-3 ${triage.iconColor}`} />
-                                        <span>{triage.level}</span>
-                                      </span>
-
-                                      {/* Allergy Badge */}
-                                      {renderAllergyBadge(pt.drugAllergies)}
-                                    </div>
-
-                                    {/* Explainable Rank Rationale Pill */}
-                                    <div className="text-2xs font-mono text-slate-500 dark:text-slate-400 pt-0.5 flex items-center gap-1">
-                                      <span className="font-bold text-accent dark:text-teal-400">Rationale:</span>
-                                      <span className="truncate">{getRankingRationale(pt, visit, globalRankIndex, sortRule)}</span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Col 6-9: Chief Complaint */}
-                                <div className="md:col-span-4 min-w-0">
-                                  <span className="text-xs font-bold text-accent dark:text-teal-400 truncate block">
-                                    {getChiefComplaintLabel(visit.soap?.subjective)}
-                                  </span>
-                                </div>
-
-                                {/* Col 10: Aligned Wait Time Column */}
-                                <div className="md:col-span-1 font-mono text-xs text-slate-600 dark:text-slate-300 font-bold text-left md:text-center">
-                                  <span className={waitMins >= 20 ? 'text-amber-600 dark:text-amber-400 font-bold' : ''}>
-                                    {waitMins}m wait
-                                  </span>
-                                </div>
-
-                                {/* Col 11-12: Interactive Quick Actions */}
-                                <div className="md:col-span-2 flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => togglePinVisit(visit.id, e)}
-                                    title={isPinned ? 'Unpin' : 'Pin Priority'}
-                                    className={`p-1.5 rounded-none border transition-all cursor-pointer ${
-                                      isPinned
-                                        ? 'bg-amber-400 text-slate-900 border-amber-300'
-                                        : 'bg-white/80 dark:bg-night-850 text-slate-500 dark:text-slate-300 border-line dark:border-teal-800 hover:bg-surface-accent'
-                                    }`}
-                                  >
-                                    <Pin className="w-3 h-3" />
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onClick={(e) => copyToClipboard(pt.id, 'Patient ID', e)}
-                                    title="Copy Patient ID"
-                                    className="p-1.5 rounded-none border bg-white/80 dark:bg-night-850 text-slate-500 dark:text-slate-300 border-line dark:border-teal-800 hover:bg-surface-accent transition-all cursor-pointer"
-                                  >
-                                    <Copy className="w-3 h-3" />
-                                  </button>
-
-                                  {isConsulting ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStartConsultation(visit.id)}
-                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-deep dark:bg-primary text-white shadow-xs flex items-center justify-center gap-1 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
-                                    >
-                                      <Stethoscope className="w-3.5 h-3.5 text-teal-300" />
-                                      <span>Resume</span>
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => requestCallPatient(visit.id, pt.fullName, queuePosition)}
-                                      className="px-3 py-1.5 rounded-none text-xs font-bold bg-surface-strong hover:bg-primary text-ink hover:text-white dark:bg-night-800 dark:hover:bg-primary dark:text-teal-300 border border-line dark:border-teal-800 transition-all cursor-pointer flex items-center justify-center gap-1 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
-                                    >
-                                      <Volume2 className="w-3 h-3" />
-                                      <span>Call patient</span>
-                                    </button>
-                                  )}
-                                  <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90 text-accent' : ''}`} />
-                                </div>
-                              </div>
-
-                              {/* Expandable Details Drawer */}
-                              {isExpanded && (
-                                <div className="pt-2.5 mt-2 border-t border-line dark:border-teal-800/40 text-xs text-slate-700 dark:text-slate-200 bg-white/60 dark:bg-night-950 p-3 rounded-none space-y-2.5 animate-fadeIn">
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    <div>
-                                      <strong className="block text-ink dark:text-white font-bold mb-0.5">Full Reason / Symptoms:</strong>
-                                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-sans">{visit.soap?.subjective || 'General Medical Consultation'}</p>
-                                    </div>
-                                    <div>
-                                      <strong className="block text-ink dark:text-white font-bold mb-0.5">Panel Employer:</strong>
-                                      <p className="text-accent dark:text-teal-400 font-bold">{pt.panelEmployer}</p>
-                                    </div>
-                                    <div>
-                                      <strong className="block text-ink dark:text-white font-bold mb-0.5">Demographics &amp; Vitals:</strong>
-                                      <p className="text-slate-600 dark:text-slate-300">{pt.gender}, {pt.dob} · {pt.phone}</p>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-2 pt-2 border-t border-line/40 dark:border-teal-800/40 flex-wrap">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStartConsultation(visit.id)}
-                                      className="bg-primary hover:bg-primary-hover text-white px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 cursor-pointer"
-                                    >
-                                      <Stethoscope className="w-3.5 h-3.5" />
-                                      <span>Direct Consultation Draft</span>
-                                    </button>
-
-                                    <button
-                                      type="button"
-                                      onClick={(e) => copyToClipboard(`${pt.fullName} (${pt.id})`, 'Patient Details', e)}
-                                      className="bg-white dark:bg-night-850 text-ink dark:text-slate-200 border border-line dark:border-teal-800 px-3 py-1 text-xs font-bold rounded-none flex items-center justify-center gap-1 cursor-pointer hover:bg-surface-accent"
-                                    >
-                                      <Copy className="w-3.5 h-3.5" />
-                                      <span>Copy Record</span>
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+              {/* WAITING PATIENTS LIST */}
+              <section aria-label="Waiting patients" className="bg-surface border border-line-subtle">
+                <div className="px-5 py-4 flex flex-wrap items-baseline justify-between gap-2 border-b border-line-subtle">
+                  <h4 className="text-base font-bold text-ink">
+                    {currentPage === 1 ? 'Waiting after the next patient' : 'Patient queue list'}
+                  </h4>
+                  <span className="text-sm text-slate-600">
+                    {sortedQueue.length} total · Page {currentPage} of {totalPages}
+                  </span>
                 </div>
 
-                {/* PAGINATION CONTROLS BAR & INTERACTIVE KEYBOARD SHORTCUT FOOTER */}
-                <div className="bg-surface-strong dark:bg-night-950 border-t border-line dark:border-teal-800 p-3 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-mono text-2xs font-medium flex-wrap">
-                    <span>
-                      Showing <strong className="text-ink dark:text-teal-300">{startIndex + 1}</strong> to{' '}
-                      <strong className="text-ink dark:text-teal-300">
-                        {Math.min(startIndex + entriesPerPage, sortedQueue.length)}
-                      </strong>{' '}
-                      of <strong className="text-accent dark:text-teal-400">{sortedQueue.length}</strong> patient entries
+                <div className="overflow-x-auto">
+                  <div className="md:min-w-[960px]">
+                    <div className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line-subtle text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      <span>Rank</span>
+                      <span>Patient</span>
+                      <span>Complaint</span>
+                      <span>Why this position</span>
+                      <span>Waiting</span>
+                      <span className="text-right">Actions</span>
+                    </div>
+
+                    {remainingQueue.length === 0 && (
+                      <div className="px-5 py-10 text-center text-sm text-slate-600">
+                        {nextVisit ? 'No other patients are waiting.' : 'No patients match this filter.'}
+                      </div>
+                    )}
+
+                    {remainingQueue.map((visit, index) => {
+                      const pt = patientsMap[visit.patientId];
+                      if (!pt) return null;
+                      const isConsulting = activeConsultationVisitId === visit.id;
+                      const isExpanded = expandedDetails[visit.id];
+                      const globalRankIndex = currentPage === 1 ? index + 1 : startIndex + index;
+                      const queuePosition = globalRankIndex + 1;
+                      const triage = getTriageDetails(pt, visit);
+                      const waitMins = visit.registeredTime ? Math.floor((Date.now() - visit.registeredTime) / 60000) : 0;
+                      const isPinned = pinnedVisitIds[visit.id];
+                      const overSla = waitMins >= 20;
+                      const rankTint = triage.level === 'High'
+                        ? 'bg-rose-50 text-rose-900 border-rose-200'
+                        : triage.level === 'Medium'
+                        ? 'bg-amber-50 text-amber-900 border-amber-200'
+                        : 'bg-surface-accent text-ink border-line-subtle';
+
+                      return (
+                        <div
+                          key={visit.id}
+                          className={`border-b border-line-subtle transition-colors ${
+                            isConsulting ? 'bg-surface-accent' : isPinned ? 'bg-surface-muted' : 'bg-white hover:bg-surface-muted'
+                          }`}
+                        >
+                          <div
+                            tabIndex={0}
+                            onClick={() => toggleDetails(visit.id)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
+                            className="grid grid-cols-1 md:grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-3 md:gap-4 items-center px-5 py-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                          >
+                            <span className={`w-10 h-10 border text-sm font-bold flex items-center justify-center ${rankTint}`}>
+                              #{queuePosition}
+                            </span>
+
+                            <div className="min-w-0 space-y-2">
+                              <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                                <h4 className="text-sm font-semibold text-ink">{pt.fullName}</h4>
+                                <span className="text-xs text-slate-600">ID {pt.id}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {isPinned && (
+                                  <span className="bg-amber-100 text-amber-900 border border-amber-300 text-2xs font-bold uppercase px-2 py-0.5">Pinned</span>
+                                )}
+                                <span className={`text-2xs font-bold uppercase tracking-wide px-2 py-0.5 ${triage.badgeBg}`}>
+                                  {triage.level}
+                                </span>
+                                {renderAllergyBadge(pt.drugAllergies)}
+                              </div>
+                            </div>
+
+                            <span className="text-sm font-medium text-accent min-w-0">
+                              {getChiefComplaintLabel(visit.soap?.subjective)}
+                            </span>
+
+                            <span className="text-xs leading-snug text-slate-600 min-w-0">
+                              {getRankingRationale(pt, visit, globalRankIndex, sortRule)}
+                            </span>
+
+                            <div className="flex flex-col items-start gap-1">
+                              <span className={`text-sm font-bold px-2.5 py-1 border ${
+                                overSla ? 'bg-amber-50 text-amber-900 border-amber-200' : 'bg-surface-accent text-ink border-line-subtle'
+                              }`}>
+                                {waitMins} min
+                              </span>
+                              {overSla && <span className="text-2xs font-semibold text-amber-900">Over SLA</span>}
+                            </div>
+
+                            <div className="flex items-center gap-2 md:justify-end" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                type="button"
+                                onClick={(e) => togglePinVisit(visit.id, e)}
+                                aria-label={isPinned ? 'Unpin patient' : 'Pin patient'}
+                                title={isPinned ? 'Unpin' : 'Pin priority'}
+                                className={`w-11 h-11 border flex items-center justify-center transition-colors cursor-pointer ${
+                                  isPinned ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-white text-ink border-line hover:bg-surface-accent'
+                                }`}
+                              >
+                                <Pin className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => copyToClipboard(pt.id, 'Patient ID', e)}
+                                aria-label="Copy patient ID"
+                                title="Copy patient ID"
+                                className="w-11 h-11 bg-white text-ink border border-line flex items-center justify-center hover:bg-surface-accent transition-colors cursor-pointer"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                              {isConsulting ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartConsultation(visit.id)}
+                                  className="h-11 px-4 bg-deep text-white text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                                >
+                                  <Stethoscope className="w-4 h-4" />
+                                  <span>Resume</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => requestCallPatient(visit.id, pt.fullName, queuePosition)}
+                                  className="h-11 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                                >
+                                  Call patient
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {isExpanded && (
+                            <div className="mx-5 mb-4 border border-line-subtle bg-surface-muted p-4 text-sm text-ink space-y-3 animate-fadeIn">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full reason / symptoms</strong>
+                                  <p className="leading-relaxed">{visit.soap?.subjective || 'General Medical Consultation'}</p>
+                                </div>
+                                <div>
+                                  <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Panel employer</strong>
+                                  <p className="font-semibold text-accent">{pt.panelEmployer}</p>
+                                </div>
+                                <div>
+                                  <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Demographics &amp; contact</strong>
+                                  <p>{pt.gender}, {pt.dob} · {pt.phone}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 pt-3 border-t border-line-subtle flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartConsultation(visit.id)}
+                                  className="h-10 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold flex items-center gap-2 cursor-pointer"
+                                >
+                                  <Stethoscope className="w-4 h-4" />
+                                  <span>Direct consultation draft</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => copyToClipboard(`${pt.fullName} (${pt.id})`, 'Patient Details', e)}
+                                  className="h-10 px-4 bg-white text-ink border border-line text-sm font-semibold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
+                                >
+                                  <Copy className="w-4 h-4" />
+                                  <span>Copy record</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* FOOTER: SHORTCUTS, PAGE SIZE, PAGINATION */}
+                <div className="bg-surface-muted px-5 py-3.5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-xs text-slate-600">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold">
+                      Showing {sortedQueue.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + entriesPerPage, sortedQueue.length)} of {sortedQueue.length}
                     </span>
-
-                    <span className="hidden lg:inline-block text-slate-400">|</span>
-
-                    <span className="hidden lg:flex items-center gap-1.5 text-2xs text-slate-500 dark:text-slate-400">
-                      <Sparkles className="w-3 h-3 text-accent" />
-                      <span>Shortcuts:</span>
-                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
-                        <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+Q</kbd> Queue
-                      </span>
-                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
-                        <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+C</kbd> Consult
-                      </span>
-                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
-                        <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+F</kbd> Search
-                      </span>
-                      <span className="inline-flex items-center justify-center gap-1 bg-white dark:bg-night-850 border border-line dark:border-teal-800 px-1.5 py-0.5 rounded-none font-bold text-ink dark:text-teal-300 shadow-2xs">
-                        <kbd className="font-mono font-bold text-accent dark:text-teal-400">Alt+R</kbd> Refresh
-                      </span>
+                    <span className="hidden lg:inline text-slate-400">|</span>
+                    <span className="hidden lg:flex items-center gap-2">
+                      <span className="font-semibold">Shortcuts</span>
+                      {[['Alt+Q', 'Queue'], ['Alt+C', 'Consult'], ['Alt+F', 'Search'], ['Alt+R', 'Refresh']].map(([key, label]) => (
+                        <span key={key} className="border border-line bg-white px-2 py-0.5 text-ink">
+                          <kbd className="font-sans font-semibold">{key}</kbd> {label}
+                        </span>
+                      ))}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 font-mono">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <label className="flex items-center gap-2">
+                      <span className="font-semibold">Per page</span>
+                      <select
+                        value={entriesPerPage}
+                        onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setQueuePage(1); }}
+                        className="h-10 bg-white text-ink border border-line px-2 text-sm focus:outline-none focus:border-brand cursor-pointer"
+                      >
+                        <option value={6}>6</option>
+                        <option value={12}>12</option>
+                        <option value={24}>24</option>
+                      </select>
+                    </label>
+
                     <button
                       type="button"
                       disabled={currentPage === 1}
                       onClick={() => setQueuePage(prev => Math.max(1, prev - 1))}
-                      className={`px-2.5 py-1 text-xs rounded-none border flex items-center gap-1 font-bold transition-all ${
+                      className={`h-10 px-3.5 text-sm font-semibold border flex items-center gap-1 transition-colors ${
                         currentPage === 1
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'
-                          : 'bg-white dark:bg-night-850 text-ink dark:text-teal-300 border-line dark:border-teal-800 hover:bg-primary hover:text-white cursor-pointer'
+                          ? 'bg-white text-slate-400 border-line-subtle cursor-not-allowed'
+                          : 'bg-white text-ink border-line hover:bg-surface-accent cursor-pointer'
                       }`}
                     >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                      <span>Prev</span>
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Previous</span>
                     </button>
 
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                       <button
                         key={pageNum}
                         type="button"
+                        aria-current={pageNum === currentPage ? 'page' : undefined}
                         onClick={() => setQueuePage(pageNum)}
-                        className={`w-7 h-7 text-xs rounded-none border font-bold flex items-center justify-center transition-all ${
+                        className={`w-10 h-10 text-sm font-semibold border flex items-center justify-center transition-colors cursor-pointer ${
                           pageNum === currentPage
-                            ? 'bg-primary text-white border-brand shadow-xs'
-                            : 'bg-white dark:bg-night-850 text-ink dark:text-slate-200 border-line dark:border-teal-800 hover:bg-surface-accent dark:hover:bg-night-700 cursor-pointer'
+                            ? 'bg-primary text-white border-primary'
+                            : 'bg-white text-ink border-line hover:bg-surface-accent'
                         }`}
                       >
                         {pageNum}
@@ -1072,18 +970,19 @@ export default function DoctorDashboardModule({
                       type="button"
                       disabled={currentPage === totalPages}
                       onClick={() => setQueuePage(prev => Math.min(totalPages, prev + 1))}
-                      className={`px-2.5 py-1 text-xs rounded-none border flex items-center gap-1 font-bold transition-all ${
+                      className={`h-10 px-3.5 text-sm font-semibold border flex items-center gap-1 transition-colors ${
                         currentPage === totalPages
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'
-                          : 'bg-white dark:bg-night-850 text-ink dark:text-teal-300 border-line dark:border-teal-800 hover:bg-primary hover:text-white cursor-pointer'
+                          ? 'bg-white text-slate-400 border-line-subtle cursor-not-allowed'
+                          : 'bg-white text-ink border-line hover:bg-surface-accent cursor-pointer'
                       }`}
                     >
                       <span>Next</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              </div>
+              </section>
+            </div>
           )}
         </div>
       )}

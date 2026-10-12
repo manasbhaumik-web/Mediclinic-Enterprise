@@ -148,7 +148,7 @@ export default function SettingsModule() {
 
       {/* 1. FINANCIAL PARAMETERS */}
       <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
-        <div className="bg-surface-muted px-5 py-3 border-b border-line-subtle flex items-center justify-center gap-2">
+        <div className="bg-surface-muted px-5 py-3 border-b border-line-subtle flex items-center gap-2">
           <Percent className="w-4 h-4 text-accent" />
           <h3 className="type-card-title text-ink">Financial Parameters & Billing Rules</h3>
         </div>
