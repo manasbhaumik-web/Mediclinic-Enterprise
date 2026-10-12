@@ -48,14 +48,14 @@ export default function SubjectiveTab({
       {/* Header bar & quick actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs">
         <div>
-          <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
+          <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
             <MessageSquare className="w-4 h-4 text-accent dark:text-teal-400" />
             Subjective History &amp; Presenting Complaints
           </h4>
           <p className="text-2xs text-slate-500 dark:text-slate-400 font-medium">Record patient history, symptoms timeline, and pain scale.</p>
         </div>
 
-        <div className="flex items-center justify-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button 
             type="button"
             onClick={() => {
@@ -100,7 +100,7 @@ export default function SubjectiveTab({
 
       {/* Malaysia clinical quick complaint templates */}
       <div className="bg-surface dark:bg-night-800 border border-line dark:border-teal-800/50 rounded-none p-3.5 shadow-xs space-y-2">
-        <div className="flex items-center justify-center gap-1.5">
+        <div className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-accent dark:text-teal-400" />
           <span className="text-2xs font-bold text-ink dark:text-teal-300 uppercase tracking-wider">
             Clinical Symptom Quick-Templates:

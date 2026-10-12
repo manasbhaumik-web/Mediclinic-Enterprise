@@ -14,7 +14,7 @@ export default function RevenueCycleHub() {
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               AI Revenue Engine
             </span>
@@ -23,7 +23,7 @@ export default function RevenueCycleHub() {
               96.8% First-Pass Clean Rate
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center gap-2.5">
             <TrendingUp className="w-6 h-6 text-accent" />
             Revenue Cycle Management (RCM)
           </h1>
@@ -32,7 +32,7 @@ export default function RevenueCycleHub() {
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <button className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs">
             <FileCheck className="w-3.5 h-3.5 text-accent" />
             Export Audit Log
@@ -137,7 +137,7 @@ export default function RevenueCycleHub() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-surface-accent p-6 rounded-none border border-line shadow-xs">
-              <h3 className="type-heading-caps mb-4 flex items-center justify-center gap-2 text-ink">
+              <h3 className="type-heading-caps mb-4 flex items-center gap-2 text-ink">
                 <Target className="w-5 h-5 text-accent" />
                 Patient Cost Estimator (Live TPA)
               </h3>
@@ -163,7 +163,7 @@ export default function RevenueCycleHub() {
             </div>
 
             <div className="bg-surface-accent p-6 rounded-none border border-line shadow-xs text-slate-800">
-              <h3 className="type-heading-caps mb-4 flex items-center justify-center gap-2 text-ink">
+              <h3 className="type-heading-caps mb-4 flex items-center gap-2 text-ink">
                 <BarChart3 className="w-5 h-5 text-accent" />
                 Competitive Pricing Analysis
               </h3>
@@ -202,7 +202,7 @@ export default function RevenueCycleHub() {
       {activeTab === 'leakage' && (
         <div className="bg-surface-accent p-6 rounded-none border border-line shadow-xs">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="type-heading-caps flex items-center justify-center gap-2 text-ink">
+            <h3 className="type-heading-caps flex items-center gap-2 text-ink">
               <Search className="w-5 h-5 text-accent" />
               Revenue Leakage Detection AI
             </h3>
@@ -251,7 +251,7 @@ export default function RevenueCycleHub() {
       {activeTab === 'denials' && (
         <div className="bg-surface-accent p-6 rounded-none border border-line shadow-xs">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="type-heading-caps flex items-center justify-center gap-2 text-ink">
+            <h3 className="type-heading-caps flex items-center gap-2 text-ink">
               <BrainCircuit className="w-5 h-5 text-accent" />
               Pre-Claim Denial Risk Scanner
             </h3>

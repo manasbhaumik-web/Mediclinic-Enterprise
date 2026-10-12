@@ -339,7 +339,7 @@ export default function PatientRegistrationModule({
         <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6 border-b border-line-subtle dark:border-teal-800/40 pb-4">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
                   <Clock className="w-5 h-5 text-accent dark:text-teal-300" />
                 </div>
@@ -408,7 +408,7 @@ export default function PatientRegistrationModule({
                               Panel: {pt?.panelEmployer}
                             </span>
                           )}
-                          <div className="flex items-center justify-center gap-1.5 text-ink dark:text-slate-200 bg-surface-muted dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 font-mono text-2xs">
+                          <div className="flex items-center gap-1.5 text-ink dark:text-slate-200 bg-surface-muted dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 font-mono text-2xs">
                             <Activity className="w-4 h-4 text-accent dark:text-teal-300" />
                             <span>Triage: {visit.soap?.objective?.temperature}°C • HR {visit.soap?.objective?.heartRate} • BP {visit.soap?.objective?.bpSystolic}/{visit.soap?.objective?.bpDiastolic}</span>
                           </div>
@@ -736,7 +736,7 @@ export default function PatientRegistrationModule({
             
             {/* Header section with primary action button and total count badge */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line-subtle dark:border-teal-800/40 pb-4 font-sans">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
                   <FolderCheck className="w-5 h-5 text-accent dark:text-teal-300" />
                 </div>

@@ -299,7 +299,7 @@ export default function ConsultationRoom({
       <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/50 rounded-none p-4 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-brand">
         
         {/* Patient Demographics & PII Controls */}
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-none bg-primary text-white flex items-center justify-center font-bold text-sm shrink-0 border border-brand shadow-xs">
             {currentPatient.fullName.substring(0, 2).toUpperCase()}
           </div>
@@ -401,12 +401,12 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {currentPatient.drugAllergies.length > 0 && (
         <div className="bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 p-3.5 rounded-none flex items-center justify-between gap-3 text-rose-900 dark:text-rose-200 shadow-2xs animate-fadeIn">
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-none bg-rose-500 text-white flex items-center justify-center shrink-0">
               <AlertTriangle className="w-4.5 h-4.5" />
             </div>
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 text-rose-800 dark:text-rose-300">
+              <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-rose-800 dark:text-rose-300">
                 <span>CRITICAL PATIENT SAFETY ALERT: REGISTERED DRUG ALLERGIES</span>
               </div>
               <p className="text-xs mt-0.5 font-medium text-rose-700/90 dark:text-rose-300/90">
@@ -432,7 +432,7 @@ export default function ConsultationRoom({
             
             {/* EXPLICIT CLINICAL WORKFLOW STATE SEQUENCE BAR */}
             <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-2 rounded-none flex items-center justify-between text-2xs font-mono font-bold">
-              <div className="flex items-center justify-center gap-1 overflow-x-auto custom-scrollbar">
+              <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar">
                 <span className="bg-primary text-white px-2 py-0.5 rounded-none flex items-center justify-center gap-1">
                   <CheckCircle2 className="w-3 h-3 text-emerald-300" />
                   1. Draft Saved
@@ -463,7 +463,7 @@ export default function ConsultationRoom({
             <div className="bg-surface-muted dark:bg-night-850 p-3.5 border border-line-subtle dark:border-teal-800/40 rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-2xs font-bold text-accent uppercase tracking-wider block font-mono">Consultation Draft in Progress</span>
-                <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center justify-center gap-1.5 mt-0.5">
+                <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-1.5 mt-0.5">
                   <Stethoscope className="w-4 h-4 text-accent" />
                   <span>Encounter Workspace — {activeTab.toUpperCase()}</span>
                 </h3>
@@ -491,7 +491,7 @@ export default function ConsultationRoom({
                     : 'text-accent dark:text-slate-200 hover:bg-surface-strong dark:hover:bg-night-800'
                 }`}
               >
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center gap-1">
                   <ClipboardList className="w-4 h-4" />
                   <span>1. Subjective</span>
                 </div>
@@ -511,7 +511,7 @@ export default function ConsultationRoom({
                     : 'text-accent dark:text-slate-200 hover:bg-surface-strong dark:hover:bg-night-800'
                 }`}
               >
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center gap-1">
                   <Activity className="w-4 h-4" />
                   <span>2. Objective</span>
                 </div>
@@ -531,7 +531,7 @@ export default function ConsultationRoom({
                     : 'text-accent dark:text-slate-200 hover:bg-surface-strong dark:hover:bg-night-800'
                 }`}
               >
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center gap-1">
                   <Stethoscope className="w-4 h-4" />
                   <span>3. Assessment</span>
                 </div>
@@ -551,7 +551,7 @@ export default function ConsultationRoom({
                     : 'text-accent dark:text-slate-200 hover:bg-surface-strong dark:hover:bg-night-800'
                 }`}
               >
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center gap-1">
                   <Pill className="w-4 h-4" />
                   <span>4. Plan &amp; Rx</span>
                 </div>
@@ -614,7 +614,7 @@ export default function ConsultationRoom({
 
           {/* SINGLE PRIMARY WORKFLOW CTA TOOLBAR */}
           <div className="border-t border-line-subtle dark:border-teal-800/40 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={onCancel}
@@ -633,7 +633,7 @@ export default function ConsultationRoom({
               </button>
             </div>
 
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center gap-3">
               {/* Dynamic Single Primary Action CTA Button */}
               {activeTab === 'subjective' && (
                 <button
@@ -689,7 +689,7 @@ export default function ConsultationRoom({
           {/* Contextual Recent Vitals Card */}
           <div className="bg-surface dark:bg-night-900 p-4 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs space-y-2.5">
             <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-2">
-              <h3 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
+              <h3 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
                 <Activity className="w-4 h-4 text-accent" />
                 Recent Outpatient Vitals
               </h3>
@@ -719,7 +719,7 @@ export default function ConsultationRoom({
           {/* Contextual AI Decision Support Draft Card */}
           <div className="bg-surface dark:bg-night-900 p-4 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs space-y-3">
             <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-2">
-              <h3 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
+              <h3 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
                 <Brain className="w-4 h-4 text-accent" />
                 AI Decision Support
               </h3>
@@ -765,7 +765,7 @@ export default function ConsultationRoom({
           {/* Longitudinal Clinical History Timeline */}
           <div className="bg-surface dark:bg-night-900 p-4 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs space-y-3 flex-1 flex flex-col">
             <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-2">
-              <h3 className="type-label text-ink dark:text-teal-300 flex items-center justify-center gap-1.5">
+              <h3 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
                 <History className="w-4 h-4 text-accent" />
                 {t.longitudinalHistory}
               </h3>
@@ -832,7 +832,7 @@ export default function ConsultationRoom({
           <div className="bg-white dark:bg-night-900 border-2 border-brand shadow-2xl max-w-2xl w-full p-6 rounded-none space-y-5 text-ink dark:text-white">
             
             <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-3">
-              <div className="flex items-center justify-center gap-2.5">
+              <div className="flex items-center gap-2.5">
                 <Stethoscope className="w-5 h-5 text-accent" />
                 <h3 className="type-heading-caps">Review and send prescription</h3>
               </div>
@@ -872,7 +872,7 @@ export default function ConsultationRoom({
               </div>
 
               {currentPatient.drugAllergies.length > 0 && (
-                <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 p-2.5 text-emerald-900 dark:text-emerald-200 font-bold flex items-center justify-center gap-2">
+                <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 p-2.5 text-emerald-900 dark:text-emerald-200 font-bold flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Allergy Safety Verification Passed (No active conflicts with {currentPatient.drugAllergies.join(', ')})</span>
                 </div>

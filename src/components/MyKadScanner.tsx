@@ -108,7 +108,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
         
         {/* Header */}
         <div className="bg-primary px-5 py-4 text-white flex items-center justify-between">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <ScanLine className="w-5 h-5 text-cyan-300" />
             <h3 id="mykad-scanner-title" className="font-semibold tracking-wide">MyKad Smart OCR & Reader</h3>
           </div>

@@ -49,7 +49,7 @@ export default function SettingsModule() {
       {/* STRUCTURED CLINICAL HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               System Governance
             </span>
@@ -58,7 +58,7 @@ export default function SettingsModule() {
               Policy v2.4 Active
             </span>
           </div>
-          <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
+          <h1 className="type-page-title text-ink flex items-center gap-2.5">
             <Settings className="w-6 h-6 text-accent" />
             Global Configuration
           </h1>
@@ -67,7 +67,7 @@ export default function SettingsModule() {
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <button className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs">
             <RotateCcw className="w-3.5 h-3.5 text-accent" />
             Reset Defaults
@@ -189,7 +189,7 @@ export default function SettingsModule() {
       {/* 2. MODULE ENABLEMENT */}
       <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
         <div className="bg-surface-muted px-5 py-3 border-b border-line-subtle flex items-center justify-between">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-accent" />
             <h3 className="type-card-title text-ink">Administration Module Enablement</h3>
           </div>
@@ -202,7 +202,7 @@ export default function SettingsModule() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <Users className="w-4 h-4" />
                 </div>
@@ -218,7 +218,7 @@ export default function SettingsModule() {
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <Pill className="w-4 h-4" />
                 </div>
@@ -234,7 +234,7 @@ export default function SettingsModule() {
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <Stethoscope className="w-4 h-4" />
                 </div>
@@ -250,7 +250,7 @@ export default function SettingsModule() {
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <DollarSign className="w-4 h-4" />
                 </div>
@@ -266,7 +266,7 @@ export default function SettingsModule() {
             </div>
 
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all md:col-span-2">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-teal-50 text-accent rounded-none border border-line-subtle">
                   <FileSpreadsheet className="w-4 h-4" />
                 </div>
@@ -287,7 +287,7 @@ export default function SettingsModule() {
       {/* 3. HARDWARE PERIPHERAL INTEGRATIONS */}
       <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
         <div className="bg-surface px-5 py-3 border-b border-teal-100 flex items-center justify-between">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <Smartphone className="w-4 h-4 text-accent" />
             <h3 className="type-card-title text-ink">Physical Hardware Peripheral Bus</h3>
           </div>

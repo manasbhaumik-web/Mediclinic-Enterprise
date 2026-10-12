@@ -213,7 +213,7 @@ export default function LandingDashboard({
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-2xs font-bold uppercase tracking-wider rounded-none">
                 Clinic overview
               </span>
@@ -222,7 +222,7 @@ export default function LandingDashboard({
                 All systems operational
               </span>
             </div>
-            <h2 className="type-section-title text-slate-900 flex items-center justify-center gap-2.5">
+            <h2 className="type-section-title text-slate-900 flex items-center gap-2.5">
               <Activity className="w-7 h-7 text-accent" />
               <span>
                 {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
@@ -282,7 +282,7 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="type-heading-caps text-slate-700 flex items-center justify-center gap-2">
+          <h3 className="type-heading-caps text-slate-700 flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-accent" />
             Choose a workspace
           </h3>
@@ -309,7 +309,7 @@ export default function LandingDashboard({
                   </div>
 
                   <div>
-                    <h4 className="type-card-title text-slate-900 group-hover:text-accent transition-colors flex items-center justify-center gap-1">
+                    <h4 className="type-card-title text-slate-900 group-hover:text-accent transition-colors flex items-center gap-1">
                       {mod.title}
                     </h4>
                     <p className="text-2xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
@@ -459,14 +459,14 @@ export default function LandingDashboard({
         <div className="lg:col-span-8 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs">
           <div className="flex items-center justify-between pb-4 border-b border-line-subtle mb-5">
             <div>
-              <h3 className="type-card-title text-slate-900 flex items-center justify-center gap-2">
+              <h3 className="type-card-title text-slate-900 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-accent" />
                 Hourly Outpatient Throughput Trend
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">Peak hour patient traffic and queue volume throughout operating hours.</p>
             </div>
             
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-2xs bg-surface-accent text-accent font-mono px-2.5 py-1 rounded-none border border-line font-bold tracking-wider uppercase flex items-center justify-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
                 Live Stream
@@ -500,7 +500,7 @@ export default function LandingDashboard({
         <div className="lg:col-span-4 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="pb-4 border-b border-line-subtle mb-5">
-              <h3 className="type-card-title text-slate-900 flex items-center justify-center gap-2">
+              <h3 className="type-card-title text-slate-900 flex items-center gap-2">
                 <PieChartIcon className="w-5 h-5 text-accent" />
                 ICD-10 Diagnosis Distribution
               </h3>
@@ -540,7 +540,7 @@ export default function LandingDashboard({
           <div className="space-y-2 mt-auto border-t border-line-subtle pt-4 text-xs">
             {icdBreakdownData.slice(0, 3).map((item, idx) => (
               <div key={idx} className="flex items-center justify-between text-slate-700">
-                <span className="flex items-center justify-center gap-2 truncate max-w-[180px]">
+                <span className="flex items-center gap-2 truncate max-w-[180px]">
                   <LegendSwatch color={item.color} />
                   <span className="truncate font-semibold">{item.name}</span>
                 </span>
@@ -561,7 +561,7 @@ export default function LandingDashboard({
         <div className="lg:col-span-6 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs">
           <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
             <div>
-              <h3 className="type-card-title text-slate-900 flex items-center justify-center gap-2">
+              <h3 className="type-card-title text-slate-900 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-sky-600" />
                 Payer & TPA Panel Settlement Mix
               </h3>
@@ -591,7 +591,7 @@ export default function LandingDashboard({
         <div className="lg:col-span-6 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs">
           <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
             <div>
-              <h3 className="type-card-title text-slate-900 flex items-center justify-center gap-2">
+              <h3 className="type-card-title text-slate-900 flex items-center gap-2">
                 <Pill className="w-5 h-5 text-amber-600" />
                 Pharmacy stock overview
               </h3>
@@ -606,7 +606,7 @@ export default function LandingDashboard({
             {fastMovingDrugs.map((drug, idx) => (
               <div key={idx} className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-slate-900 flex items-center justify-center gap-2">
+                  <span className="font-bold text-slate-900 flex items-center gap-2">
                     <span>{drug.name}</span>
                     {drug.percentage < 50 ? (
                       <span className="text-2xs bg-amber-100 text-amber-800 px-2 py-0.2 rounded-none font-bold border border-amber-300">
@@ -638,7 +638,7 @@ export default function LandingDashboard({
         {/* Clinic Facility & License Info (7 Cols) */}
         <div className="lg:col-span-7 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs space-y-5">
           <div className="flex items-center justify-between border-b border-line-subtle pb-4">
-            <h3 className="type-card-title text-slate-900 flex items-center justify-center gap-2">
+            <h3 className="type-card-title text-slate-900 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-accent" />
               Clinic Operating Information & Licensing
             </h3>
@@ -690,7 +690,7 @@ export default function LandingDashboard({
         {/* On-Duty Clinician Roster (5 Cols) */}
         <div className="lg:col-span-5 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-line-subtle pb-4">
-            <h3 className="type-card-title text-slate-900 flex items-center justify-center gap-2">
+            <h3 className="type-card-title text-slate-900 flex items-center gap-2">
               <Users className="w-5 h-5 text-accent" />
               On-Duty Medical Staff Roster
             </h3>

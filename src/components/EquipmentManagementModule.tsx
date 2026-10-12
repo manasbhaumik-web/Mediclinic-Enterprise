@@ -216,7 +216,7 @@ export default function EquipmentManagementModule() {
           {/* STRUCTURED CLINICAL HEADER BANNER */}
           <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
                 <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
                   Medical Hardware Lifecycle
                 </span>
@@ -225,7 +225,7 @@ export default function EquipmentManagementModule() {
                   {operationalPercentage}% Fleet Operational
                 </span>
               </div>
-              <h1 className="type-page-title text-ink flex items-center justify-center gap-2.5">
+              <h1 className="type-page-title text-ink flex items-center gap-2.5">
                 <Stethoscope className="w-6 h-6 text-accent" />
                 Equipment & Asset Management
               </h1>
@@ -234,7 +234,7 @@ export default function EquipmentManagementModule() {
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center gap-3">
               <button 
                 onClick={() => setActiveTab(activeTab === 'catalog' ? 'logs' : 'catalog')}
                 className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
@@ -409,7 +409,7 @@ export default function EquipmentManagementModule() {
           {activeTab === 'logs' && (
             <div className="bg-surface-accent border border-line rounded-none shadow-sm overflow-hidden animate-fadeIn">
               <div className="bg-surface px-5 py-3 border-b border-teal-100 flex justify-between items-center">
-                <h3 className="type-card-title text-ink flex items-center justify-center gap-2">
+                <h3 className="type-card-title text-ink flex items-center gap-2">
                   <History className="w-4 h-4 text-accent" />
                   Equipment Audit & Disposal Logs
                 </h3>
@@ -457,7 +457,7 @@ export default function EquipmentManagementModule() {
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white w-full max-w-sm rounded-none shadow-xl overflow-hidden animate-slideUp border border-slate-200">
                 <div className="flex items-center justify-between p-4 border-b border-teal-100 bg-surface">
-                  <h3 className="type-card-title text-ink flex items-center justify-center gap-2"><PenTool className="w-4 h-4 text-accent"/> Log Service / Calibration</h3>
+                  <h3 className="type-card-title text-ink flex items-center gap-2"><PenTool className="w-4 h-4 text-accent"/> Log Service / Calibration</h3>
                   <button onClick={() => setMaintainEqId(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
                 </div>
                 <form onSubmit={handleMaintain} className="p-5 space-y-4 text-center">
@@ -476,7 +476,7 @@ export default function EquipmentManagementModule() {
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white w-full max-w-sm rounded-none shadow-xl overflow-hidden animate-slideUp border border-slate-200">
                 <div className="flex items-center justify-between p-4 border-b border-red-100 bg-red-50">
-                  <h3 className="type-card-title text-red-900 flex items-center justify-center gap-2"><Trash2 className="w-4 h-4 text-red-600"/> Decommission Device</h3>
+                  <h3 className="type-card-title text-red-900 flex items-center gap-2"><Trash2 className="w-4 h-4 text-red-600"/> Decommission Device</h3>
                   <button onClick={() => setDisposeEqId(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
                 </div>
                 <form onSubmit={handleDispose} className="p-5 space-y-4 text-center">
