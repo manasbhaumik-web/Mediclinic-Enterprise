@@ -41,21 +41,21 @@
   --color-primary: #0f766e;         /* filled buttons (AA with white text) */
   --color-primary-hover: #115e59;
 
-  /* Staff app chrome (header bar, sub-navigation) */
-  --color-chrome: #0a837f;
-  --color-chrome-nav: #0d9488;
-  --color-chrome-active: #0f766e;
+  /* Staff app chrome (header bar, sub-navigation) — all AA with white text */
+  --color-chrome: #0e7a73;
+  --color-chrome-nav: #0b6e69;
+  --color-chrome-active: #0a4f4b;
   --color-chrome-deep: #086b68;
   --color-chrome-line: #065451;
   --color-chrome-hover: #074f4b;
 
   /* Night Shift palette */
-  --color-night-950: #061f26;
-  --color-night-900: #07252d;
-  --color-night-850: #082830;
-  --color-night-800: #0c3844;
-  --color-night-700: #0e4857;
-  --color-night-600: #12596b;
+  --color-night-950: #153038;
+  --color-night-900: #17363e;
+  --color-night-850: #193840;
+  --color-night-800: #204751;
+  --color-night-700: #255561;
+  --color-night-600: #2c6472;
 
   /* Partner brand colours */
   --color-stripe: #635bff;
@@ -65,14 +65,25 @@
   /* Shadows */
   --shadow-glow-danger: 0 0 15px rgb(239 68 68 / 0.15);
   --shadow-bar-up: 0 -4px 16px rgb(15 60 76 / 0.08);  /* bottom-docked action bars */
+
+  /* Charts (applied to Recharts output below, so they follow Night Shift) */
+  --color-chart-text: #475569;
+  --color-chart-muted: #64748b;
+  --color-chart-grid: #ccfbf1;
+  --color-chart-axis: #94a3b8;
 }
 
 .dark {
-  --color-canvas: #07252d;
-  --color-surface: #082830;
-  --color-surface-muted: #09333e;
-  --color-surface-accent: #082830;
-  --color-surface-strong: #0e4857;
+  --color-chart-text: #e2e8f0;
+  --color-chart-muted: #cbd5e1;
+  --color-chart-grid: rgb(148 163 184 / 0.28);
+  --color-chart-axis: rgb(203 213 225 / 0.55);
+
+  --color-canvas: #17363e;
+  --color-surface: #193840;
+  --color-surface-muted: #1c424c;
+  --color-surface-accent: #193840;
+  --color-surface-strong: #255561;
 
   --color-line-subtle: rgb(45 212 191 / 0.2);
   --color-line: rgb(45 212 191 / 0.25);
@@ -82,8 +93,8 @@
   --color-accent: #2dd4bf;
 
   --color-brand: #14b8a6;
-  --color-primary: #0d9488;
-  --color-primary-hover: #0f766e;
+  --color-primary: #0f766e;         /* same as light: AA with white text */
+  --color-primary-hover: #0b6e69;
 }
 
 body {
@@ -96,6 +107,32 @@ body {
 
 .dark {
   color: #f8fafc;
+}
+
+/* Charts: CSS beats Recharts' fill/stroke attributes, so one set of rules styles every chart in both modes. */
+.recharts-cartesian-axis-tick-value,
+.recharts-polar-angle-axis-tick-value,
+.recharts-polar-radius-axis-tick-value,
+.recharts-label,
+.recharts-text {
+  fill: var(--color-chart-text);
+}
+.recharts-legend-item-text {
+  color: var(--color-chart-text) !important;  /* Recharts sets this inline */
+}
+.recharts-cartesian-grid line,
+.recharts-polar-grid line,
+.recharts-polar-grid polygon,
+.recharts-polar-grid circle {
+  stroke: var(--color-chart-grid);
+}
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line,
+.recharts-polar-angle-axis-line {
+  stroke: var(--color-chart-axis);
+}
+.recharts-reference-line line {
+  stroke: var(--color-chart-muted);
 }
 
 /* Keep emphasis inside the four-weight scale (browser default "bolder" resolves to 900 inside bold text). */
@@ -387,7 +424,7 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 }
 
 .dark tbody tr:nth-child(even) {
-  background-color: #092e38;
+  background-color: #1b3e47;
 }
 
 .dark tbody tr:hover {
@@ -413,7 +450,7 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .text-slate-400,
 .dark [class*="text-slate-500"],
 .dark [class*="text-slate-400"] {
-  color: #94a3b8 !important;
+  color: #c0cad7 !important;
 }
 
 /* Inputs */
@@ -427,7 +464,7 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }
 
 .dark select option {
@@ -440,8 +477,8 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .bg-teal-100,
 .dark [class*="bg-teal-50"],
 .dark [class*="bg-teal-100"] {
-  background-color: rgb(13 148 136 / 0.35) !important;
-  color: #2dd4bf !important;
+  background-color: rgb(13 148 136 / 0.16) !important;
+  color: #99f6e4 !important;
   border-color: rgb(45 212 191 / 0.4) !important;
 }
 
@@ -449,8 +486,8 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .bg-emerald-100,
 .dark [class*="bg-emerald-50"],
 .dark [class*="bg-emerald-100"] {
-  background-color: rgb(16 185 129 / 0.3) !important;
-  color: #34d399 !important;
+  background-color: rgb(16 185 129 / 0.16) !important;
+  color: #6ee7b7 !important;
   border-color: rgb(52 211 153 / 0.4) !important;
 }
 
@@ -458,8 +495,8 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .bg-amber-100,
 .dark [class*="bg-amber-50"],
 .dark [class*="bg-amber-100"] {
-  background-color: rgb(245 158 11 / 0.3) !important;
-  color: #fbbf24 !important;
+  background-color: rgb(245 158 11 / 0.16) !important;
+  color: #fcd34d !important;
   border-color: rgb(251 191 36 / 0.4) !important;
 }
 
@@ -467,8 +504,8 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .bg-purple-100,
 .dark [class*="bg-purple-50"],
 .dark [class*="bg-purple-100"] {
-  background-color: rgb(168 85 247 / 0.3) !important;
-  color: #c084fc !important;
+  background-color: rgb(168 85 247 / 0.16) !important;
+  color: #d8b4fe !important;
   border-color: rgb(192 132 252 / 0.4) !important;
 }
 
@@ -476,43 +513,87 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .bg-sky-100,
 .dark [class*="bg-sky-50"],
 .dark [class*="bg-sky-100"] {
-  background-color: rgb(14 165 233 / 0.3) !important;
-  color: #38bdf8 !important;
+  background-color: rgb(14 165 233 / 0.16) !important;
+  color: #7dd3fc !important;
   border-color: rgb(56 189 248 / 0.4) !important;
 }
 
 .dark .bg-rose-50,
 .dark .bg-rose-100,
 .dark [class*="bg-rose-50"],
-.dark [class*="bg-rose-100"] {
-  background-color: rgb(244 63 94 / 0.25) !important;
-  color: #f87171 !important;
+.dark [class*="bg-rose-100"],
+.dark .bg-red-50,
+.dark .bg-red-100,
+.dark [class*="bg-red-50"],
+.dark [class*="bg-red-100"] {
+  background-color: rgb(244 63 94 / 0.16) !important;
+  color: #fda4af !important;
   border-color: rgb(248 113 113 / 0.4) !important;
 }
 
 .dark .text-teal-800,
 .dark .text-teal-700 {
-  color: #2dd4bf !important;
+  color: #99f6e4 !important;
 }
 
 .dark .text-emerald-800,
 .dark .text-emerald-700 {
-  color: #34d399 !important;
+  color: #6ee7b7 !important;
 }
 
 .dark .text-amber-800,
 .dark .text-amber-700 {
-  color: #fbbf24 !important;
+  color: #fcd34d !important;
 }
 
 .dark .text-purple-800,
 .dark .text-purple-700 {
-  color: #c084fc !important;
+  color: #d8b4fe !important;
 }
 
 .dark .text-sky-800,
 .dark .text-sky-700 {
-  color: #38bdf8 !important;
+  color: #7dd3fc !important;
+}
+
+.dark .text-rose-800,
+.dark .text-rose-700,
+.dark .text-red-700 {
+  color: #fda4af !important;
+}
+
+.dark .text-sky-600 {
+  color: #7dd3fc !important;
+}
+
+/* Status text in light-mode shades (500/600/900) → light 300 shades on dark surfaces */
+.dark .text-emerald-500,
+.dark .text-emerald-600,
+.dark .text-emerald-900,
+.dark .text-green-600 {
+  color: #6ee7b7 !important;
+}
+
+.dark .text-amber-500,
+.dark .text-amber-600,
+.dark .text-amber-900,
+.dark .text-orange-600 {
+  color: #fcd34d !important;
+}
+
+.dark .text-red-500,
+.dark .text-red-600,
+.dark .text-red-900,
+.dark .text-rose-500,
+.dark .text-rose-600,
+.dark .text-rose-900 {
+  color: #fda4af !important;
+}
+
+/* Solid light status fills keep dark text (these backgrounds don't change in Night Shift) */
+.dark .bg-amber-200,
+.dark .bg-amber-300 {
+  color: #451a03 !important;
 }
 
 /* Neutral borders */
@@ -533,5 +614,5 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
 .dark .hover\:bg-slate-50:hover,
 .dark .hover\:bg-slate-50\/70:hover,
 .dark .hover\:bg-teal-50:hover {
-  background-color: #124e5e !important;
+  background-color: #2a5a67 !important;
 }

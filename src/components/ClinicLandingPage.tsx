@@ -726,8 +726,8 @@ export default function ClinicLandingPage({
         <div className="max-w-6xl mx-auto space-y-10">
           
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
-            <div className="space-y-3 max-w-2xl">
+          <div className="flex flex-col items-center gap-6 pb-2">
+            <div className="space-y-3 max-w-2xl mx-auto text-center flex flex-col items-center">
               <span className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-accent bg-surface-accent px-3.5 py-1 rounded-full border border-line-subtle">
                 <Activity className="w-3.5 h-3.5 text-accent" />
                 <span>{isBM ? 'Perkhidmatan Perubatan Outpatient' : 'Comprehensive Outpatient Services'}</span>
@@ -971,8 +971,8 @@ export default function ClinicLandingPage({
       <section id="doctors" className="py-20 px-4 lg:px-8 bg-surface border-t border-line-subtle">
         <div className="max-w-6xl mx-auto space-y-10">
           
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="space-y-1 text-center md:text-left">
+          <div className="flex flex-col items-center gap-4">
+            <div className="space-y-1 text-center">
               <span className="text-xs font-bold uppercase tracking-wider text-accent">
                 {isBM ? 'Staf Perubatan Bertauliah' : 'Resident Physicians'}
               </span>

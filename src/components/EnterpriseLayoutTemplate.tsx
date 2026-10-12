@@ -362,7 +362,7 @@ export default function EnterpriseLayoutTemplate({
                 </div>
                 {triageQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'triage' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'triage' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-chrome-active text-white border-0'
                   }`}>
                     {triageQueueLength}
                   </span>
@@ -406,7 +406,7 @@ export default function EnterpriseLayoutTemplate({
                   </div>
                   {activeTab !== 'consultation' && doctorQueueLength > 0 && (
                     <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                      activeTab === 'queue' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                      activeTab === 'queue' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-chrome-active text-white border-0'
                     }`}>
                       {doctorQueueLength}
                     </span>
@@ -462,7 +462,7 @@ export default function EnterpriseLayoutTemplate({
                 </div>
                 {pharmacyQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'dispensary' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'dispensary' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-chrome-active text-white border-0'
                   }`}>
                     {pharmacyQueueLength}
                   </span>
@@ -487,7 +487,7 @@ export default function EnterpriseLayoutTemplate({
                 </div>
                 {cashierQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'billing' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'billing' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-chrome-active text-white border-0'
                   }`}>
                     {cashierQueueLength}
                   </span>

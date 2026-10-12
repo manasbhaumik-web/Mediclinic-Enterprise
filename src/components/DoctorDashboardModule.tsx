@@ -853,7 +853,7 @@ export default function DoctorDashboardModule({
                                   ? 'bg-surface-accent dark:bg-night-800 border-brand shadow-xs' 
                                   : isPinned
                                   ? 'bg-surface-strong dark:bg-night-800 border-brand'
-                                  : 'bg-surface-accent dark:bg-night-850 hover:bg-surface-accent dark:hover:bg-night-700 border-line dark:border-teal-800'
+                                  : 'bg-white dark:bg-night-850 hover:bg-surface-muted dark:hover:bg-night-700 border-slate-200 hover:border-line-strong dark:border-teal-800'
                               }`}
                             >
                               <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">

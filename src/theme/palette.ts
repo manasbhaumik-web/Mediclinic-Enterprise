@@ -16,7 +16,7 @@ export const palette = {
   lineSubtle: '#dcf6ef',
   line: '#bfeee3',
   lineStrong: '#8fe3d3',
-  night: '#082830',
+  night: '#193840',
   stripe: '#635bff',
   white: '#ffffff',
 } as const;

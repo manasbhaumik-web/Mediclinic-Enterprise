@@ -235,13 +235,13 @@ export default function IntegrationsHub() {
               </div>
             </div>
 
-            <div className="w-px h-7 bg-teal-600/50"></div>
+            <div className="w-px h-7 bg-line"></div>
 
             <div className="text-left">
-              <span className="text-2xs uppercase font-bold text-teal-200/80 tracking-wider block">Packets Synced</span>
+              <span className="text-2xs uppercase font-bold text-slate-500 tracking-wider block">Packets Synced</span>
               <div className="flex items-center justify-center gap-1.5 mt-0.5">
-                <RefreshCw className="w-3.5 h-3.5 text-teal-200 animate-spin" />
-                <span className="font-mono text-white text-xs font-bold">{syncCount.toLocaleString()}</span>
+                <RefreshCw className="w-3.5 h-3.5 text-accent animate-spin" />
+                <span className="font-mono text-ink text-xs font-bold">{syncCount.toLocaleString()}</span>
               </div>
             </div>
           </div>
