@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Globe, UserCheck, FolderCheck, Plus, RotateCcw, Activity, ShieldAlert, ArrowRight, ArrowLeft, Search, Loader2, ShieldCheck, CheckCircle2, Clock, Check, Filter } from 'lucide-react';
+import { Users, Globe, UserCheck, FolderCheck, Plus, RotateCcw, Activity, ShieldAlert, ArrowRight, ArrowLeft, Search, Loader2, ShieldCheck, CheckCircle2, Clock, Check, Filter, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { Patient, Visit, Language } from '../types';
 import MyKadScanner from './MyKadScanner';
 import { useAuth } from '../context/AuthContext';
 import { maskICNumber } from '../utils/piiMasker';
+import FormField, { fieldBorder } from './ui/FormField';
+import { formatNric, nricError, parseNric } from '../utils/nric';
 
 interface PatientRegistrationModuleProps {
   t: any;
@@ -67,6 +69,17 @@ export default function PatientRegistrationModule({
   // Insurance Panel Validation State
   const [isVerifyingCoverage, setIsVerifyingCoverage] = useState(false);
   const [coverageStatus, setCoverageStatus] = useState<'unverified' | 'verified' | 'failed'>('unverified');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [idCheckError, setIdCheckError] = useState('');
+
+  const clearError = (key: string) =>
+    setFieldErrors((prev) => {
+      if (!(key in prev)) return prev;
+      const { [key]: _removed, ...rest } = prev;
+      return rest;
+    });
+  const focusField = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.focus());
+  const inputBase = 'w-full bg-surface dark:bg-night-900 border rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 outline-none';
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -102,6 +115,40 @@ export default function PatientRegistrationModule({
 
   // Registry Search State
   const [registryResults, setRegistryResults] = useState<Patient[]>([]);
+  type SortKey = 'id' | 'name' | 'sponsor' | 'registered';
+  const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' } | null>(null);
+  const toggleSort = (key: SortKey) =>
+    setSort((cur) => (!cur || cur.key !== key ? { key, dir: 'asc' } : cur.dir === 'asc' ? { key, dir: 'desc' } : null));
+  const sortedResults = (() => {
+    if (!sort) return registryResults;
+    const value = (pt: Patient) =>
+      sort.key === 'id' ? pt.id
+      : sort.key === 'name' ? pt.fullName.toLowerCase()
+      : sort.key === 'sponsor' ? (pt.panelEmployer === 'None (Self-Pay)' ? 'self-pay' : pt.panelEmployer.toLowerCase())
+      : pt.registeredDate;
+    const factor = sort.dir === 'asc' ? 1 : -1;
+    return [...registryResults].sort((a, b) => (value(a) < value(b) ? -1 : value(a) > value(b) ? 1 : 0) * factor);
+  })();
+  const sortHeader = (key: SortKey, label: string, align: 'left' | 'right' = 'left') => {
+    const active = sort?.key === key ? sort.dir : null;
+    const Icon = active === 'asc' ? ArrowUp : active === 'desc' ? ArrowDown : ArrowUpDown;
+    return (
+      <th
+        scope="col"
+        aria-sort={active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : 'none'}
+        className={`px-4 py-3.5 ${align === 'right' ? 'text-right' : ''}`}
+      >
+        <button
+          type="button"
+          onClick={() => toggleSort(key)}
+          className={`inline-flex items-center gap-1.5 uppercase tracking-wider font-bold hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${align === 'right' ? 'flex-row-reverse' : ''}`}
+        >
+          {label}
+          <Icon className={`w-3.5 h-3.5 ${active ? 'text-ink' : 'opacity-50'}`} aria-hidden="true" />
+        </button>
+      </th>
+    );
+  };
   useEffect(() => {
     if (activeSubTab === 'registry') {
       const q = patientRegistrySearch.trim() || ' ';
@@ -139,8 +186,24 @@ export default function PatientRegistrationModule({
 
   const handleIdCheckSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!idCheckValue.trim()) return;
-    setManualForm(prev => ({ ...prev, icNumber: idCheckValue }));
+    if (!idCheckValue.trim()) {
+      setIdCheckError('Enter an NRIC or passport number, or scan MyKad.');
+      focusField('reg-idcheck');
+      return;
+    }
+    const formatError = nricError(idCheckValue);
+    if (formatError) {
+      setIdCheckError(formatError);
+      focusField('reg-idcheck');
+      return;
+    }
+    setIdCheckError('');
+    const fromNric = parseNric(idCheckValue.trim());
+    setManualForm(prev => ({
+      ...prev,
+      icNumber: idCheckValue.trim(),
+      ...(fromNric ? { dob: fromNric.dob, gender: fromNric.gender } : {}),
+    }));
     setRegistrationStep('details');
     setFormStep(1);
   };
@@ -165,6 +228,8 @@ export default function PatientRegistrationModule({
     setAllergiesList([]);
     setExistingPatientId(null);
     setCoverageStatus('unverified');
+    setFieldErrors({});
+    setIdCheckError('');
     setRegistrationStep('id_check');
     setIdCheckValue('');
     setFormStep(1);
@@ -182,26 +247,38 @@ export default function PatientRegistrationModule({
       
       if (isSuccess) {
         setCoverageStatus('verified');
+        clearError('panel');
         showToast(`TPA API: ${manualForm.panelEmployer} Active. Limit Verified.`);
       } else {
         setCoverageStatus('failed');
-        alert(`TPA API Error: ${manualForm.panelEmployer} coverage limit exceeded or inactive. Collect cash or update sponsor.`);
+        setFieldErrors((prev) => ({ ...prev, panel: `${manualForm.panelEmployer} coverage limit exceeded or inactive. Collect cash or change the sponsor.` }));
+        focusField('reg-panel');
       }
     }, 1500);
   };
 
   const proceedToNextStep = () => {
     if (formStep === 1) {
-      if (!manualForm.fullName.trim() || !manualForm.icNumber.trim() || !manualForm.phone.trim()) {
-        alert("Please complete Full Name, IC, and Phone Number.");
+      const errs: Record<string, string> = {};
+      if (!manualForm.fullName.trim()) errs.fullName = "Enter the patient's full name.";
+      if (!manualForm.icNumber.trim()) errs.icNumber = 'Enter an NRIC or passport number.';
+      else if (nricError(manualForm.icNumber)) errs.icNumber = nricError(manualForm.icNumber);
+      if (!manualForm.phone.trim()) errs.phone = 'Enter a contact phone number.';
+      else if (manualForm.phone.replace(/\D/g, '').length < 9) errs.phone = 'Enter a valid phone number, for example 012-3456789.';
+      setFieldErrors(errs);
+      const first = (['fullName', 'icNumber', 'phone'] as const).find((k) => errs[k]);
+      if (first) {
+        focusField(`reg-${first}`);
         return;
       }
       setFormStep(2);
     } else if (formStep === 2) {
       if (manualForm.panelEmployer !== 'None (Self-Pay)' && coverageStatus !== 'verified') {
-        alert("Please verify Panel eligibility before proceeding.");
+        setFieldErrors({ panel: 'Verify panel eligibility before continuing, or choose Self-Pay.' });
+        focusField('reg-panel');
         return;
       }
+      setFieldErrors({});
       setFormStep(3);
     }
   };
@@ -257,6 +334,10 @@ export default function PatientRegistrationModule({
   };
 
   const handleCreateTicket = (patient: Patient) => {
+    if (triageQueue.some((v) => v.patientId === patient.id)) {
+      showToast(`${patient.fullName} is already waiting for triage.`);
+      return;
+    }
     const newVisit: Visit = {
       id: crypto.randomUUID(),
       patientId: patient.id,
@@ -274,6 +355,7 @@ export default function PatientRegistrationModule({
       paidAmount: 0,
     };
     addVisitToDb(newVisit);
+    showToast(`${patient.fullName} routed to Triage Queue.`);
     setActiveSubTab('queue');
   };
 
@@ -455,19 +537,22 @@ export default function PatientRegistrationModule({
                   <p className="text-xs text-accent dark:text-teal-300 font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
                 </div>
                 
-                <form onSubmit={handleIdCheckSubmit} className="space-y-4 text-left font-sans">
+                <form onSubmit={handleIdCheckSubmit} noValidate className="space-y-4 text-left font-sans">
                   <div>
-                    <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
-                      NRIC / Passport Number <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={idCheckValue}
-                      onChange={(e) => setIdCheckValue(e.target.value)}
-                      placeholder="e.g. 900101-14-5555"
-                      required
-                      className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
-                    />
+                    <FormField id="reg-idcheck" label="NRIC / Passport Number" required error={idCheckError} hint="Dashes are added for you. For a passport, enter the number as printed.">
+                      {(f) => (
+                        <input
+                          {...f}
+                          type="text"
+                          value={idCheckValue}
+                          onChange={(e) => { setIdCheckValue(formatNric(e.target.value)); if (idCheckError) setIdCheckError(''); }}
+                          placeholder="e.g. 900101-14-5555"
+                          autoComplete="off"
+                          inputMode="text"
+                          className={`${inputBase} px-3.5 font-mono ${fieldBorder(idCheckError)}`}
+                        />
+                      )}
+                    </FormField>
                   </div>
                   <button 
                     type="submit" 
@@ -542,72 +627,102 @@ export default function PatientRegistrationModule({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Full Name *</label>
-                        <input 
-                          type="text"
-                          required
-                          value={manualForm.fullName}
-                          onChange={(e) => setManualForm({ ...manualForm, fullName: e.target.value })}
-                          placeholder="e.g. MOHD HAFIZ BIN RAZALI"
-                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 font-bold focus:border-brand outline-none font-sans"
-                        />
+                        <FormField id="reg-fullName" label="Full Name" required error={fieldErrors.fullName}>
+                          {(f) => (
+                            <input
+                              {...f}
+                              type="text"
+                              value={manualForm.fullName}
+                              onChange={(e) => { setManualForm({ ...manualForm, fullName: e.target.value }); clearError('fullName'); }}
+                              placeholder="e.g. MOHD HAFIZ BIN RAZALI"
+                              autoComplete="off"
+                              className={`${inputBase} font-bold font-sans ${fieldBorder(fieldErrors.fullName)}`}
+                            />
+                          )}
+                        </FormField>
                       </div>
                       <div>
-                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">IC / Passport Number *</label>
-                        <input 
-                          type="text"
-                          required
-                          value={manualForm.icNumber}
-                          onChange={(e) => setManualForm({ ...manualForm, icNumber: e.target.value })}
-                          placeholder="YYMMDD-XX-XXXX"
-                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
-                        />
+                        <FormField id="reg-icNumber" label="IC / Passport Number" required error={fieldErrors.icNumber} hint={parseNric(manualForm.icNumber) ? 'Date of birth and gender are filled from the NRIC.' : undefined}>
+                          {(f) => (
+                            <input
+                              {...f}
+                              type="text"
+                              value={manualForm.icNumber}
+                              onChange={(e) => {
+                                const icNumber = formatNric(e.target.value);
+                                const fromNric = parseNric(icNumber);
+                                setManualForm({ ...manualForm, icNumber, ...(fromNric ? { dob: fromNric.dob, gender: fromNric.gender } : {}) });
+                                clearError('icNumber');
+                              }}
+                              placeholder="YYMMDD-XX-XXXX"
+                              autoComplete="off"
+                              className={`${inputBase} font-mono ${fieldBorder(fieldErrors.icNumber)}`}
+                            />
+                          )}
+                        </FormField>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Gender</label>
-                        <select 
-                          value={manualForm.gender} 
-                          onChange={(e) => setManualForm({ ...manualForm, gender: e.target.value as 'Male' | 'Female' })}
-                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-ink dark:text-slate-100 focus:border-brand outline-none"
-                        >
-                          <option value="Male">Male / Lelaki</option>
-                          <option value="Female">Female / Perempuan</option>
-                        </select>
+                        <FormField id="reg-gender" label="Gender">
+                          {(f) => (
+                            <select
+                              {...f}
+                              value={manualForm.gender}
+                              onChange={(e) => setManualForm({ ...manualForm, gender: e.target.value as 'Male' | 'Female' })}
+                              className={`${inputBase} font-sans ${fieldBorder()}`}
+                            >
+                              <option value="Male">Male / Lelaki</option>
+                              <option value="Female">Female / Perempuan</option>
+                            </select>
+                          )}
+                        </FormField>
                       </div>
                       <div>
-                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Date of Birth</label>
-                        <input 
-                          type="date"
-                          value={manualForm.dob}
-                          onChange={(e) => setManualForm({ ...manualForm, dob: e.target.value })}
-                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
-                        />
+                        <FormField id="reg-dob" label="Date of Birth">
+                          {(f) => (
+                            <input
+                              {...f}
+                              type="date"
+                              value={manualForm.dob}
+                              onChange={(e) => setManualForm({ ...manualForm, dob: e.target.value })}
+                              className={`${inputBase} font-mono ${fieldBorder()}`}
+                            />
+                          )}
+                        </FormField>
                       </div>
                       <div>
-                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Phone Number *</label>
-                        <input 
-                          type="text"
-                          required
-                          value={manualForm.phone}
-                          onChange={(e) => setManualForm({ ...manualForm, phone: e.target.value })}
-                          placeholder="e.g. 012-3456789"
-                          className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-mono text-ink dark:text-slate-100 focus:border-brand outline-none"
-                        />
+                        <FormField id="reg-phone" label="Phone Number" required error={fieldErrors.phone}>
+                          {(f) => (
+                            <input
+                              {...f}
+                              type="tel"
+                              value={manualForm.phone}
+                              onChange={(e) => { setManualForm({ ...manualForm, phone: e.target.value }); clearError('phone'); }}
+                              placeholder="e.g. 012-3456789"
+                              autoComplete="off"
+                              className={`${inputBase} font-mono ${fieldBorder(fieldErrors.phone)}`}
+                            />
+                          )}
+                        </FormField>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">Residential Address</label>
-                      <input 
-                        type="text"
-                        value={manualForm.address}
-                        onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
-                        placeholder="Enter full residential address..."
-                        className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 focus:border-brand outline-none font-sans"
-                      />
+                      <FormField id="reg-address" label="Residential Address">
+                        {(f) => (
+                          <input
+                            {...f}
+                            type="text"
+                            value={manualForm.address}
+                            onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
+                            placeholder="Enter full residential address..."
+                            autoComplete="off"
+                            className={`${inputBase} font-sans ${fieldBorder()}`}
+                          />
+                        )}
+                      </FormField>
                     </div>
                   </div>
                 )}
@@ -623,67 +738,77 @@ export default function PatientRegistrationModule({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider font-sans">Panel / Corporate Sponsor</label>
-                        <div className="flex gap-2">
-                          <select
-                            value={manualForm.panelEmployer}
-                            onChange={(e) => {
-                              setManualForm({ ...manualForm, panelEmployer: e.target.value });
-                              setCoverageStatus(e.target.value === 'None (Self-Pay)' ? 'verified' : 'unverified');
-                            }}
-                            className="flex-1 bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-ink dark:text-slate-100 focus:border-brand outline-none"
-                          >
-                            <option value="None (Self-Pay)">Self-Pay (No sponsor claim co-pays)</option>
-                            <option value="Petronas Panel">Petronas Panel (Cover RM500 limit)</option>
-                            <option value="Medkad Sdn Bhd">Medkad Sdn Bhd (Cover RM200 limit)</option>
-                            <option value="MiCare TPA">MiCare TPA (Cover RM150, co-pay 10%)</option>
-                            <option value="HealthMetrics Malaysia">HealthMetrics Malaysia (Cover RM300, co-pay 15%)</option>
-                            <option value="PMCare Corporate">PMCare Corporate (Cover RM250 limit)</option>
-                          </select>
-                          {manualForm.panelEmployer !== 'None (Self-Pay)' && (
-                            <button 
-                              type="button" 
-                              onClick={handleVerifyCoverage}
-                              disabled={isVerifyingCoverage || coverageStatus === 'verified'}
-                              className={`px-3 py-2 font-sans text-xs font-bold rounded-none uppercase transition-colors flex items-center gap-1 ${
-                                coverageStatus === 'verified'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
-                                  : 'bg-primary text-white hover:bg-primary-hover'
-                              }`}
-                            >
-                              {isVerifyingCoverage ? <Loader2 className="w-4 h-4 animate-spin" /> : coverageStatus === 'verified' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                              {coverageStatus === 'verified' ? 'Verified' : 'Verify'}
-                            </button>
+                      <div>
+                        <FormField id="reg-panel" label="Panel / Corporate Sponsor" error={fieldErrors.panel} className="space-y-2">
+                          {(f) => (
+                            <div className="flex gap-2">
+                              <select
+                                {...f}
+                                value={manualForm.panelEmployer}
+                                onChange={(e) => {
+                                  setManualForm({ ...manualForm, panelEmployer: e.target.value });
+                                  setCoverageStatus(e.target.value === 'None (Self-Pay)' ? 'verified' : 'unverified');
+                                  clearError('panel');
+                                }}
+                                className={`flex-1 ${inputBase} font-sans ${fieldBorder(fieldErrors.panel)}`}
+                              >
+                                <option value="None (Self-Pay)">Self-Pay (No sponsor claim co-pays)</option>
+                                <option value="Petronas Panel">Petronas Panel (Cover RM500 limit)</option>
+                                <option value="Medkad Sdn Bhd">Medkad Sdn Bhd (Cover RM200 limit)</option>
+                                <option value="MiCare TPA">MiCare TPA (Cover RM150, co-pay 10%)</option>
+                                <option value="HealthMetrics Malaysia">HealthMetrics Malaysia (Cover RM300, co-pay 15%)</option>
+                                <option value="PMCare Corporate">PMCare Corporate (Cover RM250 limit)</option>
+                              </select>
+                              {manualForm.panelEmployer !== 'None (Self-Pay)' && (
+                                <button
+                                  type="button"
+                                  onClick={handleVerifyCoverage}
+                                  disabled={isVerifyingCoverage || coverageStatus === 'verified'}
+                                  className={`px-3 py-2 font-sans text-xs font-bold rounded-none uppercase transition-colors flex items-center gap-1 ${
+                                    coverageStatus === 'verified'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
+                                      : 'bg-primary text-white hover:bg-primary-hover'
+                                  }`}
+                                >
+                                  {isVerifyingCoverage ? <Loader2 className="w-4 h-4 animate-spin" /> : coverageStatus === 'verified' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                                  {coverageStatus === 'verified' ? 'Verified' : 'Verify'}
+                                </button>
+                              )}
+                            </div>
                           )}
-                        </div>
+                        </FormField>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider font-sans">Drug Allergies</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={allergyInput}
-                            onChange={(e) => setAllergyInput(e.target.value)}
-                            placeholder="e.g. Penicillin, Aspirin..."
-                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAllergyTag())}
-                            className="flex-1 bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none px-3 py-2 text-xs font-sans text-ink dark:text-slate-100 focus:border-brand outline-none"
-                          />
-                          <button 
-                            type="button" 
-                            onClick={handleAddAllergyTag}
-                            className="bg-surface dark:bg-night-900 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 border border-line-subtle dark:border-teal-800/50 font-bold text-xs px-3 py-2 rounded-none font-sans uppercase"
-                          >
-                            + Add
-                          </button>
-                        </div>
+                      <div>
+                        <FormField id="reg-allergy" label="Drug Allergies" hint="Press Enter or choose Add. Add every known allergy, since they are checked when prescribing." className="space-y-2">
+                          {(f) => (
+                            <div className="flex gap-2">
+                              <input
+                                {...f}
+                                type="text"
+                                value={allergyInput}
+                                onChange={(e) => setAllergyInput(e.target.value)}
+                                placeholder="e.g. Penicillin, Aspirin..."
+                                autoComplete="off"
+                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAllergyTag())}
+                                className={`flex-1 ${inputBase} font-sans ${fieldBorder()}`}
+                              />
+                              <button
+                                type="button"
+                                onClick={handleAddAllergyTag}
+                                className="bg-surface dark:bg-night-900 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 border border-line-subtle dark:border-teal-800/50 font-bold text-xs px-3 py-2 rounded-none font-sans uppercase"
+                              >
+                                + Add
+                              </button>
+                            </div>
+                          )}
+                        </FormField>
                         {allergiesList.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-2">
                             {allergiesList.map((tag, idx) => (
                               <span key={idx} className="inline-flex items-center justify-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-sans font-bold px-2.5 py-1 border border-rose-200 dark:border-rose-800/60 rounded-none">
                                 {tag}
-                                <button type="button" onClick={() => handleRemoveAllergyTag(idx)} className="text-rose-400 hover:text-rose-700 cursor-pointer text-xs">&times;</button>
+                                <button type="button" onClick={() => handleRemoveAllergyTag(idx)} aria-label={`Remove allergy ${tag}`} className="text-rose-600 hover:text-rose-800 cursor-pointer text-xs">&times;</button>
                               </span>
                             ))}
                           </div>
@@ -769,10 +894,11 @@ export default function PatientRegistrationModule({
               <div className="relative flex-1 max-w-lg w-full">
                 <Search className="w-4 h-4 text-accent dark:text-teal-300 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
-                  type="text"
+                  type="search"
+                  aria-label="Search patients"
                   placeholder="Search by Patient Name, NRIC (e.g. 900101-14-5555), or ID..."
                   value={patientRegistrySearch}
-                  onChange={(e) => setPatientRegistrySearch(e.target.value)}
+                  onChange={(e) => setPatientRegistrySearch(/^[\d-]+$/.test(e.target.value) ? formatNric(e.target.value) : e.target.value)}
                   className="w-full bg-surface dark:bg-night-900 border border-line dark:border-teal-800/60 rounded-none pl-9 pr-3 py-2 text-xs font-sans text-ink dark:text-slate-100 placeholder-primary/60 dark:placeholder-teal-400/60 focus:border-brand outline-none font-medium"
                 />
               </div>
@@ -786,24 +912,24 @@ export default function PatientRegistrationModule({
               <table className="w-full text-xs text-left font-sans">
                 <thead className="bg-surface-accent/90 dark:bg-night-900 border-b border-line-subtle dark:border-teal-800/40 font-sans">
                   <tr className="text-accent dark:text-teal-300 font-sans text-xs uppercase tracking-wider font-bold">
-                    <th className="px-4 py-3.5">ID</th>
-                    <th className="px-4 py-3.5">Patient Name</th>
-                    <th className="px-4 py-3.5">IC / Passport Number</th>
-                    <th className="px-4 py-3.5">Panel Sponsor</th>
-                    <th className="px-4 py-3.5">Drug Allergies</th>
-                    <th className="px-4 py-3.5 text-right">Date Registered</th>
-                    <th className="px-4 py-3.5 text-center">Action</th>
+                    {sortHeader('id', 'ID')}
+                    {sortHeader('name', 'Patient Name')}
+                    <th scope="col" className="px-4 py-3.5">IC / Passport Number</th>
+                    {sortHeader('sponsor', 'Panel Sponsor')}
+                    <th scope="col" className="px-4 py-3.5">Drug Allergies</th>
+                    {sortHeader('registered', 'Date Registered', 'right')}
+                    <th scope="col" className="px-4 py-3.5 text-center sticky right-0 bg-surface-accent dark:bg-night-900 shadow-[-6px_0_6px_-6px_rgba(0,0,0,0.15)]">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line-subtle/50 dark:divide-teal-800/30 bg-surface dark:bg-night-900 font-sans">
-                  {registryResults.length === 0 ? (
+                  {sortedResults.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-12 text-center text-accent dark:text-teal-400 font-sans font-medium">
                         No patient records found matching your search term.
                       </td>
                     </tr>
                   ) : (
-                    registryResults.map(p => (
+                    sortedResults.map(p => (
                       <tr key={p.id} className="hover:bg-surface-accent/40 dark:hover:bg-night-800/40 transition-colors">
                         <td className="px-4 py-3.5 font-mono text-accent dark:text-teal-300 text-xs font-bold">
                           {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
@@ -827,7 +953,7 @@ export default function PatientRegistrationModule({
                         </td>
                         <td className="px-4 py-3.5">
                           {p.drugAllergies.length === 0
-                            ? <span className="text-slate-400 dark:text-slate-500 text-xs italic font-sans">No known allergies</span>
+                            ? <span className="text-slate-600 dark:text-slate-400 text-xs italic font-sans">No known allergies</span>
                             : <div className="flex flex-wrap gap-1.5">
                                 {p.drugAllergies.map((a, i) => (
                                   <span key={i} className="inline-flex items-center justify-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-2xs font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
@@ -841,14 +967,21 @@ export default function PatientRegistrationModule({
                         <td className="px-4 py-3.5 text-accent dark:text-teal-300 font-mono text-xs text-right">
                           {p.registeredDate}
                         </td>
-                        <td className="px-4 py-3.5 text-center">
-                          <button
-                            onClick={() => handleCreateTicket(p)}
-                            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center justify-center gap-1.5"
-                            title={`Start consultation visit for ${p.fullName}`}
-                          >
-                            <UserCheck className="w-3.5 h-3.5" /> Start Visit
-                          </button>
+                        <td className="px-4 py-3.5 text-center sticky right-0 bg-surface dark:bg-night-900 shadow-[-6px_0_6px_-6px_rgba(0,0,0,0.15)]">
+                          {triageQueue.some((v) => v.patientId === p.id) ? (
+                            <span className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-accent bg-surface-accent border border-line">
+                              <Clock className="w-3.5 h-3.5" aria-hidden="true" /> In triage queue
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleCreateTicket(p)}
+                              className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center justify-center gap-1.5 whitespace-nowrap"
+                              aria-label={`Start visit for ${p.fullName}`}
+                            >
+                              <UserCheck className="w-3.5 h-3.5" aria-hidden="true" /> Start Visit
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))

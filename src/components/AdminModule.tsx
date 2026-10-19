@@ -5,7 +5,8 @@ import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
   Building, ShieldAlert, LogOut, Server, Database, Bell, Globe2, TrendingUp,
   Clock, ShieldCheck, Moon, Sun, ChevronDown, ChevronRight, Eye, EyeOff, Wifi, WifiOff,
-  Layers, FolderKanban
+  Layers, FolderKanban,
+  LayoutDashboard
 } from 'lucide-react';
 import StaffManagementModule from './StaffManagementModule';
 import MedicineManagementModule from './MedicineManagementModule';
@@ -28,6 +29,7 @@ interface AdminModuleProps {
   completedVisits?: Visit[];
   totalRegisteredCount?: number;
   activeLanguage?: Language;
+  onOpenDashboard?: () => void;
 }
 
 type AdminTab = 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'architecture';
@@ -39,7 +41,8 @@ export default function AdminModule({
   userRole,
   completedVisits = [],
   totalRegisteredCount = 0,
-  activeLanguage = 'EN'
+  activeLanguage = 'EN',
+  onOpenDashboard
 }: AdminModuleProps) {
   const [activeTab, setActiveTab] = useState<AdminTab>('staff');
   const [activeCategory, setActiveCategory] = useState<AdminCategory>('people');
@@ -148,6 +151,18 @@ export default function AdminModule({
 
         {/* Right Controls: Notifications & Workstation Settings */}
         <div className="flex items-center gap-3 relative">
+
+          {onOpenDashboard && (
+            <button
+              type="button"
+              onClick={onOpenDashboard}
+              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-chrome-deep hover:bg-chrome-line border border-chrome-line text-white text-xs font-bold cursor-pointer transition-colors"
+              title="Back to dashboard"
+            >
+              <LayoutDashboard className="w-4 h-4 text-teal-200" />
+              <span>Dashboard</span>
+            </button>
+          )}
           
           {/* Notifications Bell */}
           <button 

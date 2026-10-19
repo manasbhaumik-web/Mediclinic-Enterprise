@@ -19,6 +19,7 @@ import {
 import { useQueueFilter } from '../hooks/useQueueFilter';
 
 import LegendSwatch from './ui/LegendSwatch';
+import ActionMenu from './ui/ActionMenu';
 import { chartTheme } from '../theme/chartTheme';
 import { palette, seriesColors } from '../theme/palette';
 interface DoctorDashboardModuleProps {
@@ -334,7 +335,7 @@ export default function DoctorDashboardModule({
               {pendingCallVisit.position > 1 && (
                 <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                  <span>Out-of-turn call notice: Patient is currently ranked #{pendingCallVisit.position} in line.</span>
+                  <span>Out-of-turn call notice: Patient is currently at position #{pendingCallVisit.position} in line.</span>
                 </div>
               )}
             </div>
@@ -377,6 +378,12 @@ export default function DoctorDashboardModule({
 
             return (
               <div className="space-y-2">
+                {/* Screen-reader announcements: the region stays mounted so changes are read out */}
+                <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+                  {nextPatient
+                    ? `Next in line: ${nextPatient.fullName}. ${doctorQueue.length} waiting${overSlaCount > 0 ? `, ${overSlaCount} over the 20 minute limit` : ''}.`
+                    : 'No patients waiting.'}
+                </div>
                 {/* Dominant Operational Alert Strip if Breaches or High Acuity Patients Exist */}
                 {(overSlaCount > 0 || highPriorityCount > 0) && (
                   <div className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 px-3.5 py-2 rounded-none flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs font-medium shadow-2xs">
@@ -416,30 +423,9 @@ export default function DoctorDashboardModule({
                     </div>
                   </div>
 
-                  {/* Center/Right: 4 Telemetry Stat Badges Bar */}
+                  {/* Center/Right: longest wait (counts live in the filter chips below) + refresh */}
                   <div className="flex flex-wrap items-center gap-2.5">
                     <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
-                      {/* Stat 1: Waiting */}
-                      <div className="bg-white dark:bg-night-950 text-ink dark:text-teal-300 px-2.5 py-1.5 rounded-none border border-line dark:border-teal-800 border-l-2 border-l-brand flex items-center justify-center gap-2 shadow-2xs">
-                        <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Waiting:</span>
-                        <strong className="font-bold text-sm text-accent dark:text-teal-400">{doctorQueue.length}</strong>
-                        <span className="text-2xs bg-teal-50/70 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 px-1 py-0.2 rounded-none font-sans font-bold border border-teal-200 dark:border-teal-800/60">Active</span>
-                      </div>
-
-                      {/* Stat 2: High Priority */}
-                      <div className="bg-white dark:bg-night-950 text-rose-700 dark:text-rose-300 px-2.5 py-1.5 rounded-none border border-rose-200/80 dark:border-rose-900/40 border-l-2 border-l-rose-400 flex items-center justify-center gap-2 shadow-2xs">
-                        <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Allergy/High:</span>
-                        <strong className="font-bold text-sm text-rose-600 dark:text-rose-400">{highPriorityCount}</strong>
-                        <span className="text-2xs bg-rose-50/70 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 px-1 py-0.2 rounded-none font-sans font-bold border border-rose-200 dark:border-rose-800/60">Acuity</span>
-                      </div>
-
-                      {/* Stat 3: Over SLA */}
-                      <div className="bg-white dark:bg-night-950 text-amber-700 dark:text-amber-300 px-2.5 py-1.5 rounded-none border border-amber-200/80 dark:border-amber-900/40 border-l-2 border-l-amber-400 flex items-center justify-center gap-2 shadow-2xs">
-                        <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">&gt;20m SLA:</span>
-                        <strong className="font-bold text-sm text-amber-600 dark:text-amber-400">{overSlaCount}</strong>
-                        <span className="text-2xs bg-amber-50/70 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 px-1 py-0.2 rounded-none font-sans font-bold border border-amber-200 dark:border-amber-800/60">Risk</span>
-                      </div>
-
                       {/* Stat 4: Max Wait */}
                       <div className="bg-white dark:bg-night-950 text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-sky-200/80 dark:border-sky-900/40 border-l-2 border-l-sky-400 flex items-center justify-center gap-2 shadow-2xs">
                         <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Max Wait:</span>
@@ -510,6 +496,7 @@ export default function DoctorDashboardModule({
                       key={f.id}
                       type="button"
                       onClick={() => { setAcuityFilter(f.id); setQueuePage(1); }}
+                      aria-pressed={acuityFilter === f.id}
                       className={`h-10 px-3.5 text-sm font-semibold flex items-center gap-2 border transition-colors cursor-pointer ${
                         acuityFilter === f.id
                           ? 'bg-primary text-white border-primary'
@@ -528,12 +515,13 @@ export default function DoctorDashboardModule({
 
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sort by</span>
-                  <div className="flex border border-line bg-surface">
+                  <div role="group" aria-label="Sort the queue by" className="flex border border-line bg-surface">
                     {(['urgency', 'wait', 'arrival'] as const).map((r) => (
                       <button
                         key={r}
                         type="button"
                         onClick={() => { setSortRule(r); setQueuePage(1); }}
+                        aria-pressed={sortRule === r}
                         className={`h-10 px-3.5 text-sm font-semibold transition-colors cursor-pointer ${
                           sortRule === r ? 'bg-primary text-white' : 'bg-surface text-ink hover:bg-surface-accent'
                         }`}
@@ -584,87 +572,59 @@ export default function DoctorDashboardModule({
                       </ol>
                     </div>
 
-                    <div className="p-6 flex flex-wrap items-start justify-between gap-x-10 gap-y-6">
-                      <div className="flex-1 basis-[34rem] min-w-0 space-y-4">
-                        <div className="space-y-1.5">
-                          <h3 className="text-2xl font-bold text-ink leading-tight">{nextPatient.fullName}</h3>
-                          <p className="text-sm text-slate-600">ID {nextPatient.id} · {nextPatient.gender} · Born {nextPatient.dob}</p>
+                    <div className="p-6 space-y-5">
+                      {/* Row 1: who the patient is (left) and what to do next (right) */}
+                      <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
+                        <div className="min-w-0 space-y-3">
+                          <div className="space-y-1.5">
+                            <h3 className="text-2xl font-bold text-ink leading-tight">{nextPatient.fullName}</h3>
+                            <p className="text-sm text-slate-600">ID {nextPatient.id} · {nextPatient.gender} · Born {nextPatient.dob}</p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <span className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 flex items-center gap-1.5 ${heroTriage.badgeBg}`}>
+                              <heroTriage.icon className={`w-3.5 h-3.5 ${heroTriage.iconColor}`} />
+                              <span>Triage: {heroTriage.level}</span>
+                            </span>
+                            {renderAllergyBadge(nextPatient.drugAllergies)}
+                          </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
-                          <span className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 flex items-center gap-1.5 ${heroTriage.badgeBg}`}>
-                            <heroTriage.icon className={`w-3.5 h-3.5 ${heroTriage.iconColor}`} />
-                            <span>Triage: {heroTriage.level}</span>
-                          </span>
-                          {renderAllergyBadge(nextPatient.drugAllergies)}
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-3">
-                          <div className="bg-surface-muted border border-line-subtle px-3.5 py-3 col-span-2 min-w-0">
-                            <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Chief complaint</div>
-                            <div className="mt-1 text-base font-semibold text-ink">{getChiefComplaintLabel(nextVisit.soap?.subjective)}</div>
-                          </div>
-                          <div className={`px-3.5 py-3 border ${heroWait >= 20 ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
-                            <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Waiting</div>
-                            <div className="mt-1 text-base font-bold">{heroWait} min</div>
-                          </div>
-                          {obj && obj.temperature > 0 && (
-                            <>
-                              <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
-                                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Blood pressure</div>
-                                <div className="mt-1 text-base font-semibold text-ink">{obj.bpSystolic}/{obj.bpDiastolic} <span className="text-xs font-medium text-slate-600">mmHg</span></div>
-                              </div>
-                              <div className={`px-3.5 py-3 border ${obj.temperature >= 37.5 ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
-                                <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Temperature</div>
-                                <div className="mt-1 text-base font-bold">{obj.temperature}°C</div>
-                              </div>
-                              <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
-                                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Heart rate</div>
-                                <div className="mt-1 text-base font-semibold text-ink">{obj.heartRate} <span className="text-xs font-medium text-slate-600">bpm</span></div>
-                              </div>
-                            </>
+                        <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
+                          {activeConsultationVisitId === nextVisit.id || calledVisitId === nextVisit.id ? (
+                            <button
+                              type="button"
+                              onClick={() => handleStartConsultation(nextVisit.id)}
+                              className="h-11 px-5 bg-primary hover:bg-primary-hover text-white text-sm font-bold flex items-center justify-center gap-2 whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                            >
+                              <Stethoscope className="w-[18px] h-[18px]" />
+                              <span>Move to consultation</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
+                              aria-label={`Call patient ${nextPatient.fullName}`}
+                              className="h-11 px-5 bg-primary hover:bg-primary-hover text-white text-sm font-bold flex items-center justify-center gap-2 whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                            >
+                              <Volume2 className="w-[18px] h-[18px]" />
+                              <span>Call patient</span>
+                            </button>
                           )}
-                        </div>
-
-                        <div className="bg-surface-accent px-3.5 py-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                          <span className="text-xs font-bold uppercase tracking-wider text-accent">Why ranked first</span>
-                          <span className="text-sm text-ink">{getRankingRationale(nextPatient, nextVisit, 0, sortRule)}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex-none basis-60 flex flex-col gap-2.5">
-                        {activeConsultationVisitId === nextVisit.id || calledVisitId === nextVisit.id ? (
                           <button
                             type="button"
-                            onClick={() => handleStartConsultation(nextVisit.id)}
-                            className="h-[52px] bg-primary hover:bg-primary-hover text-white text-base font-bold flex items-center justify-center gap-2.5 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                            onClick={() => toggleDetails(nextVisit.id)}
+                            aria-expanded={!!expandedDetails[nextVisit.id]}
+                            className="h-11 px-4 bg-surface text-accent border border-primary text-sm font-semibold whitespace-nowrap hover:bg-surface-accent transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                           >
-                            <Stethoscope className="w-[18px] h-[18px]" />
-                            <span>Move to consultation</span>
+                            {expandedDetails[nextVisit.id] ? 'Hide details' : 'View details'}
                           </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
-                            className="h-[52px] bg-primary hover:bg-primary-hover text-white text-base font-bold flex items-center justify-center gap-2.5 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
-                          >
-                            <Volume2 className="w-[18px] h-[18px]" />
-                            <span>Call patient</span>
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => toggleDetails(nextVisit.id)}
-                          className="h-11 bg-surface text-accent border border-primary text-sm font-semibold hover:bg-surface-accent transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
-                        >
-                          {expandedDetails[nextVisit.id] ? 'Hide details' : 'View details'}
-                        </button>
-                        <div className="flex gap-2.5">
                           <button
                             type="button"
                             onClick={(e) => togglePinVisit(nextVisit.id, e)}
+                            aria-pressed={!!pinnedVisitIds[nextVisit.id]}
+                            aria-label={`${pinnedVisitIds[nextVisit.id] ? 'Unpin' : 'Pin'} ${nextPatient.fullName}`}
                             title="Toggle pin priority"
-                            className={`flex-1 h-11 border text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                            className={`h-11 px-4 border text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
                               pinnedVisitIds[nextVisit.id]
                                 ? 'bg-amber-100 text-amber-900 border-amber-300'
                                 : 'bg-surface text-ink border-line hover:bg-surface-accent'
@@ -676,13 +636,48 @@ export default function DoctorDashboardModule({
                           <button
                             type="button"
                             onClick={(e) => copyToClipboard(nextPatient.id, 'Patient ID', e)}
+                            aria-label={`Copy patient ID for ${nextPatient.fullName}`}
                             title="Copy patient ID"
-                            className="flex-1 h-11 bg-surface text-ink border border-line text-sm font-semibold flex items-center justify-center gap-2 hover:bg-surface-accent transition-colors cursor-pointer"
+                            className="h-11 px-4 bg-surface text-ink border border-line text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap hover:bg-surface-accent transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                           >
                             <Copy className="w-4 h-4" />
                             <span>Copy ID</span>
                           </button>
                         </div>
+                      </div>
+
+                      {/* Row 2: key facts, equal-height tiles on one line (complaint gets the extra width) */}
+                      <div className={`grid grid-cols-2 gap-3 ${obj && obj.temperature > 0 ? 'lg:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]' : 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]'}`}>
+                        <div className="bg-surface-muted border border-line-subtle px-3.5 py-3 col-span-2 lg:col-span-1 min-w-0">
+                          <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Chief complaint</div>
+                          <div className="mt-1 text-base font-semibold text-ink">{getChiefComplaintLabel(nextVisit.soap?.subjective)}</div>
+                        </div>
+                        <div className={`px-3.5 py-3 border ${heroWait >= 20 ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
+                          <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Waiting</div>
+                          <div className="mt-1 text-base font-bold">{heroWait} min</div>
+                        </div>
+                        {obj && obj.temperature > 0 && (
+                          <>
+                            <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
+                              <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Blood pressure</div>
+                              <div className="mt-1 text-base font-semibold text-ink">{obj.bpSystolic}/{obj.bpDiastolic} <span className="text-xs font-medium text-slate-600">mmHg</span></div>
+                            </div>
+                            <div className={`px-3.5 py-3 border ${obj.temperature >= 37.5 ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
+                              <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Temperature</div>
+                              <div className="mt-1 text-base font-bold">{obj.temperature}°C</div>
+                            </div>
+                            <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
+                              <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Heart rate</div>
+                              <div className="mt-1 text-base font-semibold text-ink">{obj.heartRate} <span className="text-xs font-medium text-slate-600">bpm</span></div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Row 3: why this patient is next */}
+                      <div className="bg-surface-accent px-3.5 py-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <span className="text-xs font-bold uppercase tracking-wider text-accent">{sortRule === 'urgency' ? 'Why ranked first' : 'Why next'}</span>
+                        <span className="text-sm text-ink">{getRankingRationale(nextPatient, nextVisit, 0, sortRule)}</span>
                       </div>
                     </div>
 
@@ -738,14 +733,14 @@ export default function DoctorDashboardModule({
                 </div>
 
                 <div className="overflow-x-auto">
-                  <div className="md:min-w-[960px]">
-                    <div className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line-subtle text-xs font-semibold uppercase tracking-wider text-slate-600">
-                      <span>Rank</span>
-                      <span>Patient</span>
-                      <span>Complaint</span>
-                      <span>Why this position</span>
-                      <span>Waiting</span>
-                      <span className="text-right">Actions</span>
+                  <div role="table" aria-label="Waiting patients" className="md:min-w-[960px]">
+                    <div role="row" className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line-subtle text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      <span role="columnheader">{sortRule === 'urgency' ? 'Rank' : 'Order'}</span>
+                      <span role="columnheader">Patient</span>
+                      <span role="columnheader">Complaint</span>
+                      <span role="columnheader">Why this position</span>
+                      <span role="columnheader">Waiting</span>
+                      <span role="columnheader" className="text-right">Actions</span>
                     </div>
 
                     {remainingQueue.length === 0 && (
@@ -774,21 +769,24 @@ export default function DoctorDashboardModule({
                       return (
                         <div
                           key={visit.id}
+                          role="rowgroup"
                           className={`border-b border-line-subtle transition-colors ${
                             isConsulting ? 'bg-surface-accent' : isPinned ? 'bg-surface-muted' : 'bg-surface hover:bg-surface-muted'
                           }`}
                         >
                           <div
+                            role="row"
                             tabIndex={0}
                             onClick={() => toggleDetails(visit.id)}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetails(visit.id); } }}
+                            aria-expanded={!!isExpanded}
+                            onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleDetails(visit.id); } }}
                             className="grid grid-cols-1 md:grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-3 md:gap-4 items-center px-5 py-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                           >
-                            <span className={`w-10 h-10 border text-sm font-bold flex items-center justify-center ${rankTint}`}>
+                            <span role="cell" className={`w-10 h-10 border text-sm font-bold flex items-center justify-center ${rankTint}`}>
                               #{queuePosition}
                             </span>
 
-                            <div className="min-w-0 space-y-2">
+                            <div role="cell" className="min-w-0 space-y-2">
                               <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
                                 <h4 className="text-sm font-semibold text-ink">{pt.fullName}</h4>
                                 <span className="text-xs text-slate-600">ID {pt.id}</span>
@@ -804,15 +802,15 @@ export default function DoctorDashboardModule({
                               </div>
                             </div>
 
-                            <span className="text-sm font-medium text-accent min-w-0">
+                            <span role="cell" className="text-sm font-medium text-accent min-w-0">
                               {getChiefComplaintLabel(visit.soap?.subjective)}
                             </span>
 
-                            <span className="text-xs leading-snug text-slate-600 min-w-0">
+                            <span role="cell" className="text-xs leading-snug text-slate-600 min-w-0">
                               {getRankingRationale(pt, visit, globalRankIndex, sortRule)}
                             </span>
 
-                            <div className="flex flex-col items-start gap-1">
+                            <div role="cell" className="flex flex-col items-start gap-1">
                               <span className={`text-sm font-bold px-2.5 py-1 border ${
                                 overSla ? 'bg-amber-50 text-amber-900 border-amber-200' : 'bg-surface-accent text-ink border-line-subtle'
                               }`}>
@@ -821,31 +819,27 @@ export default function DoctorDashboardModule({
                               {overSla && <span className="text-2xs font-semibold text-amber-900">Over SLA</span>}
                             </div>
 
-                            <div className="flex items-center gap-2 md:justify-end" onClick={(e) => e.stopPropagation()}>
-                              <button
-                                type="button"
-                                onClick={(e) => togglePinVisit(visit.id, e)}
-                                aria-label={isPinned ? 'Unpin patient' : 'Pin patient'}
-                                title={isPinned ? 'Unpin' : 'Pin priority'}
-                                className={`w-11 h-11 border flex items-center justify-center transition-colors cursor-pointer ${
-                                  isPinned ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-surface text-ink border-line hover:bg-surface-accent'
-                                }`}
-                              >
-                                <Pin className="w-4 h-4" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => copyToClipboard(pt.id, 'Patient ID', e)}
-                                aria-label="Copy patient ID"
-                                title="Copy patient ID"
-                                className="w-11 h-11 bg-surface text-ink border border-line flex items-center justify-center hover:bg-surface-accent transition-colors cursor-pointer"
-                              >
-                                <Copy className="w-4 h-4" />
-                              </button>
+                            <div role="cell" className="flex items-center gap-2 md:justify-end" onClick={(e) => e.stopPropagation()}>
+                              <ActionMenu
+                                label={`More actions for ${pt.fullName}`}
+                                items={[
+                                  {
+                                    label: isPinned ? 'Unpin from top' : 'Pin to top',
+                                    icon: <Pin className="w-4 h-4" aria-hidden="true" />,
+                                    onSelect: (e) => togglePinVisit(visit.id, e),
+                                  },
+                                  {
+                                    label: 'Copy patient ID',
+                                    icon: <Copy className="w-4 h-4" aria-hidden="true" />,
+                                    onSelect: (e) => copyToClipboard(pt.id, 'Patient ID', e),
+                                  },
+                                ]}
+                              />
                               {isConsulting ? (
                                 <button
                                   type="button"
                                   onClick={() => handleStartConsultation(visit.id)}
+                                  aria-label={`Resume consultation for ${pt.fullName}`}
                                   className="h-11 px-4 bg-deep text-white text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                                 >
                                   <Stethoscope className="w-4 h-4" />
@@ -855,6 +849,7 @@ export default function DoctorDashboardModule({
                                 <button
                                   type="button"
                                   onClick={() => requestCallPatient(visit.id, pt.fullName, queuePosition)}
+                                  aria-label={`Call patient ${pt.fullName}`}
                                   className="h-11 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                                 >
                                   Call patient
@@ -864,7 +859,7 @@ export default function DoctorDashboardModule({
                           </div>
 
                           {isExpanded && (
-                            <div className="mx-5 mb-4 border border-line-subtle bg-surface-muted p-4 text-sm text-ink space-y-3 animate-fadeIn">
+                            <div role="row" className="mx-5 mb-4"><div role="cell" aria-colspan={6} className="border border-line-subtle bg-surface-muted p-4 text-sm text-ink space-y-3 animate-fadeIn">
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                   <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full reason / symptoms</strong>
@@ -897,7 +892,7 @@ export default function DoctorDashboardModule({
                                   <span>Copy record</span>
                                 </button>
                               </div>
-                            </div>
+                            </div></div>
                           )}
                         </div>
                       );

@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 import { DRUG_DATABASE } from '../../data';
 
 import { palette, seriesColors } from '../../theme/palette';
+import { buttonProps, focusRing } from '../../lib/a11y';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
@@ -492,8 +493,8 @@ export default function PlanTab({
                   {drugSuggestions.map(drug => (
                     <div
                       key={drug.id}
-                      onClick={() => handleAddDrug(drug)}
-                      className="p-2.5 border-b border-slate-100 dark:border-teal-800/30 hover:bg-surface-muted dark:hover:bg-night-800 cursor-pointer flex items-center justify-between text-xs transition-colors"
+                      {...buttonProps(() => handleAddDrug(drug))}
+                      className={`p-2.5 border-b border-slate-100 dark:border-teal-800/30 hover:bg-surface-muted dark:hover:bg-night-800 cursor-pointer flex items-center justify-between text-xs transition-colors ${focusRing}`}
                     >
                       <div>
                         <strong className="text-ink dark:text-teal-300 font-bold block">{drug.name}</strong>
@@ -630,8 +631,8 @@ export default function PlanTab({
               return (
                 <div
                   key={test.id}
-                  onClick={() => toggleLabSelection(test.name)}
-                  className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${
+                  {...buttonProps(() => toggleLabSelection(test.name), isSelected)}
+                  className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${focusRing} ${
                     isSelected
                       ? 'bg-surface-accent dark:bg-night-800 border-brand text-ink dark:text-white shadow-2xs font-bold'
                       : 'bg-white dark:bg-night-900 border-slate-200 dark:border-teal-800/40 text-slate-700 dark:text-slate-300 hover:border-line'
@@ -641,7 +642,9 @@ export default function PlanTab({
                     <input 
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() => {}} // Handled by parent div
+                      onChange={() => {}} // Handled by parent row
+                      tabIndex={-1}
+                      aria-hidden="true"
                       className="w-4 h-4 text-accent rounded-none focus:ring-0 cursor-pointer"
                     />
                     <div>

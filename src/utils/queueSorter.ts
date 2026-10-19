@@ -49,11 +49,11 @@ export function getRankingRationale(
     else if (waitMins > 0) reasons.push(`${waitMins}m wait`);
 
     if (reasons.length === 0) reasons.push('Standard Outpatient Triage');
-    return `Why Rank #${rankIndex + 1}: ${reasons.join(' + ')}`;
+    return `Urgency rank #${rankIndex + 1}: ${reasons.join(' + ')}`;
   } else if (activeRule === 'wait') {
-    return `Why Rank #${rankIndex + 1}: Longest wait priority (${waitMins}m wait)`;
+    return `Position #${rankIndex + 1}: longest wait first (${waitMins}m wait)`;
   } else {
-    return `Why Rank #${rankIndex + 1}: Registration arrival order (${visit.date || 'Today'})`;
+    return `Position #${rankIndex + 1}: arrival order (${visit.date || 'Today'})`;
   }
 }
 

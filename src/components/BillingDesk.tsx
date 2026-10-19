@@ -9,6 +9,7 @@ import {
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet,
   ClipboardCheck, CheckCircle2, QrCode, FileCheck, FileText, Plus, Percent, Trash2
 } from 'lucide-react';
+import { buttonProps, focusRing } from '../lib/a11y';
 
 interface BillingDeskProps {
   queue: Visit[];
@@ -241,8 +242,8 @@ export default function BillingDesk({
               return (
                 <div
                   key={visit.id}
-                  onClick={() => handleSelectVisit(visit.id)}
-                  className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer hover:bg-teal-50/50 bg-white ${
+                  {...buttonProps(() => handleSelectVisit(visit.id), isSelected)}
+                  className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer ${focusRing} hover:bg-teal-50/50 bg-white ${
                     isSelected 
                       ? 'border-brand bg-teal-50/40 shadow-xs' 
                       : 'border-slate-200'

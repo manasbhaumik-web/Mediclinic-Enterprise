@@ -4,7 +4,7 @@ import ThemeSelector from './ui/ThemeSelector';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
-  ChevronDown, ChevronRight, LogOut, CalendarClock, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe
+  ChevronDown, ChevronRight, LogOut, CalendarClock, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck
 } from 'lucide-react';
 
 interface EnterpriseLayoutTemplateProps {
@@ -19,6 +19,7 @@ interface EnterpriseLayoutTemplateProps {
   activeLanguage: string;
   setActiveLanguage: (val: string) => void;
   onSignOut: () => void;
+  onOpenAdmin?: () => void;
   t: any;
   triageQueueLength?: number;
   doctorQueueLength: number;
@@ -39,6 +40,7 @@ export default function EnterpriseLayoutTemplate({
   activeLanguage,
   setActiveLanguage,
   onSignOut,
+  onOpenAdmin,
   t,
   triageQueueLength = 0,
   doctorQueueLength,
@@ -330,6 +332,21 @@ export default function EnterpriseLayoutTemplate({
                 <span>{t.dashboard || 'Dashboard'}</span>
               </div>
             </button>
+
+            {/* Administration Console Link (admin / HR) */}
+            {(userRole === 'admin' || userRole === 'hr') && (
+              <button
+                type="button"
+                id="sidebar-link-admin"
+                onClick={() => onOpenAdmin?.()}
+                className="nav-btn nav-btn-inactive"
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-teal-200" />
+                  <span>Administration</span>
+                </div>
+              </button>
+            )}
 
             {/* Registration Navigation Link */}
             {userRole === 'clinic-assistant' && (

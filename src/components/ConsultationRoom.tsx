@@ -18,6 +18,7 @@ import SubjectiveTab from './consultation/SubjectiveTab';
 import ObjectiveTab from './consultation/ObjectiveTab';
 import AssessmentTab from './consultation/AssessmentTab';
 import PlanTab from './consultation/PlanTab';
+import { buttonProps, focusRing } from '../lib/a11y';
 
 interface ConsultationRoomProps {
   currentPatient: Patient | null;
@@ -787,8 +788,8 @@ export default function ConsultationRoom({
                   return (
                     <div
                       key={visit.id}
-                      onClick={() => setSelectedPastVisit(isSelected ? null : visit)}
-                      className={`p-3 rounded-none border transition-all text-left cursor-pointer hover:bg-surface-muted dark:hover:bg-night-800 bg-surface-muted dark:bg-night-850 ${
+                      {...buttonProps(() => setSelectedPastVisit(isSelected ? null : visit), isSelected)}
+                      className={`p-3 rounded-none border transition-all text-left cursor-pointer ${focusRing} hover:bg-surface-muted dark:hover:bg-night-800 bg-surface-muted dark:bg-night-850 ${
                         isSelected 
                           ? 'border-brand dark:border-teal-400 bg-surface-accent dark:bg-night-800 shadow-xs' 
                           : 'border-line-subtle dark:border-teal-800/40'

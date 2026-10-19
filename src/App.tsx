@@ -44,16 +44,9 @@ export default function App() {
 
   const handleLogin = async (role: UserRole) => {
     await signIn(role);
-    if (role === 'admin' || role === 'hr') {
-      setAppView('admin');
-    } else {
-      setAppView('suite');
-      // Automatically route to dedicated dashboard view according to logged-in user role
-      if (role === 'doctor') setActiveTab('queue');
-      else if (role === 'pharmacist') setActiveTab('dispensary');
-      else if (role === 'clinic-assistant') setActiveTab('triage');
-      else setActiveTab('dashboard');
-    }
+    // Every role lands on the dashboard after login
+    setAppView('suite');
+    setActiveTab('dashboard');
   };
 
   // Multi-language active language (EN or BM)
@@ -273,6 +266,7 @@ export default function App() {
       completedVisits={completedVisits}
       totalRegisteredCount={patientsList.length}
       activeLanguage={activeLanguage}
+      onOpenDashboard={() => { setActiveTab('dashboard'); setAppView('suite'); }}
     />;
     return null;
   };
@@ -320,6 +314,7 @@ export default function App() {
             activeLanguage={activeLanguage}
             setActiveLanguage={setActiveLanguage}
             onSignOut={async () => { setAppView('login'); await signOut(); }}
+            onOpenAdmin={() => setAppView('admin')}
             t={t}
             triageQueueLength={triageQueue.length}
             doctorQueueLength={doctorQueue.length}
@@ -363,6 +358,7 @@ export default function App() {
                     }
                   }}
                   onOpenLogin={() => setAppView('login')}
+                  onOpenAdmin={() => setAppView('admin')}
                 />
               )}
 
