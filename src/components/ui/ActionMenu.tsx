@@ -41,7 +41,7 @@ export default function ActionMenu({ label, items, className = '' }: ActionMenuP
   };
 
   const onMenuKeyDown = (e: React.KeyboardEvent) => {
-    const els = Array.from(rootRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+    const els = Array.from<HTMLElement>(rootRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
     const i = els.indexOf(document.activeElement as HTMLElement);
     if (e.key === 'Escape') {
       e.preventDefault();
