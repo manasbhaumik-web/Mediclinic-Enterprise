@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, Users, X, 
-  DollarSign, CheckCircle, Clock, Calendar, AlertCircle,
+  DollarSign, Calendar, AlertCircle,
   FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw, CheckCircle2, ArrowRight, Activity
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
@@ -332,16 +332,6 @@ Add anyway?`)) return;
       await supabase.from('staff').delete().eq('id', id);
       fetchStaff();
     }
-  };
-
-  const processPayroll = async (id: string) => {
-    await supabase.from('staff').update({ payment_status: 'Paid' }).eq('id', id);
-    fetchStaff();
-  };
-
-  const revertPayroll = async (id: string) => {
-    await supabase.from('staff').update({ payment_status: 'Pending' }).eq('id', id);
-    fetchStaff();
   };
 
   const approveLeave = async (id: string) => {
@@ -761,74 +751,15 @@ Add anyway?`)) return;
             </div>
           )}
 
-          {/* Payroll View */}
+          {/* Payroll View: the real payroll runs live in Admin > Finance > Payroll */}
           {activeTab === 'payroll' && (
-            <div className="space-y-4 animate-fadeIn">
-              <div className="bg-surface border border-line-subtle rounded-none shadow-2xs overflow-hidden">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-surface-accent text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
-                    <tr>
-                      <th className="px-6 py-3.5">Employee</th>
-                      <th className="px-6 py-3.5">Base Salary</th>
-                      <th className="px-6 py-3.5">Deductions (EPF/SOCSO)</th>
-                      <th className="px-6 py-3.5">Net Pay</th>
-                      <th className="px-6 py-3.5">Status</th>
-                      <th className="px-6 py-3.5 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line-subtle">
-                    {staffList.map((staff) => {
-                      const base = Number(staff.salaryBase) || 0;
-                      const deductions = base * 0.13;
-                      const netPay = base - deductions;
-
-                      return (
-                        <tr key={staff.id} className="hover:bg-surface-muted">
-                          <td className="px-6 py-4 font-bold text-ink">{staff.name}</td>
-                          <td className="px-6 py-4 font-mono text-slate-600">RM {base.toLocaleString()}</td>
-                          <td className="px-6 py-4 font-mono text-rose-600">-RM {deductions.toLocaleString()}</td>
-                          <td className="px-6 py-4 font-mono font-bold text-accent">RM {netPay.toLocaleString()}</td>
-                          <td className="px-6 py-4">
-                            {staff.paymentStatus === 'Paid' ? (
-                              <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center justify-center gap-1 text-2xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-300">
-                                  <CheckCircle className="w-3 h-3" /> Paid
-                                </span>
-                                <button 
-                                  type="button"
-                                  onClick={() => revertPayroll(staff.id)}
-                                  className="p-1 text-slate-400 hover:text-amber-600 cursor-pointer"
-                                  title="Revert to Pending"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ) : (
-                              <span className="inline-flex items-center justify-center gap-1 text-2xs font-bold text-amber-800 bg-amber-100 px-2 py-0.5 border border-amber-300">
-                                <Clock className="w-3 h-3" /> Pending
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <button
-                              type="button"
-                              disabled={staff.paymentStatus === 'Paid'}
-                              onClick={() => processPayroll(staff.id)}
-                              className={`text-xs font-bold px-3 py-1.5 rounded-none transition-colors ${
-                                staff.paymentStatus === 'Paid' 
-                                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                  : 'bg-primary hover:bg-primary-hover text-white cursor-pointer shadow-xs'
-                              }`}
-                            >
-                              Process
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
+            <div className="bg-surface border border-line-subtle p-6 space-y-3 animate-fadeIn">
+              <h3 className="type-heading-caps text-ink">Payroll has moved</h3>
+              <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                Salaries are now paid through monthly payroll runs (draft, review, approve, paid) with statutory contributions from configurable rate tables, payslips and bank and statutory export files.
+                Open <b>Payroll</b> under the Finance section of the admin console. This tab used to mark people as paid without any calculation, so it has been removed.
+              </p>
+              <p className="text-xs text-slate-500">Estimated monthly basic salary of active staff: <b className="font-mono">RM {totalPayroll.toLocaleString()}</b></p>
             </div>
           )}
 

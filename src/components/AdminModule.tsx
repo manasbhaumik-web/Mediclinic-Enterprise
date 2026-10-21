@@ -16,6 +16,7 @@ import ReportsAnalyticsModule from './ReportsAnalyticsModule';
 import SettingsModule from './SettingsModule';
 import MOHDashboard from './MOHDashboard';
 import EInvoicePage from './einvoice/EInvoicePage';
+import PayrollPage from './payroll/PayrollPage';
 import IntegrationsPage from './integrations/IntegrationsPage';
 import OperationsHub from './OperationsHub';
 import SecurityHub from './SecurityHub';
@@ -34,7 +35,7 @@ interface AdminModuleProps {
   onOpenDashboard?: () => void;
 }
 
-type AdminTab = 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'einvoice' | 'architecture';
+type AdminTab = 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'einvoice' | 'payroll' | 'architecture';
 
 type AdminCategory = 'people' | 'clinical' | 'finance' | 'compliance' | 'platform';
 
@@ -82,6 +83,7 @@ export default function AdminModule({
     
     // 3. Finance
     { id: 'billing', label: 'Billing Desk', category: 'finance', icon: DollarSign, roleReq: 'admin', enabled: settings.modules.billing },
+    { id: 'payroll', label: 'Payroll', category: 'finance', icon: DollarSign, roleReq: 'all', enabled: true },
     { id: 'einvoice', label: 'e-Invoice (LHDN)', category: 'finance', icon: FileText, roleReq: 'admin', enabled: true },
     { id: 'rcm', label: 'Revenue Cycle (RCM)', category: 'finance', icon: TrendingUp, roleReq: 'admin', enabled: true },
 
@@ -406,6 +408,10 @@ export default function AdminModule({
 
           {activeTab === 'settings' && userRole === 'admin' && (
             <SettingsModule />
+          )}
+
+          {activeTab === 'payroll' && (
+            <PayrollPage role={userRole} />
           )}
 
           {activeTab === 'einvoice' && userRole === 'admin' && (
