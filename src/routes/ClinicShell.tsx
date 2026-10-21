@@ -2,7 +2,7 @@ import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { MessageCircle, X } from 'lucide-react';
-import { Appointment, Language, Patient, UserRole, Visit } from '../types';
+import { Appointment, Language, Patient, SOAPNotes, UserRole, VitalSigns, Visit } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useFinancials } from '../context/FinancialContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -36,8 +36,8 @@ export interface ClinicShellContext {
   updateVisitInDb: ClinicData['updateVisitInDb'];
   addAppointment: (app: Omit<Appointment, 'id' | 'createdAt'>) => Promise<void>;
   updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>;
-  onTriageComplete: (visitId: string, vitals: any, chiefComplaint: string) => void;
-  onConsultationComplete: (soap: any, issueMc: boolean, mcDuration: number) => void;
+  onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
+  onConsultationComplete: (soap: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onDispenseVerified: (visitId: string) => void;
   onBillingSettled: (visitId: string, payInfo: PaymentInfo) => void;
 }
@@ -133,7 +133,7 @@ export default function ClinicShell() {
         paidAmount: payInfo.paidAmount,
         panelClaimed: payInfo.panelClaimed,
         glNumber: payInfo.glNumber,
-      } as any);
+      });
       updateVisitInDb(settlePayment(visit, payInfo));
       navigateTab('dashboard');
     },

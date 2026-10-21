@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Patient, Visit, Language } from '../types';
+import { Patient, Visit, Language, SOAPNotes } from '../types';
 import ConsultationRoom from './ConsultationRoom';
 import { 
   Stethoscope, FileText, Calendar, Users, DollarSign, Activity, BrainCircuit, 
@@ -35,7 +35,7 @@ interface DoctorDashboardModuleProps {
   activeLanguage: Language;
   activeConsultationVisitId: string | null;
   setActiveConsultationVisitId: (id: string | null) => void;
-  onConsultationComplete: (soapData: any, issueMc: boolean, mcDuration: number) => void;
+  onConsultationComplete: (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   doctorName?: string;
   doctorTab?: 'queue' | 'consultation' | 'reports';
   onTabChange?: (tab: 'queue' | 'consultation' | 'reports') => void;
@@ -288,7 +288,7 @@ export default function DoctorDashboardModule({
   };
 
   // Step 3: Complete consultation and return back to Queue
-  const handleDoctorSoapComplete = (soapData: any, issueMc: boolean, mcDuration: number) => {
+  const handleDoctorSoapComplete = (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => {
     onConsultationComplete(soapData, issueMc, mcDuration);
     setActiveConsultationVisitId(null);
     setCalledVisitId(null);

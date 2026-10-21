@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Visit, Language, TPAConfig } from '../types';
 import { TRANSLATIONS } from '../data';
+import { BillBreakdown, EMPTY_BREAKDOWN, calculateBill } from '../domain/billing';
 import { useSettings } from '../context/SettingsContext';
 import { useAuxiliary } from '../context/AuxiliaryContext';
 import { QRCodeSVG } from 'qrcode.react';
@@ -71,16 +72,7 @@ export default function BillingDesk({
   const TAX_RATE = settings.billing.taxRate / 100;
 
   // Subtotals and dynamic totals
-  const [billingBreakdown, setBillingBreakdown] = useState({
-    medicationCost: 0,
-    customItemsTotal: 0,
-    discountAmount: 0,
-    subtotal: 0,
-    sstTax: 0,
-    grandTotal: 0,
-    panelPaid: 0,
-    patientCopay: 0
-  });
+  const [billingBreakdown, setBillingBreakdown] = useState<BillBreakdown>(EMPTY_BREAKDOWN);
 
   const handleSelectVisit = (visitId: string) => {
     setSelectedVisitId(visitId);
@@ -101,59 +93,15 @@ export default function BillingDesk({
   // Recalculate bill balance upon select/change parameters
   useEffect(() => {
     if (!activeVisit) return;
-
-    // Sum drug prescription metrics
-    let medsCost = 0;
-    if (activeVisit.soap?.plan?.prescription) {
-      activeVisit.soap.plan.prescription.forEach(rx => {
-        medsCost += (rx.pricePerUnit * rx.quantity);
-      });
-    }
-
-    const totalCustomItems = customLineItems.reduce((acc, item) => acc + item.amount, 0);
-    const preDiscountSub = CONSULTATION_FEE + PROCEDURE_FEE + medsCost + totalCustomItems;
-    
-    let discountAmountValue = 0;
-    if (discount.type === 'fixed') {
-      discountAmountValue = discount.value;
-    } else {
-      discountAmountValue = preDiscountSub * (discount.value / 100);
-    }
-    
-    const sub = Math.max(0, preDiscountSub - discountAmountValue);
-    const tax = sub * TAX_RATE; // SST
-    const grand = sub + tax;
-
-    let panelPaid = 0;
-    let patientCopay = grand;
-
-    if (isPanelClaim && selectedTPA) {
-        if (grand <= selectedTPA.coverageLimit) {
-          panelPaid = grand;
-          patientCopay = 0;
-        } else {
-          panelPaid = selectedTPA.coverageLimit;
-          patientCopay = grand - selectedTPA.coverageLimit;
-        }
-
-        if (selectedTPA.coPayRequired && selectedTPA.coPayPercentage) {
-          const copayAmount = (grand * selectedTPA.coPayPercentage) / 100;
-          patientCopay += copayAmount;
-          panelPaid -= copayAmount;
-        }
-    }
-
-    setBillingBreakdown({
-      medicationCost: medsCost,
-      customItemsTotal: totalCustomItems,
-      discountAmount: discountAmountValue,
-      subtotal: sub,
-      sstTax: tax,
-      grandTotal: grand,
-      panelPaid: panelPaid,
-      patientCopay: patientCopay
-    });
-
+    setBillingBreakdown(calculateBill({
+      consultationFee: CONSULTATION_FEE,
+      procedureFee: PROCEDURE_FEE,
+      prescription: activeVisit.soap?.plan?.prescription ?? [],
+      customItems: customLineItems,
+      discount,
+      taxRate: TAX_RATE,
+      panel: isPanelClaim ? selectedTPA : null,
+    }));
   }, [activeVisit, isPanelClaim, selectedTPA, customLineItems, discount]);
 
   const triggerInstantGLApprove = () => {

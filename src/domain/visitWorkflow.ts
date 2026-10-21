@@ -2,7 +2,7 @@
  * Visit lifecycle: Awaiting Triage -> Awaiting Consult -> Consulting -> Awaiting Dispensation
  * -> Awaiting Billing -> Paid. Pure functions so each transition can be tested in isolation.
  */
-import { Visit } from '../types';
+import { SOAPNotes, VitalSigns, Visit } from '../types';
 
 export interface VisitQueues {
   triage: Visit[];
@@ -20,7 +20,7 @@ export function splitQueues(visits: Visit[]): VisitQueues {
   };
 }
 
-export function completeTriage(visit: Visit, vitals: Partial<NonNullable<Visit['soap']>['objective']>, chiefComplaint: string): Visit {
+export function completeTriage(visit: Visit, vitals: Partial<VitalSigns>, chiefComplaint: string): Visit {
   return {
     ...visit,
     soap: {
@@ -33,7 +33,7 @@ export function completeTriage(visit: Visit, vitals: Partial<NonNullable<Visit['
 }
 
 /** Doctor finishes the SOAP note; the visit goes to the pharmacy. */
-export function completeConsultation(visit: Visit, soap: Visit['soap'], mcIssued: boolean): Visit {
+export function completeConsultation(visit: Visit, soap: SOAPNotes, mcIssued: boolean): Visit {
   return { ...visit, soap, status: 'Awaiting Dispensation', mcIssued };
 }
 
@@ -43,7 +43,7 @@ export function completeDispensing(visit: Visit): Visit {
 }
 
 export interface PaymentInfo {
-  paymentMethod: Visit['paymentMethod'];
+  paymentMethod: NonNullable<Visit['paymentMethod']>;
   paidAmount: number;
   panelClaimed: number;
   glNumber?: string;

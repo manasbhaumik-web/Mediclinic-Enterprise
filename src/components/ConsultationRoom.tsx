@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Patient, Visit, ICD10Code, PrescriptionItem, Language 
+import {
+  Patient, Visit, ICD10Code, PrescriptionItem, Language, SOAPNotes
 } from '../types';
 import { 
   TRANSLATIONS 
@@ -29,7 +29,7 @@ interface ConsultationRoomProps {
   currentPatient: Patient | null;
   activeVisit?: Visit | null;
   activeLanguage: Language;
-  onConsultationComplete: (soapData: any, issueMc: boolean, mcDuration: number) => void;
+  onConsultationComplete: (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onCancel: () => void;
 }
 

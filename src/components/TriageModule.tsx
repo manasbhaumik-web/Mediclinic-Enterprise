@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Patient, Visit } from '../types';
+import { Patient, Visit, VitalSigns } from '../types';
 import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight } from 'lucide-react';
 import { maskICNumber } from '../utils/piiMasker';
 import Button from './ui/Button';
@@ -9,7 +9,7 @@ import { Card, CardHeader, CardContent, CardFooter } from './ui/Card';
 interface TriageModuleProps {
   triageQueue: Visit[];
   patientsMap: Record<string, Patient>;
-  onTriageComplete: (visitId: string, vitals: any, chiefComplaint: string) => void;
+  onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
 }
 
 export default function TriageModule({ triageQueue, patientsMap, onTriageComplete }: TriageModuleProps) {
