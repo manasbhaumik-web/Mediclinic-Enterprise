@@ -21,7 +21,7 @@ Dates and thresholds for your phase are summarised in the project discussion; co
 4. **Tracking:** **Check LHDN status** (and the worker) fetch the validation result: Valid, Rejected (with errors), or Cancelled. Rejected or failed invoices can be corrected (edit buyer) and retried. Valid/submitted e-invoices can be cancelled with a reason (LHDN allows this within 72 hours of validation).
 
 ## Deploy
-1. Apply `supabase/migrations/20261021100000_v17_einvoice.sql`.
+1. Apply `supabase/migrations/20261021053240_v17_einvoice.sql`.
 2. Deploy the functions:
    ```bash
    supabase functions deploy einvoice-admin
