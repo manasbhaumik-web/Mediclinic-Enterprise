@@ -74,7 +74,7 @@ BEGIN
   NEW.updated_at = now();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public, pg_temp;
 
 DROP TRIGGER IF EXISTS integration_connections_touch ON integration_connections;
 CREATE TRIGGER integration_connections_touch BEFORE UPDATE ON integration_connections
@@ -121,7 +121,7 @@ BEGIN
   GET DIAGNOSTICS queued = ROW_COUNT;
   RETURN queued;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 REVOKE ALL ON FUNCTION public.enqueue_integration_message(TEXT, TEXT, TEXT, TEXT) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.enqueue_integration_message(TEXT, TEXT, TEXT, TEXT) TO authenticated;

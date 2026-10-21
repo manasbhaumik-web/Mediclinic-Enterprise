@@ -10,7 +10,7 @@ Admin console → Platform → Integrations. The **Connections** tab is real; th
 
 ## One-time setup
 
-1. **Apply the migration** `supabase/migrations/20261021000000_v15_integrations.sql` (adds five tables and `enqueue_integration_message`).
+1. **Apply the migration** `supabase/migrations/20261021045610_v15_integrations.sql` (adds five tables and `enqueue_integration_message`).
 
 2. **Set function secrets** (never in the browser or `.env.local`):
    ```bash
