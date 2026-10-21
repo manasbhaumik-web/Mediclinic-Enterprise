@@ -152,7 +152,7 @@ export default function DispensaryDashboard({
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Clean Enterprise Greetings Banner */}
-      <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 border-l-4 border-l-brand p-5 rounded-none shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
             <Pill className="w-5 h-5 text-accent" />

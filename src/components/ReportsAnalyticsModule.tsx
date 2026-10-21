@@ -112,7 +112,6 @@ export default function ReportsAnalyticsModule() {
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">YTD Revenue</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -128,7 +127,6 @@ export default function ReportsAnalyticsModule() {
         </div>
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Patients</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -144,7 +142,6 @@ export default function ReportsAnalyticsModule() {
         </div>
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">TPA Outstanding</span>
             <div className="p-2 bg-amber-50 rounded-none text-amber-600">
@@ -160,7 +157,6 @@ export default function ReportsAnalyticsModule() {
         </div>
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Inventory Value</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">

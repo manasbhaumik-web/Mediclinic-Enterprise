@@ -58,7 +58,7 @@ export default function WaitingRoomMonitor({ triageQueue, setActiveSubTab, patie
               if (waitMins > 30) waitStatusColor = 'rose';
     
               return (
-                <div key={visit.id} className="p-4 rounded-none border border-line-subtle dark:border-teal-800/40 bg-surface dark:bg-night-900 hover:bg-surface-accent/40 dark:hover:bg-night-800/40 shadow-2xs flex flex-col transition-colors relative border-l-4 border-l-brand">
+                <div key={visit.id} className="p-4 rounded-none border border-line-subtle dark:border-teal-800/40 bg-surface dark:bg-night-900 hover:bg-surface-accent/40 dark:hover:bg-night-800/40 shadow-2xs flex flex-col transition-colors relative">
                   
                   <div className="flex justify-between items-start">
                     <span className="text-2xs font-mono font-bold bg-primary/10 dark:bg-teal-900/40 text-accent dark:text-teal-200 px-2 py-0.5 rounded-none border border-brand/20 tracking-wider">

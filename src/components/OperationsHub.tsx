@@ -56,7 +56,6 @@ export default function OperationsHub() {
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Live Patient Traffic</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -72,7 +71,6 @@ export default function OperationsHub() {
         </div>
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Wait Time</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -88,7 +86,6 @@ export default function OperationsHub() {
         </div>
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Booking Efficiency</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -104,7 +101,6 @@ export default function OperationsHub() {
         </div>
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Automated Inventory</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">

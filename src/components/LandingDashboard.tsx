@@ -333,7 +333,7 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 1. ENTERPRISE COMMAND-CENTER HEADER & CONTROL BAR                         */}
       {/* ========================================================================= */}
-      <div className="bg-surface-muted border border-line-subtle rounded-none p-6 space-y-5 shadow-xs border-l-4 border-l-brand">
+      <div className="bg-surface-muted border border-line-subtle rounded-none p-6 space-y-5 shadow-xs">
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
@@ -388,7 +388,7 @@ export default function LandingDashboard({
         const cfg = WORK_SECTIONS[kind];
         const KindIcon = kind === 'dispense' ? Pill : kind === 'billing' ? CreditCard : kind === 'triage' ? Activity : Stethoscope;
         return (
-          <div key={kind} className="bg-surface-muted border border-line-subtle rounded-none shadow-xs border-l-4 border-l-brand">
+          <div key={kind} className="bg-surface-muted border border-line-subtle rounded-none shadow-xs">
             <div className="flex items-center justify-between gap-3 p-4 border-b border-line-subtle">
               <div>
                 <h3 className="type-card-title text-slate-900 flex items-center gap-2">
@@ -493,7 +493,7 @@ export default function LandingDashboard({
                 type="button"
                 onClick={() => (mod.tabKey === 'admin' ? onOpenAdmin?.() : onNavigateTab(mod.tabKey))}
                 aria-label={`${mod.title}: ${mod.badge}. ${mod.actionText}`}
-                className={`text-left w-full bg-white border border-slate-200 p-4 rounded-none border-l-4 ${mod.accentColor} shadow-2xs hover:bg-surface-muted transition-colors cursor-pointer flex flex-col justify-between group gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`}
+                className={`text-left w-full bg-white border border-slate-200 p-4 rounded-none shadow-2xs hover:bg-surface-muted transition-colors cursor-pointer flex flex-col justify-between group gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`}
               >
                 <span className="block space-y-2 w-full">
                   <span className="flex items-center justify-between">
