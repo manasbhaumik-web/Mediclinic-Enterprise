@@ -15,6 +15,12 @@ import LegendSwatch from './ui/LegendSwatch';
 import { chartTheme } from '../theme/chartTheme';
 import { palette, seriesColors } from '../theme/palette';
 import { useInventory } from '../context/InventoryContext';
+import MicroSparkline from './dashboard/MicroSparkline';
+import type { KpiId, PanelId } from './dashboard/types';
+import KpiCards from './dashboard/KpiCards';
+import FlowAndDiagnosisCharts from './dashboard/FlowAndDiagnosisCharts';
+import PayerAndPharmacyCharts from './dashboard/PayerAndPharmacyCharts';
+import ClinicDirectory from './dashboard/ClinicDirectory';
 interface LandingDashboardProps {
   userRole: UserRole | null;
   userName?: string;
@@ -29,30 +35,6 @@ interface LandingDashboardProps {
   onOpenLogin?: () => void;
   onOpenAdmin?: () => void;
 }
-
-// Inline Micro SVG Sparkline for 10/10 Metric Density (Sharp Line Styling)
-const MicroSparkline = ({ data, color = palette.brand }: { data: number[]; color?: string }) => {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const points = data.map((val, idx) => {
-    const x = (idx / (data.length - 1)) * 100;
-    const y = 30 - ((val - min) / (max - min || 1)) * 24;
-    return `${x},${y}`;
-  }).join(' ');
-
-  return (
-    <svg className="w-20 h-7 overflow-visible inline-block opacity-90" viewBox="0 0 100 30" aria-hidden="true" focusable="false">
-      <polyline
-        fill="none"
-        stroke={color}
-        strokeWidth="2.5"
-        strokeLinecap="square"
-        strokeLinejoin="miter"
-        points={points}
-      />
-    </svg>
-  );
-};
 
 export default function LandingDashboard({
   userRole,
@@ -177,8 +159,6 @@ export default function LandingDashboard({
   const lowStockDrugs = inventory.filter((d) => d.currentStock <= d.minThreshold);
 
   // Role-based dashboard configuration: which tiles, KPIs and panels each role sees
-  type KpiId = 'encounters' | 'waiting' | 'collections' | 'efficiency' | 'prescriptions';
-  type PanelId = 'worklist' | 'throughput' | 'icd' | 'payer' | 'pharmacy' | 'facility';
   const ROLE_DASHBOARDS: Record<UserRole, {
     label: string; subtitle: string; modules: string[]; kpis: KpiId[]; panels: PanelId[];
   }> = {
@@ -548,423 +528,22 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 3. STATISTICAL KPI CARDS WITH SPARKLINES & SLA BADGES                     */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        {showKpi('prescriptions') && (
-          <div className="bg-surface border border-line-subtle rounded-none p-5 shadow-2xs hover:bg-surface-muted transition-colors relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-600 text-2xs font-bold uppercase tracking-wider">
-              <span>Pending prescriptions</span>
-              <span className="p-2 bg-purple-50 border border-purple-200 text-purple-600 rounded-none">
-                <Pill className="w-4 h-4" />
-              </span>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <div>
-                <span className="type-metric font-mono text-slate-900 block">{pharmacyQueue.length}</span>
-                <span className="text-xs font-semibold text-slate-600 mt-1 block">
-                  Est. fulfilment: <strong className="text-accent font-mono font-bold">{pharmacyQueue.length > 0 ? `${pharmacyQueue.length * 3 + 2} min` : '0 min'}</strong>
-                </span>
-              </div>
-              <MicroSparkline data={[1, 3, 4, 2, 5, 3, 2, 4]} color={seriesColors.emeraldDark} />
-            </div>
-            <div className="mt-3 pt-2 border-t border-line-subtle text-xs text-slate-600 font-semibold">
-              Dispensed today: {completedVisits.length}
-            </div>
-          </div>
-        )}
-
-        {/* KPI 1: Today's Encounters */}
-        {showKpi('encounters') && (
-          <div className="bg-surface border border-line-subtle rounded-none p-5 shadow-2xs hover:bg-surface-muted transition-colors relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-600 text-2xs font-bold uppercase tracking-wider">
-              <span>Today's Total Encounters</span>
-              <span className="p-2 bg-surface-accent border border-line text-accent rounded-none">
-                <Users className="w-4 h-4" />
-              </span>
-            </div>
-
-            <div className="mt-3 flex items-baseline justify-between">
-              <div>
-                <span className="type-metric font-mono text-slate-900 block">
-                  {totalEncountersToday}
-                </span>
-                <span className="text-xs font-semibold text-slate-600 mt-1 block">
-                  {completedVisits.length} completed · {activeQueueCount + cashierQueue.length} in progress
-                </span>
-              </div>
-              
-              {hasThroughput && <MicroSparkline data={hourlyTrafficData.map((d) => d.encounters)} color={palette.brand} />}
-            </div>
-
-            <div className="mt-3 pt-2 border-t border-line-subtle flex items-center justify-between text-xs text-slate-600 font-semibold">
-              <span>Registered since opening</span>
-            </div>
-          </div>
-        )}
-
-        {/* KPI 2: Active Waiting Queue */}
-        {showKpi('waiting') && (
-          <div className="bg-surface border border-line-subtle rounded-none p-5 shadow-2xs hover:bg-surface-muted transition-colors relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-600 text-2xs font-bold uppercase tracking-wider">
-              <span>Waiting for doctor</span>
-              <span className="p-2 bg-amber-50 border border-amber-200 text-amber-600 rounded-none">
-                <Clock className="w-4 h-4" />
-              </span>
-            </div>
-
-            <div className="mt-3 flex items-baseline justify-between">
-              <div>
-                <span className="type-metric font-mono text-slate-900 block">
-                  {doctorQueue.length}
-                </span>
-                <span className="text-xs font-semibold text-slate-600 mt-1 block">
-                  Longest wait: <strong className="text-accent font-mono font-bold">{longestDoctorWait} min</strong>
-                </span>
-              </div>
-              
-            </div>
-
-            <div className="mt-3 pt-2 border-t border-line-subtle flex items-center justify-between text-xs text-slate-600 font-semibold">
-              <span>Triage queue: {triageQueue.length}</span>
-              <span className={`font-bold px-1.5 py-0.5 rounded-none border ${longestDoctorWait >= 30 ? 'text-amber-800 bg-amber-100 border-amber-300' : 'text-accent bg-surface-accent border-line'}`}>
-                {longestDoctorWait >= 30 ? 'Long wait' : doctorQueue.length > 0 ? 'Within target' : 'No wait'}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* KPI 3: Today's Financial Billing */}
-        {showKpi('collections') && (
-          <div className="bg-surface border border-line-subtle rounded-none p-5 shadow-2xs hover:bg-surface-muted transition-colors relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-600 text-2xs font-bold uppercase tracking-wider">
-              <span>Today's collections</span>
-              <span className="p-2 bg-sky-50 border border-sky-200 text-sky-600 rounded-none">
-                <CreditCard className="w-4 h-4" />
-              </span>
-            </div>
-
-            <div className="mt-3 flex items-baseline justify-between">
-              <div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xs font-bold text-slate-600">RM</span>
-                  <span className="type-metric font-mono text-slate-900">
-                    {calculatedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-
-            </div>
-
-            <div className="mt-3 pt-2 border-t border-line-subtle flex items-center justify-between text-xs text-slate-600 font-semibold">
-              <span>Awaiting payment: {cashierQueue.length} visit{cashierQueue.length === 1 ? '' : 's'}</span>
-            </div>
-          </div>
-        )}
-
-        {/* KPI 4: Clinic Operational Efficiency */}
-        {showKpi('efficiency') && (
-          <div className="bg-surface border border-line-subtle rounded-none p-5 shadow-2xs hover:bg-surface-muted transition-colors relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-600 text-2xs font-bold uppercase tracking-wider">
-              <span>Average wait</span>
-              <span className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-none">
-                <ShieldCheck className="w-4 h-4" />
-              </span>
-            </div>
-
-            <div className="mt-3 flex items-baseline justify-between">
-              <div>
-                <span className="type-metric font-mono text-slate-900 block">
-                  {avgWaitMinutes} <span className="text-sm font-bold text-slate-600">min</span>
-                </span>
-              </div>
-
-            </div>
-
-            <div className="mt-3 pt-2 border-t border-line-subtle flex items-center justify-between text-xs text-slate-600 font-semibold">
-              <span>Across {waitingTimes.length} waiting patient{waitingTimes.length === 1 ? '' : 's'}</span>
-            </div>
-          </div>
-        )}
-
-      </div>
+      <KpiCards showKpi={showKpi} pharmacyQueue={pharmacyQueue} completedVisits={completedVisits} totalEncountersToday={totalEncountersToday} activeQueueCount={activeQueueCount} cashierQueue={cashierQueue} hasThroughput={hasThroughput} hourlyTrafficData={hourlyTrafficData} doctorQueue={doctorQueue} longestDoctorWait={longestDoctorWait} triageQueue={triageQueue} calculatedRevenue={calculatedRevenue} avgWaitMinutes={avgWaitMinutes} waitingTimes={waitingTimes} />
 
       {/* ========================================================================= */}
       {/* 4. CHARTS ROW 1: THROUGHPUT TREND & ICD DIAGNOSIS                          */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        
-        {/* Hourly Patient Flow Area Chart (8 Cols) */}
-        {showPanel('throughput') && (
-          <div className={`${showPanel('icd') ? 'lg:col-span-8' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
-            <div className="flex items-center justify-between pb-4 border-b border-line-subtle mb-5">
-              <div>
-                <h3 className="type-card-title text-slate-900 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-accent" />
-                  Hourly Outpatient Throughput Trend
-                </h3>
-                <p className="text-xs text-slate-600 mt-0.5">Patients registered per hour today.</p>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-2xs bg-surface-accent text-accent font-mono px-2.5 py-1 rounded-none border border-line font-bold tracking-wider uppercase flex items-center justify-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
-                  Live
-                </span>
-              </div>
-            </div>
-
-            {!hasThroughput ? (
-              <p className="h-64 flex items-center justify-center text-sm text-slate-600">No registrations recorded yet today.</p>
-            ) : (
-            <div className="h-64 w-full" role="img" aria-label={throughputSummary}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={hourlyTrafficData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorEncounters" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={palette.brand} stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor={palette.brand} stopOpacity={0.0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartTheme.grid} />
-                  <XAxis dataKey="hour" tick={chartTheme.tick} />
-                  <YAxis tick={chartTheme.tick} allowDecimals={false} />
-                  <Tooltip 
-                    contentStyle={chartTheme.tooltip}
-                    itemStyle={chartTheme.tooltipItem}
-                  />
-                  <Area type="monotone" dataKey="encounters" name="Patients registered" stroke={palette.brand} strokeWidth={3} fillOpacity={1} fill="url(#colorEncounters)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            )}
-            {hasThroughput && (
-              <table className="sr-only">
-                <caption>Patients registered per hour today</caption>
-                <thead><tr><th scope="col">Hour</th><th scope="col">Patients</th></tr></thead>
-                <tbody>
-                  {hourlyTrafficData.map((d) => (<tr key={d.hour}><th scope="row">{d.hour}</th><td>{d.encounters}</td></tr>))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-
-        {/* ICD-10 Diagnosis Breakdown Pie Chart (4 Cols) */}
-        {showPanel('icd') && (
-          <div className={`${showPanel('throughput') ? 'lg:col-span-4' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between`}>
-            <div>
-              <div className="pb-4 border-b border-line-subtle mb-5">
-                <h3 className="type-card-title text-slate-900 flex items-center gap-2">
-                  <PieChartIcon className="w-5 h-5 text-accent" />
-                  ICD-10 Diagnosis Distribution
-                </h3>
-                <p className="text-xs text-slate-600 mt-0.5">Top diagnoses from completed consultations today.</p>
-              </div>
-
-              <div className="h-48 w-full relative flex items-center justify-center mb-4" role="img" aria-label={icdSummary}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={icdBreakdownData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={80}
-                      paddingAngle={4}
-                      dataKey="count"
-                      stroke="none"
-                    >
-                      {icdBreakdownData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={chartTheme.tooltip}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
-                  <span className="type-metric font-mono text-slate-900">{icdTotal}</span>
-                  <span className="text-2xs uppercase font-bold text-slate-600 tracking-wider">Cases</span>
-                </div>
-              </div>
-            </div>
-
-            {icdBreakdownData.length === 0 && <p className="text-xs text-slate-600">No diagnoses recorded yet.</p>}
-            {/* Mini Legend */}
-            <div className="space-y-2 mt-auto border-t border-line-subtle pt-4 text-xs">
-              {icdBreakdownData.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between text-slate-700">
-                  <span className="flex items-center gap-2 truncate max-w-[180px]">
-                    <LegendSwatch color={item.color} />
-                    <span className="truncate font-semibold">{item.name}</span>
-                  </span>
-                  <span className="font-mono font-bold text-slate-900">{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-      </div>
+      <FlowAndDiagnosisCharts showPanel={showPanel} hasThroughput={hasThroughput} throughputSummary={throughputSummary} hourlyTrafficData={hourlyTrafficData} icdSummary={icdSummary} icdBreakdownData={icdBreakdownData} icdTotal={icdTotal} />
 
       {/* ========================================================================= */}
       {/* 5. CHARTS ROW 2: PAYER MIX & PHARMACY TELEMETRY                           */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        
-        {/* Payer Mix Bar Chart (6 Cols) */}
-        {showPanel('payer') && (
-          <div className={`${showPanel('pharmacy') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
-            <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
-              <div>
-                <h3 className="type-card-title text-slate-900 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-sky-600" />
-                  Payer & TPA Panel Settlement Mix
-                </h3>
-                <p className="text-xs text-slate-600 mt-0.5">Revenue split across Corporate Panels and Self-Pay.</p>
-              </div>
-              <span className="text-2xs text-sky-600 bg-sky-50 px-2.5 py-1 rounded-none font-mono font-bold uppercase tracking-wider border border-sky-200">
-                MYR Currency
-              </span>
-            </div>
-
-            {payerMixData.length === 0 ? (
-              <p className="h-56 flex items-center justify-center text-sm text-slate-600">No completed payments yet today.</p>
-            ) : (
-            <div className="h-56 w-full" role="img" aria-label={payerSummary}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={payerMixData} layout="vertical" margin={{ top: 0, right: 20, left: 30, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={chartTheme.grid} />
-                  <XAxis type="number" tick={chartTheme.tick} />
-                  <YAxis dataKey="provider" type="category" tick={chartTheme.tick} width={120} />
-                  <Tooltip 
-                    contentStyle={chartTheme.tooltip}
-                  />
-                  <Bar dataKey="amount" name="Total Claims (RM)" fill={palette.brand} radius={[0, 0, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            )}
-            {payerMixData.length > 0 && (
-              <table className="sr-only">
-                <caption>Revenue by payer today, in Malaysian ringgit</caption>
-                <thead><tr><th scope="col">Payer</th><th scope="col">Amount (RM)</th></tr></thead>
-                <tbody>
-                  {payerMixData.map((d) => (<tr key={d.provider}><th scope="row">{d.provider}</th><td>{d.amount.toFixed(2)}</td></tr>))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-
-        {/* Fast-Moving Medications Progress Meters (6 Cols) */}
-        {showPanel('pharmacy') && (
-          <div className={`${showPanel('payer') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
-            <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
-              <div>
-                <h3 className="type-card-title text-slate-900 flex items-center gap-2">
-                  <Pill className="w-5 h-5 text-amber-600" />
-                  Pharmacy stock overview
-                </h3>
-                <p className="text-xs text-slate-600 mt-0.5">Lowest stock against reorder level.</p>
-              </div>
-              <span className="text-2xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none font-mono font-bold uppercase tracking-wider border border-emerald-200">
-                {lowStockDrugs.length} below reorder
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              {lowestStockDrugs.map((drug, idx) => (
-                <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-slate-900 flex items-center gap-2">
-                      <span>{drug.name}</span>
-                      {drug.isLow ? (
-                        <span className="text-2xs bg-amber-100 text-amber-800 px-2 py-0.2 rounded-none font-bold border border-amber-300">
-                          Low reserve
-                        </span>
-                      ) : (
-                        <span className="text-2xs bg-emerald-100 text-emerald-800 px-2 py-0.2 rounded-none font-bold border border-emerald-300">
-                          Healthy
-                        </span>
-                      )}
-                    </span>
-                    <span className="font-mono text-slate-600 text-xs">
-                      Stock: <strong className="text-accent">{drug.stock}</strong> · Reorder at {drug.reorderAt} · Dispensed: {drug.dispensed}
-                    </span>
-                  </div>
-                  <ProgressBar value={drug.percentage} tone={drug.isLow ? 'warning' : 'primary'} label={`${drug.name} stock`} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-      </div>
+      <PayerAndPharmacyCharts showPanel={showPanel} payerMixData={payerMixData} payerSummary={payerSummary} lowStockDrugs={lowStockDrugs} lowestStockDrugs={lowestStockDrugs} />
 
       {/* ========================================================================= */}
       {/* 6. CLINICAL INFORMATION & OPERATIONAL DIRECTORY                           */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        
-        {/* Clinic Facility & License Info (7 Cols) */}
-        {showPanel('facility') && (
-          <div className="lg:col-span-12 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs space-y-5">
-            <div className="flex items-center justify-between border-b border-line-subtle pb-4">
-              <h3 className="type-card-title text-slate-900 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-accent" />
-                Clinic Operating Information & Licensing
-              </h3>
-              <span className="text-2xs bg-surface border border-line-subtle text-slate-700 px-2.5 py-1 rounded-none font-mono font-bold">
-                Reg #KKM-2026-SL-8902
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 text-slate-600">
-                  <MapPin className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block text-slate-900 font-bold mb-1">Location Address</strong>
-                    <span className="leading-relaxed block">Level 2, Menara Medical Suite, Persiaran Central, 40000 Shah Alam, Selangor</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 text-slate-600 pt-1">
-                  <Phone className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block text-slate-900 font-bold mb-1">24/7 Hotline & Ambulance</strong>
-                    <span className="leading-relaxed block">+60 3-5510 8899 / emergency@mediclinic.my</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 border-t md:border-t-0 md:border-l border-line-subtle pt-4 md:pt-0 md:pl-6">
-                <div className="flex items-start gap-3 text-slate-600">
-                  <Clock className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block text-slate-900 font-bold mb-1">Operating Schedule</strong>
-                    <span className="leading-relaxed block">Mon – Sun: 08:00 AM – 10:00 PM</span>
-                    <span className="block text-2xs text-emerald-700 font-bold mt-1 uppercase tracking-wider">Open on Public Holidays</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 text-slate-600 pt-1">
-                  <ShieldCheck className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block text-slate-900 font-bold mb-1">Accreditation</strong>
-                    <span className="leading-relaxed block">Malaysian Medical Council (MMC) & KKM PWA Approved</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* On-Duty Clinician Roster (5 Cols) */}
-
-      </div>
+      <ClinicDirectory showPanel={showPanel} />
 
     </div>
   );
