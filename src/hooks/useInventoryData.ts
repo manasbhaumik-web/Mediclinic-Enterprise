@@ -7,9 +7,10 @@ import {
 import { INVENTORY_KEY } from '../context/InventoryContext';
 
 /** All drugs, including retired ones, with their batches (the Inventory screens; other screens use the context). */
-export function useDrugs() {
+export function useDrugs(enabled = true) {
   return useQuery({
     queryKey: [...INVENTORY_KEY, 'drugs'],
+    enabled,
     queryFn: async (): Promise<DrugItem[]> => {
       const { data, error } = await supabase.from('inventory').select('*, drug_batches(*)').order('drug_name');
       if (error) throw error;
@@ -53,9 +54,10 @@ export function usePurchaseOrders() {
   });
 }
 
-export function useRegister(inventoryId?: string | null) {
+export function useRegister(inventoryId?: string | null, enabled = true) {
   return useQuery({
     queryKey: [...INVENTORY_KEY, 'register', inventoryId ?? 'all'],
+    enabled,
     queryFn: async (): Promise<RegisterEntry[]> => {
       let q = supabase.from('controlled_register').select('*, controlled_register_signatures(*)').order('seq', { ascending: false }).limit(500);
       if (inventoryId) q = q.eq('inventory_id', inventoryId);

@@ -21,9 +21,29 @@ export interface GlobalSettings {
   };
 }
 
+/** Who this clinic is, as shown in the header. Empty until an administrator fills it in (Settings > Clinic profile). */
+export interface ClinicProfile {
+  name: string;
+  branch: string;
+  address: string;
+  phone: string;
+  emergencyPhone: string;
+  licenseNo: string;
+}
+
+export const EMPTY_CLINIC: ClinicProfile = { name: '', branch: '', address: '', phone: '', emergencyPhone: '', licenseNo: '' };
+
+const clinicFromRow = (d: Record<string, any>): ClinicProfile => ({
+  name: d.clinic_name ?? '', branch: d.branch_name ?? '', address: d.address ?? '', phone: d.phone ?? '',
+  emergencyPhone: d.emergency_phone ?? '', licenseNo: d.license_no ?? '',
+});
+
 interface SettingsContextType {
   settings: GlobalSettings;
   updateSettings: (newSettings: GlobalSettings) => void;
+  clinic: ClinicProfile;
+  /** Saves the clinic profile only (administrators). Throws the database's message on failure. */
+  updateClinic: (profile: ClinicProfile) => Promise<void>;
 }
 
 const DEFAULT_SETTINGS: GlobalSettings = {
@@ -50,6 +70,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
+  const [clinic, setClinic] = useState<ClinicProfile>(EMPTY_CLINIC);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -64,6 +85,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           modules: data.active_modules,
           hardware: data.hardware_config
         });
+        setClinic(clinicFromRow(data));
       }
     };
     fetchSettings();
@@ -80,6 +102,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           modules: data.active_modules,
           hardware: data.hardware_config
         });
+        setClinic(clinicFromRow(data));
       })
       .subscribe();
 
@@ -105,8 +128,17 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateClinic = async (profile: ClinicProfile) => {
+    const { error } = await supabase.from('clinic_settings').upsert({
+      id: 1, clinic_name: profile.name.trim() || null, branch_name: profile.branch.trim() || null, address: profile.address.trim() || null,
+      phone: profile.phone.trim() || null, emergency_phone: profile.emergencyPhone.trim() || null, license_no: profile.licenseNo.trim() || null,
+    });
+    if (error) throw new Error(error.message);
+    setClinic(profile);
+  };
+
   return (
-    <SettingsContext.Provider value={{ settings, updateSettings }}>
+    <SettingsContext.Provider value={{ settings, updateSettings, clinic, updateClinic }}>
       {children}
     </SettingsContext.Provider>
   );

@@ -72,9 +72,10 @@ export function useLeaveReference() {
   return { types, settings, holidays, rules };
 }
 
-export function useLeaveRequests(opts: { status?: string; staffId?: string | null } = {}) {
+export function useLeaveRequests(opts: { status?: string; staffId?: string | null; enabled?: boolean } = {}) {
   return useQuery({
     queryKey: [...K, 'requests', opts.status ?? 'all', opts.staffId ?? 'all'],
+    enabled: opts.enabled ?? true,
     queryFn: async (): Promise<LeaveRequest[]> => {
       let q = supabase.from('leave_requests').select('*').order('requested_at', { ascending: false }).limit(300);
       if (opts.status && opts.status !== 'all') q = q.eq('status', opts.status);

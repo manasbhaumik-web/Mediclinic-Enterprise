@@ -4,9 +4,10 @@ import { EquipmentEvent, EquipmentItem, RetireMethod, equipmentEventFromRow, equ
 
 export const EQUIPMENT_KEY = ['equipment'] as const;
 
-export function useEquipmentList() {
+export function useEquipmentList(enabled = true) {
   return useQuery({
     queryKey: [...EQUIPMENT_KEY, 'items'],
+    enabled,
     queryFn: async (): Promise<EquipmentItem[]> => {
       const { data, error } = await supabase.from('equipment').select('*').order('name');
       if (error) throw error;

@@ -5,6 +5,7 @@ import {
   CreditCard, CheckCircle2, ShieldCheck, Sliders, Cpu, Save, RotateCcw, Check
 } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import ClinicProfileCard from './ClinicProfileCard';
 
 export default function SettingsModule() {
   const { settings, updateSettings } = useSettings();
@@ -145,6 +146,8 @@ export default function SettingsModule() {
           </div>
         </div>
       </div>
+
+      <ClinicProfileCard />
 
       {/* 1. FINANCIAL PARAMETERS */}
       <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">

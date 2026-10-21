@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { MessageCircle, X } from 'lucide-react';
@@ -58,7 +58,16 @@ export default function ClinicShell() {
   const data = useClinicData();
   const { visitsQueue, patientsList, appointments, completedVisits, updateVisitInDb } = data;
 
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine));
+
+  // Follow the browser's real connection.
+  useEffect(() => {
+    const up = () => setIsOnline(true);
+    const down = () => setIsOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
+  }, []);
   const [whatsappToast, setWhatsappToast] = useState<string | null>(null);
   const [activeConsultationVisitId, setActiveConsultationVisitId] = useState<string | null>(null);
 

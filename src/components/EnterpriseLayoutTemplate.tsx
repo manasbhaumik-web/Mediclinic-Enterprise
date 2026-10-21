@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import logoUrl from '../assets/logo_transparent.svg';
 import ThemeSelector from './ui/ThemeSelector';
+import NotificationBell from './NotificationBell';
+import { useSettings } from '../context/SettingsContext';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
@@ -58,6 +60,9 @@ export default function EnterpriseLayoutTemplate({
   const [isNightShift, setIsNightShift] = useState<boolean>(false);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const clinicRef = useRef<HTMLDivElement>(null);
+  const { clinic } = useSettings();
+  const clinicHasDetails = !!(clinic.address || clinic.licenseNo || clinic.phone || clinic.emergencyPhone);
 
   // Close workstation settings popup when clicking outside
   useEffect(() => {
@@ -73,6 +78,16 @@ export default function EnterpriseLayoutTemplate({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showUserMenu]);
+
+  // The clinic-info popover opens on click (so it works on touch and keyboard) and closes on Escape or an outside click.
+  useEffect(() => {
+    if (!showClinicInfoTooltip) return;
+    const away = (e: MouseEvent) => { if (clinicRef.current && !clinicRef.current.contains(e.target as Node)) setShowClinicInfoTooltip(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowClinicInfoTooltip(false); };
+    document.addEventListener('mousedown', away);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
+  }, [showClinicInfoTooltip]);
 
   useEffect(() => {
     const updateClock = () => {
@@ -112,26 +127,27 @@ export default function EnterpriseLayoutTemplate({
       <header className="h-[60px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
-        <div className="flex items-center gap-3 relative">
-          <div 
-            onMouseEnter={() => setShowClinicInfoTooltip(true)}
-            onMouseLeave={() => setShowClinicInfoTooltip(false)}
-            className="flex items-center justify-center gap-3 cursor-pointer group focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none rounded-none"
-            tabIndex={0}
+        <div ref={clinicRef} className="flex items-center gap-3 relative">
+          <button
+            type="button"
+            onClick={() => setShowClinicInfoTooltip(!showClinicInfoTooltip)}
+            aria-expanded={showClinicInfoTooltip}
+            aria-label="Clinic information"
+            className="flex items-center justify-center gap-3 cursor-pointer group text-left focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none rounded-none"
           >
             <div className="w-8 h-8 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
               <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="type-brand font-sans text-white group-hover:text-teal-100 transition-colors flex items-center gap-1.5">
-                <span>{t.clinicName || 'MEDICLINIC ENTERPRISE'}</span>
+                <span>{clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-teal-100 opacity-80 group-hover:opacity-100 transition-opacity" />
               </h1>
-              <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
-                Shah Alam Main Branch • 24/7 Outpatient
-              </span>
+              {clinic.branch && (
+                <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">{clinic.branch}</span>
+              )}
             </div>
-          </div>
+          </button>
 
           {/* Clinic Information Popover Tooltip */}
           {showClinicInfoTooltip && (
@@ -140,16 +156,17 @@ export default function EnterpriseLayoutTemplate({
                 <span className="font-bold text-white uppercase flex items-center gap-1.5">
                   <Building className="w-3.5 h-3.5 text-teal-100" /> Clinic Info & License
                 </span>
-                <span className="px-2 py-0.5 bg-emerald-400/20 text-emerald-200 font-mono text-2xs font-bold uppercase rounded-none border border-emerald-400/40">
-                  Active 24/7
-                </span>
               </div>
-              <div className="space-y-1 text-teal-50 font-mono text-2xs">
-                <p>📍 Level 2, Menara Medical Suite</p>
-                <p>📋 KKM License: Reg #KKM-2026-SL-8902</p>
-                <p>📞 Emergency Hotline: +60 3-5510 8899</p>
-                <p>🆔 Station Code: MY-APC-KLG-20 (v1.1.2)</p>
-              </div>
+              {clinicHasDetails ? (
+                <div className="space-y-1 text-teal-50 font-mono text-2xs">
+                  {clinic.address && <p>📍 {clinic.address}</p>}
+                  {clinic.licenseNo && <p>📋 KKM Licence: {clinic.licenseNo}</p>}
+                  {clinic.phone && <p>📞 Phone: {clinic.phone}</p>}
+                  {clinic.emergencyPhone && <p>🚨 Emergency hotline: {clinic.emergencyPhone}</p>}
+                </div>
+              ) : (
+                <p className="text-teal-100 text-2xs">Clinic details have not been set. An administrator can add them under Settings, Clinic profile.</p>
+              )}
             </div>
           )}
         </div>
@@ -168,8 +185,10 @@ export default function EnterpriseLayoutTemplate({
           {/* Live Clock */}
           <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-chrome-line font-mono text-xs text-white rounded-none font-bold shadow-2xs">
             <Clock className="w-3.5 h-3.5 text-teal-100" />
-            <span>{timeString || '13:50:24 MYT'}</span>
+            <span>{timeString || '--:--:-- MYT'}</span>
           </div>
+
+          <NotificationBell onOpenTab={setActiveTab} onOpenAdmin={onOpenAdmin} />
 
           {/* Combined Workstation Settings & Profile Menu Trigger */}
           <div ref={userMenuRef} className="relative">
@@ -199,7 +218,7 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center justify-between border-b border-teal-800/40 pb-2.5">
                   <div>
                     <p className="font-bold text-sm text-teal-300">{userName || 'Clinician'}</p>
-                    <p className="text-2xs text-teal-200 font-mono uppercase">{userRole} Suite • Station #04</p>
+                    <p className="text-2xs text-teal-200 font-mono uppercase">{userRole}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active workstation session"></span>
                 </div>
@@ -245,7 +264,8 @@ export default function EnterpriseLayoutTemplate({
                     </button>
                   </div>
 
-                  {/* 3. PWA Network State Simulator */}
+                  {/* 3. Network simulator: development builds only. Production follows the browser's real connection. */}
+                  {import.meta.env.DEV && (
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isOnline ? <Wifi className="w-3.5 h-3.5 text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-300" />}
@@ -261,6 +281,7 @@ export default function EnterpriseLayoutTemplate({
                       {isOnline ? 'Online' : 'Simulate Offline'}
                     </button>
                   </div>
+                  )}
 
                   {/* 4. Language Switcher */}
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
