@@ -55,6 +55,19 @@ describe('visit mapping', () => {
     expect(rows[0]).toMatchObject({ visit_id: 'v1', drug_name: 'Paracetamol', price_per_unit: 0.5 });
   });
 
+  it('prescription rows link to stock by id and never set the dispensed fields', () => {
+    const v = { ...visit, soap: { ...visit.soap, plan: { ...visit.soap!.plan, prescription: [{ ...visit.soap!.plan.prescription[0], inventoryId: 'inv-1' }] } } } as unknown as Visit;
+    const [row] = prescriptionsToRows(v);
+    expect(row).toMatchObject({ inventory_id: 'inv-1' });
+    expect(row).not.toHaveProperty('dispensed_at');
+    expect(row).not.toHaveProperty('skipped');
+  });
+
+  it('reads the stock link and dispensing state from a prescription row', () => {
+    const v = visitFromRow({ id: 'v', patient_id: 'p', status: 'Dispensing', created_at: '2026-01-01T00:00:00Z', prescriptions: [{ id: 'r', drug_name: 'X', quantity: 2, price_per_unit: 1, inventory_id: 'inv-9', dispensed_at: '2026-01-02T00:00:00Z', dispensed_quantity: 2 }] });
+    expect(v.soap.plan.prescription[0]).toMatchObject({ inventoryId: 'inv-9', dispensedAt: '2026-01-02T00:00:00Z', dispensedQuantity: 2, skipped: false });
+  });
+
   it('reads a joined visit row with notes and prescriptions', () => {
     const row = {
       id: 'v1', patient_id: 'p1', status: 'Awaiting Consult', visit_date: '2026-01-01', total_bill: '12.5',

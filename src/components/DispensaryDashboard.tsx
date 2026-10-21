@@ -6,6 +6,9 @@ import {
   Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
+import { useInventoryActions, useVisitRegister } from '../hooks/useInventoryData';
+import { DrugItem, allocateFefo, usableStock } from '../domain/inventory';
+import { errorMessage } from './payroll/shared';
 import { buttonProps, focusRing } from '../lib/a11y';
 
 interface DispensaryDashboardProps {
@@ -24,7 +27,12 @@ export default function DispensaryDashboard({
   pharmacistName = "Pharm. Ahmad Razak"
 }: DispensaryDashboardProps) {
   const t = TRANSLATIONS[activeLanguage];
-  const { dispenseDrug } = useInventory();
+  const { catalog } = useInventory();
+  const inv = useInventoryActions();
+  const today = new Date().toISOString().slice(0, 10);
+  // For a prescription line that is not yet linked to a stock item, the pharmacist picks one.
+  const [stockChoice, setStockChoice] = useState<Record<string, string>>({});
+  const [dispenseError, setDispenseError] = useState<string | null>(null);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -55,6 +63,13 @@ export default function DispensaryDashboard({
   // Find the selected active visit
   const activeVisit = queue.find(v => v.id === selectedVisitId) || queue[0];
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
+  const visitRegister = useVisitRegister(activeVisit?.id);
+
+  const cleanName = (n: string) => n.replace(/\s*\[OVERRIDDEN:.*\]$/, '').trim().toLowerCase();
+  /** The stock item for a line: the one the doctor linked, the one the pharmacist chose, else an exact name match. */
+  const stockFor = (rx: PrescriptionItem): DrugItem | undefined =>
+    catalog.find((d) => d.id === (rx.inventoryId ?? stockChoice[rx.id])) ?? (rx.inventoryId ? undefined : catalog.find((d) => d.name.toLowerCase() === cleanName(rx.drugName)));
+  const isDecided = (rx: PrescriptionItem) => !!rx.dispensedAt || !!rx.skipped;
 
   const checkAllergyConflict = (drugName: string) => {
     if (!activePatient || !activePatient.allergies) return false;
@@ -64,8 +79,8 @@ export default function DispensaryDashboard({
     });
   };
 
-  const hasUnskippedAllergies = activeVisit?.soap?.plan?.prescription?.some(rx => 
-    !skippedDrugs.has(rx.id) && checkAllergyConflict(rx.drugName)
+  const hasUnskippedAllergies = activeVisit?.soap?.plan?.prescription?.some(rx =>
+    !isDecided(rx) && !skippedDrugs.has(rx.id) && checkAllergyConflict(rx.drugName)
   );
 
   const handleSelectVisit = (id: string) => {
@@ -77,6 +92,8 @@ export default function DispensaryDashboard({
       dosageExplained: false
     });
     setSkippedDrugs(new Set());
+    setStockChoice({});
+    setDispenseError(null);
   };
 
   const handlePrintLabelClick = (rx: PrescriptionItem) => {
@@ -84,28 +101,50 @@ export default function DispensaryDashboard({
     setIsLabelModalOpen(true);
   };
 
-  const triggerDispensingSignoff = () => {
-    if (!selectedVisitId) return;
+  const rxLines = activeVisit?.soap?.plan?.prescription ?? [];
+  const undecided = rxLines.filter((rx) => !isDecided(rx));
+  const allDecided = rxLines.length > 0 && undecided.length === 0;
+  const unsignedEntries = (visitRegister.data ?? []).filter((e) => !e.signedBy);
+
+  /** Why a line cannot be dispensed yet, if it cannot. */
+  const lineProblem = (rx: PrescriptionItem): string | null => {
+    const item = stockFor(rx);
+    if (!item) return 'Choose the stock item for this line, or skip it.';
+    const usable = usableStock(item, today);
+    if (usable < rx.quantity) return `Only ${usable} in date (${rx.quantity} needed). Skip it or restock first.`;
+    return null;
+  };
+  const blocked = undecided.filter((rx) => !skippedDrugs.has(rx.id) && lineProblem(rx) !== null);
+
+  const triggerDispensingSignoff = async () => {
+    if (!selectedVisitId || !activeVisit) return;
     if (!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained) {
       alert(activeLanguage === 'EN' ? 'Safety Checklist incomplete. Please manually verify all safety safeguards first.' : 'Senarai Semak Keselamatan belum lengkap. Sila sahkan semua langkah keselamatan terlebih dahulu.');
       return;
     }
-
     if (hasUnskippedAllergies) {
       alert(activeLanguage === 'EN' ? 'CRITICAL: Allergy conflict detected in active prescriptions. You must skip the conflicting drug or resolve the allergy before dispensing.' : 'KRITIKAL: Konflik alahan dikesan. Anda mesti melangkau ubat tersebut atau menyelesaikan alahan sebelum mendispens.');
       return;
     }
-
-    // Deduct stock for all prescribed drugs in this visit
-    if (activeVisit?.soap?.plan?.prescription) {
-      activeVisit.soap.plan.prescription.forEach(rx => {
-        if (!skippedDrugs.has(rx.id)) {
-          const qty = rx.quantity || 1;
-          dispenseDrug(rx.drugName, qty);
-        }
-      });
+    setDispenseError(null);
+    // One call does everything: it checks stock, takes it from the soonest-expiring batches, writes the ledger and marks each line.
+    const lines = undecided.map((rx) =>
+      skippedDrugs.has(rx.id)
+        ? { prescription_id: rx.id, action: 'skip' as const, reason: checkAllergyConflict(rx.drugName) ? 'Allergy conflict' : 'Out of stock or not supplied' }
+        : { prescription_id: rx.id, action: 'dispense' as const, inventory_id: stockFor(rx)?.id ?? null, quantity: rx.quantity },
+    );
+    try {
+      const res = await inv.dispenseVisit.mutateAsync({ visitId: selectedVisitId, lines });
+      if (res.pending_signatures > 0) return;               // wait for the second signature before the patient leaves the pharmacy
+      onDispenseSubmit(selectedVisitId);
+      setSelectedVisitId(null);
+    } catch (e) {
+      setDispenseError(errorMessage(e));
     }
+  };
 
+  const completeHandover = () => {
+    if (!selectedVisitId) return;
     onDispenseSubmit(selectedVisitId);
     setSelectedVisitId(null);
   };
@@ -235,11 +274,11 @@ export default function DispensaryDashboard({
                   </div>
                 ) : (
                   activeVisit.soap.plan.prescription.map((rx: PrescriptionItem) => {
-                    // Check if expiry contains warnings (simulated using months to determine danger)
-                    // If months remaining is near (derived mock check: random calculation based on date)
-                    const isExpiryAmber = rx.drugName.includes('Ibuprofen') || rx.drugName.includes('Amlodipine');
+                    const decided = isDecided(rx);
+                    const item = stockFor(rx);
+                    const problem = decided ? null : lineProblem(rx);
                     const hasAllergy = checkAllergyConflict(rx.drugName);
-                    const isSkipped = skippedDrugs.has(rx.id);
+                    const isSkipped = skippedDrugs.has(rx.id) || !!rx.skipped;
                     
                     return (
                       <div 
@@ -271,15 +310,45 @@ export default function DispensaryDashboard({
                             </p>
                           </div>
                           
-                          <div className="pt-1">
-                            {isExpiryAmber ? (
-                              <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase">
-                                Low Stock Expiry Warning (&lt; 3 months)
+                          <div className="pt-1 space-y-1.5">
+                            {rx.dispensedAt ? (
+                              <span className="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase border border-emerald-200">
+                                Dispensed ({rx.dispensedQuantity ?? rx.quantity})
+                              </span>
+                            ) : rx.skipped ? (
+                              <span className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase border border-slate-300">
+                                Skipped{rx.skipReason ? `: ${rx.skipReason}` : ''}
                               </span>
                             ) : (
-                              <span className="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase border border-emerald-100">
-                                Batch Safe (Exp: {rx.expiryDate})
-                              </span>
+                              <>
+                                {!rx.inventoryId && (
+                                  <select
+                                    aria-label={`Stock item for ${rx.drugName}`}
+                                    className="w-full px-2 py-1 text-2xs border border-slate-300 bg-white"
+                                    value={item?.id ?? ''}
+                                    onChange={(e) => setStockChoice({ ...stockChoice, [rx.id]: e.target.value })}
+                                  >
+                                    <option value="">Choose the stock item…</option>
+                                    {catalog.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                  </select>
+                                )}
+                                {item && !isSkipped && (() => {
+                                  const plan = allocateFefo(item.batches ?? [], rx.quantity, today);
+                                  return (
+                                    <div className={`text-2xs px-1.5 py-1 border ${plan.shortfall > 0 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-emerald-50 border-emerald-100 text-emerald-800'}`}>
+                                      {plan.shortfall > 0
+                                        ? `Short by ${plan.shortfall}: ${usableStock(item, today)} in date.`
+                                        : `From ${plan.allocations.map((a) => `batch ${a.batchNumber} (${a.quantity}, exp ${a.expiryDate ?? 'unknown'})`).join(' + ')}`}
+                                    </div>
+                                  );
+                                })()}
+                                {item?.registerRequired && !isSkipped && (
+                                  <span className="bg-violet-100 text-violet-800 border border-violet-300 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase">
+                                    Controlled: needs a second signature
+                                  </span>
+                                )}
+                                {problem && !isSkipped && <div className="text-2xs text-red-700 font-semibold">{problem}</div>}
+                              </>
                             )}
                           </div>
                         </div>
@@ -298,6 +367,7 @@ export default function DispensaryDashboard({
 
                           <button
                             type="button"
+                            disabled={decided}
                             onClick={() => {
                               const newSet = new Set(skippedDrugs);
                               if (isSkipped) newSet.delete(rx.id);
@@ -392,22 +462,49 @@ export default function DispensaryDashboard({
             </div>
 
             {/* Action Bar */}
+            {dispenseError && (
+              <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2 whitespace-pre-line">{dispenseError}</p>
+            )}
+
+            {allDecided && unsignedEntries.length > 0 && (
+              <div role="status" className="bg-violet-50 border border-violet-200 px-3 py-2 text-xs text-violet-900 space-y-1">
+                <div className="font-bold">Waiting for a second signature</div>
+                <p>
+                  {unsignedEntries.length} controlled-drug entr{unsignedEntries.length === 1 ? 'y needs' : 'ies need'} a signature from a different pharmacist or administrator before this patient can be handed their medicine.
+                  They can sign under Inventory &amp; Pharmacy &gt; Controlled register. This screen updates by itself.
+                </p>
+              </div>
+            )}
+
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-2xs text-slate-400 italic">
-                * Confirming will log medication deductions in clinic stock count.
+                {allDecided ? '* Stock has been taken and recorded.' : '* Confirming checks stock, takes it from the soonest-expiring batches and records it in one step.'}
               </span>
-              <button
-                type="button"
-                id="pharmacy-dispense-confirm-btn"
-                onClick={triggerDispensingSignoff}
-                disabled={!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained || hasUnskippedAllergies}
-                className={`text-white font-bold text-xs px-5 py-2.5 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
-                  hasUnskippedAllergies ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-hover'
-                }`}
-              >
-                {hasUnskippedAllergies ? <ShieldAlert className="w-4 h-4 text-white" /> : <CheckCircle className="w-4 h-4 text-white" />}
-                {hasUnskippedAllergies ? 'Resolve Conflicts' : 'Dispense & Route to Billing'}
-              </button>
+              {allDecided || rxLines.length === 0 ? (
+                <button
+                  type="button"
+                  id="pharmacy-dispense-confirm-btn"
+                  onClick={completeHandover}
+                  disabled={unsignedEntries.length > 0}
+                  className="text-white font-bold text-xs px-5 py-2.5 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 bg-primary hover:bg-primary-hover"
+                >
+                  <CheckCircle className="w-4 h-4 text-white" />
+                  {unsignedEntries.length > 0 ? 'Waiting for signature' : 'Hand over & route to billing'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  id="pharmacy-dispense-confirm-btn"
+                  onClick={triggerDispensingSignoff}
+                  disabled={!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained || hasUnskippedAllergies || blocked.length > 0 || inv.dispenseVisit.isPending}
+                  className={`text-white font-bold text-xs px-5 py-2.5 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
+                    hasUnskippedAllergies ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-hover'
+                  }`}
+                >
+                  {hasUnskippedAllergies ? <ShieldAlert className="w-4 h-4 text-white" /> : <CheckCircle className="w-4 h-4 text-white" />}
+                  {hasUnskippedAllergies ? 'Resolve Conflicts' : blocked.length > 0 ? 'Resolve stock issues' : 'Dispense & Route to Billing'}
+                </button>
+              )}
             </div>
 
           </div>

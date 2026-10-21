@@ -19,6 +19,13 @@ export function MyLeavePage() {
   return <MyLeave />;
 }
 
+const InventoryPageLazy = React.lazy(() => import('../components/inventory/InventoryPage'));
+
+/** Pharmacists manage stock here; administrators reach the same screen from the admin console. */
+export function InventoryRoutePage() {
+  return <InventoryPageLazy role="pharmacist" />;
+}
+
 type DoctorTab = 'queue' | 'consultation' | 'reports';
 
 export function DoctorPage({ tab }: { tab: DoctorTab }) {

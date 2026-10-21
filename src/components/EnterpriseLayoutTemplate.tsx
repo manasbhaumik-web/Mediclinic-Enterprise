@@ -4,7 +4,7 @@ import ThemeSelector from './ui/ThemeSelector';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
-  ChevronDown, ChevronRight, LogOut, CalendarClock, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck
+  ChevronDown, ChevronRight, LogOut, CalendarClock, PackageOpen, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck
 } from 'lucide-react';
 
 interface EnterpriseLayoutTemplateProps {
@@ -502,6 +502,22 @@ export default function EnterpriseLayoutTemplate({
                     {pharmacyQueueLength}
                   </span>
                 )}
+              </button>
+            )}
+
+            {/* Inventory & stock (pharmacist) */}
+            {userRole === 'pharmacist' && (
+              <button
+                type="button"
+                id="sidebar-link-inventory"
+                onClick={() => setActiveTab('inventory')}
+                className={`nav-btn ${activeTab === 'inventory' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
+              >
+                <div className="flex items-center gap-2">
+                  {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                  <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-white' : 'text-teal-200'}`} />
+                  <span>Inventory</span>
+                </div>
               </button>
             )}
 

@@ -77,6 +77,11 @@ export function visitFromRow(v: any): Visit {
           expiryDate: r.expiry_date,
           pillColor: r.pill_color,
           capsuleStyle: r.capsule_style,
+          inventoryId: r.inventory_id ?? null,
+          dispensedAt: r.dispensed_at ?? null,
+          dispensedQuantity: r.dispensed_quantity ?? null,
+          skipped: !!r.skipped,
+          skipReason: r.skip_reason ?? null,
         })),
         followUpWeeks: soap.follow_up_weeks || 0,
         mcDays: soap.mc_days || 0,
@@ -119,6 +124,7 @@ export function prescriptionsToRows(visit: Visit) {
     expiry_date: rx.expiryDate,
     pill_color: rx.pillColor,
     capsule_style: rx.capsuleStyle,
+    inventory_id: rx.inventoryId ?? null,
   }));
 }
 

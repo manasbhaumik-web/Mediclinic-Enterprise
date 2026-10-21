@@ -227,14 +227,16 @@ export default function PlanTab({
     const newRx: PrescriptionItem = {
       id: `rx-${Date.now()}-${Math.random()}`,
       drugName: rationale ? `${drug.name} [OVERRIDDEN: ${rationale}]` : drug.name,
-      dosage: drug.dosageEN || 'Take as instructed',
+      dosage: drug.dosageEN || drug.suggestedDosage?.adults || 'Take as instructed',
       dosageBM: drug.dosageBM || 'Makan mengikut arahan',
       frequency: drug.frequency || '1 Tab BD',
       quantity: 10,
-      pricePerUnit: drug.pricePerUnit || 0.50,
+      pricePerUnit: drug.pricePerUnit ?? drug.price ?? 0.50,
       expiryDate: `${new Date().getFullYear() + 2}-12-31`,
       pillColor: drug.pillColor || palette.brand,
-      capsuleStyle: drug.capsuleStyle || 'solid'
+      capsuleStyle: drug.capsuleStyle || 'solid',
+      // Link the line to the stock item (not to a name) when the drug comes from inventory.
+      inventoryId: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(drug.id)) ? String(drug.id) : null,
     };
     setRxList([...rxList, newRx]);
     setSearchDrugQuery('');

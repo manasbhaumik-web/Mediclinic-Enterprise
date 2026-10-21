@@ -199,7 +199,12 @@ function useClinicMutations() {
         : await supabase.from('soap_notes').insert([soapRow]);
       if (soapErr) throw soapErr;
 
-      if (visit.soap.plan.prescription.length > 0) {
+      // Once the pharmacy has dispensed or skipped a line it is part of the stock record and must not be rewritten.
+      const { data: decided, error: decidedErr } = await supabase.from('prescriptions').select('id').eq('visit_id', visit.id).or('dispensed_at.not.is.null,skipped.eq.true').limit(1);
+      if (decidedErr) throw decidedErr;
+      const locked = (decided ?? []).length > 0;
+
+      if (visit.soap.plan.prescription.length > 0 && !locked) {
         // Replace-all keeps prescriptions in step with the SOAP plan.
         const { error: delErr } = await supabase.from('prescriptions').delete().eq('visit_id', visit.id);
         if (delErr) throw delErr;

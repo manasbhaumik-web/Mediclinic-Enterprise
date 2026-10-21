@@ -2,7 +2,7 @@ import { UserRole } from '../types';
 
 export type AppTab =
   | 'dashboard' | 'queue' | 'consultation' | 'reports'
-  | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments' | 'my-leave';
+  | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments' | 'my-leave' | 'inventory';
 
 /** Roles allowed on each /app/* page. Mirrors what the old tab switch in App.tsx enforced. */
 export const TAB_ROLES: Record<AppTab, readonly UserRole[]> = {
@@ -14,6 +14,7 @@ export const TAB_ROLES: Record<AppTab, readonly UserRole[]> = {
   triage: ['clinic-assistant'],
   appointments: ['clinic-assistant', 'admin'],
   dispensary: ['pharmacist'],
+  inventory: ['pharmacist'],
   billing: ['clinic-assistant'],
   'my-leave': ['doctor', 'pharmacist', 'clinic-assistant', 'admin', 'hr'],
 };

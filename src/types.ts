@@ -33,6 +33,13 @@ export interface PrescriptionItem {
   expiryDate: string;
   pillColor: string; // CSS color string
   capsuleStyle: 'solid' | 'split' | 'round';
+  /** The stock item this line is dispensed from (set when the doctor picks a drug that is in stock). */
+  inventoryId?: string | null;
+  /** Set by the dispensing function. A dispensed or skipped line can no longer change. */
+  dispensedAt?: string | null;
+  dispensedQuantity?: number | null;
+  skipped?: boolean;
+  skipReason?: string | null;
 }
 
 export interface SOAPNotes {

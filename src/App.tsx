@@ -5,7 +5,7 @@ import { RequireAuth, RequireRole } from './routes/guards';
 import { ADMIN_ROLES, TAB_ROLES } from './routes/permissions';
 import ClinicShell from './routes/ClinicShell';
 import {
-  AppointmentsPage, BillingPage, DashboardPage, DispensaryPage, DoctorPage, MyLeavePage, RegistrationPage, TriagePage,
+  AppointmentsPage, BillingPage, DashboardPage, DispensaryPage, DoctorPage, InventoryRoutePage, MyLeavePage, RegistrationPage, TriagePage,
 } from './routes/ClinicPages';
 import { AdminPage, LandingPage, LoginPage, TelemetryPage } from './routes/PublicPages';
 import SetPasswordPage from './routes/SetPasswordPage';
@@ -36,6 +36,7 @@ export default function App() {
             <Route path="appointments" element={guarded('appointments', <AppointmentsPage />)} />
             <Route path="dispensary" element={guarded('dispensary', <DispensaryPage />)} />
             <Route path="billing" element={guarded('billing', <BillingPage />)} />
+            <Route path="inventory" element={guarded('inventory', <InventoryRoutePage />)} />
             <Route path="my-leave" element={guarded('my-leave', <MyLeavePage />)} />
             <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
           </Route>
