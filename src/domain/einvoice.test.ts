@@ -89,7 +89,7 @@ describe('buildInvoiceSnapshot', () => {
   const input = {
     consultationFee: 35, procedureFee: 15,
     prescription: [{ pricePerUnit: 2, quantity: 10 }],
-    customItems: [{ amount: 5, description: 'Dressing' }] as { amount: number }[],
+    customItems: [{ amount: 5, description: 'Dressing' }],
     discount: { type: 'fixed' as const, value: 5 }, taxRate: 0.06,
   };
   const breakdown = calculateBill(input);

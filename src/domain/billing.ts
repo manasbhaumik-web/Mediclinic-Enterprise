@@ -13,7 +13,7 @@ export interface BillInput {
   consultationFee: number;
   procedureFee: number;
   prescription: Pick<PrescriptionItem, 'pricePerUnit' | 'quantity'>[];
-  customItems: { amount: number }[];
+  customItems: { amount: number; description?: string }[];
   discount: Discount;
   taxRate: number;
   /** Set only when the visit is claimed against a panel / TPA guarantee letter. */
@@ -102,7 +102,7 @@ export function buildInvoiceSnapshot(
   add('Consultation fee', 1, input.consultationFee);
   add('Clinical procedures / nursing', 1, input.procedureFee);
   input.prescription.forEach((rx, i) => add(rxNames[i] || 'Medication', rx.quantity, rx.pricePerUnit));
-  input.customItems.forEach((item, i) => add((item as { description?: string }).description || `Additional charge ${i + 1}`, 1, item.amount));
+  input.customItems.forEach((item, i) => add(item.description || `Additional charge ${i + 1}`, 1, item.amount));
 
   return {
     lines,
