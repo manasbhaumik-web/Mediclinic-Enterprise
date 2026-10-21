@@ -12,6 +12,7 @@ import {
 } from '../domain/visitWorkflow';
 import EnterpriseLayoutTemplate from '../components/EnterpriseLayoutTemplate';
 import GlobalSpinner from '../components/ui/GlobalSpinner';
+import { enqueueIntegration } from '../lib/integrationQueue';
 import { tabPath } from './permissions';
 
 type ClinicData = ReturnType<typeof useClinicData>;
@@ -114,7 +115,12 @@ export default function ClinicShell() {
     },
     onConsultationComplete: (soap, issueMc) => {
       const visit = activeConsultationVisitId ? findVisit(activeConsultationVisitId) : undefined;
-      if (visit) updateVisitInDb(completeConsultation(visit, soap, issueMc));
+      if (visit) {
+        // Queue the external hand-off only once the note is saved; the worker reads it from the database.
+        void updateVisitInDb(completeConsultation(visit, soap, issueMc)).then((saved) => {
+          if (saved) void enqueueIntegration('fhir', 'consultation.completed', 'visit', visit.id);
+        });
+      }
       setActiveConsultationVisitId(null);
       navigateTab('dashboard');
     },

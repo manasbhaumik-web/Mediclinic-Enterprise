@@ -116,9 +116,11 @@ export async function searchPatients(query: string): Promise<Patient[]> {
   return data.map(patientFromRow);
 }
 
-// Callers are fire-and-forget; the optimistic update is already rolled back by onError.
-const logFailure = (action: string) => (err: unknown) => {
+// Callers may ignore the result: on failure the optimistic update is already rolled back by onError.
+// The wrappers below resolve true on success and false on failure so callers can chain follow-up work.
+const logFailure = (action: string) => (err: unknown): false => {
   console.error(`Failed to ${action}`, err);
+  return false;
 };
 
 function useClinicMutations() {
@@ -258,11 +260,11 @@ function useClinicMutations() {
   });
 
   return {
-    addPatientToDb: (p: Patient) => addPatient.mutateAsync(p).catch(logFailure('insert patient')),
-    addVisitToDb: (v: Visit) => addVisit.mutateAsync(v).catch(logFailure('insert visit')),
-    updateVisitInDb: (v: Visit) => updateVisit.mutateAsync(v).catch(logFailure('update visit')),
-    addAppointmentToDb: (a: Appointment) => addAppointment.mutateAsync(a).catch(logFailure('insert appointment')),
-    updateAppointmentInDb: (a: Appointment) => updateAppointment.mutateAsync(a).catch(logFailure('update appointment')),
+    addPatientToDb: (p: Patient) => addPatient.mutateAsync(p).then(() => true as const, logFailure('insert patient')),
+    addVisitToDb: (v: Visit) => addVisit.mutateAsync(v).then(() => true as const, logFailure('insert visit')),
+    updateVisitInDb: (v: Visit) => updateVisit.mutateAsync(v).then(() => true as const, logFailure('update visit')),
+    addAppointmentToDb: (a: Appointment) => addAppointment.mutateAsync(a).then(() => true as const, logFailure('insert appointment')),
+    updateAppointmentInDb: (a: Appointment) => updateAppointment.mutateAsync(a).then(() => true as const, logFailure('update appointment')),
   };
 }
 

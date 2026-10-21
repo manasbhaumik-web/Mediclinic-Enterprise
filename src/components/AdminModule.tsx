@@ -15,7 +15,7 @@ import BillingManagementModule from './BillingManagementModule';
 import ReportsAnalyticsModule from './ReportsAnalyticsModule';
 import SettingsModule from './SettingsModule';
 import MOHDashboard from './MOHDashboard';
-import IntegrationsHub from './IntegrationsHub';
+import IntegrationsPage from './integrations/IntegrationsPage';
 import OperationsHub from './OperationsHub';
 import SecurityHub from './SecurityHub';
 import RevenueCycleHub from './RevenueCycleHub';
@@ -407,7 +407,7 @@ export default function AdminModule({
           )}
 
           {activeTab === 'integrations' && userRole === 'admin' && (
-            <IntegrationsHub />
+            <IntegrationsPage />
           )}
 
           {activeTab === 'operations' && userRole === 'admin' && (
