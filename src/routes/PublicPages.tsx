@@ -6,6 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useClinicData } from '../hooks/useClinicData';
 import { splitQueues } from '../domain/visitWorkflow';
 import GlobalSpinner from '../components/ui/GlobalSpinner';
+import { ADMIN_ROLES } from './permissions';
 
 const ClinicLandingPage = React.lazy(() => import('../components/ClinicLandingPage'));
 const LandingDashboard = React.lazy(() => import('../components/LandingDashboard'));
@@ -88,10 +89,12 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   if (isLoading) return <GlobalSpinner />;
-  // Already signed in (or just signed in): land on the dashboard unless sent here from a deep link.
+  // Already signed in (or just signed in): go back to the deep link they were sent from, otherwise to
+  // their home: the admin console for admin/HR, the clinical dashboard for everyone else.
   if (role) {
     const from = (location.state as { from?: string } | null)?.from;
-    return <Navigate to={from && from.startsWith('/') ? from : '/app/dashboard'} replace />;
+    const home = ADMIN_ROLES.includes(role) ? '/admin' : '/app/dashboard';
+    return <Navigate to={from && from.startsWith('/') ? from : home} replace />;
   }
   return (
     <LoginModule
