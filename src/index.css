@@ -8,10 +8,10 @@
 /* `chrome`, `night` and partner palettes are fixed in both modes.           */
 /* ========================================================================= */
 @theme {
-  /* Typography — one family (Plus Jakarta Sans). Figures and IDs stay in Plus Jakarta Sans with tabular numerals;
+  /* Typography — one family (Inter). Figures and IDs stay in Inter with tabular numerals;
      real monospace is reserved for code/payload blocks (--font-code). */
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  --font-mono: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-code: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Four weights only: 400 body · 500 secondary UI · 600 labels & card titles · 700 headings & emphasis.
@@ -103,7 +103,7 @@ body {
   color: #f8fafc;
 }
 
-/* Figures, IDs and times read in Plus Jakarta Sans; tabular numerals keep columns aligned. */
+/* Figures, IDs and times read in Inter; tabular numerals keep columns aligned. */
 .font-mono {
   font-variant-numeric: tabular-nums;
 }
