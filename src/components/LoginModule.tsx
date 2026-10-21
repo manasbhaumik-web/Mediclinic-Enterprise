@@ -7,14 +7,18 @@ import {
 import { UserRole } from '../types';
 
 interface LoginModuleProps {
-  onLogin: (role: UserRole) => void;
+  /** Resolves to an error message to display, or null when sign-in succeeded. */
+  onLogin: (email: string, password: string) => Promise<string | null>;
   onNavigate: (view: 'landing' | 'login') => void;
 }
 
 export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
   const [role, setRole] = useState<UserRole>('doctor');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSmartCardScanning, setIsSmartCardScanning] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Persona Details Mapping for 10/10 Usability
   const personas = [
@@ -48,7 +52,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
       name: 'System Admin',
       detail: 'Full IT Control',
       icon: ShieldCheck,
-      username: 'sysadmin'
+      username: 'admin@mediclinic.local'
     },
     {
       id: 'hr' as UserRole,
@@ -56,18 +60,30 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
       name: 'Evelyn Tan',
       detail: 'Panel Claims & Payroll',
       icon: Users,
-      username: 'hr_admin'
+      username: 'hr@mediclinic.local'
     }
   ];
 
   const currentPersona = personas.find(p => p.id === role) || personas[0];
 
-  const handleSmartCardAuth = () => {
-    setIsSmartCardScanning(true);
-    setTimeout(() => {
-      setIsSmartCardScanning(false);
-      onLogin(role);
-    }, 800);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+    const message = await onLogin(email, password);
+    // On success the parent switches views and unmounts this form.
+    if (message) {
+      setError(message);
+      setPassword('');
+      setIsSubmitting(false);
+    }
+  };
+
+  // Persona cards only pre-fill the email as a shortcut; the role itself comes from the server.
+  const selectPersona = (p: (typeof personas)[number]) => {
+    setRole(p.id);
+    setEmail(p.username);
+    setError(null);
   };
 
   return (
@@ -149,7 +165,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
           <div className="flex items-center justify-between mb-6">
             <div className="space-y-0.5">
               <h3 className="type-metric text-slate-900">Staff Portal Sign In</h3>
-              <p className="text-slate-600 text-xs font-medium">Select your staff persona to initialize session</p>
+              <p className="text-slate-600 text-xs font-medium">Select your role, then sign in with your staff account</p>
             </div>
 
             <button
@@ -183,7 +199,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
                   <button
                     key={p.id}
                     type="button"
-                    onClick={() => setRole(p.id)}
+                    onClick={() => selectPersona(p)}
                     className={`p-2.5 rounded-none border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                       isSelected
                         ? 'bg-primary text-white border-brand shadow-xs'
@@ -223,24 +239,24 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
               </span>
             </div>
 
-            <form className="space-y-3.5" onSubmit={(e) => {
-              e.preventDefault();
-              onLogin(role);
-            }}>
-              
+            <form className="space-y-3.5" onSubmit={handleSubmit}>
+
               {/* Username Input */}
               <div className="space-y-1">
-                <label className="block text-2xs font-bold text-slate-700 uppercase tracking-wider">
-                  {(role === 'admin' || role === 'hr') ? 'Admin/HR Username' : 'Staff ID / Clinical Email'}
+                <label htmlFor="login-email" className="block text-2xs font-bold text-slate-700 uppercase tracking-wider">
+                  Staff Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     {(role === 'admin' || role === 'hr') ? <UserCog className="w-4 h-4 text-accent" /> : <User className="w-4 h-4 text-accent" />}
                   </div>
                   <input
-                    type="text"
-                    key={currentPersona.username}
-                    defaultValue={currentPersona.username}
+                    id="login-email"
+                    type="email"
+                    autoComplete="username"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-surface border border-line-subtle rounded-none focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all text-xs font-bold text-slate-900 font-mono"
                   />
                 </div>
@@ -249,18 +265,21 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
               {/* Password Input with Eye Toggle */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="block text-2xs font-bold text-slate-700 uppercase tracking-wider">
+                  <label htmlFor="login-password" className="block text-2xs font-bold text-slate-700 uppercase tracking-wider">
                     Password
                   </label>
-                  <a href="#" className="text-2xs text-accent font-bold hover:underline">Forgot Password?</a>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Lock className="w-4 h-4 text-accent" />
                   </div>
                   <input
+                    id="login-password"
                     type={showPassword ? 'text' : 'password'}
-                    defaultValue="••••••••"
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-10 py-2.5 bg-surface border border-line-subtle rounded-none focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all text-xs font-bold text-slate-900 tracking-widest"
                   />
                   <button
@@ -277,23 +296,19 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
               <div className="pt-2 space-y-2">
                 
                 {/* Submit CTA Button */}
+                {error && (
+                  <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">
+                    {error}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-primary hover:bg-primary-hover text-white py-3.5 rounded-none font-bold text-xs transition-all hover:scale-[1.01] cursor-pointer flex justify-center items-center gap-2 shadow-md shadow-teal-500/20"
+                  disabled={isSubmitting}
+                  className="w-full bg-primary hover:bg-primary-hover disabled:opacity-60 disabled:cursor-not-allowed text-white py-3.5 rounded-none font-bold text-xs transition-all hover:scale-[1.01] cursor-pointer flex justify-center items-center gap-2 shadow-md shadow-teal-500/20"
                 >
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Authenticate Clinical Session</span>
-                </button>
-
-                {/* Instant Biometric SmartCard Demo Button */}
-                <button
-                  type="button"
-                  onClick={handleSmartCardAuth}
-                  disabled={isSmartCardScanning}
-                  className="w-full py-2.5 rounded-none bg-surface-accent hover:bg-surface-strong text-accent border border-line font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
-                >
-                  <Zap className={`w-3.5 h-3.5 text-accent ${isSmartCardScanning ? 'animate-spin' : ''}`} />
-                  <span>{isSmartCardScanning ? 'Scanning SmartCard...' : '⚡ Instant SmartCard / MyKad Login'}</span>
+                  <span>{isSubmitting ? 'Signing in…' : 'Authenticate Clinical Session'}</span>
                 </button>
 
               </div>

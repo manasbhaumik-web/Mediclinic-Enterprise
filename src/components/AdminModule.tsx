@@ -21,6 +21,7 @@ import SecurityHub from './SecurityHub';
 import RevenueCycleHub from './RevenueCycleHub';
 import SystemArchitectureHub from './SystemArchitectureHub';
 import { useSettings } from '../context/SettingsContext';
+import { useAuth } from '../context/AuthContext';
 import { Visit, Language } from '../types';
 
 interface AdminModuleProps {
@@ -53,7 +54,7 @@ export default function AdminModule({
   const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
   const [isNightShift, setIsNightShift] = useState<boolean>(false);
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [showPII, setShowPII] = useState<boolean>(true);
+  const { showPII, setShowPII } = useAuth();
   const [timeString, setTimeString] = useState<string>('');
 
   useEffect(() => {

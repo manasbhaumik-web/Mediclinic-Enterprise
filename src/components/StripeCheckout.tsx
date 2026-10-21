@@ -309,20 +309,12 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
     if (stripePromise) {
       const getPaymentIntent = async () => {
         try {
-          const response = await fetch('/api/create-payment-intent', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ amount: props.amount, currency: 'myr' }),
+          // Sends the signed-in user's JWT; the edge function rejects unauthenticated callers.
+          const { data, error } = await supabase.functions.invoke('payment-intent', {
+            body: { amount: props.amount, currency: 'myr', invoiceId: props.invoiceId },
           });
-          
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to fetch payment intent');
-          }
-          
-          const data = await response.json();
+
+          if (error) throw new Error(error.message || 'Failed to fetch payment intent');
           if (data && data.clientSecret) {
             setClientSecret(data.clientSecret);
           } else {

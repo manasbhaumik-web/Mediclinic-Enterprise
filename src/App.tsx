@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Patient, Visit, Language, UserRole } from './types';
 import { TRANSLATIONS } from './data';
 import { useFinancials } from './context/FinancialContext';
@@ -36,18 +36,36 @@ import {
 
 export default function App() {
   const { recordTransaction } = useFinancials();
-  const { user, role: userRole, signIn, signOut } = useAuth();
+  const { user, role: userRole, isLoading: authLoading, showPII, setShowPII, signIn, signOut } = useAuth();
   const [appView, setAppView] = useState<'landing' | 'telemetry' | 'login' | 'suite' | 'admin'>('landing');
 
   // Navigation Menu Active Page
   const [activeTab, setActiveTab] = useState<'dashboard' | 'queue' | 'consultation' | 'reports' | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments'>('queue');
 
-  const handleLogin = async (role: UserRole) => {
-    await signIn(role);
+  // Returns an error message for the login form, or null on success.
+  const handleLogin = async (email: string, password: string): Promise<string | null> => {
+    const error = await signIn(email, password);
+    if (error) return error;
     // Every role lands on the dashboard after login
     setAppView('suite');
     setActiveTab('dashboard');
+    return null;
   };
+
+  // Resume an existing Supabase session (e.g. page refresh) instead of asking to sign in again.
+  useEffect(() => {
+    if (userRole && appView === 'login') {
+      setAppView('suite');
+      setActiveTab('dashboard');
+    }
+  }, [userRole, appView]);
+
+  // Only admin/HR may open the admin console; anyone else falls back to the suite.
+  useEffect(() => {
+    if (appView === 'admin' && userRole && userRole !== 'admin' && userRole !== 'hr') {
+      setAppView('suite');
+    }
+  }, [userRole, appView]);
 
   // Multi-language active language (EN or BM)
   const [activeLanguage, setActiveLanguage] = useState<Language>('EN');
@@ -55,7 +73,6 @@ export default function App() {
 
   // PWA Network Emulator State
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [showPII, setShowPII] = useState<boolean>(true);
 
   // Clinic State Databases with Supabase Sync
   const {
@@ -270,6 +287,14 @@ export default function App() {
     />;
     return null;
   };
+
+  // Staff-only views require an authenticated session with a profile role.
+  const needsAuth = appView === 'suite' || appView === 'admin';
+  if (needsAuth && authLoading) return <GlobalSpinner />;
+  if (needsAuth && !userRole) {
+    return <LoginModule onLogin={handleLogin} onNavigate={(view) => setAppView(view)} />;
+  }
+  if (appView === 'admin' && userRole !== 'admin' && userRole !== 'hr') return null;
 
   const currentView = renderView();
   if (currentView) {

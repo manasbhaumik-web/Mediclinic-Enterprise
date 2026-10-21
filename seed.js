@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY; // Actually a service role key
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // server-side only: never prefix with VITE_
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing supabase URL or KEY");
+  console.error("Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
   process.exit(1);
 }
 
