@@ -1,0 +1,16 @@
+name,email,department,role,status,gender,dob,icNumber,phone,salaryBase
+Dr. Sarah Tan,sarah.tan@mediclinic.my,General Practice,Senior GP Physician,Active,Female,1985-04-12,850412-14-5224,012-3456789,14500
+Dr. Marcus Wong,marcus.wong@mediclinic.my,Pediatrics,Consultant Pediatrician,Active,Male,1982-08-25,820825-10-6113,013-9876543,16800
+Dr. Aisha Rahman,aisha.rahman@mediclinic.my,Cardiology,Cardiovascular Specialist,Active,Female,1980-11-19,801119-08-5432,017-2233445,18500
+Dr. Kenneth Lee,kenneth.lee@mediclinic.my,Dermatology,Dermatology Consultant,Active,Male,1988-03-30,880330-14-7789,019-5566778,15500
+Dr. Priya Nair,priya.nair@mediclinic.my,Obstetrics & Gynaecology,O&G Specialist,Active,Female,1984-07-08,840708-05-6332,016-4433221,17200
+Nurse Siti Aminah,siti.aminah@mediclinic.my,Clinical Operations,Triage Nurse Supervisor,Active,Female,1990-01-15,900115-14-6102,012-9988776,5800
+Nurse Jessica Lim,jessica.lim@mediclinic.my,Clinical Operations,Senior Clinical Nurse,Active,Female,1993-06-22,930622-07-5118,014-3322110,4900
+Nurse Azman Kassim,azman.kassim@mediclinic.my,Emergency & Triage,Staff Nurse (Emergency),Active,Male,1995-09-10,950910-10-5897,018-7766554,4500
+Nurse Chloe Tay,chloe.tay@mediclinic.my,General Practice,Staff Nurse (Shift A),Active,Female,1996-12-04,961204-14-6334,011-22334455,4300
+Pharm. Ahmad Razak,ahmad.razak@mediclinic.my,Pharmacy,Chief Pharmacist,Active,Male,1987-05-18,870518-08-5901,013-4455667,9200
+Pharm. Nurul Huda,nurul.huda@mediclinic.my,Pharmacy,Assistant Pharmacist,Active,Female,1994-10-28,941028-14-5662,017-8899001,4800
+Tech. Rajan Pillai,rajan.pillai@mediclinic.my,Diagnostics & Lab,Senior Lab Technician,Active,Male,1989-02-14,890214-07-5431,016-7788990,5200
+Admin Mei Ling,meiling@mediclinic.my,Front Desk & Reception,Senior Patient Registrar,Active,Female,1997-07-19,970719-14-5002,012-1122334,3800
+HR Officer Farida Yusof,farida.yusof@mediclinic.my,Human Resources,HR & Payroll Specialist,Active,Female,1991-04-03,910403-10-5334,019-3344556,6500
+Admin Manager David Chen,david.chen@mediclinic.my,Administration,Healthcare Operations Manager,Active,Male,1983-09-12,830912-14-5113,018-9900112,11500

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { StaffMember } from './StaffManagementModule';
+import StaffAccessSection from './staff/StaffAccessSection';
+import { SystemRole, validateStaffInput } from '../domain/staffAccess';
 import { 
   User, Shield, Briefcase, FileText, CreditCard, ChevronLeft, Save, 
   MapPin, Phone, AlertCircle 
@@ -8,10 +10,13 @@ import {
 interface StaffRegistrationProps {
   initialData?: StaffMember;
   onCancel: () => void;
-  onSubmit: (newStaff: StaffMember) => void;
+  /** `systemRole` is the access role to create a login with, or null to save the record without a login. */
+  onSubmit: (newStaff: StaffMember, systemRole: SystemRole | null) => void;
 }
 
 export default function StaffRegistration({ initialData, onCancel, onSubmit }: StaffRegistrationProps) {
+  const [systemRole, setSystemRole] = useState<SystemRole | null>(null);
+
   // Form State initialized with defaults
   const [formData, setFormData] = useState<Partial<StaffMember>>(initialData || {
     status: 'Active',
@@ -63,12 +68,18 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
       return;
     }
 
+    const problems = validateStaffInput({ name: formData.name, email: formData.email, role: formData.role, salaryBase: formData.salaryBase });
+    if (problems.length) {
+      alert(problems.join('\n'));
+      return;
+    }
+
     const newStaff: StaffMember = {
       ...formData as StaffMember,
       id: initialData?.id || `S${Math.floor(Math.random() * 9000) + 1000}`, // Keep ID if editing, else generate
     };
 
-    onSubmit(newStaff);
+    onSubmit(newStaff, initialData ? null : systemRole);
   };
 
   return (
@@ -325,6 +336,16 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
             </div>
           </div>
         </section>
+
+        {/* Section 6: System access (login) */}
+        <StaffAccessSection
+          jobTitle={formData.role || ''}
+          department={formData.department || ''}
+          email={formData.email || ''}
+          value={systemRole}
+          onChange={setSystemRole}
+          existing={!!initialData}
+        />
 
       </form>
     </div>

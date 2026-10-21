@@ -96,8 +96,10 @@ export function LoginPage() {
     const home = ADMIN_ROLES.includes(role) ? '/admin' : '/app/dashboard';
     return <Navigate to={from && from.startsWith('/') ? from : home} replace />;
   }
+  const passwordSet = (location.state as { passwordSet?: boolean } | null)?.passwordSet;
   return (
     <LoginModule
+      notice={passwordSet ? 'Your password is saved. Sign in with your email and new password.' : undefined}
       onLogin={signIn}
       onNavigate={(view) => navigate(view === 'landing' ? '/' : '/login')}
     />

@@ -10,9 +10,11 @@ interface LoginModuleProps {
   /** Resolves to an error message to display, or null when sign-in succeeded. */
   onLogin: (email: string, password: string) => Promise<string | null>;
   onNavigate: (view: 'landing' | 'login') => void;
+  /** A friendly message shown above the form, e.g. after choosing a password from an invitation. */
+  notice?: string;
 }
 
-export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
+export default function LoginModule({ onLogin, onNavigate, notice }: LoginModuleProps) {
   const [role, setRole] = useState<UserRole>('doctor');
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -296,6 +298,10 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
               <div className="pt-2 space-y-2">
                 
                 {/* Submit CTA Button */}
+                {notice && !error && (
+                  <p role="status" className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-2">{notice}</p>
+                )}
+
                 {error && (
                   <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">
                     {error}

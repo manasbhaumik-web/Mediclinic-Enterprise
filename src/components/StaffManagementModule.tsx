@@ -6,6 +6,12 @@ import {
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../lib/supabase';
+import StaffAccessCell from './staff/StaffAccessCell';
+import { AccessState, SystemRole } from '../domain/staffAccess';
+import { CSV_TEMPLATE, CsvParseResult, parseStaffCsv } from '../domain/staffCsv';
+import {
+  changeRole, createStaff, grantAccess, loadAccessStatus, restoreAccess, resendInvite, revokeAccess, sendPasswordReset,
+} from '../lib/staffOnboarding';
 
 import ProgressBar from './ui/ProgressBar';
 export interface StaffMember {
@@ -26,6 +32,10 @@ export interface StaffMember {
   attendanceRate: number; 
   leaveBalance: number; 
   leavesTaken: number; 
+
+  /** Application access role of this person's login, if they have one. */
+  systemRole?: SystemRole | null;
+  hasLogin?: boolean;
 }
 
 type StaffViewTab = 'directory' | 'payroll' | 'attendance';
@@ -58,6 +68,11 @@ export default function StaffManagementModule() {
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [accessMap, setAccessMap] = useState<Record<string, { state: AccessState; role: SystemRole | null }>>({});
+  const [accessBusy, setAccessBusy] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [csvPreview, setCsvPreview] = useState<{ fileName: string; result: CsvParseResult } | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   const fetchStaff = async () => {
     setIsLoading(true);
@@ -78,12 +93,25 @@ export default function StaffManagementModule() {
         paymentStatus: s.payment_status as any,
         attendanceRate: s.attendance_rate || 98,
         leaveBalance: s.leave_balance || 14,
-        leavesTaken: s.leaves_taken || 2
+        leavesTaken: s.leaves_taken || 2,
+        systemRole: s.system_role ?? null,
+        hasLogin: !!s.auth_id
       })));
     } else {
       setStaffList(DEFAULT_15_STAFF);
     }
     setIsLoading(false);
+    refreshAccess();
+  };
+
+  // Login state (invited / active / revoked) lives in the auth system, so it comes from the onboarding function.
+  const refreshAccess = async () => {
+    try {
+      const res = await loadAccessStatus();
+      if (res.access) setAccessMap(res.access);
+    } catch {
+      /* the access column simply shows no state if the function is unavailable */
+    }
   };
 
   useEffect(() => {
@@ -115,32 +143,90 @@ export default function StaffManagementModule() {
   const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
   const pendingPayments = staffList.filter(s => s.paymentStatus === 'Pending').length;
 
-  const handleAddStaffSubmit = async (newStaff: StaffMember) => {
+  const handleAddStaffSubmit = async (newStaff: StaffMember, systemRole: SystemRole | null) => {
+    setNotice(null);
     try {
       if (editingStaffId) {
-        await supabase.from('staff').update({
+        const { error } = await supabase.from('staff').update({
           name: newStaff.name,
           department: newStaff.department,
           role: newStaff.role,
           email: newStaff.email,
           salary_base: newStaff.salaryBase,
-          status: newStaff.status
+          status: newStaff.status,
+          gender: newStaff.gender ?? null,
+          dob: newStaff.dob || null,
+          ic_number: newStaff.icNumber ?? null,
+          phone: newStaff.phone ?? null
         }).eq('id', editingStaffId);
+        if (error) throw error;
         setEditingStaffId(null);
+        setNotice({ ok: true, text: 'Staff record updated.' });
       } else {
-        await supabase.from('staff').insert([{
-          name: newStaff.name,
-          department: newStaff.department,
-          role: newStaff.role,
-          email: newStaff.email,
-          salary_base: newStaff.salaryBase || 0
-        }]);
+        // Creating goes through the server so the login, invitation email and role are set up together.
+        const res = await createStaff({
+          name: newStaff.name, email: newStaff.email, role: newStaff.role, department: newStaff.department,
+          status: newStaff.status, gender: newStaff.gender, dob: newStaff.dob, icNumber: newStaff.icNumber,
+          phone: newStaff.phone, salaryBase: newStaff.salaryBase || 0,
+        }, systemRole);
+        if (!res.ok) {
+          setNotice({ ok: false, text: res.message ?? 'Could not create the staff member.' });
+          return;
+        }
+        setNotice({ ok: !res.warning, text: res.warning ?? res.message ?? 'Staff member created.' });
       }
       setCurrentView('list');
       fetchStaff();
     } catch (err) {
       console.error(err);
+      setNotice({ ok: false, text: err instanceof Error ? err.message : 'Could not save the staff member.' });
     }
+  };
+
+  /** Run an access action, show its outcome and refresh the list. */
+  const runAccess = async (staffId: string, action: () => Promise<{ ok?: boolean; message?: string }>) => {
+    setAccessBusy(staffId);
+    setNotice(null);
+    try {
+      const res = await action();
+      setNotice({ ok: res.ok !== false, text: res.message ?? (res.ok === false ? 'That did not work.' : 'Done.') });
+      await fetchStaff();
+    } catch (err) {
+      setNotice({ ok: false, text: err instanceof Error ? err.message : 'Request failed.' });
+    } finally {
+      setAccessBusy(null);
+    }
+  };
+
+  const handleCsvFile = async (file: File | undefined) => {
+    if (!file) return;
+    setNotice(null);
+    if (!/\.csv$/i.test(file.name)) {
+      setNotice({ ok: false, text: 'Please choose a .csv file. Excel files must be saved as CSV first.' });
+      return;
+    }
+    const text = await file.text();
+    setCsvPreview({ fileName: file.name, result: parseStaffCsv(text, staffList.map((s) => s.email)) });
+  };
+
+  const confirmCsvImport = async () => {
+    if (!csvPreview) return;
+    const { rows } = csvPreview.result;
+    setIsImporting(true);
+    const { error } = await supabase.from('staff').insert(rows.map((r) => ({
+      name: r.name, email: r.email, department: r.department || null, role: r.role, status: r.status,
+      gender: r.gender || null, dob: r.dob || null, ic_number: r.icNumber || null, phone: r.phone || null,
+      salary_base: r.salaryBase,
+    })));
+    setIsImporting(false);
+    if (error) {
+      setNotice({ ok: false, text: `Import failed, nothing was saved: ${error.message}` });
+      return;
+    }
+    setNotice({ ok: true, text: `Imported ${rows.length} staff record${rows.length === 1 ? '' : 's'}. No logins were created: grant access per person from the Access column.` });
+    setCsvPreview(null);
+    setIsImportModalOpen(false);
+    fetchStaff();
   };
 
   const handleLoadSampleRoster = async () => {
@@ -196,10 +282,22 @@ export default function StaffManagementModule() {
     if (!staff) return;
     const newStatus = staff.status === 'Active' ? 'Suspended' : 'Active';
     await supabase.from('staff').update({ status: newStatus }).eq('id', id);
+    // Suspending a person also blocks their login; reactivating restores it if it was blocked.
+    if (staff.hasLogin) {
+      try {
+        if (newStatus === 'Suspended') await revokeAccess(id);
+        else if (accessMap[id]?.state === 'revoked') await restoreAccess(id);
+      } catch { /* the status change still applies; access can be managed from the Access column */ }
+    }
     fetchStaff();
   };
 
   const deleteStaff = async (id: string) => {
+    const target = staffList.find(s => s.id === id);
+    if (target?.hasLogin && accessMap[id]?.state !== 'revoked') {
+      alert('This person still has a login. Revoke their access first, then delete the record.');
+      return;
+    }
     if (confirm('Are you sure you want to permanently delete this staff record?')) {
       await supabase.from('staff').delete().eq('id', id);
       fetchStaff();
@@ -240,6 +338,12 @@ export default function StaffManagementModule() {
   return (
     <div className="animate-fadeIn w-full space-y-6 pb-8">
       
+      {notice && (
+        <p role="status" className={`text-xs font-bold px-4 py-3 border ${notice.ok ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}>
+          {notice.text}
+        </p>
+      )}
+
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -538,6 +642,7 @@ export default function StaffManagementModule() {
                         <th className="px-6 py-3.5">Staff Member</th>
                         <th className="px-6 py-3.5">Department &amp; Role</th>
                         <th className="px-6 py-3.5">Status</th>
+                        <th className="px-6 py-3.5">System access</th>
                         <th className="px-6 py-3.5 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -579,6 +684,20 @@ export default function StaffManagementModule() {
                               }`}></span>
                               {staff.status}
                             </button>
+                          </td>
+                          <td className="px-6 py-4 min-w-[220px]">
+                            <StaffAccessCell
+                              hasLogin={!!staff.hasLogin}
+                              systemRole={accessMap[staff.id]?.role ?? staff.systemRole ?? null}
+                              state={accessMap[staff.id]?.state}
+                              busy={accessBusy === staff.id}
+                              onGrant={(role) => runAccess(staff.id, () => grantAccess(staff.id, role))}
+                              onResend={() => runAccess(staff.id, () => resendInvite(staff.id))}
+                              onReset={() => runAccess(staff.id, () => sendPasswordReset(staff.id))}
+                              onChangeRole={(role) => runAccess(staff.id, () => changeRole(staff.id, role))}
+                              onRevoke={() => { if (confirm(`Revoke ${staff.name}'s access? They will no longer be able to sign in.`)) runAccess(staff.id, () => revokeAccess(staff.id)); }}
+                              onRestore={() => runAccess(staff.id, () => restoreAccess(staff.id))}
+                            />
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex justify-end gap-2">
@@ -773,13 +892,60 @@ export default function StaffManagementModule() {
               Upload a standard personnel spreadsheet containing employee full name, email, department, role, and salary information.
             </p>
 
-            <div className="border-2 border-dashed border-line-subtle bg-surface-muted p-6 text-center space-y-3">
+            <label className="block border-2 border-dashed border-line-subtle bg-surface-muted p-6 text-center space-y-3 cursor-pointer hover:bg-surface-accent">
               <Upload className="w-8 h-8 text-accent mx-auto" />
               <div className="text-xs text-slate-600">
-                <span className="font-bold text-accent">Click to choose CSV file</span> or drag and drop here
+                <span className="font-bold text-accent">Click to choose a CSV file</span>
               </div>
-              <span className="text-2xs text-slate-400 block font-mono">Supported formats: .csv, .xlsx</span>
-            </div>
+              <span className="text-2xs text-slate-400 block font-mono">Supported format: .csv (save Excel files as CSV first)</span>
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                className="sr-only"
+                onChange={(e) => { void handleCsvFile(e.target.files?.[0]); e.target.value = ''; }}
+              />
+            </label>
+
+            <a
+              href={`data:text/csv;charset=utf-8,${encodeURIComponent(CSV_TEMPLATE)}`}
+              download="staff_import_template.csv"
+              className="text-2xs font-bold text-accent underline"
+            >
+              Download the CSV template
+            </a>
+
+            {csvPreview && (
+              <div className="border border-line-subtle bg-surface p-3 space-y-2 text-xs" aria-live="polite">
+                <p className="font-bold text-ink">{csvPreview.fileName}</p>
+                {csvPreview.result.missingColumns.length > 0 ? (
+                  <p className="text-rose-700 font-bold">Missing required column{csvPreview.result.missingColumns.length > 1 ? 's' : ''}: {csvPreview.result.missingColumns.join(', ')}.</p>
+                ) : (
+                  <>
+                    <p className="text-emerald-700 font-bold">{csvPreview.result.rows.length} ready to import</p>
+                    {csvPreview.result.duplicates.length > 0 && (
+                      <p className="text-amber-700">{csvPreview.result.duplicates.length} skipped: email already exists ({csvPreview.result.duplicates.slice(0, 3).map((d) => d.email).join(', ')}{csvPreview.result.duplicates.length > 3 ? ', …' : ''})</p>
+                    )}
+                    {csvPreview.result.errors.length > 0 && (
+                      <div className="text-rose-700">
+                        <p className="font-bold">{csvPreview.result.errors.length} row{csvPreview.result.errors.length > 1 ? 's have' : ' has'} problems and will be skipped:</p>
+                        <ul className="list-disc pl-5 max-h-24 overflow-y-auto">
+                          {csvPreview.result.errors.slice(0, 8).map((e) => <li key={e.line}>Line {e.line} ({e.name}): {e.problems.join('; ')}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                )}
+                <button
+                  type="button"
+                  disabled={isImporting || csvPreview.result.rows.length === 0}
+                  onClick={confirmCsvImport}
+                  className="w-full py-2 bg-primary hover:bg-primary-hover disabled:opacity-50 text-white text-xs font-bold cursor-pointer"
+                >
+                  {isImporting ? 'Importing…' : `Import ${csvPreview.result.rows.length} staff record${csvPreview.result.rows.length === 1 ? '' : 's'}`}
+                </button>
+                <p className="text-2xs text-slate-500">Imports create staff records only. No logins or emails are created.</p>
+              </div>
+            )}
 
             <div className="pt-2 flex flex-col gap-2">
               <button
@@ -793,7 +959,7 @@ export default function StaffManagementModule() {
 
               <button
                 type="button"
-                onClick={() => setIsImportModalOpen(false)}
+                onClick={() => { setIsImportModalOpen(false); setCsvPreview(null); }}
                 className="w-full py-2 bg-surface-accent text-accent text-xs font-bold border border-line cursor-pointer"
               >
                 Cancel

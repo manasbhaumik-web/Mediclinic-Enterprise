@@ -8,6 +8,7 @@ import {
   AppointmentsPage, BillingPage, DashboardPage, DispensaryPage, DoctorPage, RegistrationPage, TriagePage,
 } from './routes/ClinicPages';
 import { AdminPage, LandingPage, LoginPage, TelemetryPage } from './routes/PublicPages';
+import SetPasswordPage from './routes/SetPasswordPage';
 
 /** Wraps a page so only the roles listed for it in TAB_ROLES can open it. */
 const guarded = (tab: keyof typeof TAB_ROLES, page: React.ReactNode) => (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/telemetry" element={<TelemetryPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/set-password" element={<SetPasswordPage />} />
 
         <Route element={<RequireAuth />}>
           <Route path="/app" element={<ClinicShell />}>

@@ -1,0 +1,62 @@
+/** Staff access (RBAC) helpers for the UI. The rules themselves live in the shared module the server also uses. */
+import { ClinicalPermission, RBACPermissionEngine } from '../lib/rbacPermissionEngine';
+import { ADMIN_ROLES, TAB_ROLES } from '../routes/permissions';
+import { SystemRole } from '../../supabase/functions/_shared/staffAccess';
+
+export {
+  ROLE_LABELS, SYSTEM_ROLES, assignableRoles, canGrant, canManageAccessOf, isSystemRole, suggestSystemRole, validateStaffInput,
+} from '../../supabase/functions/_shared/staffAccess';
+export type { AccessState, SystemRole } from '../../supabase/functions/_shared/staffAccess';
+
+const PAGE_LABELS: Record<string, string> = {
+  dashboard: 'Dashboard',
+  queue: 'Patient queue',
+  consultation: 'Consultation suite',
+  reports: 'Monthly reports',
+  registration: 'Patient registration',
+  triage: 'Triage',
+  appointments: 'Appointments',
+  dispensary: 'Dispensary',
+  billing: 'Billing desk',
+};
+
+const PERMISSION_LABELS: Record<ClinicalPermission, string> = {
+  VIEW_FULL_NRIC: 'See full NRIC numbers',
+  EDIT_CLINICAL_SOAP: 'Write clinical (SOAP) notes',
+  DISPENSE_POISON_SCHEDULE: 'Dispense scheduled poisons',
+  ISSUE_MC_LEAVE: 'Issue medical certificates',
+  COLLECT_PAYMENT: 'Collect payments',
+  APPLY_BILLING_DISCOUNT: 'Apply billing discounts',
+  VIEW_FINANCIAL_REPORTS: 'View financial reports',
+  MANAGE_INVENTORY_STOCK: 'Manage medicine stock',
+  MANAGE_STAFF_ACCOUNTS: 'Manage staff accounts',
+  EXPORT_MOH_AUDIT_LOGS: 'Export MOH audit logs',
+  CONFIGURE_SYSTEM_SETTINGS: 'Change system settings',
+};
+
+export interface RoleAccess {
+  pages: string[];
+  permissions: string[];
+  adminConsole: boolean;
+}
+
+/** What a role can open and do, read from the same tables the app enforces (route guards and the RBAC engine). */
+export function describeRoleAccess(role: SystemRole): RoleAccess {
+  const pages = (Object.keys(TAB_ROLES) as (keyof typeof TAB_ROLES)[])
+    .filter((tab) => TAB_ROLES[tab].includes(role))
+    .map((tab) => PAGE_LABELS[tab] ?? tab);
+  return {
+    pages,
+    permissions: RBACPermissionEngine.getPermissionsForRole(role).map((p) => PERMISSION_LABELS[p] ?? p),
+    adminConsole: ADMIN_ROLES.includes(role),
+  };
+}
+
+export type AccessLabelTone = 'ok' | 'info' | 'warn' | 'idle';
+
+export function accessBadge(state: 'none' | 'invited' | 'active' | 'revoked' | undefined, hasRole: boolean): { label: string; tone: AccessLabelTone } {
+  if (state === 'active') return { label: 'Has access', tone: 'ok' };
+  if (state === 'invited') return { label: 'Invited', tone: 'info' };
+  if (state === 'revoked') return { label: 'Access revoked', tone: 'warn' };
+  return { label: hasRole ? 'Not signed up' : 'No system access', tone: 'idle' };
+}
