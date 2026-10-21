@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PayrollStatusList from './payroll/PayrollStatusList';
+import LeaveStatusList from './leave/LeaveStatusList';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, Users, X, 
   DollarSign, Calendar, AlertCircle,
@@ -95,9 +96,9 @@ export default function StaffManagementModule() {
         phone: s.phone,
         salaryBase: Number(s.salary_base),
         paymentStatus: s.payment_status as any,
-        attendanceRate: s.attendance_rate || 98,
-        leaveBalance: s.leave_balance || 14,
-        leavesTaken: s.leaves_taken || 2,
+        attendanceRate: s.attendance_rate ?? 100,
+        leaveBalance: s.leave_balance ?? 0,
+        leavesTaken: s.leaves_taken ?? 0,
         systemRole: s.system_role ?? null,
         hasLogin: !!s.auth_id
       })));
@@ -331,27 +332,6 @@ Add anyway?`)) return;
     }
     if (confirm('Are you sure you want to permanently delete this staff record?')) {
       await supabase.from('staff').delete().eq('id', id);
-      fetchStaff();
-    }
-  };
-
-  const approveLeave = async (id: string) => {
-    const staff = staffList.find(s => s.id === id);
-    if (staff && staff.leaveBalance > 0) {
-      await supabase.from('staff').update({ 
-        leave_balance: staff.leaveBalance - 1, 
-        leaves_taken: staff.leavesTaken + 1 
-      }).eq('id', id);
-      fetchStaff();
-    }
-  };
-
-  const markAbsent = async (id: string) => {
-    const staff = staffList.find(s => s.id === id);
-    if (staff) {
-      await supabase.from('staff').update({ 
-        attendance_rate: Math.max(0, staff.attendanceRate - 2) 
-      }).eq('id', id);
       fetchStaff();
     }
   };
@@ -755,71 +735,8 @@ Add anyway?`)) return;
           {/* Payroll View: the real monthly payroll module */}
           {activeTab === 'payroll' && <PayrollStatusList />}
 
-          {/* Attendance View */}
-          {activeTab === 'attendance' && (
-            <div className="bg-surface border border-line-subtle rounded-none shadow-2xs overflow-hidden animate-fadeIn">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-surface-accent text-ink font-bold uppercase text-2xs tracking-wider border-b border-line">
-                  <tr>
-                    <th className="px-6 py-3.5">Employee</th>
-                    <th className="px-6 py-3.5">Attendance Rate</th>
-                    <th className="px-6 py-3.5">Leaves Taken</th>
-                    <th className="px-6 py-3.5">Leave Balance</th>
-                    <th className="px-6 py-3.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line-subtle">
-                  {staffList.map((staff) => (
-                    <tr key={staff.id} className="hover:bg-surface-muted">
-                      <td className="px-6 py-4 font-bold text-ink">
-                        {staff.name}
-                        <p className="text-2xs text-slate-500 font-normal">{staff.role}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <ProgressBar value={staff.attendanceRate} className="max-w-[80px]" tone={staff.attendanceRate > 90 ? 'primary' : staff.attendanceRate > 75 ? 'warning' : 'danger'} />
-                          <span className="text-xs font-mono font-bold text-ink">{staff.attendanceRate}%</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-mono text-slate-600">
-                        {staff.leavesTaken} Days
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`text-2xs font-bold px-2 py-0.5 border ${
-                          staff.leaveBalance > 5 ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300'
-                        }`}>
-                          {staff.leaveBalance} Days Left
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button 
-                            type="button"
-                            onClick={() => markAbsent(staff.id)}
-                            className="text-2xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-2 py-1 cursor-pointer transition-colors"
-                          >
-                            Mark Absent
-                          </button>
-                          <button 
-                            type="button"
-                            disabled={staff.leaveBalance <= 0}
-                            onClick={() => approveLeave(staff.id)}
-                            className={`text-2xs font-bold px-2 py-1 border transition-colors ${
-                              staff.leaveBalance <= 0 
-                                ? 'text-slate-400 border-slate-200 bg-slate-50 cursor-not-allowed'
-                                : 'text-accent bg-surface-accent border-line hover:bg-surface-strong cursor-pointer'
-                            }`}
-                          >
-                            Approve Leave
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          {/* Leave & Attendance: calculated from approved leave and daily records */}
+          {activeTab === 'attendance' && <LeaveStatusList />}
         </>
       )}
 

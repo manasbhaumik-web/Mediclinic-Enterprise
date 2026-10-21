@@ -5,7 +5,7 @@ import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
   Building, ShieldAlert, LogOut, Server, Database, Bell, Globe2, TrendingUp,
   Clock, ShieldCheck, Moon, Sun, ChevronDown, ChevronRight, Eye, EyeOff, Wifi, WifiOff,
-  Layers, FolderKanban,
+  Layers, FolderKanban, CalendarClock,
   LayoutDashboard
 } from 'lucide-react';
 import StaffManagementModule from './StaffManagementModule';
@@ -17,6 +17,7 @@ import SettingsModule from './SettingsModule';
 import MOHDashboard from './MOHDashboard';
 import EInvoicePage from './einvoice/EInvoicePage';
 import PayrollPage from './payroll/PayrollPage';
+import LeavePage from './leave/LeavePage';
 import IntegrationsPage from './integrations/IntegrationsPage';
 import OperationsHub from './OperationsHub';
 import SecurityHub from './SecurityHub';
@@ -35,7 +36,7 @@ interface AdminModuleProps {
   onOpenDashboard?: () => void;
 }
 
-type AdminTab = 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'einvoice' | 'payroll' | 'architecture';
+type AdminTab = 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'einvoice' | 'payroll' | 'leave' | 'architecture';
 
 type AdminCategory = 'people' | 'clinical' | 'finance' | 'compliance' | 'platform';
 
@@ -75,6 +76,7 @@ export default function AdminModule({
   const modules = [
     // 1. People
     { id: 'staff', label: 'Staff Directory', category: 'people', icon: Users, roleReq: 'all', enabled: settings.modules.staff },
+    { id: 'leave', label: 'Leave & Attendance', category: 'people', icon: CalendarClock, roleReq: 'all', enabled: true },
     
     // 2. Clinical Operations
     { id: 'medicine', label: 'Inventory & Pharmacy', category: 'clinical', icon: Pill, roleReq: 'admin', enabled: settings.modules.medicine },
@@ -408,6 +410,10 @@ export default function AdminModule({
 
           {activeTab === 'settings' && userRole === 'admin' && (
             <SettingsModule />
+          )}
+
+          {activeTab === 'leave' && (
+            <LeavePage role={userRole} />
           )}
 
           {activeTab === 'payroll' && (

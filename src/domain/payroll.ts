@@ -55,6 +55,8 @@ export interface Payslip {
   totalDeductions: number;
   netPay: number;
   employerContributions: number;
+  /** Unpaid days that came from approved leave requests (added to any extra days entered by hand). */
+  leaveUnpaidDays: number;
   warnings: string[];
 }
 
@@ -142,6 +144,7 @@ export const slipFromRow = (r: any): Payslip => ({
   totalDeductions: Number(r.total_deductions),
   netPay: Number(r.net_pay),
   employerContributions: Number(r.employer_contributions),
+  leaveUnpaidDays: Number(r.leave_unpaid_days ?? 0),
   warnings: r.warnings ?? [],
 });
 

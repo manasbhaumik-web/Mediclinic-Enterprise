@@ -13,6 +13,11 @@ const TriageModule = React.lazy(() => import('../components/TriageModule'));
 const AppointmentCalendarModule = React.lazy(() => import('../components/AppointmentCalendarModule'));
 const DispensaryDashboard = React.lazy(() => import('../components/DispensaryDashboard'));
 const BillingDesk = React.lazy(() => import('../components/BillingDesk'));
+const MyLeave = React.lazy(() => import('../components/leave/MyLeave'));
+
+export function MyLeavePage() {
+  return <MyLeave />;
+}
 
 type DoctorTab = 'queue' | 'consultation' | 'reports';
 

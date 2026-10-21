@@ -333,6 +333,20 @@ export default function EnterpriseLayoutTemplate({
               </div>
             </button>
 
+            {/* My leave & attendance (every role) */}
+            <button
+              type="button"
+              id="sidebar-link-my-leave"
+              onClick={() => setActiveTab('my-leave')}
+              className={`nav-btn ${activeTab === 'my-leave' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
+            >
+              <div className="flex items-center gap-2">
+                {activeTab === 'my-leave' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                <CalendarClock className={`w-4 h-4 ${activeTab === 'my-leave' ? 'text-white' : 'text-teal-200'}`} />
+                <span>My Leave</span>
+              </div>
+            </button>
+
             {/* Administration Console Link (admin / HR) */}
             {(userRole === 'admin' || userRole === 'hr') && (
               <button

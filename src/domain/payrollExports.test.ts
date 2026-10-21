@@ -18,7 +18,7 @@ function slip(name: string, bank: { name?: string; number?: string }, epf = '123
   const calc = calculatePayslip(emp, { periodStart: '2026-10-01', workingDays: 26, hoursPerDay: 8 }, {}, { allowances: [], deductions: [] }, rates);
   return {
     id: name, runId: 'r1', staffId: name, inputs: {}, lines: calc.lines, gross: calc.gross, totalDeductions: calc.totalDeductions,
-    netPay: calc.netPay, employerContributions: calc.employerContributions, warnings: calc.warnings,
+    netPay: calc.netPay, employerContributions: calc.employerContributions, leaveUnpaidDays: 0, warnings: calc.warnings,
     employee: { name, citizenship: 'citizen', baseSalary: 4000, epfNumber: epf, icNumber: '900115-14-6102', bank },
   };
 }

@@ -9,7 +9,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { authenticate, corsHeadersFor, jsonResponse, serviceClient } from '../_shared/runtime.ts';
 import {
-  Citizenship, EmployeeForPay, PayInputs, PayLineInput, RateRow, calculatePayslip, runBlockers, summariseRun, validateInputs,
+  Citizenship, EmployeeForPay, PayInputs, PayLineInput, RateRow, calculatePayslip, periodEnd, runBlockers, summariseRun, validateInputs,
 } from '../_shared/payrollCalc.ts';
 
 const MONTH = /^(\d{4})-(0[1-9]|1[0-2])$/;
@@ -56,6 +56,23 @@ serve(async (req) => {
     }
     return map;
   }
+
+  /** Unpaid leave days from APPROVED unpaid leave requests that fall inside the pay month, per person. */
+  async function loadLeaveUnpaid(staffIds: string[], periodStart: string) {
+    const map = new Map<string, number>();
+    if (staffIds.length === 0) return map;
+    const { data: reqs } = await db.from('leave_requests').select('id').in('staff_id', staffIds).eq('status', 'approved').eq('unpaid', true)
+      .lte('start_date', periodEnd(periodStart)).gte('end_date', periodStart);
+    const ids = (reqs ?? []).map((r: any) => r.id);
+    if (ids.length === 0) return map;
+    const { data: days } = await db.from('leave_days').select('staff_id, fraction').in('request_id', ids).gte('leave_date', periodStart).lte('leave_date', periodEnd(periodStart));
+    for (const d of days ?? []) map.set(d.staff_id, Math.round(((map.get(d.staff_id) ?? 0) + Number(d.fraction)) * 10) / 10);
+    return map;
+  }
+
+  /** The manual "extra unpaid days" plus the days from approved leave. The calculation caps the total at the working days. */
+  const withLeave = (inputs: PayInputs, leaveDays: number | undefined): PayInputs =>
+    ({ ...inputs, unpaidLeaveDays: Math.round(((inputs.unpaidLeaveDays ?? 0) + (leaveDays ?? 0)) * 10) / 10 });
 
   const employeeSnapshot = (s: any) => ({
     name: s.name, email: s.email, jobTitle: s.role, department: s.department, icNumber: s.ic_number, dob: s.dob,
@@ -113,11 +130,12 @@ serve(async (req) => {
     const rates = await loadRates();
     const recurring = await loadRecurring(staff.map((s: any) => s.id));
     const runParams = { periodStart: `${m[1]}-${m[2]}-01`, workingDays, hoursPerDay };
+    const leave = await loadLeaveUnpaid(staff.map((s: any) => s.id), runParams.periodStart);
 
     const rows = staff.map((s: any) => {
       const snap = employeeSnapshot(s);
-      const res = calculatePayslip(forPay(s.id, snap), runParams, {}, recurring.get(s.id) ?? noRecurring, rates);
-      return { run_id: run.id, staff_id: s.id, employee: snap, inputs: {}, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay, employer_contributions: res.employerContributions, warnings: res.warnings };
+      const res = calculatePayslip(forPay(s.id, snap), runParams, withLeave({}, leave.get(s.id)), recurring.get(s.id) ?? noRecurring, rates);
+      return { run_id: run.id, staff_id: s.id, employee: snap, inputs: {}, leave_unpaid_days: leave.get(s.id) ?? 0, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay, employer_contributions: res.employerContributions, warnings: res.warnings };
     });
     const { error: insertError } = await db.from('payslips').insert(rows);
     if (insertError) return fail('Could not create the payslips.');
@@ -152,9 +170,10 @@ serve(async (req) => {
     if (problems.length) return fail(problems.join('. ') + '.');
     const rates = await loadRates();
     const recurring = await loadRecurring(slipForInputs.staff_id ? [slipForInputs.staff_id] : []);
-    const res = calculatePayslip(forPay(slipForInputs.staff_id, slipForInputs.employee), runParams, inputs, recurring.get(slipForInputs.staff_id) ?? noRecurring, rates);
+    const leave = await loadLeaveUnpaid(slipForInputs.staff_id ? [slipForInputs.staff_id] : [], period);
+    const res = calculatePayslip(forPay(slipForInputs.staff_id, slipForInputs.employee), runParams, withLeave(inputs, leave.get(slipForInputs.staff_id)), recurring.get(slipForInputs.staff_id) ?? noRecurring, rates);
     const { error } = await db.from('payslips').update({
-      inputs, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay,
+      inputs, leave_unpaid_days: leave.get(slipForInputs.staff_id) ?? 0, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay,
       employer_contributions: res.employerContributions, warnings: res.warnings,
     }).eq('id', slipForInputs.id);
     if (error) return fail('Could not save the payslip.');
@@ -172,6 +191,7 @@ serve(async (req) => {
     const activeIds = new Set((staff ?? []).map((s: any) => s.id));
     const staffById = new Map((staff ?? []).map((s: any) => [s.id, s]));
     const recurring = await loadRecurring((staff ?? []).map((s: any) => s.id));
+    const leave = await loadLeaveUnpaid((staff ?? []).map((s: any) => s.id), period);
     let updated = 0, added = 0, removed = 0;
 
     for (const slip of slips ?? []) {
@@ -179,16 +199,16 @@ serve(async (req) => {
         await db.from('payslips').delete().eq('id', slip.id); removed++; continue;
       }
       const snap = employeeSnapshot(staffById.get(slip.staff_id));   // pick up salary, bank and ID changes
-      const res = calculatePayslip(forPay(slip.staff_id, snap), runParams, slip.inputs ?? {}, recurring.get(slip.staff_id) ?? noRecurring, rates);
-      await db.from('payslips').update({ employee: snap, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay, employer_contributions: res.employerContributions, warnings: res.warnings }).eq('id', slip.id);
+      const res = calculatePayslip(forPay(slip.staff_id, snap), runParams, withLeave(slip.inputs ?? {}, leave.get(slip.staff_id)), recurring.get(slip.staff_id) ?? noRecurring, rates);
+      await db.from('payslips').update({ employee: snap, leave_unpaid_days: leave.get(slip.staff_id) ?? 0, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay, employer_contributions: res.employerContributions, warnings: res.warnings }).eq('id', slip.id);
       updated++;
     }
     const have = new Set((slips ?? []).map((s: any) => s.staff_id));
     for (const s of staff ?? []) {
       if (have.has(s.id)) continue;
       const snap = employeeSnapshot(s);
-      const res = calculatePayslip(forPay(s.id, snap), runParams, {}, recurring.get(s.id) ?? noRecurring, rates);
-      await db.from('payslips').insert({ run_id: runId, staff_id: s.id, employee: snap, inputs: {}, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay, employer_contributions: res.employerContributions, warnings: res.warnings });
+      const res = calculatePayslip(forPay(s.id, snap), runParams, withLeave({}, leave.get(s.id)), recurring.get(s.id) ?? noRecurring, rates);
+      await db.from('payslips').insert({ run_id: runId, staff_id: s.id, employee: snap, inputs: {}, leave_unpaid_days: leave.get(s.id) ?? 0, lines: res.lines, gross: res.gross, total_deductions: res.totalDeductions, net_pay: res.netPay, employer_contributions: res.employerContributions, warnings: res.warnings });
       added++;
     }
     await refreshRunSummary(runId, rates);
@@ -224,17 +244,18 @@ serve(async (req) => {
     const rates = await loadRates();
     const { data: slips } = await db.from('payslips').select('*').eq('run_id', runId);
     const recurring = await loadRecurring((slips ?? []).map((s: any) => s.staff_id).filter(Boolean));
+    const leave = await loadLeaveUnpaid((slips ?? []).map((s: any) => s.staff_id).filter(Boolean), period);
 
     // The figures must still be what today's rates and pay items produce: if not, the run is stale.
     const used: string[] = [];
     const stale: string[] = [];
     for (const slip of slips ?? []) {
-      const res = calculatePayslip(forPay(slip.staff_id, slip.employee), runParams, slip.inputs ?? {}, recurring.get(slip.staff_id) ?? noRecurring, rates);
+      const res = calculatePayslip(forPay(slip.staff_id, slip.employee), runParams, withLeave(slip.inputs ?? {}, leave.get(slip.staff_id)), recurring.get(slip.staff_id) ?? noRecurring, rates);
       used.push(...res.usedRates);
       if (res.netPay !== Number(slip.net_pay) || res.gross !== Number(slip.gross) || res.employerContributions !== Number(slip.employer_contributions)) stale.push(slip.employee?.name ?? slip.id);
     }
     const blockers = runBlockers(rates, used, (slips ?? []).map((s: any) => ({ employee: s.employee, warnings: s.warnings, netPay: Number(s.net_pay) })));
-    if (stale.length) blockers.unshift(`Rates or pay items changed since this run was calculated (${stale.slice(0, 3).join(', ')}${stale.length > 3 ? ', …' : ''}). Return it to draft and recalculate.`);
+    if (stale.length) blockers.unshift(`Rates, pay items or approved leave changed since this run was calculated (${stale.slice(0, 3).join(', ')}${stale.length > 3 ? ', …' : ''}). Return it to draft and recalculate.`);
     if (blockers.length) return fail(blockers.join(' '));
 
     const totals = summariseRun((slips ?? []).map((s: any) => ({ gross: Number(s.gross), totalDeductions: Number(s.total_deductions), netPay: Number(s.net_pay), employerContributions: Number(s.employer_contributions), lines: s.lines })));

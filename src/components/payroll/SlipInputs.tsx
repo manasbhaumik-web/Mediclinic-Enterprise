@@ -75,11 +75,12 @@ export default function SlipInputs({ slip, run, onClose }: { slip: Payslip; run:
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Unpaid leave (days)</span>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Extra unpaid days (not from approved leave)</span>
             <input className={inputClass} type="number" min="0" step="0.5" value={leave} onChange={(e) => setLeave(e.target.value)} /></label>
           <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">PCB (monthly tax) override</span>
             <input className={inputClass} type="number" min="0" step="0.01" placeholder="Blank = use the rate table" value={pcb} onChange={(e) => setPcb(e.target.value)} /></label>
         </div>
+        {slip.leaveUnpaidDays > 0 && <p className="text-xs font-medium text-sky-900 bg-sky-50 border border-sky-200 px-3 py-2">{slip.leaveUnpaidDays} unpaid day{slip.leaveUnpaidDays === 1 ? '' : 's'} from approved leave are deducted automatically. Only enter extra days that are not recorded as leave.</p>}
         <p className="text-2xs text-slate-500">There is no built-in PCB table. Enter the amount from LHDN's calculator or your payroll provider, or add PCB wage bands under Statutory rates.</p>
 
         {err && <p role="alert" className="text-xs font-bold text-rose-700">{err}</p>}
