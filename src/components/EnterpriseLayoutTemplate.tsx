@@ -124,7 +124,7 @@ export default function EnterpriseLayoutTemplate({
     }`}>
       
       {/* GLOBAL TOP HEADER BAR */}
-      <header className="h-[60px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
+      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-xs shadow-black/10 relative z-30 sticky top-0 font-sans">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
         <div ref={clinicRef} className="flex items-center gap-3 relative">
@@ -144,7 +144,7 @@ export default function EnterpriseLayoutTemplate({
                 <ChevronDown className="w-3.5 h-3.5 text-teal-100 opacity-80 group-hover:opacity-100 transition-opacity" />
               </h1>
               {clinic.branch && (
-                <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">{clinic.branch}</span>
+                <span className="text-2xs text-teal-50 font-mono tracking-wider font-semibold block mt-0.5">{clinic.branch}</span>
               )}
             </div>
           </button>
@@ -183,7 +183,7 @@ export default function EnterpriseLayoutTemplate({
         <div className="flex items-center gap-3 relative">
 
           {/* Live Clock */}
-          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-chrome-line font-mono text-xs text-white rounded-none font-bold shadow-2xs">
+          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-teal-300/40 font-mono text-xs text-white rounded-none font-bold shadow-2xs">
             <Clock className="w-3.5 h-3.5 text-teal-100" />
             <span>{timeString || '--:--:-- MYT'}</span>
           </div>
@@ -195,7 +195,7 @@ export default function EnterpriseLayoutTemplate({
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-chrome-line px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
+              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-teal-300/40 px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
               title="Workstation settings, user profile, and preferences"
               aria-expanded={showUserMenu}
             >

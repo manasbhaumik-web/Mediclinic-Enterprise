@@ -47,11 +47,11 @@
   --color-primary-hover: #115e59;
 
   /* Staff app chrome (header bar, sub-navigation) */
-  --color-chrome: #0a837f;
+  --color-chrome: #087873;
   --color-chrome-nav: #0d9488;
   --color-chrome-active: #0f766e;
-  --color-chrome-deep: #086b68;
-  --color-chrome-line: #065451;
+  --color-chrome-deep: #065f5b;
+  --color-chrome-line: #054a47;
   --color-chrome-hover: #074f4b;
 
   /* Night Shift palette */

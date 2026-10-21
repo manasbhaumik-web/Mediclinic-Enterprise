@@ -31,7 +31,7 @@ export default function NotificationBell({ onOpenTab, onOpenAdmin }: { onOpenTab
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={count > 0 ? `Notifications, ${count} need attention` : 'Notifications, nothing needs attention'}
-        className="relative flex items-center justify-center w-9 h-9 bg-chrome-deep hover:bg-chrome-line border border-chrome-line cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
+        className="relative flex items-center justify-center w-10 h-10 bg-chrome-deep hover:bg-chrome-line border border-teal-300/40 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
       >
         <Bell className="w-4 h-4 text-teal-100" />
         {count > 0 && (

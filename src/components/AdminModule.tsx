@@ -131,7 +131,7 @@ export default function AdminModule({
       {/* ========================================================================= */}
       {/* GLOBAL TOP ADMIN HEADER BAR                                               */}
       {/* ========================================================================= */}
-      <header className="h-[60px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-md shadow-black/10 relative z-30 sticky top-0 font-sans">
+      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-xs shadow-black/10 relative z-30 sticky top-0 font-sans">
         
         {/* Left: Product Title & Branch Context */}
         <div className="flex items-center gap-3">
