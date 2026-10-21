@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import logoUrl from '../assets/logo_transparent.svg';
 import ThemeSelector from './ui/ThemeSelector';
 import NotificationBell from './NotificationBell';
+import { brandName } from '../lib/brandName';
 import { useSettings } from '../context/SettingsContext';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
@@ -140,7 +141,7 @@ export default function EnterpriseLayoutTemplate({
             </div>
             <div>
               <h1 className="type-brand font-sans text-white group-hover:text-teal-100 transition-colors flex items-center gap-1.5">
-                <span>{clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE'}</span>
+                <span>{brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-teal-100 opacity-80 group-hover:opacity-100 transition-opacity" />
               </h1>
               {clinic.branch && (

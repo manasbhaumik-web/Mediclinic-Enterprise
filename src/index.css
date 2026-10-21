@@ -135,7 +135,7 @@ button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):n
   /* Type roles — every heading uses one of these instead of ad-hoc sizes    */
   /* ----------------------------------------------------------------------- */
   .type-brand {              /* product wordmark in app headers */
-    @apply text-lg font-bold uppercase tracking-tight leading-none;
+    @apply text-lg font-semibold tracking-tight leading-none;
   }
   .type-display {            /* landing hero headline */
     @apply text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight;

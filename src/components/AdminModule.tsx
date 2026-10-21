@@ -50,7 +50,7 @@ export default function AdminModule({
 }: AdminModuleProps) {
   const [activeTab, setActiveTab] = useState<AdminTab>('staff');
   const [activeCategory, setActiveCategory] = useState<AdminCategory>('people');
-  const { settings } = useSettings();
+  const { settings, clinic } = useSettings();
 
   // Workstation Header State
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
@@ -143,7 +143,7 @@ export default function AdminModule({
               <span>Mediclinic Admin Console</span>
             </h1>
             <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
-              Shah Alam Main Branch • Executive Console
+              {clinic.branch ? `${clinic.branch} • ` : ''}Executive Console
             </span>
           </div>
         </div>
