@@ -1,4 +1,16 @@
 import type { DrugItem } from '../../../context/InventoryContext';
+
+/** A stock item, or a built-in formulary entry that is not in stock (which carries these extra fields). */
+export type CatalogDrug = DrugItem & {
+  allergyGroup?: string;
+  pricePerUnit?: number;
+  dosageEN?: string;
+  dosageBM?: string;
+  frequency?: string;
+  expiryMonths?: number;
+  pillColor?: string;
+  capsuleStyle?: string;
+};
 import { Activity, X, Pill, Trash2 } from 'lucide-react';
 import Input from '../../ui/Input';
 import { buttonProps, focusRing } from '../../../lib/a11y';
@@ -17,7 +29,7 @@ interface PrescriptionPanelProps {
   handleAddPediatricSyrup: () => void;
   searchDrugQuery: string;
   setSearchDrugQuery: React.Dispatch<React.SetStateAction<string>>;
-  drugSuggestions: DrugItem[];
+  drugSuggestions: CatalogDrug[];
   handleAddDrug: (drug: any) => void;
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;

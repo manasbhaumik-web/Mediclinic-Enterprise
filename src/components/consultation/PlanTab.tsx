@@ -13,7 +13,7 @@ import { DRUG_DATABASE } from '../../data';
 
 import { palette, seriesColors } from '../../theme/palette';
 import { buttonProps, focusRing } from '../../lib/a11y';
-import PrescriptionPanel from './plan/PrescriptionPanel';
+import PrescriptionPanel, { CatalogDrug } from './plan/PrescriptionPanel';
 import LabOrdersPanel from './plan/LabOrdersPanel';
 import CertificatesAndReferralPanel from './plan/CertificatesAndReferralPanel';
 import PlanSummaryPanel from './plan/PlanSummaryPanel';
@@ -93,7 +93,7 @@ export default function PlanTab({
 
   // Unified Drug Catalog
   const mergedCatalog = useMemo(() => {
-    const combined = [...inventory];
+    const combined: CatalogDrug[] = [...inventory];
     DRUG_DATABASE.forEach(dbDrug => {
       if (!combined.some(c => c.name.toLowerCase() === dbDrug.name.toLowerCase())) {
         combined.push({

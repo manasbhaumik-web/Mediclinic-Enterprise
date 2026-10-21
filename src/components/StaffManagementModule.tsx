@@ -41,6 +41,23 @@ export interface StaffMember {
   /** Application access role of this person's login, if they have one. */
   systemRole?: SystemRole | null;
   hasLogin?: boolean;
+
+  /** Extra HR fields captured by the registration form. */
+  altPhone?: string;
+  jobTitle?: string;
+  specialization?: string;
+  licenseNumber?: string;
+  licenseExpiry?: string;
+  qualifications?: string;
+  dateJoined?: string;
+  dateResigned?: string;
+  employmentStatus?: string;
+  workSchedule?: string;
+  supervisorId?: string;
+  taxId?: string;
+  statutoryFundNumber?: string;
+  emergencyContact?: { name: string; relationship: string; phone: string };
+  bankDetails?: { bankName: string; accountHolder: string; accountNumber: string };
 }
 
 type StaffViewTab = 'directory' | 'payroll' | 'attendance';
