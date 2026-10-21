@@ -78,3 +78,38 @@ export function calculateBill(input: BillInput): BillBreakdown {
 
   return { medicationCost, customItemsTotal, discountAmount, subtotal, sstTax, grandTotal, panelPaid, patientCopay };
 }
+
+/** What was billed, in the shape the e-invoice builder needs. Captured when the payment is settled. */
+export interface InvoiceSnapshot {
+  lines: { description: string; quantity: number; unitPrice: number; amount: number }[];
+  discountAmount: number;
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  grandTotal: number;
+}
+
+export function buildInvoiceSnapshot(
+  input: BillInput & { prescription: Pick<PrescriptionItem, 'pricePerUnit' | 'quantity'>[] },
+  breakdown: BillBreakdown,
+  rxNames: string[] = [],
+): InvoiceSnapshot {
+  const lines: InvoiceSnapshot['lines'] = [];
+  const add = (description: string, quantity: number, unitPrice: number) => {
+    if (quantity * unitPrice > 0) lines.push({ description, quantity, unitPrice, amount: quantity * unitPrice });
+  };
+
+  add('Consultation fee', 1, input.consultationFee);
+  add('Clinical procedures / nursing', 1, input.procedureFee);
+  input.prescription.forEach((rx, i) => add(rxNames[i] || 'Medication', rx.quantity, rx.pricePerUnit));
+  input.customItems.forEach((item, i) => add((item as { description?: string }).description || `Additional charge ${i + 1}`, 1, item.amount));
+
+  return {
+    lines,
+    discountAmount: breakdown.discountAmount,
+    subtotal: breakdown.subtotal,
+    taxRate: input.taxRate,
+    taxAmount: breakdown.sstTax,
+    grandTotal: breakdown.grandTotal,
+  };
+}

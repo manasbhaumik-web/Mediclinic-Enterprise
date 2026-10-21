@@ -42,11 +42,17 @@ export function completeDispensing(visit: Visit): Visit {
   return { ...visit, status: 'Awaiting Billing' };
 }
 
+import type { InvoiceSnapshot } from './billing';
+import type { EInvoiceBuyer } from '../lib/einvoiceQueue';
+
 export interface PaymentInfo {
   paymentMethod: NonNullable<Visit['paymentMethod']>;
   paidAmount: number;
   panelClaimed: number;
   glNumber?: string;
+  /** The bill as charged, for e-invoicing. */
+  invoice?: InvoiceSnapshot;
+  eInvoiceBuyer?: EInvoiceBuyer;
 }
 
 export function settlePayment(visit: Visit, pay: PaymentInfo): Visit {

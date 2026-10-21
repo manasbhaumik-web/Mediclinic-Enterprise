@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Visit, Language, TPAConfig } from '../types';
 import { TRANSLATIONS } from '../data';
-import { BillBreakdown, EMPTY_BREAKDOWN, calculateBill } from '../domain/billing';
+import type { PaymentInfo } from '../domain/visitWorkflow';
+import { BillBreakdown, EMPTY_BREAKDOWN, buildInvoiceSnapshot, calculateBill } from '../domain/billing';
 import { useSettings } from '../context/SettingsContext';
 import { useAuxiliary } from '../context/AuxiliaryContext';
 import { QRCodeSVG } from 'qrcode.react';
@@ -16,12 +17,7 @@ interface BillingDeskProps {
   queue: Visit[];
   patientsMap: Record<string, any>;
   activeLanguage: Language;
-  onPaymentComplete: (visitId: string, paymentDetails: {
-    paymentMethod: 'Cash' | 'Credit Card' | 'e-Wallet' | 'Panel';
-    paidAmount: number;
-    panelClaimed: number;
-    glNumber?: string;
-  }) => void;
+  onPaymentComplete: (visitId: string, paymentDetails: PaymentInfo) => void;
 }
 
 export default function BillingDesk({
@@ -134,7 +130,18 @@ export default function BillingDesk({
       paymentMethod: isPanelClaim && billingBreakdown.patientCopay === 0 ? 'Panel' : method,
       paidAmount: paidSum,
       panelClaimed: claimAmount,
-      glNumber: isPanelClaim ? glReferenceNo : undefined
+      glNumber: isPanelClaim ? glReferenceNo : undefined,
+      // The bill as charged, kept for e-invoicing (an admin controls submission to LHDN).
+      invoice: buildInvoiceSnapshot({
+        consultationFee: CONSULTATION_FEE,
+        procedureFee: PROCEDURE_FEE,
+        prescription: activeVisit.soap?.plan?.prescription ?? [],
+        customItems: customLineItems,
+        discount,
+        taxRate: TAX_RATE,
+        panel: isPanelClaim ? selectedTPA : null,
+      }, billingBreakdown, (activeVisit.soap?.plan?.prescription ?? []).map((rx) => rx.drugName)),
+      eInvoiceBuyer: isPanelClaim && selectedTPA ? { type: 'business', name: selectedTPA.name } : { type: 'general_public' },
     });
 
     // Reset panel triggers

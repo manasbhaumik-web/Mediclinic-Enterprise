@@ -38,7 +38,7 @@ export function useIntegrations() {
   const connections = useQuery({
     queryKey: KEYS.connections,
     queryFn: async () => {
-      const { data, error } = await supabase.from('integration_connections').select('*').order('created_at', { ascending: true });
+      const { data, error } = await supabase.from('integration_connections').select('*').neq('type', 'einvoice').order('created_at', { ascending: true });
       if (error) throw error;
       return (data ?? []).map(connectionFromRow);
     },

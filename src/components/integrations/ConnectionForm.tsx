@@ -64,7 +64,7 @@ export default function ConnectionForm({ existing, saving, error, onSave, onClea
         <FormField id="conn-type" label="Type" hint={implemented ? undefined : 'Not implemented yet: you can record the connection, but it cannot be enabled.'}>
           {(p) => (
             <select {...p} className={inputClass} value={draft.type} disabled={!!existing} onChange={(e) => set('type', e.target.value as IntegrationType)}>
-              {(Object.keys(TYPE_LABELS) as IntegrationType[]).map((t) => (
+              {(Object.keys(TYPE_LABELS) as IntegrationType[]).filter((t) => t !== 'einvoice').map((t) => (
                 <option key={t} value={t}>{TYPE_LABELS[t]}{IMPLEMENTED_TYPES.includes(t) ? '' : ' (not built yet)'}</option>
               ))}
             </select>

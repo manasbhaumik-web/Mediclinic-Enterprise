@@ -1,7 +1,7 @@
 /** Types and pure helpers for the admin Integrations screen. */
 
-export type IntegrationType = 'fhir' | 'tpa' | 'lis' | 'erx' | 'wearable' | 'device' | 'ledger';
-export type AuthType = 'none' | 'bearer' | 'basic' | 'api_key_header';
+export type IntegrationType = 'fhir' | 'tpa' | 'lis' | 'erx' | 'wearable' | 'device' | 'ledger' | 'einvoice';
+export type AuthType = 'none' | 'bearer' | 'basic' | 'api_key_header' | 'oauth_client_credentials';
 export type IntegrationMode = 'sandbox' | 'live';
 
 export interface IntegrationConnection {
@@ -55,6 +55,7 @@ export const TYPE_LABELS: Record<IntegrationType, string> = {
   wearable: 'Wearables',
   device: 'Biometric devices',
   ledger: 'Audit ledger',
+  einvoice: 'LHDN e-Invoice',   // managed on the e-Invoice screen, not in this list
 };
 
 export type StatusTone = 'ok' | 'warn' | 'bad' | 'idle';

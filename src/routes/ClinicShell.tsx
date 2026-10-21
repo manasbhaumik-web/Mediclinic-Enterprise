@@ -13,6 +13,7 @@ import {
 import EnterpriseLayoutTemplate from '../components/EnterpriseLayoutTemplate';
 import GlobalSpinner from '../components/ui/GlobalSpinner';
 import { enqueueIntegration } from '../lib/integrationQueue';
+import { recordEInvoice } from '../lib/einvoiceQueue';
 import { tabPath } from './permissions';
 
 type ClinicData = ReturnType<typeof useClinicData>;
@@ -140,7 +141,10 @@ export default function ClinicShell() {
         panelClaimed: payInfo.panelClaimed,
         glNumber: payInfo.glNumber,
       });
-      updateVisitInDb(settlePayment(visit, payInfo));
+      void updateVisitInDb(settlePayment(visit, payInfo)).then((saved) => {
+        // Raise the e-invoice only once the payment is saved; an admin controls submission to LHDN.
+        if (saved && payInfo.invoice) void recordEInvoice(visitId, payInfo.invoice, payInfo.eInvoiceBuyer ?? { type: 'general_public' });
+      });
       navigateTab('dashboard');
     },
   };
