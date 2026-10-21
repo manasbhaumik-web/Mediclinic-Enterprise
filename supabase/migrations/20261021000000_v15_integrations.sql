@@ -1,4 +1,4 @@
--- v11: Integration platform (connections, secrets, outbox, audit events, health)
+-- v15: Integration platform (connections, secrets, outbox, audit events, health)
 --
 -- Access model:
 --   * Admins can read/write connection settings and read the outbox, events and health.

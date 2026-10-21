@@ -52,7 +52,7 @@ export default function LoginModule({ onLogin, onNavigate }: LoginModuleProps) {
       name: 'System Admin',
       detail: 'Full IT Control',
       icon: ShieldCheck,
-      username: 'admin@mediclinic.local'
+      username: 'sysadmin@mediclinic.local'
     },
     {
       id: 'hr' as UserRole,

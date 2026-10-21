@@ -96,7 +96,7 @@ export default function ConnectionsPanel() {
 
       {loadError && (
         <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">
-          Could not load connections ({errorMessage(loadError)}). Has the v11 integrations migration been applied?
+          Could not load connections ({errorMessage(loadError)}). Has the v15 integrations migration been applied?
         </p>
       )}
       {rowError && <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">{rowError}</p>}
