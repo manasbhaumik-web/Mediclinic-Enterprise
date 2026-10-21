@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import StaffManagementModule from './StaffManagementModule';
 import InventoryPage from './inventory/InventoryPage';
-import EquipmentManagementModule from './EquipmentManagementModule';
+import EquipmentPage from './equipment/EquipmentPage';
 import BillingManagementModule from './BillingManagementModule';
 import ReportsAnalyticsModule from './ReportsAnalyticsModule';
 import SettingsModule from './SettingsModule';
@@ -389,7 +389,7 @@ export default function AdminModule({
           )}
 
           {activeTab === 'equipment' && userRole === 'admin' && settings.modules.equipment && (
-            <EquipmentManagementModule />
+            <EquipmentPage />
           )}
 
           {activeTab === 'billing' && userRole === 'admin' && settings.modules.billing && (

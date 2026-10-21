@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 import ProgressBar from './ui/ProgressBar';
+import EquipmentBookValueCard from './equipment/EquipmentBookValueCard';
 import LegendSwatch from './ui/LegendSwatch';
 import { chartTheme } from '../theme/chartTheme';
 import { palette, seriesColors } from '../theme/palette';
@@ -348,34 +349,7 @@ export default function ReportsAnalyticsModule() {
             </table>
           </div>
 
-          <div className="bg-surface p-5 rounded-none shadow-sm border border-line-subtle">
-            <h3 className="type-heading-caps text-ink border-b border-teal-100 bg-surface-muted -mx-5 -mt-5 p-4 mb-4 flex items-center justify-between">
-              Equipment Depreciation Book Value
-              <span className="text-2xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold border border-teal-200">CAPEX Audit</span>
-            </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                <div>
-                  <h4 className="type-card-title text-ink">Digital ECG Machine (CX-5000)</h4>
-                  <p className="text-2xs text-slate-500">Purchased: 2024 (RM 12,000)</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-mono font-bold text-slate-800">RM 8,400</span>
-                  <p className="text-2xs text-red-500">-RM 3,600 (Depreciated)</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                <div>
-                  <h4 className="type-card-title text-ink">Autoclave Sterilizer</h4>
-                  <p className="text-2xs text-slate-500">Purchased: 2022 (RM 8,500)</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-mono font-bold text-slate-800">RM 1,700</span>
-                  <p className="text-2xs text-red-500">-RM 6,800 (Depreciated)</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <EquipmentBookValueCard />
         </div>
       )}
 
