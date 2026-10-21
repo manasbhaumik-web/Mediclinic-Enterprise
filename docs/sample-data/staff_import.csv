@@ -1,16 +1,16 @@
 name,email,department,role,status,gender,dob,icNumber,phone,salaryBase
-Dr. Sarah Tan,sarah.tan@mediclinic.my,General Practice,Senior GP Physician,Active,Female,1985-04-12,850412-14-5224,012-3456789,14500
-Dr. Marcus Wong,marcus.wong@mediclinic.my,Pediatrics,Consultant Pediatrician,Active,Male,1982-08-25,820825-10-6113,013-9876543,16800
-Dr. Aisha Rahman,aisha.rahman@mediclinic.my,Cardiology,Cardiovascular Specialist,Active,Female,1980-11-19,801119-08-5432,017-2233445,18500
-Dr. Kenneth Lee,kenneth.lee@mediclinic.my,Dermatology,Dermatology Consultant,Active,Male,1988-03-30,880330-14-7789,019-5566778,15500
-Dr. Priya Nair,priya.nair@mediclinic.my,Obstetrics & Gynaecology,O&G Specialist,Active,Female,1984-07-08,840708-05-6332,016-4433221,17200
-Nurse Siti Aminah,siti.aminah@mediclinic.my,Clinical Operations,Triage Nurse Supervisor,Active,Female,1990-01-15,900115-14-6102,012-9988776,5800
-Nurse Jessica Lim,jessica.lim@mediclinic.my,Clinical Operations,Senior Clinical Nurse,Active,Female,1993-06-22,930622-07-5118,014-3322110,4900
-Nurse Azman Kassim,azman.kassim@mediclinic.my,Emergency & Triage,Staff Nurse (Emergency),Active,Male,1995-09-10,950910-10-5897,018-7766554,4500
-Nurse Chloe Tay,chloe.tay@mediclinic.my,General Practice,Staff Nurse (Shift A),Active,Female,1996-12-04,961204-14-6334,011-22334455,4300
-Pharm. Ahmad Razak,ahmad.razak@mediclinic.my,Pharmacy,Chief Pharmacist,Active,Male,1987-05-18,870518-08-5901,013-4455667,9200
-Pharm. Nurul Huda,nurul.huda@mediclinic.my,Pharmacy,Assistant Pharmacist,Active,Female,1994-10-28,941028-14-5662,017-8899001,4800
-Tech. Rajan Pillai,rajan.pillai@mediclinic.my,Diagnostics & Lab,Senior Lab Technician,Active,Male,1989-02-14,890214-07-5431,016-7788990,5200
-Admin Mei Ling,meiling@mediclinic.my,Front Desk & Reception,Senior Patient Registrar,Active,Female,1997-07-19,970719-14-5002,012-1122334,3800
-HR Officer Farida Yusof,farida.yusof@mediclinic.my,Human Resources,HR & Payroll Specialist,Active,Female,1991-04-03,910403-10-5334,019-3344556,6500
-Admin Manager David Chen,david.chen@mediclinic.my,Administration,Healthcare Operations Manager,Active,Male,1983-09-12,830912-14-5113,018-9900112,11500
+Dr. Hannah Ibrahim,hannah.ibrahim@mediclinic.my,General Practice,GP Physician,Active,Female,1987-03-09,870309-14-5646,012-4410021,13200
+Dr. Vikram Singh,vikram.singh@mediclinic.my,Internal Medicine,Consultant Physician,Active,Male,1979-11-21,791121-10-6177,013-5520132,17800
+Dr. Mei Chen Tan,meichen.tan@mediclinic.my,Pediatrics,Pediatrician,Active,Female,1986-06-02,860602-07-5236,016-6630243,15900
+Dr. Faizal Hamid,faizal.hamid@mediclinic.my,Orthopaedics,Orthopaedic Surgeon,Active,Male,1981-01-17,810117-08-5417,017-7740354,19400
+Dr. Grace Lau,grace.lau@mediclinic.my,Ophthalmology,Eye Specialist,Active,Female,1989-09-28,890928-12-5826,019-8850465,16100
+Nurse Farah Nabilah,farah.nabilah@mediclinic.my,Clinical Operations,Staff Nurse (Shift B),Active,Female,1994-04-14,940414-14-5736,011-26670576,4400
+Nurse Kumar Pillai,kumar.pillai@mediclinic.my,Emergency & Triage,Triage Nurse,Active,Male,1992-12-05,921205-10-5147,014-3380687,4700
+Nurse Sofia Rahman,sofia.rahman@mediclinic.my,Clinical Operations,Senior Clinical Nurse,Active,Female,1990-08-19,900819-01-5666,018-9990798,5100
+Pharm. Daniel Ong,daniel.ong@mediclinic.my,Pharmacy,Staff Pharmacist,Active,Male,1991-02-11,910211-14-5337,012-1110809,7600
+Pharm. Aisyah Zainal,aisyah.zainal@mediclinic.my,Pharmacy,Assistant Pharmacist,Active,Female,1995-05-30,950530-10-5216,013-2220910,4900
+Tech. Ravi Chandran,ravi.chandran@mediclinic.my,Diagnostics & Lab,Radiographer,Active,Male,1988-07-07,880707-08-5527,016-3331021,5400
+Tech. Siti Hajar,siti.hajar@mediclinic.my,Diagnostics & Lab,Lab Technician,Active,Female,1996-10-23,961023-13-5486,017-4441132,4300
+Admin Leong Wei,leong.wei@mediclinic.my,Front Desk & Reception,Receptionist & Cashier,Active,Male,1998-03-26,980326-14-5197,019-5551243,3600
+Admin Priya Devi,priya.devi@mediclinic.my,Front Desk & Reception,Patient Registrar,Active,Female,1997-01-12,970112-10-5346,011-36662354,3700
+Accountant Hafiz Salleh,hafiz.salleh@mediclinic.my,Finance,Accounts Executive,Active,Male,1990-05-04,900504-07-5217,014-4770465,5800
