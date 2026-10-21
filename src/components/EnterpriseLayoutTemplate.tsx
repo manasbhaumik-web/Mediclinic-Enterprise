@@ -135,7 +135,7 @@ export default function EnterpriseLayoutTemplate({
             aria-label="Clinic information"
             className="flex items-center justify-center gap-3 cursor-pointer group text-left focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none rounded-none"
           >
-            <div className="w-8 h-8 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
+            <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
               <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
             </div>
             <div>

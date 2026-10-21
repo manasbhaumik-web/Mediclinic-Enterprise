@@ -135,7 +135,7 @@ export default function AdminModule({
         
         {/* Left: Product Title & Branch Context */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-none shrink-0 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div>
