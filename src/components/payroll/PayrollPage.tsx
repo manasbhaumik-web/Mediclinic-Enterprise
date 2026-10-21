@@ -7,14 +7,14 @@ import PayrollRates from './PayrollRates';
 type Tab = 'runs' | 'people' | 'rates';
 
 /** Payroll console for administrators and HR. Administrators approve, pay and edit the statutory rates. */
-export default function PayrollPage({ role }: { role: 'admin' | 'hr' }) {
+export default function PayrollPage({ role, embedded = false }: { role: 'admin' | 'hr'; embedded?: boolean }) {
   const [tab, setTab] = useState<Tab>('runs');
   const tabClass = (t: Tab) =>
     `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-slate-500 hover:text-ink'}`;
 
   return (
     <div className="animate-fadeIn w-full space-y-5 pb-8">
-      <div className="bg-surface-accent border border-line p-5 space-y-1">
+      {!embedded && <div className="bg-surface-accent border border-line p-5 space-y-1">
         <h1 className="type-page-title text-ink flex items-center gap-2.5">
           <Wallet className="w-6 h-6 text-accent" />
           Payroll
@@ -23,7 +23,7 @@ export default function PayrollPage({ role }: { role: 'admin' | 'hr' }) {
           Run payroll month by month: prepare, review, approve, then pay. Contributions come from the rate tables, so a rate change is a data change, not a code change.
           {role === 'hr' ? ' HR prepares and submits runs; an administrator approves and pays.' : ''}
         </p>
-      </div>
+      </div>}
 
       <div role="tablist" className="flex border-b border-line-subtle">
         <button role="tab" aria-selected={tab === 'runs'} className={tabClass('runs')} onClick={() => setTab('runs')}>Payroll runs</button>

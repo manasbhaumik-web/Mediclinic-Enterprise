@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PayrollPage from './payroll/PayrollPage';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, Users, X, 
   DollarSign, Calendar, AlertCircle,
@@ -61,7 +62,7 @@ const DEFAULT_15_STAFF: StaffMember[] = [
   { id: 'S1015', name: 'Admin Manager David Chen', department: 'Administration', role: 'Healthcare Operations Manager', email: 'david.chen@mediclinic.my', salaryBase: 11500, status: 'Active', gender: 'Male', dob: '1983-09-12', icNumber: '830912-14-5113', phone: '018-9900112', paymentStatus: 'Paid', attendanceRate: 98, leaveBalance: 18, leavesTaken: 2 }
 ];
 
-export default function StaffManagementModule() {
+export default function StaffManagementModule({ userRole }: { userRole: 'admin' | 'hr' }) {
   const [activeTab, setActiveTab] = useState<StaffViewTab>('directory');
   const [currentView, setCurrentView] = useState<'list' | 'registration'>('list');
   const [staffList, setStaffList] = useState<StaffMember[]>(DEFAULT_15_STAFF);
@@ -751,17 +752,8 @@ Add anyway?`)) return;
             </div>
           )}
 
-          {/* Payroll View: the real payroll runs live in Admin > Finance > Payroll */}
-          {activeTab === 'payroll' && (
-            <div className="bg-surface border border-line-subtle p-6 space-y-3 animate-fadeIn">
-              <h3 className="type-heading-caps text-ink">Payroll has moved</h3>
-              <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
-                Salaries are now paid through monthly payroll runs (draft, review, approve, paid) with statutory contributions from configurable rate tables, payslips and bank and statutory export files.
-                Open <b>Payroll</b> under the Finance section of the admin console. This tab used to mark people as paid without any calculation, so it has been removed.
-              </p>
-              <p className="text-xs text-slate-500">Estimated monthly basic salary of active staff: <b className="font-mono">RM {totalPayroll.toLocaleString()}</b></p>
-            </div>
-          )}
+          {/* Payroll View: the real monthly payroll module */}
+          {activeTab === 'payroll' && <PayrollPage role={userRole} embedded />}
 
           {/* Attendance View */}
           {activeTab === 'attendance' && (
