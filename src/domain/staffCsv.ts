@@ -5,6 +5,7 @@
  * receives an invitation, or any access, just because they appear in a spreadsheet).
  */
 import { validateStaffInput } from '../../supabase/functions/_shared/staffAccess';
+import { StaffIdentity, findStaffDuplicate } from '../../supabase/functions/_shared/staffIdentity';
 
 export interface ParsedStaffRow {
   name: string;
@@ -24,8 +25,11 @@ export interface RowError { line: number; name: string; problems: string[] }
 export interface CsvParseResult {
   rows: ParsedStaffRow[];
   errors: RowError[];
-  /** Rows skipped because the email is already in the directory or appears earlier in the file. */
-  duplicates: { line: number; email: string }[];
+  /**
+   * Rows skipped as duplicates of someone already in the directory or of an earlier row in the file: the same
+   * email, the same ID number, or the same name and date of birth.
+   */
+  duplicates: { line: number; email: string; reason: 'email' | 'id_number' | 'name_dob'; of: string }[];
   missingColumns: string[];
 }
 
@@ -77,8 +81,8 @@ const HEADER_ALIASES: Record<string, (typeof CSV_COLUMNS)[number]> = {
 const normalise = (h: string) => h.toLowerCase().replace(/[^a-z]/g, '');
 const STATUSES = ['Active', 'Inactive', 'Suspended', 'On Leave'] as const;
 
-/** Parse and validate a staff CSV. `existingEmails` are skipped as duplicates. */
-export function parseStaffCsv(text: string, existingEmails: string[] = []): CsvParseResult {
+/** Parse and validate a staff CSV. `existing` people (or just their emails) are never imported again. */
+export function parseStaffCsv(text: string, existing: (string | StaffIdentity)[] = []): CsvParseResult {
   const table = parseCsv(text);
   const result: CsvParseResult = { rows: [], errors: [], duplicates: [], missingColumns: [] };
   if (table.length === 0) { result.missingColumns = ['name', 'email', 'role']; return result; }
@@ -91,7 +95,7 @@ export function parseStaffCsv(text: string, existingEmails: string[] = []): CsvP
   result.missingColumns = (['name', 'email', 'role'] as const).filter((c) => !columnIndex.has(c));
   if (result.missingColumns.length) return result;
 
-  const seen = new Set(existingEmails.map((e) => e.trim().toLowerCase()));
+  const known: StaffIdentity[] = existing.map((e) => (typeof e === 'string' ? { email: e } : e));
 
   table.slice(1).forEach((cells, i) => {
     const line = i + 2; // spreadsheet line number, counting the header as line 1
@@ -109,8 +113,10 @@ export function parseStaffCsv(text: string, existingEmails: string[] = []): CsvP
     if (dob && !/^\d{4}-\d{2}-\d{2}$/.test(dob)) problems.push('Date of birth must look like 1990-01-31');
 
     if (problems.length) { result.errors.push({ line, name: get('name') || `(line ${line})`, problems }); return; }
-    if (seen.has(email)) { result.duplicates.push({ line, email }); return; }
-    seen.add(email);
+    const candidate: StaffIdentity = { name: get('name'), email, icNumber: get('icNumber'), dob };
+    const dup = findStaffDuplicate(candidate, known);
+    if (dup) { result.duplicates.push({ line, email, reason: dup.kind, of: dup.with.name || dup.with.email || '' }); return; }
+    known.push(candidate);
 
     result.rows.push({
       name: get('name'), email, department: get('department'), role: get('role'), status: status ?? 'Active',

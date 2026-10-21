@@ -20,6 +20,8 @@ export interface OnboardResult {
   warning?: string;
   staffId?: string;
   invited?: boolean;
+  /** The same name and date of birth already exists: ask the user to confirm, then resend with allowPossibleDuplicate. */
+  possibleDuplicate?: boolean;
   access?: Record<string, { state: AccessState; role: SystemRole | null }>;
 }
 
@@ -30,7 +32,8 @@ async function call(body: Record<string, unknown>): Promise<OnboardResult> {
   return (data ?? {}) as OnboardResult;
 }
 
-export const createStaff = (staff: NewStaffPayload, systemRole: SystemRole | null) => call({ action: 'create', staff, systemRole });
+export const createStaff = (staff: NewStaffPayload, systemRole: SystemRole | null, allowPossibleDuplicate = false) =>
+  call({ action: 'create', staff, systemRole, allowPossibleDuplicate });
 export const grantAccess = (staffId: string, systemRole: SystemRole) => call({ action: 'grant_access', staffId, systemRole });
 export const resendInvite = (staffId: string) => call({ action: 'resend_invite', staffId });
 export const sendPasswordReset = (staffId: string) => call({ action: 'send_reset', staffId });

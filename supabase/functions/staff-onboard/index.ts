@@ -16,6 +16,7 @@ import { authenticate, corsHeadersFor, jsonResponse, recordEvent, serviceClient 
 import {
   AccessState, SystemRole, canGrant, canManageAccessOf, isSystemRole, validateStaffInput,
 } from '../_shared/staffAccess.ts';
+import { duplicateMessage, duplicateMessageFromDbError, findStaffDuplicate } from '../_shared/staffIdentity.ts';
 
 const BAN_FOREVER = '876000h'; // about 100 years
 
@@ -90,6 +91,17 @@ serve(async (req) => {
       if (!canGrant(caller.role, systemRole)) return fail('You are not allowed to grant that access role.', 403);
     }
 
+    // No duplicate records: the same email or ID number is refused; the same name and date of birth needs confirmation.
+    const { data: all } = await db.from('staff').select('id, name, email, ic_number, dob');
+    const duplicate = findStaffDuplicate(
+      { name: input.name, email: input.email, icNumber: clean(s.icNumber, 20), dob: clean(s.dob, 10) },
+      (all ?? []).map((r) => ({ id: r.id, name: r.name, email: r.email, icNumber: r.ic_number, dob: r.dob })),
+    );
+    if (duplicate?.blocking) return fail(duplicateMessage(duplicate));
+    if (duplicate && body.allowPossibleDuplicate !== true) {
+      return jsonResponse(req, { ok: false, possibleDuplicate: true, message: duplicateMessage(duplicate) });
+    }
+
     const { data: row, error } = await db.from('staff').insert({
       name: input.name, email: input.email, role: input.role, department: input.department || null,
       status: ['Active', 'Inactive', 'Suspended', 'On Leave'].includes(s.status) ? s.status : 'Active',
@@ -97,7 +109,7 @@ serve(async (req) => {
       phone: clean(s.phone, 30) || null, salary_base: Number.isFinite(input.salaryBase) ? input.salaryBase : 0,
     }).select('id, name, email').single();
     if (error || !row) {
-      return fail(/duplicate|unique/i.test(error?.message ?? '') ? 'A staff member with this email already exists.' : 'Could not save the staff record.');
+      return fail(duplicateMessageFromDbError(error?.message) ?? 'Could not save the staff record.');
     }
     await audit('staff.created', `staff ${row.id}`);
 

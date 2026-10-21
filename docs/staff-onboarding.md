@@ -34,6 +34,15 @@ For each person: **No system access / Invited / Has access / Access revoked**, w
 - any login: change role, **Revoke** (blocks sign-in, keeps the record) or **Restore access**
 - Suspending a staff member also revokes their login; reactivating restores it.
 
+## No duplicate staff records
+A person can only exist once in the directory.
+- **Refused outright:** the same **email** (capitals and spaces ignored) or the same **ID number** (NRIC or passport; dashes and spaces ignored). "A@x.my" and "a@x.my" are the same email; "900101-14-5555" and "900101145555" are the same NRIC.
+- **Needs confirmation:** the same **name and date of birth**. Two different people can occasionally share both, so you are asked "Add anyway?" instead of being blocked.
+- Checked in three places: the staff form (instantly, before anything is sent), the server function (authoritative), and the database itself (unique indexes, so even two people saving at the same moment cannot create a duplicate).
+- Editing a record cannot give it another person's email or ID number.
+- **CSV import** skips any row that duplicates someone already in the directory **or an earlier row in the same file**, and the preview says why ("same email", "same ID number", "same name and date of birth").
+- Records with no ID number recorded are not compared on ID, so blanks never count as duplicates of each other.
+
 ## CSV import
 People → Staff Directory → **Import Staff CSV**: choose a `.csv`, review the preview (ready / duplicate emails skipped / rows with problems), then import.
 - Template and sample: the dialog has a template download; `docs/sample-data/staff_import.csv` is a full 15-person sample.
@@ -41,7 +50,7 @@ People → Staff Directory → **Import Staff CSV**: choose a `.csv`, review the
 - **Imports create staff records only.** No logins or emails are created, so nobody gets access just by appearing in a spreadsheet; grant access per person afterwards.
 
 ## One-time setup
-1. **Apply** `supabase/migrations/20261021120000_v18_staff_access.sql` (fixes the staff table to match the app: renames `full_name` to `name`, drops the job-title check, adds the HR/payroll and access columns).
+1. **Apply** `supabase/migrations/20261021120000_v18_staff_access.sql` and then `20261021130000_v19_staff_no_duplicates.sql` (case-insensitive unique email and unique ID number) (fixes the staff table to match the app: renames `full_name` to `name`, drops the job-title check, adds the HR/payroll and access columns).
 2. **Deploy** the function: `supabase functions deploy staff-onboard`.
 3. **Supabase Auth settings** (dashboard → Authentication → URL Configuration):
    - **Site URL**: your app address.

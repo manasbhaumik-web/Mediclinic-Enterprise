@@ -10,6 +10,9 @@ import StaffAccessCell from './staff/StaffAccessCell';
 import { AccessState, SystemRole } from '../domain/staffAccess';
 import { CSV_TEMPLATE, CsvParseResult, parseStaffCsv } from '../domain/staffCsv';
 import {
+  StaffIdentity, duplicateMessage, duplicateMessageFromDbError, findStaffDuplicate,
+} from '../../supabase/functions/_shared/staffIdentity';
+import {
   changeRole, createStaff, grantAccess, loadAccessStatus, restoreAccess, resendInvite, revokeAccess, sendPasswordReset,
 } from '../lib/staffOnboarding';
 
@@ -143,8 +146,26 @@ export default function StaffManagementModule() {
   const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
   const pendingPayments = staffList.filter(s => s.paymentStatus === 'Pending').length;
 
+  // Everyone already in the directory, for duplicate checks (the database enforces the same rules).
+  const knownPeople = (): StaffIdentity[] =>
+    staffList.map((s) => ({ id: s.id, name: s.name, email: s.email, icNumber: s.icNumber, dob: s.dob }));
+
   const handleAddStaffSubmit = async (newStaff: StaffMember, systemRole: SystemRole | null) => {
     setNotice(null);
+
+    // No duplicate records: refuse the same email or ID number, and ask before adding the same name + birth date.
+    const duplicate = findStaffDuplicate(
+      { id: editingStaffId ?? undefined, name: newStaff.name, email: newStaff.email, icNumber: newStaff.icNumber, dob: newStaff.dob },
+      knownPeople(),
+    );
+    if (duplicate?.blocking) {
+      setNotice({ ok: false, text: duplicateMessage(duplicate) });
+      return;
+    }
+    if (duplicate && !confirm(`${duplicateMessage(duplicate)}
+
+Add anyway?`)) return;
+
     try {
       if (editingStaffId) {
         const { error } = await supabase.from('staff').update({
@@ -159,16 +180,25 @@ export default function StaffManagementModule() {
           ic_number: newStaff.icNumber ?? null,
           phone: newStaff.phone ?? null
         }).eq('id', editingStaffId);
-        if (error) throw error;
+        if (error) {
+          setNotice({ ok: false, text: duplicateMessageFromDbError(error.message) ?? error.message });
+          return;
+        }
         setEditingStaffId(null);
         setNotice({ ok: true, text: 'Staff record updated.' });
       } else {
         // Creating goes through the server so the login, invitation email and role are set up together.
-        const res = await createStaff({
+        const payload = {
           name: newStaff.name, email: newStaff.email, role: newStaff.role, department: newStaff.department,
           status: newStaff.status, gender: newStaff.gender, dob: newStaff.dob, icNumber: newStaff.icNumber,
           phone: newStaff.phone, salaryBase: newStaff.salaryBase || 0,
-        }, systemRole);
+        };
+        let res = await createStaff(payload, systemRole, !!duplicate);
+        // The server may know of a probable duplicate this screen's list did not (for example, just added by someone else).
+        if (res.possibleDuplicate) {
+          if (!confirm(`${res.message}\n\nAdd anyway?`)) return;
+          res = await createStaff(payload, systemRole, true);
+        }
         if (!res.ok) {
           setNotice({ ok: false, text: res.message ?? 'Could not create the staff member.' });
           return;
@@ -206,7 +236,7 @@ export default function StaffManagementModule() {
       return;
     }
     const text = await file.text();
-    setCsvPreview({ fileName: file.name, result: parseStaffCsv(text, staffList.map((s) => s.email)) });
+    setCsvPreview({ fileName: file.name, result: parseStaffCsv(text, knownPeople()) });
   };
 
   const confirmCsvImport = async () => {
@@ -220,7 +250,7 @@ export default function StaffManagementModule() {
     })));
     setIsImporting(false);
     if (error) {
-      setNotice({ ok: false, text: `Import failed, nothing was saved: ${error.message}` });
+      setNotice({ ok: false, text: `Import failed, nothing was saved: ${duplicateMessageFromDbError(error.message) ?? error.message}` });
       return;
     }
     setNotice({ ok: true, text: `Imported ${rows.length} staff record${rows.length === 1 ? '' : 's'}. No logins were created: grant access per person from the Access column.` });
@@ -923,7 +953,7 @@ export default function StaffManagementModule() {
                   <>
                     <p className="text-emerald-700 font-bold">{csvPreview.result.rows.length} ready to import</p>
                     {csvPreview.result.duplicates.length > 0 && (
-                      <p className="text-amber-700">{csvPreview.result.duplicates.length} skipped: email already exists ({csvPreview.result.duplicates.slice(0, 3).map((d) => d.email).join(', ')}{csvPreview.result.duplicates.length > 3 ? ', …' : ''})</p>
+                      <p className="text-amber-700">{csvPreview.result.duplicates.length} skipped as duplicates ({csvPreview.result.duplicates.slice(0, 3).map((d) => `${d.email}: ${d.reason === 'email' ? 'same email' : d.reason === 'id_number' ? 'same ID number' : 'same name and date of birth'}`).join('; ')}{csvPreview.result.duplicates.length > 3 ? '; …' : ''})</p>
                     )}
                     {csvPreview.result.errors.length > 0 && (
                       <div className="text-rose-700">

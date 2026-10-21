@@ -53,9 +53,39 @@ describe('parseStaffCsv', () => {
   });
 
   it('skips emails already in the directory or repeated in the file, ignoring case', () => {
-    const r = parseStaffCsv(`${header}\nA,A@Clinic.my,D,Nurse,,,,,,\nB,a@clinic.my,D,Nurse,,,,,,\nC,c@clinic.my,D,Nurse,,,,,,`, ['c@clinic.my']);
+    const r = parseStaffCsv(`${header}
+A,A@Clinic.my,D,Nurse,,,,,,
+B,a@clinic.my,D,Nurse,,,,,,
+C,c@clinic.my,D,Nurse,,,,,,`, ['c@clinic.my']);
     expect(r.rows.map((x) => x.email)).toEqual(['a@clinic.my']);
-    expect(r.duplicates).toEqual([{ line: 3, email: 'a@clinic.my' }, { line: 4, email: 'c@clinic.my' }]);
+    expect(r.duplicates).toEqual([
+      { line: 3, email: 'a@clinic.my', reason: 'email', of: 'A' },
+      { line: 4, email: 'c@clinic.my', reason: 'email', of: 'c@clinic.my' },
+    ]);
+  });
+
+  it('skips the same ID number written differently, in the file or already in the directory', () => {
+    const r = parseStaffCsv(`${header}
+A,a@clinic.my,D,Nurse,,,,900101-14-5555,,
+B,b@clinic.my,D,Nurse,,,,900101 14 5555,,
+C,c@clinic.my,D,Nurse,,,,850412145224,,`, [{ name: 'Existing', email: 'e@clinic.my', icNumber: '850412-14-5224' }]);
+    expect(r.rows.map((x) => x.name)).toEqual(['A']);
+    expect(r.duplicates.map((d) => [d.line, d.reason])).toEqual([[3, 'id_number'], [4, 'id_number']]);
+  });
+
+  it('skips the same name and date of birth as a probable duplicate', () => {
+    const r = parseStaffCsv(`${header}
+Aina Ali,a2@clinic.my,D,Nurse,,,1990-01-01,,,`, [{ name: 'aina ali', email: 'a@clinic.my', dob: '1990-01-01' }]);
+    expect(r.rows).toEqual([]);
+    expect(r.duplicates[0]).toMatchObject({ reason: 'name_dob', of: 'aina ali' });
+  });
+
+  it('does not treat blank ID numbers as duplicates of each other', () => {
+    const r = parseStaffCsv(`${header}
+A,a@clinic.my,D,Nurse,,,,,,
+B,b@clinic.my,D,Nurse,,,,,,`);
+    expect(r.rows).toHaveLength(2);
+    expect(r.duplicates).toEqual([]);
   });
 
   it('defaults status to Active and salary to 0 when blank', () => {
