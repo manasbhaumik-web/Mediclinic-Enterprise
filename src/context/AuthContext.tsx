@@ -80,10 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const trimmed = email.trim();
     if (!trimmed || !password) return 'Enter your email and password.';
 
-    setIsLoading(true);
+    // The form owns its own pending state; flipping isLoading here would unmount it mid-request.
     const { data, error } = await supabase.auth.signInWithPassword({ email: trimmed, password });
     if (error || !data.user) {
-      setIsLoading(false);
+      if (error?.name === 'AuthRetryableFetchError') return 'Cannot reach the server. Check your connection and try again.';
       return 'Invalid email or password.';
     }
 
@@ -91,7 +91,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!resolved) {
       // Authenticated but not provisioned as clinic staff: do not leave a session open.
       await supabase.auth.signOut();
-      setIsLoading(false);
       return 'This account has no staff role assigned. Contact your administrator.';
     }
 
@@ -99,7 +98,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(data.user);
     setRole(resolved);
     setShowPIIState(false);
-    setIsLoading(false);
     return null;
   };
 
