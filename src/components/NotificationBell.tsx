@@ -5,7 +5,7 @@ import { AppNotification, Severity, useNotifications } from '../hooks/useNotific
 const DOT: Record<Severity, string> = { critical: 'bg-rose-400', warn: 'bg-amber-300', info: 'bg-sky-300' };
 
 /** Header bell: what needs this person's attention right now, from the live records. */
-export default function NotificationBell({ onOpenTab, onOpenAdmin }: { onOpenTab: (tab: string) => void; onOpenAdmin?: () => void }) {
+export default function NotificationBell({ onOpenTab, onOpenAdmin }: { onOpenTab: (tab: string) => void; onOpenAdmin?: (tab?: string) => void }) {
   const { items, count } = useNotifications();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -21,7 +21,7 @@ export default function NotificationBell({ onOpenTab, onOpenAdmin }: { onOpenTab
 
   const go = (n: AppNotification) => {
     setOpen(false);
-    if (n.target.kind === 'tab') onOpenTab(n.target.tab); else onOpenAdmin?.();
+    if (n.target.kind === 'tab') onOpenTab(n.target.tab); else onOpenAdmin?.(n.target.tab);
   };
 
   return (

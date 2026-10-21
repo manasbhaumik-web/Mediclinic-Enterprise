@@ -3,7 +3,7 @@ import logoUrl from '../assets/logo_transparent.svg';
 import ThemeSelector from './ui/ThemeSelector';
 import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
-  Building, ShieldAlert, LogOut, Server, Database, Bell, Globe2, TrendingUp,
+  Building, ShieldAlert, LogOut, Server, Database, Globe2, TrendingUp,
   Clock, ShieldCheck, Moon, Sun, ChevronDown, ChevronRight, Eye, EyeOff, Wifi, WifiOff,
   Layers, FolderKanban, CalendarClock,
   LayoutDashboard
@@ -24,6 +24,8 @@ import SecurityHub from './SecurityHub';
 import RevenueCycleHub from './RevenueCycleHub';
 import SystemArchitectureHub from './SystemArchitectureHub';
 import { useSettings } from '../context/SettingsContext';
+import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
+import NotificationBell from './NotificationBell';
 import { useAuth } from '../context/AuthContext';
 import { Visit, Language } from '../types';
 
@@ -51,12 +53,20 @@ export default function AdminModule({
   const [activeTab, setActiveTab] = useState<AdminTab>('staff');
   const [activeCategory, setActiveCategory] = useState<AdminCategory>('people');
   const { settings, clinic } = useSettings();
+  const help = useHelp();
 
   // Workstation Header State
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
   const [isNightShift, setIsNightShift] = useState<boolean>(false);
-  const [isOnline, setIsOnline] = useState<boolean>(true);
+  const [isOnline, setIsOnline] = useState<boolean>(() => (typeof navigator === 'undefined' ? true : navigator.onLine));
+  useEffect(() => {
+    const up = () => setIsOnline(true);
+    const down = () => setIsOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
+  }, []);
   const { showPII, setShowPII } = useAuth();
   const [timeString, setTimeString] = useState<string>('');
 
@@ -171,16 +181,9 @@ export default function AdminModule({
             </button>
           )}
           
-          {/* Notifications Bell */}
-          <button 
-            type="button"
-            className="relative p-1.5 text-teal-100 hover:text-white cursor-pointer transition-colors bg-chrome-deep border border-chrome-line"
-            title="Alerts"
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
-            <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-400 rounded-full"></span>
-          </button>
+          <HelpButton onClick={help.show} />
+
+          <NotificationBell onOpenTab={() => {}} onOpenAdmin={(tab) => { if (tab) setActiveTab(tab as AdminTab); }} />
 
           {/* Live Clock */}
           <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-chrome-line font-mono text-xs text-white rounded-none font-bold shadow-2xs">
@@ -261,7 +264,8 @@ export default function AdminModule({
                     </button>
                   </div>
 
-                  {/* Network Simulator Toggle */}
+                  {/* Network simulator: development builds only. Production follows the browser. */}
+                  {import.meta.env.DEV && (
                   <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-400" /> : <WifiOff className="w-3.5 h-3.5 text-rose-400" />}
@@ -277,6 +281,7 @@ export default function AdminModule({
                       {isOnline ? 'Online' : 'Offline'}
                     </button>
                   </div>
+                  )}
                 </div>
 
                 {/* Sign Out Action */}
@@ -446,6 +451,9 @@ export default function AdminModule({
 
         </main>
       </div>
+
+      <AppFooter online={isOnline} onHelp={help.show} />
+      <HelpCenter open={help.open} onClose={help.hide} role={userRole} activeTab={activeTab} />
 
       {/* Sign Out Confirmation Modal */}
       {showSignOutConfirm && (

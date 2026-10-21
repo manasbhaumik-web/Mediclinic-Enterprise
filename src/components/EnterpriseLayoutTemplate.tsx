@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import logoUrl from '../assets/logo_transparent.svg';
 import ThemeSelector from './ui/ThemeSelector';
 import NotificationBell from './NotificationBell';
+import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import { brandName } from '../lib/brandName';
 import { useSettings } from '../context/SettingsContext';
 import {
@@ -63,6 +64,7 @@ export default function EnterpriseLayoutTemplate({
   const userMenuRef = useRef<HTMLDivElement>(null);
   const clinicRef = useRef<HTMLDivElement>(null);
   const { clinic } = useSettings();
+  const help = useHelp();
   const clinicHasDetails = !!(clinic.address || clinic.licenseNo || clinic.phone || clinic.emergencyPhone);
 
   // Close workstation settings popup when clicking outside
@@ -188,6 +190,8 @@ export default function EnterpriseLayoutTemplate({
             <Clock className="w-3.5 h-3.5 text-teal-100" />
             <span>{timeString || '--:--:-- MYT'}</span>
           </div>
+
+          <HelpButton onClick={help.show} />
 
           <NotificationBell onOpenTab={setActiveTab} onOpenAdmin={onOpenAdmin} />
 
@@ -597,6 +601,9 @@ export default function EnterpriseLayoutTemplate({
           {children}
         </main>
       </div>
+
+      <AppFooter online={isOnline} onHelp={help.show} />
+      <HelpCenter open={help.open} onClose={help.hide} role={userRole} activeTab={activeTab} />
 
       {/* Sign Out Confirmation Modal */}
       {showSignOutConfirm && (
