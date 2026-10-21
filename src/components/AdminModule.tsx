@@ -379,7 +379,7 @@ export default function AdminModule({
         <main className="flex-1 p-5 overflow-y-auto bg-canvas dark:bg-night-900 text-ink dark:text-slate-100">
 
           {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
-            <StaffManagementModule userRole={userRole} />
+            <StaffManagementModule />
           )}
 
           {activeTab === 'medicine' && userRole === 'admin' && settings.modules.medicine && (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PayrollPage from './payroll/PayrollPage';
+import PayrollStatusList from './payroll/PayrollStatusList';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, Users, X, 
   DollarSign, Calendar, AlertCircle,
@@ -62,7 +62,7 @@ const DEFAULT_15_STAFF: StaffMember[] = [
   { id: 'S1015', name: 'Admin Manager David Chen', department: 'Administration', role: 'Healthcare Operations Manager', email: 'david.chen@mediclinic.my', salaryBase: 11500, status: 'Active', gender: 'Male', dob: '1983-09-12', icNumber: '830912-14-5113', phone: '018-9900112', paymentStatus: 'Paid', attendanceRate: 98, leaveBalance: 18, leavesTaken: 2 }
 ];
 
-export default function StaffManagementModule({ userRole }: { userRole: 'admin' | 'hr' }) {
+export default function StaffManagementModule() {
   const [activeTab, setActiveTab] = useState<StaffViewTab>('directory');
   const [currentView, setCurrentView] = useState<'list' | 'registration'>('list');
   const [staffList, setStaffList] = useState<StaffMember[]>(DEFAULT_15_STAFF);
@@ -753,7 +753,7 @@ Add anyway?`)) return;
           )}
 
           {/* Payroll View: the real monthly payroll module */}
-          {activeTab === 'payroll' && <PayrollPage role={userRole} embedded />}
+          {activeTab === 'payroll' && <PayrollStatusList />}
 
           {/* Attendance View */}
           {activeTab === 'attendance' && (
