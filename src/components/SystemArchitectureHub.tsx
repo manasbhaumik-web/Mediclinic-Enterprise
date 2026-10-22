@@ -1,211 +1,266 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Server, Database, Network, Cloud, Cpu, Activity, ServerCrash, 
-  Wifi, Zap, Lock, Code, Globe2, Radio, Smartphone, CheckCircle2, ShieldCheck
+import React, { useEffect, useState } from 'react';
+import {
+  Activity, CheckCircle2, ChevronRight, Cloud, Database, Info, Plug, RefreshCw, Server, Wifi, XCircle, AlertTriangle, Package, ShieldCheck,
 } from 'lucide-react';
+import { useSystemStatus, buildInfo } from '../hooks/useSystemStatus';
+import { useIntegrations } from '../hooks/useIntegrations';
+import { useAuth } from '../context/AuthContext';
+import {
+  APP_REALTIME_TABLES, FUNCTION_STATE_LABEL, Tone, formatBytes, latencyTone, minutesLeft, realtimeCoverage,
+} from '../domain/systemStatus';
 
-export default function SystemArchitectureHub() {
-  const [traffic, setTraffic] = useState(2450);
-  const [apiHealth, setApiHealth] = useState(99.99);
+interface SystemStatusProps {
+  /** Opens another Administration section. */
+  onOpenTab?: (tab: 'integrations') => void;
+}
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTraffic(prev => Math.floor(Math.random() * 500) + 2000);
-      setApiHealth(prev => 99.9 + (Math.random() * 0.09));
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
+const TONE: Record<Tone, string> = {
+  ok: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+  warn: 'bg-amber-50 text-amber-800 border-amber-200',
+  bad: 'bg-rose-50 text-rose-800 border-rose-200',
+  idle: 'bg-slate-50 text-slate-700 border-line',
+};
+
+const clockTime = (ms: number) => new Date(ms).toLocaleTimeString('en-MY', { hour12: false });
+const when = (iso: string | null | undefined) => (iso ? new Date(iso).toLocaleString('en-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '—');
+
+export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) {
+  const { snapshot, running, run } = useSystemStatus();
+  const { role } = useAuth();
+  const integrations = useIntegrations();
+  const build = buildInfo();
+
+  // Re-read the clock each minute so the session countdown stays honest without re-running the checks.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 60_000); return () => clearInterval(id); }, []);
+
+  const { api, session, realtime, functions, db } = snapshot;
+  const facts = db?.facts;
+  const coverage = realtimeCoverage(facts?.realtime_tables ?? []);
+  const deployed = functions?.filter((f) => f.state === 'deployed' || f.state === 'unreadable').length ?? 0;
+  const missing = functions?.filter((f) => f.state === 'not-deployed') ?? [];
+  const sessionMinutes = minutesLeft(session?.expiresAtSec, now);
+  const connections = integrations.connections.data ?? [];
+  const outbox = integrations.outbox.data;
+  const hasScheduler = (facts?.extensions ?? []).includes('pg_cron');
+
+  const apiTone: Tone = !api ? 'idle' : api.error || !api.latency ? 'bad' : latencyTone(api.latency.median);
+  const realtimeTone: Tone = !realtime ? 'idle' : realtime.state === 'connected' ? 'ok' : 'bad';
+  const eventsTone: Tone = !facts ? 'idle' : coverage.missing.length === 0 ? 'ok' : coverage.published.length === 0 ? 'bad' : 'warn';
 
   return (
     <div className="animate-fadeIn w-full space-y-6 pb-8">
-      
-      {/* 1. STRUCTURED PAGE HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
-              Infrastructure Topology
-            </span>
-            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              All Systems Normal
-            </span>
-          </div>
           <h1 className="type-page-title text-ink flex items-center gap-2.5">
-            <Server className="w-6 h-6 text-accent" />
-            System Architecture &amp; Cloud Engine
+            <Server className="w-6 h-6 text-accent" aria-hidden="true" />
+            System Status
           </h1>
           <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
-            API-First Microservices, Edge Computing, and Cloud-Native Multi-AZ Infrastructure.
+            Live checks run from this browser against the clinic's backend, plus facts read from the database. Nothing here is estimated: whatever is not measured says so.
           </p>
         </div>
-        
         <div className="flex items-center gap-3">
-          <span className="bg-white text-deep px-3 py-1.5 border border-line text-xs font-mono font-bold flex items-center justify-center gap-1.5 shadow-2xs">
-            <Wifi className="w-3.5 h-3.5 text-emerald-600" />
-            <span>LATENCY: 1.2ms</span>
-          </span>
+          <span className="text-xs text-slate-600 font-mono">{snapshot.ranAt ? `Checked ${clockTime(snapshot.ranAt)}` : 'Checking…'}</span>
+          <button
+            type="button"
+            onClick={() => { void run(); void integrations.refresh(); }}
+            disabled={running}
+            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-accent ${running ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
+            {running ? 'Checking…' : 'Run checks'}
+          </button>
         </div>
       </div>
 
-      {/* 2. TOP METRICS SUMMARY ROW */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">API Request Throughput</span>
-          <span className="text-xl font-bold font-mono text-ink block mt-0.5">{traffic} req/s</span>
+      {!build.backendConfigured && (
+        <div role="alert" className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium">
+          <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" />
+          This build has no backend address configured, so none of the checks below can pass.
         </div>
+      )}
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Microservices Uptime</span>
-          <span className="text-xl font-bold font-mono text-emerald-700 block mt-0.5">{apiHealth.toFixed(2)}%</span>
-        </div>
-
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Edge Local Latency</span>
-          <span className="text-xl font-bold font-mono text-accent block mt-0.5">1.2ms Ping</span>
-        </div>
-
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">AWS Cloud Replication</span>
-          <span className="text-xl font-bold font-mono text-emerald-700 block mt-0.5">Multi-AZ Active</span>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Kpi
+          label="API round trip"
+          value={!api ? '…' : api.latency ? `${api.latency.median} ms` : 'Failed'}
+          note={!api ? 'Measuring' : api.error ? api.error : `Median of ${api.latency?.samples} requests, fastest ${api.latency?.min} ms, slowest ${api.latency?.max} ms`}
+          tone={apiTone}
+        />
+        <Kpi
+          label="Your session"
+          value={!session ? '…' : session.signedIn ? 'Signed in' : 'Not signed in'}
+          note={!session ? 'Checking' : session.signedIn ? `${role ?? 'unknown role'}${sessionMinutes !== null ? ` · token renews within ${sessionMinutes} min` : ''}` : 'Sign in again'}
+          tone={!session ? 'idle' : session.signedIn ? 'ok' : 'bad'}
+        />
+        <Kpi
+          label="Realtime connection"
+          value={!realtime ? '…' : realtime.state === 'connected' ? 'Connected' : realtime.state === 'timeout' ? 'No answer' : 'Refused'}
+          note={!realtime ? 'Connecting' : realtime.state === 'connected' ? `Handshake took ${realtime.ms} ms` : 'Live updates cannot reach this browser'}
+          tone={realtimeTone}
+        />
+        <Kpi
+          label="Edge functions"
+          value={!functions ? '…' : `${deployed} of ${functions.length}`}
+          note={!functions ? 'Checking' : missing.length ? `Not deployed: ${missing.map((m) => m.slug).join(', ')}` : 'All present'}
+          tone={!functions ? 'idle' : missing.length ? 'warn' : 'ok'}
+        />
       </div>
 
-      {/* 3. SYSTEM ARCHITECTURE CONTENT GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Column 1 & 2: Microservices & Edge Topology */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Microservices Cluster Card */}
-          <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-6">
-            <h3 className="type-label text-accent flex items-center gap-2">
-              <Server className="w-4 h-4 text-accent" />
-              <span>Microservices Cluster Topology</span>
-            </h3>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {/* API Gateway */}
-              <div className="bg-surface-muted border border-line-subtle p-4 text-center rounded-none shadow-2xs group">
-                <Globe2 className="w-7 h-7 text-accent mx-auto mb-2" />
-                <h4 className="type-card-title text-ink">API Gateway</h4>
-                <div className="mt-2 flex justify-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-75"></span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-150"></span>
-                </div>
-                <p className="text-2xs text-slate-500 mt-2 font-mono">{traffic} req/s</p>
-              </div>
-
-              {/* Auth Service */}
-              <div className="bg-surface-muted border border-line-subtle p-4 text-center rounded-none shadow-2xs">
-                <Lock className="w-7 h-7 text-indigo-600 mx-auto mb-2" />
-                <h4 className="type-card-title text-ink">IAM Auth</h4>
-                <p className="text-2xs text-emerald-700 font-bold mt-2">Zero-Trust</p>
-                <p className="text-2xs text-slate-500 mt-1 font-mono">2 Active Pods</p>
-              </div>
-
-              {/* EHR Core */}
-              <div className="bg-surface-muted border border-line-subtle p-4 text-center rounded-none shadow-2xs">
-                <Database className="w-7 h-7 text-amber-600 mx-auto mb-2" />
-                <h4 className="type-card-title text-ink">EHR Core</h4>
-                <p className="text-2xs text-emerald-700 font-bold mt-2">Active</p>
-                <p className="text-2xs text-slate-500 mt-1 font-mono">5 Active Pods</p>
-              </div>
-
-              {/* Telemetry/IoT */}
-              <div className="bg-surface-muted border border-line-subtle p-4 text-center rounded-none shadow-2xs">
-                <Radio className="w-7 h-7 text-rose-500 mx-auto mb-2" />
-                <h4 className="type-card-title text-ink">IoT Broker</h4>
-                <p className="text-2xs text-emerald-700 font-bold mt-2">WebSockets</p>
-                <p className="text-2xs text-slate-500 mt-1 font-mono">124 Devices</p>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Panel icon={Wifi} title="Live updates">
+          <div className="flex items-center gap-2 mb-3">
+            <Pill tone={eventsTone}>
+              {!facts ? 'Checking' : coverage.published.length === APP_REALTIME_TABLES.length ? 'All published' : `${coverage.published.length} of ${APP_REALTIME_TABLES.length} published`}
+            </Pill>
+            <span className="text-xs text-slate-600">Tables the app listens to, and whether the database publishes their changes</span>
           </div>
+          {db?.error ? <p className="text-xs text-rose-700">Could not read the database facts: {db.error}</p> : (
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
+              {APP_REALTIME_TABLES.map((t) => {
+                const ok = coverage.published.includes(t);
+                return (
+                  <li key={t} className="flex items-center gap-2 font-mono">
+                    {facts ? (ok ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" aria-label="Published" /> : <XCircle className="w-3.5 h-3.5 text-rose-600" aria-label="Not published" />) : <span className="w-3.5" />}
+                    {t}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {facts && coverage.missing.length > 0 && (
+            <p className="mt-3 text-xs text-amber-900 bg-amber-50 border border-amber-200 px-3 py-2 leading-relaxed">
+              The app asks for live changes on {coverage.missing.length} table{coverage.missing.length === 1 ? '' : 's'} that don't publish them, so screens only refresh when someone acts or reloads. Publishing them is a database setting.
+            </p>
+          )}
+        </Panel>
 
-          {/* Cloud-Native & Edge Computing */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-3">
-              <h3 className="type-label text-ink flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-accent" />
-                <span>Edge Processing Nodes</span>
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Critical vitals and local rendering are processed directly at the clinic edge before cloud sync to ensure zero-latency care.
-              </p>
-              <div className="space-y-2 pt-1">
-                <div className="flex justify-between items-center bg-surface-muted p-2.5 border border-line-subtle">
-                  <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-accent" />
-                    <span className="text-xs font-bold text-ink">Clinic Server A (Local)</span>
-                  </div>
-                  <span className="text-2xs bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 font-bold font-mono">1.2ms Ping</span>
-                </div>
-                <div className="flex justify-between items-center bg-surface-muted p-2.5 border border-line-subtle">
-                  <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-accent" />
-                    <span className="text-xs font-bold text-ink">Clinic Server B (Local)</span>
-                  </div>
-                  <span className="text-2xs bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 font-bold font-mono">1.4ms Ping</span>
-                </div>
-              </div>
+        <Panel icon={Cloud} title="Edge functions">
+          {!functions ? <p className="text-xs text-slate-500">Checking…</p> : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="text-ink uppercase border-b border-line font-bold">
+                  <tr><th scope="col" className="py-2 pr-3">Function</th><th scope="col" className="py-2">Status</th></tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {functions.map((f) => {
+                    const s = FUNCTION_STATE_LABEL[f.state];
+                    return (
+                      <tr key={f.slug}>
+                        <th scope="row" className="py-2 pr-3 font-normal">
+                          <span className="font-mono font-bold text-ink">{f.slug}</span>
+                          <span className="block text-2xs text-slate-500">{f.label}{f.scheduled ? ' · needs a scheduler' : ''}</span>
+                        </th>
+                        <td className="py-2"><Pill tone={s.tone}>{s.label}</Pill>{f.httpStatus ? <span className="ml-1.5 font-mono text-2xs text-slate-500">HTTP {f.httpStatus}</span> : null}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
+          )}
+          <p className="mt-3 text-2xs text-slate-500 leading-relaxed">
+            Checked with a request that carries no credentials, so nothing is run: a deployed function refuses it and a missing one is reported as not found.
+            {facts && !hasScheduler && ' The two workers have to be called on a timer; this database has no scheduler (pg_cron) installed, so something outside it must do that.'}
+          </p>
+        </Panel>
 
-            <div className="bg-surface-muted border border-line-subtle p-5 rounded-none shadow-2xs flex flex-col justify-between">
-              <div className="space-y-2">
-                <h3 className="type-label text-accent flex items-center gap-2">
-                  <Cloud className="w-4 h-4 text-accent" />
-                  <span>Cloud Replication Engine</span>
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Asynchronous PostgreSQL replication persisting live records to AWS Multi-AZ infrastructure with AES-256 encryption.
-                </p>
-              </div>
+        <Panel icon={Database} title="Database">
+          {db?.error ? <p className="text-xs text-rose-700">Could not read the database facts: {db.error}</p> : !facts ? <p className="text-xs text-slate-500">Checking…</p> : (
+            <dl className="grid grid-cols-[auto,1fr] gap-x-5 gap-y-1.5 text-xs">
+              <Fact label="Server">PostgreSQL {facts.pg_version}</Fact>
+              <Fact label="Size">{formatBytes(facts.db_size_bytes)}</Fact>
+              <Fact label="Tables">{facts.tables} · {facts.tables_without_rls === 0 ? <Inline tone="ok">row-level security on all</Inline> : <Inline tone="bad">{facts.tables_without_rls} without row-level security</Inline>}</Fact>
+              <Fact label="Functions">{facts.functions}</Fact>
+              <Fact label="Migrations applied">{facts.migrations ? `${facts.migrations.count} (latest ${facts.migrations.latest})` : 'Not readable'}</Fact>
+              <Fact label="Extensions">{facts.extensions.join(', ') || '—'}</Fact>
+              <Fact label="Accounts">{facts.accounts}</Fact>
+              <Fact label="Server time">{when(facts.server_time)}</Fact>
+            </dl>
+          )}
+        </Panel>
 
-              <div className="pt-4 border-t border-line-subtle flex items-center justify-between text-xs font-bold text-emerald-700">
-                <span>Async Multi-AZ Sync Active</span>
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <Panel
+          icon={Plug}
+          title="Integrations"
+          action={onOpenTab && (
+            <button type="button" onClick={() => onOpenTab('integrations')} className="text-xs font-bold text-accent hover:underline flex items-center gap-0.5 cursor-pointer">
+              Open Integrations<ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          )}
+        >
+          {integrations.connections.isPending ? <p className="text-xs text-slate-500">Checking…</p> : integrations.connections.error ? (
+            <p className="text-xs text-rose-700">Could not read integrations.</p>
+          ) : (
+            <dl className="grid grid-cols-[auto,1fr] gap-x-5 gap-y-1.5 text-xs">
+              <Fact label="Connections">{connections.length === 0 ? 'None set up' : `${connections.filter((c) => c.enabled).length} enabled of ${connections.length}`}</Fact>
+              <Fact label="Outbound queue">{outbox ? `${outbox.pending} waiting · ${outbox.failed} failed · ${outbox.dead} gave up · ${outbox.sent} sent` : '—'}</Fact>
+            </dl>
+          )}
+          <p className="mt-3 text-2xs text-slate-500 leading-relaxed">Connection tests and per-integration health are on the Integrations screen.</p>
+        </Panel>
 
-        {/* Column 3: API-First Engine */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-4">
-            <h3 className="type-label text-ink flex items-center gap-2">
-              <Code className="w-4 h-4 text-accent" />
-              <span>API Health &amp; Security</span>
-            </h3>
-            
-            <div className="py-4 text-center">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-brand bg-surface-accent">
-                <div className="text-center">
-                  <span className="type-metric block font-mono text-ink">{apiHealth.toFixed(2)}%</span>
-                  <span className="text-2xs uppercase font-bold text-accent">API Uptime</span>
-                </div>
-              </div>
-            </div>
+        <Panel icon={Package} title="This build">
+          <dl className="grid grid-cols-[auto,1fr] gap-x-5 gap-y-1.5 text-xs">
+            <Fact label="Version">{build.version}</Fact>
+            <Fact label="Built">{when(build.builtAt)}</Fact>
+            <Fact label="Commit">{build.commit ? <span className="font-mono">{build.commit.slice(0, 10)}</span> : 'Not recorded (local build)'}</Fact>
+            <Fact label="Mode">{build.mode}</Fact>
+            <Fact label="Backend">{build.backendConfigured ? <span className="font-mono">{build.backendHost}</span> : <Inline tone="bad">not configured</Inline>}</Fact>
+            <Fact label="Card payments key">{build.cardPaymentsKeySet ? 'Set' : <Inline tone="warn">not set, so card payments are unavailable</Inline>}</Fact>
+            <Fact label="Demo data">{build.demoDataOn ? <Inline tone="warn">on: demo records are mixed into screens</Inline> : 'Off'}</Fact>
+          </dl>
+        </Panel>
 
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between p-2 bg-surface-muted border border-line-subtle">
-                <span className="text-slate-600 font-medium">SSL / TLS Protocol:</span>
-                <span className="font-bold text-accent font-mono">TLS v1.3</span>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-surface-muted border border-line-subtle">
-                <span className="text-slate-600 font-medium">Database Engine:</span>
-                <span className="font-bold text-ink font-mono">Supabase PG16</span>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-surface-muted border border-line-subtle">
-                <span className="text-slate-600 font-medium">PDPA / HIPAA Compliance:</span>
-                <span className="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 border border-emerald-300">100% Certified</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <Panel icon={Info} title="Not monitored here">
+          <p className="text-xs text-slate-600 leading-relaxed">
+            This page does not measure uptime history, request volume, error rates, backups, failover or replication, and it holds no security certification.
+            Those are reported by the hosting provider's dashboard; check them there. Anything shown above comes from a request made just now.
+          </p>
+          <p className="mt-2 flex items-start gap-1.5 text-2xs text-slate-500"><ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden="true" />Security findings are on the Security & Audit screen.</p>
+        </Panel>
       </div>
-
     </div>
   );
 }
+
+function Kpi({ label, value, note, tone }: { label: string; value: string; note: string; tone: Tone }) {
+  const color = tone === 'bad' ? 'text-rose-700' : tone === 'warn' ? 'text-amber-700' : 'text-ink';
+  return (
+    <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
+      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+        <Activity className="w-3.5 h-3.5 text-accent" aria-hidden="true" />{label}
+      </span>
+      <h3 className={`type-metric mt-2 ${color}`}>{value}</h3>
+      <p className="mt-2 text-xs text-slate-600 break-words">{note}</p>
+    </div>
+  );
+}
+
+function Panel({ icon: Icon, title, action, children }: { icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
+      <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between gap-3">
+        <h2 className="type-card-title text-ink flex items-center gap-2"><Icon className="w-4 h-4 text-accent" aria-hidden="true" />{title}</h2>
+        {action}
+      </div>
+      <div className="p-5">{children}</div>
+    </section>
+  );
+}
+
+const Pill = ({ tone, children }: { tone: Tone; children: React.ReactNode }) => (
+  <span className={`inline-block px-2 py-0.5 border text-2xs font-bold uppercase tracking-wider ${TONE[tone]}`}>{children}</span>
+);
+
+const Inline = ({ tone, children }: { tone: Tone; children: React.ReactNode }) => (
+  <span className={tone === 'bad' ? 'text-rose-700 font-bold' : tone === 'warn' ? 'text-amber-800 font-bold' : 'text-emerald-700 font-bold'}>{children}</span>
+);
+
+const Fact = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <>
+    <dt className="text-slate-500">{label}</dt>
+    <dd className="text-ink font-medium break-words">{children}</dd>
+  </>
+);

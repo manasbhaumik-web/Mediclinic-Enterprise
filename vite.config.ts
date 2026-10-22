@@ -1,11 +1,20 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import {readFileSync} from 'fs';
 import {defineConfig} from 'vite';
+
+const pkg = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'));
 
 export default defineConfig(() => {
   return {
     base: './',
+    // Facts about this build, shown on the admin System Status page.
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+      __APP_COMMIT__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || ''),
+    },
     plugins: [react(), tailwindcss()],
     build: {
       rollupOptions: {

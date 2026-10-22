@@ -98,7 +98,7 @@ export default function AdminModule({
     { id: 'security', label: 'Security & Audit', category: 'compliance', icon: ShieldAlert, roleReq: 'admin', enabled: true },
 
     // 5. Platform
-    { id: 'architecture', label: 'System Architecture', category: 'platform', icon: Server, roleReq: 'admin', enabled: true },
+    { id: 'architecture', label: 'System Status', category: 'platform', icon: Server, roleReq: 'admin', enabled: true },
     { id: 'integrations', label: 'Integrations', category: 'platform', icon: Database, roleReq: 'admin', enabled: true },
     { id: 'settings', label: 'Console Settings', category: 'platform', icon: Settings, roleReq: 'admin', enabled: true }
   ];
@@ -435,7 +435,7 @@ export default function AdminModule({
           )}
 
           {activeTab === 'architecture' && userRole === 'admin' && (
-            <SystemArchitectureHub />
+            <SystemArchitectureHub onOpenTab={setActiveTab} />
           )}
 
         </main>
