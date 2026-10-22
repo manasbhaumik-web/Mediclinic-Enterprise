@@ -128,7 +128,7 @@ export default function EnterpriseLayoutTemplate({
     }`}>
       
       {/* GLOBAL TOP HEADER BAR */}
-      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-chrome-deep shrink-0 shadow-xs shadow-black/10 relative z-30 sticky top-0 font-sans">
+      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-white/20 shrink-0 shadow-xs shadow-black/10 relative z-30 sticky top-0 font-sans">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
         <div ref={clinicRef} className="flex items-center gap-3 relative">
@@ -155,8 +155,8 @@ export default function EnterpriseLayoutTemplate({
 
           {/* Clinic Information Popover Tooltip */}
           {showClinicInfoTooltip && (
-            <div className="absolute top-12 left-0 z-50 bg-chrome-deep border border-chrome-line p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-white font-sans">
-              <div className="flex items-center justify-between border-b border-chrome-line pb-2">
+            <div className="absolute top-12 left-0 z-50 bg-chrome-deep border border-white/25 p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-white font-sans">
+              <div className="flex items-center justify-between border-b border-white/25 pb-2">
                 <span className="font-bold text-white uppercase flex items-center gap-1.5">
                   <Building className="w-3.5 h-3.5 text-teal-100" /> Clinic Info & License
                 </span>
@@ -220,8 +220,8 @@ export default function EnterpriseLayoutTemplate({
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 top-12 w-72 bg-night-900 border border-teal-800/80 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
-                <div className="flex items-center justify-between border-b border-teal-800/40 pb-2.5">
+              <div className="absolute right-0 top-12 w-72 bg-night-900 border border-white/15 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
+                <div className="flex items-center justify-between border-b border-white/15 pb-2.5">
                   <div>
                     <p className="font-bold text-sm text-teal-300">{userName || 'Clinician'}</p>
                     <p className="text-2xs text-teal-200 font-mono uppercase">{userRole}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
@@ -234,7 +234,7 @@ export default function EnterpriseLayoutTemplate({
                   <p className="text-2xs font-mono uppercase text-teal-300 tracking-wider font-bold">Workstation Settings</p>
                   
                   {/* 1. Day / Night Shift Mode Toggle */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
+                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-200" />}
                       <span>Theme Mode</span>
@@ -254,7 +254,7 @@ export default function EnterpriseLayoutTemplate({
                   <ThemeSelector variant="menu" />
 
                   {/* 2. Privacy Mode (PII Masking) Toggle */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
+                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {showPII ? <Eye className="w-3.5 h-3.5 text-amber-200" /> : <EyeOff className="w-3.5 h-3.5 text-emerald-300" />}
                       <span>Privacy Mask</span>
@@ -272,7 +272,7 @@ export default function EnterpriseLayoutTemplate({
 
                   {/* 3. Network simulator: development builds only. Production follows the browser's real connection. */}
                   {import.meta.env.DEV && (
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
+                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       {isOnline ? <Wifi className="w-3.5 h-3.5 text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-300" />}
                       <span>Network State</span>
@@ -290,7 +290,7 @@ export default function EnterpriseLayoutTemplate({
                   )}
 
                   {/* 4. Language Switcher */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-teal-900/60">
+                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
                     <span className="text-teal-100 font-medium flex items-center gap-1.5">
                       <Globe className="w-3.5 h-3.5 text-teal-200" />
                       <span>Language</span>
@@ -315,7 +315,7 @@ export default function EnterpriseLayoutTemplate({
                 </div>
 
                 {/* Sign Out Action */}
-                <div className="border-t border-teal-800/40 pt-2.5">
+                <div className="border-t border-white/15 pt-2.5">
                   <button 
                     type="button"
                     onClick={() => {
@@ -340,7 +340,7 @@ export default function EnterpriseLayoutTemplate({
       {/* WORKSPACE SUB-NAVIGATION BAR */}
       <div className="flex-1 flex flex-col overflow-hidden relative font-sans">
 
-        <nav className="w-full bg-chrome-nav text-white flex items-stretch justify-between border-b border-chrome-line shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar shadow-xs relative z-10 font-sans">
+        <nav className="w-full bg-chrome-nav text-white flex items-stretch justify-between border-b border-white/25 shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar shadow-xs relative z-10 font-sans">
 
           <div className="flex items-stretch h-full" id="sidebar-navigation-links">
 
@@ -586,7 +586,7 @@ export default function EnterpriseLayoutTemplate({
           </div>
 
           {/* Sync Status & Sync Now Action */}
-          <div className="hidden lg:flex items-center space-x-3 text-xs text-teal-50 font-sans pl-4 border-l border-primary ml-4">
+          <div className="hidden lg:flex items-center space-x-3 text-xs text-teal-50 font-sans pl-4 border-l border-white/25 ml-4">
             <div className="flex items-center gap-1.5" role="status" aria-live="polite">
               <span className={`inline-flex rounded-full h-2 w-2 ${!isOnline ? 'bg-rose-400' : isFetching ? 'bg-amber-300 motion-safe:animate-pulse' : 'bg-emerald-400'}`}></span>
               <span className="text-white font-bold font-mono">
@@ -598,7 +598,7 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               onClick={handleManualSync}
               disabled={isFetching || !isOnline}
-              className="px-2.5 py-1 hover:bg-primary-hover text-white rounded-none transition-colors border border-chrome-line font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-2.5 py-1 hover:bg-primary-hover text-white rounded-none transition-colors border border-white/25 font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
               title="Refresh clinical records from the server"
             >
               <RefreshCw className={`w-3 h-3 ${isFetching ? 'motion-safe:animate-spin text-teal-200' : ''}`} />
