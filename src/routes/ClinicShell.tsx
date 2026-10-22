@@ -47,7 +47,7 @@ export interface ClinicShellContext {
 export const useClinicShell = () => useOutletContext<ClinicShellContext>();
 
 export default function ClinicShell() {
-  const { user, role, showPII, setShowPII, signOut } = useAuth();
+  const { user, role, fullName, showPII, setShowPII, signOut } = useAuth();
   const { recordTransaction } = useFinancials();
   const { activeLanguage, setActiveLanguage, t } = useLanguage();
   const navigate = useNavigate();
@@ -83,6 +83,7 @@ export default function ClinicShell() {
   const findVisit = (id: string) => visitsQueue.find((v) => v.id === id);
 
   const userName = (() => {
+    if (fullName) return fullName;
     if (user?.user_metadata?.full_name) return user.user_metadata.full_name as string;
     if (user?.email) return user.email.split('@')[0];
     return 'User';

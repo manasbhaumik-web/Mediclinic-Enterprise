@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import logoUrl from '../assets/logo_transparent.svg';
 import ThemeSelector from './ui/ThemeSelector';
 import NotificationBell from './NotificationBell';
@@ -54,8 +55,17 @@ export default function EnterpriseLayoutTemplate({
 }: EnterpriseLayoutTemplateProps) {
   // Live Real-Time Clock & Sync timestamp
   const [timeString, setTimeString] = useState<string>('');
-  const [lastSyncedTime, setLastSyncedTime] = useState<string>('');
-  const [isSyncRefreshing, setIsSyncRefreshing] = useState<boolean>(false);
+  // Sync status reflects the real query cache: the newest successful fetch and any fetch in flight.
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching() > 0;
+  const queryCache = queryClient.getQueryCache();
+  const lastSyncedAt = useSyncExternalStore(
+    (notify) => queryCache.subscribe(notify),
+    () => queryCache.getAll().reduce((latest, q) => Math.max(latest, q.state.dataUpdatedAt), 0),
+  );
+  const lastSyncedTime = lastSyncedAt
+    ? new Date(lastSyncedAt).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })
+    : '';
   const [showClinicInfoTooltip, setShowClinicInfoTooltip] = useState<boolean>(false);
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
@@ -96,23 +106,13 @@ export default function EnterpriseLayoutTemplate({
     const updateClock = () => {
       const now = new Date();
       setTimeString(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' MYT');
-      if (!lastSyncedTime) {
-        setLastSyncedTime(now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' }));
-      }
     };
     updateClock();
     const interval = setInterval(updateClock, 1000);
     return () => clearInterval(interval);
-  }, [lastSyncedTime]);
+  }, []);
 
-  const handleManualSync = () => {
-    setIsSyncRefreshing(true);
-    setTimeout(() => {
-      setIsSyncRefreshing(false);
-      const now = new Date();
-      setLastSyncedTime(now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' }));
-    }, 800);
-  };
+  const handleManualSync = () => { void queryClient.invalidateQueries(); };
 
   const getUserInitials = (name: string) => {
     if (!name) return 'EX';
@@ -176,7 +176,7 @@ export default function EnterpriseLayoutTemplate({
 
         {/* Center: Persistent Abnormal State Indicator (Shows ONLY when offline or abnormal) */}
         {!isOnline && (
-          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase animate-pulse">
+          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase motion-safe:animate-pulse">
             <WifiOff className="w-3.5 h-3.5 text-rose-300" />
             <span>Offline Mode (Cached local data)</span>
           </div>
@@ -225,7 +225,7 @@ export default function EnterpriseLayoutTemplate({
                     <p className="font-bold text-sm text-teal-300">{userName || 'Clinician'}</p>
                     <p className="text-2xs text-teal-200 font-mono uppercase">{userRole}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
                   </div>
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active workstation session"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" title="Active workstation session"></span>
                 </div>
 
                 {/* Utility Section: Workstation Settings */}
@@ -348,12 +348,13 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               id="sidebar-link-dashboard"
               onClick={() => setActiveTab('dashboard')}
+              aria-current={activeTab === 'dashboard' ? 'page' : undefined}
               className={`nav-btn ${
                 activeTab === 'dashboard' ? 'nav-btn-active' : 'nav-btn-inactive'
               }`}
             >
               <div className="flex items-center gap-2">
-                {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                 <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-white' : 'text-teal-200'}`} />
                 <span>{t.dashboard || 'Dashboard'}</span>
               </div>
@@ -364,10 +365,11 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               id="sidebar-link-my-leave"
               onClick={() => setActiveTab('my-leave')}
+              aria-current={activeTab === 'my-leave' ? 'page' : undefined}
               className={`nav-btn ${activeTab === 'my-leave' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
             >
               <div className="flex items-center gap-2">
-                {activeTab === 'my-leave' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                {activeTab === 'my-leave' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                 <CalendarClock className={`w-4 h-4 ${activeTab === 'my-leave' ? 'text-white' : 'text-teal-200'}`} />
                 <span>My Leave</span>
               </div>
@@ -394,12 +396,13 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-registration"
                 onClick={() => setActiveTab('registration')}
+              aria-current={activeTab === 'registration' ? 'page' : undefined}
                 className={`nav-btn ${
                   activeTab === 'registration' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'registration' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                  {activeTab === 'registration' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                   <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-white' : 'text-teal-200'}`} />
                   <span>{t.patientRegistration || 'Patients & Registry'}</span>
                 </div>
@@ -412,18 +415,19 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-triage"
                 onClick={() => setActiveTab('triage')}
+              aria-current={activeTab === 'triage' ? 'page' : undefined}
                 className={`nav-btn ${
                   activeTab === 'triage' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                  {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                   <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-white' : 'text-teal-200'}`} />
                   <span>Triage Module</span>
                 </div>
                 {triageQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'triage' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'triage' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
                   }`}>
                     {triageQueueLength}
                   </span>
@@ -437,12 +441,13 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-appointments"
                 onClick={() => setActiveTab('appointments')}
+              aria-current={activeTab === 'appointments' ? 'page' : undefined}
                 className={`nav-btn ${
                   activeTab === 'appointments' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                  {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                   <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-white' : 'text-teal-200'}`} />
                   <span>Appointments</span>
                 </div>
@@ -456,18 +461,19 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-queue"
                   onClick={() => setActiveTab('queue')}
+              aria-current={activeTab === 'queue' ? 'page' : undefined}
                   className={`nav-btn ${
                     activeTab === 'queue' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                    {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                     <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-white' : 'text-teal-200'}`} />
                     <span>Patient Queue</span>
                   </div>
                   {activeTab !== 'consultation' && doctorQueueLength > 0 && (
                     <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                      activeTab === 'queue' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                      activeTab === 'queue' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
                     }`}>
                       {doctorQueueLength}
                     </span>
@@ -478,12 +484,13 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-consultation"
                   onClick={() => setActiveTab('consultation')}
+              aria-current={activeTab === 'consultation' ? 'page' : undefined}
                   className={`nav-btn ${
                     activeTab === 'consultation' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                    {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                     <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-white' : 'text-teal-200'}`} />
                     <span>Consultation Suite</span>
                   </div>
@@ -493,12 +500,13 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="sidebar-link-reports"
                   onClick={() => setActiveTab('reports')}
+              aria-current={activeTab === 'reports' ? 'page' : undefined}
                   className={`nav-btn ${
                     activeTab === 'reports' ? 'nav-btn-active' : 'nav-btn-inactive'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                    {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                     <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-white' : 'text-teal-200'}`} />
                     <span>Monthly Reports</span>
                   </div>
@@ -512,18 +520,19 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-dispensary"
                 onClick={() => setActiveTab('dispensary')}
+              aria-current={activeTab === 'dispensary' ? 'page' : undefined}
                 className={`nav-btn ${
                   activeTab === 'dispensary' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'dispensary' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                  {activeTab === 'dispensary' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                   <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-white' : 'text-teal-200'}`} />
                   <span>{t.dispensary || 'Dispensary'}</span>
                 </div>
                 {pharmacyQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'dispensary' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'dispensary' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
                   }`}>
                     {pharmacyQueueLength}
                   </span>
@@ -537,10 +546,11 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-inventory"
                 onClick={() => setActiveTab('inventory')}
+              aria-current={activeTab === 'inventory' ? 'page' : undefined}
                 className={`nav-btn ${activeTab === 'inventory' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                  {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                   <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-white' : 'text-teal-200'}`} />
                   <span>Inventory</span>
                 </div>
@@ -553,18 +563,19 @@ export default function EnterpriseLayoutTemplate({
                 type="button"
                 id="sidebar-link-billing"
                 onClick={() => setActiveTab('billing')}
+              aria-current={activeTab === 'billing' ? 'page' : undefined}
                 className={`nav-btn ${
                   activeTab === 'billing' ? 'nav-btn-active' : 'nav-btn-inactive'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'billing' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400 animate-pulse"></span>}
+                  {activeTab === 'billing' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
                   <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-white' : 'text-teal-200'}`} />
                   <span>{t.billing || 'Billing'}</span>
                 </div>
                 {cashierQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'billing' ? 'bg-teal-400 text-teal-950 font-bold animate-pulse' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'billing' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
                   }`}>
                     {cashierQueueLength}
                   </span>
@@ -575,21 +586,21 @@ export default function EnterpriseLayoutTemplate({
 
           {/* Sync Status & Sync Now Action */}
           <div className="hidden lg:flex items-center space-x-3 text-xs text-teal-50 font-sans pl-4 border-l border-primary ml-4">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            <div className="flex items-center gap-1.5" role="status" aria-live="polite">
+              <span className={`inline-flex rounded-full h-2 w-2 ${!isOnline ? 'bg-rose-400' : isFetching ? 'bg-amber-300 motion-safe:animate-pulse' : 'bg-emerald-400'}`}></span>
+              <span className="text-white font-bold font-mono">
+                {!isOnline ? 'Offline' : isFetching ? 'Syncing…' : lastSyncedTime ? `Last synced: ${lastSyncedTime}` : 'Not synced yet'}
               </span>
-              <span className="text-white font-bold font-mono">Last Synced: {lastSyncedTime || '12:44 PM'}</span>
             </div>
 
             <button
               type="button"
               onClick={handleManualSync}
-              className="px-2.5 py-1 hover:bg-primary-hover text-white rounded-none transition-colors border border-chrome-line font-sans text-2xs font-bold flex items-center justify-center gap-1.5"
-              title="Synchronize clinical records with KKM Gateway"
+              disabled={isFetching || !isOnline}
+              className="px-2.5 py-1 hover:bg-primary-hover text-white rounded-none transition-colors border border-chrome-line font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+              title="Refresh clinical records from the server"
             >
-              <RefreshCw className={`w-3 h-3 ${isSyncRefreshing ? 'animate-spin text-teal-200' : ''}`} />
+              <RefreshCw className={`w-3 h-3 ${isFetching ? 'motion-safe:animate-spin text-teal-200' : ''}`} />
               <span>Sync Now</span>
             </button>
           </div>
