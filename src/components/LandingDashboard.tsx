@@ -1,4 +1,7 @@
+import { useColorTheme } from '../hooks/useColorTheme';
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ROLE_BANNER, getGreeting } from '../lib/roleBanner';
 import { Visit, Patient, UserRole, Language } from '../types';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
@@ -50,18 +53,11 @@ export default function LandingDashboard({
   onOpenLogin,
   onOpenAdmin
 }: LandingDashboardProps) {
+  useColorTheme(); // re-render when the colour theme changes so palette colours refresh
 
   // Time Horizon & Filter State
   const [isExporting, setIsExporting] = useState(false);
   const [activeQuickFilter, setActiveQuickFilter] = useState<'all' | 'urgent' | 'panel'>('all');
-
-  // Time-based greeting helper
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
-  };
 
   const handleExportTelemetry = () => {
     setIsExporting(true);
@@ -163,36 +159,31 @@ export default function LandingDashboard({
     label: string; subtitle: string; modules: string[]; kpis: KpiId[]; panels: PanelId[];
   }> = {
     doctor: {
-      label: 'Doctor dashboard',
-      subtitle: 'Your consultation queue, patient flow and diagnosis trends.',
+      ...ROLE_BANNER['doctor'],
       modules: ['queue', 'consultation', 'report'],
       kpis: ['waiting', 'encounters', 'efficiency'],
       panels: ['worklist', 'throughput', 'icd', 'facility'],
     },
     pharmacist: {
-      label: 'Pharmacy dashboard',
-      subtitle: 'Prescriptions awaiting fulfilment, stock levels and fast-moving medicines.',
+      ...ROLE_BANNER['pharmacist'],
       modules: ['dispensary'],
       kpis: ['prescriptions', 'encounters', 'efficiency'],
       panels: ['worklist', 'pharmacy', 'facility'],
     },
     'clinic-assistant': {
-      label: 'Front desk dashboard',
-      subtitle: 'Registration, triage, appointments and billing at a glance.',
+      ...ROLE_BANNER['clinic-assistant'],
       modules: ['registration', 'triage', 'appointments', 'billing'],
       kpis: ['encounters', 'waiting', 'collections'],
       panels: ['worklist', 'throughput', 'payer', 'facility'],
     },
     admin: {
-      label: 'Administrator dashboard',
-      subtitle: 'Clinic-wide operations, finance, compliance and administration.',
+      ...ROLE_BANNER['admin'],
       modules: ['appointments', 'admin'],
       kpis: ['encounters', 'waiting', 'collections', 'efficiency'],
       panels: ['throughput', 'icd', 'payer', 'pharmacy', 'facility'],
     },
     hr: {
-      label: 'HR dashboard',
-      subtitle: 'Staff, shifts and workforce administration.',
+      ...ROLE_BANNER['hr'],
       modules: ['admin'],
       kpis: ['encounters', 'efficiency'],
       panels: ['facility'],
@@ -203,11 +194,11 @@ export default function LandingDashboard({
   type WorkKind = 'consult' | 'dispense' | 'triage' | 'billing';
   const byWait = (list: Visit[]) =>
     list.slice().sort((a, b) => (a.registeredTime ?? Infinity) - (b.registeredTime ?? Infinity)).slice(0, 6);
-  const WORK_SECTIONS: Record<WorkKind, { title: string; subtitle: string; cta: string; tab: string; empty: string }> = {
-    consult: { title: 'Next patients', subtitle: 'Longest-waiting first. Patients already in consultation are shown at their queue position.', cta: 'Open full queue', tab: 'queue', empty: 'No patients waiting.' },
-    dispense: { title: 'Prescriptions to dispense', subtitle: 'Longest-waiting first.', cta: 'Open dispensary', tab: 'dispensary', empty: 'No prescriptions waiting.' },
-    triage: { title: 'Waiting for triage', subtitle: 'Registered patients who still need vitals taken.', cta: 'Open triage', tab: 'triage', empty: 'No patients waiting for triage.' },
-    billing: { title: 'Awaiting payment', subtitle: 'Visits finished and ready for the cashier.', cta: 'Open billing', tab: 'billing', empty: 'No visits waiting for payment.' },
+  const WORK_SECTIONS: Record<WorkKind, { title: string; subtitle: string; cta: string; rowCta: string; tab: string; empty: string }> = {
+    consult: { title: 'Next patients', subtitle: 'Longest-waiting first. Patients already in consultation are shown at their queue position.', cta: 'Open full queue', rowCta: 'Go to queue', tab: 'queue', empty: 'No patients waiting.' },
+    dispense: { title: 'Prescriptions to dispense', subtitle: 'Longest-waiting first.', cta: 'Open dispensary', rowCta: 'Dispense', tab: 'dispensary', empty: 'No prescriptions waiting.' },
+    triage: { title: 'Waiting for triage', subtitle: 'Registered patients who still need vitals taken.', cta: 'Open triage', rowCta: 'Take vitals', tab: 'triage', empty: 'No patients waiting for triage.' },
+    billing: { title: 'Awaiting payment', subtitle: 'Visits finished and ready for the cashier.', cta: 'Open billing', rowCta: 'Collect payment', tab: 'billing', empty: 'No visits waiting for payment.' },
   };
   const worklists: { kind: WorkKind; visits: Visit[] }[] =
     userRole === 'pharmacist' ? [{ kind: 'dispense', visits: byWait(pharmacyQueue) }]
@@ -224,8 +215,8 @@ export default function LandingDashboard({
   const showKpi = (id: KpiId) => roleConfig.kpis.includes(id);
   const showPanel = (id: PanelId) => roleConfig.panels.includes(id);
 
-  const WAITING_BADGE = 'bg-amber-100 text-amber-800 border-amber-300';
-  const NEUTRAL_BADGE = 'bg-slate-100 text-slate-600 border-slate-300';
+  const WAITING_BADGE = 'chip-warn';
+  const NEUTRAL_BADGE = 'chip-neutral';
 
   // Application Workspace Modules Config
   const workspaceModules = [
@@ -235,7 +226,7 @@ export default function LandingDashboard({
       subtitle: 'Biometric MyKad OCR, Patient Records & Triage Queue',
       icon: Users,
       badge: `${patientsList.length} Registered`,
-      badgeColor: 'bg-teal-100 text-teal-800 border-teal-300',
+      badgeColor: 'chip-brand',
       actionText: 'Launch Registration',
       tabKey: 'registration'
     },
@@ -255,7 +246,7 @@ export default function LandingDashboard({
       subtitle: 'e-Prescription Fulfillment, FIFO Batch & Labeling',
       icon: Pill,
       badge: `${pharmacyQueue.length} Pending Orders`,
-      badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
+      badgeColor: 'chip-info',
       actionText: 'Open Dispensary',
       tabKey: 'dispensary'
     },
@@ -265,7 +256,7 @@ export default function LandingDashboard({
       subtitle: 'Corporate Panel e-GL Claims, Cash/QR & Receipts',
       icon: CreditCard,
       badge: `${cashierQueue.length} Unpaid Visits`,
-      badgeColor: 'bg-sky-100 text-sky-800 border-sky-300',
+      badgeColor: 'chip-info',
       actionText: 'Launch Cashier Desk',
       tabKey: 'billing'
     },
@@ -295,7 +286,7 @@ export default function LandingDashboard({
       subtitle: 'Vitals capture and priority assignment before consultation',
       icon: Activity,
       badge: `${triageQueue.length} In Triage`,
-      badgeColor: 'bg-teal-100 text-teal-800 border-teal-300',
+      badgeColor: 'chip-brand',
       actionText: 'Open Triage',
       tabKey: 'triage'
     },
@@ -305,7 +296,7 @@ export default function LandingDashboard({
       subtitle: 'Bookings, check-ins and walk-in scheduling',
       icon: Calendar,
       badge: 'Schedule',
-      badgeColor: 'bg-sky-100 text-sky-800 border-sky-300',
+      badgeColor: 'chip-info',
       actionText: 'Open Appointments',
       tabKey: 'appointments'
     },
@@ -315,21 +306,19 @@ export default function LandingDashboard({
       subtitle: 'Staff, inventory, equipment, security and system settings',
       icon: ShieldCheck,
       badge: 'Admin',
-      badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
+      badgeColor: 'chip-info',
       actionText: 'Open Console',
       tabKey: 'admin'
     },
   ].filter((m) => roleConfig.modules.includes(m.id));
 
-  return (
-    <div className="space-y-6 animate-fadeIn pb-12 font-sans text-slate-800">
+  const [bannerSlot, setBannerSlot] = useState<HTMLElement | null>(() => document.getElementById('page-banner-slot'));
+  React.useEffect(() => { setBannerSlot(document.getElementById('page-banner-slot')); }, []);
 
-      {/* ========================================================================= */}
-      {/* 1. ENTERPRISE COMMAND-CENTER HEADER & CONTROL BAR                         */}
-      {/* ========================================================================= */}
-      <div className="bg-surface-muted border border-line-subtle rounded-none p-6 space-y-5 shadow-xs">
-        
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+  // The staff shell hosts this block as its page banner; on the public page there is no slot, so it renders inline.
+  const headerBanner = (
+    <>
+<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-2xs font-bold uppercase tracking-wider rounded-none">
@@ -340,13 +329,13 @@ export default function LandingDashboard({
                 All systems operational
               </span>
             </div>
-            <h2 className="type-section-title text-slate-900 flex items-center gap-2.5">
+            <h2 className="type-section-title text-ink flex items-center gap-2.5">
               <Activity className="w-7 h-7 text-accent" />
               <span>
                 {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
               </span>
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-normal">
+            <p className="text-xs sm:text-sm text-ink/75 mt-1 font-normal">
               {userRole ? roleConfig.subtitle : 'Unified healthcare operations launchpad, outpatient telemetry, clinical analytics, and facility status.'}
             </p>
           </div>
@@ -375,7 +364,16 @@ export default function LandingDashboard({
             )}
           </div>
         </div>
-      </div>
+    </>
+  );
+
+  return (
+    <div className="space-y-6 animate-fadeIn pb-12 font-sans text-ink">
+
+      {/* ========================================================================= */}
+      {/* 1. ENTERPRISE COMMAND-CENTER HEADER & CONTROL BAR                         */}
+      {/* ========================================================================= */}
+      {bannerSlot ? createPortal(headerBanner, bannerSlot) : <div className="bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs">{headerBanner}</div>}
 
       {/* ROLE WORKLISTS: what this role needs to act on next */}
       {showPanel('worklist') && worklists.map(({ kind, visits }) => {
@@ -385,16 +383,16 @@ export default function LandingDashboard({
           <div key={kind} className="bg-surface-muted border border-line-subtle rounded-none shadow-xs">
             <div className="flex items-center justify-between gap-3 p-4 border-b border-line-subtle">
               <div>
-                <h3 className="type-card-title text-slate-900 flex items-center gap-2">
+                <h3 className="type-card-title text-ink flex items-center gap-2">
                   <KindIcon className="w-5 h-5 text-accent" />
                   {cfg.title}
                 </h3>
-                <p className="text-xs text-slate-600 mt-0.5">{cfg.subtitle}</p>
+                <p className="text-xs text-ink/75 mt-0.5">{cfg.subtitle}</p>
               </div>
               <button
                 type="button"
                 onClick={() => onNavigateTab(cfg.tab)}
-                className="px-3 py-1.5 bg-primary hover:bg-deep text-white text-xs font-bold rounded-none cursor-pointer flex items-center gap-1.5"
+                className="min-h-11 px-4 bg-primary hover:bg-deep text-white text-xs font-bold rounded-none cursor-pointer flex items-center gap-1.5"
               >
                 {cfg.cta}
                 <ChevronRight className="w-4 h-4" />
@@ -402,8 +400,8 @@ export default function LandingDashboard({
             </div>
 
             {visits.length === 0 ? (
-              <div className="p-6 text-sm text-slate-600 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <div className="p-6 text-sm text-ink/75 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-accent" />
                 {cfg.empty}
               </div>
             ) : (
@@ -425,27 +423,35 @@ export default function LandingDashboard({
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="w-7 h-7 shrink-0 flex items-center justify-center bg-surface-accent border border-line text-accent font-mono text-xs font-bold">{idx + 1}</span>
                         <div className="min-w-0">
-                          <p className="text-sm font-bold text-slate-900 truncate">{patient?.fullName ?? `Visit ${v.id}`}</p>
-                          <p className="text-xs text-slate-600 truncate">{detail}</p>
+                          <p className="text-sm font-bold text-ink truncate">{patient?.fullName ?? `Visit ${v.id}`}</p>
+                          <p className="text-xs text-ink/75 truncate">{detail}</p>
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
                         {allergies.length > 0 && kind !== 'billing' && (
-                          <span className="px-2 py-0.5 bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1">
+                          <span className="chip chip-danger">
                             <AlertCircle className="w-3.5 h-3.5" /> Allergy: {allergies.join(', ')}
                           </span>
                         )}
                         {flag && (
-                          <span className="px-2 py-0.5 bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1">
+                          <span className="chip chip-danger">
                             <AlertCircle className="w-3.5 h-3.5" /> {flag}
                           </span>
                         )}
                         {v.status === 'Consulting' && (
-                          <span className="px-2 py-0.5 bg-sky-100 text-sky-800 border border-sky-300">In consultation</span>
+                          <span className="chip chip-info">In consultation</span>
                         )}
-                        <span className={`px-2 py-0.5 border font-mono flex items-center gap-1 ${mins !== null && mins >= 20 ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-surface-accent text-accent border-line'}`}>
+                        <span className={`chip font-mono ${mins !== null && mins >= 20 ? 'chip-warn' : 'chip-brand'}`}>
                           <Clock className="w-3.5 h-3.5" /> {mins !== null ? `${mins} min` : 'Just in'}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => onNavigateTab(cfg.tab)}
+                          className="min-h-11 px-4 bg-primary hover:bg-deep text-white text-xs font-bold rounded-none cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                        >
+                          {cfg.rowCta}
+                          <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                        </button>
                       </div>
                     </li>
                   );
@@ -454,11 +460,11 @@ export default function LandingDashboard({
             )}
 
             {kind === 'dispense' && lowStockDrugs.length > 0 && (
-              <div className="px-4 py-3 border-t border-line-subtle bg-amber-50 text-xs text-amber-900 flex flex-wrap items-center gap-2">
+              <div className="px-4 py-3 border-t border-line-subtle bg-amber-50 dark:bg-amber-950/40 text-xs text-amber-900 dark:text-amber-100 flex flex-wrap items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <strong>Low stock:</strong>
                 {lowStockDrugs.slice(0, 6).map((d) => (
-                  <span key={d.id} className="px-2 py-0.5 bg-white border border-amber-300 font-semibold">{d.name} ({d.currentStock})</span>
+                  <span key={d.id} className="chip chip-warn">{d.name} ({d.currentStock})</span>
                 ))}
               </div>
             )}
@@ -469,9 +475,31 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 2. WORKSPACE MODULE LAUNCHPAD (5 INTERACTIVE ENTERPRISE TILES)             */}
       {/* ========================================================================= */}
+      {worklists.length > 0 ? (
+        // A worklist leads this role's page, so the shortcuts shrink to one row of links
+        <nav aria-label="Workspaces" className="flex flex-wrap items-center gap-2">
+          <span className="type-heading-caps text-ink/75 mr-1">Workspaces</span>
+          {workspaceModules.map((mod) => {
+            const IconComponent = mod.icon;
+            return (
+              <button
+                key={mod.id}
+                type="button"
+                onClick={() => (mod.tabKey === 'admin' ? onOpenAdmin?.() : onNavigateTab(mod.tabKey))}
+                aria-label={`${mod.title}: ${mod.badge}`}
+                className="min-h-11 px-3 bg-surface border border-line hover:bg-surface-strong text-ink text-xs font-bold rounded-none cursor-pointer flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+              >
+                <IconComponent className="w-4 h-4 text-accent" aria-hidden="true" />
+                {mod.title}
+                <span className={`chip font-mono ${mod.badgeColor}`}>{mod.badge}</span>
+              </button>
+            );
+          })}
+        </nav>
+      ) : (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="type-heading-caps text-slate-700 flex items-center gap-2">
+          <h3 className="type-heading-caps text-ink/75 flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-accent" />
             Choose a workspace
           </h3>
@@ -486,11 +514,11 @@ export default function LandingDashboard({
                 type="button"
                 onClick={() => (mod.tabKey === 'admin' ? onOpenAdmin?.() : onNavigateTab(mod.tabKey))}
                 aria-label={`${mod.title}: ${mod.badge}. ${mod.actionText}`}
-                className={`text-left w-full bg-white border border-slate-200 p-4 rounded-none shadow-2xs hover:bg-surface-muted transition-colors cursor-pointer flex flex-col justify-between group gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`}
+                className={`text-left w-full bg-surface border border-line p-4 rounded-none shadow-2xs hover:bg-surface-muted transition-colors cursor-pointer flex flex-col justify-between group gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`}
               >
                 <span className="block space-y-2 w-full">
                   <span className="flex items-center justify-between">
-                    <span className="p-2 bg-slate-50 border border-slate-100 group-hover:bg-teal-100 transition-colors">
+                    <span className="p-2 bg-surface-muted border border-line-subtle group-hover:bg-surface-strong transition-colors">
                       <IconComponent className="w-5 h-5 text-accent" aria-hidden="true" />
                     </span>
                     <span className={`px-2 py-0.5 text-2xs font-bold font-mono uppercase tracking-wider border rounded-none ${mod.badgeColor}`}>
@@ -499,16 +527,16 @@ export default function LandingDashboard({
                   </span>
 
                   <span className="block">
-                    <span className="type-card-title text-slate-900 group-hover:text-accent transition-colors block">
+                    <span className="type-card-title text-ink group-hover:text-accent transition-colors block">
                       {mod.title}
                     </span>
-                    <span className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed block">
+                    <span className="text-xs text-ink/75 mt-1 line-clamp-2 leading-relaxed block">
                       {mod.subtitle}
                     </span>
                   </span>
                 </span>
 
-                <span className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-accent group-hover:text-ink transition-colors w-full">
+                <span className="pt-2 border-t border-line-subtle flex items-center justify-between text-xs font-bold text-accent group-hover:text-ink transition-colors w-full">
                   <span>{mod.actionText}</span>
                   <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </span>
@@ -517,6 +545,7 @@ export default function LandingDashboard({
           })}
         </div>
       </div>
+      )}
 
       {/* ========================================================================= */}
       {/* 3. STATISTICAL KPI CARDS WITH SPARKLINES & SLA BADGES                     */}

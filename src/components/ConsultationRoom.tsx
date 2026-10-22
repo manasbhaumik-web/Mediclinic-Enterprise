@@ -203,7 +203,7 @@ export default function ConsultationRoom({
       <div className="bg-white dark:bg-night-850 p-12 text-center rounded-none border border-line-subtle dark:border-teal-800/40">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
         <h3 className="type-section-title text-ink dark:text-teal-300">No Patient Selected</h3>
-        <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Please select an outpatient from the waiting queue to begin clinical documentation.</p>
+        <p className="text-subtle dark:text-slate-400 text-xs mt-1">Please select an outpatient from the waiting queue to begin clinical documentation.</p>
       </div>
     );
   }
@@ -282,7 +282,7 @@ export default function ConsultationRoom({
       <div className="bg-white dark:bg-night-900 border-2 border-brand p-12 text-center rounded-none shadow-2xl max-w-md mx-auto my-12 animate-fadeIn">
         <Lock className="w-12 h-12 text-accent mx-auto mb-4" />
         <h3 className="type-section-title text-ink dark:text-teal-300">Privacy Lock Screen</h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+        <p className="text-xs text-subtle dark:text-slate-400 mt-2 leading-relaxed">
           Clinician privacy screen is locked. Click unlock to resume encounter for <strong>{currentPatient.fullName}</strong>.
         </p>
         <button
@@ -314,7 +314,7 @@ export default function ConsultationRoom({
             <span><kbd className="bg-white dark:bg-night-900 px-1.5 py-0.5 border border-line text-deep font-bold">Alt+4</kbd> Plan &amp; Rx</span>
             <span><kbd className="bg-white dark:bg-night-900 px-1.5 py-0.5 border border-line text-deep font-bold">Ctrl+Enter</kbd> Review &amp; Sign Off</span>
           </div>
-          <button type="button" onClick={() => setShowShortcutsHelp(false)} className="text-slate-400 hover:text-slate-700">
+          <button type="button" onClick={() => setShowShortcutsHelp(false)} className="text-slate-400 hover:text-muted">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -362,19 +362,19 @@ export default function ConsultationRoom({
                   1. Draft Saved
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-surface dark:bg-night-800 text-accent dark:text-teal-300 border-brand' : 'bg-surface-accent dark:bg-night-850 text-slate-500 dark:text-slate-400 border-line dark:border-teal-800/40'}`}>
+                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-surface dark:bg-night-800 text-accent dark:text-teal-300 border-brand' : 'bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border-line dark:border-teal-800/40'}`}>
                   2. Ready for Review
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent dark:bg-night-850 text-slate-500 dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
                   3. Signed Note
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent dark:bg-night-850 text-slate-500 dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
                   4. Prescription Routed
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent dark:bg-night-850 text-slate-500 dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
                   5. Encounter Closed
                 </span>
               </div>

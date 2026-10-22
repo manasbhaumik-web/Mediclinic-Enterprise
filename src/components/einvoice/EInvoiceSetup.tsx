@@ -151,12 +151,12 @@ export default function EInvoiceSetup({ connection }: { connection: EInvoiceConn
       {!check.ok && (
         <div className="bg-surface border border-line-subtle p-3">
           <p className="text-xs font-bold text-ink mb-1">Needed before e-Invoicing can be switched on:</p>
-          <ul className="list-disc pl-5 text-xs text-slate-600 space-y-0.5">{check.problems.map((p) => <li key={p}>{p}</li>)}</ul>
+          <ul className="list-disc pl-5 text-xs text-muted space-y-0.5">{check.problems.map((p) => <li key={p}>{p}</li>)}</ul>
         </div>
       )}
 
       {notice && (
-        <p role="status" className={`text-xs font-bold px-3 py-2 border ${notice.ok ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}>{notice.text}</p>
+        <p role="status" className={`text-xs font-bold px-3 py-2 border ${notice.ok ? 'chip-ok' : 'chip-danger'}`}>{notice.text}</p>
       )}
 
       <div className="flex flex-wrap items-center gap-2">
@@ -173,8 +173,8 @@ export default function EInvoiceSetup({ connection }: { connection: EInvoiceConn
           </label>
         )}
       </div>
-      {!connection && <p className="text-2xs text-slate-500">Save the settings first; you can then test the connection and switch e-Invoicing on.</p>}
-      <p className="text-2xs text-slate-500">While OFF, payments are not turned into e-invoices. Turning it ON starts recording an e-invoice for every settled payment.</p>
+      {!connection && <p className="text-2xs text-subtle">Save the settings first; you can then test the connection and switch e-Invoicing on.</p>}
+      <p className="text-2xs text-subtle">While OFF, payments are not turned into e-invoices. Turning it ON starts recording an e-invoice for every settled payment.</p>
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
             <h2 className="type-section-title-lg text-ink">
               {isBM ? 'Rawatan Perubatan & Pakar Kami' : 'Doctor Consultations & Urgent Care'}
             </h2>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-muted text-xs sm:text-sm leading-relaxed">
               {isBM 
                 ? 'Menyediakan rawatan am, pesakit luar, penjagaan kanak-kanak, pemeriksaan kesihatan korporat, dan prosedur kecemasan ringan 24 jam.'
                 : 'Delivering expert general practice, pediatric care, corporate health screenings, and round-the-clock minor emergency procedures.'
@@ -58,7 +58,7 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
               </span>
             </div>
     
-            <p className="text-xs text-slate-700 leading-relaxed font-normal relative z-10">
+            <p className="text-xs text-muted leading-relaxed font-normal relative z-10">
               {isBM 
                 ? 'Diagnosis dan rawatan penyakit harian, serta penjagaan berterusan untuk penyakit kronik, oleh doktor berdaftar MMC.'
                 : 'Diagnosis and treatment for everyday illnesses, plus ongoing care for long-term conditions, by MMC-registered doctors.'
@@ -66,7 +66,7 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
             </p>
     
             {/* Key Clinical Checklist */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 relative z-10 text-xs font-semibold text-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 relative z-10 text-xs font-semibold text-strong">
               <div className="flex items-center gap-2 bg-surface-muted p-2.5 rounded-none border border-line-subtle">
                 <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
                 <span>{isBM ? 'Demam Akut & Selsema Viral' : 'Acute Fever & Viral Flu'}</span>
@@ -116,7 +116,7 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
                 <h3 className="type-card-title-lg text-ink group-hover:text-emerald-700 transition-colors">
                   {isBM ? 'Farmasi & Dispensari Bekalan Ubat' : 'On-Site Pharmacy & Dispensing'}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   {isBM 
                     ? 'Farmasi berlesen dengan bekalan ubat sah KKM, semakan alahan ubat automatik, dan ubat khas kanak-kanak.' 
                     : 'Licensed dispensary supplying KKM-approved pharmaceuticals, automated antibiotic fulfillment, and child allergy checks.'
@@ -143,7 +143,7 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
                 <h3 className="type-card-title-lg text-ink group-hover:text-sky-600 transition-colors">
                   {isBM ? 'Pediatrik & Imunisasi Kanak-Kanak' : 'Child Vaccination & Paediatrics'}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   {isBM 
                     ? 'Rawatan mesra kanak-kanak, pemantauan tumbesaran, dan jadual suntikan vaksin imunisasi KKM.' 
                     : 'Gentle healthcare for infants and children, growth tracking, and mandatory KKM childhood vaccination schedules.'
@@ -154,23 +154,23 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
           </div>
     
           {/* CARD 4: CORPORATE PANEL (Spans 4 Cols) */}
-          <div className="lg:col-span-4 bg-surface border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-indigo-600 hover:shadow-md transition-all group relative overflow-hidden">
-            <div className="h-1 bg-indigo-600 absolute top-0 left-0 right-0" />
+          <div className="lg:col-span-4 bg-surface border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between hover:border-teal-600 hover:shadow-md transition-all group relative overflow-hidden">
+            <div className="h-1 bg-teal-600 absolute top-0 left-0 right-0" />
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="w-11 h-11 rounded-none bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-2xs group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 rounded-none bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600 shadow-2xs group-hover:scale-105 transition-transform">
                   <CreditCard className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-none border border-indigo-200">
+                <span className="text-xs font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-none border border-teal-200">
                   150+ Panels
                 </span>
               </div>
     
               <div className="space-y-1.5">
-                <h3 className="type-card-title-lg text-ink group-hover:text-indigo-700 transition-colors">
+                <h3 className="type-card-title-lg text-ink group-hover:text-teal-700 transition-colors">
                   {isBM ? 'Semak Insurans Panel Tanpa Tunai' : 'Check your cashless medical coverage'}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   {isBM 
                     ? 'Tuntutan bil tanpa tunai untuk PMCare, MiCare, HealthMetrics, Petronas, dan Maybank dengan e-GL serta-merta.' 
                     : 'Cashless medical billing for PMCare, MiCare, HealthMetrics, Petronas, and Maybank staff with real-time e-GL dispatch.'
@@ -197,7 +197,7 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
                 <h3 className="type-card-title-lg text-ink group-hover:text-accent transition-colors">
                   {isBM ? 'Pemeriksaan Kesihatan Eksekutif' : 'Executive Health Screening'}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   {isBM 
                     ? 'Ujian darah penuh, ECG jantung 12-lead, profil kolesterol, dan ujian fungsi buah pinggang & hati.' 
                     : 'Full-body blood profiling, 12-lead ECG cardiac screening, lipid panels, and kidney/liver functionality testing.'
@@ -222,7 +222,7 @@ export default function ServicesSection({ isBM, setIsBookingOpen }: ServicesSect
                 <h3 className="type-card-title-lg text-ink">
                   {isBM ? 'Rawatan Kecemasan 24 Jam & Pembedahan Kecil' : '24-Hour Urgent Care & Minor Surgical Procedures'}
                 </h3>
-                <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                <p className="text-xs text-muted max-w-2xl leading-relaxed">
                   {isBM 
                     ? 'Penjagaan serta-merta untuk jahitan luka kecederaan, cuci lecuran, nebulizer asma, dan suntikan kancing gigi.' 
                     : 'Immediate care for acute wound suturing, burn dressing, abscess drainage, asthma nebulization, foreign body removal, and tetanus prophylaxis.'

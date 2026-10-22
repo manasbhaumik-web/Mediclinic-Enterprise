@@ -33,7 +33,7 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
     <div className="space-y-4">
       {(drugs.error || register.error) && <Notice ok={false}>Could not load the register. Has the v22 inventory migration been applied?</Notice>}
       {controlled.length === 0 && !drugs.isLoading && (
-        <p className="text-xs text-slate-600 bg-surface border border-line-subtle p-4">
+        <p className="text-xs text-muted bg-surface border border-line-subtle p-4">
           No drug is kept in the controlled register yet. An administrator can mark a drug as controlled when adding or editing it (Stock tab).
         </p>
       )}
@@ -47,9 +47,9 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
               <button key={d.id} type="button" onClick={() => setDrugId(drugId === d.id ? '' : d.id)}
                 className={`text-left bg-surface border p-3 cursor-pointer ${drugId === d.id ? 'border-brand' : 'border-line-subtle'}`}>
                 <div className="text-xs font-bold text-ink">{d.name}</div>
-                <div className="text-2xs text-slate-500">{controlClassLabel(d.controlClass)}</div>
-                <div className="text-xl font-bold font-mono text-ink">{bal}<span className="text-2xs text-slate-500 font-medium"> in register</span></div>
-                {unsigned(d.id) > 0 && <div className="text-2xs font-bold text-violet-800">{unsigned(d.id)} awaiting signature</div>}
+                <div className="text-2xs text-subtle">{controlClassLabel(d.controlClass)}</div>
+                <div className="text-xl font-bold font-mono text-ink">{bal}<span className="text-2xs text-subtle font-medium"> in register</span></div>
+                {unsigned(d.id) > 0 && <div className="text-2xs font-bold text-teal-800">{unsigned(d.id)} awaiting signature</div>}
                 {problem && <div className="text-2xs font-bold text-rose-700">{problem}</div>}
               </button>
             );
@@ -66,7 +66,7 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle">
+            <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
               <th className="p-3">When</th><th className="p-3">Drug</th><th className="p-3">Entry</th><th className="p-3 text-right">Qty</th><th className="p-3 text-right">Balance</th><th className="p-3">Patient / prescriber</th><th className="p-3">Done by</th><th className="p-3">Second signature</th>
             </tr>
           </thead>
@@ -75,23 +75,23 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
               <tr key={e.id} className="border-b border-line-subtle align-top">
                 <td className="p-3 whitespace-nowrap">{fmtDate(e.createdAt)}</td>
                 <td className="p-3 font-bold text-ink">{name.get(e.inventoryId) ?? '?'}</td>
-                <td className="p-3">{ENTRY_LABEL[e.entryType]}{e.reference && <div className="text-slate-500">{e.reference}</div>}{e.reason && <div className="text-slate-500 max-w-[14rem]">{e.reason}</div>}</td>
+                <td className="p-3">{ENTRY_LABEL[e.entryType]}{e.reference && <div className="text-subtle">{e.reference}</div>}{e.reason && <div className="text-subtle max-w-[14rem]">{e.reason}</div>}</td>
                 <td className={`p-3 text-right font-mono ${e.quantity < 0 ? 'text-rose-700' : ''}`}>{e.quantity > 0 ? `+${e.quantity}` : e.quantity}</td>
                 <td className="p-3 text-right font-mono font-bold">{e.balanceAfter}</td>
-                <td className="p-3">{e.patientName ? <>{e.patientName}<div className="font-mono text-slate-500">{maskICNumber(e.patientIc, showPII)}</div></> : '–'}{e.prescriberName && <div className="text-slate-500">Dr: {e.prescriberName}</div>}</td>
+                <td className="p-3">{e.patientName ? <>{e.patientName}<div className="font-mono text-subtle">{maskICNumber(e.patientIc, showPII)}</div></> : '–'}{e.prescriberName && <div className="text-subtle">Dr: {e.prescriberName}</div>}</td>
                 <td className="p-3">{e.performedByName ?? '?'}</td>
                 <td className="p-3">
-                  {e.signedBy ? <span className="text-emerald-700 font-bold">{e.signedByName}<div className="font-medium text-slate-500">{fmtDate(e.signedAt)}</div></span>
-                    : e.performedBy === user?.id ? <span className="text-violet-800 font-bold">Needs another person</span>
+                  {e.signedBy ? <span className="text-emerald-700 font-bold">{e.signedByName}<div className="font-medium text-subtle">{fmtDate(e.signedAt)}</div></span>
+                    : e.performedBy === user?.id ? <span className="text-teal-800 font-bold">Needs another person</span>
                       : <button type="button" className="font-bold text-accent cursor-pointer" disabled={api.signEntry.isPending} onClick={() => sign(e.id)}>Sign</button>}
                 </td>
               </tr>
             ))}
-            {entries.length === 0 && !register.isLoading && <tr><td className="p-6 text-center text-slate-500" colSpan={8}>No register entries.</td></tr>}
+            {entries.length === 0 && !register.isLoading && <tr><td className="p-6 text-center text-subtle" colSpan={8}>No register entries.</td></tr>}
           </tbody>
         </table>
       </div>
-      <p className="text-2xs text-slate-500 leading-relaxed">
+      <p className="text-2xs text-subtle leading-relaxed">
         The register is append-only: entries cannot be edited or removed, and a correction is a new entry. A dispensed controlled drug cannot leave the pharmacy until a different pharmacist or administrator has signed its entry.
         This is a working record; it is not an official poison book or controlled-drug register format, so confirm what your licence requires.
       </p>

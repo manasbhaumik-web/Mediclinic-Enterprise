@@ -49,9 +49,9 @@ export default function NextPatientCard({ pinnedVisitIds, nextVisit, calledTimes
           {['Ready', 'Called', 'In consultation'].map((label, i) => (
             <React.Fragment key={label}>
               {i > 0 && <li aria-hidden="true" className="w-7 h-0.5 bg-line" />}
-              <li className={`flex items-center gap-2 ${i === stepIndex ? 'text-accent' : 'text-slate-600'}`} aria-current={i === stepIndex ? 'step' : undefined}>
+              <li className={`flex items-center gap-2 ${i === stepIndex ? 'text-accent' : 'text-muted'}`} aria-current={i === stepIndex ? 'step' : undefined}>
                 <span className={`w-[22px] h-[22px] rounded-full text-xs font-bold flex items-center justify-center ${
-                  i === stepIndex ? 'bg-primary text-white' : i < stepIndex ? 'bg-surface-strong text-accent' : 'border-2 border-line text-slate-600'
+                  i === stepIndex ? 'bg-primary text-white' : i < stepIndex ? 'bg-surface-strong text-accent' : 'border-2 border-line text-muted'
                 }`}>{i + 1}</span>
                 {label}
               </li>
@@ -66,7 +66,7 @@ export default function NextPatientCard({ pinnedVisitIds, nextVisit, calledTimes
           <div className="min-w-0 space-y-3">
             <div className="space-y-1.5">
               <h3 className="text-2xl font-bold text-ink leading-tight">{nextPatient.fullName}</h3>
-              <p className="text-sm text-slate-600">ID {nextPatient.id} · {nextPatient.gender} · Born {nextPatient.dob}</p>
+              <p className="text-sm text-muted">ID {nextPatient.id} · {nextPatient.gender} · Born {nextPatient.dob}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <span className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 flex items-center gap-1.5 ${heroTriage.badgeBg}`}>
@@ -114,7 +114,7 @@ export default function NextPatientCard({ pinnedVisitIds, nextVisit, calledTimes
               title="Toggle pin priority"
               className={`h-11 px-4 border text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
                 pinnedVisitIds[nextVisit.id]
-                  ? 'bg-amber-100 text-amber-900 border-amber-300'
+                  ? 'chip-warn'
                   : 'bg-surface text-ink border-line hover:bg-surface-accent'
               }`}
             >
@@ -137,26 +137,26 @@ export default function NextPatientCard({ pinnedVisitIds, nextVisit, calledTimes
         {/* Row 2: key facts, equal-height tiles on one line (complaint gets the extra width) */}
         <div className={`grid grid-cols-2 gap-3 ${obj && obj.temperature > 0 ? 'lg:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]' : 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]'}`}>
           <div className="bg-surface-muted border border-line-subtle px-3.5 py-3 col-span-2 lg:col-span-1 min-w-0">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Chief complaint</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted">Chief complaint</div>
             <div className="mt-1 text-base font-semibold text-ink">{getChiefComplaintLabel(nextVisit.soap?.subjective)}</div>
           </div>
-          <div className={`px-3.5 py-3 border ${heroWait >= 20 ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
+          <div className={`px-3.5 py-3 border ${heroWait >= 20 ? 'chip-warn' : 'bg-surface-muted border-line-subtle text-ink'}`}>
             <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Waiting</div>
             <div className="mt-1 text-base font-bold">{heroWait} min</div>
           </div>
           {obj && obj.temperature > 0 && (
             <>
               <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Blood pressure</div>
-                <div className="mt-1 text-base font-semibold text-ink">{obj.bpSystolic}/{obj.bpDiastolic} <span className="text-xs font-medium text-slate-600">mmHg</span></div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted">Blood pressure</div>
+                <div className="mt-1 text-base font-semibold text-ink">{obj.bpSystolic}/{obj.bpDiastolic} <span className="text-xs font-medium text-muted">mmHg</span></div>
               </div>
-              <div className={`px-3.5 py-3 border ${obj.temperature >= 37.5 ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-surface-muted border-line-subtle text-ink'}`}>
+              <div className={`px-3.5 py-3 border ${obj.temperature >= 37.5 ? 'chip-danger' : 'bg-surface-muted border-line-subtle text-ink'}`}>
                 <div className="text-xs font-semibold uppercase tracking-wider opacity-80">Temperature</div>
                 <div className="mt-1 text-base font-bold">{obj.temperature}°C</div>
               </div>
               <div className="bg-surface-muted border border-line-subtle px-3.5 py-3">
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600">Heart rate</div>
-                <div className="mt-1 text-base font-semibold text-ink">{obj.heartRate} <span className="text-xs font-medium text-slate-600">bpm</span></div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted">Heart rate</div>
+                <div className="mt-1 text-base font-semibold text-ink">{obj.heartRate} <span className="text-xs font-medium text-muted">bpm</span></div>
               </div>
             </>
           )}
@@ -173,15 +173,15 @@ export default function NextPatientCard({ pinnedVisitIds, nextVisit, calledTimes
         <div className="border-t border-line-subtle bg-surface-muted px-6 py-4 text-sm text-ink space-y-4 animate-fadeIn">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full clinical subjective note</strong>
+              <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Full clinical subjective note</strong>
               <p className="leading-relaxed">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
             </div>
             <div>
-              <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Panel employer / coverage</strong>
+              <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Panel employer / coverage</strong>
               <p className="font-semibold text-accent">{nextPatient.panelEmployer}</p>
             </div>
             <div>
-              <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Address &amp; contact</strong>
+              <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Address &amp; contact</strong>
               <p>{nextPatient.phone} · {nextPatient.address}</p>
             </div>
           </div>

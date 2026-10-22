@@ -10,7 +10,7 @@ import { EventList } from './EquipmentHistory';
 type Mode = { kind: 'add' } | { kind: 'edit' | 'service' | 'fault' | 'status' | 'move' | 'decommission' | 'restore' | 'detail'; item: EquipmentItem } | null;
 
 const STATUS_TONE: Record<EquipmentStatus, 'ok' | 'warn' | 'bad' | 'idle'> = { Operational: 'ok', Maintenance: 'warn', 'Out of service': 'bad', Decommissioned: 'idle' };
-const DUE_CLASS = { overdue: 'text-rose-700 font-bold', soon: 'text-amber-700 font-bold', ok: 'text-slate-700', none: 'text-slate-400' } as const;
+const DUE_CLASS = { overdue: 'text-rose-700 font-bold', soon: 'text-amber-700 font-bold', ok: 'text-muted', none: 'text-slate-400' } as const;
 
 function DueCell({ date, today, soon }: { date: string | null; today: string; soon: number }) {
   const s = dueState(date, today, soon);
@@ -54,18 +54,18 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
           <option value="Out of service">Out of service</option><option value="Decommissioned">Decommissioned</option><option value="all">Everything</option>
         </select>
         <Button size="sm" onClick={() => setMode({ kind: 'add' })}>Register equipment</Button>
-        <span className="text-2xs text-slate-500">{shown.length} of {items.length}. Equipment is never deleted; it is decommissioned and its history stays.</span>
+        <span className="text-2xs text-subtle">{shown.length} of {items.length}. Equipment is never deleted; it is decommissioned and its history stays.</span>
       </div>
 
       {list.isError && <p role="alert" className="text-xs font-bold text-rose-700">Could not load equipment. {(list.error as Error)?.message}</p>}
       {!list.isLoading && items.length === 0 && (
-        <p className="text-xs text-slate-500 bg-surface border border-line-subtle p-6 text-center">No equipment registered yet. Use “Register equipment” to add the first device.</p>
+        <p className="text-xs text-subtle bg-surface border border-line-subtle p-6 text-center">No equipment registered yet. Use “Register equipment” to add the first device.</p>
       )}
 
       {items.length > 0 && (
         <div className="bg-surface border border-line-subtle overflow-x-auto">
           <table className="w-full text-xs">
-            <thead><tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle">
+            <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
               <th className="p-3">Equipment</th><th className="p-3">Location / custodian</th><th className="p-3">Status</th><th className="p-3">Next service</th><th className="p-3">Next calibration</th><th className="p-3 text-right">Actions</th>
             </tr></thead>
             <tbody>
@@ -73,10 +73,10 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
                 <tr key={e.id} className="border-b border-line-subtle align-top">
                   <td className="p-3">
                     <button className="font-bold text-ink text-left hover:underline cursor-pointer" onClick={() => open('detail', e)}>{e.name}</button>
-                    <div className="text-2xs text-slate-500 font-mono">{e.assetTag}{e.serialNumber ? ` · S/N ${e.serialNumber}` : ''}</div>
-                    <div className="text-2xs text-slate-500">{e.type}{e.riskClass ? ` · ${e.riskClass} risk` : ''}</div>
+                    <div className="text-2xs text-subtle font-mono">{e.assetTag}{e.serialNumber ? ` · S/N ${e.serialNumber}` : ''}</div>
+                    <div className="text-2xs text-subtle">{e.type}{e.riskClass ? ` · ${e.riskClass} risk` : ''}</div>
                   </td>
-                  <td className="p-3">{e.location ?? <span className="text-slate-400">No location</span>}<div className="text-2xs text-slate-500">{e.custodian ?? 'No custodian'}</div></td>
+                  <td className="p-3">{e.location ?? <span className="text-slate-400">No location</span>}<div className="text-2xs text-subtle">{e.custodian ?? 'No custodian'}</div></td>
                   <td className="p-3">
                     <span className={`inline-block text-2xs font-bold uppercase px-2 py-0.5 border ${toneClass[STATUS_TONE[e.status]]}`}>{e.status}</span>
                     {alertIds.has(e.id) && e.status !== 'Out of service' && <div className="text-2xs text-amber-700 font-bold mt-1">Needs attention</div>}
@@ -99,7 +99,7 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
                   </td>
                 </tr>
               ))}
-              {shown.length === 0 && <tr><td className="p-6 text-center text-slate-500" colSpan={6}>Nothing matches.</td></tr>}
+              {shown.length === 0 && <tr><td className="p-6 text-center text-subtle" colSpan={6}>Nothing matches.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -121,7 +121,7 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
 function Detail({ item, today, onClose }: { item: EquipmentItem; today: string; onClose: () => void }) {
   const events = useEquipmentEvents(item.id, 100);
   const bv = bookValue(item, today);
-  const row = (k: string, v: React.ReactNode) => <div className="flex justify-between gap-4 border-b border-line-subtle py-1"><span className="text-slate-500">{k}</span><span className="font-medium text-ink text-right">{v ?? '–'}</span></div>;
+  const row = (k: string, v: React.ReactNode) => <div className="flex justify-between gap-4 border-b border-line-subtle py-1"><span className="text-subtle">{k}</span><span className="font-medium text-ink text-right">{v ?? '–'}</span></div>;
   return (
     <Dialog title={`${item.name} (${item.assetTag})`} onClose={onClose} wide>
       <div className="grid sm:grid-cols-2 gap-x-6 text-xs">
@@ -138,7 +138,7 @@ function Detail({ item, today, onClose }: { item: EquipmentItem; today: string; 
           {item.status === 'Decommissioned' && row('Decommissioned', `${RETIRE_METHODS.find((m) => m.value === item.retireMethod)?.label ?? ''}: ${item.retireReason ?? ''} (${fmtDate(item.retiredAt)})`)}
         </div>
       </div>
-      {item.notes && <p className="text-xs text-slate-600 whitespace-pre-line">{item.notes}</p>}
+      {item.notes && <p className="text-xs text-muted whitespace-pre-line">{item.notes}</p>}
       <p className="type-heading-caps text-ink pt-2">History</p>
       <EventList events={events.data ?? []} loading={events.isLoading} />
       <div className="flex justify-end pt-1"><Button variant="outline" size="sm" onClick={onClose}>Close</Button></div>

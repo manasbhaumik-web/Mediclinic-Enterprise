@@ -58,7 +58,7 @@ export default function ObjectiveTab({
               <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" /> Triage Locked
             </span>
           </div>
-          <p className="text-2xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Physical examination readings captured at check-in station.</p>
+          <p className="text-2xs text-subtle dark:text-slate-400 font-medium mt-0.5">Physical examination readings captured at check-in station.</p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -252,7 +252,7 @@ export default function ObjectiveTab({
           <Brain className="w-4 h-4 text-accent dark:text-teal-400" />
           Augmented Reality (AR) Diagnostic Overlay
         </h4>
-        <p className="text-2xs text-slate-600 dark:text-slate-300 mb-3 font-medium">
+        <p className="text-2xs text-muted dark:text-slate-300 mb-3 font-medium">
           Project MRI/CT scans directly into the clinician visual field using HoloLens or Apple Vision Pro.
         </p>
         <div className="flex gap-2">

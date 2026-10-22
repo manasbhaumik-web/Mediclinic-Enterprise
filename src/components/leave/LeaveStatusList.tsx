@@ -18,7 +18,7 @@ export default function LeaveStatusList() {
 
   return (
     <div className="space-y-3 animate-fadeIn">
-      <p className="text-xs text-slate-600">Figures are calculated from approved leave and daily attendance records. Manage leave, attendance and rules under <b>Leave &amp; Attendance</b> in the admin console.</p>
+      <p className="text-xs text-muted">Figures are calculated from approved leave and daily attendance records. Manage leave, attendance and rules under <b>Leave &amp; Attendance</b> in the admin console.</p>
       {(staff.error || yearLeave.error) && <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">Could not load leave data. Has the v21 leave migration been applied?</p>}
       <div className="bg-surface border border-line-subtle rounded-none shadow-2xs overflow-x-auto">
         <table className="w-full text-left text-xs">
@@ -36,14 +36,14 @@ export default function LeaveStatusList() {
               const att = summariseAttendance((records.data ?? []).filter((r) => r.staffId === p.id).map((r) => ({ date: r.date, status: r.status })), mine.filter((d) => d.date >= monthStart && d.date <= monthEnd), cfg, holidaySet, monthStart, monthEnd, today);
               return (
                 <tr key={p.id} className="hover:bg-surface-muted">
-                  <td className="px-6 py-3 font-bold text-ink">{p.name}<div className="font-medium text-slate-500">{p.role}</div></td>
+                  <td className="px-6 py-3 font-bold text-ink">{p.name}<div className="font-medium text-subtle">{p.role}</div></td>
                   <td className="px-6 py-3 text-right font-mono">{Math.round(taken * 10) / 10} days</td>
                   <td className="px-6 py-3 text-right font-mono">{left}{rule && typeof ent === 'number' ? ' days' : ''}</td>
                   <td className="px-6 py-3 text-right font-mono">{att.rate === null ? '–' : `${att.rate}%`}{att.unrecorded > 0 && <span className="ml-2 text-amber-700 font-bold" title="Days with no attendance record">{att.unrecorded} unrecorded</span>}</td>
                 </tr>
               );
             })}
-            {(staff.data ?? []).length === 0 && <tr><td className="px-6 py-4 text-slate-500" colSpan={4}>No active staff.</td></tr>}
+            {(staff.data ?? []).length === 0 && <tr><td className="px-6 py-4 text-subtle" colSpan={4}>No active staff.</td></tr>}
           </tbody>
         </table>
       </div>

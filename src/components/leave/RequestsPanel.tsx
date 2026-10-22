@@ -37,7 +37,7 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
         <div role="tablist" className="flex border border-line-subtle">
           {(['pending', 'approved', 'rejected', 'cancelled', 'all'] as const).map((s) => (
             <button key={s} role="tab" aria-selected={status === s} onClick={() => setStatus(s)}
-              className={`px-3 py-1.5 text-xs font-bold cursor-pointer ${status === s ? 'bg-primary text-white' : 'text-slate-600 hover:bg-surface-accent'}`}>
+              className={`px-3 py-1.5 text-xs font-bold cursor-pointer ${status === s ? 'bg-primary text-white' : 'text-muted hover:bg-surface-accent'}`}>
               {s === 'pending' ? 'Awaiting approval' : s[0].toUpperCase() + s.slice(1)}
             </button>
           ))}
@@ -52,7 +52,7 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle">
+            <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
               <th className="p-3">Employee</th><th className="p-3">Type</th><th className="p-3">Dates</th><th className="p-3 text-right">Days</th><th className="p-3">Status</th><th className="p-3" />
             </tr>
           </thead>
@@ -63,19 +63,19 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
               return (
                 <React.Fragment key={r.id}>
                   <tr className="border-b border-line-subtle align-top">
-                    <td className="p-3 font-bold text-ink">{r.staffName}{r.reason && <div className="font-medium text-slate-500 max-w-xs">{r.reason}</div>}</td>
+                    <td className="p-3 font-bold text-ink">{r.staffName}{r.reason && <div className="font-medium text-subtle max-w-xs">{r.reason}</div>}</td>
                     <td className="p-3">{typeName.get(r.leaveType) ?? r.leaveType}{r.unpaid && <span className="ml-1 text-amber-700">(unpaid)</span>}</td>
                     <td className="p-3">{formatRange(r)}</td>
                     <td className="p-3 text-right font-mono">{r.days}</td>
                     <td className="p-3">
                       <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span>
-                      {(r.decisionNote || r.cancelReason) && <div className="text-slate-500 mt-1 max-w-[14rem]">{r.decisionNote ?? r.cancelReason}</div>}
+                      {(r.decisionNote || r.cancelReason) && <div className="text-subtle mt-1 max-w-[14rem]">{r.decisionNote ?? r.cancelReason}</div>}
                     </td>
                     <td className="p-3 text-right space-x-3 whitespace-nowrap">
                       {can.approve && !can.selfApprovalBlocked && <button type="button" className="font-bold text-emerald-700 cursor-pointer" disabled={api.call.isPending} onClick={() => act({ action: 'approve', requestId: r.id })}>Approve</button>}
-                      {can.selfApprovalBlocked && <span className="text-slate-500" title="Another administrator or HR user must approve your own leave">Needs another approver</span>}
+                      {can.selfApprovalBlocked && <span className="text-subtle" title="Another administrator or HR user must approve your own leave">Needs another approver</span>}
                       {can.reject && <button type="button" className="font-bold text-rose-700 cursor-pointer" onClick={() => withReason(r.id, 'reject', 'Reason for rejecting this request? The employee will see it.')}>Reject</button>}
-                      {can.cancel && <button type="button" className="font-bold text-slate-600 cursor-pointer" onClick={() => (r.status === 'approved' ? withReason(r.id, 'cancel', 'Reason for cancelling this approved leave? It stays on record.') : void act({ action: 'cancel', requestId: r.id }))}>Cancel</button>}
+                      {can.cancel && <button type="button" className="font-bold text-muted cursor-pointer" onClick={() => (r.status === 'approved' ? withReason(r.id, 'cancel', 'Reason for cancelling this approved leave? It stays on record.') : void act({ action: 'cancel', requestId: r.id }))}>Cancel</button>}
                       <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setOpen(open === r.id ? null : r.id)}>History</button>
                     </td>
                   </tr>
@@ -83,7 +83,7 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
                 </React.Fragment>
               );
             })}
-            {(requests.data ?? []).length === 0 && <tr><td className="p-4 text-slate-500" colSpan={6}>No requests here.</td></tr>}
+            {(requests.data ?? []).length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No requests here.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -96,10 +96,10 @@ function RequestHistory({ id }: { id: string }) {
   return (
     <ul className="text-xs space-y-1">
       {(events.data ?? []).map((e) => (
-        <li key={e.id}><span className="font-mono text-slate-500">{new Date(e.createdAt).toLocaleString()}</span> · <b>{e.action.replace(/_/g, ' ')}</b>
+        <li key={e.id}><span className="font-mono text-subtle">{new Date(e.createdAt).toLocaleString()}</span> · <b>{e.action.replace(/_/g, ' ')}</b>
           {e.detail && Object.entries(e.detail).filter(([, v]) => v !== null && v !== undefined && v !== '').map(([k, v]) => ` · ${k}: ${String(v)}`).join('')}</li>
       ))}
-      {(events.data ?? []).length === 0 && <li className="text-slate-500">No history.</li>}
+      {(events.data ?? []).length === 0 && <li className="text-subtle">No history.</li>}
     </ul>
   );
 }

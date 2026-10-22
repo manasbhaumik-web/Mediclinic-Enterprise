@@ -27,7 +27,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
               <FileText className="w-4 h-4 text-accent" /> Digital Medical Certificate (MC)
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
-              mcGenerated ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-500 border-slate-200'
+              mcGenerated ? 'chip-ok' : 'bg-slate-100 text-subtle border-slate-200'
             }`}>
               {mcGenerated ? 'ISSUED' : 'NOT ISSUED'}
             </span>
@@ -35,7 +35,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
     
           <div className="space-y-2">
             <div>
-              <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Duration (Days)</label>
+              <label className="block text-2xs font-bold text-subtle uppercase mb-1">Duration (Days)</label>
               <Input 
                 type="number"
                 min="1"
@@ -47,7 +47,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             </div>
     
             <div>
-              <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Clinical Diagnosis / Reason</label>
+              <label className="block text-2xs font-bold text-subtle uppercase mb-1">Clinical Diagnosis / Reason</label>
               <Input 
                 type="text"
                 value={mcReason}
@@ -77,7 +77,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
               <Share className="w-4 h-4 text-accent" /> Specialist Referral Note
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
-              referralGenerated ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-slate-100 text-slate-500 border-slate-200'
+              referralGenerated ? 'chip-info' : 'bg-slate-100 text-subtle border-slate-200'
             }`}>
               {referralGenerated ? 'ATTACHED' : 'NONE'}
             </span>
@@ -85,7 +85,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
     
           <div className="space-y-2">
             <div>
-              <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Target Hospital / Clinic</label>
+              <label className="block text-2xs font-bold text-subtle uppercase mb-1">Target Hospital / Clinic</label>
               <Input 
                 type="text"
                 value={referralDetails.hospital}
@@ -96,7 +96,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             </div>
     
             <div>
-              <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">Specialty Department</label>
+              <label className="block text-2xs font-bold text-subtle uppercase mb-1">Specialty Department</label>
               <Input 
                 type="text"
                 value={referralDetails.department}
@@ -112,7 +112,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             onClick={() => setReferralGenerated(true)}
             className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
               referralGenerated
-                ? 'bg-indigo-600 text-white border-indigo-700 hover:bg-indigo-700'
+                ? 'bg-primary text-white border-teal-700 hover:bg-primary'
                 : 'bg-white dark:bg-night-900 text-ink dark:text-slate-200 border-line dark:border-teal-800/40 hover:bg-surface-accent'
             }`}
           >

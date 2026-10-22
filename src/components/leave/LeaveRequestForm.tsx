@@ -51,33 +51,33 @@ export default function LeaveRequestForm({ people, onDone }: { people?: PersonOp
       <h3 className="type-heading-caps text-ink">New leave request</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {needsPerson && (
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Employee</span>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Employee</span>
             <select className={inputClass} value={staffId} onChange={(e) => setStaffId(e.target.value)}>
               <option value="">Choose…</option>
               {people!.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select></label>
         )}
-        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Leave type</span>
+        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Leave type</span>
           <select className={inputClass} value={leaveType} onChange={(e) => setLeaveType(e.target.value)}>
             <option value="">Choose…</option>
             {activeTypes.map((t) => <option key={t.code} value={t.code}>{t.name}{t.paid ? '' : ' (unpaid)'}</option>)}
           </select></label>
-        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">From</span>
+        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">From</span>
           <input className={inputClass} type="date" value={start} onChange={(e) => { setStart(e.target.value); if (!end || end < e.target.value) setEnd(e.target.value); }} /></label>
-        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">To</span>
+        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">To</span>
           <input className={inputClass} type="date" min={start || undefined} value={end} onChange={(e) => setEnd(e.target.value)} /></label>
         {singleDay && (
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Length</span>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Length</span>
             <select className={inputClass} value={half} onChange={(e) => setHalf(e.target.value as '' | 'am' | 'pm')}>
               <option value="">Full day</option><option value="am">Half day (morning)</option><option value="pm">Half day (afternoon)</option>
             </select></label>
         )}
       </div>
-      <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Reason (optional)</span>
+      <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Reason (optional)</span>
         <input className={inputClass} value={reason} maxLength={500} onChange={(e) => setReason(e.target.value)} /></label>
 
       {info && (
-        <div role="status" className={`text-xs font-medium border px-3 py-2 ${info.valid ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-800'}`}>
+        <div role="status" className={`text-xs font-medium border px-3 py-2 ${info.valid ? 'chip-ok' : 'chip-danger'}`}>
           {info.text}
           {info.warnings.map((w, i) => <div key={i} className="text-amber-800">{w}</div>)}
         </div>

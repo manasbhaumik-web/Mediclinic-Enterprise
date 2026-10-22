@@ -20,9 +20,9 @@ interface OperationsHubProps {
 }
 
 const SEVERITY_STYLE = {
-  critical: 'bg-rose-50 text-rose-800 border-rose-200',
-  warn: 'bg-amber-50 text-amber-800 border-amber-200',
-  info: 'bg-slate-50 text-slate-700 border-line',
+  critical: 'chip-danger',
+  warn: 'chip-warn',
+  info: 'bg-slate-50 text-muted border-line',
 } as const;
 
 const MAX_ATTENTION_ROWS = 5;
@@ -80,7 +80,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
             <Activity className="w-6 h-6 text-accent" aria-hidden="true" />
             Operations Overview
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             Today's patient flow, appointments, stock and equipment, read from the clinic's live records.
           </p>
         </div>
@@ -135,12 +135,12 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
                 <div key={s.label} className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="font-bold text-ink">{s.label}</span>
-                    <span className="text-slate-600 font-mono">{s.value}</span>
+                    <span className="text-muted font-mono">{s.value}</span>
                   </div>
                   <ProgressBar value={(s.value / busiest) * 100} size="sm" label={`${s.label}: ${s.value} patients`} />
                 </div>
               ))}
-              {clinic.isSyncing && <p className="text-2xs text-slate-500">Loading visits…</p>}
+              {clinic.isSyncing && <p className="text-2xs text-subtle">Loading visits…</p>}
             </div>
           </Panel>
 
@@ -151,7 +151,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
               <Stat label="No-show" value={appts.noShow} />
               <Stat label="Cancelled" value={appts.cancelled} />
             </dl>
-            <p className="mt-3 text-xs text-slate-600">
+            <p className="mt-3 text-xs text-muted">
               {appts.attendanceRate === null
                 ? 'Attendance rate appears once an appointment is completed or marked no-show.'
                 : `Attendance rate: ${appts.attendanceRate}% of concluded appointments were attended.`}
@@ -165,7 +165,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
             title="Stock needing attention"
             action={onOpenTab && <PanelLink label="Open Inventory" onClick={() => onOpenTab('medicine')} />}
           >
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600 mb-3">
+            <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted mb-3">
               <span>{orderSummary.open} open purchase order{orderSummary.open === 1 ? '' : 's'}</span>
               <span className={orderSummary.overdue ? 'text-rose-700 font-bold' : ''}>{orderSummary.overdue} overdue</span>
               <span>{orderSummary.drafts} draft{orderSummary.drafts === 1 ? '' : 's'}</span>
@@ -202,14 +202,14 @@ function Kpi({ icon: Icon, label, value, note, badge, tone = 'ok' }: {
   return (
     <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
         <div className="p-2 bg-teal-50 rounded-none text-accent"><Icon className="w-5 h-5" aria-hidden="true" /></div>
       </div>
       <div className="mt-2 flex items-baseline justify-between gap-2">
         <h3 className="type-metric text-ink">{value}</h3>
         {badge && <span className={`text-xs px-2 py-0.5 border font-medium ${badgeStyle}`}>{badge}</span>}
       </div>
-      <p className="mt-2 text-xs text-slate-600">{note}</p>
+      <p className="mt-2 text-xs text-muted">{note}</p>
     </div>
   );
 }
@@ -234,7 +234,7 @@ const PanelLink = ({ label, onClick }: { label: string; onClick: () => void }) =
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
   <div className="bg-surface border border-teal-100 p-3">
-    <dt className="text-2xs text-slate-500 font-bold uppercase">{label}</dt>
+    <dt className="text-2xs text-subtle font-bold uppercase">{label}</dt>
     <dd className="type-metric text-ink mt-1">{value}</dd>
   </div>
 );
@@ -243,7 +243,7 @@ function AttentionList({ rows, loading, empty }: {
   rows: { key: string; severity: keyof typeof SEVERITY_STYLE; title: string; detail: string }[];
   loading: boolean; empty: string;
 }) {
-  if (loading) return <p className="text-xs text-slate-500">Loading…</p>;
+  if (loading) return <p className="text-xs text-subtle">Loading…</p>;
   if (rows.length === 0) {
     return <p className="flex items-center gap-2 text-xs text-emerald-700 font-medium"><CheckCircle2 className="w-4 h-4" aria-hidden="true" />{empty}</p>;
   }
@@ -256,7 +256,7 @@ function AttentionList({ rows, loading, empty }: {
           <p className="mt-0.5">{r.detail}</p>
         </li>
       ))}
-      {rows.length > shown.length && <li className="text-2xs text-slate-500">+{rows.length - shown.length} more</li>}
+      {rows.length > shown.length && <li className="text-2xs text-subtle">+{rows.length - shown.length} more</li>}
     </ul>
   );
 }

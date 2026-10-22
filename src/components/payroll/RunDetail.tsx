@@ -21,7 +21,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
 
   const run = runQ.data;
   const slips = slipsQ.data ?? [];
-  if (runQ.isLoading) return <p className="text-xs text-slate-500">Loading…</p>;
+  if (runQ.isLoading) return <p className="text-xs text-subtle">Loading…</p>;
   if (!run) return <div className="space-y-3"><p className="text-xs text-rose-700 font-bold">This run could not be found.</p><Button variant="outline" size="sm" onClick={onBack}>Back</Button></div>;
 
   const st = STATUS_STYLE[run.status];
@@ -58,12 +58,12 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-lg font-bold text-ink">{monthLabel(run.periodMonth)}</h2>
           <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span>
-          <span className="text-xs text-slate-500">{st.hint}</span>
+          <span className="text-xs text-subtle">{st.hint}</span>
         </div>
         {run.cancelReason && <p className="text-xs text-rose-700">Cancelled: {run.cancelReason}</p>}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {([['People', String(totals.headcount ?? slips.length)], ['Gross', myr(totals.gross)], ['Deductions', myr(totals.totalDeductions)], ['Net pay', myr(totals.netPay)], ['Employer cost', myr(totals.employerCost)]] as [string, string][]).map(([k, v]) => (
-            <div key={k} className="bg-surface-accent border border-line-subtle p-3"><div className="text-2xs font-bold uppercase tracking-wider text-slate-500">{k}</div><div className="text-base font-bold text-ink font-mono">{v}</div></div>
+            <div key={k} className="bg-surface-accent border border-line-subtle p-3"><div className="text-2xs font-bold uppercase tracking-wider text-subtle">{k}</div><div className="text-base font-bold text-ink font-mono">{v}</div></div>
           ))}
         </div>
 
@@ -74,7 +74,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
           {can.approve && <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'approve' }, 'Approve this payroll? It becomes frozen and cannot be edited.')}>Approve</Button>}
           {can.markPaid && (
             <>
-              <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-slate-500">Paid on</span>
+              <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-subtle">Paid on</span>
                 <input className={`${inputClass} !w-40`} type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} /></label>
               <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'mark_paid', paidOn }, 'Record that salaries were paid? This cannot be undone.')}>Mark as paid</Button>
             </>
@@ -82,7 +82,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
           {can.cancel && <Button variant="outline" size="sm" disabled={api.call.isPending} onClick={cancel}>Cancel run</Button>}
         </div>
         {msg && <p role="status" className={`text-xs font-bold whitespace-pre-line ${msg.ok ? 'text-emerald-700' : 'text-rose-700'}`}>{msg.text}</p>}
-        {role === 'hr' && run.status === 'reviewed' && <p className="text-xs text-slate-600">Waiting for an administrator to approve.</p>}
+        {role === 'hr' && run.status === 'reviewed' && <p className="text-xs text-muted">Waiting for an administrator to approve.</p>}
       </div>
 
       {warned.length > 0 && (run.status === 'draft' || run.status === 'reviewed') && (
@@ -104,7 +104,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
             <Button variant="outline" size="sm" icon={<Download className="w-3.5 h-3.5" />} onClick={() => exportCsv(pcbCsv)}>PCB</Button>
             <Button variant="outline" size="sm" icon={<Download className="w-3.5 h-3.5" />} onClick={() => exportCsv(summaryCsv)}>Summary</Button>
           </div>
-          <p className="text-2xs text-slate-500 leading-relaxed">
+          <p className="text-2xs text-subtle leading-relaxed">
             These are clean working schedules and a generic payment list. Banks and the KWSP, PERKESO and LHDN portals each have their own upload layouts, so copy or map the columns into the format they ask for; they are not the official upload files.
           </p>
           {exportProblems.length > 0 && (
@@ -116,7 +116,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle">
+            <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
               <th className="p-3">Employee</th><th className="p-3 text-right">Basic</th><th className="p-3 text-right">Gross</th><th className="p-3 text-right">Deductions</th><th className="p-3 text-right">Net pay</th><th className="p-3" />
             </tr>
           </thead>
@@ -135,17 +135,17 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
                 </td>
               </tr>
             ))}
-            {slips.length === 0 && <tr><td className="p-4 text-slate-500" colSpan={6}>No payslips in this run.</td></tr>}
+            {slips.length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No payslips in this run.</td></tr>}
           </tbody>
         </table>
       </div>
 
       <div className="bg-surface border border-line-subtle p-4 space-y-2">
         <h3 className="type-heading-caps text-ink">History</h3>
-        {(events.data ?? []).length === 0 && <p className="text-xs text-slate-500">No activity yet.</p>}
+        {(events.data ?? []).length === 0 && <p className="text-xs text-subtle">No activity yet.</p>}
         <ul className="text-xs space-y-1">
           {(events.data ?? []).map((e) => (
-            <li key={e.id}><span className="font-mono text-slate-500">{new Date(e.createdAt).toLocaleString()}</span> · <b>{e.action.replace(/_/g, ' ')}</b>{e.detail ? ` · ${e.detail}` : ''}</li>
+            <li key={e.id}><span className="font-mono text-subtle">{new Date(e.createdAt).toLocaleString()}</span> · <b>{e.action.replace(/_/g, ' ')}</b>{e.detail ? ` · ${e.detail}` : ''}</li>
           ))}
         </ul>
       </div>
@@ -172,7 +172,7 @@ function SlipView({ slip, onClose }: { slip: Payslip; onClose: () => void }) {
           <tbody>
             {slip.lines.map((l) => (
               <tr key={l.code} className="border-b border-line-subtle">
-                <td className="py-1.5">{l.label}{l.kind === 'employer' && <span className="text-slate-500"> (employer)</span>}{l.note && <div className="text-2xs text-slate-500">{l.note}</div>}</td>
+                <td className="py-1.5">{l.label}{l.kind === 'employer' && <span className="text-subtle"> (employer)</span>}{l.note && <div className="text-2xs text-subtle">{l.note}</div>}</td>
                 <td className={`py-1.5 text-right font-mono ${l.kind === 'deduction' ? 'text-rose-700' : ''}`}>{myr(l.amount)}</td>
               </tr>
             ))}

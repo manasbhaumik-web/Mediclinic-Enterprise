@@ -254,7 +254,7 @@ export default function ClinicLandingPage({
             <span className="font-bold text-white tracking-wide">
               {isBM ? 'KLINIK BEROPERASI 24/7' : '24/7 CLINIC LIVE STATUS'}
             </span>
-            <span className="hidden sm:inline bg-teal-900/80 text-teal-50 text-xs font-mono px-1.5 py-0.5 rounded border border-teal-700">
+            <span className="hidden sm:inline bg-teal-900/80 text-teal-50 text-xs font-mono px-1.5 py-0.5 rounded-none border border-teal-700">
               [DEMO TELEMETRY]
             </span>
           </div>
@@ -405,7 +405,7 @@ export default function ClinicLandingPage({
           type="button"
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="w-11 h-11 rounded-none bg-surface border border-line-subtle text-slate-700 hover:text-accent hover:border-brand shadow-md flex items-center justify-center transition-all cursor-pointer"
+          className="w-11 h-11 rounded-none bg-surface border border-line-subtle text-muted hover:text-accent hover:border-brand shadow-md flex items-center justify-center transition-all cursor-pointer"
         >
           <ArrowUp className="w-4 h-4" />
         </button>

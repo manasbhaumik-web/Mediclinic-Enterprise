@@ -47,7 +47,7 @@ export default function AssessmentTab({
             <Stethoscope className="w-4 h-4 text-accent dark:text-teal-400" />
             Assessment &amp; Clinical Diagnostic Classification
           </h4>
-          <p className="text-2xs text-slate-500 dark:text-slate-400 font-medium">Select standardized ICD-10 diagnostic code for sign-off.</p>
+          <p className="text-2xs text-subtle dark:text-slate-400 font-medium">Select standardized ICD-10 diagnostic code for sign-off.</p>
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export default function AssessmentTab({
           </div>
           
           {searchICDQuery.trim().length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-night-850 border border-line dark:border-teal-700/50 rounded-none shadow-xl z-20 max-h-[240px] overflow-y-auto divide-y divide-slate-100 dark:divide-teal-800/40">
+            <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-night-850 border border-line dark:border-teal-700/50 rounded-none shadow-2xl z-20 max-h-[240px] overflow-y-auto divide-y divide-slate-100 dark:divide-teal-800/40">
               {icdSuggestions.map((item) => (
                 <button
                   key={item.code}
@@ -157,7 +157,7 @@ export default function AssessmentTab({
             </button>
           </div>
           <strong className="text-sm font-bold text-ink dark:text-slate-50 uppercase block">{selectedICD.desc}</strong>
-          <span className="text-2xs text-slate-500 dark:text-slate-400 font-medium block mt-1">Classification Category: {selectedICD.category}</span>
+          <span className="text-2xs text-subtle dark:text-slate-400 font-medium block mt-1">Classification Category: {selectedICD.category}</span>
         </div>
       ) : (
         <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 rounded-none border border-rose-200 dark:border-rose-800/50 text-xs font-medium flex items-center gap-2.5 shadow-2xs">

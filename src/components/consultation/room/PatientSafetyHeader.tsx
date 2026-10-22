@@ -28,14 +28,14 @@ export default function PatientSafetyHeader({ currentPatient, patientAge, masked
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="type-card-title text-ink dark:text-teal-300">{currentPatient.fullName}</h2>
-            <span className="text-xs text-slate-600 dark:text-slate-300 font-bold">({patientAge} Yrs, {currentPatient.gender})</span>
+            <span className="text-xs text-muted dark:text-slate-300 font-bold">({patientAge} Yrs, {currentPatient.gender})</span>
             <span id="patient-banner-status" className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-300 border border-line dark:border-teal-800/50 text-2xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-none flex items-center justify-center gap-1 font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Consultation Active
             </span>
           </div>
           
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300 font-medium mt-1">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted dark:text-slate-300 font-medium mt-1">
             {/* Masked IC Number */}
             <span className="flex items-center justify-center gap-1.5 bg-surface dark:bg-night-900 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
               <span className="font-bold text-accent dark:text-teal-300 font-mono">IC:</span>
@@ -74,7 +74,7 @@ export default function PatientSafetyHeader({ currentPatient, patientAge, masked
         <div className="bg-surface dark:bg-night-900 border border-line dark:border-teal-800/40 rounded-none px-3 py-1 flex items-center justify-center gap-2">
           <Activity className="w-4 h-4 text-accent dark:text-teal-400" />
           <div className="text-left">
-            <span className="text-2xs text-slate-500 font-bold uppercase block leading-none font-mono">Progress</span>
+            <span className="text-2xs text-subtle font-bold uppercase block leading-none font-mono">Progress</span>
             <span className="text-xs font-mono font-bold text-accent dark:text-teal-300 leading-tight block">Step {completedStepsCount} of 4 ({soapProgressPercent}%)</span>
           </div>
         </div>

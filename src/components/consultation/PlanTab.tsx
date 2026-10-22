@@ -276,7 +276,7 @@ export default function PlanTab({
       {/* PERSISTENT AI DRUG INTERACTION SAFETY BANNER                             */}
       {/* ------------------------------------------------------------------------- */}
       {allergyAlerts.length > 0 ? (
-        <div className="bg-rose-600 text-white p-3 rounded-none shadow-sm flex items-start gap-3 border border-rose-700">
+        <div className="bg-rose-600 text-white p-3 rounded-none shadow-xs flex items-start gap-3 border border-rose-700">
           <AlertTriangle className="w-5 h-5 shrink-0 text-white mt-0.5" />
           <div>
             <h4 className="type-label">AI SAFETY ALERT: Drug Contraindication Conflict Detected!</h4>

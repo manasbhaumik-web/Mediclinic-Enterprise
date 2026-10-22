@@ -63,7 +63,7 @@ export default function SettingsModule() {
             <Settings className="w-6 h-6 text-accent" />
             Global Configuration
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             Configure financial parameters, tax rates, module enablement, and physical hardware peripherals across the clinic enterprise.
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function SettingsModule() {
             <RotateCcw className="w-3.5 h-3.5 text-accent" />
             Reset Defaults
           </button>
-          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer">
+          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-xs cursor-pointer">
             <Save className="w-4 h-4" />
             Save Changes
           </button>
@@ -84,7 +84,7 @@ export default function SettingsModule() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Modules</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Active Modules</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <LayoutDashboard className="w-5 h-5" />
             </div>
@@ -99,7 +99,7 @@ export default function SettingsModule() {
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">SST Tax Rate</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">SST Tax Rate</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <Percent className="w-5 h-5" />
             </div>
@@ -114,7 +114,7 @@ export default function SettingsModule() {
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hardware Devices</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Hardware Devices</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <Smartphone className="w-5 h-5" />
             </div>
@@ -129,7 +129,7 @@ export default function SettingsModule() {
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Policy Compliance</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Policy Compliance</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <ShieldCheck className="w-5 h-5" />
             </div>
@@ -160,7 +160,7 @@ export default function SettingsModule() {
               onChange={(e) => handleBillingChange('taxRate', e.target.value)}
               className="w-full px-3 py-2 bg-surface-muted border border-line-subtle rounded-none text-sm focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all font-medium text-ink" 
             />
-            <p className="text-2xs text-slate-500">Applied automatically during checkout receipt generation.</p>
+            <p className="text-2xs text-subtle">Applied automatically during checkout receipt generation.</p>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-ink uppercase tracking-wider">Base Consultation (RM)</label>
@@ -170,7 +170,7 @@ export default function SettingsModule() {
               onChange={(e) => handleBillingChange('consultationFee', e.target.value)}
               className="w-full px-3 py-2 bg-surface-muted border border-line-subtle rounded-none text-sm focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all font-medium text-ink" 
             />
-            <p className="text-2xs text-slate-500">Default standard outpatient consultation fee.</p>
+            <p className="text-2xs text-subtle">Default standard outpatient consultation fee.</p>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-ink uppercase tracking-wider">Base Procedure (RM)</label>
@@ -180,7 +180,7 @@ export default function SettingsModule() {
               onChange={(e) => handleBillingChange('procedureFee', e.target.value)}
               className="w-full px-3 py-2 bg-surface-muted border border-line-subtle rounded-none text-sm focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all font-medium text-ink" 
             />
-            <p className="text-2xs text-slate-500">Default clinic minor surgical / diagnostic procedure fee.</p>
+            <p className="text-2xs text-subtle">Default clinic minor surgical / diagnostic procedure fee.</p>
           </div>
         </div>
       </section>
@@ -192,12 +192,12 @@ export default function SettingsModule() {
             <LayoutDashboard className="w-4 h-4 text-accent" />
             <h3 className="type-card-title text-ink">Administration Module Enablement</h3>
           </div>
-          <span className="text-xs text-slate-500 font-mono">
+          <span className="text-xs text-subtle font-mono">
             {activeModulesCount} of 5 active
           </span>
         </div>
         <div className="p-5">
-          <p className="text-xs text-slate-500 mb-4">Toggle module visibility across the Enterprise Administration Sidebar.</p>
+          <p className="text-xs text-subtle mb-4">Toggle module visibility across the Enterprise Administration Sidebar.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-3.5 border border-line-subtle bg-surface-muted rounded-none hover:border-brand transition-all">
@@ -207,7 +207,7 @@ export default function SettingsModule() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-ink">Staff & HR Management</p>
-                  <p className="text-2xs text-slate-500">Manage doctors, nurses, shifts, and rosters.</p>
+                  <p className="text-2xs text-subtle">Manage doctors, nurses, shifts, and rosters.</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -223,7 +223,7 @@ export default function SettingsModule() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-ink">Medicine Inventory</p>
-                  <p className="text-2xs text-slate-500">Stock levels, reorder points, and pharmacy catalog.</p>
+                  <p className="text-2xs text-subtle">Stock levels, reorder points, and pharmacy catalog.</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -239,7 +239,7 @@ export default function SettingsModule() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-ink">Asset & Equipment Management</p>
-                  <p className="text-2xs text-slate-500">Device calibration logs and maintenance cycles.</p>
+                  <p className="text-2xs text-subtle">Device calibration logs and maintenance cycles.</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -255,7 +255,7 @@ export default function SettingsModule() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-ink">Billing & TPA Claims</p>
-                  <p className="text-2xs text-slate-500">Reconcile patient bills and insurance claims.</p>
+                  <p className="text-2xs text-subtle">Reconcile patient bills and insurance claims.</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -271,7 +271,7 @@ export default function SettingsModule() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-ink">Reports & Executive Analytics</p>
-                  <p className="text-2xs text-slate-500">Generate MOH audit reports, revenue breakdowns, and clinical data exports.</p>
+                  <p className="text-2xs text-subtle">Generate MOH audit reports, revenue breakdowns, and clinical data exports.</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -290,19 +290,19 @@ export default function SettingsModule() {
             <Smartphone className="w-4 h-4 text-accent" />
             <h3 className="type-card-title text-ink">Physical Hardware Peripheral Bus</h3>
           </div>
-          <span className="text-xs text-slate-500 font-mono">
+          <span className="text-xs text-subtle font-mono">
             {activeHardwareCount} of 3 peripherals active
           </span>
         </div>
         <div className="p-5">
-          <p className="text-xs text-slate-500 mb-4">Enable hardware communication drivers for physical workstations.</p>
+          <p className="text-xs text-subtle mb-4">Enable hardware communication drivers for physical workstations.</p>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             
             {/* MyKad */}
             <div className={`p-4 rounded-none border transition-all ${settings.hardware.mykadScanner ? 'border-brand bg-surface' : 'border-slate-200 bg-slate-50/50'}`}>
               <div className="flex justify-between items-start mb-3">
-                <div className={`p-2.5 rounded-none ${settings.hardware.mykadScanner ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'}`}>
+                <div className={`p-2.5 rounded-none ${settings.hardware.mykadScanner ? 'bg-primary text-white' : 'bg-slate-200 text-subtle'}`}>
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -311,7 +311,7 @@ export default function SettingsModule() {
                 </label>
               </div>
               <h4 className="type-card-title text-ink">MyKad Smartcard Reader</h4>
-              <p className="text-2xs text-slate-500 mt-1 leading-relaxed">Direct USB IC reader interface for instant patient identity population.</p>
+              <p className="text-2xs text-subtle mt-1 leading-relaxed">Direct USB IC reader interface for instant patient identity population.</p>
               <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-2xs">
                 <span className="text-slate-400 font-mono">USB / PC/SC Driver</span>
                 <span className={settings.hardware.mykadScanner ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
@@ -323,7 +323,7 @@ export default function SettingsModule() {
             {/* Thermal Receipt Printer */}
             <div className={`p-4 rounded-none border transition-all ${settings.hardware.receiptPrinter ? 'border-brand bg-surface' : 'border-slate-200 bg-slate-50/50'}`}>
               <div className="flex justify-between items-start mb-3">
-                <div className={`p-2.5 rounded-none ${settings.hardware.receiptPrinter ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'}`}>
+                <div className={`p-2.5 rounded-none ${settings.hardware.receiptPrinter ? 'bg-primary text-white' : 'bg-slate-200 text-subtle'}`}>
                   <Printer className="w-5 h-5" />
                 </div>
                 <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -332,7 +332,7 @@ export default function SettingsModule() {
                 </label>
               </div>
               <h4 className="type-card-title text-ink">Thermal Receipt Printer</h4>
-              <p className="text-2xs text-slate-500 mt-1 leading-relaxed">Cashier counter thermal receipt auto-spooler and queue slip printing.</p>
+              <p className="text-2xs text-subtle mt-1 leading-relaxed">Cashier counter thermal receipt auto-spooler and queue slip printing.</p>
               <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-2xs">
                 <span className="text-slate-400 font-mono">ESC/POS Network</span>
                 <span className={settings.hardware.receiptPrinter ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
@@ -344,7 +344,7 @@ export default function SettingsModule() {
             {/* Barcode Scanner */}
             <div className={`p-4 rounded-none border transition-all ${settings.hardware.barcodeScanner ? 'border-brand bg-surface' : 'border-slate-200 bg-slate-50/50'}`}>
               <div className="flex justify-between items-start mb-3">
-                <div className={`p-2.5 rounded-none ${settings.hardware.barcodeScanner ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'}`}>
+                <div className={`p-2.5 rounded-none ${settings.hardware.barcodeScanner ? 'bg-primary text-white' : 'bg-slate-200 text-subtle'}`}>
                   <ScanLine className="w-5 h-5" />
                 </div>
                 <label className="relative inline-flex items-center justify-center cursor-pointer">
@@ -353,7 +353,7 @@ export default function SettingsModule() {
                 </label>
               </div>
               <h4 className="type-card-title text-ink">Pharmacy Barcode Scanner</h4>
-              <p className="text-2xs text-slate-500 mt-1 leading-relaxed">Dispensary 2D barcode scanner for medication serial verification.</p>
+              <p className="text-2xs text-subtle mt-1 leading-relaxed">Dispensary 2D barcode scanner for medication serial verification.</p>
               <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-2xs">
                 <span className="text-slate-400 font-mono">HID Keyboard Wedge</span>
                 <span className={settings.hardware.barcodeScanner ? 'text-emerald-600 font-bold' : 'text-slate-400'}>

@@ -10,7 +10,7 @@ type Sub = 'orders' | 'suppliers';
 /** Suppliers and purchase orders, with goods received against batches. */
 export default function OrdersPanel({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: () => void }) {
   const [sub, setSub] = useState<Sub>('orders');
-  const tab = (t: Sub) => `px-3 py-1.5 text-xs font-bold cursor-pointer ${sub === t ? 'bg-primary text-white' : 'text-slate-600 hover:bg-surface-accent'}`;
+  const tab = (t: Sub) => `px-3 py-1.5 text-xs font-bold cursor-pointer ${sub === t ? 'bg-primary text-white' : 'text-muted hover:bg-surface-accent'}`;
   return (
     <div className="space-y-4">
       <div role="tablist" className="inline-flex border border-line-subtle">
@@ -53,7 +53,7 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
-          <thead><tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle"><th className="p-3">Order</th><th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Expected</th><th className="p-3 text-right">Received</th><th className="p-3 text-right">Value</th><th className="p-3" /></tr></thead>
+          <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">Order</th><th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Expected</th><th className="p-3 text-right">Received</th><th className="p-3 text-right">Value</th><th className="p-3" /></tr></thead>
           <tbody>
             {(orders.data ?? []).map((o) => {
               const st = PO_STYLE[o.status];
@@ -71,12 +71,12 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
                       {o.status === 'draft' && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setForm({ po: o })}>Edit</button>}
                       {o.status === 'draft' && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => act(() => api.setPoStatus.mutateAsync({ id: o.id, status: 'ordered' }), `${o.poNumber} marked as ordered.`)}>Mark ordered</button>}
                       {(o.status === 'ordered' || o.status === 'partially_received') && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setReceiving(o)}>Receive goods</button>}
-                      {(o.status === 'draft' || o.status === 'ordered') && <button type="button" className="font-bold text-slate-600 cursor-pointer" onClick={() => cancel(o)}>Cancel</button>}
+                      {(o.status === 'draft' || o.status === 'ordered') && <button type="button" className="font-bold text-muted cursor-pointer" onClick={() => cancel(o)}>Cancel</button>}
                     </td>
                   </tr>
                   {open === o.id && (
                     <tr><td colSpan={7} className="p-3 bg-surface-accent">
-                      {o.notes && <p className="text-xs text-slate-600 mb-1">{o.notes}</p>}
+                      {o.notes && <p className="text-xs text-muted mb-1">{o.notes}</p>}
                       {o.cancelReason && <p className="text-xs text-rose-700 mb-1">Cancelled: {o.cancelReason}</p>}
                       <ul className="text-xs space-y-0.5">{o.lines.map((l) => <li key={l.id}>{drugName.get(l.inventoryId) ?? '?'}: ordered {l.quantityOrdered}, received {l.quantityReceived}{l.unitCost !== null ? ` @ ${myr(l.unitCost)}` : ''}</li>)}</ul>
                     </td></tr>
@@ -84,7 +84,7 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
                 </React.Fragment>
               );
             })}
-            {(orders.data ?? []).length === 0 && <tr><td className="p-6 text-center text-slate-500" colSpan={7}>No purchase orders yet.</td></tr>}
+            {(orders.data ?? []).length === 0 && <tr><td className="p-6 text-center text-subtle" colSpan={7}>No purchase orders yet.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -164,10 +164,10 @@ function ReceiveGoods({ po, onClose }: { po: PurchaseOrder; onClose: () => void 
 
   return (
     <Dialog title={`Receive goods: ${po.poNumber}`} onClose={onClose} wide>
-      <p className="text-xs text-slate-600">Enter what actually arrived, with the batch number and expiry date from each pack. Leave a quantity at 0 for items that did not arrive.</p>
+      <p className="text-xs text-muted">Enter what actually arrived, with the batch number and expiry date from each pack. Leave a quantity at 0 for items that did not arrive.</p>
       {open.map((l) => (
         <div key={l.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end border-b border-line-subtle pb-2">
-          <div className="text-xs font-bold text-ink md:col-span-1">{name.get(l.inventoryId) ?? '?'}<div className="font-medium text-slate-500">{l.quantityOrdered - l.quantityReceived} outstanding</div></div>
+          <div className="text-xs font-bold text-ink md:col-span-1">{name.get(l.inventoryId) ?? '?'}<div className="font-medium text-subtle">{l.quantityOrdered - l.quantityReceived} outstanding</div></div>
           <Field label="Quantity"><input className={inputClass} type="number" min="0" value={rows[l.id].qty} onChange={(e) => upd(l.id, { qty: e.target.value })} /></Field>
           <Field label="Batch number"><input className={inputClass} value={rows[l.id].batch} onChange={(e) => upd(l.id, { batch: e.target.value })} /></Field>
           <Field label="Expiry date"><input className={inputClass} type="date" min={todayStr()} value={rows[l.id].expiry} onChange={(e) => upd(l.id, { expiry: e.target.value })} /></Field>
@@ -205,11 +205,11 @@ function Suppliers() {
       <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
         {(suppliers.data ?? []).map((s) => (
           <div key={s.id} className={`flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs ${s.active ? '' : 'opacity-50'}`}>
-            <span><b className="text-ink">{s.name}</b> <span className="text-slate-500">{[s.contactName, s.phone, s.email].filter(Boolean).join(' · ')}</span></span>
-            <span className="space-x-3"><button type="button" className="font-bold text-accent cursor-pointer" onClick={() => startEdit(s)}>Edit</button><button type="button" className="font-bold text-slate-600 cursor-pointer" onClick={() => toggle(s)}>{s.active ? 'Deactivate' : 'Reactivate'}</button></span>
+            <span><b className="text-ink">{s.name}</b> <span className="text-subtle">{[s.contactName, s.phone, s.email].filter(Boolean).join(' · ')}</span></span>
+            <span className="space-x-3"><button type="button" className="font-bold text-accent cursor-pointer" onClick={() => startEdit(s)}>Edit</button><button type="button" className="font-bold text-muted cursor-pointer" onClick={() => toggle(s)}>{s.active ? 'Deactivate' : 'Reactivate'}</button></span>
           </div>
         ))}
-        {(suppliers.data ?? []).length === 0 && <p className="p-6 text-center text-xs text-slate-500">No suppliers yet.</p>}
+        {(suppliers.data ?? []).length === 0 && <p className="p-6 text-center text-xs text-subtle">No suppliers yet.</p>}
       </div>
       {editing && (
         <Dialog title={editing.id ? 'Edit supplier' : 'Add a supplier'} onClose={() => setEditing(null)}>

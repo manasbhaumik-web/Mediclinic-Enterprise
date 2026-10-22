@@ -1,3 +1,4 @@
+import { useColorTheme } from '../hooks/useColorTheme';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -42,6 +43,7 @@ const monthShort = (key: string) => new Date(Number(key.slice(0, 4)), Number(key
 const dayShort = (key: string) => new Date(`${key}T00:00:00`).toLocaleDateString('en-MY', { day: 'numeric', month: 'short' });
 
 export default function ReportsAnalyticsModule() {
+  useColorTheme(); // re-render when the colour theme changes so palette colours refresh
   const queryClient = useQueryClient();
   const isFetching = useIsFetching({ predicate: (q) => q.queryKey[0] === 'reports' }) > 0;
   const [tab, setTab] = useState<Tab>('overview');
@@ -87,7 +89,7 @@ export default function ReportsAnalyticsModule() {
             <BarChart3 className="w-6 h-6 text-accent" aria-hidden="true" />
             Analytics Reports
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             Revenue, visits, diagnoses, prescribing, panel claims and stock for {periodText}, read from the clinic's records. Every table can be downloaded as CSV or PDF.
           </p>
         </div>
@@ -163,8 +165,8 @@ export default function ReportsAnalyticsModule() {
                 {revenue.byMethod.map((m) => (
                   <div key={m.method} className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="font-bold text-ink">{m.method} <span className="font-normal text-slate-500">({m.count})</span></span>
-                      <span className="font-mono text-slate-700">{formatRM(m.amount)}</span>
+                      <span className="font-bold text-ink">{m.method} <span className="font-normal text-subtle">({m.count})</span></span>
+                      <span className="font-mono text-muted">{formatRM(m.amount)}</span>
                     </div>
                     <ProgressBar value={(m.amount / topMethodAmount) * 100} size="sm" label={`${m.method}: ${formatRM(m.amount)}`} />
                   </div>
@@ -234,12 +236,12 @@ export default function ReportsAnalyticsModule() {
                     {category.categories.map((c) => (
                       <tr key={c.kind}><th scope="row" className="py-2 pr-3 text-left font-semibold text-ink">{c.label}</th><td className="py-2 text-right font-mono">{formatRM(c.amount)}</td></tr>
                     ))}
-                    <tr><th scope="row" className="py-2 pr-3 text-left text-slate-600">Discounts</th><td className="py-2 text-right font-mono text-rose-700">-{formatRM(category.discounts)}</td></tr>
-                    <tr><th scope="row" className="py-2 pr-3 text-left text-slate-600">SST</th><td className="py-2 text-right font-mono">{formatRM(category.tax)}</td></tr>
+                    <tr><th scope="row" className="py-2 pr-3 text-left text-muted">Discounts</th><td className="py-2 text-right font-mono text-rose-700">-{formatRM(category.discounts)}</td></tr>
+                    <tr><th scope="row" className="py-2 pr-3 text-left text-muted">SST</th><td className="py-2 text-right font-mono">{formatRM(category.tax)}</td></tr>
                     <tr className="font-bold"><th scope="row" className="py-2 pr-3 text-left text-ink">Total billed</th><td className="py-2 text-right font-mono">{formatRM(category.total)}</td></tr>
                   </tbody>
                 </table>
-                <p className="mt-3 text-2xs text-slate-500">From {category.itemised} of {category.payments} payments in this period; the rest were taken before bills were stored.</p>
+                <p className="mt-3 text-2xs text-subtle">From {category.itemised} of {category.payments} payments in this period; the rest were taken before bills were stored.</p>
               </>
             )}
           </Panel>
@@ -250,21 +252,21 @@ export default function ReportsAnalyticsModule() {
                 {ageing.buckets.map((b, i) => (
                   <div key={b.label} className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="font-bold text-ink">{b.label} <span className="font-normal text-slate-500">({b.count})</span></span>
-                      <span className="font-mono text-slate-800">{formatRM(b.amount)}</span>
+                      <span className="font-bold text-ink">{b.label} <span className="font-normal text-subtle">({b.count})</span></span>
+                      <span className="font-mono text-ink">{formatRM(b.amount)}</span>
                     </div>
                     <ProgressBar value={(b.amount / topAgeing) * 100} size="sm" tone={i === 3 ? 'danger' : i === 2 ? 'warning' : 'primary'} label={`${b.label}: ${formatRM(b.amount)}`} />
                   </div>
                 ))}
               </div>
             )}
-            <p className="mt-3 text-xs text-slate-600">
+            <p className="mt-3 text-xs text-muted">
               {daysToPay.days === null ? 'Average days to payment: not enough paid claims with a recorded date yet.' : `Average days from payment to panel remittance: ${daysToPay.days} (over ${daysToPay.claims} claim${daysToPay.claims === 1 ? '' : 's'}).`}
             </p>
           </Panel>
 
           <Panel icon={FileText} title="Payments ledger" action={<ExportButtons table={ledgerTable(periodTransactions, periodText)} />}>
-            <p className="text-xs text-slate-600">{periodTransactions.length} payment{periodTransactions.length === 1 ? '' : 's'} in this period, ready to download with receipt numbers, references and panel details.</p>
+            <p className="text-xs text-muted">{periodTransactions.length} payment{periodTransactions.length === 1 ? '' : 's'} in this period, ready to download with receipt numbers, references and panel details.</p>
           </Panel>
 
           <NotRecorded title="Operating expenses and profit">
@@ -284,7 +286,7 @@ export default function ReportsAnalyticsModule() {
                 <tbody className="divide-y divide-slate-100">
                   {movers.map((m) => (
                     <tr key={m.drugName}>
-                      <th scope="row" className="py-2 pr-3 font-semibold text-ink">{m.drugName}{m.isControlled && <span className="ml-1.5 text-2xs font-bold text-violet-800 border border-violet-300 px-1">Controlled</span>}</th>
+                      <th scope="row" className="py-2 pr-3 font-semibold text-ink">{m.drugName}{m.isControlled && <span className="ml-1.5 text-2xs font-bold text-teal-800 border border-teal-300 px-1">Controlled</span>}</th>
                       <td className="py-2 pr-3 text-right font-mono">{m.prescriptions}</td>
                       <td className="py-2 pr-3 text-right font-mono">{m.totalQuantity}</td>
                       <td className={`py-2 text-right font-mono ${m.onHand === 0 ? 'text-rose-700 font-bold' : ''}`}>{m.onHand ?? '—'}</td>
@@ -296,7 +298,7 @@ export default function ReportsAnalyticsModule() {
           </Panel>
 
           <Panel icon={Package} title="Stock on hand" action={<ExportButtons table={stockTable(drugs.data ?? [], today)} />}>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               In-date stock for {(drugs.data ?? []).filter((d) => d.status === 'active').length} active drugs, valued at {formatRM(stock.value)} using the cost recorded on each batch.
               {stock.batchesMissingCost > 0 && ` ${stock.batchesMissingCost} batch${stock.batchesMissingCost === 1 ? ' has' : 'es have'} no cost recorded and ${stock.batchesMissingCost === 1 ? 'is' : 'are'} not in that value; add costs when receiving stock for a complete figure.`}
             </p>
@@ -313,11 +315,11 @@ function Kpi({ icon: Icon, label, value, note, tone = 'ok' }: { icon: React.Comp
   return (
     <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
         <div className="p-2 bg-teal-50 rounded-none text-accent"><Icon className="w-5 h-5" aria-hidden="true" /></div>
       </div>
       <h3 className={`type-metric mt-2 ${tone === 'warn' ? 'text-amber-700' : 'text-ink'}`}>{value}</h3>
-      <p className="mt-2 text-xs text-slate-600">{note}</p>
+      <p className="mt-2 text-xs text-muted">{note}</p>
     </div>
   );
 }
@@ -334,13 +336,13 @@ function Panel({ icon: Icon, title, action, className = '', children }: { icon: 
   );
 }
 
-const Empty = ({ children }: { children: React.ReactNode }) => <p className="text-xs text-slate-600">{children}</p>;
+const Empty = ({ children }: { children: React.ReactNode }) => <p className="text-xs text-muted">{children}</p>;
 
 function NotRecorded({ title, className = '', children }: { title: string; className?: string; children: React.ReactNode }) {
   return (
     <section className={`border border-dashed border-line bg-surface p-5 ${className}`}>
       <h2 className="type-card-title text-ink flex items-center gap-2"><Info className="w-4 h-4 text-slate-400" aria-hidden="true" />{title}: not recorded yet</h2>
-      <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{children}</p>
+      <p className="mt-1.5 text-xs text-muted leading-relaxed">{children}</p>
     </section>
   );
 }

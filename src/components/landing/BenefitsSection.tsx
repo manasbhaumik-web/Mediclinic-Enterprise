@@ -16,7 +16,7 @@ export default function BenefitsSection({ isBM }: BenefitsSectionProps) {
           <h2 className="type-section-title-lg text-ink">
             {isBM ? 'Penjagaan Kesihatan Berfokuskan Pesakit' : 'Patient-Centered Healthcare Experience'}
           </h2>
-          <p className="text-slate-600 text-xs sm:text-sm">
+          <p className="text-muted text-xs sm:text-sm">
             {isBM ? 'Empat keutamaan kami untuk memastikan rawatan anda mudah, pantas dan tenang.' : 'Four key benefits designed to make your medical visit swift, stress-free, and accessible.'}
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function BenefitsSection({ isBM }: BenefitsSectionProps) {
             <h3 className="type-card-title-lg text-ink">
               {isBM ? 'Pendaftaran MyKad Pantas' : 'Fast MyKad check-in'}
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               {isBM 
                 ? 'Imbasan cip MyKad dalam 5 saat tanpa sebarang borang manual yang leceh.' 
                 : 'Instant 5-second chip scan populates your details without tedious paper forms.'
@@ -45,7 +45,7 @@ export default function BenefitsSection({ isBM }: BenefitsSectionProps) {
             <h3 className="type-card-title-lg text-ink">
               {isBM ? 'Farmasi Setempat' : 'On-site pharmacy'}
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               {isBM 
                 ? 'Pengambilan ubat berdaftar KKM yang disahkan kod bar secara terus di klinik.' 
                 : 'KKM-registered medication dispensed right after your doctor consultation.'
@@ -60,7 +60,7 @@ export default function BenefitsSection({ isBM }: BenefitsSectionProps) {
             <h3 className="type-card-title-lg text-ink">
               {isBM ? 'Panel Insurans Tanpa Tunai' : 'Cashless panel billing'}
             </h3>
-            <p className="text-xs text-ink text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-ink text-xs text-muted leading-relaxed">
               {isBM 
                 ? 'Tuntutan e-GL terus dengan PMCare, MiCare, HealthMetrics dan 150+ panel.' 
                 : 'Direct e-GL authorization with PMCare, MiCare, Petronas, and 150+ panels.'
@@ -75,7 +75,7 @@ export default function BenefitsSection({ isBM }: BenefitsSectionProps) {
             <h3 className="type-card-title-lg text-ink">
               {isBM ? 'Akses Perubatan 24/7' : '24/7 access'}
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               {isBM 
                 ? 'Pintu klinik sentiasa terbuka 24 jam sehari untuk sebarang kecemasan ringan.' 
                 : 'Always open 24 hours a day, 7 days a week for general & urgent medical needs.'

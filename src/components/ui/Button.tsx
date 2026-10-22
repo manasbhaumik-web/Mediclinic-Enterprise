@@ -34,9 +34,9 @@ export default function Button({
   const variants = {
     primary: 'bg-primary text-white hover:bg-primary-hover focus:ring-brand shadow-xs cursor-pointer',
     secondary: 'bg-deep text-white hover:bg-night-850 focus:ring-deep shadow-xs cursor-pointer',
-    outline: 'bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 text-slate-700 dark:text-slate-200 hover:bg-surface-muted dark:hover:bg-night-800 focus:ring-brand shadow-2xs cursor-pointer',
+    outline: 'bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 text-muted dark:text-slate-200 hover:bg-surface-muted dark:hover:bg-night-800 focus:ring-brand shadow-2xs cursor-pointer',
     danger: 'bg-rose-600 text-white hover:bg-rose-700 border border-rose-600 focus:ring-rose-500 shadow-xs cursor-pointer',
-    ghost: 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-surface-muted dark:hover:bg-night-800 focus:ring-brand cursor-pointer'
+    ghost: 'bg-transparent text-muted dark:text-slate-300 hover:bg-surface-muted dark:hover:bg-night-800 focus:ring-brand cursor-pointer'
   };
 
   const sizes = {

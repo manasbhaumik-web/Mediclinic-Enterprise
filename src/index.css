@@ -40,6 +40,9 @@
   --color-ink: #0f3c4c;             /* headings and primary text */
   --color-deep: #0f3c4c;            /* dark feature panels; fixed in both modes */
   --color-accent: #0f766e;          /* teal text, links, icons (AA on light surfaces) */
+  --color-strong: #0f2f3b;          /* headings and strong body text */
+  --color-muted: #44626c;           /* secondary text (AA on all light surfaces) */
+  --color-subtle: #587780;          /* tertiary text, captions, icons (AA on white) */
 
   /* Brand */
   --color-brand: #0d9488;           /* borders, focus rings, highlights */
@@ -53,6 +56,19 @@
   --color-chrome-deep: #065f5b;
   --color-chrome-line: #054a47;
   --color-chrome-hover: #074f4b;
+
+  /* Neutral ramp, tinted to the theme (Tailwind's slate-* classes follow the chosen colour scheme) */
+  --color-slate-50: #f3f8f8;
+  --color-slate-100: #e6eff0;
+  --color-slate-200: #d2e0e3;
+  --color-slate-300: #b5c9ce;
+  --color-slate-400: #8aa5ad;
+  --color-slate-500: #587780;
+  --color-slate-600: #44626c;
+  --color-slate-700: #34505a;
+  --color-slate-800: #1f3d49;
+  --color-slate-900: #0f2f3b;
+  --color-slate-950: #081f29;
 
   /* Night Shift palette */
   --color-night-950: #061f26;
@@ -84,6 +100,9 @@
   --color-line-strong: rgb(45 212 191 / 0.4);
 
   --color-ink: #5eead4;
+  --color-strong: #f8fafc;
+  --color-muted: #cbd5e1;
+  --color-subtle: #94a3b8;
   --color-accent: #2dd4bf;
 
   --color-brand: #14b8a6;
@@ -188,17 +207,32 @@ strong {
     @apply bg-surface-strong text-accent border border-line px-2.5 py-1 rounded-none font-bold text-2xs;
   }
 
+
+  /* Status chips: semantic colours that stay readable in Night Shift; chip-brand follows the chosen theme */
+  .chip { @apply inline-flex items-center gap-1 px-2.5 py-1 border text-xs font-bold rounded-none; }
+  .chip-danger { @apply border bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-200 dark:border-rose-800; }
+  .chip-warn { @apply border bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800; }
+  .chip-info { @apply border bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-200 dark:border-sky-800; }
+  .chip-ok { @apply border bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-800; }
+  .chip-neutral { @apply border bg-surface-strong text-ink/75 border-line; }
+  .chip-brand { @apply border bg-surface-accent text-accent border-line; }
+
+  /* Buttons: one filled style (primary), one outlined (secondary), one destructive */
+  .btn-primary { @apply inline-flex items-center justify-center gap-1.5 min-h-11 px-4 text-xs font-bold rounded-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 bg-primary hover:bg-primary-hover text-white; }
+  .btn-secondary { @apply inline-flex items-center justify-center gap-1.5 min-h-11 px-4 text-xs font-bold rounded-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 bg-surface hover:bg-surface-strong text-accent border border-line; }
+  .btn-danger { @apply inline-flex items-center justify-center gap-1.5 min-h-11 px-4 text-xs font-bold rounded-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 bg-rose-600 hover:bg-rose-700 text-white; }
+
   /* Navigation & switcher buttons */
   .nav-btn {
     @apply h-full flex items-center px-4 rounded-none text-xs font-bold cursor-pointer whitespace-nowrap border-0 outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none;
   }
 
   .nav-btn-inactive {
-    @apply text-teal-50 hover:bg-chrome-active hover:text-white border-0 font-semibold;
+    @apply text-ink hover:bg-surface-accent hover:text-accent border-0 font-semibold;
   }
 
   .nav-btn-active {
-    @apply bg-chrome-active text-white border-0 font-bold shadow-none ring-0;
+    @apply bg-surface-muted text-accent border-b-2 border-b-primary font-bold shadow-none ring-0;
   }
 
   .changer-container {
@@ -573,6 +607,9 @@ strong {
   --color-ink: #0c3a5a;
   --color-deep: #0c3a5a;
   --color-accent: #0369a1;
+  --color-strong: #0f2c43;
+  --color-muted: #42607c;
+  --color-subtle: #577592;
 
   --color-brand: #0284c7;
   --color-primary: #0369a1;
@@ -584,6 +621,18 @@ strong {
   --color-chrome-deep: #075a8c;
   --color-chrome-line: #064466;
   --color-chrome-hover: #06476e;
+
+  --color-slate-50: #f3f7fb;
+  --color-slate-100: #e5eef6;
+  --color-slate-200: #d0dfec;
+  --color-slate-300: #b2c9dc;
+  --color-slate-400: #88a6c0;
+  --color-slate-500: #577592;
+  --color-slate-600: #42607c;
+  --color-slate-700: #324c66;
+  --color-slate-800: #1f3b53;
+  --color-slate-900: #0f2c43;
+  --color-slate-950: #07202f;
 
   --color-night-950: #051c2c;
   --color-night-900: #072436;

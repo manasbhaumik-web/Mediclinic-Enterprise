@@ -51,7 +51,7 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
             ) : (
               <ul className="space-y-1 text-2xs font-mono">
                 {selectedLabs.map((lab, i) => (
-                  <li key={i} className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                  <li key={i} className="flex items-center gap-1.5 text-muted dark:text-slate-300">
                     <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                     <span>{lab}</span>
                   </li>
@@ -65,10 +65,10 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
             <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
               3. Certificates &amp; Referrals
             </span>
-            <p className="text-2xs text-slate-700 dark:text-slate-300">
+            <p className="text-2xs text-muted dark:text-slate-300">
               MC Status: <strong>{mcGenerated ? `Issued (${mcDays} Days)` : 'None'}</strong>
             </p>
-            <p className="text-2xs text-slate-700 dark:text-slate-300 mt-1">
+            <p className="text-2xs text-muted dark:text-slate-300 mt-1">
               Referral: <strong>{referralGenerated ? `Specialist Note attached for ${referralDetails.hospital}` : 'None'}</strong>
             </p>
           </div>
@@ -78,7 +78,7 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
             <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
               4. Dispensing Memo
             </span>
-            <p className="text-2xs font-mono text-slate-600 dark:text-slate-300">
+            <p className="text-2xs font-mono text-muted dark:text-slate-300">
               {pharmacyMemo || 'No additional dispensing notes.'}
             </p>
           </div>

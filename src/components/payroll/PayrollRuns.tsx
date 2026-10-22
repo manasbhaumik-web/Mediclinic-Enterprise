@@ -38,22 +38,22 @@ export default function PayrollRuns({ role }: { role: 'admin' | 'hr' }) {
       <div className="bg-surface border border-line-subtle p-4 space-y-3">
         <h3 className="type-heading-caps text-ink">Start a new run</h3>
         <div className="flex flex-wrap items-end gap-3">
-          <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-slate-500">Month</span>
+          <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-subtle">Month</span>
             <input className={`${inputClass} !w-40`} type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
-          <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-slate-500">Working days / month</span>
+          <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-subtle">Working days / month</span>
             <input className={`${inputClass} !w-32`} type="number" min="1" max="31" value={workingDays} onChange={(e) => setWorkingDays(e.target.value)} /></label>
-          <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-slate-500">Hours / day</span>
+          <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-subtle">Hours / day</span>
             <input className={`${inputClass} !w-24`} type="number" min="1" max="24" step="0.5" value={hours} onChange={(e) => setHours(e.target.value)} /></label>
           <Button size="sm" onClick={create} disabled={api.call.isPending || !month}>Create run</Button>
         </div>
-        <p className="text-2xs text-slate-500">Working days and hours set the daily and hourly rate used for unpaid leave and overtime. Every active person gets a payslip.</p>
+        <p className="text-2xs text-subtle">Working days and hours set the daily and hourly rate used for unpaid leave and overtime. Every active person gets a payslip.</p>
         {msg && <p role="alert" className="text-xs font-bold text-rose-700 whitespace-pre-line">{msg}</p>}
       </div>
 
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle">
+            <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
               <th className="p-3">Month</th><th className="p-3">Status</th><th className="p-3 text-right">Gross</th><th className="p-3 text-right">Net pay</th><th className="p-3 text-right">Employer cost</th><th className="p-3" />
             </tr>
           </thead>
@@ -71,7 +71,7 @@ export default function PayrollRuns({ role }: { role: 'admin' | 'hr' }) {
                 </tr>
               );
             })}
-            {(runs.data ?? []).length === 0 && <tr><td className="p-4 text-slate-500" colSpan={6}>No payroll runs yet.</td></tr>}
+            {(runs.data ?? []).length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No payroll runs yet.</td></tr>}
           </tbody>
         </table>
       </div>

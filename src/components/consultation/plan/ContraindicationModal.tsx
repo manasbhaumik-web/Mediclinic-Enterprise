@@ -20,7 +20,7 @@ export default function ContraindicationModal({ currentPatient, pendingAllergyDr
           <h3 className="type-heading-caps">CRITICAL DRUG CONTRAINDICATION ALERT</h3>
         </div>
         
-        <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium space-y-2">
+        <div className="text-xs text-muted dark:text-slate-300 leading-relaxed font-medium space-y-2">
           <p>
             Patient <strong className="text-ink dark:text-teal-300">{currentPatient.fullName}</strong> has registered allergies matching <strong className="text-rose-600 uppercase underline font-bold">{pendingAllergyDrug.allergyGroup || pendingAllergyDrug.name}</strong>.
           </p>
@@ -34,7 +34,7 @@ export default function ContraindicationModal({ currentPatient, pendingAllergyDr
         </div>
     
         <div>
-          <label className="block text-2xs font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+          <label className="block text-2xs font-bold uppercase text-subtle dark:text-slate-400 mb-1">
             Required Clinical Rationale for Override *
           </label>
           <Input

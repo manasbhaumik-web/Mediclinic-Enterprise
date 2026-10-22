@@ -58,7 +58,7 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle">
+            <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
               <th className="p-3">Drug</th><th className="p-3 text-right">In stock</th><th className="p-3 text-right">Reorder at</th><th className="p-3 text-right">Price</th><th className="p-3">Flags</th><th className="p-3" />
             </tr>
           </thead>
@@ -71,37 +71,37 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
                   <tr className={`border-b border-line-subtle align-top ${retired ? 'opacity-50' : ''}`}>
                     <td className="p-3">
                       <button type="button" className="font-bold text-ink text-left cursor-pointer" onClick={() => setOpen(open === d.id ? null : d.id)}>{d.name}</button>
-                      <div className="font-medium text-slate-500">{d.category}{d.drugType ? ` · ${d.drugType}` : ''}</div>
+                      <div className="font-medium text-subtle">{d.category}{d.drugType ? ` · ${d.drugType}` : ''}</div>
                     </td>
                     <td className="p-3 text-right font-mono">{d.currentStock}{usable !== d.currentStock && <div className="text-amber-700" title="Part of the stock is expired">{usable} usable</div>}</td>
                     <td className="p-3 text-right font-mono">{d.minThreshold}</td>
                     <td className="p-3 text-right font-mono">RM{d.price.toFixed(2)}</td>
                     <td className="p-3 space-x-1">
-                      {retired && <span className="text-2xs font-bold px-2 py-0.5 border uppercase bg-slate-100 text-slate-600 border-slate-300">Retired</span>}
-                      {d.registerRequired && <span className="text-2xs font-bold px-2 py-0.5 border uppercase bg-violet-100 text-violet-800 border-violet-300" title={controlClassLabel(d.controlClass)}>Controlled</span>}
-                      {!retired && (alertsByDrug.get(d.id) ?? 0) > 0 && <span className="text-2xs font-bold px-2 py-0.5 border uppercase bg-amber-100 text-amber-800 border-amber-300">{alertsByDrug.get(d.id)} alert{alertsByDrug.get(d.id) === 1 ? '' : 's'}</span>}
+                      {retired && <span className="text-2xs font-bold px-2 py-0.5 border uppercase bg-slate-100 text-muted border-slate-300">Retired</span>}
+                      {d.registerRequired && <span className="text-2xs font-bold px-2 py-0.5 border uppercase chip-info" title={controlClassLabel(d.controlClass)}>Controlled</span>}
+                      {!retired && (alertsByDrug.get(d.id) ?? 0) > 0 && <span className="text-2xs font-bold px-2 py-0.5 border uppercase chip-warn">{alertsByDrug.get(d.id)} alert{alertsByDrug.get(d.id) === 1 ? '' : 's'}</span>}
                     </td>
                     <td className="p-3 text-right space-x-3 whitespace-nowrap">
                       {!retired && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setMode({ kind: 'receive', drug: d })}>Receive</button>}
                       {!retired && d.currentStock > 0 && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setMode({ kind: 'adjust', drug: d })}>Adjust</button>}
                       {!retired && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setMode({ kind: 'edit', drug: d })}>Edit</button>}
-                      {!retired ? <button type="button" className="font-bold text-slate-600 cursor-pointer" onClick={() => retire(d)}>Retire</button>
+                      {!retired ? <button type="button" className="font-bold text-muted cursor-pointer" onClick={() => retire(d)}>Retire</button>
                         : <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => restore(d)}>Restore</button>}
                     </td>
                   </tr>
                   {open === d.id && (
                     <tr><td colSpan={6} className="p-3 bg-surface-accent">
-                      {retired && d.retireReason && <p className="text-xs text-slate-600 mb-2">Retired: {d.retireReason}</p>}
-                      {(d.batches ?? []).length === 0 ? <p className="text-xs text-slate-500">No batches. Use Receive to add stock.</p> : (
+                      {retired && d.retireReason && <p className="text-xs text-muted mb-2">Retired: {d.retireReason}</p>}
+                      {(d.batches ?? []).length === 0 ? <p className="text-xs text-subtle">No batches. Use Receive to add stock.</p> : (
                         <table className="w-full text-xs">
-                          <thead><tr className="text-left text-2xs uppercase text-slate-500"><th className="py-1">Batch</th><th className="py-1">Expiry</th><th className="py-1 text-right">Stock</th><th className="py-1 text-right">Received</th></tr></thead>
+                          <thead><tr className="text-left text-2xs uppercase text-subtle"><th className="py-1">Batch</th><th className="py-1">Expiry</th><th className="py-1 text-right">Stock</th><th className="py-1 text-right">Received</th></tr></thead>
                           <tbody>
                             {[...(d.batches ?? [])].sort((a, b) => (a.expiryDate ?? '9999') < (b.expiryDate ?? '9999') ? -1 : 1).map((b) => (
                               <tr key={b.id} className="border-t border-line-subtle">
                                 <td className="py-1 font-mono">{b.batchId}</td>
                                 <td className={`py-1 ${isExpired(b, today) && b.stock > 0 ? 'text-rose-700 font-bold' : ''}`}>{b.expiryDate ?? 'Unknown'}{isExpired(b, today) && b.stock > 0 ? ' (expired)' : ''}</td>
                                 <td className="py-1 text-right font-mono">{b.stock}</td>
-                                <td className="py-1 text-right text-slate-500">{b.receivedAt ? new Date(b.receivedAt).toLocaleDateString() : ''}</td>
+                                <td className="py-1 text-right text-subtle">{b.receivedAt ? new Date(b.receivedAt).toLocaleDateString() : ''}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -113,7 +113,7 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
               );
             })}
             {rows.length === 0 && !drugs.isLoading && (
-              <tr><td className="p-6 text-slate-500 text-center" colSpan={6}>
+              <tr><td className="p-6 text-subtle text-center" colSpan={6}>
                 {all.length === 0 ? 'No drugs yet. Add your first drug, then receive stock into it.' : 'Nothing matches that search.'}
               </td></tr>
             )}
@@ -148,7 +148,7 @@ function ReceiveDialog({ drug, onClose }: { drug: DrugItem; onClose: () => void 
 
   return (
     <Dialog title={`Receive stock: ${drug.name}`} onClose={onClose}>
-      <p className="text-xs text-slate-600">Enter the batch number and expiry date exactly as printed on the pack. To receive against a purchase order, use Orders.</p>
+      <p className="text-xs text-muted">Enter the batch number and expiry date exactly as printed on the pack. To receive against a purchase order, use Orders.</p>
       <div className="grid grid-cols-2 gap-3">
         <Field label={`Quantity (${drug.unit})`}><input className={inputClass} type="number" min="1" value={f.qty} onChange={set('qty')} /></Field>
         <Field label="Batch number"><input className={inputClass} value={f.batch} onChange={set('batch')} /></Field>
@@ -159,7 +159,7 @@ function ReceiveDialog({ drug, onClose }: { drug: DrugItem; onClose: () => void 
         </Field>
         <Field label="Note (optional)"><input className={inputClass} value={f.notes} onChange={set('notes')} /></Field>
       </div>
-      {drug.registerRequired && <p className="text-xs text-violet-800 bg-violet-50 border border-violet-200 px-3 py-2">This is a controlled drug. The receipt goes in the register and needs a second person's signature.</p>}
+      {drug.registerRequired && <p className="text-xs text-teal-800 bg-teal-50 border border-teal-200 px-3 py-2">This is a controlled drug. The receipt goes in the register and needs a second person's signature.</p>}
       {err && <Notice ok={false}>{err}</Notice>}
       <div className="flex justify-end gap-2"><Button variant="outline" size="sm" onClick={onClose}>Cancel</Button><Button size="sm" onClick={save} disabled={api.receiveStock.isPending}>Receive</Button></div>
     </Dialog>
@@ -205,7 +205,7 @@ function AdjustDialog({ drug, onClose }: { drug: DrugItem; onClose: () => void }
         <Field label={`Quantity${batch ? ` (up to ${batch.stock} for this batch)` : ''}`}><input className={inputClass} type="number" min="1" value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} /></Field>
         <Field label="Reason (kept in the ledger)"><input className={inputClass} value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} placeholder="e.g. Expired 2026-09, broken bottle" /></Field>
       </div>
-      {drug.registerRequired && <p className="text-xs text-violet-800 bg-violet-50 border border-violet-200 px-3 py-2">This is a controlled drug. The change goes in the register and needs a second person's signature.</p>}
+      {drug.registerRequired && <p className="text-xs text-teal-800 bg-teal-50 border border-teal-200 px-3 py-2">This is a controlled drug. The change goes in the register and needs a second person's signature.</p>}
       {err && <Notice ok={false}>{err}</Notice>}
       <div className="flex justify-end gap-2"><Button variant="outline" size="sm" onClick={onClose}>Cancel</Button><Button size="sm" onClick={save} disabled={api.adjustStock.isPending || !f.batch}>Record</Button></div>
     </Dialog>

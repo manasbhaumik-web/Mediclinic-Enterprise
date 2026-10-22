@@ -63,8 +63,8 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
         {patientPastVisits.length === 0 ? (
           <div className="bg-white dark:bg-night-800 p-4 rounded-none border border-line dark:border-teal-800/50 text-center ml-4">
             <Calendar className="w-6 h-6 text-accent dark:text-teal-400 mx-auto mb-1 opacity-60" />
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">No past visit history found.</p>
-            <span className="text-2xs text-slate-400 dark:text-slate-500">First-time outpatient consultation</span>
+            <p className="text-xs text-subtle dark:text-slate-400 font-medium">No past visit history found.</p>
+            <span className="text-2xs text-slate-400 dark:text-subtle">First-time outpatient consultation</span>
           </div>
         ) : (
           patientPastVisits.map((visit, idx) => (
@@ -85,17 +85,17 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
                 <div className="mt-2 space-y-1">
                   <div className="flex gap-1.5 items-start">
                     <span className="text-2xs font-bold text-slate-400 w-3 shrink-0">S:</span>
-                    <p className="text-2xs text-slate-600 dark:text-slate-300 leading-tight line-clamp-2" title={visit.soap.subjective}>{visit.soap.subjective}</p>
+                    <p className="text-2xs text-muted dark:text-slate-300 leading-tight line-clamp-2" title={visit.soap.subjective}>{visit.soap.subjective}</p>
                   </div>
                   <div className="flex gap-1.5 items-start">
                     <span className="text-2xs font-bold text-slate-400 w-3 shrink-0">O:</span>
-                    <p className="text-2xs text-slate-600 dark:text-slate-300 leading-tight font-mono">
+                    <p className="text-2xs text-muted dark:text-slate-300 leading-tight font-mono">
                       BP:{visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} HR:{visit.soap.objective.heartRate} T:{visit.soap.objective.temperature}
                     </p>
                   </div>
                   <div className="flex gap-1.5 items-start">
                     <span className="text-2xs font-bold text-slate-400 w-3 shrink-0">P:</span>
-                    <p className="text-2xs text-slate-600 dark:text-slate-300 leading-tight line-clamp-2 font-medium">
+                    <p className="text-2xs text-muted dark:text-slate-300 leading-tight line-clamp-2 font-medium">
                       {visit.soap.plan.prescription.map(m=>m.drugName).join(', ')}
                     </p>
                   </div>

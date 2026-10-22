@@ -76,22 +76,22 @@ export default function SetPasswordPage() {
             <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">
               This link is invalid or has expired.
             </p>
-            <p className="text-xs text-slate-600">Ask your administrator to send a new invitation, or use "Forgot password" if you already have an account.</p>
+            <p className="text-xs text-muted">Ask your administrator to send a new invitation, or use "Forgot password" if you already have an account.</p>
             <Button size="sm" onClick={() => navigate('/login')}>Go to sign in</Button>
           </div>
         ) : (
           <form onSubmit={submit} className="space-y-4">
-            <p className="text-xs text-slate-600">Choose a password for your Mediclinic account. Nobody else, including administrators, will ever see it.</p>
-            <label className="block text-2xs font-bold uppercase tracking-wider text-slate-700" htmlFor="new-password">New password</label>
+            <p className="text-xs text-muted">Choose a password for your Mediclinic account. Nobody else, including administrators, will ever see it.</p>
+            <label className="block text-2xs font-bold uppercase tracking-wider text-muted" htmlFor="new-password">New password</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-accent absolute left-3 top-1/2 -translate-y-1/2" />
               <input id="new-password" type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 bg-surface border border-line-subtle rounded-none text-xs font-bold outline-none focus:border-brand focus:ring-2 focus:ring-brand/30" />
             </div>
-            <label className="block text-2xs font-bold uppercase tracking-wider text-slate-700" htmlFor="confirm-password">Confirm password</label>
+            <label className="block text-2xs font-bold uppercase tracking-wider text-muted" htmlFor="confirm-password">Confirm password</label>
             <input id="confirm-password" type="password" autoComplete="new-password" required value={confirm} onChange={(e) => setConfirm(e.target.value)}
               className="w-full px-3 py-2.5 bg-surface border border-line-subtle rounded-none text-xs font-bold outline-none focus:border-brand focus:ring-2 focus:ring-brand/30" />
-            <p className="text-2xs text-slate-500">At least {MIN_LENGTH} characters with an uppercase letter, a lowercase letter and a number.</p>
+            <p className="text-2xs text-subtle">At least {MIN_LENGTH} characters with an uppercase letter, a lowercase letter and a number.</p>
             {error && <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">{error}</p>}
             <Button type="submit" fullWidth disabled={saving}>{saving ? 'Saving…' : 'Save password and continue'}</Button>
           </form>

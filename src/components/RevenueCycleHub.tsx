@@ -37,7 +37,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
             <TrendingUp className="w-6 h-6 text-accent" aria-hidden="true" />
             Revenue Overview
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             What the clinic has billed and collected in {monthLabel}, from paid visits, panel claims and e-invoices.
           </p>
         </div>
@@ -79,14 +79,14 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Panel icon={Wallet} title={`Payment methods, ${monthLabel}`}>
           {r.current.byMethod.length === 0 ? (
-            <p className="text-xs text-slate-600">No paid visits yet this month.</p>
+            <p className="text-xs text-muted">No paid visits yet this month.</p>
           ) : (
             <div className="space-y-4">
               {r.current.byMethod.map((m) => (
                 <div key={m.method} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="font-bold text-ink">{m.method} <span className="font-normal text-slate-500">({m.count} visit{m.count === 1 ? '' : 's'})</span></span>
-                    <span className="font-mono text-slate-700">{formatRM(m.amount)}</span>
+                    <span className="font-bold text-ink">{m.method} <span className="font-normal text-subtle">({m.count} visit{m.count === 1 ? '' : 's'})</span></span>
+                    <span className="font-mono text-muted">{formatRM(m.amount)}</span>
                   </div>
                   <ProgressBar value={(m.amount / topMethodAmount) * 100} size="sm" label={`${m.method}: ${formatRM(m.amount)}`} />
                 </div>
@@ -105,7 +105,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
           )}
         >
           {!r.hasEInvoices ? (
-            <p className="text-xs text-slate-600">No e-invoices have been raised yet.</p>
+            <p className="text-xs text-muted">No e-invoices have been raised yet.</p>
           ) : (
             <>
               <p className={`text-xs mb-3 ${r.eInvoiceHealth.needAttention ? 'text-amber-800 font-bold' : 'text-emerald-700 font-medium'}`}>
@@ -116,7 +116,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
               <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {STATUS_ORDER.filter((s) => r.eInvoiceHealth.counts[s] > 0).map((s) => (
                   <div key={s} className="bg-surface border border-teal-100 p-2.5 text-center">
-                    <dt className="text-2xs text-slate-500 font-bold uppercase">{STATUS_LABELS[s].label}</dt>
+                    <dt className="text-2xs text-subtle font-bold uppercase">{STATUS_LABELS[s].label}</dt>
                     <dd className="type-metric text-ink mt-1">{r.eInvoiceHealth.counts[s]}</dd>
                   </div>
                 ))}
@@ -127,7 +127,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
 
         <Panel icon={Landmark} title="Panels and TPAs set up">
           {r.panels.length === 0 ? (
-            <p className="text-xs text-slate-600">No panels are configured.</p>
+            <p className="text-xs text-muted">No panels are configured.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -153,7 +153,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
         </Panel>
 
         <Panel icon={Info} title="Not tracked yet">
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <p className="text-xs text-muted leading-relaxed">
             The app records what each visit was billed and how it was paid, but not when a panel claim was submitted, approved or rejected,
             and it has no payment plans. Claim turnaround, denial rates and collections ageing can't be shown until that is recorded.
           </p>
@@ -166,9 +166,9 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
 function Kpi({ label, value, note, tone = 'ok' }: { label: string; value: string; note: string; tone?: 'ok' | 'warn' }) {
   return (
     <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
-      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
+      <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
       <h3 className={`type-metric mt-2 ${tone === 'warn' ? 'text-amber-700' : 'text-ink'}`}>{value}</h3>
-      <p className="mt-2 text-xs text-slate-600">{note}</p>
+      <p className="mt-2 text-xs text-muted">{note}</p>
     </div>
   );
 }

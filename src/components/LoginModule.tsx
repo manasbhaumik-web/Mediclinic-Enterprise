@@ -89,7 +89,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
   };
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4 sm:p-8 font-sans text-slate-900 selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4 sm:p-8 font-sans text-strong selection:bg-primary selection:text-white">
       <div className="max-w-5xl w-full flex flex-col md:flex-row rounded-none border border-line-subtle bg-surface shadow-2xl overflow-hidden animate-fadeIn">
 
         {/* ========================================================================= */}
@@ -166,8 +166,8 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
           {/* Top Right Back Link */}
           <div className="flex items-center justify-between mb-6">
             <div className="space-y-0.5">
-              <h3 className="type-metric text-slate-900">Staff Portal Sign In</h3>
-              <p className="text-slate-600 text-xs font-medium">Select your role, then sign in with your staff account</p>
+              <h3 className="type-metric text-strong">Staff Portal Sign In</h3>
+              <p className="text-muted text-xs font-medium">Select your role, then sign in with your staff account</p>
             </div>
 
             <button
@@ -182,7 +182,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
 
           {/* STEP 1: SELECT PERSONA */}
           <div className="space-y-3 mb-6">
-            <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-slate-500">
+            <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-subtle">
               <span className="flex items-center gap-1.5 text-accent">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-2xs font-bold">1</span>
                 <span>Select Staff Persona</span>
@@ -205,7 +205,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
                     className={`p-2.5 rounded-none border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                       isSelected
                         ? 'bg-primary text-white border-brand shadow-xs'
-                        : 'bg-white text-slate-700 border-line-subtle hover:bg-surface-accent'
+                        : 'bg-white text-muted border-line-subtle hover:bg-surface-accent'
                     }`}
                   >
                     <IconComponent className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-accent'}`} />
@@ -222,11 +222,11 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
                   {currentPersona.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <span className="font-bold text-slate-900 block leading-tight">{currentPersona.name}</span>
+                  <span className="font-bold text-strong block leading-tight">{currentPersona.name}</span>
                   <span className="text-2xs text-accent font-bold block">{currentPersona.detail}</span>
                 </div>
               </div>
-              <span className="text-2xs font-mono text-emerald-800 font-bold bg-emerald-100 px-2.5 py-1 rounded-md flex items-center justify-center gap-1">
+              <span className="text-2xs font-mono text-emerald-800 font-bold bg-emerald-100 px-2.5 py-1 rounded-none flex items-center justify-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Active Persona
               </span>
             </div>
@@ -234,7 +234,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
 
           {/* STEP 2: AUTHENTICATE CREDENTIALS */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-slate-500">
+            <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-subtle">
               <span className="flex items-center gap-1.5 text-accent">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-2xs font-bold">2</span>
                 <span>Authenticate Credentials</span>
@@ -245,7 +245,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
 
               {/* Username Input */}
               <div className="space-y-1">
-                <label htmlFor="login-email" className="block text-2xs font-bold text-slate-700 uppercase tracking-wider">
+                <label htmlFor="login-email" className="block text-2xs font-bold text-muted uppercase tracking-wider">
                   Staff Email
                 </label>
                 <div className="relative">
@@ -259,7 +259,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-surface border border-line-subtle rounded-none focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all text-xs font-bold text-slate-900 font-mono"
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface border border-line-subtle rounded-none focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all text-xs font-bold text-strong font-mono"
                   />
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
               {/* Password Input with Eye Toggle */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="login-password" className="block text-2xs font-bold text-slate-700 uppercase tracking-wider">
+                  <label htmlFor="login-password" className="block text-2xs font-bold text-muted uppercase tracking-wider">
                     Password
                   </label>
                 </div>
@@ -282,7 +282,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 bg-surface border border-line-subtle rounded-none focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all text-xs font-bold text-slate-900 tracking-widest"
+                    className="w-full pl-10 pr-10 py-2.5 bg-surface border border-line-subtle rounded-none focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all text-xs font-bold text-strong tracking-widest"
                   />
                   <button
                     type="button"

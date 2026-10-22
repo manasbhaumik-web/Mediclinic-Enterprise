@@ -14,7 +14,7 @@ export default function GlobalSpinner() {
         <div className="absolute w-32 h-32 rounded-full border border-brand/30 animate-pulse"></div>
 
         {/* Central Logo & Icon Card */}
-        <div className="relative bg-white dark:bg-night-900 border-2 border-brand p-4 rounded-none shadow-xl flex items-center justify-center space-x-2">
+        <div className="relative bg-white dark:bg-night-900 border-2 border-brand p-4 rounded-none shadow-2xl flex items-center justify-center space-x-2">
           <img 
             src={logoUrl} 
             alt="Mediclinic Logo" 

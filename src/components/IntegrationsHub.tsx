@@ -217,7 +217,7 @@ export default function IntegrationsHub() {
             <Wifi className="w-6 h-6 text-accent" />
             Interoperability Engine
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             Central nervous system for external medical data. Manage active secure connections to national health registries, IoT wearables, and decentralized blockchain nodes.
           </p>
         </div>
@@ -225,7 +225,7 @@ export default function IntegrationsHub() {
         <div className="flex items-center gap-3">
           <div className="bg-white px-4 py-2 rounded-none border border-line flex items-center justify-center gap-4 shadow-2xs">
             <div className="text-left">
-              <span className="text-2xs uppercase font-bold text-slate-500 tracking-wider block">Network Status</span>
+              <span className="text-2xs uppercase font-bold text-subtle tracking-wider block">Network Status</span>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
@@ -246,7 +246,7 @@ export default function IntegrationsHub() {
             </div>
           </div>
 
-          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3.5 py-2.5 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-sm">
+          <button className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3.5 py-2.5 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-xs">
             <Plus className="w-4 h-4" />
             Add Integration
           </button>
@@ -257,7 +257,7 @@ export default function IntegrationsHub() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gateway Nodes</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Gateway Nodes</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <Network className="w-5 h-5" />
             </div>
@@ -272,7 +272,7 @@ export default function IntegrationsHub() {
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Packets Synced</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Packets Synced</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <Zap className="w-5 h-5" />
             </div>
@@ -287,7 +287,7 @@ export default function IntegrationsHub() {
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Latency</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Avg Latency</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <Cpu className="w-5 h-5" />
             </div>
@@ -302,7 +302,7 @@ export default function IntegrationsHub() {
 
         <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Security Integrity</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Security Integrity</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
               <ShieldCheck className="w-5 h-5" />
             </div>
@@ -330,7 +330,7 @@ export default function IntegrationsHub() {
               {/* Card Header */}
               <div className={`p-4 border-b ${isWarning ? 'bg-amber-50 border-amber-200' : 'bg-surface border-teal-100'} flex items-start justify-between transition-colors`}>
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-none border shadow-sm ${isWarning ? 'bg-white text-amber-600 border-amber-200' : 'bg-white text-accent border-teal-100'}`}>
+                  <div className={`p-2 rounded-none border shadow-xs ${isWarning ? 'bg-white text-amber-600 border-amber-200' : 'bg-white text-accent border-teal-100'}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
@@ -344,7 +344,7 @@ export default function IntegrationsHub() {
 
               {/* Card Body */}
               <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted leading-relaxed">
                   {integration.description}
                 </p>
                 
@@ -367,7 +367,7 @@ export default function IntegrationsHub() {
                       {integration.status}
                     </span>
                   </div>
-                  <span className="text-2xs text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100 font-mono">
+                  <span className="text-2xs text-subtle bg-slate-50 px-2 py-1 rounded-none border border-slate-100 font-mono">
                     {integration.metrics}
                   </span>
                 </div>
@@ -377,7 +377,7 @@ export default function IntegrationsHub() {
               <button 
                 type="button"
                 onClick={() => setActiveModal(integration.id)}
-                className="bg-slate-50 dark:bg-night-800 border-t border-slate-100 dark:border-teal-800 py-2.5 px-4 text-xs font-bold text-slate-700 dark:text-teal-200 hover:text-white hover:bg-primary flex items-center justify-between transition-colors cursor-pointer"
+                className="bg-slate-50 dark:bg-night-800 border-t border-slate-100 dark:border-teal-800 py-2.5 px-4 text-xs font-bold text-muted dark:text-teal-200 hover:text-white hover:bg-primary flex items-center justify-between transition-colors cursor-pointer"
               >
                 <span>Launch {integration.title}...</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -390,13 +390,13 @@ export default function IntegrationsHub() {
         <button 
           type="button"
           onClick={() => setActiveModal('ehr')}
-          className="bg-surface dark:bg-night-850 rounded-none border-2 border-dashed border-teal-200 dark:border-teal-800 hover:border-brand hover:bg-teal-50/50 transition-all duration-300 flex flex-col items-center justify-center p-6 text-slate-500 group min-h-[220px] cursor-pointer"
+          className="bg-surface dark:bg-night-850 rounded-none border-2 border-dashed border-teal-200 dark:border-teal-800 hover:border-brand hover:bg-teal-50/50 transition-all duration-300 flex flex-col items-center justify-center p-6 text-subtle group min-h-[220px] cursor-pointer"
         >
-          <div className="w-12 h-12 bg-white dark:bg-night-950 rounded-none shadow-sm border border-teal-200 dark:border-teal-800 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all text-accent">
+          <div className="w-12 h-12 bg-white dark:bg-night-950 rounded-none shadow-xs border border-teal-200 dark:border-teal-800 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all text-accent">
             <Code className="w-6 h-6" />
           </div>
           <span className="text-xs font-bold text-ink dark:text-teal-300">HL7 FHIR R4 Live Console</span>
-          <span className="text-2xs text-slate-500 dark:text-slate-400 mt-1">Convert &amp; Validate FHIR JSON</span>
+          <span className="text-2xs text-subtle dark:text-slate-400 mt-1">Convert &amp; Validate FHIR JSON</span>
         </button>
 
       </div>
@@ -416,12 +416,12 @@ export default function IntegrationsHub() {
                   <h3 className="type-heading-caps text-ink dark:text-teal-300">
                     HL7 FHIR R4 Integration Engine &amp; Validator
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                  <p className="text-xs text-muted dark:text-slate-300 font-medium">
                     Fast Healthcare Interoperability Resources (v4.0.1) • RESTful JSON Clinical Exchange
                   </p>
                 </div>
               </div>
-              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-muted dark:hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -462,16 +462,16 @@ export default function IntegrationsHub() {
                 <textarea
                   value={validationInput}
                   onChange={(e) => setValidationInput(e.target.value)}
-                  className="w-full bg-white dark:bg-night-950 text-slate-800 dark:text-slate-100 font-mono text-2xs p-3 border border-line dark:border-teal-800 rounded-none h-56 focus:outline-none focus:ring-1 focus:ring-brand"
+                  className="w-full bg-white dark:bg-night-950 text-strong dark:text-slate-100 font-mono text-2xs p-3 border border-line dark:border-teal-800 rounded-none h-56 focus:outline-none focus:ring-1 focus:ring-brand"
                   placeholder="Paste FHIR JSON payload here..."
                 />
                 <div className="flex items-center justify-between pt-1">
-                  <button type="button" onClick={handleValidatePayload} className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
+                  <button type="button" onClick={handleValidatePayload} className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
                     <CheckCircle2 className="w-4 h-4" /> Run Schema Validation
                   </button>
                   {validationResult && (
                     <div className={`px-3 py-1.5 border text-xs font-bold font-mono flex items-center gap-1.5 ${
-                      validationResult.valid ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300'
+                      validationResult.valid ? 'chip-ok dark:bg-emerald-950/60 dark:text-emerald-300' : 'chip-danger dark:bg-rose-950/60 dark:text-rose-300'
                     }`}>
                       {validationResult.valid ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
                       <span>{validationResult.valid ? `Valid ${validationResult.resourceType}` : validationResult.error}</span>
@@ -482,7 +482,7 @@ export default function IntegrationsHub() {
             </div>
 
             <div className="flex items-center justify-end pt-3 border-t border-line dark:border-teal-800">
-              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-primary hover:bg-primary-hover text-white font-bold text-xs cursor-pointer shadow-sm">
+              <button type="button" onClick={() => setActiveModal(null)} className="px-4 py-2 bg-primary hover:bg-primary-hover text-white font-bold text-xs cursor-pointer shadow-xs">
                 Close Console
               </button>
             </div>
@@ -501,12 +501,12 @@ export default function IntegrationsHub() {
                   <h3 className="type-heading-caps text-ink dark:text-teal-300">
                     Blockchain Immutable Medical Ledger Node
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                  <p className="text-xs text-muted dark:text-slate-300 font-medium">
                     Tamper-Proof Proof-of-Work Audit Trail • Cryptographic SHA-256 Record Integrity
                   </p>
                 </div>
               </div>
-              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-muted dark:hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -520,7 +520,7 @@ export default function IntegrationsHub() {
                     medicalBlockchain.recordAuditBlock('P10084', 'CONSULTATION_SIGN_OFF', 'E11.9', ['Metformin 500mg']);
                     setSyncCount(prev => prev + 1);
                   }}
-                  className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3 py-1.5 cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+                  className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3 py-1.5 cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" /> Mine New Block...
                 </button>
@@ -560,16 +560,16 @@ export default function IntegrationsHub() {
                 <ShieldCheck className="w-6 h-6 text-accent dark:text-teal-400" />
                 <div>
                   <h3 className="type-heading-caps text-ink dark:text-teal-300">TPA Auto-Auth Gateway</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">Direct EDI-837 / EDI-270 Insurance Coverage Pre-Clearance</p>
+                  <p className="text-xs text-muted dark:text-slate-300">Direct EDI-837 / EDI-270 Insurance Coverage Pre-Clearance</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-muted dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 dark:text-teal-200 block mb-1">Policy Number</label>
+                  <label className="font-bold text-muted dark:text-teal-200 block mb-1">Policy Number</label>
                   <input
                     type="text"
                     value={policyNo}
@@ -578,7 +578,7 @@ export default function IntegrationsHub() {
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 dark:text-teal-200 block mb-1">Requested Amount (RM)</label>
+                  <label className="font-bold text-muted dark:text-teal-200 block mb-1">Requested Amount (RM)</label>
                   <input
                     type="number"
                     value={claimAmount}
@@ -599,13 +599,13 @@ export default function IntegrationsHub() {
                     requestedAmount: claimAmount
                   }));
                 }}
-                className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-2 text-xs shadow-sm cursor-pointer"
+                className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-2 text-xs shadow-xs cursor-pointer"
               >
                 Run EDI-837 Pre-Authorization Clearance
               </button>
 
               {tpaResult && (
-                <div className={`p-4 border font-mono text-xs space-y-1.5 ${tpaResult.approved ? 'bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200' : 'bg-rose-50 text-rose-900 border-rose-300'}`}>
+                <div className={`p-4 border font-mono text-xs space-y-1.5 ${tpaResult.approved ? 'chip-ok dark:bg-emerald-950/60 dark:text-emerald-200' : 'chip-danger'}`}>
                   <div className="font-bold flex justify-between">
                     <span>STATUS: {tpaResult.approved ? 'APPROVED' : 'REJECTED'}</span>
                     <span>REF: {tpaResult.preAuthRefNumber}</span>
@@ -633,10 +633,10 @@ export default function IntegrationsHub() {
                 <Server className="w-6 h-6 text-accent dark:text-teal-400" />
                 <div>
                   <h3 className="type-heading-caps text-ink dark:text-teal-300">LIS &amp; RIS Diagnostics Ingestion</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">HL7 Panic Value Detection &amp; Lab Interfacing</p>
+                  <p className="text-xs text-muted dark:text-slate-300">HL7 Panic Value Detection &amp; Lab Interfacing</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-muted dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
 
             {lisReport && (
@@ -650,7 +650,7 @@ export default function IntegrationsHub() {
 
                 <div className="space-y-2">
                   {lisReport.results.map((r) => (
-                    <div key={r.testCode} className={`p-2.5 border flex justify-between items-center ${r.isPanicValue ? 'bg-rose-50 text-rose-900 border-rose-300 dark:bg-rose-950/60 dark:text-rose-200' : 'bg-white dark:bg-night-950 border-slate-200 dark:border-teal-900'}`}>
+                    <div key={r.testCode} className={`p-2.5 border flex justify-between items-center ${r.isPanicValue ? 'chip-danger dark:bg-rose-950/60 dark:text-rose-200' : 'bg-white dark:bg-night-950 border-slate-200 dark:border-teal-900'}`}>
                       <div>
                         <p className="font-bold">{r.testName} ({r.testCode})</p>
                         <p className="text-2xs opacity-75">Ref: {r.refRangeMin} - {r.refRangeMax} {r.unit}</p>
@@ -678,10 +678,10 @@ export default function IntegrationsHub() {
                 <Pill className="w-6 h-6 text-accent dark:text-teal-400" />
                 <div>
                   <h3 className="type-heading-caps text-ink dark:text-teal-300">e-Prescribing Pharmacy Network</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">Automated Drug-Drug Interaction Safety Scanner</p>
+                  <p className="text-xs text-muted dark:text-slate-300">Automated Drug-Drug Interaction Safety Scanner</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-muted dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
 
             {eRxResult && (
@@ -721,28 +721,28 @@ export default function IntegrationsHub() {
                 <Watch className="w-6 h-6 text-accent dark:text-teal-400" />
                 <div>
                   <h3 className="type-heading-caps text-ink dark:text-teal-300">IoT Wearables &amp; Telemetry Bridge</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">Continuous Biometric Health Monitoring Stream</p>
+                  <p className="text-xs text-muted dark:text-slate-300">Continuous Biometric Health Monitoring Stream</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-muted dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
 
             {biometricFrame && (
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="p-3 bg-white dark:bg-night-950 border border-slate-200 dark:border-teal-900">
-                  <span className="text-slate-500 block text-2xs font-bold">HEART RATE</span>
+                  <span className="text-subtle block text-2xs font-bold">HEART RATE</span>
                   <span className="text-xl font-bold text-rose-600 font-mono">{biometricFrame.heartRateBp} bpm</span>
                 </div>
                 <div className="p-3 bg-white dark:bg-night-950 border border-slate-200 dark:border-teal-900">
-                  <span className="text-slate-500 block text-2xs font-bold">BLOOD OXYGEN (SpO2)</span>
+                  <span className="text-subtle block text-2xs font-bold">BLOOD OXYGEN (SpO2)</span>
                   <span className="text-xl font-bold text-emerald-600 font-mono">{biometricFrame.spO2Percent}%</span>
                 </div>
                 <div className="p-3 bg-white dark:bg-night-950 border border-slate-200 dark:border-teal-900">
-                  <span className="text-slate-500 block text-2xs font-bold">BLOOD PRESSURE</span>
+                  <span className="text-subtle block text-2xs font-bold">BLOOD PRESSURE</span>
                   <span className="text-xl font-bold text-ink dark:text-teal-300 font-mono">{biometricFrame.systolicBp}/{biometricFrame.diastolicBp} mmHg</span>
                 </div>
                 <div className="p-3 bg-white dark:bg-night-950 border border-slate-200 dark:border-teal-900">
-                  <span className="text-slate-500 block text-2xs font-bold">GLUCOSE LEVEL</span>
+                  <span className="text-subtle block text-2xs font-bold">GLUCOSE LEVEL</span>
                   <span className="text-xl font-bold text-amber-600 font-mono">{biometricFrame.glucoseMmol} mmol/L</span>
                 </div>
               </div>
@@ -764,10 +764,10 @@ export default function IntegrationsHub() {
                 <HeartPulse className="w-6 h-6 text-accent dark:text-teal-400" />
                 <div>
                   <h3 className="type-heading-caps text-ink dark:text-teal-300">Biometric Hardware Device Bus</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">Clinic IP / Serial Device Telemetry Port</p>
+                  <p className="text-xs text-muted dark:text-slate-300">Clinic IP / Serial Device Telemetry Port</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
+              <button type="button" onClick={() => setActiveModal(null)} className="p-1 text-slate-400 hover:text-muted dark:hover:text-white cursor-pointer"><X className="w-5 h-5" /></button>
             </div>
 
             <div className="space-y-2 text-xs font-mono">

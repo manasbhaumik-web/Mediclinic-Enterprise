@@ -15,10 +15,10 @@ interface SystemStatusProps {
 }
 
 const TONE: Record<Tone, string> = {
-  ok: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-  warn: 'bg-amber-50 text-amber-800 border-amber-200',
-  bad: 'bg-rose-50 text-rose-800 border-rose-200',
-  idle: 'bg-slate-50 text-slate-700 border-line',
+  ok: 'chip-ok',
+  warn: 'chip-warn',
+  bad: 'chip-danger',
+  idle: 'bg-slate-50 text-muted border-line',
 };
 
 const clockTime = (ms: number) => new Date(ms).toLocaleTimeString('en-MY', { hour12: false });
@@ -56,12 +56,12 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
             <Server className="w-6 h-6 text-accent" aria-hidden="true" />
             System Status
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             Live checks run from this browser against the clinic's backend, plus facts read from the database. Nothing here is estimated: whatever is not measured says so.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-600 font-mono">{snapshot.ranAt ? `Checked ${clockTime(snapshot.ranAt)}` : 'Checking…'}</span>
+          <span className="text-xs text-muted font-mono">{snapshot.ranAt ? `Checked ${clockTime(snapshot.ranAt)}` : 'Checking…'}</span>
           <button
             type="button"
             onClick={() => { void run(); void integrations.refresh(); }}
@@ -114,7 +114,7 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
             <Pill tone={eventsTone}>
               {!facts ? 'Checking' : coverage.published.length === APP_REALTIME_TABLES.length ? 'All published' : `${coverage.published.length} of ${APP_REALTIME_TABLES.length} published`}
             </Pill>
-            <span className="text-xs text-slate-600">Tables the app listens to, and whether the database publishes their changes</span>
+            <span className="text-xs text-muted">Tables the app listens to, and whether the database publishes their changes</span>
           </div>
           {db?.error ? <p className="text-xs text-rose-700">Could not read the database facts: {db.error}</p> : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
@@ -137,7 +137,7 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
         </Panel>
 
         <Panel icon={Cloud} title="Edge functions">
-          {!functions ? <p className="text-xs text-slate-500">Checking…</p> : (
+          {!functions ? <p className="text-xs text-subtle">Checking…</p> : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="text-ink uppercase border-b border-line font-bold">
@@ -150,9 +150,9 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
                       <tr key={f.slug}>
                         <th scope="row" className="py-2 pr-3 font-normal">
                           <span className="font-mono font-bold text-ink">{f.slug}</span>
-                          <span className="block text-2xs text-slate-500">{f.label}{f.scheduled ? ' · needs a scheduler' : ''}</span>
+                          <span className="block text-2xs text-subtle">{f.label}{f.scheduled ? ' · needs a scheduler' : ''}</span>
                         </th>
-                        <td className="py-2"><Pill tone={s.tone}>{s.label}</Pill>{f.httpStatus ? <span className="ml-1.5 font-mono text-2xs text-slate-500">HTTP {f.httpStatus}</span> : null}</td>
+                        <td className="py-2"><Pill tone={s.tone}>{s.label}</Pill>{f.httpStatus ? <span className="ml-1.5 font-mono text-2xs text-subtle">HTTP {f.httpStatus}</span> : null}</td>
                       </tr>
                     );
                   })}
@@ -160,14 +160,14 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
               </table>
             </div>
           )}
-          <p className="mt-3 text-2xs text-slate-500 leading-relaxed">
+          <p className="mt-3 text-2xs text-subtle leading-relaxed">
             Checked with a request that carries no credentials, so nothing is run: a deployed function refuses it and a missing one is reported as not found.
             {facts && !hasScheduler && ' The two workers have to be called on a timer; this database has no scheduler (pg_cron) installed, so something outside it must do that.'}
           </p>
         </Panel>
 
         <Panel icon={Database} title="Database">
-          {db?.error ? <p className="text-xs text-rose-700">Could not read the database facts: {db.error}</p> : !facts ? <p className="text-xs text-slate-500">Checking…</p> : (
+          {db?.error ? <p className="text-xs text-rose-700">Could not read the database facts: {db.error}</p> : !facts ? <p className="text-xs text-subtle">Checking…</p> : (
             <dl className="grid grid-cols-[auto,1fr] gap-x-5 gap-y-1.5 text-xs">
               <Fact label="Server">PostgreSQL {facts.pg_version}</Fact>
               <Fact label="Size">{formatBytes(facts.db_size_bytes)}</Fact>
@@ -190,7 +190,7 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
             </button>
           )}
         >
-          {integrations.connections.isPending ? <p className="text-xs text-slate-500">Checking…</p> : integrations.connections.error ? (
+          {integrations.connections.isPending ? <p className="text-xs text-subtle">Checking…</p> : integrations.connections.error ? (
             <p className="text-xs text-rose-700">Could not read integrations.</p>
           ) : (
             <dl className="grid grid-cols-[auto,1fr] gap-x-5 gap-y-1.5 text-xs">
@@ -198,7 +198,7 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
               <Fact label="Outbound queue">{outbox ? `${outbox.pending} waiting · ${outbox.failed} failed · ${outbox.dead} gave up · ${outbox.sent} sent` : '—'}</Fact>
             </dl>
           )}
-          <p className="mt-3 text-2xs text-slate-500 leading-relaxed">Connection tests and per-integration health are on the Integrations screen.</p>
+          <p className="mt-3 text-2xs text-subtle leading-relaxed">Connection tests and per-integration health are on the Integrations screen.</p>
         </Panel>
 
         <Panel icon={Package} title="This build">
@@ -214,11 +214,11 @@ export default function SystemArchitectureHub({ onOpenTab }: SystemStatusProps) 
         </Panel>
 
         <Panel icon={Info} title="Not monitored here">
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <p className="text-xs text-muted leading-relaxed">
             This page does not measure uptime history, request volume, error rates, backups, failover or replication, and it holds no security certification.
             Those are reported by the hosting provider's dashboard; check them there. Anything shown above comes from a request made just now.
           </p>
-          <p className="mt-2 flex items-start gap-1.5 text-2xs text-slate-500"><ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden="true" />Security findings are on the Security & Audit screen.</p>
+          <p className="mt-2 flex items-start gap-1.5 text-2xs text-subtle"><ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden="true" />Security findings are on the Security & Audit screen.</p>
         </Panel>
       </div>
     </div>
@@ -229,11 +229,11 @@ function Kpi({ label, value, note, tone }: { label: string; value: string; note:
   const color = tone === 'bad' ? 'text-rose-700' : tone === 'warn' ? 'text-amber-700' : 'text-ink';
   return (
     <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
-      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+      <span className="text-xs font-semibold text-subtle uppercase tracking-wider flex items-center gap-1.5">
         <Activity className="w-3.5 h-3.5 text-accent" aria-hidden="true" />{label}
       </span>
       <h3 className={`type-metric mt-2 ${color}`}>{value}</h3>
-      <p className="mt-2 text-xs text-slate-600 break-words">{note}</p>
+      <p className="mt-2 text-xs text-muted break-words">{note}</p>
     </div>
   );
 }
@@ -260,7 +260,7 @@ const Inline = ({ tone, children }: { tone: Tone; children: React.ReactNode }) =
 
 const Fact = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <>
-    <dt className="text-slate-500">{label}</dt>
+    <dt className="text-subtle">{label}</dt>
     <dd className="text-ink font-medium break-words">{children}</dd>
   </>
 );

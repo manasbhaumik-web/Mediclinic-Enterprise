@@ -34,14 +34,14 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
         <h4 className="text-base font-bold text-ink">
           {currentPage === 1 ? 'Waiting after the next patient' : 'Patient queue list'}
         </h4>
-        <span className="text-sm text-slate-600">
+        <span className="text-sm text-muted">
           {sortedQueue.length} total · Page {currentPage} of {totalPages}
         </span>
       </div>
     
       <div className="overflow-x-auto">
         <div role="table" aria-label="Waiting patients" className="md:min-w-[960px]">
-          <div role="row" className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line-subtle text-xs font-semibold uppercase tracking-wider text-slate-600">
+          <div role="row" className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line-subtle text-xs font-semibold uppercase tracking-wider text-muted">
             <span role="columnheader">{sortRule === 'urgency' ? 'Rank' : 'Order'}</span>
             <span role="columnheader">Patient</span>
             <span role="columnheader">Complaint</span>
@@ -51,7 +51,7 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
           </div>
     
           {remainingQueue.length === 0 && (
-            <div className="px-5 py-10 text-center text-sm text-slate-600">
+            <div className="px-5 py-10 text-center text-sm text-muted">
               {nextVisit ? 'No other patients are waiting.' : 'No patients match this filter.'}
             </div>
           )}
@@ -68,9 +68,9 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
             const isPinned = pinnedVisitIds[visit.id];
             const overSla = waitMins >= 20;
             const rankTint = triage.level === 'High'
-              ? 'bg-rose-50 text-rose-900 border-rose-200'
+              ? 'chip-danger'
               : triage.level === 'Medium'
-              ? 'bg-amber-50 text-amber-900 border-amber-200'
+              ? 'chip-warn'
               : 'bg-surface-accent text-ink border-line-subtle';
     
             return (
@@ -96,7 +96,7 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
                   <div role="cell" className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
                       <h4 className="text-sm font-semibold text-ink">{pt.fullName}</h4>
-                      <span className="text-xs text-slate-600">ID {pt.id}</span>
+                      <span className="text-xs text-muted">ID {pt.id}</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {isPinned && (
@@ -113,13 +113,13 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
                     {getChiefComplaintLabel(visit.soap?.subjective)}
                   </span>
     
-                  <span role="cell" className="text-xs leading-snug text-slate-600 min-w-0">
+                  <span role="cell" className="text-xs leading-snug text-muted min-w-0">
                     {getRankingRationale(pt, visit, globalRankIndex, sortRule)}
                   </span>
     
                   <div role="cell" className="flex flex-col items-start gap-1">
                     <span className={`text-sm font-bold px-2.5 py-1 border ${
-                      overSla ? 'bg-amber-50 text-amber-900 border-amber-200' : 'bg-surface-accent text-ink border-line-subtle'
+                      overSla ? 'chip-warn' : 'bg-surface-accent text-ink border-line-subtle'
                     }`}>
                       {waitMins} min
                     </span>
@@ -169,15 +169,15 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
                   <div role="row" className="mx-5 mb-4"><div role="cell" aria-colspan={6} className="border border-line-subtle bg-surface-muted p-4 text-sm text-ink space-y-3 animate-fadeIn">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full reason / symptoms</strong>
+                        <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Full reason / symptoms</strong>
                         <p className="leading-relaxed">{visit.soap?.subjective || 'General Medical Consultation'}</p>
                       </div>
                       <div>
-                        <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Panel employer</strong>
+                        <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Panel employer</strong>
                         <p className="font-semibold text-accent">{pt.panelEmployer}</p>
                       </div>
                       <div>
-                        <strong className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Demographics &amp; contact</strong>
+                        <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Demographics &amp; contact</strong>
                         <p>{pt.gender}, {pt.dob} · {pt.phone}</p>
                       </div>
                     </div>
@@ -208,7 +208,7 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
       </div>
     
       {/* FOOTER: SHORTCUTS, PAGE SIZE, PAGINATION */}
-      <div className="bg-surface-muted px-5 py-3.5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-xs text-slate-600">
+      <div className="bg-surface-muted px-5 py-3.5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-xs text-muted">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold">
             Showing {sortedQueue.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + entriesPerPage, sortedQueue.length)} of {sortedQueue.length}

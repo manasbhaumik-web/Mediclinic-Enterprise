@@ -34,7 +34,7 @@ export default function DoctorsSection({ isBM, setDoctorSpecialty, doctorSpecial
                 className={`min-h-[44px] px-3 py-1.5 rounded-none transition-colors cursor-pointer ${
                   doctorSpecialty === dept 
                     ? 'bg-primary text-white shadow-2xs' 
-                    : 'text-slate-700 hover:text-ink'
+                    : 'text-muted hover:text-ink'
                 }`}
               >
                 {dept}
@@ -50,7 +50,7 @@ export default function DoctorsSection({ isBM, setDoctorSpecialty, doctorSpecial
               
               {/* Availability State Pill */}
               <div className="absolute top-4 right-4">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-none flex items-center justify-center gap-1 border bg-emerald-100 text-emerald-800 border-emerald-300">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-none flex items-center justify-center gap-1 border chip-ok">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   {doc.availabilityState}
                 </span>
@@ -67,12 +67,12 @@ export default function DoctorsSection({ isBM, setDoctorSpecialty, doctorSpecial
                 </div>
                 <h3 className="type-card-title-lg text-ink">{doc.name}</h3>
                 <span className="text-xs text-accent font-semibold block">{doc.title}</span>
-                <span className="text-xs text-slate-600 block pt-0.5">{doc.role}</span>
-                <span className="text-xs text-slate-600 block">Languages: {doc.languages}</span>
+                <span className="text-xs text-muted block pt-0.5">{doc.role}</span>
+                <span className="text-xs text-muted block">Languages: {doc.languages}</span>
               </div>
               
               {/* Live Slot Status Box */}
-              <div className="p-3 bg-surface-accent border border-line rounded-none flex items-center justify-between text-xs font-bold text-slate-700 shadow-2xs">
+              <div className="p-3 bg-surface-accent border border-line rounded-none flex items-center justify-between text-xs font-bold text-muted shadow-2xs">
                 <span className="flex items-center gap-1.5 text-ink">
                   <Clock className="w-3.5 h-3.5 text-accent" />
                   <span>{doc.nextSlot}</span>

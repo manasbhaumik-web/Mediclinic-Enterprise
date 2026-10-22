@@ -108,7 +108,7 @@ export default function PatientRegistryTable({ totalPatientCount, setActiveSubTa
                     <td className="px-4 py-3.5">
                       <span className={`inline-block px-2.5 py-1 rounded-none text-2xs font-sans font-bold uppercase tracking-wider border ${
                         p.panelEmployer === 'None (Self-Pay)' 
-                          ? 'bg-slate-100 dark:bg-night-850 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-teal-900' 
+                          ? 'bg-slate-100 dark:bg-night-850 text-muted dark:text-slate-300 border-slate-200 dark:border-teal-900' 
                           : 'bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 border-brand/20 dark:border-teal-700/50'
                       }`}>
                         {p.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : p.panelEmployer}
@@ -116,7 +116,7 @@ export default function PatientRegistryTable({ totalPatientCount, setActiveSubTa
                     </td>
                     <td className="px-4 py-3.5">
                       {p.drugAllergies.length === 0
-                        ? <span className="text-slate-600 dark:text-slate-400 text-xs italic font-sans">No known allergies</span>
+                        ? <span className="text-muted dark:text-slate-400 text-xs italic font-sans">No known allergies</span>
                         : <div className="flex flex-wrap gap-1.5">
                             {p.drugAllergies.map((a, i) => (
                               <span key={i} className="inline-flex items-center justify-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-2xs font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">

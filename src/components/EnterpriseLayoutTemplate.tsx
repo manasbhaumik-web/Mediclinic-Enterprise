@@ -5,11 +5,13 @@ import ThemeSelector from './ui/ThemeSelector';
 import NotificationBell from './NotificationBell';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import { brandName } from '../lib/brandName';
+import { ROLE_BANNER, getGreeting } from '../lib/roleBanner';
+import type { UserRole } from '../types';
 import { useSettings } from '../context/SettingsContext';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
-  ChevronDown, ChevronRight, LogOut, CalendarClock, PackageOpen, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck
+  ChevronDown, ChevronRight, LogOut, CalendarClock, PackageOpen, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck, User
 } from 'lucide-react';
 
 interface EnterpriseLayoutTemplateProps {
@@ -122,13 +124,17 @@ export default function EnterpriseLayoutTemplate({
     return name.slice(0, 2).toUpperCase();
   };
 
+  const banner = ROLE_BANNER[userRole as UserRole];
+  const roleLabel = banner?.label ?? (userRole ? userRole.replace(/-/g, ' ') : '');
+  const roleSubtitle = banner?.subtitle ?? '';
+
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
-      isNightShift ? 'dark bg-night-850 text-slate-100' : 'bg-slate-50 text-slate-800'
+      isNightShift ? 'dark bg-night-850 text-slate-100' : 'bg-slate-50 text-ink'
     }`}>
       
       {/* GLOBAL TOP HEADER BAR */}
-      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-white/20 shrink-0 shadow-xs shadow-black/10 relative z-30 sticky top-0 font-sans">
+      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
         <div ref={clinicRef} className="flex items-center gap-3 relative">
@@ -243,7 +249,7 @@ export default function EnterpriseLayoutTemplate({
                       type="button"
                       onClick={() => setIsNightShift(!isNightShift)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        isNightShift ? 'bg-indigo-950 text-amber-300 border-indigo-700' : 'bg-teal-700 text-white border-teal-600'
+                        isNightShift ? 'bg-teal-950 text-amber-300 border-teal-700' : 'bg-primary text-white border-teal-600'
                       }`}
                     >
                       {isNightShift ? 'Night Shift' : 'Day Mode'}
@@ -337,10 +343,45 @@ export default function EnterpriseLayoutTemplate({
 
       </header>
 
+      {/* Banner top shadow, cast up onto the header; click-through so header menus still work */}
+      <div className="relative z-40 h-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-t from-[rgb(15_60_76/0.2)] to-transparent" />
+      </div>
+
+      {/* PAGE BANNER + NAVBAR: one attached block, shadowed top and bottom */}
+      <section className="w-full bg-surface-muted text-ink relative z-20 px-4 sm:px-6 py-4 shrink-0 font-sans" aria-label="Page banner">
+        <div className="flex items-center gap-4">
+          {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
+          <div className="w-14 h-14 shrink-0 bg-surface-accent border border-line flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
+            <User className="w-8 h-8" aria-hidden="true" />
+          </div>
+          {activeTab === 'dashboard' ? (
+            // The dashboard portals its greeting card in here
+            <div id="page-banner-slot" className="min-w-0 flex-1" />
+          ) : (
+            // Same layout as the dashboard banner: chips, title, subtitle
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-2xs font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
+                <span className={`px-2 py-0.5 ${isOnline ? 'chip-ok' : 'chip-danger'} font-mono text-2xs font-bold uppercase tracking-wider border rounded-none flex items-center justify-center gap-1`}>
+                  <span className={`w-1.5 h-1.5 rounded-none animate-pulse ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                  {isOnline ? 'All systems operational' : 'Offline'}
+                </span>
+              </div>
+              <h1 className="type-section-title text-ink flex items-center gap-2.5">
+                <Activity className="w-7 h-7 text-accent" aria-hidden="true" />
+                <span className="truncate">{`${getGreeting()}, ${userName}`}</span>
+              </h1>
+              {roleSubtitle && <p className="text-xs sm:text-sm text-ink/75 mt-1 font-normal">{roleSubtitle}</p>}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* WORKSPACE SUB-NAVIGATION BAR */}
       <div className="flex-1 flex flex-col overflow-hidden relative font-sans">
 
-        <nav className="w-full bg-chrome-nav text-white flex items-stretch justify-between border-b border-white/25 shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar shadow-xs relative z-10 font-sans">
+        <nav className="w-full bg-surface-strong text-ink flex items-stretch justify-between shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar relative z-10 font-sans">
 
           <div className="flex items-stretch h-full" id="sidebar-navigation-links">
 
@@ -355,8 +396,8 @@ export default function EnterpriseLayoutTemplate({
               }`}
             >
               <div className="flex items-center gap-2">
-                {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-white' : 'text-teal-200'}`} />
+                {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-accent' : 'text-subtle'}`} />
                 <span>{t.dashboard || 'Dashboard'}</span>
               </div>
             </button>
@@ -370,8 +411,8 @@ export default function EnterpriseLayoutTemplate({
               className={`nav-btn ${activeTab === 'my-leave' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
             >
               <div className="flex items-center gap-2">
-                {activeTab === 'my-leave' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                <CalendarClock className={`w-4 h-4 ${activeTab === 'my-leave' ? 'text-white' : 'text-teal-200'}`} />
+                {activeTab === 'my-leave' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                <CalendarClock className={`w-4 h-4 ${activeTab === 'my-leave' ? 'text-accent' : 'text-subtle'}`} />
                 <span>My Leave</span>
               </div>
             </button>
@@ -385,7 +426,7 @@ export default function EnterpriseLayoutTemplate({
                 className="nav-btn nav-btn-inactive"
               >
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-teal-200" />
+                  <ShieldCheck className="w-4 h-4 text-subtle" />
                   <span>Administration</span>
                 </div>
               </button>
@@ -403,8 +444,8 @@ export default function EnterpriseLayoutTemplate({
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'registration' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                  <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-white' : 'text-teal-200'}`} />
+                  {activeTab === 'registration' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-accent' : 'text-subtle'}`} />
                   <span>{t.patientRegistration || 'Patients & Registry'}</span>
                 </div>
               </button>
@@ -422,13 +463,13 @@ export default function EnterpriseLayoutTemplate({
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                  <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-white' : 'text-teal-200'}`} />
+                  {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-accent' : 'text-subtle'}`} />
                   <span>Triage Module</span>
                 </div>
                 {triageQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'triage' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'triage' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
                   }`}>
                     {triageQueueLength}
                   </span>
@@ -448,8 +489,8 @@ export default function EnterpriseLayoutTemplate({
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                  <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-white' : 'text-teal-200'}`} />
+                  {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-accent' : 'text-subtle'}`} />
                   <span>Appointments</span>
                 </div>
               </button>
@@ -468,13 +509,13 @@ export default function EnterpriseLayoutTemplate({
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                    <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-white' : 'text-teal-200'}`} />
+                    {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                    <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-accent' : 'text-subtle'}`} />
                     <span>Patient Queue</span>
                   </div>
                   {activeTab !== 'consultation' && doctorQueueLength > 0 && (
                     <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                      activeTab === 'queue' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
+                      activeTab === 'queue' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
                     }`}>
                       {doctorQueueLength}
                     </span>
@@ -491,8 +532,8 @@ export default function EnterpriseLayoutTemplate({
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                    <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-white' : 'text-teal-200'}`} />
+                    {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                    <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-accent' : 'text-subtle'}`} />
                     <span>Consultation Suite</span>
                   </div>
                 </button>
@@ -507,8 +548,8 @@ export default function EnterpriseLayoutTemplate({
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                    <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-white' : 'text-teal-200'}`} />
+                    {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                    <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-accent' : 'text-subtle'}`} />
                     <span>Monthly Reports</span>
                   </div>
                 </button>
@@ -527,13 +568,13 @@ export default function EnterpriseLayoutTemplate({
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'dispensary' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                  <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-white' : 'text-teal-200'}`} />
+                  {activeTab === 'dispensary' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-accent' : 'text-subtle'}`} />
                   <span>{t.dispensary || 'Dispensary'}</span>
                 </div>
                 {pharmacyQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'dispensary' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'dispensary' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
                   }`}>
                     {pharmacyQueueLength}
                   </span>
@@ -551,8 +592,8 @@ export default function EnterpriseLayoutTemplate({
                 className={`nav-btn ${activeTab === 'inventory' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                  <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-white' : 'text-teal-200'}`} />
+                  {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-accent' : 'text-subtle'}`} />
                   <span>Inventory</span>
                 </div>
               </button>
@@ -570,13 +611,13 @@ export default function EnterpriseLayoutTemplate({
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {activeTab === 'billing' && <span className="w-1.5 h-1.5 rounded-none bg-teal-400"></span>}
-                  <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-white' : 'text-teal-200'}`} />
+                  {activeTab === 'billing' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-accent' : 'text-subtle'}`} />
                   <span>{t.billing || 'Billing'}</span>
                 </div>
                 {cashierQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'billing' ? 'bg-teal-400 text-teal-950 font-bold' : 'bg-primary text-teal-100 border-0'
+                    activeTab === 'billing' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
                   }`}>
                     {cashierQueueLength}
                   </span>
@@ -586,10 +627,10 @@ export default function EnterpriseLayoutTemplate({
           </div>
 
           {/* Sync Status & Sync Now Action */}
-          <div className="hidden lg:flex items-center space-x-3 text-xs text-teal-50 font-sans pl-4 border-l border-white/25 ml-4">
+          <div className="hidden lg:flex items-center space-x-3 text-xs text-muted font-sans pl-4 border-l border-line ml-4">
             <div className="flex items-center gap-1.5" role="status" aria-live="polite">
               <span className={`inline-flex rounded-full h-2 w-2 ${!isOnline ? 'bg-rose-400' : isFetching ? 'bg-amber-300 motion-safe:animate-pulse' : 'bg-emerald-400'}`}></span>
-              <span className="text-white font-bold font-mono">
+              <span className="text-ink font-bold font-mono">
                 {!isOnline ? 'Offline' : isFetching ? 'Syncing…' : lastSyncedTime ? `Last synced: ${lastSyncedTime}` : 'Not synced yet'}
               </span>
             </div>
@@ -598,15 +639,19 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               onClick={handleManualSync}
               disabled={isFetching || !isOnline}
-              className="px-2.5 py-1 hover:bg-primary-hover text-white rounded-none transition-colors border border-white/25 font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-2.5 py-1 hover:bg-surface-accent text-accent rounded-none transition-colors border border-line font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
               title="Refresh clinical records from the server"
             >
-              <RefreshCw className={`w-3 h-3 ${isFetching ? 'motion-safe:animate-spin text-teal-200' : ''}`} />
+              <RefreshCw className={`w-3 h-3 ${isFetching ? 'motion-safe:animate-spin text-accent' : ''}`} />
               <span>Sync Now</span>
             </button>
           </div>
 
         </nav>
+
+        <div className="relative z-40 h-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-b from-[rgb(15_60_76/0.2)] to-transparent" />
+        </div>
 
         {/* MAIN CONTAINER */}
         <main className="flex-1 p-5 overflow-y-auto max-h-full font-sans">
@@ -626,7 +671,7 @@ export default function EnterpriseLayoutTemplate({
             </div>
             <div>
               <h3 className="type-heading-caps text-ink dark:text-teal-300">Sign Out Workstation</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">Are you sure you want to end your clinical session?</p>
+              <p className="text-xs text-muted dark:text-slate-300 mt-1 font-medium">Are you sure you want to end your clinical session?</p>
             </div>
             <div className="flex gap-2 justify-center pt-2">
               <button

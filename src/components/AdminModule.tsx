@@ -230,7 +230,7 @@ export default function AdminModule({
                       type="button"
                       onClick={() => setIsNightShift(!isNightShift)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        isNightShift ? 'bg-indigo-950 text-amber-300 border-indigo-700' : 'bg-teal-700 text-white border-teal-600'
+                        isNightShift ? 'bg-teal-950 text-amber-300 border-teal-700' : 'bg-primary text-white border-teal-600'
                       }`}
                     >
                       {isNightShift ? 'Night' : 'Day'}
@@ -250,7 +250,7 @@ export default function AdminModule({
                       type="button"
                       onClick={() => setShowPII(!showPII)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        showPII ? 'bg-teal-700 text-white border-teal-600' : 'bg-rose-950 text-rose-300 border-rose-800'
+                        showPII ? 'bg-primary text-white border-teal-600' : 'bg-rose-950 text-rose-300 border-rose-800'
                       }`}
                     >
                       {showPII ? 'Unmasked' : 'Masked'}

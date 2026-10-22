@@ -16,7 +16,7 @@ interface StaffAccessSectionProps {
 }
 
 const selectClass =
-  'w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-slate-900 font-semibold focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-all shadow-2xs';
+  'w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-strong font-semibold focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-all shadow-2xs';
 
 export default function StaffAccessSection({ jobTitle, department, email, value, onChange, existing }: StaffAccessSectionProps) {
   const { role: callerRole } = useAuth();
@@ -33,12 +33,12 @@ export default function StaffAccessSection({ jobTitle, department, email, value,
 
       <div className="p-6 space-y-4">
         {existing ? (
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-muted">
             Login and access role are managed from the staff list (Access column), where you can grant, change or revoke access.
           </p>
         ) : (
           <>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               Choose an access role to create a login for this person. They will receive an email invitation at{' '}
               <b className="font-mono">{email || 'their email address'}</b> and choose their own password. Leave it as
               "No system access" to save the staff record only.
@@ -57,7 +57,7 @@ export default function StaffAccessSection({ jobTitle, department, email, value,
                   {options.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
                 </select>
                 {callerRole === 'hr' && (
-                  <p className="text-2xs text-slate-500 mt-1">HR can grant clinical and front-desk roles. Administrator and HR accounts must be created by an administrator.</p>
+                  <p className="text-2xs text-subtle mt-1">HR can grant clinical and front-desk roles. Administrator and HR accounts must be created by an administrator.</p>
                 )}
               </div>
 
@@ -77,12 +77,12 @@ export default function StaffAccessSection({ jobTitle, department, email, value,
             {access && value && (
               <div className="border border-line bg-surface-accent/40 p-4 space-y-2" aria-live="polite">
                 <p className="text-xs font-bold text-ink">{ROLE_LABELS[value]} will be able to:</p>
-                <ul className="grid md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-700 list-disc pl-5">
+                <ul className="grid md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-muted list-disc pl-5">
                   {access.pages.map((p) => <li key={p}>Open: {p}</li>)}
                   {access.adminConsole && <li>Open: Admin console</li>}
                   {access.permissions.map((p) => <li key={p}>{p}</li>)}
                 </ul>
-                <p className="text-2xs text-slate-500">This is enforced on every page and in the database, not just hidden in the menu.</p>
+                <p className="text-2xs text-subtle">This is enforced on every page and in the database, not just hidden in the menu.</p>
               </div>
             )}
           </>

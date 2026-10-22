@@ -10,7 +10,7 @@ type Tab = 'runs' | 'people' | 'rates';
 export default function PayrollPage({ role, embedded = false }: { role: 'admin' | 'hr'; embedded?: boolean }) {
   const [tab, setTab] = useState<Tab>('runs');
   const tabClass = (t: Tab) =>
-    `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-slate-500 hover:text-ink'}`;
+    `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-subtle hover:text-ink'}`;
 
   return (
     <div className="animate-fadeIn w-full space-y-5 pb-8">
@@ -19,7 +19,7 @@ export default function PayrollPage({ role, embedded = false }: { role: 'admin' 
           <Wallet className="w-6 h-6 text-accent" />
           Payroll
         </h1>
-        <p className="text-xs text-slate-600 font-medium max-w-3xl leading-relaxed">
+        <p className="text-xs text-muted font-medium max-w-3xl leading-relaxed">
           Run payroll month by month: prepare, review, approve, then pay. Contributions come from the rate tables, so a rate change is a data change, not a code change.
           {role === 'hr' ? ' HR prepares and submits runs; an administrator approves and pays.' : ''}
         </p>

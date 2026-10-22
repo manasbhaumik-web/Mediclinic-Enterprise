@@ -1,9 +1,9 @@
 /**
  * Colours for places CSS classes can't reach (Recharts props, inline SVG,
- * canvas/PDF output). Brand values mirror the light-mode tokens in
- * src/index.css — change both together.
+ * canvas/PDF output). Brand values are read from the live CSS tokens in
+ * src/index.css (so they follow the colour theme); the hexes are fallbacks.
  */
-export const palette = {
+const defaults = {
   ink: '#0f3c4c',
   accent: '#0f766e',
   brand: '#0d9488',
@@ -20,6 +20,24 @@ export const palette = {
   stripe: '#635bff',
   white: '#ffffff',
 } as const;
+
+const cssVarFor: Partial<Record<keyof typeof defaults, string>> = {
+  ink: '--color-ink', accent: '--color-accent', brand: '--color-brand', primary: '--color-primary', primaryHover: '--color-primary-hover',
+  surface: '--color-surface', surfaceMuted: '--color-surface-muted', surfaceAccent: '--color-surface-accent', surfaceStrong: '--color-surface-strong',
+  lineSubtle: '--color-line-subtle', line: '--color-line', lineStrong: '--color-line-strong',
+};
+
+/** Resolved on every read, so charts pick up the chosen colour theme the next time they render. */
+export const palette = { ...defaults } as { readonly [K in keyof typeof defaults]: string };
+for (const key of Object.keys(cssVarFor) as (keyof typeof defaults)[]) {
+  Object.defineProperty(palette, key, {
+    enumerable: true,
+    get: () => {
+      if (typeof document === 'undefined') return defaults[key];
+      return getComputedStyle(document.documentElement).getPropertyValue(cssVarFor[key]!).trim() || defaults[key];
+    },
+  });
+}
 
 /** Categorical chart series colours (Tailwind palette values). */
 export const seriesColors = {

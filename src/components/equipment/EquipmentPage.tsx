@@ -14,7 +14,7 @@ const LABEL: Record<AlertKind, string> = {
   calibration_overdue: 'Calibration overdue', calibration_soon: 'Calibration due soon', cert_expired: 'Certificate expired', cert_soon: 'Certificate expiring',
   warranty_soon: 'Warranty ending', no_schedule: 'No service schedule',
 };
-const SEVERITY = { critical: 'bg-rose-100 text-rose-800 border-rose-300', warn: 'bg-amber-100 text-amber-800 border-amber-300', info: 'bg-sky-100 text-sky-800 border-sky-300' } as const;
+const SEVERITY = { critical: 'chip-danger', warn: 'chip-warn', info: 'chip-info' } as const;
 
 function Alerts({ onOpen }: { onOpen: (id: string) => void }) {
   const list = useEquipmentList();
@@ -32,7 +32,7 @@ function Alerts({ onOpen }: { onOpen: (id: string) => void }) {
   };
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
         <span>Alerts come from each device's own dates. “Due soon” means within <b>{soon} days</b>.</span>
         <span className="flex items-center gap-2">
           <input className={`${inputClass} !w-24`} type="number" min="0" placeholder={String(soon)} value={days} onChange={(e) => setDays(e.target.value)} aria-label="Due-soon window in days" />
@@ -40,13 +40,13 @@ function Alerts({ onOpen }: { onOpen: (id: string) => void }) {
         </span>
       </div>
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
-      {alerts.length === 0 && !list.isLoading && <p className="text-xs text-slate-500 bg-surface border border-line-subtle p-4">Nothing needs attention.</p>}
+      {alerts.length === 0 && !list.isLoading && <p className="text-xs text-subtle bg-surface border border-line-subtle p-4">Nothing needs attention.</p>}
       <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
         {alerts.map((a, i) => (
           <div key={`${a.equipmentId}-${a.kind}-${i}`} className="px-3 py-2 flex flex-wrap items-center gap-3 text-xs">
             <span className={`text-2xs font-bold uppercase px-2 py-0.5 border ${SEVERITY[a.severity]}`}>{LABEL[a.kind]}</span>
             <button className="font-bold text-ink hover:underline cursor-pointer" onClick={() => onOpen(a.equipmentId)}>{name.get(a.equipmentId)}</button>
-            <span className="text-slate-600">{a.detail}</span>
+            <span className="text-muted">{a.detail}</span>
           </div>
         ))}
       </div>
@@ -62,13 +62,13 @@ export default function EquipmentPage() {
   const { settings } = useEquipmentSettings();
   const alertCount = buildEquipmentAlerts(list.data ?? [], settings.data?.dueSoonDays ?? 30, todayStr()).filter((a) => a.severity !== 'info').length;
   const clearFocus = useCallback(() => setFocus(null), []);
-  const tabClass = (t: Tab) => `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-slate-500 hover:text-ink'}`;
+  const tabClass = (t: Tab) => `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-subtle hover:text-ink'}`;
 
   return (
     <div className="animate-fadeIn w-full space-y-5 pb-8">
       <div className="bg-surface-accent border border-line p-5 space-y-1">
         <h1 className="type-page-title text-ink flex items-center gap-2.5"><Stethoscope className="w-6 h-6 text-accent" />Equipment &amp; Assets</h1>
-        <p className="text-xs text-slate-600 font-medium max-w-3xl leading-relaxed">
+        <p className="text-xs text-muted font-medium max-w-3xl leading-relaxed">
           Each device has a full record. Service, calibration, inspection and repair are logged with who did them and the result, and they set the next due dates. Equipment is decommissioned, never deleted.
         </p>
       </div>

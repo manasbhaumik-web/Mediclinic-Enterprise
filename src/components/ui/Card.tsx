@@ -33,7 +33,7 @@ export function CardTitle({ children, className = '' }: CardProps) {
 
 export function CardDescription({ children, className = '' }: CardProps) {
   return (
-    <p className={`text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium ${className}`}>
+    <p className={`text-xs text-muted dark:text-slate-300 mt-1 font-medium ${className}`}>
       {children}
     </p>
   );

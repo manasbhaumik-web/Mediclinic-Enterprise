@@ -22,7 +22,7 @@ export default function ClinicProfileCard() {
   return (
     <form onSubmit={save} className="bg-surface-accent border border-line p-5 space-y-3">
       <h3 className="type-card-title text-ink flex items-center gap-2"><Building className="w-4 h-4 text-accent" />Clinic profile</h3>
-      <p className="text-xs text-slate-600">Shown in the header and its clinic-info popover. Leave a field blank to hide it. The licence expiry date drives the warning on the MOH Compliance page.</p>
+      <p className="text-xs text-muted">Shown in the header and its clinic-info popover. Leave a field blank to hide it. The licence expiry date drives the warning on the MOH Compliance page.</p>
       <div className="grid sm:grid-cols-3 gap-3">
         <Field label="Clinic name"><input className={inputClass} value={f.name} onChange={set('name')} /></Field>
         <Field label="Branch"><input className={inputClass} value={f.branch} onChange={set('branch')} /></Field>

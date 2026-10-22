@@ -1,3 +1,4 @@
+import { useColorTheme } from '../../hooks/useColorTheme';
 import type { PanelId } from './types';
 import type { DrugItem } from '../../context/InventoryContext';
 import { CreditCard, Pill } from 'lucide-react';
@@ -15,6 +16,7 @@ interface PayerAndPharmacyChartsProps {
 }
 
 export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerSummary, lowStockDrugs, lowestStockDrugs }: PayerAndPharmacyChartsProps) {
+  useColorTheme(); // re-render when the colour theme changes so palette colours refresh
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
       
@@ -23,11 +25,11 @@ export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerS
         <div className={`${showPanel('pharmacy') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
           <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
             <div>
-              <h3 className="type-card-title text-slate-900 flex items-center gap-2">
+              <h3 className="type-card-title text-ink flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-sky-600" />
                 Payer & TPA Panel Settlement Mix
               </h3>
-              <p className="text-xs text-slate-600 mt-0.5">Revenue split across Corporate Panels and Self-Pay.</p>
+              <p className="text-xs text-muted mt-0.5">Revenue split across Corporate Panels and Self-Pay.</p>
             </div>
             <span className="text-2xs text-sky-600 bg-sky-50 px-2.5 py-1 rounded-none font-mono font-bold uppercase tracking-wider border border-sky-200">
               MYR Currency
@@ -35,7 +37,7 @@ export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerS
           </div>
     
           {payerMixData.length === 0 ? (
-            <p className="h-56 flex items-center justify-center text-sm text-slate-600">No completed payments yet today.</p>
+            <p className="h-56 flex items-center justify-center text-sm text-muted">No completed payments yet today.</p>
           ) : (
           <div className="h-56 w-full" role="img" aria-label={payerSummary}>
             <ResponsiveContainer width="100%" height="100%">
@@ -68,11 +70,11 @@ export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerS
         <div className={`${showPanel('payer') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
           <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
             <div>
-              <h3 className="type-card-title text-slate-900 flex items-center gap-2">
+              <h3 className="type-card-title text-ink flex items-center gap-2">
                 <Pill className="w-5 h-5 text-amber-600" />
                 Pharmacy stock overview
               </h3>
-              <p className="text-xs text-slate-600 mt-0.5">Lowest stock against reorder level.</p>
+              <p className="text-xs text-muted mt-0.5">Lowest stock against reorder level.</p>
             </div>
             <span className="text-2xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-none font-mono font-bold uppercase tracking-wider border border-emerald-200">
               {lowStockDrugs.length} below reorder
@@ -83,7 +85,7 @@ export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerS
             {lowestStockDrugs.map((drug, idx) => (
               <div key={idx} className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="font-bold text-ink flex items-center gap-2">
                     <span>{drug.name}</span>
                     {drug.isLow ? (
                       <span className="text-2xs bg-amber-100 text-amber-800 px-2 py-0.2 rounded-none font-bold border border-amber-300">
@@ -95,7 +97,7 @@ export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerS
                       </span>
                     )}
                   </span>
-                  <span className="font-mono text-slate-600 text-xs">
+                  <span className="font-mono text-muted text-xs">
                     Stock: <strong className="text-accent">{drug.stock}</strong> · Reorder at {drug.reorderAt} · Dispensed: {drug.dispensed}
                   </span>
                 </div>

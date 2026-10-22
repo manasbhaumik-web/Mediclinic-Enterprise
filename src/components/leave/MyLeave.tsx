@@ -44,7 +44,7 @@ export default function MyLeave() {
     <div className="animate-fadeIn w-full space-y-5 pb-8">
       <div className="bg-surface-accent border border-line p-5 space-y-1">
         <h1 className="type-page-title text-ink flex items-center gap-2.5"><CalendarClock className="w-6 h-6 text-accent" />My leave &amp; attendance</h1>
-        <p className="text-xs text-slate-600 font-medium max-w-3xl">Request leave, see what is left, and clock in and out. HR or an administrator approves leave requests.</p>
+        <p className="text-xs text-muted font-medium max-w-3xl">Request leave, see what is left, and clock in and out. HR or an administrator approves leave requests.</p>
       </div>
 
       {notLinked && (
@@ -58,21 +58,21 @@ export default function MyLeave() {
         <>
           <div className="bg-surface border border-line-subtle p-4 flex flex-wrap items-center gap-4">
             <div className="space-y-0.5">
-              <div className="text-2xs font-bold uppercase tracking-wider text-slate-500">Today ({today})</div>
+              <div className="text-2xs font-bold uppercase tracking-wider text-subtle">Today ({today})</div>
               <div className="text-sm font-bold text-ink">
                 {todayRec ? `${ATTENDANCE_LABEL[todayRec.status]}${todayRec.clockIn ? `, in ${localParts(todayRec.clockIn, cfg.timezone).time}` : ''}${todayRec.clockOut ? `, out ${localParts(todayRec.clockOut, cfg.timezone).time}` : ''}` : 'Not clocked in'}
               </div>
             </div>
             <Button size="sm" icon={<LogIn className="w-3.5 h-3.5" />} disabled={api.call.isPending || !!todayRec} onClick={() => act({ action: 'clock_in' })}>Clock in</Button>
             <Button variant="outline" size="sm" icon={<LogOut className="w-3.5 h-3.5" />} disabled={api.call.isPending || !todayRec?.clockIn || !!todayRec?.clockOut} onClick={() => act({ action: 'clock_out' })}>Clock out</Button>
-            <div className="ml-auto text-xs text-slate-600">
+            <div className="ml-auto text-xs text-muted">
               This month: <b className="font-mono">{summary.rate === null ? '–' : `${summary.rate}%`}</b> attendance · {summary.late} late · {summary.absent} absent{summary.unrecorded > 0 && <> · <span className="text-amber-700">{summary.unrecorded} unrecorded</span></>}
             </div>
           </div>
 
           <div className="bg-surface border border-line-subtle overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle"><th className="p-3">{year} leave</th><th className="p-3 text-right">Entitled</th><th className="p-3 text-right">Taken</th><th className="p-3 text-right">Awaiting approval</th><th className="p-3 text-right">Remaining</th></tr></thead>
+              <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">{year} leave</th><th className="p-3 text-right">Entitled</th><th className="p-3 text-right">Taken</th><th className="p-3 text-right">Awaiting approval</th><th className="p-3 text-right">Remaining</th></tr></thead>
               <tbody>
                 {(bal.data?.balances ?? []).filter((b) => b.hasRule || !b.balanceLimited).map((b) => (
                   <tr key={b.code} className="border-b border-line-subtle">
@@ -91,7 +91,7 @@ export default function MyLeave() {
           {adding && <LeaveRequestForm onDone={() => setAdding(false)} />}
           <div className="bg-surface border border-line-subtle overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle"><th className="p-3">Type</th><th className="p-3">Dates</th><th className="p-3 text-right">Days</th><th className="p-3">Status</th><th className="p-3" /></tr></thead>
+              <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">Type</th><th className="p-3">Dates</th><th className="p-3 text-right">Days</th><th className="p-3">Status</th><th className="p-3" /></tr></thead>
               <tbody>
                 {(requests.data ?? []).map((r) => {
                   const st = REQUEST_STYLE[r.status];
@@ -100,12 +100,12 @@ export default function MyLeave() {
                       <td className="p-3 font-bold text-ink">{typeName.get(r.leaveType) ?? r.leaveType}</td>
                       <td className="p-3">{formatRange(r)}</td>
                       <td className="p-3 text-right font-mono">{r.days}</td>
-                      <td className="p-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span>{(r.decisionNote || r.cancelReason) && <div className="text-slate-500 mt-1">{r.decisionNote ?? r.cancelReason}</div>}</td>
-                      <td className="p-3 text-right">{r.status === 'pending' && <button type="button" className="font-bold text-slate-600 cursor-pointer" onClick={() => act({ action: 'cancel', requestId: r.id })}>Cancel</button>}</td>
+                      <td className="p-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span>{(r.decisionNote || r.cancelReason) && <div className="text-subtle mt-1">{r.decisionNote ?? r.cancelReason}</div>}</td>
+                      <td className="p-3 text-right">{r.status === 'pending' && <button type="button" className="font-bold text-muted cursor-pointer" onClick={() => act({ action: 'cancel', requestId: r.id })}>Cancel</button>}</td>
                     </tr>
                   );
                 })}
-                {(requests.data ?? []).length === 0 && <tr><td className="p-4 text-slate-500" colSpan={5}>No leave requests yet.</td></tr>}
+                {(requests.data ?? []).length === 0 && <tr><td className="p-4 text-subtle" colSpan={5}>No leave requests yet.</td></tr>}
               </tbody>
             </table>
           </div>

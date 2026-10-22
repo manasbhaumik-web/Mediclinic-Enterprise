@@ -19,21 +19,21 @@ export default function QueueToolbar({ queueSearchQuery, setQueueSearchQuery, se
     <div className="bg-surface border border-line-subtle p-4 flex flex-wrap items-center gap-x-7 gap-y-4">
       <div className="relative flex-1 basis-72 min-w-60">
         <label htmlFor="queue-search-input" className="sr-only">Search the queue</label>
-        <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-subtle absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           id="queue-search-input"
           type="text"
           value={queueSearchQuery}
           onChange={(e) => { setQueueSearchQuery(e.target.value); setQueuePage(1); }}
           placeholder="Search by patient name, IC/ID or complaint (Alt+F)"
-          className="w-full h-11 bg-surface text-ink text-sm pl-10 pr-9 border border-line focus:outline-none focus:border-brand placeholder:text-slate-500"
+          className="w-full h-11 bg-surface text-ink text-sm pl-10 pr-9 border border-line focus:outline-none focus:border-brand placeholder:text-subtle"
         />
         {queueSearchQuery && (
           <button
             type="button"
             aria-label="Clear search"
             onClick={() => { setQueueSearchQuery(''); setQueuePage(1); }}
-            className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 text-slate-500 hover:text-ink text-base font-bold flex items-center justify-center cursor-pointer"
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 text-subtle hover:text-ink text-base font-bold flex items-center justify-center cursor-pointer"
           >
             ×
           </button>
@@ -41,7 +41,7 @@ export default function QueueToolbar({ queueSearchQuery, setQueueSearchQuery, se
       </div>
     
       <div className="flex items-center gap-2.5 flex-wrap">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Show</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted">Show</span>
         {([
           { id: 'all', label: 'All', count: doctorQueue.length, warn: false },
           { id: 'high', label: 'High acuity', count: doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length, warn: false },
@@ -69,7 +69,7 @@ export default function QueueToolbar({ queueSearchQuery, setQueueSearchQuery, se
       </div>
     
       <div className="flex items-center gap-2.5 flex-wrap">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Sort by</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted">Sort by</span>
         <div role="group" aria-label="Sort the queue by" className="flex border border-line bg-surface">
           {(['urgency', 'wait', 'arrival'] as const).map((r) => (
             <button

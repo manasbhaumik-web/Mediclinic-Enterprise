@@ -61,7 +61,7 @@ export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide,
           </h1>
     
           {/* Supporting line */}
-          <p className="text-slate-700 font-semibold text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-muted font-semibold text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
             {isBM 
               ? 'Nikmati rawatan mesra 24/7 tanpa janji temu, pendaftaran pantas MyKad, dan kelulusan panel TPA korporat 100% tanpa tunai.'
               : 'Experience seamless 24/7 walk-in care, instant MyKad check-in, and 100% cashless corporate TPA panel approval.'
@@ -73,7 +73,7 @@ export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide,
             <button
               type="button"
               onClick={() => setIsBookingOpen(true)}
-              className="w-full sm:w-auto px-8 py-4 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer min-h-[44px]"
+              className="w-full sm:w-auto px-8 py-4 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-2xl shadow-teal-500/25 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer min-h-[44px]"
             >
               <Calendar className="w-4 h-4" />
               <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
@@ -91,7 +91,7 @@ export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide,
     
           {/* Compact Status Strip */}
           <div className="pt-3 max-w-3xl mx-auto">
-            <div className="bg-surface-accent/90 border border-line rounded-none p-3 flex flex-wrap items-center justify-around gap-4 text-xs text-slate-700 font-bold shadow-xs">
+            <div className="bg-surface-accent/90 border border-line rounded-none p-3 flex flex-wrap items-center justify-around gap-4 text-xs text-muted font-bold shadow-xs">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>{isBM ? 'Buka 24/7 (Hari Ini)' : 'Open 24/7'}</span>

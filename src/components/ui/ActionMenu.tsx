@@ -82,7 +82,7 @@ export default function ActionMenu({ label, items, className = '' }: ActionMenuP
           id={menuId}
           role="menu"
           aria-label={label}
-          className="absolute right-0 top-full mt-1 z-30 min-w-[11rem] bg-surface border border-line shadow-lg py-1"
+          className="absolute right-0 top-full mt-1 z-30 min-w-[11rem] bg-surface border border-line shadow-2xl py-1"
         >
           {items.map((item) => (
             <button

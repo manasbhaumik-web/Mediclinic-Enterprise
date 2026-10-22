@@ -152,7 +152,7 @@ export function FaultDialog({ item, onClose }: { item: EquipmentItem; onClose: (
   return (
     <Dialog title={`Report a fault: ${item.name}`} onClose={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); run(() => reportFault.mutateAsync({ id: item.id, description: text })); }} className="space-y-3">
-        <p className="text-xs text-slate-600">This flags the equipment for maintenance. It stays in use until an administrator takes it out of service.</p>
+        <p className="text-xs text-muted">This flags the equipment for maintenance. It stays in use until an administrator takes it out of service.</p>
         <Field label="What is wrong? *"><textarea className={area} value={text} onChange={(e) => setText(e.target.value)} required /></Field>
         <Footer onClose={onClose} busy={busy} label="Report fault" err={err} />
       </form>
@@ -169,7 +169,7 @@ export function StatusDialog({ item, onClose }: { item: EquipmentItem; onClose: 
   return (
     <Dialog title={`Change status: ${item.name}`} onClose={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); run(() => setStatus.mutateAsync({ id: item.id, status, reason })); }} className="space-y-3">
-        <p className="text-xs text-slate-600">Now: <b>{item.status}</b>. A passing service or repair also returns equipment to Operational and records the work.</p>
+        <p className="text-xs text-muted">Now: <b>{item.status}</b>. A passing service or repair also returns equipment to Operational and records the work.</p>
         <Field label="New status"><select className={inputClass} value={status} onChange={(e) => setS(e.target.value as typeof status)}>{options.map((s) => <option key={s}>{s}</option>)}</select></Field>
         <Field label="Reason *"><textarea className={area} value={reason} onChange={(e) => setReason(e.target.value)} required /></Field>
         <Footer onClose={onClose} busy={busy} label="Change status" err={err} />
@@ -204,7 +204,7 @@ export function DecommissionDialog({ item, onClose }: { item: EquipmentItem; onC
   return (
     <Dialog title={`Decommission ${item.name}`} onClose={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); run(() => decommission.mutateAsync({ id: item.id, reason, method })); }} className="space-y-3">
-        <p className="text-xs text-slate-600">The record and its history are kept. It leaves the active register and stops alerting. It can be restored later.</p>
+        <p className="text-xs text-muted">The record and its history are kept. It leaves the active register and stops alerting. It can be restored later.</p>
         <Field label="How did it leave service?"><select className={inputClass} value={method} onChange={(e) => setMethod(e.target.value as RetireMethod)}>{RETIRE_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}</select></Field>
         <Field label="Reason *"><textarea className={area} value={reason} onChange={(e) => setReason(e.target.value)} required /></Field>
         <Footer onClose={onClose} busy={busy} label="Decommission" danger err={err} />
@@ -220,7 +220,7 @@ export function RestoreDialog({ item, onClose }: { item: EquipmentItem; onClose:
   return (
     <Dialog title={`Restore ${item.name}`} onClose={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); run(() => restore.mutateAsync({ id: item.id, reason })); }} className="space-y-3">
-        <p className="text-xs text-slate-600">It comes back as <b>Out of service</b>. Record a passing service or repair before using it.</p>
+        <p className="text-xs text-muted">It comes back as <b>Out of service</b>. Record a passing service or repair before using it.</p>
         <Field label="Reason *"><textarea className={area} value={reason} onChange={(e) => setReason(e.target.value)} required /></Field>
         <Footer onClose={onClose} busy={busy} label="Restore" err={err} />
       </form>

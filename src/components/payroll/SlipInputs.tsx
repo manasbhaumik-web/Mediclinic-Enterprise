@@ -54,7 +54,7 @@ export default function SlipInputs({ slip, run, onClose }: { slip: Payslip; run:
     <div role="dialog" aria-modal="true" aria-label={`Adjust pay for ${slip.employee.name}`} className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
       <div className="bg-surface border border-line w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 space-y-4">
         <h3 className="type-heading-caps text-ink">Adjust pay: {slip.employee.name}</h3>
-        <p className="text-xs text-slate-600">One-off items for this month only. Recurring allowances and deductions are set in Pay profiles.</p>
+        <p className="text-xs text-muted">One-off items for this month only. Recurring allowances and deductions are set in Pay profiles.</p>
 
         <section className="space-y-2"><h4 className="text-xs font-bold text-ink">Extra allowances</h4>{lineRows(allow, setAllow, true, 'allowance')}</section>
         <section className="space-y-2"><h4 className="text-xs font-bold text-ink">Other deductions</h4>{lineRows(ded, setDed, false, 'deduction')}</section>
@@ -75,13 +75,13 @@ export default function SlipInputs({ slip, run, onClose }: { slip: Payslip; run:
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Extra unpaid days (not from approved leave)</span>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Extra unpaid days (not from approved leave)</span>
             <input className={inputClass} type="number" min="0" step="0.5" value={leave} onChange={(e) => setLeave(e.target.value)} /></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">PCB (monthly tax) override</span>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">PCB (monthly tax) override</span>
             <input className={inputClass} type="number" min="0" step="0.01" placeholder="Blank = use the rate table" value={pcb} onChange={(e) => setPcb(e.target.value)} /></label>
         </div>
         {slip.leaveUnpaidDays > 0 && <p className="text-xs font-medium text-sky-900 bg-sky-50 border border-sky-200 px-3 py-2">{slip.leaveUnpaidDays} unpaid day{slip.leaveUnpaidDays === 1 ? '' : 's'} from approved leave are deducted automatically. Only enter extra days that are not recorded as leave.</p>}
-        <p className="text-2xs text-slate-500">There is no built-in PCB table. Enter the amount from LHDN's calculator or your payroll provider, or add PCB wage bands under Statutory rates.</p>
+        <p className="text-2xs text-subtle">There is no built-in PCB table. Enter the amount from LHDN's calculator or your payroll provider, or add PCB wage bands under Statutory rates.</p>
 
         {err && <p role="alert" className="text-xs font-bold text-rose-700">{err}</p>}
         <div className="flex justify-end gap-2">

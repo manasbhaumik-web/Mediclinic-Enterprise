@@ -33,16 +33,16 @@ export default function BalancesPanel() {
         </p>
       )}
       <div className="flex flex-wrap items-end gap-3">
-        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Employee</span>
+        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Employee</span>
           <select className={`${inputClass} !w-64`} value={staffId} onChange={(e) => pickPerson(e.target.value)}>
             <option value="">Choose…</option>
             {(staff.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select></label>
-        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Year</span>
+        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Year</span>
           <input className={`${inputClass} !w-24`} type="number" min="2020" max="2100" value={year} onChange={(e) => setYear(Number(e.target.value) || year)} /></label>
         {person && (
           <>
-            <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Hire date</span>
+            <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Hire date</span>
               <input className={`${inputClass} !w-44`} type="date" value={hire} onChange={(e) => setHire(e.target.value)} /></label>
             <Button variant="outline" size="sm" onClick={saveHire} disabled={api.setHireDate.isPending}>Save hire date</Button>
           </>
@@ -54,7 +54,7 @@ export default function BalancesPanel() {
         <div className="bg-surface border border-line-subtle overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle">
+              <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
                 <th className="p-3">Leave type</th><th className="p-3 text-right">Entitled</th><th className="p-3 text-right">Taken</th><th className="p-3 text-right">Awaiting approval</th><th className="p-3 text-right">Remaining</th><th className="p-3">Notes</th>
               </tr>
             </thead>
@@ -66,7 +66,7 @@ export default function BalancesPanel() {
                   <td className="p-3 text-right font-mono">{b.taken}</td>
                   <td className="p-3 text-right font-mono">{b.pending}</td>
                   <td className="p-3 text-right font-mono font-bold">{b.balanceLimited && b.hasRule ? val(b.remaining) : '–'}</td>
-                  <td className="p-3 text-slate-500">{[...b.warnings, b.hasRule && b.balanceLimited && !b.verified ? 'Rule not verified.' : ''].filter(Boolean).join(' ')}</td>
+                  <td className="p-3 text-subtle">{[...b.warnings, b.hasRule && b.balanceLimited && !b.verified ? 'Rule not verified.' : ''].filter(Boolean).join(' ')}</td>
                 </tr>
               ))}
             </tbody>

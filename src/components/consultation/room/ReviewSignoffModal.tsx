@@ -20,7 +20,7 @@ export default function ReviewSignoffModal({ setIsReviewModalOpen, currentPatien
             <Stethoscope className="w-5 h-5 text-accent" />
             <h3 className="type-heading-caps">Review and send prescription</h3>
           </div>
-          <button type="button" onClick={() => setIsReviewModalOpen(false)} className="text-slate-400 hover:text-slate-700">
+          <button type="button" onClick={() => setIsReviewModalOpen(false)} className="text-slate-400 hover:text-muted">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -71,7 +71,7 @@ export default function ReviewSignoffModal({ setIsReviewModalOpen, currentPatien
           <button
             type="button"
             onClick={() => setIsReviewModalOpen(false)}
-            className="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold rounded-none hover:bg-slate-100 cursor-pointer"
+            className="px-4 py-2 border border-slate-300 text-muted text-xs font-bold rounded-none hover:bg-slate-100 cursor-pointer"
           >
             Back to Edit
           </button>
@@ -79,7 +79,7 @@ export default function ReviewSignoffModal({ setIsReviewModalOpen, currentPatien
           <button
             type="button"
             onClick={handleFinalSignoff}
-            className="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-none font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs cursor-pointer"
           >
             <Check className="w-4 h-4 text-white" />
             <span>Sign and send</span>

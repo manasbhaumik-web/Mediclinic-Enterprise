@@ -19,7 +19,7 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
           <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
             <Microscope className="w-4 h-4 text-accent" /> Diagnostic Lab &amp; Imaging Requisition
           </h4>
-          <p className="text-2xs text-slate-500 dark:text-slate-400 mt-0.5">Select laboratory investigations to order for this clinical encounter.</p>
+          <p className="text-2xs text-subtle dark:text-slate-400 mt-0.5">Select laboratory investigations to order for this clinical encounter.</p>
         </div>
         <span className="text-xs font-mono font-bold text-accent bg-white dark:bg-night-850 px-2.5 py-1 border border-line">
           {selectedLabs.length} Tests Selected
@@ -37,7 +37,7 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
               className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${focusRing} ${
                 isSelected
                   ? 'bg-surface-accent dark:bg-night-800 border-brand text-ink dark:text-white shadow-2xs font-bold'
-                  : 'bg-white dark:bg-night-900 border-slate-200 dark:border-teal-800/40 text-slate-700 dark:text-slate-300 hover:border-line'
+                  : 'bg-white dark:bg-night-900 border-slate-200 dark:border-teal-800/40 text-muted dark:text-slate-300 hover:border-line'
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -51,7 +51,7 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
                 />
                 <div>
                   <strong className="text-xs block">{test.name}</strong>
-                  <span className="text-2xs text-slate-500 dark:text-slate-400 font-medium">
+                  <span className="text-2xs text-subtle dark:text-slate-400 font-medium">
                     Category: {test.category} | TAT: {test.estTime}
                   </span>
                 </div>

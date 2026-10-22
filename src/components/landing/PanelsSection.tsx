@@ -56,7 +56,7 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
                     className={`min-h-[44px] px-3 py-1.5 rounded-none border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs ${
                       selectedPanelCheck === panel 
                         ? 'bg-primary text-white border-brand' 
-                        : 'bg-surface border-line-subtle text-slate-700 hover:border-brand hover:text-accent'
+                        : 'bg-surface border-line-subtle text-muted hover:border-brand hover:text-accent'
                     }`}
                   >
                     <CreditCard className="w-3.5 h-3.5" />
@@ -64,13 +64,13 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
                   </button>
                 ))}
                 {filteredPanels.length === 0 && (
-                  <div className="text-slate-600 text-xs py-2">No matching corporate panel found.</div>
+                  <div className="text-muted text-xs py-2">No matching corporate panel found.</div>
                 )}
               </div>
             </div>
     
             {/* Panel Checker Box */}
-            <div className="bg-surface border border-line-subtle rounded-none p-5 space-y-4 shadow-sm">
+            <div className="bg-surface border border-line-subtle rounded-none p-5 space-y-4 shadow-xs">
               <div className="flex items-center justify-between border-b border-line-subtle pb-3">
                 <span className="text-xs font-bold text-ink flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-accent" /> {isBM ? 'Semakan Panel' : 'Panel Eligibility Check'}
@@ -82,7 +82,7 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
     
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="text-xs font-bold uppercase text-slate-600 block mb-1">
+                  <label className="text-xs font-bold uppercase text-muted block mb-1">
                     {isBM ? 'Pilih Panel TPA' : 'Selected TPA Panel'}
                   </label>
                   <select
@@ -97,7 +97,7 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
                 </div>
     
                 <div>
-                  <label className="text-xs font-bold uppercase text-slate-600 block mb-1">
+                  <label className="text-xs font-bold uppercase text-muted block mb-1">
                     {isBM ? 'No. Staff / Kad Pengenalan' : 'Staff / IC Reference ID'}
                   </label>
                   <input
@@ -111,11 +111,11 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
     
                 <div className="p-3 bg-surface-accent border border-line rounded-none space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Consultation Coverage:</span>
+                    <span className="text-muted">Consultation Coverage:</span>
                     <span className="font-bold text-emerald-700">100% Cashless</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Medication Allowance:</span>
+                    <span className="text-muted">Medication Allowance:</span>
                     <span className="font-bold text-accent">RM 250 / Visit</span>
                   </div>
                 </div>
@@ -142,7 +142,7 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
               <Info className="w-4 h-4 text-accent" />
               <span>{isBM ? 'Dokumen Perlu Dibawa' : 'What to Bring for Your Visit'}</span>
             </h3>
-            <ul className="space-y-2.5 text-xs text-slate-700 font-medium">
+            <ul className="space-y-2.5 text-xs text-muted font-medium">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                 <span><strong>MyKad / MyKid / Passport:</strong> Required for identity verification and fast check-in.</span>
@@ -164,7 +164,7 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
               <MapPin className="w-4 h-4 text-accent" />
               <span>{isBM ? 'Lokasi & Kemudahan Parkir' : 'Location & Transport Access'}</span>
             </h3>
-            <div className="space-y-2.5 text-xs text-slate-700">
+            <div className="space-y-2.5 text-xs text-muted">
               <p>
                 <strong>Address:</strong> Level 2, Menara Medical Suite, Persiaran Central, 40000 Shah Alam, Selangor.
               </p>
@@ -176,7 +176,7 @@ export default function PanelsSection({ isBM, panelSearch, setPanelSearch, filte
                 <Bus className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                 <span><strong>Public Transit:</strong> 5 mins taxi from LRT Glenmarie / KTM Shah Alam station.</span>
               </div>
-              <p className="text-xs text-slate-600 pt-1 font-semibold">
+              <p className="text-xs text-muted pt-1 font-semibold">
                 Serving patients across Shah Alam, Subang Jaya, Puchong, Klang, and surrounding Klang Valley areas.
               </p>
             </div>

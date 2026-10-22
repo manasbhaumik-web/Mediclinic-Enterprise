@@ -9,11 +9,11 @@ import {
 } from '../../domain/einvoice';
 
 const toneClass: Record<Tone, string> = {
-  ok: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-  warn: 'bg-amber-100 text-amber-800 border-amber-300',
-  bad: 'bg-rose-100 text-rose-800 border-rose-300',
-  info: 'bg-sky-100 text-sky-800 border-sky-300',
-  idle: 'bg-slate-100 text-slate-600 border-slate-300',
+  ok: 'chip-ok',
+  warn: 'chip-warn',
+  bad: 'chip-danger',
+  info: 'chip-info',
+  idle: 'bg-slate-100 text-muted border-slate-300',
 };
 
 const inputClass =
@@ -62,7 +62,7 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {([['pending', 'Ready to submit'], ['needs_buyer', 'Need buyer details'], ['valid', 'Valid'], ['invalid', 'Rejected']] as [EInvoiceStatus, string][]).map(([s, label]) => (
           <button key={s} type="button" onClick={() => setFilter(s)} className={`text-left bg-surface border p-3 cursor-pointer ${filter === s ? 'border-brand' : 'border-line-subtle'}`}>
-            <div className="text-2xs font-bold uppercase tracking-wider text-slate-500">{label}</div>
+            <div className="text-2xs font-bold uppercase tracking-wider text-subtle">{label}</div>
             <div className="text-xl font-bold text-ink font-mono">{counts[s]}</div>
           </button>
         ))}
@@ -94,14 +94,14 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
             </Button>
           </div>
         </div>
-        <p className="text-2xs text-slate-500">
+        <p className="text-2xs text-subtle">
           Consolidated e-invoices cover walk-in (general public) receipts only; panel invoices are always sent individually.
           {due && <> A consolidated e-invoice for {month} is due by {due.toLocaleDateString()} (7 days after month end), per LHDN guidance. Confirm with your tax adviser.</>}
         </p>
       </div>
 
       {notice && (
-        <p role="status" className={`text-xs font-bold px-3 py-2 border ${notice.ok ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}>{notice.text}</p>
+        <p role="status" className={`text-xs font-bold px-3 py-2 border ${notice.ok ? 'chip-ok' : 'chip-danger'}`}>{notice.text}</p>
       )}
       {api.invoices.error && (
         <p role="alert" className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2">
@@ -119,7 +119,7 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
 
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs text-left">
-          <thead className="bg-surface-muted text-2xs uppercase tracking-wider text-slate-500">
+          <thead className="bg-surface-muted text-2xs uppercase tracking-wider text-subtle">
             <tr><th className="p-2">Invoice</th><th className="p-2">Issued</th><th className="p-2">Buyer</th><th className="p-2 text-right">Total</th><th className="p-2">Status</th><th className="p-2">Actions</th></tr>
           </thead>
           <tbody className="divide-y divide-line-subtle">
@@ -142,7 +142,7 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
                   </tr>
                   {open === r.id && (
                     <tr className="bg-surface-muted">
-                      <td colSpan={6} className="p-3 space-y-1 text-2xs text-slate-700">
+                      <td colSpan={6} className="p-3 space-y-1 text-2xs text-muted">
                         <div>Tax {myr(r.taxTotal)} · attempts {r.attempts} · submitted {when(r.submittedAt)} · validated {when(r.validatedAt)}</div>
                         {r.lhdnUuid && <div className="font-mono break-all">LHDN UUID: {r.lhdnUuid}</div>}
                         {r.lastError && <div className="text-rose-700 font-bold">Error: {r.lastError}</div>}
@@ -155,7 +155,7 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
                 </React.Fragment>
               );
             })}
-            {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-slate-500">No e-invoices {filter === 'all' ? 'yet' : 'with this status'}. They appear here when a payment is settled while e-Invoicing is ON.</td></tr>}
+            {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-subtle">No e-invoices {filter === 'all' ? 'yet' : 'with this status'}. They appear here when a payment is settled while e-Invoicing is ON.</td></tr>}
           </tbody>
         </table>
       </div>

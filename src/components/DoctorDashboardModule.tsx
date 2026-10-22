@@ -227,7 +227,7 @@ export default function DoctorDashboardModule({
 
       {/* Copy to Clipboard Toast Notification */}
       {copiedToast && (
-        <div className="fixed bottom-6 right-6 z-[130] bg-deep text-teal-300 px-4 py-2.5 rounded-none shadow-xl border border-line flex items-center justify-center gap-2 text-xs font-mono font-bold animate-bounce-slow">
+        <div className="fixed bottom-6 right-6 z-[130] bg-deep text-teal-300 px-4 py-2.5 rounded-none shadow-2xl border border-line flex items-center justify-center gap-2 text-xs font-mono font-bold animate-bounce-slow">
           <Check className="w-4 h-4 text-teal-300" />
           <span>{copiedToast}</span>
         </div>
@@ -243,12 +243,12 @@ export default function DoctorDashboardModule({
               </div>
               <div>
                 <h3 className="type-card-title">Confirm Patient Call</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Healthcare Safety Verification</p>
+                <p className="text-xs text-subtle dark:text-slate-400 font-medium">Healthcare Safety Verification</p>
               </div>
             </div>
 
             <div className="space-y-2 text-xs">
-              <p className="text-slate-700 dark:text-slate-200 leading-relaxed font-sans">
+              <p className="text-muted dark:text-slate-200 leading-relaxed font-sans">
                 Broadcast public PA announcement and call <strong className="text-ink dark:text-teal-300 font-bold text-sm">{pendingCallVisit.patientName}</strong> (Queue Rank <span className="font-mono font-bold text-accent">#{pendingCallVisit.position}</span>) to Consultation Room 1 now?
               </p>
 
@@ -264,7 +264,7 @@ export default function DoctorDashboardModule({
               <button
                 type="button"
                 onClick={() => setPendingCallVisit(null)}
-                className="px-4 py-2 rounded-none text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer"
+                className="px-4 py-2 rounded-none text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-muted dark:text-slate-200 cursor-pointer"
               >
                 Cancel
               </button>
@@ -337,7 +337,7 @@ export default function DoctorDashboardModule({
                           Live
                         </span>
                       </div>
-                      <p className="text-2xs text-slate-600 dark:text-slate-300 font-medium">
+                      <p className="text-2xs text-muted dark:text-slate-300 font-medium">
                         Triaged outpatient waiting list telemetry
                       </p>
                     </div>
@@ -348,7 +348,7 @@ export default function DoctorDashboardModule({
                     <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
                       {/* Stat 4: Max Wait */}
                       <div className="bg-white dark:bg-night-950 text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-sky-200/80 dark:border-sky-900/40 border-l-2 border-l-sky-400 flex items-center justify-center gap-2 shadow-2xs">
-                        <span className="text-2xs font-sans font-bold uppercase text-slate-500 dark:text-slate-400">Max Wait:</span>
+                        <span className="text-2xs font-sans font-bold uppercase text-subtle dark:text-slate-400">Max Wait:</span>
                         <strong className="font-bold text-sm text-ink dark:text-teal-300">{maxWaitMinutes}m</strong>
                         <span className="text-2xs bg-sky-50/70 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 px-1 py-0.2 rounded-none font-sans font-bold border border-sky-200 dark:border-sky-800/60">Peak</span>
                       </div>
@@ -372,10 +372,10 @@ export default function DoctorDashboardModule({
 
           {/* 2. PATIENT QUEUE LIST RENDERING */}
           {doctorQueue.length === 0 ? (
-            <div className="bg-surface-accent dark:bg-night-850 rounded-none p-12 border border-line dark:border-teal-800 text-center text-slate-500 dark:text-slate-400">
+            <div className="bg-surface-accent dark:bg-night-850 rounded-none p-12 border border-line dark:border-teal-800 text-center text-subtle dark:text-slate-400">
               <Users className="w-12 h-12 text-accent dark:text-teal-400 mx-auto mb-3 opacity-60" />
               <span className="text-xs font-bold block text-ink dark:text-teal-300">Your patient queue is currently empty.</span>
-              <span className="text-2xs text-slate-500 dark:text-slate-400 mt-0.5 block">Waiting for triage clinic assistants to register and dispatch new outpatients.</span>
+              <span className="text-2xs text-subtle dark:text-slate-400 mt-0.5 block">Waiting for triage clinic assistants to register and dispatch new outpatients.</span>
             </div>
           ) : (
             <div className="space-y-5">
@@ -425,14 +425,14 @@ export default function DoctorDashboardModule({
               <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-4 shadow-inner border border-teal-100">
                 <Stethoscope className="w-10 h-10 text-accent" />
               </div>
-              <h4 className="type-section-title text-slate-800">No Active Patient Selected</h4>
-              <p className="text-xs text-slate-500 mt-2 max-w-md mx-auto leading-relaxed font-medium">
+              <h4 className="type-section-title text-strong">No Active Patient Selected</h4>
+              <p className="text-xs text-subtle mt-2 max-w-md mx-auto leading-relaxed font-medium">
                 Please choose an outpatient from your active patient queue to start SOAP clinical diagnosis, vitals examination, and prescription writing.
               </p>
               <button
                 type="button"
                 onClick={() => setInternalTab('queue')}
-                className="mt-5 px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-teal-700 text-white shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="mt-5 px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-primary text-white shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <Users className="w-4 h-4" />
                 <span>Go to Patient Waiting Queue</span>

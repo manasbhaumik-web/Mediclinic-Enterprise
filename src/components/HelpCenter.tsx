@@ -131,7 +131,7 @@ export default function HelpCenter({ open, onClose, role, activeTab }: { open: b
       role="tab"
       aria-selected={section === s}
       onClick={() => setSection(s)}
-      className={`px-3 py-2 text-xs font-bold border-b-2 cursor-pointer ${section === s ? 'border-primary text-accent' : 'border-transparent text-slate-500 hover:text-ink'}`}
+      className={`px-3 py-2 text-xs font-bold border-b-2 cursor-pointer ${section === s ? 'border-primary text-accent' : 'border-transparent text-subtle hover:text-ink'}`}
     >{label}</button>
   );
 
@@ -140,7 +140,7 @@ export default function HelpCenter({ open, onClose, role, activeTab }: { open: b
       <aside role="dialog" aria-modal="true" aria-label="Help" className="w-full max-w-md h-full bg-surface text-ink border-l border-line shadow-2xl flex flex-col animate-fadeIn">
         <div className="flex items-center justify-between px-5 py-3 border-b border-line-subtle">
           <h2 className="type-heading-caps text-ink flex items-center gap-2"><CircleHelp className="w-4 h-4 text-accent" />Help</h2>
-          <button ref={closeRef} type="button" onClick={onClose} aria-label="Close help" className="p-1 text-slate-500 hover:text-ink cursor-pointer"><X className="w-5 h-5" /></button>
+          <button ref={closeRef} type="button" onClick={onClose} aria-label="Close help" className="p-1 text-subtle hover:text-ink cursor-pointer"><X className="w-5 h-5" /></button>
         </div>
         <div role="tablist" className="flex border-b border-line-subtle px-2">
           {tab('guide', 'This screen')}{tab('shortcuts', 'Keys')}{tab('legend', 'Colours')}{tab('contact', 'Contact')}
@@ -150,16 +150,16 @@ export default function HelpCenter({ open, onClose, role, activeTab }: { open: b
             <>
               <div>
                 <h3 className="text-sm font-bold text-ink">{guide.title}</h3>
-                <p className="text-slate-600 mt-1">{guide.summary}</p>
+                <p className="text-muted mt-1">{guide.summary}</p>
               </div>
-              <ol className="list-decimal pl-5 space-y-1.5 text-slate-700">{guide.steps.map((s) => <li key={s}>{s}</li>)}</ol>
+              <ol className="list-decimal pl-5 space-y-1.5 text-muted">{guide.steps.map((s) => <li key={s}>{s}</li>)}</ol>
               {role && ROLE_INTRO[role] && (
                 <div className="bg-surface-accent border border-line-subtle p-3">
                   <p className="font-bold text-ink mb-1">Your role</p>
-                  <p className="text-slate-600">{ROLE_INTRO[role]}</p>
+                  <p className="text-muted">{ROLE_INTRO[role]}</p>
                 </div>
               )}
-              <div className="text-slate-600">
+              <div className="text-muted">
                 <p className="font-bold text-ink mb-1">Good to know</p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Settings for theme, privacy mask and language are in the menu under your name.</li>
@@ -174,7 +174,7 @@ export default function HelpCenter({ open, onClose, role, activeTab }: { open: b
               {SHORTCUTS.map((s) => (
                 <tr key={s.keys} className="border-b border-line-subtle">
                   <td className="py-2 pr-3 whitespace-nowrap"><kbd className="px-1.5 py-0.5 border border-line bg-surface-accent font-mono text-2xs">{s.keys}</kbd></td>
-                  <td className="py-2 text-slate-700">{s.does}</td>
+                  <td className="py-2 text-muted">{s.does}</td>
                 </tr>
               ))}
             </tbody></table>
@@ -182,12 +182,12 @@ export default function HelpCenter({ open, onClose, role, activeTab }: { open: b
           {section === 'legend' && (
             <ul className="space-y-2">
               {LEGEND.map((l) => (
-                <li key={l.label} className="flex items-start gap-3"><span className={`mt-1 w-3 h-3 shrink-0 ${l.tone}`} aria-hidden="true" /><span><b className="text-ink">{l.label}.</b> <span className="text-slate-600">{l.text}</span></span></li>
+                <li key={l.label} className="flex items-start gap-3"><span className={`mt-1 w-3 h-3 shrink-0 ${l.tone}`} aria-hidden="true" /><span><b className="text-ink">{l.label}.</b> <span className="text-muted">{l.text}</span></span></li>
               ))}
             </ul>
           )}
           {section === 'contact' && (
-            <div className="space-y-3 text-slate-700">
+            <div className="space-y-3 text-muted">
               {clinic.emergencyPhone && <p><b className="text-ink">Emergency hotline:</b> {clinic.emergencyPhone}</p>}
               {clinic.phone && <p><b className="text-ink">Clinic phone:</b> {clinic.phone}</p>}
               <p>For access problems, a forgotten password or a wrong role, ask your clinic administrator. Administrators can change roles and logins under Staff.</p>

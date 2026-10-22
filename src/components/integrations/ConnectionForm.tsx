@@ -54,7 +54,7 @@ export default function ConnectionForm({ existing, saving, error, onSave, onClea
       <form onSubmit={submit} className="bg-surface border border-line-subtle shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-line-subtle pb-3">
           <h3 id="conn-form-title" className="type-heading-caps text-ink">{existing ? 'Edit connection' : 'New connection'}</h3>
-          <button type="button" onClick={onClose} aria-label="Close" className="text-slate-500 hover:text-ink cursor-pointer"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="text-subtle hover:text-ink cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
 
         <FormField id="conn-name" label="Name" required error={nameError}>

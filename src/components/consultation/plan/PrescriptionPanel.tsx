@@ -43,7 +43,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
       
       {/* CONTEXT-AWARE PEDIATRIC DOSAGE CALCULATOR ASSIST */}
       {!showPediatricCalc ? (
-        <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-2.5 rounded-none flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+        <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-2.5 rounded-none flex items-center justify-between text-xs text-muted dark:text-slate-300">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-accent" />
             <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAge})</span>
@@ -73,7 +73,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                 Max: 60 mg/kg/day
               </span>
               {!isPediatricPatient && (
-                <button type="button" onClick={() => setShowPediatricCalc(false)} className="text-slate-400 hover:text-slate-700 ml-2">
+                <button type="button" onClick={() => setShowPediatricCalc(false)} className="text-slate-400 hover:text-muted ml-2">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -82,7 +82,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
-              <label className="block text-2xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              <label className="block text-2xs font-bold text-subtle dark:text-slate-400 uppercase mb-1">
                 Patient Body Weight (kg)
               </label>
               <Input 
@@ -111,7 +111,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
             </div>
     
             <div>
-              <label className="block text-2xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              <label className="block text-2xs font-bold text-subtle dark:text-slate-400 uppercase mb-1">
                 Liquid Formulation Concentration
               </label>
               <select
@@ -169,7 +169,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
           {/* AUTOCOMPLETE DROPDOWN */}
           {drugSuggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 z-30 bg-white dark:bg-night-900 border-2 border-brand shadow-xl max-h-60 overflow-y-auto rounded-none mt-1">
+            <div className="absolute top-full left-0 right-0 z-30 bg-white dark:bg-night-900 border-2 border-brand shadow-2xl max-h-60 overflow-y-auto rounded-none mt-1">
               {drugSuggestions.map(drug => (
                 <div
                   key={drug.id}
@@ -178,7 +178,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                 >
                   <div>
                     <strong className="text-ink dark:text-teal-300 font-bold block">{drug.name}</strong>
-                    <span className="text-2xs text-slate-500 dark:text-slate-400 font-medium">
+                    <span className="text-2xs text-subtle dark:text-slate-400 font-medium">
                       Category: {drug.category} | Class: {drug.allergyGroup || 'General'}
                     </span>
                   </div>
@@ -200,7 +200,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
         <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-between">
           <span>Active Prescription Items ({rxList.length})</span>
           {rxList.length > 0 && (
-            <span className="text-slate-500 dark:text-slate-400 font-mono text-2xs font-normal">
+            <span className="text-subtle dark:text-slate-400 font-mono text-2xs font-normal">
               Subtotal: RM {(rxList.reduce((acc, r) => acc + ((r.pricePerUnit || 0.5) * (r.quantity || 1)), 0)).toFixed(2)}
             </span>
           )}
@@ -208,7 +208,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
         {rxList.length === 0 ? (
           <div className="p-6 text-center bg-slate-50 dark:bg-night-850 border border-dashed border-slate-300 dark:border-teal-800/40 text-slate-400 text-xs">
-            <Pill className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+            <Pill className="w-8 h-8 text-slate-300 dark:text-muted mx-auto mb-2" />
             <span>No medication items added. Search above to add items to prescription plan.</span>
           </div>
         ) : (
@@ -230,10 +230,10 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                     <td className="p-2 font-bold text-ink dark:text-white">
                       {item.drugName}
                     </td>
-                    <td className="p-2 text-slate-600 dark:text-slate-300">
+                    <td className="p-2 text-muted dark:text-slate-300">
                       {item.dosage}
                     </td>
-                    <td className="p-2 text-slate-600 dark:text-slate-300 font-mono">
+                    <td className="p-2 text-muted dark:text-slate-300 font-mono">
                       {item.frequency}
                     </td>
                     <td className="p-2">
@@ -248,7 +248,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                         className="w-14 px-2 py-0.5 border border-slate-300 dark:border-teal-800/40 rounded-none text-xs text-center font-bold"
                       />
                     </td>
-                    <td className="p-2 text-right font-mono text-slate-500 dark:text-slate-400">
+                    <td className="p-2 text-right font-mono text-subtle dark:text-slate-400">
                       RM {((item.pricePerUnit || 0.5) * (item.quantity || 1)).toFixed(2)}
                     </td>
                     <td className="p-2 text-center">

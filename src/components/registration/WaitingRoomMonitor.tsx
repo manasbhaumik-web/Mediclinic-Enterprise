@@ -79,7 +79,7 @@ export default function WaitingRoomMonitor({ triageQueue, setActiveSubTab, patie
                       <span className="font-mono text-xs text-accent dark:text-teal-300">IC: {maskICNumber(pt?.icNumber, showPII)}</span>
                     </div>
                     
-                    <div className="text-xs text-slate-500 mt-2 space-y-2">
+                    <div className="text-xs text-subtle mt-2 space-y-2">
                       {pt?.panelEmployer !== 'None (Self-Pay)' && (
                         <span className="inline-block text-accent dark:text-teal-200 font-sans font-bold bg-primary/10 dark:bg-teal-900/40 px-2 py-0.5 rounded-none text-2xs uppercase tracking-wider border border-brand/20">
                           Panel: {pt?.panelEmployer}

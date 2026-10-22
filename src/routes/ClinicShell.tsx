@@ -157,7 +157,7 @@ export default function ClinicShell() {
   return (
     <>
       {whatsappToast && (
-        <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-none shadow-xl flex items-center justify-center gap-3">
+        <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-none shadow-2xl flex items-center justify-center gap-3">
           <MessageCircle className="w-5 h-5" />
           <div>
             <p className="font-bold text-sm">WhatsApp Sent</p>

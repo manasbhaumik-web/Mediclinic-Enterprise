@@ -100,7 +100,7 @@ export default function BillingManagementModule() {
             <DollarSign className="w-6 h-6 text-accent" />
             Billing &amp; TPA Claims Management
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             Review payments taken at the cashier desk and record when each panel pays its claims.
           </p>
         </div>
@@ -110,25 +110,25 @@ export default function BillingManagementModule() {
       {/* 2. TOP METRICS SUMMARY ROW */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Revenue this month</span>
+          <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Revenue this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{rm(totalRevenue)}</span>
         </div>
 
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Panel claims awaiting payment</span>
-          <span className={`text-xl font-bold font-mono block mt-0.5 ${pendingClaims > 0 ? 'text-amber-600' : 'text-slate-600'}`}>
+          <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Panel claims awaiting payment</span>
+          <span className={`text-xl font-bold font-mono block mt-0.5 ${pendingClaims > 0 ? 'text-amber-600' : 'text-muted'}`}>
             {rm(pendingClaims)}
           </span>
-          <span className="text-2xs text-slate-500">{pendingClaimTrx.length} claim{pendingClaimTrx.length === 1 ? '' : 's'}</span>
+          <span className="text-2xs text-subtle">{pendingClaimTrx.length} claim{pendingClaimTrx.length === 1 ? '' : 's'}</span>
         </div>
 
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">SST included (estimate)</span>
+          <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">SST included (estimate)</span>
           <span className="text-xl font-bold font-mono text-accent block mt-0.5">{rm(taxIncluded)}</span>
         </div>
 
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Transactions this month</span>
+          <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Transactions this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{monthTransactions.length}</span>
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function BillingManagementModule() {
                 />
               </div>
 
-              <div className="text-xs text-slate-600 font-bold">
+              <div className="text-xs text-muted font-bold">
                 Showing <strong className="text-accent font-mono">{filteredLedger.length}</strong> of {transactions.length} Transactions
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function BillingManagementModule() {
                   
                   <div className="space-y-2">
                     <h3 className="type-section-title text-ink">Your financial ledger is empty</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-xs text-muted leading-relaxed">
                       Outpatient visit billing, co-payments, and corporate panel e-GL claims will automatically log to this ledger as patient consultations conclude.
                     </p>
                   </div>
@@ -235,7 +235,7 @@ export default function BillingManagementModule() {
                       <span className="w-5 h-5 bg-primary text-white font-mono font-bold text-2xs flex items-center justify-center shrink-0">1</span>
                       <div>
                         <strong className="text-ink block font-bold">Patient Registration &amp; Panel Check</strong>
-                        <span className="text-2xs text-slate-600">Scan MyKad to verify corporate panel eligibility.</span>
+                        <span className="text-2xs text-muted">Scan MyKad to verify corporate panel eligibility.</span>
                       </div>
                     </div>
 
@@ -243,7 +243,7 @@ export default function BillingManagementModule() {
                       <span className="w-5 h-5 bg-primary text-white font-mono font-bold text-2xs flex items-center justify-center shrink-0">2</span>
                       <div>
                         <strong className="text-ink block font-bold">Consultation &amp; Prescription Billing</strong>
-                        <span className="text-2xs text-slate-600">Dispensed medications and doctor fees auto-calculate.</span>
+                        <span className="text-2xs text-muted">Dispensed medications and doctor fees auto-calculate.</span>
                       </div>
                     </div>
 
@@ -251,7 +251,7 @@ export default function BillingManagementModule() {
                       <span className="w-5 h-5 bg-primary text-white font-mono font-bold text-2xs flex items-center justify-center shrink-0">3</span>
                       <div>
                         <strong className="text-ink block font-bold">Cashless e-GL or Cash Settlement</strong>
-                        <span className="text-2xs text-slate-600">Dispatch claim to TPA gateway or collect cash/card.</span>
+                        <span className="text-2xs text-muted">Dispatch claim to TPA gateway or collect cash/card.</span>
                       </div>
                     </div>
                   </div>
@@ -273,7 +273,7 @@ export default function BillingManagementModule() {
               <h4 className="type-card-title text-ink">
                 No financial transactions found matching &ldquo;{searchQuery}&rdquo;
               </h4>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-subtle">
                 Try a patient name, receipt number, GL or reference.
               </p>
               <button
@@ -305,22 +305,22 @@ export default function BillingManagementModule() {
                     <tr key={trx.id} className="hover:bg-surface-muted transition-colors">
                       <td className="px-6 py-4">
                         <p className="font-bold text-ink text-xs">{trx.patientName ?? 'Patient not recorded'}</p>
-                        <p className="text-2xs text-slate-500 font-mono mt-0.5">
+                        <p className="text-2xs text-subtle font-mono mt-0.5">
                           {trx.receiptNo ?? 'No receipt no. (older payment)'} • {new Date(trx.date).toLocaleString()}
                         </p>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-2 py-0.5 rounded-none text-2xs font-bold uppercase border ${
-                          trx.paymentMethod === 'Cash' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
-                          trx.paymentMethod === 'Panel' ? 'bg-sky-100 text-sky-800 border-sky-300' :
-                          'bg-indigo-100 text-indigo-800 border-indigo-300'
+                          trx.paymentMethod === 'Cash' ? 'chip-ok' :
+                          trx.paymentMethod === 'Panel' ? 'chip-info' :
+                          'chip-info'
                         }`}>
                           {trx.paymentMethod}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1 text-2xs font-bold uppercase border px-2 py-0.5 ${
-                          trx.status === 'Completed' || trx.status === 'Claim Paid' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'
+                          trx.status === 'Completed' || trx.status === 'Claim Paid' ? 'chip-ok' : 'chip-warn'
                         }`}>
                           {trx.status === 'Completed' || trx.status === 'Claim Paid' ? <CheckCircle className="w-3 h-3 text-emerald-600" /> : <Clock className="w-3 h-3 text-amber-600" />}
                           {trx.status}
@@ -369,7 +369,7 @@ export default function BillingManagementModule() {
             <tbody className="divide-y divide-line-subtle">
               {filteredClaims.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-slate-500">
+                  <td colSpan={4} className="px-6 py-10 text-center text-subtle">
                     <ShieldCheck className="w-8 h-8 mx-auto mb-2 text-accent opacity-50" />
                     <p className="text-xs font-bold text-ink">No panel claims match your criteria.</p>
                   </td>
@@ -385,13 +385,13 @@ export default function BillingManagementModule() {
                         <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 text-2xs uppercase font-bold">Paid</span>
                       )}
                     </p>
-                    <p className="text-2xs text-slate-500 mt-0.5 font-mono">
+                    <p className="text-2xs text-subtle mt-0.5 font-mono">
                       GL Ref: <span className="font-bold text-accent">{claim.glNumber || 'N/A'}</span>
                     </p>
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-xs text-ink font-bold">{claim.patientName ?? 'Patient not recorded'}</p>
-                    <p className="text-2xs text-slate-500 font-mono">{claim.receiptNo ?? 'No receipt no.'}{claim.panelName ? ` · ${claim.panelName}` : ''}</p>
+                    <p className="text-2xs text-subtle font-mono">{claim.receiptNo ?? 'No receipt no.'}{claim.panelName ? ` · ${claim.panelName}` : ''}</p>
                   </td>
                   <td className="px-6 py-4 font-mono font-bold text-accent">
                     RM {claim.panelClaimed.toFixed(2)}
@@ -410,7 +410,7 @@ export default function BillingManagementModule() {
                       <span className="text-emerald-700 text-xs font-bold flex flex-col items-center gap-0.5">
                         <span className="flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Paid</span>
                         {(claim.claimReceivedOn || claim.claimReference) && (
-                          <span className="text-2xs text-slate-500 font-mono font-normal">
+                          <span className="text-2xs text-subtle font-mono font-normal">
                             {claim.claimReceivedOn ?? ''}{claim.claimReceivedOn && claim.claimReference ? ' · ' : ''}{claim.claimReference ?? ''}
                           </span>
                         )}
@@ -430,24 +430,24 @@ export default function BillingManagementModule() {
           <div role="dialog" aria-modal="true" aria-label="Record panel payment" className="bg-surface rounded-none shadow-2xl max-w-sm w-full border border-line p-6 space-y-4">
             <h3 className="type-heading-caps text-ink">Record panel payment</h3>
             <div className="text-xs space-y-1 font-mono">
-              <div className="flex justify-between"><span className="text-slate-500">Claim</span><span>{settling.id}</span></div>
-              <div className="flex justify-between"><span className="text-slate-500">GL reference</span><span>{settling.glNumber ?? 'N/A'}</span></div>
-              <div className="flex justify-between"><span className="text-slate-500">Amount claimed</span><strong className="text-accent">{rm(settling.panelClaimed)}</strong></div>
+              <div className="flex justify-between"><span className="text-subtle">Claim</span><span>{settling.id}</span></div>
+              <div className="flex justify-between"><span className="text-subtle">GL reference</span><span>{settling.glNumber ?? 'N/A'}</span></div>
+              <div className="flex justify-between"><span className="text-subtle">Amount claimed</span><strong className="text-accent">{rm(settling.panelClaimed)}</strong></div>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">Record this only after the panel's payment has reached the clinic. Enter the reference from its remittance or statement.</p>
+            <p className="text-xs text-muted leading-relaxed">Record this only after the panel's payment has reached the clinic. Enter the reference from its remittance or statement.</p>
             <div className="space-y-3 text-xs">
               <div>
-                <label htmlFor="claim-ref" className="block text-2xs font-bold text-slate-500 uppercase tracking-wider mb-1">Panel payment / statement reference</label>
+                <label htmlFor="claim-ref" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Panel payment / statement reference</label>
                 <input id="claim-ref" autoFocus type="text" value={claimRef} onChange={(e) => setClaimRef(e.target.value)} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
               </div>
               <div>
-                <label htmlFor="claim-date" className="block text-2xs font-bold text-slate-500 uppercase tracking-wider mb-1">Date received</label>
+                <label htmlFor="claim-date" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Date received</label>
                 <input id="claim-date" type="date" max={today} value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className="w-full border border-line px-3 py-2 text-sm rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
               </div>
             </div>
             {claimError && <p role="alert" className="text-xs text-rose-700 font-medium">{claimError}</p>}
             <div className="flex items-center justify-end gap-2">
-              <button type="button" onClick={() => setSettling(null)} disabled={claimSaving} className="px-3 py-2 border border-line text-slate-600 rounded-none text-xs hover:bg-surface-strong cursor-pointer disabled:opacity-50">Cancel</button>
+              <button type="button" onClick={() => setSettling(null)} disabled={claimSaving} className="px-3 py-2 border border-line text-muted rounded-none text-xs hover:bg-surface-strong cursor-pointer disabled:opacity-50">Cancel</button>
               <button type="button" onClick={() => void saveSettle()} disabled={claimSaving || !claimRef.trim() || !receivedOn} className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
                 {claimSaving && <Loader2 className="w-3.5 h-3.5 motion-safe:animate-spin" aria-hidden="true" />}
                 {claimSaving ? 'Saving…' : 'Record payment'}

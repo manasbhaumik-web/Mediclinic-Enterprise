@@ -25,14 +25,14 @@ export default function LandingHeader({ isBM, onToggleLanguage, activeLanguage, 
           <span className="text-base font-bold tracking-tight text-ink block leading-none">
             MEDICLINIC <span className="text-accent">ENTERPRISE</span>
           </span>
-          <span className="hidden sm:block text-xs text-slate-600 font-medium tracking-wide">
+          <span className="hidden sm:block text-xs text-muted font-medium tracking-wide">
             {isBM ? 'Pusat Perubatan Pesakit Luar 24/7 Shah Alam' : '24/7 Outpatient Medical Clinic Shah Alam'}
           </span>
         </div>
       </div>
     
       {/* Desktop Navigation Links */}
-      <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-700 whitespace-nowrap">
+      <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-muted whitespace-nowrap">
         <a href="#services" className="py-3 hover:text-accent transition-colors inline-flex items-center justify-center min-h-[44px]">{isBM ? 'Perkhidmatan' : 'Services'}</a>
         <a href="#doctors" className="py-3 hover:text-accent transition-colors inline-flex items-center justify-center min-h-[44px]">{isBM ? 'Doktor' : 'Doctors'}</a>
         <a href="#panels" className="py-3 hover:text-accent transition-colors inline-flex items-center justify-center min-h-[44px]">{isBM ? 'Panel Insurans' : 'Panel Coverage'}</a>
@@ -84,7 +84,7 @@ export default function LandingHeader({ isBM, onToggleLanguage, activeLanguage, 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMobileMenuOpen}
-          className="lg:hidden w-11 h-11 flex items-center justify-center rounded-none bg-surface border border-line-subtle text-slate-700 hover:text-ink cursor-pointer"
+          className="lg:hidden w-11 h-11 flex items-center justify-center rounded-none bg-surface border border-line-subtle text-muted hover:text-ink cursor-pointer"
         >
           {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -92,8 +92,8 @@ export default function LandingHeader({ isBM, onToggleLanguage, activeLanguage, 
     
     {/* Mobile Menu Drawer */}
     {isMobileMenuOpen && (
-      <div className="lg:hidden absolute inset-x-0 top-full z-40 max-h-[calc(100vh-60px)] overflow-y-auto bg-surface-muted border-b border-line-subtle p-6 space-y-4 shadow-xl animate-fadeIn">
-        <nav className="flex flex-col space-y-3 font-semibold text-sm text-slate-700">
+      <div className="lg:hidden absolute inset-x-0 top-full z-40 max-h-[calc(100vh-60px)] overflow-y-auto bg-surface-muted border-b border-line-subtle p-6 space-y-4 shadow-2xl animate-fadeIn">
+        <nav className="flex flex-col space-y-3 font-semibold text-sm text-muted">
           <a 
             href="#services" 
             onClick={() => setIsMobileMenuOpen(false)} 

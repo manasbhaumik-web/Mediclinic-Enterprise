@@ -67,7 +67,7 @@ export default function DrugForm({ drug, role, onClose }: { drug?: DrugItem | nu
             </select>
           </Field>
         )}
-        <p className="text-2xs text-slate-500 leading-relaxed">
+        <p className="text-2xs text-subtle leading-relaxed">
           Every receipt, dispense, disposal and correction of a controlled drug is written to the register with a running balance and needs a second person's signature. Dispensing records the patient and the prescriber.
           {role !== 'admin' && ' Only an administrator can change this setting.'} Pick the class that applies under Malaysian law; the system does not decide it for you.
         </p>

@@ -19,20 +19,20 @@ function summary(e: EquipmentEvent): string {
 
 /** Events in time order, newest first. Nothing here can be edited or deleted. */
 export function EventList({ events, loading, names }: { events: EquipmentEvent[]; loading?: boolean; names?: Map<string, string> }) {
-  if (!loading && events.length === 0) return <p className="p-4 text-center text-xs text-slate-500">No history yet.</p>;
+  if (!loading && events.length === 0) return <p className="p-4 text-center text-xs text-subtle">No history yet.</p>;
   return (
     <div className="divide-y divide-line-subtle border border-line-subtle bg-surface">
       {events.map((e) => (
         <div key={e.id} className="px-3 py-2 text-xs">
-          <span className="font-mono text-slate-500">{e.performedOn}</span> · <b>{LABEL[e.kind]}</b>
+          <span className="font-mono text-subtle">{e.performedOn}</span> · <b>{LABEL[e.kind]}</b>
           {names && <> · {names.get(e.equipmentId) ?? '?'}</>}
           {e.outcome && <> · <span className={`font-bold uppercase ${OUTCOME_CLASS[e.outcome]}`}>{e.outcome}</span></>}
           {e.performedBy && <> · by {e.performedBy}</>}
           {e.certificateRef && <> · cert {e.certificateRef}</>}
           {e.cost !== null && <> · RM{e.cost.toFixed(2)}</>}
           {e.nextDue && <> · next due {e.nextDue}</>}
-          {summary(e) && <div className="text-slate-600">{summary(e)}</div>}
-          {e.findings && <div className="text-slate-600 whitespace-pre-line">{e.findings}</div>}
+          {summary(e) && <div className="text-muted">{summary(e)}</div>}
+          {e.findings && <div className="text-muted whitespace-pre-line">{e.findings}</div>}
           <div className="text-2xs text-slate-400">Recorded {fmtDate(e.createdAt)}{e.actorName ? ` by ${e.actorName}` : ''}</div>
         </div>
       ))}
@@ -46,7 +46,7 @@ export default function EquipmentHistory() {
   const names = new Map((list.data ?? []).map((e) => [e.id, `${e.name} (${e.assetTag})`]));
   return (
     <div className="space-y-2">
-      <p className="text-2xs text-slate-500">Every registration, service, calibration, fault, move and decommissioning. Nothing here can be edited or deleted.</p>
+      <p className="text-2xs text-subtle">Every registration, service, calibration, fault, move and decommissioning. Nothing here can be edited or deleted.</p>
       <EventList events={events.data ?? []} loading={events.isLoading} names={names} />
     </div>
   );

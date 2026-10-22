@@ -52,7 +52,7 @@ export default function SubjectiveTab({
             <MessageSquare className="w-4 h-4 text-accent dark:text-teal-400" />
             Subjective History &amp; Presenting Complaints
           </h4>
-          <p className="text-2xs text-slate-500 dark:text-slate-400 font-medium">Record patient history, symptoms timeline, and pain scale.</p>
+          <p className="text-2xs text-subtle dark:text-slate-400 font-medium">Record patient history, symptoms timeline, and pain scale.</p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

@@ -33,7 +33,7 @@ export default function FaqSection({ isBM, testimonials, faqs, openFaqIndex, tog
                       <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
                     ))}
                   </div>
-                  <p className="text-xs text-slate-700 italic leading-relaxed">
+                  <p className="text-xs text-muted italic leading-relaxed">
                     &ldquo;{t.comment}&rdquo;
                   </p>
                 </div>
@@ -75,7 +75,7 @@ export default function FaqSection({ isBM, testimonials, faqs, openFaqIndex, tog
                   </button>
     
                   {isOpen && (
-                    <div className="px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-line-subtle pt-3 animate-fadeIn">
+                    <div className="px-4 pb-4 text-xs text-muted leading-relaxed border-t border-line-subtle pt-3 animate-fadeIn">
                       {faq.a}
                     </div>
                   )}

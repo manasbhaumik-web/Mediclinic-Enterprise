@@ -50,7 +50,7 @@ export default function FormField({ id, label, required, error, hint, className,
         ...(required ? { 'aria-required': true as const } : {}),
       })}
       {hint && !error && (
-        <p id={hintId} className="mt-1 text-xs text-slate-600">{hint}</p>
+        <p id={hintId} className="mt-1 text-xs text-muted">{hint}</p>
       )}
       {error && (
         <p id={errorId} role="alert" className="mt-1 text-xs font-semibold text-rose-700 flex items-center gap-1">

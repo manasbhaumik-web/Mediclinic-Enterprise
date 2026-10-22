@@ -13,13 +13,13 @@ const TABS: [Tab, string][] = [['requests', 'Leave requests'], ['attendance', 'A
 export default function LeavePage({ role }: { role: 'admin' | 'hr' }) {
   const [tab, setTab] = useState<Tab>('requests');
   const tabClass = (t: Tab) =>
-    `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-slate-500 hover:text-ink'}`;
+    `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-subtle hover:text-ink'}`;
 
   return (
     <div className="animate-fadeIn w-full space-y-5 pb-8">
       <div className="bg-surface-accent border border-line p-5 space-y-1">
         <h1 className="type-page-title text-ink flex items-center gap-2.5"><CalendarClock className="w-6 h-6 text-accent" />Leave &amp; Attendance</h1>
-        <p className="text-xs text-slate-600 font-medium max-w-3xl leading-relaxed">
+        <p className="text-xs text-muted font-medium max-w-3xl leading-relaxed">
           Employees request leave and clock in from their own page; HR and administrators approve leave and correct attendance. Balances and attendance rates are calculated from approved requests and daily records, and every change is kept in the history. Approved unpaid leave is deducted automatically in payroll.
         </p>
       </div>

@@ -26,7 +26,7 @@ export function Dialog({ title, onClose, children, wide = false }: { title: stri
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block space-y-1">
-      <span className="text-2xs font-bold uppercase tracking-wider text-slate-500">{label}</span>
+      <span className="text-2xs font-bold uppercase tracking-wider text-subtle">{label}</span>
       {children}
     </label>
   );

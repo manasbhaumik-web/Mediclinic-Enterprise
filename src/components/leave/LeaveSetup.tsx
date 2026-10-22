@@ -45,25 +45,25 @@ export default function LeaveSetup({ role }: { role: 'admin' | 'hr' }) {
         {admin && <div><Button size="sm" onClick={() => setEditing({ leaveType: 'annual', label: '', effectiveFrom: new Date().toISOString().slice(0, 10), priority: 0, eligibility: {}, active: true })}>Add rule</Button></div>}
         <div className="bg-surface border border-line-subtle overflow-x-auto">
           <table className="w-full text-xs">
-            <thead><tr className="text-left text-2xs uppercase tracking-wider text-slate-500 border-b border-line-subtle"><th className="p-3">Leave type</th><th className="p-3">Entitlement</th><th className="p-3">Applies to</th><th className="p-3">From</th><th className="p-3">Status</th>{admin && <th className="p-3" />}</tr></thead>
+            <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">Leave type</th><th className="p-3">Entitlement</th><th className="p-3">Applies to</th><th className="p-3">From</th><th className="p-3">Status</th>{admin && <th className="p-3" />}</tr></thead>
             <tbody>
               {(rules.data ?? []).map((r) => (
                 <tr key={r.id} className={`border-b border-line-subtle ${r.active ? '' : 'opacity-50'}`}>
-                  <td className="p-3 font-bold text-ink">{typeName.get(r.leaveType) ?? r.leaveType}<div className="font-medium text-slate-500">{r.label}</div></td>
+                  <td className="p-3 font-bold text-ink">{typeName.get(r.leaveType) ?? r.leaveType}<div className="font-medium text-subtle">{r.label}</div></td>
                   <td className="p-3">{describeEntitlement(r.config)}</td>
                   <td className="p-3">{eligibilityText(r)}</td>
                   <td className="p-3 font-mono">{r.effectiveFrom}</td>
-                  <td className="p-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${r.verified ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'}`}>{r.verified ? 'Verified' : 'Unverified'}</span>{!r.active && <span className="ml-2 text-slate-500">off</span>}</td>
+                  <td className="p-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${r.verified ? 'chip-ok' : 'chip-warn'}`}>{r.verified ? 'Verified' : 'Unverified'}</span>{!r.active && <span className="ml-2 text-subtle">off</span>}</td>
                   {admin && (
                     <td className="p-3 space-x-3 whitespace-nowrap">
                       <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setEditing(r)}>Edit</button>
                       <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => attempt(() => api.patchRule.mutateAsync({ id: r.id, verified: !r.verified }))}>{r.verified ? 'Unverify' : 'Mark verified'}</button>
-                      <button type="button" className="font-bold text-slate-600 cursor-pointer" onClick={() => attempt(() => api.patchRule.mutateAsync({ id: r.id, active: !r.active }))}>{r.active ? 'Turn off' : 'Turn on'}</button>
+                      <button type="button" className="font-bold text-muted cursor-pointer" onClick={() => attempt(() => api.patchRule.mutateAsync({ id: r.id, active: !r.active }))}>{r.active ? 'Turn off' : 'Turn on'}</button>
                     </td>
                   )}
                 </tr>
               ))}
-              {(rules.data ?? []).length === 0 && <tr><td className="p-4 text-slate-500" colSpan={6}>No rules yet.</td></tr>}
+              {(rules.data ?? []).length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No rules yet.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -92,12 +92,12 @@ function WorkingWeek({ admin, value, attempt }: { admin: boolean; value: typeof 
           {WEEKDAYS.map((d) => <label key={d.n} className="flex items-center gap-1"><input type="checkbox" disabled={!admin} checked={s.workDays.includes(d.n)} onChange={() => toggle(d.n)} /> {d.label}</label>)}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Work starts</span><input className={inputClass} type="time" disabled={!admin} value={s.workStart} onChange={(e) => setS({ ...s, workStart: e.target.value })} /></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Grace (minutes)</span><input className={inputClass} type="number" min="0" disabled={!admin} value={s.lateGraceMinutes} onChange={(e) => setS({ ...s, lateGraceMinutes: Number(e.target.value) || 0 })} /></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Time zone</span><input className={inputClass} disabled={!admin} value={s.timezone} onChange={(e) => setS({ ...s, timezone: e.target.value })} /></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Employees may file back (days)</span><input className={inputClass} type="number" min="0" disabled={!admin} value={s.backdateDays} onChange={(e) => setS({ ...s, backdateDays: Number(e.target.value) || 0 })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Work starts</span><input className={inputClass} type="time" disabled={!admin} value={s.workStart} onChange={(e) => setS({ ...s, workStart: e.target.value })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Grace (minutes)</span><input className={inputClass} type="number" min="0" disabled={!admin} value={s.lateGraceMinutes} onChange={(e) => setS({ ...s, lateGraceMinutes: Number(e.target.value) || 0 })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Time zone</span><input className={inputClass} disabled={!admin} value={s.timezone} onChange={(e) => setS({ ...s, timezone: e.target.value })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Employees may file back (days)</span><input className={inputClass} type="number" min="0" disabled={!admin} value={s.backdateDays} onChange={(e) => setS({ ...s, backdateDays: Number(e.target.value) || 0 })} /></label>
         </div>
-        <p className="text-2xs text-slate-500">Leave is counted in working days (the days ticked above, minus public holidays). Keep this consistent with the working days per month used in payroll, because unpaid leave is deducted at the daily rate from that.</p>
+        <p className="text-2xs text-subtle">Leave is counted in working days (the days ticked above, minus public holidays). Keep this consistent with the working days per month used in payroll, because unpaid leave is deducted at the daily rate from that.</p>
         {admin && <Button size="sm" disabled={api.saveSettings.isPending || s.workDays.length === 0} onClick={() => attempt(() => api.saveSettings.mutateAsync(s), 'Saved.')}>Save</Button>}
       </div>
     </section>
@@ -112,7 +112,7 @@ function Holidays({ holidays, attempt }: { holidays: { id: string; date: string;
   return (
     <section className="space-y-2">
       <h3 className="type-heading-caps text-ink">Public holidays</h3>
-      <p className="text-xs text-slate-600">Public holidays are not counted as leave or working days. The dates change every year, so none are pre-loaded: enter the gazetted holidays for {year} and {year + 1}. {holidays.length === 0 && <b className="text-amber-800">None entered yet.</b>}</p>
+      <p className="text-xs text-muted">Public holidays are not counted as leave or working days. The dates change every year, so none are pre-loaded: enter the gazetted holidays for {year} and {year + 1}. {holidays.length === 0 && <b className="text-amber-800">None entered yet.</b>}</p>
       <div className="flex flex-wrap items-end gap-2">
         <input className={`${inputClass} !w-44`} type="date" aria-label="Holiday date" value={date} onChange={(e) => setDate(e.target.value)} />
         <input className={`${inputClass} !w-64`} placeholder="Name, e.g. Deepavali" aria-label="Holiday name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -138,7 +138,7 @@ function Types({ admin, attempt }: { admin: boolean; attempt: Attempt }) {
       <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
         {(types.data ?? []).map((t) => (
           <div key={t.code} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
-            <span className={t.active ? '' : 'opacity-50'}><b className="text-ink">{t.name}</b> <span className="text-slate-500">({t.code}) · {t.paid ? 'paid' : 'unpaid, deducted in payroll'} · {t.balanceLimited ? 'limited by entitlement' : 'no limit'}</span></span>
+            <span className={t.active ? '' : 'opacity-50'}><b className="text-ink">{t.name}</b> <span className="text-subtle">({t.code}) · {t.paid ? 'paid' : 'unpaid, deducted in payroll'} · {t.balanceLimited ? 'limited by entitlement' : 'no limit'}</span></span>
             {admin && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => attempt(() => api.saveType.mutateAsync({ ...t, active: !t.active }))}>{t.active ? 'Turn off' : 'Turn on'}</button>}
           </div>
         ))}
@@ -192,25 +192,25 @@ function RuleEditor({ initial, onClose }: { initial: Partial<RuleRowT>; onClose:
         <h3 className="type-heading-caps text-ink">{initial.id ? 'Edit rule' : 'Add rule'}</h3>
         {initial.id && <p className="text-xs text-amber-800 bg-amber-50 border border-amber-300 px-3 py-2">Saving a change marks this rule Unverified until you verify it again.</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Leave type</span>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Leave type</span>
             <select className={inputClass} value={f.leaveType} onChange={(ev) => setF({ ...f, leaveType: ev.target.value })}>{(types.data ?? []).filter((t) => t.balanceLimited).map((t) => <option key={t.code} value={t.code}>{t.name}</option>)}</select></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Name</span><input className={inputClass} value={f.label} onChange={(ev) => setF({ ...f, label: ev.target.value })} /></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Effective from</span><input className={inputClass} type="date" value={f.effectiveFrom} onChange={(ev) => setF({ ...f, effectiveFrom: ev.target.value })} /></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Priority (higher wins)</span><input className={inputClass} type="number" value={f.priority} onChange={(ev) => setF({ ...f, priority: ev.target.value })} /></label>
-          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Minimum months of service</span><input className={inputClass} type="number" min="0" value={f.minServiceMonths} onChange={(ev) => setF({ ...f, minServiceMonths: ev.target.value })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Name</span><input className={inputClass} value={f.label} onChange={(ev) => setF({ ...f, label: ev.target.value })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Effective from</span><input className={inputClass} type="date" value={f.effectiveFrom} onChange={(ev) => setF({ ...f, effectiveFrom: ev.target.value })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Priority (higher wins)</span><input className={inputClass} type="number" value={f.priority} onChange={(ev) => setF({ ...f, priority: ev.target.value })} /></label>
+          <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Minimum months of service</span><input className={inputClass} type="number" min="0" value={f.minServiceMonths} onChange={(ev) => setF({ ...f, minServiceMonths: ev.target.value })} /></label>
           <div className="flex items-end gap-4 text-xs font-medium pb-2">
             <label className="flex items-center gap-1"><input type="checkbox" checked={f.female} onChange={(ev) => setF({ ...f, female: ev.target.checked })} /> Female</label>
             <label className="flex items-center gap-1"><input type="checkbox" checked={f.male} onChange={(ev) => setF({ ...f, male: ev.target.checked })} /> Male</label>
-            <span className="text-slate-500">(both or neither = everyone)</span>
+            <span className="text-subtle">(both or neither = everyone)</span>
           </div>
         </div>
-        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Entitlement (JSON)</span>
+        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Entitlement (JSON)</span>
           <textarea className={`${inputClass} font-mono h-36`} spellCheck={false} value={f.config} onChange={(ev) => setF({ ...f, config: ev.target.value })} /></label>
-        <p className="text-2xs text-slate-500 leading-relaxed">
+        <p className="text-2xs text-subtle leading-relaxed">
           Examples: <code>{'{"type":"fixed","days":60}'}</code>; <code>{EXAMPLE}</code>; <code>{'{"type":"unlimited"}'}</code>. Add <code>"prorate":true</code> to scale the first calendar year by months employed.
           Service is measured at 1 January of the leave year.
         </p>
-        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-slate-500">Source / note</span><input className={inputClass} value={f.note} onChange={(ev) => setF({ ...f, note: ev.target.value })} /></label>
+        <label className="block space-y-1"><span className="text-2xs font-bold uppercase text-subtle">Source / note</span><input className={inputClass} value={f.note} onChange={(ev) => setF({ ...f, note: ev.target.value })} /></label>
         {err && <p role="alert" className="text-xs font-bold text-rose-700">{err}</p>}
         <div className="flex justify-end gap-2"><Button variant="outline" size="sm" onClick={onClose}>Cancel</Button><Button size="sm" onClick={save} disabled={api.saveRule.isPending}>Save</Button></div>
       </div>

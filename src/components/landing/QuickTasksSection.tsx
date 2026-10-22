@@ -31,7 +31,7 @@ export default function QuickTasksSection({ isBM, setIsBookingOpen, openDoctorBo
               <h3 className="type-card-title-lg text-ink group-hover:text-accent transition-colors">
                 {isBM ? 'Jumpa Doktor Outpatient' : 'See a doctor'}
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {isBM ? 'Walk-in terus 24 jam atau tempah masa konsultasi awal.' : 'Walk in anytime 24/7 or schedule your consultation time.'}
               </p>
             </div>
@@ -54,7 +54,7 @@ export default function QuickTasksSection({ isBM, setIsBookingOpen, openDoctorBo
               <h3 className="type-card-title-lg text-ink group-hover:text-emerald-700 transition-colors">
                 {isBM ? 'Semak Insurans / Panel' : 'Check panel coverage'}
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {isBM ? 'Sahkan kelayakan kad panel korporat tanpa tunai anda.' : 'Verify your cashless corporate panel card & e-GL eligibility.'}
               </p>
             </div>
@@ -76,14 +76,14 @@ export default function QuickTasksSection({ isBM, setIsBookingOpen, openDoctorBo
               <h3 className="type-card-title-lg text-ink group-hover:text-sky-600 transition-colors">
                 {isBM ? 'Pediatrik & Imunisasi' : 'Child vaccination'}
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {isBM ? 'Pemeriksaan bayi & suntikan imunisasi KKM berjadual.' : 'Gentle pediatric care & KKM scheduled child vaccinations.'}
               </p>
             </div>
             <button
               type="button"
               onClick={() => openDoctorBooking('Dr. Michael Wong')}
-              className="w-full py-2 px-3 bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
+              className="w-full py-2 px-3 bg-primary hover:bg-primary text-white font-bold text-xs rounded-none flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
             >
               <span>{isBM ? 'Pediatrik' : 'Book paediatrics'}</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -99,7 +99,7 @@ export default function QuickTasksSection({ isBM, setIsBookingOpen, openDoctorBo
               <h3 className="type-card-title-lg text-ink group-hover:text-rose-600 transition-colors">
                 {isBM ? 'Kecemasan Ringan 24/7' : 'Urgent minor injuries'}
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 {isBM ? 'Jahitan luka, rawatan lecuran & nebulizer asma serta-merta.' : '24/7 acute wound suturing, dressings & asthma nebulization.'}
               </p>
               <p className="text-xs text-rose-800 font-semibold">

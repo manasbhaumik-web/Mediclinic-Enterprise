@@ -30,13 +30,13 @@ export default function PayrollStatusList() {
   return (
     <div className="space-y-3 animate-fadeIn">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+        <label className="flex items-center gap-2 text-xs font-bold text-muted">
           Month
           <select className="px-3 py-2 bg-surface border border-line-subtle text-xs font-medium text-ink" value={month} onChange={(e) => setMonth(e.target.value)}>
             {months.map((m) => <option key={m} value={m}>{monthLabel(m)}</option>)}
           </select>
         </label>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-subtle">
           {run ? `${monthLabel(month)}: ${STATUS_STYLE[run.status].label}${run.status === 'paid' ? `, ${paidCount} paid${run.paidOn ? ` on ${run.paidOn}` : ''}` : ''}` : `No payroll run for ${monthLabel(month)} yet. Create one under Finance > Payroll.`}
         </span>
       </div>
@@ -57,13 +57,13 @@ export default function PayrollStatusList() {
               return (
                 <tr key={p.id} className="hover:bg-surface-muted">
                   <td className="px-6 py-3 font-bold text-ink">{p.name}</td>
-                  <td className="px-6 py-3 text-slate-600">{p.role}</td>
+                  <td className="px-6 py-3 text-muted">{p.role}</td>
                   <td className="px-6 py-3 text-right font-mono">{slip ? myr(slip.netPay) : '–'}</td>
                   <td className="px-6 py-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span></td>
                 </tr>
               );
             })}
-            {people.length === 0 && <tr><td className="px-6 py-4 text-slate-500" colSpan={4}>No active staff.</td></tr>}
+            {people.length === 0 && <tr><td className="px-6 py-4 text-subtle" colSpan={4}>No active staff.</td></tr>}
           </tbody>
         </table>
       </div>

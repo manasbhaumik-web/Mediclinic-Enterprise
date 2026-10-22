@@ -1,3 +1,4 @@
+import { useColorTheme } from '../../hooks/useColorTheme';
 import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -16,6 +17,7 @@ const dayShort = (key: string) => new Date(`${key}T00:00:00`).toLocaleDateString
 
 /** A doctor's own month: the consultations they signed off, what was billed for them, and their diagnoses. */
 export default function DoctorMonthlyReport() {
+  useColorTheme(); // re-render when the colour theme changes so palette colours refresh
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const months = useMemo(() => recentMonthKeys(6, new Date()), []);
@@ -45,7 +47,7 @@ export default function DoctorMonthlyReport() {
             <BarChart3 className="w-5 h-5 text-accent dark:text-teal-300" aria-hidden="true" />
             My monthly report
           </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
+          <p className="text-xs text-muted dark:text-slate-400 mt-0.5 font-medium">
             The consultations you signed off in {label}, what was billed for them, and your diagnoses.
           </p>
         </div>
@@ -83,7 +85,7 @@ export default function DoctorMonthlyReport() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <section className="lg:col-span-2 bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none space-y-3 shadow-xs">
           <h3 className="type-card-title text-ink dark:text-teal-300">Consultations per day</h3>
-          {s.byDay.length === 0 ? <p className="text-xs text-slate-600">No consultations signed off in {label}.</p> : (
+          {s.byDay.length === 0 ? <p className="text-xs text-muted">No consultations signed off in {label}.</p> : (
             <div className="h-56 w-full" role="img" aria-label={`Consultations per day in ${label}: ${s.encounters} in total`}>
               <ResponsiveContainer>
                 <BarChart data={s.byDay.map((d) => ({ ...d, label: dayShort(d.day) }))} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -100,9 +102,9 @@ export default function DoctorMonthlyReport() {
 
         <section className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none space-y-3 shadow-xs">
           <h3 className="type-card-title text-ink dark:text-teal-300">Billing by payment method</h3>
-          {s.byMethod.length === 0 ? <p className="text-xs text-slate-600">No paid visits yet.</p> : s.byMethod.map((m) => (
+          {s.byMethod.length === 0 ? <p className="text-xs text-muted">No paid visits yet.</p> : s.byMethod.map((m) => (
             <div key={m.method} className="space-y-1">
-              <div className="flex justify-between text-xs"><span className="font-bold text-ink dark:text-white">{m.method} <span className="font-normal text-slate-500">({m.count})</span></span><span className="font-mono">{formatRM(m.amount)}</span></div>
+              <div className="flex justify-between text-xs"><span className="font-bold text-ink dark:text-white">{m.method} <span className="font-normal text-subtle">({m.count})</span></span><span className="font-mono">{formatRM(m.amount)}</span></div>
               <ProgressBar value={(m.amount / topMethodAmount) * 100} size="sm" label={`${m.method}: ${formatRM(m.amount)}`} />
             </div>
           ))}
@@ -111,7 +113,7 @@ export default function DoctorMonthlyReport() {
 
       <section className="border border-dashed border-line bg-surface p-4">
         <h3 className="type-card-title text-ink flex items-center gap-2"><Info className="w-4 h-4 text-slate-400" aria-hidden="true" />Consultation length: not recorded yet</h3>
-        <p className="mt-1 text-xs text-slate-600">The app does not record when a consultation starts or ends, so average consultation time can't be reported.</p>
+        <p className="mt-1 text-xs text-muted">The app does not record when a consultation starts or ends, so average consultation time can't be reported.</p>
       </section>
 
       <section className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs overflow-hidden">
@@ -132,7 +134,7 @@ export default function DoctorMonthlyReport() {
           </div>
         </div>
         {shown.length === 0 ? (
-          <p className="p-5 text-xs text-slate-600">{report.visits.length === 0 ? `No consultations signed off by you in ${label}.` : 'No consultations match this search.'}</p>
+          <p className="p-5 text-xs text-muted">{report.visits.length === 0 ? `No consultations signed off by you in ${label}.` : 'No consultations match this search.'}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
@@ -156,7 +158,7 @@ export default function DoctorMonthlyReport() {
             </table>
           </div>
         )}
-        <p className="p-3 text-2xs text-slate-500 border-t border-line-subtle">Downloads contain patient names and diagnoses. Keep them confidential and delete them when no longer needed.</p>
+        <p className="p-3 text-2xs text-subtle border-t border-line-subtle">Downloads contain patient names and diagnoses. Keep them confidential and delete them when no longer needed.</p>
       </section>
     </div>
   );
@@ -166,11 +168,11 @@ function Kpi({ icon: Icon, label, value, note, tone = 'ok' }: { icon: React.Comp
   return (
     <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-4 rounded-none shadow-xs">
       <div className="flex items-center justify-between">
-        <span className="text-2xs text-slate-500 dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono">{label}</span>
+        <span className="text-2xs text-subtle dark:text-teal-200/80 font-bold uppercase tracking-wider font-mono">{label}</span>
         <Icon className="w-4 h-4 text-accent dark:text-teal-300" aria-hidden="true" />
       </div>
       <p className={`type-metric mt-2 ${tone === 'warn' ? 'text-amber-700' : 'text-ink dark:text-white'}`}>{value}</p>
-      <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400">{note}</p>
+      <p className="mt-1.5 text-xs text-muted dark:text-slate-400">{note}</p>
     </div>
   );
 }

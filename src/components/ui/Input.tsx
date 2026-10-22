@@ -24,7 +24,7 @@ export default function Input({ icon, error, label, className = '', id, ...props
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={generatedId} className="block text-sm font-bold text-slate-700 mb-1.5">
+        <label htmlFor={generatedId} className="block text-sm font-bold text-muted mb-1.5">
           {label}
         </label>
       )}
@@ -37,7 +37,7 @@ export default function Input({ icon, error, label, className = '', id, ...props
         <input
           id={generatedId}
           className={`
-            w-full bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 text-slate-900 dark:text-white rounded-none outline-none 
+            w-full bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 text-strong dark:text-white rounded-none outline-none 
             transition-all duration-200 placeholder:text-slate-400
             focus:ring-2 focus:ring-brand/20 focus:border-brand focus:bg-white dark:focus:bg-night-800
             ${icon ? 'pl-10' : 'pl-4'} 

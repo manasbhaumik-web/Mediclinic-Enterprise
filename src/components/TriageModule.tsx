@@ -63,7 +63,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn relative font-sans text-slate-800">
+    <div className="space-y-6 animate-fadeIn relative font-sans text-strong">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center justify-center gap-3 z-50 animate-slideUp border border-teal-400">
@@ -91,7 +91,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
               {triageQueue.length === 0 ? (
                 <div className="text-center py-10 text-slate-400">
                   <Activity className="w-10 h-10 mx-auto text-accent opacity-40 mb-2" />
-                  <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Triage Queue Empty</p>
+                  <p className="text-sm font-bold text-muted dark:text-slate-400">Triage Queue Empty</p>
                 </div>
               ) : (
                 triageQueue.map(visit => {
@@ -116,7 +116,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                           <Clock className="w-3 h-3" /> {waitMins}m
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500 font-mono">IC: {maskICNumber(pt?.icNumber, true)}</div>
+                      <div className="text-xs text-subtle font-mono">IC: {maskICNumber(pt?.icNumber, true)}</div>
                     </button>
                   );
                 })
@@ -132,7 +132,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
               <CardHeader className="bg-surface-muted dark:bg-night-850 flex items-center justify-between py-5 border-b border-line-subtle dark:border-teal-800/40">
                 <div>
                   <h2 className="type-heading-caps text-ink dark:text-white">{activePatient.fullName}</h2>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 font-mono mt-0.5">Age: {new Date().getFullYear() - new Date(activePatient.dob).getFullYear()} • IC: {activePatient.icNumber}</p>
+                  <p className="text-xs text-muted dark:text-slate-300 font-mono mt-0.5">Age: {new Date().getFullYear() - new Date(activePatient.dob).getFullYear()} • IC: {activePatient.icNumber}</p>
                 </div>
                 <div className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-400 border border-line dark:border-teal-800/40 text-xs font-mono font-bold px-3 py-1 rounded-none flex items-center justify-center gap-1.5 uppercase">
                   <Activity className="w-3.5 h-3.5 text-accent" /> Triaging Active
@@ -186,7 +186,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                     </h4>
                     <textarea
                       required rows={4}
-                      className="w-full bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 rounded-none px-4 py-3 text-xs transition-all focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-white dark:focus:bg-night-800 outline-none resize-none text-slate-900 dark:text-white"
+                      className="w-full bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 rounded-none px-4 py-3 text-xs transition-all focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-white dark:focus:bg-night-800 outline-none resize-none text-strong dark:text-white"
                       value={vitalsForm.chiefComplaint} onChange={e => setVitalsForm({...vitalsForm, chiefComplaint: e.target.value})}
                       placeholder="Patient's primary complaint..."
                     />

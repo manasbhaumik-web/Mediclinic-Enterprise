@@ -16,7 +16,7 @@ export default function EInvoicePage() {
   useEffect(() => { if (conn) setTab((t) => (t === 'setup' && conn.enabled ? 'invoices' : t)); }, [conn?.id, conn?.enabled]);
 
   const tabClass = (t: Tab) =>
-    `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-slate-500 hover:text-ink'}`;
+    `px-4 py-2 text-xs font-bold border-b-2 cursor-pointer transition-colors ${tab === t ? 'border-primary text-accent' : 'border-transparent text-subtle hover:text-ink'}`;
 
   return (
     <div className="animate-fadeIn w-full space-y-5 pb-8">
@@ -27,12 +27,12 @@ export default function EInvoicePage() {
             e-Invoice (LHDN MyInvois)
           </h1>
           {conn && (
-            <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${conn.enabled ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-slate-100 text-slate-600 border-slate-300'}`}>
+            <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${conn.enabled ? 'chip-ok' : 'bg-slate-100 text-muted border-slate-300'}`}>
               {conn.enabled ? `ON · ${conn.mode}` : 'OFF'}
             </span>
           )}
         </div>
-        <p className="text-xs text-slate-600 font-medium max-w-3xl leading-relaxed">
+        <p className="text-xs text-muted font-medium max-w-3xl leading-relaxed">
           Turn settled payments into e-invoices and submit them to LHDN. Only administrators can see or change this. Nothing is sent until you switch it on and submit.
         </p>
       </div>

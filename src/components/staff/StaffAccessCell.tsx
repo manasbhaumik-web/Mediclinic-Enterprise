@@ -21,14 +21,14 @@ interface StaffAccessCellProps extends AccessActions {
 }
 
 const toneClass = {
-  ok: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-  info: 'bg-sky-100 text-sky-800 border-sky-300',
-  warn: 'bg-amber-100 text-amber-800 border-amber-300',
-  idle: 'bg-slate-100 text-slate-600 border-slate-300',
+  ok: 'chip-ok',
+  info: 'chip-info',
+  warn: 'chip-warn',
+  idle: 'bg-slate-100 text-muted border-slate-300',
 };
 
 const smallBtn =
-  'px-2 py-1 text-2xs font-bold border border-line-subtle bg-surface hover:bg-surface-muted text-slate-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
+  'px-2 py-1 text-2xs font-bold border border-line-subtle bg-surface hover:bg-surface-muted text-muted cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
 
 /** Access column of the staff directory: shows login state and the actions the signed-in user may take. */
 export default function StaffAccessCell(p: StaffAccessCellProps) {
@@ -46,7 +46,7 @@ export default function StaffAccessCell(p: StaffAccessCellProps) {
       </div>
 
       {!allowed ? (
-        <p className="text-2xs text-slate-500">Managed by an administrator</p>
+        <p className="text-2xs text-subtle">Managed by an administrator</p>
       ) : !p.hasLogin ? (
         <div className="flex items-center gap-1">
           <select aria-label="Access role to grant" className="text-2xs border border-line-subtle bg-surface px-1.5 py-1" value={pick} onChange={(e) => setPick(e.target.value as SystemRole | '')}>

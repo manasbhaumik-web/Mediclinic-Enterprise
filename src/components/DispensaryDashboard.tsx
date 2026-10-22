@@ -158,7 +158,7 @@ export default function DispensaryDashboard({
             <Pill className="w-5 h-5 text-accent" />
             <span>{getGreeting()}, {pharmacistName}</span>
           </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
+          <p className="text-xs text-muted dark:text-slate-400 mt-1 font-medium">
             Pending prescriptions are awaiting dispensation. Verify patient details, labels, and dosage safety.
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function DispensaryDashboard({
         {queue.length === 0 ? (
           <div className="bg-white rounded-none border border-slate-200/60 p-8 text-center text-slate-400">
             <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-2 animate-pulse opacity-80" />
-            <p className="text-sm font-semibold text-slate-600">Dispensation Queue Empty</p>
+            <p className="text-sm font-semibold text-muted">Dispensation Queue Empty</p>
             <p className="text-xs text-slate-400 mt-0.5">Approved medications from SOAP rooms flow here automatically.</p>
           </div>
         ) : (
@@ -201,19 +201,19 @@ export default function DispensaryDashboard({
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="bg-slate-100 text-slate-600 font-mono px-1.5 py-0.5 rounded font-bold">
+                    <span className="bg-slate-100 text-muted font-mono px-1.5 py-0.5 rounded-none font-bold">
                       RX-QUEUE #{index + 101}
                     </span>
                     <span className="text-slate-400 font-mono">{visit.date}</span>
                   </div>
 
-                  <h5 className="type-heading-caps text-slate-800 mt-1.5 truncate">
+                  <h5 className="type-heading-caps text-strong mt-1.5 truncate">
                     {pt.fullName}
                   </h5>
 
                   <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100 text-xs">
-                    <span className="text-slate-500 font-mono">
-                      Rx Meds: <strong className="text-slate-700">{visit.soap?.plan?.prescription?.length || 0} ITEMS</strong>
+                    <span className="text-subtle font-mono">
+                      Rx Meds: <strong className="text-muted">{visit.soap?.plan?.prescription?.length || 0} ITEMS</strong>
                     </span>
                     <span className="text-emerald-700 font-medium">Awaiting Dispense</span>
                   </div>
@@ -233,15 +233,15 @@ export default function DispensaryDashboard({
             {/* Header info bar */}
             <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
               <div>
-                <h4 id="dispenser-patient-banner" className="type-heading-caps text-slate-800">
+                <h4 id="dispenser-patient-banner" className="type-heading-caps text-strong">
                   {activePatient.fullName}
                 </h4>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  MyKad IC: <strong className="font-mono text-slate-500">{activePatient.icNumber}</strong> | Gender: {activePatient.gender}
+                  MyKad IC: <strong className="font-mono text-subtle">{activePatient.icNumber}</strong> | Gender: {activePatient.gender}
                 </p>
               </div>
               <div className="text-right">
-                <span className="bg-primary/10 text-accent px-2.5 py-0.5 rounded text-2xs uppercase font-bold tracking-wider">
+                <span className="bg-primary/10 text-accent px-2.5 py-0.5 rounded-none text-2xs uppercase font-bold tracking-wider">
                   Pharmacopoeia Audit
                 </span>
                 <span className="text-xs text-slate-400 block mt-0.5">Doctor Case: {activeVisit.soap?.assessment?.icdCode}</span>
@@ -269,7 +269,7 @@ export default function DispensaryDashboard({
 
               <div id="prescription-itemized-stack" className="space-y-3">
                 {activeVisit.soap?.plan?.prescription?.length === 0 ? (
-                  <div className="p-4 bg-slate-50 text-slate-500 text-xs italic text-center rounded-none border">
+                  <div className="p-4 bg-slate-50 text-subtle text-xs italic text-center rounded-none border">
                     No drugs compiled associated with this consultation visit.
                   </div>
                 ) : (
@@ -295,14 +295,14 @@ export default function DispensaryDashboard({
                         {/* Drug Name with dual BM/EN dosage translations */}
                         <div className="flex-1 space-y-1.5">
                           <div className="flex items-center gap-2">
-                            <h6 className="font-bold text-sm text-slate-800 tracking-tight">{rx.drugName}</h6>
-                            <span className="bg-slate-200 text-slate-700 text-xs font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                            <h6 className="font-bold text-sm text-strong tracking-tight">{rx.drugName}</h6>
+                            <span className="bg-slate-200 text-muted text-xs font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider">
                               Qty: {rx.quantity}
                             </span>
                           </div>
 
                           <div className="text-xs leading-relaxed border-l-2 border-slate-200 pl-2">
-                            <p className="text-slate-600 font-mono">
+                            <p className="text-muted font-mono">
                               <strong>EN:</strong> {rx.dosage}
                             </p>
                             <p className="text-emerald-800 italic font-mono mt-0.5">
@@ -312,11 +312,11 @@ export default function DispensaryDashboard({
                           
                           <div className="pt-1 space-y-1.5">
                             {rx.dispensedAt ? (
-                              <span className="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase border border-emerald-200">
+                              <span className="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded-none text-2xs font-semibold uppercase border border-emerald-200">
                                 Dispensed ({rx.dispensedQuantity ?? rx.quantity})
                               </span>
                             ) : rx.skipped ? (
-                              <span className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase border border-slate-300">
+                              <span className="bg-slate-100 text-muted px-1.5 py-0.5 rounded-none text-2xs font-semibold uppercase border border-slate-300">
                                 Skipped{rx.skipReason ? `: ${rx.skipReason}` : ''}
                               </span>
                             ) : (
@@ -335,7 +335,7 @@ export default function DispensaryDashboard({
                                 {item && !isSkipped && (() => {
                                   const plan = allocateFefo(item.batches ?? [], rx.quantity, today);
                                   return (
-                                    <div className={`text-2xs px-1.5 py-1 border ${plan.shortfall > 0 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-emerald-50 border-emerald-100 text-emerald-800'}`}>
+                                    <div className={`text-2xs px-1.5 py-1 border ${plan.shortfall > 0 ? 'chip-danger' : 'bg-emerald-50 border-emerald-100 text-emerald-800'}`}>
                                       {plan.shortfall > 0
                                         ? `Short by ${plan.shortfall}: ${usableStock(item, today)} in date.`
                                         : `From ${plan.allocations.map((a) => `batch ${a.batchNumber} (${a.quantity}, exp ${a.expiryDate ?? 'unknown'})`).join(' + ')}`}
@@ -343,7 +343,7 @@ export default function DispensaryDashboard({
                                   );
                                 })()}
                                 {item?.registerRequired && !isSkipped && (
-                                  <span className="bg-violet-100 text-violet-800 border border-violet-300 px-1.5 py-0.5 rounded text-2xs font-semibold uppercase">
+                                  <span className="bg-teal-100 text-teal-800 border border-teal-300 px-1.5 py-0.5 rounded-none text-2xs font-semibold uppercase">
                                     Controlled: needs a second signature
                                   </span>
                                 )}
@@ -359,7 +359,7 @@ export default function DispensaryDashboard({
                             type="button"
                             onClick={() => handlePrintLabelClick(rx)}
                             disabled={isSkipped}
-                            className="bg-white hover:bg-slate-50 border border-slate-200 text-accent disabled:opacity-50 text-xs px-3 py-1.5 rounded-none font-semibold flex items-center justify-center gap-1.5 transition-colors w-full shadow-sm"
+                            className="bg-white hover:bg-slate-50 border border-slate-200 text-accent disabled:opacity-50 text-xs px-3 py-1.5 rounded-none font-semibold flex items-center justify-center gap-1.5 transition-colors w-full shadow-xs"
                           >
                             <Printer className="w-3.5 h-3.5" />
                             {t.printLabel}
@@ -374,10 +374,10 @@ export default function DispensaryDashboard({
                               else newSet.add(rx.id);
                               setSkippedDrugs(newSet);
                             }}
-                            className={`px-3 py-1.5 rounded-none text-xs font-bold w-full transition-colors border shadow-sm ${
+                            className={`px-3 py-1.5 rounded-none text-xs font-bold w-full transition-colors border shadow-xs ${
                               isSkipped 
                                 ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' 
-                                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                                : 'bg-white text-subtle border-slate-200 hover:bg-slate-50'
                             }`}
                           >
                             {isSkipped ? 'RESTORE (OOS)' : 'SKIP (OOS)'}
@@ -413,22 +413,22 @@ export default function DispensaryDashboard({
             </div>
 
             {/* Pharmacist Safety validation inputs checklist */}
-            <div className="bg-emerald-50/50 p-3.5 rounded-none border border-cyan-600/10 space-y-2">
+            <div className="bg-emerald-50/50 p-3.5 rounded-none border border-teal-600/10 space-y-2">
               <span className="text-2xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1 mb-1">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 Dual-Verification Clinical Pharmacy Checks
               </span>
 
-              <div id="pharmacy-safety-checker" className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs text-slate-700">
+              <div id="pharmacy-safety-checker" className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs text-muted">
                 <label className="flex items-start gap-2 bg-white p-2.5 rounded-none border border-slate-100 cursor-pointer shadow-2xs">
                   <input
                     type="checkbox"
-                    className="mt-0.5 rounded-none border-slate-300 text-cyan-600 focus:ring-cyan-500 focus:ring-1"
+                    className="mt-0.5 rounded-none border-slate-300 text-teal-600 focus:ring-teal-500 focus:ring-1"
                     checked={checklist.patientVerified}
                     onChange={(e) => setChecklist({ ...checklist, patientVerified: e.target.checked })}
                   />
                   <div>
-                    <strong className="block text-2xs font-bold text-slate-800">Identify Patient ID</strong>
+                    <strong className="block text-2xs font-bold text-strong">Identify Patient ID</strong>
                     <span className="text-2xs text-slate-400">Match IC and Profile details</span>
                   </div>
                 </label>
@@ -436,12 +436,12 @@ export default function DispensaryDashboard({
                 <label className="flex items-start gap-2 bg-white p-2.5 rounded-none border border-slate-100 cursor-pointer shadow-2xs">
                   <input
                     type="checkbox"
-                    className="mt-0.5 rounded-none border-slate-300 text-cyan-600 focus:ring-cyan-500 focus:ring-1"
+                    className="mt-0.5 rounded-none border-slate-300 text-teal-600 focus:ring-teal-500 focus:ring-1"
                     checked={checklist.allergyCleared}
                     onChange={(e) => setChecklist({ ...checklist, allergyCleared: e.target.checked })}
                   />
                   <div>
-                    <strong className="block text-2xs font-bold text-slate-800">Check Allergen</strong>
+                    <strong className="block text-2xs font-bold text-strong">Check Allergen</strong>
                     <span className="text-2xs text-slate-400">Ensure absolutely zero drug conflicts</span>
                   </div>
                 </label>
@@ -449,12 +449,12 @@ export default function DispensaryDashboard({
                 <label className="flex items-start gap-2 bg-white p-2.5 rounded-none border border-slate-100 cursor-pointer shadow-2xs">
                   <input
                     type="checkbox"
-                    className="mt-0.5 rounded-none border-slate-300 text-cyan-600 focus:ring-cyan-500 focus:ring-1"
+                    className="mt-0.5 rounded-none border-slate-300 text-teal-600 focus:ring-teal-500 focus:ring-1"
                     checked={checklist.dosageExplained}
                     onChange={(e) => setChecklist({ ...checklist, dosageExplained: e.target.checked })}
                   />
                   <div>
-                    <strong className="block text-2xs font-bold text-slate-800">Dosage Advice EN/BM</strong>
+                    <strong className="block text-2xs font-bold text-strong">Dosage Advice EN/BM</strong>
                     <span className="text-2xs text-slate-400">Instructions explained in patient language</span>
                   </div>
                 </label>
@@ -467,7 +467,7 @@ export default function DispensaryDashboard({
             )}
 
             {allDecided && unsignedEntries.length > 0 && (
-              <div role="status" className="bg-violet-50 border border-violet-200 px-3 py-2 text-xs text-violet-900 space-y-1">
+              <div role="status" className="bg-teal-50 border border-teal-200 px-3 py-2 text-xs text-teal-900 space-y-1">
                 <div className="font-bold">Waiting for a second signature</div>
                 <p>
                   {unsignedEntries.length} controlled-drug entr{unsignedEntries.length === 1 ? 'y needs' : 'ies need'} a signature from a different pharmacist or administrator before this patient can be handed their medicine.
@@ -546,7 +546,7 @@ export default function DispensaryDashboard({
                 <div className="border-b-2 border-slate-300 pb-1.5 text-center flex items-center justify-between">
                   <div className="text-left font-bold">
                     <p className="text-xs font-bold">MEDICLINIC ENTERPRISE</p>
-                    <p className="text-2xs text-slate-600">No. 20 Jln Ampang, KL • Tel: 03-21664000</p>
+                    <p className="text-2xs text-muted">No. 20 Jln Ampang, KL • Tel: 03-21664000</p>
                   </div>
                   <div className="text-right text-2xs">
                     <p>Date: {new Date().toLocaleDateString('ms-MY')}</p>
@@ -564,20 +564,20 @@ export default function DispensaryDashboard({
 
                 {/* Drug usage directions */}
                 <div className="py-3">
-                  <p className="font-bold text-xs text-indigo-950 uppercase border border-slate-300 px-1.5 py-0.5 rounded-none w-fit mb-2 bg-primary/10">
+                  <p className="font-bold text-xs text-teal-950 uppercase border border-slate-300 px-1.5 py-0.5 rounded-none w-fit mb-2 bg-primary/10">
                     {selectedLabelRx.drugName} (Qty: {selectedLabelRx.quantity} CAPS)
                   </p>
                   
                   <div className="space-y-2">
                     <div className="flex gap-1.5 items-start">
-                      <span className="font-bold shrink-0 text-red-700 bg-red-100 rounded px-1 text-2xs uppercase">Directions</span>
+                      <span className="font-bold shrink-0 text-red-700 bg-red-100 rounded-none px-1 text-2xs uppercase">Directions</span>
                       <p className="font-bold text-xs leading-none text-red-800">{selectedLabelRx.frequency}</p>
                     </div>
                     
                     <p className="font-bold text-black border-l-2 border-slate-300 pl-1.5 my-1 text-2xs">
                       Take: {selectedLabelRx.dosage}
                     </p>
-                    <p className="text-slate-600 italic border-l-2 border-slate-300 pl-1.5 text-2xs">
+                    <p className="text-muted italic border-l-2 border-slate-300 pl-1.5 text-2xs">
                       Sila ambil: {selectedLabelRx.dosageBM}
                     </p>
                   </div>
@@ -587,7 +587,7 @@ export default function DispensaryDashboard({
                 <div className="border-t-2 border-slate-300 pt-2 flex items-center justify-between">
                   <div>
                     <p className="text-2xs font-bold text-red-600">KEEP OUT OF REACH OF CHILDREN / JAUHKAN DARIPADA KANAK-KANAK</p>
-                    <p className="text-2xs text-slate-500 mt-0.5">Dispensed under KKM Malaysia license regulations.</p>
+                    <p className="text-2xs text-subtle mt-0.5">Dispensed under KKM Malaysia license regulations.</p>
                   </div>
                   <div className="w-12 h-12 border border-slate-300 flex items-center justify-center p-0.5 shrink-0 ml-1.5">
                     <QrCode className="w-full h-full text-black stroke-1" />
@@ -609,7 +609,7 @@ export default function DispensaryDashboard({
                   setIsLabelModalOpen(false);
                   setSelectedLabelRx(null);
                 }}
-                className="px-4 py-1.5 border border-slate-200 text-slate-600 rounded-none text-xs hover:bg-slate-100 transition-colors cursor-pointer"
+                className="px-4 py-1.5 border border-slate-200 text-muted rounded-none text-xs hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Close Label Window
               </button>

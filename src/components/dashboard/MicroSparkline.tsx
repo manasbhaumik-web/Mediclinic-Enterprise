@@ -1,8 +1,10 @@
+import { useColorTheme } from '../../hooks/useColorTheme';
 import React from 'react';
 import { palette } from '../../theme/palette';
 
 // Inline Micro SVG Sparkline for 10/10 Metric Density (Sharp Line Styling)
 export default function MicroSparkline({ data, color = palette.brand }: { data: number[]; color?: string }) {
+  useColorTheme(); // re-render when the colour theme changes so palette colours refresh
   const max = Math.max(...data);
   const min = Math.min(...data);
   const points = data.map((val, idx) => {

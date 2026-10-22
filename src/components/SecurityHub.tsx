@@ -31,10 +31,10 @@ const PERMISSIONS: { id: ClinicalPermission; label: string }[] = [
 ];
 
 const TONE_STYLE: Record<AuditTone, string> = {
-  ok: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-  warn: 'bg-amber-50 text-amber-800 border-amber-200',
-  bad: 'bg-rose-50 text-rose-800 border-rose-200',
-  info: 'bg-slate-50 text-slate-700 border-line',
+  ok: 'chip-ok',
+  warn: 'chip-warn',
+  bad: 'chip-danger',
+  info: 'bg-slate-50 text-muted border-line',
 };
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -64,7 +64,7 @@ export default function SecurityHub() {
             <ShieldCheck className="w-6 h-6 text-accent" aria-hidden="true" />
             Security & Audit
           </h1>
-          <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
             Recent activity recorded across inventory, HR, payroll, equipment and integrations, and what each role is allowed to do.
           </p>
         </div>
@@ -117,7 +117,7 @@ export default function SecurityHub() {
           <h2 className="type-heading-caps mb-1 flex items-center gap-2 text-ink">
             <ScrollText className="w-5 h-5 text-accent" aria-hidden="true" /> Activity log
           </h2>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-subtle mb-4">
             Newest first. Shows up to {feed.perSourceLimit} recent events per source. Patient-visit and sign-in activity is not recorded here.
           </p>
 
@@ -137,20 +137,20 @@ export default function SecurityHub() {
           </div>
 
           {feed.isPending ? (
-            <p className="text-xs text-slate-500">Loading…</p>
+            <p className="text-xs text-subtle">Loading…</p>
           ) : visible.length === 0 ? (
-            <p className="flex items-center gap-2 text-xs text-slate-600"><CheckCircle2 className="w-4 h-4 text-slate-400" aria-hidden="true" />No activity recorded{source === 'all' ? '' : ` for ${SOURCE_LABEL[source]}`} yet.</p>
+            <p className="flex items-center gap-2 text-xs text-muted"><CheckCircle2 className="w-4 h-4 text-slate-400" aria-hidden="true" />No activity recorded{source === 'all' ? '' : ` for ${SOURCE_LABEL[source]}`} yet.</p>
           ) : (
             <ul className="space-y-2">
               {visible.map((e) => (
                 <li key={e.id} className="bg-surface border border-teal-100 p-3 text-xs flex flex-col sm:flex-row sm:items-start gap-x-4 gap-y-1">
-                  <time dateTime={e.at} className="font-mono text-slate-500 shrink-0 sm:w-28">{formatWhen(e.at)}</time>
+                  <time dateTime={e.at} className="font-mono text-subtle shrink-0 sm:w-28">{formatWhen(e.at)}</time>
                   <span className={`shrink-0 self-start px-2 py-0.5 border text-2xs font-bold uppercase tracking-wider ${TONE_STYLE[e.tone]}`}>{SOURCE_LABEL[e.source]}</span>
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-ink">{e.action}</p>
-                    {e.detail && <p className="text-slate-600 break-words">{e.detail}</p>}
+                    {e.detail && <p className="text-muted break-words">{e.detail}</p>}
                   </div>
-                  <span className="text-slate-500 shrink-0 sm:text-right">{e.actorName ?? (e.actor ? 'Unknown user' : 'System')}</span>
+                  <span className="text-subtle shrink-0 sm:text-right">{e.actorName ?? (e.actor ? 'Unknown user' : 'System')}</span>
                 </li>
               ))}
             </ul>
@@ -171,7 +171,7 @@ export default function SecurityHub() {
           <h2 className="type-heading-caps mb-1 flex items-center gap-2 text-ink">
             <Key className="w-5 h-5 text-accent" aria-hidden="true" /> Role permissions
           </h2>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-subtle mb-4">
             Read from the application's permission rules (<code>rbacPermissionEngine</code>). They are part of the code, so changing them takes a software update, not a setting.
           </p>
           <div className="overflow-x-auto">
@@ -210,9 +210,9 @@ export default function SecurityHub() {
 function Kpi({ label, value, note, tone = 'ok' }: { label: string; value: string; note: string; tone?: 'ok' | 'bad' }) {
   return (
     <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
-      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
+      <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
       <h3 className={`type-metric mt-2 ${tone === 'bad' ? 'text-rose-700' : 'text-ink'}`}>{value}</h3>
-      <p className="mt-2 text-xs text-slate-600">{note}</p>
+      <p className="mt-2 text-xs text-muted">{note}</p>
     </div>
   );
 }
