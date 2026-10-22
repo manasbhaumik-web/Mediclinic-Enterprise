@@ -165,7 +165,7 @@ export default function LandingDashboard({
     doctor: {
       label: 'Doctor dashboard',
       subtitle: 'Your consultation queue, patient flow and diagnosis trends.',
-      modules: ['queue', 'consultation', 'moh'],
+      modules: ['queue', 'consultation', 'report'],
       kpis: ['waiting', 'encounters', 'efficiency'],
       panels: ['worklist', 'throughput', 'icd', 'facility'],
     },
@@ -224,6 +224,9 @@ export default function LandingDashboard({
   const showKpi = (id: KpiId) => roleConfig.kpis.includes(id);
   const showPanel = (id: PanelId) => roleConfig.panels.includes(id);
 
+  const WAITING_BADGE = 'bg-amber-100 text-amber-800 border-amber-300';
+  const NEUTRAL_BADGE = 'bg-slate-100 text-slate-600 border-slate-300';
+
   // Application Workspace Modules Config
   const workspaceModules = [
     {
@@ -233,7 +236,6 @@ export default function LandingDashboard({
       icon: Users,
       badge: `${patientsList.length} Registered`,
       badgeColor: 'bg-teal-100 text-teal-800 border-teal-300',
-      accentColor: 'border-l-brand',
       actionText: 'Launch Registration',
       tabKey: 'registration'
     },
@@ -243,8 +245,7 @@ export default function LandingDashboard({
       subtitle: 'SOAP EHR Notes, ICD-10 Coding & Public PA Call System',
       icon: Stethoscope,
       badge: `${doctorQueue.length} Waiting`,
-      badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-      accentColor: 'border-l-accent',
+      badgeColor: doctorQueue.length > 0 ? WAITING_BADGE : NEUTRAL_BADGE,
       actionText: 'Enter Doctor Suite',
       tabKey: 'consultation'
     },
@@ -255,7 +256,6 @@ export default function LandingDashboard({
       icon: Pill,
       badge: `${pharmacyQueue.length} Pending Orders`,
       badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
-      accentColor: 'border-l-purple-600',
       actionText: 'Open Dispensary',
       tabKey: 'dispensary'
     },
@@ -266,19 +266,17 @@ export default function LandingDashboard({
       icon: CreditCard,
       badge: `${cashierQueue.length} Unpaid Visits`,
       badgeColor: 'bg-sky-100 text-sky-800 border-sky-300',
-      accentColor: 'border-l-sky-600',
       actionText: 'Launch Cashier Desk',
       tabKey: 'billing'
     },
     {
-      id: 'moh',
-      title: 'Ministry reporting and analytics',
-      subtitle: 'KKM Surveillance, Disease Registry & Compliance SLA',
+      id: 'report',
+      title: 'My Monthly Report',
+      subtitle: 'Your signed-off consultations, billing and diagnoses for the month',
       icon: BarChart3,
-      badge: 'KKM Sync Active',
-      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      accentColor: 'border-l-emerald-600',
-      actionText: 'View MOH Reports',
+      badge: 'This month',
+      badgeColor: NEUTRAL_BADGE,
+      actionText: 'Open Monthly Report',
       tabKey: 'reports'
     },
     {
@@ -287,8 +285,7 @@ export default function LandingDashboard({
       subtitle: 'Patients waiting for consultation, ordered by triage priority',
       icon: Users,
       badge: `${doctorQueue.length} Waiting`,
-      badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-      accentColor: 'border-l-brand',
+      badgeColor: doctorQueue.length > 0 ? WAITING_BADGE : NEUTRAL_BADGE,
       actionText: 'Open Queue',
       tabKey: 'queue'
     },
@@ -299,7 +296,6 @@ export default function LandingDashboard({
       icon: Activity,
       badge: `${triageQueue.length} In Triage`,
       badgeColor: 'bg-teal-100 text-teal-800 border-teal-300',
-      accentColor: 'border-l-brand',
       actionText: 'Open Triage',
       tabKey: 'triage'
     },
@@ -310,7 +306,6 @@ export default function LandingDashboard({
       icon: Calendar,
       badge: 'Schedule',
       badgeColor: 'bg-sky-100 text-sky-800 border-sky-300',
-      accentColor: 'border-l-sky-600',
       actionText: 'Open Appointments',
       tabKey: 'appointments'
     },
@@ -321,7 +316,6 @@ export default function LandingDashboard({
       icon: ShieldCheck,
       badge: 'Admin',
       badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
-      accentColor: 'border-l-purple-600',
       actionText: 'Open Console',
       tabKey: 'admin'
     },
@@ -481,7 +475,6 @@ export default function LandingDashboard({
             <LayoutDashboard className="w-4 h-4 text-accent" />
             Choose a workspace
           </h3>
-          <span className="text-xs text-slate-600 font-mono">Select a workspace</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">

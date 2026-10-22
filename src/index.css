@@ -118,13 +118,16 @@ strong {
   font-weight: 700;
 }
 
-/* Base button alignment safeguard: ensure all buttons align text and flex items centered */
-button {
-  text-align: center;
-}
-button.flex:not(.justify-start):not(.justify-end):not(.justify-between):not(.text-left),
-button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):not(.text-left) {
-  justify-content: center;
+/* Base button alignment: centre text and flex items by default. This lives in the base layer so a utility
+   class on the button (text-left, justify-between...) wins; unlayered CSS would override every utility. */
+@layer base {
+  button {
+    text-align: center;
+  }
+  button.flex:not(.justify-start):not(.justify-end):not(.justify-between):not(.text-left),
+  button.inline-flex:not(.justify-start):not(.justify-end):not(.justify-between):not(.text-left) {
+    justify-content: center;
+  }
 }
 
 /* ========================================================================= */
