@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Lock, ShieldCheck, ArrowLeft, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CreditCard, Lock, ShieldCheck, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { supabase } from '../lib/supabase';
@@ -11,7 +11,8 @@ const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 interface StripeCheckoutProps {
   amount: number;
-  onSuccess: () => void;
+  /** Called with the payment reference once the charge has gone through (the Stripe payment intent id). */
+  onSuccess: (reference: string) => void;
   onCancel: () => void;
   invoiceId: string;
 }
@@ -24,7 +25,6 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,27 +50,11 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
       setError(confirmError.message || 'Payment failed.');
       setIsProcessing(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      setIsSuccess(true);
-      setTimeout(() => {
-        onSuccess();
-      }, 2000);
+      onSuccess(paymentIntent.id);
     } else {
       setIsProcessing(false);
     }
   };
-
-  if (isSuccess) {
-    return (
-      <div className="bg-white p-8 rounded-none border border-slate-200 shadow-xl max-w-md w-full mx-auto text-center animate-scaleUp">
-        <div className="w-16 h-16 bg-emerald-100 rounded-none flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-        </div>
-        <h3 className="type-section-title text-slate-800">Payment Successful</h3>
-        <p className="text-slate-500 mt-2 text-sm">Your payment of <strong>RM{amount.toFixed(2)}</strong> has been processed securely.</p>
-        <p className="text-xs text-slate-400 mt-4">Redirecting you back to your portal...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-none shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn">
@@ -140,12 +124,11 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
 }
 
 // ----------------------------------------------------------------------
-// 2. MOCK FALLBACK FORM (Used when Stripe keys are missing)
+// 2. MOCK FORM (development builds only, when Stripe is not configured)
 // ----------------------------------------------------------------------
 function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeCheckoutProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  
+
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
@@ -160,30 +143,14 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
     // Simulate network delay
     setTimeout(() => {
       setIsProcessing(false);
-      setIsSuccess(true);
-      setTimeout(() => {
-        onSuccess();
-      }, 2000);
+      onSuccess(`MOCK-${Date.now()}`);
     }, 1500);
   };
-
-  if (isSuccess) {
-    return (
-      <div className="bg-white p-8 rounded-none border border-slate-200 shadow-xl max-w-md w-full mx-auto text-center animate-scaleUp">
-        <div className="w-16 h-16 bg-emerald-100 rounded-none flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-        </div>
-        <h3 className="type-section-title text-slate-800">Payment Successful</h3>
-        <p className="text-slate-500 mt-2 text-sm">Your payment of <strong>RM{amount.toFixed(2)}</strong> has been processed securely.</p>
-        <p className="text-xs text-slate-400 mt-4">Redirecting you back to your portal...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-none shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn relative">
       <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-2xs font-bold text-center py-0.5 z-10 uppercase tracking-wider">
-        Development Mock Mode
+        Development only: no real payment
       </div>
       
       {/* Stripe Header */}
@@ -297,6 +264,17 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
   );
 }
 
+function CardUnavailable({ message, onCancel }: { message: string; onCancel: () => void }) {
+  return (
+    <div role="alert" className="bg-white rounded-none shadow-xl max-w-md w-full mx-auto p-8 text-center border border-slate-200 space-y-3">
+      <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" aria-hidden="true" />
+      <h3 className="type-section-title text-slate-800">Card payment unavailable</h3>
+      <p className="text-sm text-slate-600">{message} Take another payment method, or ask an administrator to check the card payment setup.</p>
+      <button type="button" onClick={onCancel} className="mt-2 px-4 py-2 border border-slate-300 text-slate-700 text-xs font-bold rounded-none hover:bg-slate-50 cursor-pointer">Back</button>
+    </div>
+  );
+}
+
 // ----------------------------------------------------------------------
 // 3. MAIN COMPONENT (Handles Client Secret generation & Provider Wrapper)
 // ----------------------------------------------------------------------
@@ -322,7 +300,7 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
           }
         } catch (err: any) {
           console.error("Stripe Initialization Error:", err);
-          setInitError("Failed to initialize payment gateway. Falling back to mock.");
+          setInitError("Could not start the card payment gateway.");
         }
       };
       
@@ -330,10 +308,11 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
     }
   }, [props.amount]);
 
-  // If no publishable key is set, OR if the Edge Function failed (e.g. backend not deployed), 
-  // gracefully fall back to the Mock Simulator so the app doesn't break for the user.
+  // Without a publishable key, or if the payment function failed, development builds get a simulator.
+  // Production never simulates a card payment: it says card payments are unavailable.
   if (!stripePromise || initError) {
-    return <MockFallbackForm {...props} />;
+    if (import.meta.env.DEV) return <MockFallbackForm {...props} />;
+    return <CardUnavailable message={initError ?? 'Card payments are not set up on this system.'} onCancel={props.onCancel} />;
   }
 
   // We are using real Stripe, but waiting for the Edge function to return clientSecret

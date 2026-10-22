@@ -1,48 +1,79 @@
-import React, { useState } from 'react';
-import { 
-  CreditCard, DollarSign, Search, FileText, CheckCircle, Clock, 
-  ShieldCheck, FileSpreadsheet, Plus, UploadCloud, RefreshCw, 
-  Activity, CheckCircle2, AlertCircle 
+import React, { useMemo, useState } from 'react';
+import {
+  CreditCard, DollarSign, Search, FileText, CheckCircle, Clock,
+  ShieldCheck, Plus, Activity, CheckCircle2, AlertCircle, RefreshCw, Loader2
 } from 'lucide-react';
-import { useFinancials } from '../context/FinancialContext';
+import { useFinancials, Transaction } from '../context/FinancialContext';
 import { useSettings } from '../context/SettingsContext';
+import { useBillingActions } from '../hooks/useBilling';
+import { localDateKey } from '../domain/operations';
+
+const rm = (n: number) => `RM ${n.toFixed(2)}`;
 
 export default function BillingManagementModule() {
-  const { transactions, markClaimAsPaid } = useFinancials();
+  const { transactions } = useFinancials();
+  const { markClaimPaid } = useBillingActions();
   const { settings } = useSettings();
-  
-  const [activeTab, setActiveTab] = useState<'ledger' | 'claims' | 'reconciliation'>('ledger');
+
+  const [activeTab, setActiveTab] = useState<'ledger' | 'claims'>('ledger');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Auto-Reconciliation State
-  const [isUploading, setIsUploading] = useState(false);
-  const [isReconciling, setIsReconciling] = useState(false);
-  const [reconciliationComplete, setReconciliationComplete] = useState(false);
-  const [reconciledCount, setReconciledCount] = useState(0);
+  // Recording a panel's payment
+  const [settling, setSettling] = useState<Transaction | null>(null);
+  const [claimRef, setClaimRef] = useState('');
+  const [receivedOn, setReceivedOn] = useState('');
+  const [claimSaving, setClaimSaving] = useState(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
 
-  // Calculate Metrics
-  const totalRevenue = transactions
+  const today = localDateKey(new Date());
+  const monthKey = today.slice(0, 7);
+
+  // This month's takings. A claim still waiting for the panel counts once it is paid.
+  const monthTransactions = useMemo(
+    () => transactions.filter((t) => localDateKey(new Date(t.date)).slice(0, 7) === monthKey),
+    [transactions, monthKey],
+  );
+  const totalRevenue = monthTransactions
     .filter(t => t.status === 'Completed' || t.status === 'Claim Paid')
     .reduce((sum, t) => sum + t.paidAmount + t.panelClaimed, 0);
 
-  const pendingClaims = transactions
-    .filter(t => t.status === 'Pending Claim')
-    .reduce((sum, t) => sum + t.panelClaimed, 0);
+  const pendingClaimTrx = transactions.filter(t => t.status === 'Pending Claim');
+  const pendingClaims = pendingClaimTrx.reduce((sum, t) => sum + t.panelClaimed, 0);
 
   const TAX_RATE = settings.billing.taxRate / 100;
-  const taxLiability = totalRevenue - (totalRevenue / (1 + TAX_RATE));
+  // An estimate: assumes everything this month was billed with SST included at the current rate.
+  const taxIncluded = totalRevenue - (totalRevenue / (1 + TAX_RATE));
+
+  const openSettle = (trx: Transaction) => {
+    setSettling(trx);
+    setClaimRef('');
+    setReceivedOn(today);
+    setClaimError(null);
+  };
+  const saveSettle = async () => {
+    if (!settling) return;
+    setClaimSaving(true);
+    setClaimError(null);
+    const error = await markClaimPaid(settling.id, claimRef, receivedOn);
+    setClaimSaving(false);
+    if (error) { setClaimError(error); return; }
+    setSettling(null);
+  };
 
   // Filtered lists
   const filteredLedger = transactions.filter(t => 
     t.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
     t.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.visitId.toLowerCase().includes(searchQuery.toLowerCase())
+    t.visitId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.paymentReference ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const claimsList = transactions.filter(t => t.paymentMethod === 'Panel');
+  // Every transaction with an amount owed by a panel, whichever way the patient paid their share.
+  const claimsList = transactions.filter(t => t.panelClaimed > 0);
   const filteredClaims = claimsList.filter(t => 
     t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (t.glNumber && t.glNumber.toLowerCase().includes(searchQuery.toLowerCase()))
+    (t.glNumber && t.glNumber.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (t.claimReference && t.claimReference.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -55,9 +86,8 @@ export default function BillingManagementModule() {
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
               Financial Revenue &amp; Claims
             </span>
-            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              SST {settings.billing.taxRate}% Active
+            <span className="text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+              SST {settings.billing.taxRate}%
             </span>
           </div>
           <h1 className="type-page-title text-ink flex items-center gap-2.5">
@@ -65,43 +95,35 @@ export default function BillingManagementModule() {
             Billing &amp; TPA Claims Management
           </h1>
           <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
-            Oversee clinic revenue, TPA panel claims, payment reconciliation, and automated receipt generation.
+            Review payments taken at the cashier desk and record when each panel pays its claims.
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <button 
-            type="button"
-            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
-            <span>Export Financials</span>
-          </button>
-        </div>
       </div>
 
       {/* 2. TOP METRICS SUMMARY ROW */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">MTD Clinic Revenue</span>
-          <span className="text-xl font-bold font-mono text-ink block mt-0.5">RM {totalRevenue.toFixed(2)}</span>
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Revenue this month</span>
+          <span className="text-xl font-bold font-mono text-ink block mt-0.5">{rm(totalRevenue)}</span>
         </div>
 
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Pending TPA Claims</span>
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Panel claims awaiting payment</span>
           <span className={`text-xl font-bold font-mono block mt-0.5 ${pendingClaims > 0 ? 'text-amber-600' : 'text-slate-600'}`}>
-            RM {pendingClaims.toFixed(2)}
+            {rm(pendingClaims)}
           </span>
+          <span className="text-2xs text-slate-500">{pendingClaimTrx.length} claim{pendingClaimTrx.length === 1 ? '' : 's'}</span>
         </div>
 
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Tax Liability (SST {settings.billing.taxRate}%)</span>
-          <span className="text-xl font-bold font-mono text-accent block mt-0.5">RM {taxLiability.toFixed(2)}</span>
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">SST included (estimate)</span>
+          <span className="text-xl font-bold font-mono text-accent block mt-0.5">{rm(taxIncluded)}</span>
         </div>
 
         <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Reconciliation Status</span>
-          <span className="text-xl font-bold font-mono text-emerald-700 block mt-0.5">Fully Synced</span>
+          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Transactions this month</span>
+          <span className="text-xl font-bold font-mono text-ink block mt-0.5">{monthTransactions.length}</span>
         </div>
       </div>
 
@@ -130,26 +152,14 @@ export default function BillingManagementModule() {
           }`}
         >
           <CreditCard className="w-4 h-4" />
-          <span>TPA Panel Claims ({claimsList.length})</span>
-          {pendingClaims > 0 && (
+          <span>Panel claims ({claimsList.length})</span>
+          {pendingClaimTrx.length > 0 && (
             <span className="bg-amber-100 text-amber-800 border border-amber-300 text-2xs font-bold px-1.5 py-0.5 rounded-none ml-1">
-              {transactions.filter(t => t.status === 'Pending Claim').length} Pending
+              {pendingClaimTrx.length} Pending
             </span>
           )}
         </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('reconciliation')}
-          className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
-            activeTab === 'reconciliation' 
-              ? 'bg-chrome text-white font-bold' 
-              : 'bg-transparent text-ink hover:bg-surface-strong font-bold'
-          }`}
-        >
-          <RefreshCw className="w-4 h-4" />
-          <span>Auto-Reconciliation</span>
-        </button>
       </div>
 
       {/* 4. LEDGER TAB VIEW */}
@@ -327,7 +337,7 @@ export default function BillingManagementModule() {
         </div>
       )}
 
-      {/* 5. TPA CLAIMS TAB VIEW */}
+      {/* 5. PANEL CLAIMS TAB VIEW */}
       {activeTab === 'claims' && (
         <div className="bg-surface border border-line-subtle rounded-none shadow-2xs overflow-hidden animate-fadeIn">
           <table className="w-full text-left text-xs whitespace-nowrap">
@@ -373,15 +383,20 @@ export default function BillingManagementModule() {
                     {claim.status === 'Pending Claim' ? (
                       <button 
                         type="button"
-                        onClick={() => markClaimAsPaid(claim.id)}
+                        onClick={() => openSettle(claim)}
                         className="bg-primary hover:bg-primary-hover text-white px-3 py-1.5 rounded-none text-2xs font-bold uppercase transition-colors flex items-center justify-center gap-1 mx-auto cursor-pointer shadow-2xs"
                       >
                         <CheckCircle className="w-3 h-3" />
-                        <span>Mark as Paid</span>
+                        <span>Record payment</span>
                       </button>
                     ) : (
-                      <span className="text-emerald-700 text-xs font-bold flex items-center justify-center gap-1">
-                        <CheckCircle className="w-3.5 h-3.5" /> Reconciled
+                      <span className="text-emerald-700 text-xs font-bold flex flex-col items-center gap-0.5">
+                        <span className="flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Paid</span>
+                        {(claim.claimReceivedOn || claim.claimReference) && (
+                          <span className="text-2xs text-slate-500 font-mono font-normal">
+                            {claim.claimReceivedOn ?? ''}{claim.claimReceivedOn && claim.claimReference ? ' · ' : ''}{claim.claimReference ?? ''}
+                          </span>
+                        )}
                       </span>
                     )}
                   </td>
@@ -392,77 +407,36 @@ export default function BillingManagementModule() {
         </div>
       )}
 
-      {/* 6. AUTO-RECONCILIATION TAB VIEW */}
-      {activeTab === 'reconciliation' && (
-        <div className="space-y-6 animate-fadeIn">
-          <div className="bg-surface-muted border border-line-subtle p-6 rounded-none shadow-2xs space-y-2">
-            <h3 className="type-card-title text-ink flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-accent" /> Automated TPA Statement Reconciliation
-            </h3>
-            <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
-              Upload AIA, PMCare, or MiCare monthly settlement statements here. Our system will automatically match the statement against your pending claims and update the clinic ledger in seconds.
-            </p>
+      {/* RECORD A PANEL PAYMENT */}
+      {settling && (
+        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !claimSaving) setSettling(null); }}>
+          <div role="dialog" aria-modal="true" aria-label="Record panel payment" className="bg-surface rounded-none shadow-2xl max-w-sm w-full border border-line p-6 space-y-4">
+            <h3 className="type-heading-caps text-ink">Record panel payment</h3>
+            <div className="text-xs space-y-1 font-mono">
+              <div className="flex justify-between"><span className="text-slate-500">Claim</span><span>{settling.id}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">GL reference</span><span>{settling.glNumber ?? 'N/A'}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Amount claimed</span><strong className="text-accent">{rm(settling.panelClaimed)}</strong></div>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">Record this only after the panel's payment has reached the clinic. Enter the reference from its remittance or statement.</p>
+            <div className="space-y-3 text-xs">
+              <div>
+                <label htmlFor="claim-ref" className="block text-2xs font-bold text-slate-500 uppercase tracking-wider mb-1">Panel payment / statement reference</label>
+                <input id="claim-ref" autoFocus type="text" value={claimRef} onChange={(e) => setClaimRef(e.target.value)} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
+              </div>
+              <div>
+                <label htmlFor="claim-date" className="block text-2xs font-bold text-slate-500 uppercase tracking-wider mb-1">Date received</label>
+                <input id="claim-date" type="date" max={today} value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className="w-full border border-line px-3 py-2 text-sm rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
+              </div>
+            </div>
+            {claimError && <p role="alert" className="text-xs text-rose-700 font-medium">{claimError}</p>}
+            <div className="flex items-center justify-end gap-2">
+              <button type="button" onClick={() => setSettling(null)} disabled={claimSaving} className="px-3 py-2 border border-line text-slate-600 rounded-none text-xs hover:bg-surface-strong cursor-pointer disabled:opacity-50">Cancel</button>
+              <button type="button" onClick={() => void saveSettle()} disabled={claimSaving || !claimRef.trim() || !receivedOn} className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
+                {claimSaving && <Loader2 className="w-3.5 h-3.5 motion-safe:animate-spin" aria-hidden="true" />}
+                {claimSaving ? 'Saving…' : 'Record payment'}
+              </button>
+            </div>
           </div>
-
-          {!reconciliationComplete ? (
-            <div className="bg-surface border-2 border-dashed border-line-subtle p-12 text-center transition-all hover:border-brand hover:bg-surface-muted group">
-              {isReconciling ? (
-                <div className="space-y-4">
-                  <RefreshCw className="w-10 h-10 text-accent mx-auto animate-spin" />
-                  <h4 className="font-bold text-ink">Reconciling TPA Claims...</h4>
-                  <p className="text-xs text-slate-500">Matching statement IDs against clinic ledger...</p>
-                </div>
-              ) : (
-                <>
-                  <UploadCloud className="w-12 h-12 text-accent mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                  <h4 className="type-card-title text-ink mb-1">Drag &amp; Drop TPA Statement Statement</h4>
-                  <p className="text-xs text-slate-500 mb-5">Supports .CSV, .XLSX, and .PDF statement formats</p>
-                  
-                  <button 
-                    type="button"
-                    disabled={isUploading}
-                    onClick={() => {
-                      setIsUploading(true);
-                      setTimeout(() => {
-                        setIsUploading(false);
-                        setIsReconciling(true);
-                        setTimeout(() => {
-                          const pending = transactions.filter(t => t.status === 'Pending Claim');
-                          setReconciledCount(pending.length);
-                          pending.forEach(p => markClaimAsPaid(p.id));
-                          setIsReconciling(false);
-                          setReconciliationComplete(true);
-                        }, 2500);
-                      }, 1000);
-                    }}
-                    className="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-none font-bold text-xs transition-all shadow-md cursor-pointer"
-                  >
-                    {isUploading ? 'Uploading...' : 'Browse & Reconcile Statement'}
-                  </button>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="bg-surface border border-line-subtle rounded-none overflow-hidden shadow-2xs">
-              <div className="bg-surface-accent p-8 text-center border-b border-line">
-                <CheckCircle className="w-14 h-14 text-emerald-600 mx-auto mb-3" />
-                <h3 className="type-section-title text-ink mb-1">Reconciliation Complete!</h3>
-                <p className="text-xs text-slate-600">Successfully matched and paid {reconciledCount} claims.</p>
-              </div>
-              <div className="p-6 text-center">
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setReconciliationComplete(false);
-                    setReconciledCount(0);
-                  }}
-                  className="bg-surface-accent hover:bg-surface-strong text-accent border border-line px-6 py-2.5 rounded-none text-xs font-bold transition-colors cursor-pointer"
-                >
-                  Upload Another Statement
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       )}
 

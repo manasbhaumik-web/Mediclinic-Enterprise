@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from './AuthContext';
 import { TPAConfig, ICD10Code } from '../types';
 import { ICD10_CATALOG } from '../data';
 
@@ -21,6 +22,8 @@ export const AuxiliaryProvider = ({ children }: { children: ReactNode }) => {
   const [tpaList, setTpaList] = useState<TPAConfig[]>([]);
   const [icd10Catalog, setIcd10Catalog] = useState<ICD10Code[]>(ICD10_CATALOG);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
 
   const fetchAuxiliary = async () => {
     try {
@@ -52,9 +55,11 @@ export const AuxiliaryProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // These tables need a signed-in user, so (re)load them whenever the user changes rather than once at start-up.
   useEffect(() => {
-    fetchAuxiliary();
-  }, []);
+    if (!userId) { setTpaList([]); setIsLoading(false); return; }
+    void fetchAuxiliary();
+  }, [userId]);
 
   return (
     <AuxiliaryContext.Provider value={{ tpaList, icd10Catalog, isLoading, refreshAuxiliary: fetchAuxiliary }}>

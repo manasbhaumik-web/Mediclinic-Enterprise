@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BillInput, calculateBill } from './billing';
+import { BillInput, buildSettlementArgs, calculateBill, procedureFeeFor, validateSettlement } from './billing';
 
 const base = (over: Partial<BillInput> = {}): BillInput => ({
   consultationFee: 50,
@@ -79,5 +79,39 @@ describe('calculateBill', () => {
       expect(b.panelPaid).toBe(0);
       expect(b.patientCopay).toBe(b.grandTotal);
     });
+  });
+});
+
+describe('settlement helpers', () => {
+  it('adds the referral surcharge only when referred', () => {
+    expect(procedureFeeFor(15, false)).toBe(15);
+    expect(procedureFeeFor(15, true)).toBe(40);
+    expect(procedureFeeFor(15)).toBe(15);
+  });
+
+  it('refuses settlements the database would refuse', () => {
+    expect(validateSettlement({ paymentMethod: 'Cash', paidAmount: 50, panelClaimed: 0 })).toBeNull();
+    expect(validateSettlement({ paymentMethod: 'Cash', paidAmount: -1, panelClaimed: 0 })).toMatch(/zero or more/);
+    expect(validateSettlement({ paymentMethod: 'Cash', paidAmount: 10, panelClaimed: 40 })).toMatch(/GL/);
+    expect(validateSettlement({ paymentMethod: 'Cash', paidAmount: 10, panelClaimed: 40, glNumber: '  ' })).toMatch(/GL/);
+    expect(validateSettlement({ paymentMethod: 'Cash', paidAmount: 10, panelClaimed: 40, glNumber: 'GL-1' })).toBeNull();
+    expect(validateSettlement({ paymentMethod: 'Panel', paidAmount: 0, panelClaimed: 0 })).toMatch(/claimed amount/);
+    expect(validateSettlement({ paymentMethod: 'Credit Card', paidAmount: 20, panelClaimed: 0 })).toMatch(/reference/);
+    expect(validateSettlement({ paymentMethod: 'e-Wallet', paidAmount: 20, panelClaimed: 0, reference: 'TNG123' })).toBeNull();
+  });
+
+  it('rounds to sen so the total equals paid plus claimed', () => {
+    const a = buildSettlementArgs('v1', { paymentMethod: 'Credit Card', paidAmount: 10.005 + 0.0001, panelClaimed: 20.004, glNumber: ' GL-9 ', reference: ' pi_1 ' });
+    expect(a).toEqual({
+      p_visit_id: 'v1', p_payment_method: 'Credit Card', p_paid_amount: 10.01, p_panel_claimed: 20, p_total_bill: 30.01,
+      p_gl_number: 'GL-9', p_payment_reference: 'pi_1',
+    });
+  });
+
+  it('drops the GL reference when nothing is claimed from a panel', () => {
+    const a = buildSettlementArgs('v2', { paymentMethod: 'Cash', paidAmount: 84.8, panelClaimed: 0, glNumber: 'stale' });
+    expect(a.p_gl_number).toBeNull();
+    expect(a.p_payment_reference).toBeNull();
+    expect(a.p_total_bill).toBe(84.8);
   });
 });

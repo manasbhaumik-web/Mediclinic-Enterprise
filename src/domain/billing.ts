@@ -113,3 +113,50 @@ export function buildInvoiceSnapshot(
     grandTotal: breakdown.grandTotal,
   };
 }
+
+// ---- settlement ---------------------------------------------------------------------------------------------
+
+/** Added to the procedure fee when the visit ends in a referral. */
+export const REFERRAL_PROCEDURE_SURCHARGE = 25;
+
+export const procedureFeeFor = (baseFee: number, requiresReferral?: boolean): number =>
+  requiresReferral ? baseFee + REFERRAL_PROCEDURE_SURCHARGE : baseFee;
+
+export const round2 = (n: number): number => Math.round((n + Number.EPSILON) * 100) / 100;
+
+export type SettlementMethod = 'Cash' | 'Credit Card' | 'e-Wallet' | 'Panel';
+
+export interface Settlement {
+  paymentMethod: SettlementMethod;
+  /** What the patient pays now (the whole bill, or their co-pay on a panel visit). */
+  paidAmount: number;
+  /** The panel's share, to be claimed later. */
+  panelClaimed: number;
+  glNumber?: string;
+  /** Card payment intent id, or the e-wallet / bank reference. */
+  reference?: string;
+}
+
+/** The first reason this settlement would be refused, in the words shown to the cashier; null when it is fine. Mirrors billing_settle_visit. */
+export function validateSettlement(s: Settlement): string | null {
+  if (!Number.isFinite(s.paidAmount) || !Number.isFinite(s.panelClaimed) || s.paidAmount < 0 || s.panelClaimed < 0) return 'Amounts must be zero or more.';
+  if (s.panelClaimed > 0 && !s.glNumber?.trim()) return 'Enter the guarantee letter (GL) reference for the panel claim.';
+  if (s.paymentMethod === 'Panel' && s.panelClaimed <= 0) return 'A panel payment needs a claimed amount.';
+  if ((s.paymentMethod === 'Credit Card' || s.paymentMethod === 'e-Wallet') && !s.reference?.trim()) return 'Enter the payment reference.';
+  return null;
+}
+
+/** Arguments for the billing_settle_visit database function. Amounts are rounded to sen so the total always equals paid plus claimed. */
+export function buildSettlementArgs(visitId: string, s: Settlement) {
+  const paid = round2(s.paidAmount);
+  const claimed = round2(s.panelClaimed);
+  return {
+    p_visit_id: visitId,
+    p_payment_method: s.paymentMethod,
+    p_paid_amount: paid,
+    p_panel_claimed: claimed,
+    p_total_bill: round2(paid + claimed),
+    p_gl_number: claimed > 0 ? s.glNumber?.trim() ?? null : null,
+    p_payment_reference: s.reference?.trim() || null,
+  };
+}

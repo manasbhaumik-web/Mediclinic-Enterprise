@@ -50,6 +50,8 @@ export interface PaymentInfo {
   paidAmount: number;
   panelClaimed: number;
   glNumber?: string;
+  /** Card payment intent id, or the e-wallet / bank reference. */
+  reference?: string;
   /** The bill as charged, for e-invoicing. */
   invoice?: InvoiceSnapshot;
   eInvoiceBuyer?: EInvoiceBuyer;

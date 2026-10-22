@@ -4,11 +4,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { MessageCircle, X } from 'lucide-react';
 import { Appointment, Language, Patient, SOAPNotes, UserRole, VitalSigns, Visit } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { useFinancials } from '../context/FinancialContext';
+import { useBillingActions } from '../hooks/useBilling';
 import { useLanguage } from '../context/LanguageContext';
 import { useClinicData, useClinicRealtime } from '../hooks/useClinicData';
 import {
-  PaymentInfo, completeConsultation, completeDispensing, completeTriage, settlePayment, splitQueues,
+  PaymentInfo, completeConsultation, completeDispensing, completeTriage, splitQueues,
 } from '../domain/visitWorkflow';
 import EnterpriseLayoutTemplate from '../components/EnterpriseLayoutTemplate';
 import GlobalSpinner from '../components/ui/GlobalSpinner';
@@ -41,14 +41,15 @@ export interface ClinicShellContext {
   onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
   onConsultationComplete: (soap: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onDispenseVerified: (visitId: string) => void;
-  onBillingSettled: (visitId: string, payInfo: PaymentInfo) => void;
+  /** Records the payment. Resolves to an error message, or null once it is saved. */
+  onBillingSettled: (visitId: string, payInfo: PaymentInfo) => Promise<string | null>;
 }
 
 export const useClinicShell = () => useOutletContext<ClinicShellContext>();
 
 export default function ClinicShell() {
   const { user, role, fullName, showPII, setShowPII, signOut } = useAuth();
-  const { recordTransaction } = useFinancials();
+  const { settleVisit } = useBillingActions();
   const { activeLanguage, setActiveLanguage, t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -140,22 +141,12 @@ export default function ClinicShell() {
       if (visit) updateVisitInDb(completeDispensing(visit));
       navigateTab('dashboard');
     },
-    onBillingSettled: (visitId, payInfo) => {
-      const visit = findVisit(visitId);
-      if (!visit) return;
-      recordTransaction({
-        patientId: visit.patientId,
-        visitId,
-        paymentMethod: payInfo.paymentMethod,
-        paidAmount: payInfo.paidAmount,
-        panelClaimed: payInfo.panelClaimed,
-        glNumber: payInfo.glNumber,
-      });
-      void updateVisitInDb(settlePayment(visit, payInfo)).then((saved) => {
-        // Raise the e-invoice only once the payment is saved; an admin controls submission to LHDN.
-        if (saved && payInfo.invoice) void recordEInvoice(visitId, payInfo.invoice, payInfo.eInvoiceBuyer ?? { type: 'general_public' });
-      });
-      navigateTab('dashboard');
+    onBillingSettled: async (visitId, payInfo) => {
+      const error = await settleVisit(visitId, payInfo);
+      if (error) return error;
+      // Raise the e-invoice only once the payment is saved; an admin controls submission to LHDN.
+      if (payInfo.invoice) void recordEInvoice(visitId, payInfo.invoice, payInfo.eInvoiceBuyer ?? { type: 'general_public' });
+      return null;
     },
   };
 
