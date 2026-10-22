@@ -349,7 +349,7 @@ export default function EnterpriseLayoutTemplate({
       </div>
 
       {/* PAGE BANNER + NAVBAR: one attached block, shadowed top and bottom */}
-      <section className="w-full bg-surface-muted text-ink relative z-20 px-4 sm:px-6 py-4 shrink-0 font-sans" aria-label="Page banner">
+      <section className="w-full bg-surface-accent text-ink relative z-20 px-4 sm:px-6 py-4 shrink-0 font-sans" aria-label="Page banner">
         <div className="flex items-center gap-4">
           {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
           <div className="w-14 h-14 shrink-0 bg-surface-accent border border-line flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
