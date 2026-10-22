@@ -315,7 +315,7 @@ export default function ClinicLandingPage({
       {/* ========================================================================= */}
       {/* 9. FOOTER                                                                */}
       {/* ========================================================================= */}
-      <footer id="contact" className="py-12 px-4 lg:px-8 bg-slate-900 text-slate-300 text-xs border-t border-slate-800">
+      <footer id="contact" className="py-12 px-4 lg:px-8 bg-slate-900 text-slate-300 text-xs border-t border-white/10">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           
           <div className="space-y-3">
@@ -361,7 +361,7 @@ export default function ClinicLandingPage({
 
         </div>
 
-        <div className="max-w-6xl mx-auto pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div className="max-w-6xl mx-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <span>&copy; 2026 MediClinic Enterprise. All rights reserved.</span>
           <div className="flex gap-4">
             <a href="#services" className="hover:text-white inline-flex items-center justify-center min-h-[44px]">Privacy Policy</a>

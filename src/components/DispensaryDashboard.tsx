@@ -540,10 +540,10 @@ export default function DispensaryDashboard({
             {/* Label design frame */}
             <div className="p-6">
               
-              <div className="border-[3px] border-black p-4 bg-white text-black font-mono text-2xs leading-relaxed relative rounded-none">
+              <div className="border-[3px] border-slate-300 p-4 bg-white text-black font-mono text-2xs leading-relaxed relative rounded-none">
                 
                 {/* Clinic details header */}
-                <div className="border-b-2 border-black pb-1.5 text-center flex items-center justify-between">
+                <div className="border-b-2 border-slate-300 pb-1.5 text-center flex items-center justify-between">
                   <div className="text-left font-bold">
                     <p className="text-xs font-bold">MEDICLINIC ENTERPRISE</p>
                     <p className="text-2xs text-slate-600">No. 20 Jln Ampang, KL • Tel: 03-21664000</p>
@@ -555,7 +555,7 @@ export default function DispensaryDashboard({
                 </div>
 
                 {/* Patient identifiers */}
-                <div className="py-2 border-b border-dashed border-black">
+                <div className="py-2 border-b border-dashed border-slate-300">
                   <div className="grid grid-cols-2 gap-1.5 font-bold">
                     <p>Patient: <span className="underline uppercase">{activePatient.fullName}</span></p>
                     <p className="text-right">IC: {activePatient.icNumber}</p>
@@ -564,7 +564,7 @@ export default function DispensaryDashboard({
 
                 {/* Drug usage directions */}
                 <div className="py-3">
-                  <p className="font-bold text-xs text-indigo-950 uppercase border border-black px-1.5 py-0.5 rounded-none w-fit mb-2 bg-primary/10">
+                  <p className="font-bold text-xs text-indigo-950 uppercase border border-slate-300 px-1.5 py-0.5 rounded-none w-fit mb-2 bg-primary/10">
                     {selectedLabelRx.drugName} (Qty: {selectedLabelRx.quantity} CAPS)
                   </p>
                   
@@ -574,7 +574,7 @@ export default function DispensaryDashboard({
                       <p className="font-bold text-xs leading-none text-red-800">{selectedLabelRx.frequency}</p>
                     </div>
                     
-                    <p className="font-bold text-black border-l-2 border-black pl-1.5 my-1 text-2xs">
+                    <p className="font-bold text-black border-l-2 border-slate-300 pl-1.5 my-1 text-2xs">
                       Take: {selectedLabelRx.dosage}
                     </p>
                     <p className="text-slate-600 italic border-l-2 border-slate-300 pl-1.5 text-2xs">
@@ -584,7 +584,7 @@ export default function DispensaryDashboard({
                 </div>
 
                 {/* Footer labels with QR code placeholder */}
-                <div className="border-t-2 border-black pt-2 flex items-center justify-between">
+                <div className="border-t-2 border-slate-300 pt-2 flex items-center justify-between">
                   <div>
                     <p className="text-2xs font-bold text-red-600">KEEP OUT OF REACH OF CHILDREN / JAUHKAN DARIPADA KANAK-KANAK</p>
                     <p className="text-2xs text-slate-500 mt-0.5">Dispensed under KKM Malaysia license regulations.</p>

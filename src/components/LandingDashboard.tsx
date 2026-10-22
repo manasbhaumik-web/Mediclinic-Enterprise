@@ -244,7 +244,7 @@ export default function LandingDashboard({
       icon: Stethoscope,
       badge: `${doctorQueue.length} Waiting`,
       badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-      accentColor: 'border-l-deep',
+      accentColor: 'border-l-accent',
       actionText: 'Enter Doctor Suite',
       tabKey: 'consultation'
     },
