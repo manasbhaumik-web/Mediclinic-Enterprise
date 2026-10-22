@@ -6,6 +6,7 @@ import {
 import { useFinancials, Transaction } from '../context/FinancialContext';
 import { useSettings } from '../context/SettingsContext';
 import { useBillingActions } from '../hooks/useBilling';
+import { useReceiptPrinter } from '../hooks/useReceipt';
 import { localDateKey } from '../domain/operations';
 
 const rm = (n: number) => `RM ${n.toFixed(2)}`;
@@ -13,6 +14,7 @@ const rm = (n: number) => `RM ${n.toFixed(2)}`;
 export default function BillingManagementModule() {
   const { transactions } = useFinancials();
   const { markClaimPaid } = useBillingActions();
+  const printReceipt = useReceiptPrinter();
   const { settings } = useSettings();
 
   const [activeTab, setActiveTab] = useState<'ledger' | 'claims'>('ledger');
@@ -65,7 +67,9 @@ export default function BillingManagementModule() {
     t.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
     t.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.visitId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (t.paymentReference ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+    (t.paymentReference ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.patientName ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.receiptNo ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Every transaction with an amount owed by a panel, whichever way the patient paid their share.
@@ -73,7 +77,9 @@ export default function BillingManagementModule() {
   const filteredClaims = claimsList.filter(t => 
     t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (t.glNumber && t.glNumber.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (t.claimReference && t.claimReference.toLowerCase().includes(searchQuery.toLowerCase()))
+    (t.claimReference && t.claimReference.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (t.patientName ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.receiptNo ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -173,7 +179,7 @@ export default function BillingManagementModule() {
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input 
                   type="text" 
-                  placeholder="Search Trx ID, Patient ID, or GL Number..." 
+                  placeholder="Search patient name, receipt no., GL or reference..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-3.5 py-2 bg-surface border border-line-subtle text-xs text-ink placeholder-slate-400 focus:outline-none focus:border-brand" 
@@ -268,7 +274,7 @@ export default function BillingManagementModule() {
                 No financial transactions found matching &ldquo;{searchQuery}&rdquo;
               </h4>
               <p className="text-xs text-slate-500">
-                Try refining your Trx ID, Patient ID, or GL Number query.
+                Try a patient name, receipt number, GL or reference.
               </p>
               <button
                 type="button"
@@ -291,15 +297,16 @@ export default function BillingManagementModule() {
                     <th className="px-6 py-3.5">Payment Method</th>
                     <th className="px-6 py-3.5">Status</th>
                     <th className="px-6 py-3.5 text-right">Total Amount</th>
+                    <th className="px-6 py-3.5 text-center">Receipt</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line-subtle">
                   {filteredLedger.map((trx) => (
                     <tr key={trx.id} className="hover:bg-surface-muted transition-colors">
                       <td className="px-6 py-4">
-                        <p className="font-bold text-ink text-xs">{trx.id}</p>
+                        <p className="font-bold text-ink text-xs">{trx.patientName ?? 'Patient not recorded'}</p>
                         <p className="text-2xs text-slate-500 font-mono mt-0.5">
-                          {new Date(trx.date).toLocaleString()} • Visit: {trx.visitId} • Pt: {trx.patientId}
+                          {trx.receiptNo ?? 'No receipt no. (older payment)'} • {new Date(trx.date).toLocaleString()}
                         </p>
                       </td>
                       <td className="px-6 py-4">
@@ -326,6 +333,16 @@ export default function BillingManagementModule() {
                             (RM {trx.paidAmount.toFixed(2)} copay + RM {trx.panelClaimed.toFixed(2)} panel)
                           </p>
                         )}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => printReceipt(trx)}
+                          className="text-accent font-bold text-2xs uppercase hover:underline cursor-pointer"
+                          aria-label={`Reprint receipt for ${trx.patientName ?? 'patient'}`}
+                        >
+                          Reprint
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -373,8 +390,8 @@ export default function BillingManagementModule() {
                     </p>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-xs text-ink font-bold">Pt ID: {claim.patientId}</p>
-                    <p className="text-2xs text-slate-500 font-mono">Visit: {claim.visitId}</p>
+                    <p className="text-xs text-ink font-bold">{claim.patientName ?? 'Patient not recorded'}</p>
+                    <p className="text-2xs text-slate-500 font-mono">{claim.receiptNo ?? 'No receipt no.'}{claim.panelName ? ` · ${claim.panelName}` : ''}</p>
                   </td>
                   <td className="px-6 py-4 font-mono font-bold text-accent">
                     RM {claim.panelClaimed.toFixed(2)}

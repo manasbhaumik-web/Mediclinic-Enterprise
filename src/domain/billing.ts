@@ -135,7 +135,14 @@ export interface Settlement {
   glNumber?: string;
   /** Card payment intent id, or the e-wallet / bank reference. */
   reference?: string;
+  /** The itemised bill as charged; kept with the payment so a receipt can be reprinted exactly. */
+  bill?: InvoiceSnapshot;
+  /** The panel the claim is against. */
+  panelName?: string;
 }
+
+/** The outcome of recording a payment. */
+export type SettleResult = { ok: true; receiptNo: string } | { ok: false; error: string };
 
 /** The first reason this settlement would be refused, in the words shown to the cashier; null when it is fine. Mirrors billing_settle_visit. */
 export function validateSettlement(s: Settlement): string | null {
@@ -158,5 +165,7 @@ export function buildSettlementArgs(visitId: string, s: Settlement) {
     p_total_bill: round2(paid + claimed),
     p_gl_number: claimed > 0 ? s.glNumber?.trim() ?? null : null,
     p_payment_reference: s.reference?.trim() || null,
+    p_bill: s.bill ?? null,
+    p_panel_name: claimed > 0 ? s.panelName?.trim() || null : null,
   };
 }

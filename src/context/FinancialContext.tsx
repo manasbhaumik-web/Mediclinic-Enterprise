@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
+import type { InvoiceSnapshot } from '../domain/billing';
 
 export interface Transaction {
   id: string;
@@ -17,6 +18,12 @@ export interface Transaction {
   /** The panel's remittance reference and the day it paid, once the claim is settled. */
   claimReference?: string;
   claimReceivedOn?: string;
+  /** Sequential receipt number; absent for payments taken before receipts were numbered. */
+  receiptNo?: string;
+  patientName?: string;
+  panelName?: string;
+  /** The itemised bill as charged; absent for older payments. */
+  bill?: InvoiceSnapshot;
 }
 
 interface FinancialContextType {
@@ -40,6 +47,10 @@ const fromRow = (t: any): Transaction => ({
   paymentReference: t.payment_reference ?? undefined,
   claimReference: t.claim_reference ?? undefined,
   claimReceivedOn: t.claim_received_on ?? undefined,
+  receiptNo: t.receipt_no ?? undefined,
+  patientName: t.patient_name ?? undefined,
+  panelName: t.panel_name ?? undefined,
+  bill: t.bill ?? undefined,
 });
 
 export function FinancialProvider({ children }: { children: ReactNode }) {

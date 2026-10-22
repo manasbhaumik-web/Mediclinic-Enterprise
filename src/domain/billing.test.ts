@@ -104,7 +104,7 @@ describe('settlement helpers', () => {
     const a = buildSettlementArgs('v1', { paymentMethod: 'Credit Card', paidAmount: 10.005 + 0.0001, panelClaimed: 20.004, glNumber: ' GL-9 ', reference: ' pi_1 ' });
     expect(a).toEqual({
       p_visit_id: 'v1', p_payment_method: 'Credit Card', p_paid_amount: 10.01, p_panel_claimed: 20, p_total_bill: 30.01,
-      p_gl_number: 'GL-9', p_payment_reference: 'pi_1',
+      p_gl_number: 'GL-9', p_payment_reference: 'pi_1', p_bill: null, p_panel_name: null,
     });
   });
 
@@ -112,6 +112,14 @@ describe('settlement helpers', () => {
     const a = buildSettlementArgs('v2', { paymentMethod: 'Cash', paidAmount: 84.8, panelClaimed: 0, glNumber: 'stale' });
     expect(a.p_gl_number).toBeNull();
     expect(a.p_payment_reference).toBeNull();
+    expect(a.p_panel_name).toBeNull();
     expect(a.p_total_bill).toBe(84.8);
+  });
+
+  it('passes the itemised bill and the panel name along when claiming', () => {
+    const bill = { lines: [{ description: 'Consultation fee', quantity: 1, unitPrice: 35, amount: 35 }], discountAmount: 0, subtotal: 35, taxRate: 0.06, taxAmount: 2.1, grandTotal: 37.1 };
+    const a = buildSettlementArgs('v3', { paymentMethod: 'Panel', paidAmount: 0, panelClaimed: 37.1, glNumber: 'GL-1', panelName: ' MiCare TPA ', bill });
+    expect(a.p_bill).toBe(bill);
+    expect(a.p_panel_name).toBe('MiCare TPA');
   });
 });

@@ -3,14 +3,17 @@ import { Visit, Language, TPAConfig } from '../types';
 import { TRANSLATIONS } from '../data';
 import type { PaymentInfo } from '../domain/visitWorkflow';
 import {
-  EMPTY_BREAKDOWN, Settlement, buildInvoiceSnapshot, calculateBill, procedureFeeFor, round2,
+  EMPTY_BREAKDOWN, SettleResult, Settlement, buildInvoiceSnapshot, calculateBill, procedureFeeFor, round2,
 } from '../domain/billing';
+import type { ReceiptSource } from '../domain/receipt';
+import { useReceiptPrinter } from '../hooks/useReceipt';
+import { useFinancials } from '../context/FinancialContext';
 import { useSettings } from '../context/SettingsContext';
 import { useAuxiliary } from '../context/AuxiliaryContext';
 import StripeCheckout from './StripeCheckout';
 import {
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet, AlertTriangle, Loader2,
-  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download,
+  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer,
 } from 'lucide-react';
 import { buttonProps, focusRing } from '../lib/a11y';
 
@@ -18,8 +21,8 @@ interface BillingDeskProps {
   queue: Visit[];
   patientsMap: Record<string, any>;
   activeLanguage: Language;
-  /** Records the payment. Resolves to an error message, or null once it is saved. */
-  onPaymentComplete: (visitId: string, paymentDetails: PaymentInfo) => Promise<string | null>;
+  /** Records the payment and issues its receipt number. */
+  onPaymentComplete: (visitId: string, paymentDetails: PaymentInfo) => Promise<SettleResult>;
 }
 
 type PayStage = 'cash' | 'ewallet' | 'card' | null;
@@ -34,6 +37,9 @@ interface Attempt {
   panelCovered: number;
   tpaName?: string;
   change?: number;
+  /** Filled in once the payment is saved. */
+  receiptNo?: string;
+  issuedAt?: string;
 }
 
 const rm = (n: number) => `RM${n.toFixed(2)}`;
@@ -42,6 +48,8 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
   const { settings } = useSettings();
   const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
+  const printReceipt = useReceiptPrinter();
+  const { transactions } = useFinancials();
 
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(queue.length > 0 ? queue[0].id : null);
 
@@ -143,47 +151,58 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
     }
   };
 
-  const downloadReceipt = (a: Attempt) => {
-    const visitForPdf = { ...a.visit, totalBill: round2(a.amountPaid + a.panelCovered), paymentMethod: a.settlement.paymentMethod, glNumber: a.settlement.glNumber };
-    import('../utils/pdfGenerator')
-      .then(({ generateInvoicePDF }) => generateInvoicePDF(a.patient, visitForPdf as Visit, a.panelCovered > 0))
-      .catch((err) => console.error('Receipt PDF failed', err));
-  };
+  const receiptSource = (a: Attempt): ReceiptSource => ({
+    receiptNo: a.receiptNo ?? null,
+    date: a.issuedAt ?? new Date().toISOString(),
+    patientName: a.patient.fullName,
+    visitId: a.visit.id,
+    paymentMethod: a.settlement.paymentMethod,
+    paymentReference: a.settlement.reference,
+    paidAmount: a.amountPaid,
+    panelClaimed: a.panelCovered,
+    glNumber: a.settlement.glNumber,
+    panelName: a.tpaName,
+    bill: a.settlement.bill,
+  });
 
   /** Saves the payment. Only a saved payment shows the receipt; a failure stays on screen with its reason. */
   const record = async (attempt: Attempt) => {
     setSaving(true);
     setSaveError(null);
-    const error = await onPaymentComplete(attempt.visit.id, attempt.payInfo);
+    const result = await onPaymentComplete(attempt.visit.id, attempt.payInfo);
     setSaving(false);
-    if (error) {
-      setSaveError(error);
+    if ('error' in result) {
+      setSaveError(result.error);
       if (attempt.settlement.paymentMethod === 'Credit Card') setUnrecorded(attempt);
       return;
     }
+    const saved: Attempt = { ...attempt, receiptNo: result.receiptNo, issuedAt: new Date().toISOString() };
     setUnrecorded(null);
     resetForm();
-    setReceipt(attempt);
-    downloadReceipt(attempt);
+    setReceipt(saved);
+    printReceipt(receiptSource(saved));
   };
 
   const buildAttempt = (method: Settlement['paymentMethod'], extra: { reference?: string; change?: number } = {}): Attempt | null => {
     if (!activeVisit || !activePatient) return null;
+    // The bill as charged: kept with the payment for receipts and for e-invoicing (an admin controls submission to LHDN).
+    const invoice = buildInvoiceSnapshot(
+      { ...billingInput, panel: panelInUse },
+      billingBreakdown,
+      prescription.map((rx) => rx.drugName),
+    );
     const settlement: Settlement = {
       paymentMethod: method,
       paidAmount: dueNow,
       panelClaimed: claimAmount,
       glNumber: isPanelClaim ? glReferenceNo.trim() : undefined,
       reference: extra.reference,
+      bill: invoice,
+      panelName: isPanelClaim ? selectedTPA?.name : undefined,
     };
     const payInfo: PaymentInfo = {
       ...settlement,
-      // The bill as charged, kept for e-invoicing (an admin controls submission to LHDN).
-      invoice: buildInvoiceSnapshot(
-        { ...billingInput, panel: panelInUse },
-        billingBreakdown,
-        prescription.map((rx) => rx.drugName),
-      ),
+      invoice,
       eInvoiceBuyer: isPanelClaim && selectedTPA ? { type: 'business', name: selectedTPA.name } : { type: 'general_public' },
     };
     return { visit: activeVisit, patient: activePatient, settlement, payInfo, amountPaid: dueNow, panelCovered: claimAmount, tpaName: isPanelClaim ? selectedTPA?.name : undefined, change: extra.change };
@@ -283,6 +302,33 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
               })}
             </div>
           )}
+
+          {/* Recent receipts, for reprinting */}
+          <div className="pt-3 border-t border-slate-200">
+            <h5 className="type-label text-slate-600 mb-2 flex items-center gap-1"><Printer className="w-3 h-3" aria-hidden="true" /> Recent receipts</h5>
+            {transactions.length === 0 ? (
+              <p className="text-2xs text-slate-400">No payments recorded yet.</p>
+            ) : (
+              <ul className="space-y-1.5">
+                {transactions.slice(0, 6).map((trx) => (
+                  <li key={trx.id} className="flex items-center justify-between gap-2 bg-white border border-slate-200 px-2.5 py-1.5 text-2xs">
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-700 truncate">{trx.patientName ?? 'Patient'}</p>
+                      <p className="font-mono text-slate-400">{trx.receiptNo ?? 'Older payment'} · {rm(trx.paidAmount + trx.panelClaimed)}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => printReceipt({ ...trx, visitId: trx.visitId, paymentReference: trx.paymentReference })}
+                      className="shrink-0 font-bold text-accent hover:underline cursor-pointer"
+                      aria-label={`Reprint receipt for ${trx.patientName ?? 'patient'}`}
+                    >
+                      Reprint
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
         {/* 2. BILL */}
@@ -640,6 +686,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
           <div className="text-center space-y-4">
             <div className="w-14 h-14 bg-emerald-100 flex items-center justify-center mx-auto"><CheckCircle2 className="w-7 h-7 text-emerald-600" aria-hidden="true" /></div>
             <p className="text-sm text-slate-500">Recorded as {receipt.settlement.paymentMethod === 'Panel' ? 'a panel claim' : receipt.settlement.paymentMethod}.</p>
+            {receipt.receiptNo && <p className="font-mono text-lg font-bold text-ink">{receipt.receiptNo}</p>}
             <div className="bg-slate-50 p-4 border border-slate-100 text-left space-y-2 font-mono text-xs">
               <div className="flex justify-between"><span className="text-slate-500">Patient:</span><span className="font-bold text-slate-700">{receipt.patient.fullName}</span></div>
               <div className="flex justify-between"><span className="text-slate-500">Visit ID:</span><span className="text-slate-700">{receipt.visit.id}</span></div>
@@ -655,8 +702,8 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
               )}
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => downloadReceipt(receipt)} className="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold px-4 py-2.5 rounded-none flex items-center justify-center gap-2 cursor-pointer text-xs">
-                <Download className="w-4 h-4" aria-hidden="true" /> Download receipt
+              <button type="button" onClick={() => printReceipt(receiptSource(receipt))} className="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold px-4 py-2.5 rounded-none flex items-center justify-center gap-2 cursor-pointer text-xs">
+                <Download className="w-4 h-4" aria-hidden="true" /> Download again
               </button>
               <button type="button" onClick={() => setReceipt(null)} autoFocus className="flex-1 bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 rounded-none cursor-pointer text-xs">Done</button>
             </div>

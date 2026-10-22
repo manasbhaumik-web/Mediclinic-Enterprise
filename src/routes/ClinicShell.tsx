@@ -5,6 +5,7 @@ import { MessageCircle, X } from 'lucide-react';
 import { Appointment, Language, Patient, SOAPNotes, UserRole, VitalSigns, Visit } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useBillingActions } from '../hooks/useBilling';
+import type { SettleResult } from '../domain/billing';
 import { useLanguage } from '../context/LanguageContext';
 import { useClinicData, useClinicRealtime } from '../hooks/useClinicData';
 import {
@@ -41,8 +42,8 @@ export interface ClinicShellContext {
   onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
   onConsultationComplete: (soap: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onDispenseVerified: (visitId: string) => void;
-  /** Records the payment. Resolves to an error message, or null once it is saved. */
-  onBillingSettled: (visitId: string, payInfo: PaymentInfo) => Promise<string | null>;
+  /** Records the payment and issues its receipt number. */
+  onBillingSettled: (visitId: string, payInfo: PaymentInfo) => Promise<SettleResult>;
 }
 
 export const useClinicShell = () => useOutletContext<ClinicShellContext>();
@@ -142,11 +143,10 @@ export default function ClinicShell() {
       navigateTab('dashboard');
     },
     onBillingSettled: async (visitId, payInfo) => {
-      const error = await settleVisit(visitId, payInfo);
-      if (error) return error;
+      const result = await settleVisit(visitId, payInfo);
       // Raise the e-invoice only once the payment is saved; an admin controls submission to LHDN.
-      if (payInfo.invoice) void recordEInvoice(visitId, payInfo.invoice, payInfo.eInvoiceBuyer ?? { type: 'general_public' });
-      return null;
+      if (result.ok && payInfo.invoice) void recordEInvoice(visitId, payInfo.invoice, payInfo.eInvoiceBuyer ?? { type: 'general_public' });
+      return result;
     },
   };
 

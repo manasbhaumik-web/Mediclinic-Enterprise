@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useFinancials } from '../context/FinancialContext';
-import { Settlement, buildSettlementArgs, validateSettlement } from '../domain/billing';
+import { SettleResult, Settlement, buildSettlementArgs, validateSettlement } from '../domain/billing';
 
 const NETWORK_MESSAGE = 'Could not reach the server. Check the connection and try again.';
 
@@ -13,23 +13,25 @@ function messageFrom(error: { message?: string; code?: string; name?: string }):
 
 /**
  * Payments and claim updates. Each is one database function call, so a payment either is recorded in full
- * (visit marked paid and ledger row written) or not at all. Resolves to an error message, or null on success.
+ * (visit marked paid, ledger row written and a receipt number issued) or not at all.
  */
 export function useBillingActions() {
   const queryClient = useQueryClient();
   const { refresh } = useFinancials();
 
-  const settleVisit = async (visitId: string, settlement: Settlement): Promise<string | null> => {
+  const settleVisit = async (visitId: string, settlement: Settlement): Promise<SettleResult> => {
     const invalid = validateSettlement(settlement);
-    if (invalid) return invalid;
+    if (invalid) return { ok: false, error: invalid };
+    let receiptNo: string;
     try {
-      const { error } = await supabase.rpc('billing_settle_visit', buildSettlementArgs(visitId, settlement));
-      if (error) return messageFrom(error);
+      const { data, error } = await supabase.rpc('billing_settle_visit', buildSettlementArgs(visitId, settlement));
+      if (error) return { ok: false, error: messageFrom(error) };
+      receiptNo = String((data as { receipt_no?: string } | null)?.receipt_no ?? '');
     } catch {
-      return NETWORK_MESSAGE;
+      return { ok: false, error: NETWORK_MESSAGE };
     }
     await Promise.all([queryClient.invalidateQueries({ queryKey: ['visits'] }), refresh()]);
-    return null;
+    return { ok: true, receiptNo };
   };
 
   const markClaimPaid = async (transactionId: string, reference: string, receivedOn: string): Promise<string | null> => {
