@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { Appointment, Patient, Visit } from '../types';
 import {
   appointmentFromRow, appointmentToRow, patientFromRow, patientToRow,
-  prescriptionsToRows, soapToRow, visitFromRow,
+  buildSignoffArgs, prescriptionsToRows, soapToRow, visitFromRow,
 } from '../lib/mappers';
 import { SEED_PATIENTS, SEED_VISITS } from '../mocks/seed';
 
@@ -171,8 +171,9 @@ function useClinicMutations() {
 
   const updateVisit = useMutation({
     mutationFn: async (visit: Visit) => {
+      // A cancelled visit is kept (status 'Cancelled') so the record stays; the database only allows this before the consultation.
       if (visit.status === 'Cancelled') {
-        const { error } = await supabase.from('visits').delete().eq('id', visit.id);
+        const { error } = await supabase.from('visits').update({ status: 'Cancelled' }).eq('id', visit.id);
         if (error) throw error;
         return;
       }
@@ -233,6 +234,22 @@ function useClinicMutations() {
     onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
   });
 
+  /** Finishes a consultation through the database's sign-off function, which records the signing doctor. */
+  const signOff = useMutation({
+    mutationFn: async ({ visit, issueMc }: { visit: Visit; issueMc: boolean }) => {
+      const { error } = await supabase.rpc('signoff_consultation', buildSignoffArgs(visit, issueMc));
+      if (error) throw error;
+    },
+    onMutate: async ({ visit }) => {
+      await qc.cancelQueries({ queryKey: ['visits'] });
+      const prevActive = qc.getQueryData<Visit[]>(QUERY_KEYS.activeVisits);
+      qc.setQueryData<Visit[]>(QUERY_KEYS.activeVisits, (old = []) => old.map((v) => (v.id === visit.id ? visit : v)));
+      return { prevActive };
+    },
+    onError: (_e, _v, ctx) => qc.setQueryData(QUERY_KEYS.activeVisits, ctx?.prevActive),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
+  });
+
   const addAppointment = useMutation({
     mutationFn: async (app: Appointment) => {
       const { error } = await supabase.from('appointments').insert([appointmentToRow(app)]);
@@ -268,6 +285,14 @@ function useClinicMutations() {
     addPatientToDb: (p: Patient) => addPatient.mutateAsync(p).then(() => true as const, logFailure('insert patient')),
     addVisitToDb: (v: Visit) => addVisit.mutateAsync(v).then(() => true as const, logFailure('insert visit')),
     updateVisitInDb: (v: Visit) => updateVisit.mutateAsync(v).then(() => true as const, logFailure('update visit')),
+    /** Resolves with the database's reason when the sign-off is refused or cannot be saved. */
+    signOffConsultation: (visit: Visit, issueMc: boolean) => signOff.mutateAsync({ visit, issueMc }).then(
+      () => ({ ok: true as const }),
+      (err: { message?: string }) => {
+        console.error('Failed to sign off consultation', err);
+        return { ok: false as const, error: err?.message || 'The consultation could not be signed off.' };
+      },
+    ),
     addAppointmentToDb: (a: Appointment) => addAppointment.mutateAsync(a).then(() => true as const, logFailure('insert appointment')),
     updateAppointmentInDb: (a: Appointment) => updateAppointment.mutateAsync(a).then(() => true as const, logFailure('update appointment')),
   };

@@ -128,14 +128,18 @@ export default function ClinicShell() {
     },
     onConsultationComplete: (soap, issueMc) => {
       const visit = activeConsultationVisitId ? findVisit(activeConsultationVisitId) : undefined;
-      if (visit) {
+      if (!visit) return;
+      // The consultation stays open until the database has accepted the sign-off, so a refusal loses nothing.
+      void data.signOffConsultation(completeConsultation(visit, soap, issueMc), issueMc).then((result) => {
+        if ('error' in result) {
+          window.alert(`The consultation was not signed off. ${result.error}`);
+          return;
+        }
         // Queue the external hand-off only once the note is saved; the worker reads it from the database.
-        void updateVisitInDb(completeConsultation(visit, soap, issueMc)).then((saved) => {
-          if (saved) void enqueueIntegration('fhir', 'consultation.completed', 'visit', visit.id);
-        });
-      }
-      setActiveConsultationVisitId(null);
-      navigateTab('dashboard');
+        void enqueueIntegration('fhir', 'consultation.completed', 'visit', visit.id);
+        setActiveConsultationVisitId(null);
+        navigateTab('dashboard');
+      });
     },
     onDispenseVerified: (visitId) => {
       const visit = findVisit(visitId);

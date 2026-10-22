@@ -128,6 +128,18 @@ export function prescriptionsToRows(visit: Visit) {
   }));
 }
 
+/**
+ * Arguments for the signoff_consultation database function. Only the clinical content and the certificate flag are
+ * sent: the database decides the visit's status, billing figures and who signed.
+ */
+export function buildSignoffArgs(visit: Visit, issueMc: boolean) {
+  return {
+    visit_payload: { id: visit.id, mc_issued: issueMc },
+    soap_payload: soapToRow(visit),
+    rx_payload: prescriptionsToRows(visit),
+  };
+}
+
 export function appointmentFromRow(a: any): Appointment {
   return {
     id: a.id,

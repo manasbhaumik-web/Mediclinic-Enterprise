@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Appointment, Patient, Visit } from '../types';
 import {
   appointmentFromRow, appointmentToRow, patientFromRow, patientToRow,
-  prescriptionsToRows, soapToRow, visitFromRow,
+  buildSignoffArgs, prescriptionsToRows, soapToRow, visitFromRow,
 } from './mappers';
 
 describe('patient mapping', () => {
@@ -100,5 +100,29 @@ describe('appointment mapping', () => {
     };
     const back = appointmentFromRow({ ...appointmentToRow(app), created_at: app.createdAt });
     expect(back).toMatchObject({ id: 'a1', patientName: 'Aina', durationMinutes: 30, status: 'Scheduled' });
+  });
+});
+
+describe('buildSignoffArgs', () => {
+  const visit = {
+    id: 'v1', patientId: 'p1', date: '2026-10-22', status: 'Awaiting Dispensation', totalBill: 999, panelClaimed: 5, paidAmount: 999, paymentMethod: 'Cash', mcIssued: true,
+    soap: {
+      subjective: 'cough', objective: { bpSystolic: 120, bpDiastolic: 80, heartRate: 70, temperature: 37, respiratoryRate: 16 },
+      assessment: { icdCode: 'J06.9', description: 'URTI', clinicalNotes: 'n' },
+      plan: {
+        prescription: [{ drugName: 'Paracetamol', dosage: '1 tab', dosageBM: '1 biji', frequency: 'TDS', quantity: 10, pricePerUnit: 0.5, expiryDate: '', pillColor: 'white', capsuleStyle: 'round', inventoryId: 'inv1' }],
+        followUpWeeks: 1, mcDays: 2, requiresReferral: false, pharmacyMemo: 'm',
+      },
+    },
+  } as unknown as Visit;
+
+  it('sends the clinical content and the certificate flag, never a status or billing figure', () => {
+    const a = buildSignoffArgs(visit, true);
+    expect(a.visit_payload).toEqual({ id: 'v1', mc_issued: true });
+    expect(a.soap_payload).toMatchObject({ icd_code: 'J06.9', subjective: 'cough', mc_days: 2 });
+    expect(a.rx_payload).toHaveLength(1);
+    expect(a.rx_payload[0]).toMatchObject({ drug_name: 'Paracetamol', quantity: 10, price_per_unit: 0.5, inventory_id: 'inv1' });
+    const everything = JSON.stringify(a);
+    expect(everything).not.toMatch(/total_bill|paid_amount|panel_claimed|payment_method|"status"/);
   });
 });
