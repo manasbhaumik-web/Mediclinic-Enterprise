@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Button from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useDrugs, useInventorySettings, usePurchaseOrders, useRegister } from '../../hooks/useInventoryData';
 import { StockAlert, buildAlerts, isOverdue, PO_STYLE } from '../../domain/inventory';
@@ -51,7 +50,7 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
         {role === 'admin' && (
           <span className="flex items-center gap-2">
             <input className={`${inputClass} !w-24`} type="number" min="0" placeholder={String(nearDays)} value={days} onChange={(e) => setDays(e.target.value)} aria-label="Near-expiry window in days" />
-            <Button variant="outline" size="sm" onClick={saveDays} disabled={!days || save.isPending}>Change window</Button>
+            <button type="button" className="btn-secondary" onClick={saveDays} disabled={!days || save.isPending}>Change window</button>
           </span>
         )}
       </div>
@@ -59,9 +58,9 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
       {none && !drugs.isLoading && <p className="text-xs text-subtle bg-surface border border-line-subtle p-4">Nothing needs attention.</p>}
 
       {unsigned.length > 0 && (
-        <section className="bg-teal-50 border border-teal-200 p-3 text-xs space-y-1">
-          <div className="font-bold text-teal-900">{unsigned.length} controlled-drug entr{unsigned.length === 1 ? 'y is' : 'ies are'} waiting for a second signature</div>
-          <p className="text-teal-900">{unsigned.filter((e) => e.performedBy !== user?.id).length} can be signed by you. <button type="button" className="font-bold underline cursor-pointer" onClick={onOpenRegister}>Open the register</button></p>
+        <section className="chip-brand block p-3 text-xs space-y-1">
+          <div className="font-bold">{unsigned.length} controlled-drug entr{unsigned.length === 1 ? 'y is' : 'ies are'} waiting for a second signature</div>
+          <p>{unsigned.filter((e) => e.performedBy !== user?.id).length} can be signed by you. <button type="button" className="font-bold underline cursor-pointer" onClick={onOpenRegister}>Open the register</button></p>
         </section>
       )}
 
@@ -69,12 +68,12 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
         <section className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="type-heading-caps text-ink">Reorder</h3>
-            <Button size="sm" disabled={picked.size === 0} onClick={start}>Start a purchase order with {picked.size || 'selected'}</Button>
+            <button type="button" className="btn-primary" disabled={picked.size === 0} onClick={start}>Start a purchase order with {picked.size || 'selected'}</button>
           </div>
           <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
             {stockAlerts.map((a) => (
-              <label key={`${a.kind}-${a.drugId}`} className="flex items-center gap-3 px-3 py-2 text-xs cursor-pointer">
-                <input type="checkbox" checked={picked.has(a.drugId)} onChange={() => toggle(a.drugId)} />
+              <label key={`${a.kind}-${a.drugId}`} className="flex items-center gap-3 px-3 min-h-11 py-2 text-xs cursor-pointer">
+                <input type="checkbox" className="w-5 h-5 accent-primary" checked={picked.has(a.drugId)} onChange={() => toggle(a.drugId)} />
                 <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${SEVERITY_CLASS[a.severity]}`}>{KIND_LABEL[a.kind]}</span>
                 <span className="font-bold text-ink">{a.drugName}</span>
                 <span className="text-subtle">{a.detail}</span>
@@ -94,7 +93,7 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
                 <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${SEVERITY_CLASS[a.severity]}`}>{KIND_LABEL[a.kind]}</span>
                 <span className="font-bold text-ink">{a.drugName}</span>
                 <span className="text-subtle">{a.detail}</span>
-                <button type="button" className="ml-auto font-bold text-accent cursor-pointer" onClick={() => onOpenDrug(a.drugId)}>Open</button>
+                <button type="button" className="btn-secondary ml-auto" onClick={() => onOpenDrug(a.drugId)}>Open</button>
               </div>
             ))}
           </div>

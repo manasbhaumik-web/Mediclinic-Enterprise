@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import Button from '../ui/Button';
+import { ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import ActionMenu from '../ui/ActionMenu';
 import { useDrugs, useInventoryActions, useInventorySettings, useSuppliers } from '../../hooks/useInventoryData';
 import { DrugItem, buildAlerts, controlClassLabel, isExpired, usableStock } from '../../domain/inventory';
 import DrugForm from './DrugForm';
-import { Dialog, Field, Notice, errorMessage, inputClass, todayStr } from './shared';
+import { Dialog, Field, Notice, ReasonDialog, errorMessage, inputClass, todayStr } from './shared';
 
-type Mode = { kind: 'edit' | 'receive' | 'adjust'; drug: DrugItem } | { kind: 'add' } | null;
+type Mode = { kind: 'edit' | 'receive' | 'adjust' | 'retire'; drug: DrugItem } | { kind: 'add' } | null;
+type Filter = 'all' | 'out' | 'low' | 'expiry';
 
 /** The drug catalogue and stock by batch. Every change goes through a database function, so nothing here edits stock directly. */
-export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pharmacist'; focusDrugId?: string | null }) {
+export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 'admin' | 'pharmacist'; focusDrugId?: string | null; onShowAlerts?: () => void }) {
   const drugs = useDrugs();
   const { settings } = useInventorySettings();
   const api = useInventoryActions();
@@ -16,26 +18,39 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
   const [showRetired, setShowRetired] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>(null);
+  const [filter, setFilter] = useState<Filter>('all');
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const today = todayStr();
 
   useEffect(() => { if (focusDrugId) { setOpen(focusDrugId); setQ(''); } }, [focusDrugId]);
 
   const all = drugs.data ?? [];
-  const alertsByDrug = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const a of buildAlerts(all, settings.data?.nearExpiryDays ?? 60, today)) m.set(a.drugId, (m.get(a.drugId) ?? 0) + 1);
-    return m;
+  const { alertsByDrug, kindsByDrug } = useMemo(() => {
+    const count = new Map<string, number>();
+    const kinds = new Map<string, Set<string>>();
+    for (const a of buildAlerts(all, settings.data?.nearExpiryDays ?? 60, today)) {
+      count.set(a.drugId, (count.get(a.drugId) ?? 0) + 1);
+      kinds.set(a.drugId, (kinds.get(a.drugId) ?? new Set()).add(a.kind));
+    }
+    return { alertsByDrug: count, kindsByDrug: kinds };
   }, [all, settings.data, today]);
 
-  const rows = all.filter((d) => (showRetired || d.status === 'active') && (`${d.name} ${d.category} ${d.genericName ?? ''}`.toLowerCase().includes(q.toLowerCase())));
+  const activeDrugs = all.filter((d) => d.status === 'active');
+  const has = (id: string, ...kinds: string[]) => kinds.some((k) => kindsByDrug.get(id)?.has(k));
+  const summary = {
+    out: activeDrugs.filter((d) => has(d.id, 'out_of_stock')).length,
+    low: activeDrugs.filter((d) => has(d.id, 'low_stock')).length,
+    expiry: activeDrugs.filter((d) => has(d.id, 'expired_stock', 'near_expiry')).length,
+  };
+  const matchesFilter = (d: DrugItem) =>
+    filter === 'all' || (filter === 'out' && has(d.id, 'out_of_stock')) || (filter === 'low' && has(d.id, 'low_stock')) || (filter === 'expiry' && has(d.id, 'expired_stock', 'near_expiry'));
 
-  const retire = async (d: DrugItem) => {
-    const reason = window.prompt(`Why is ${d.name} being retired? It disappears from prescribing but its history stays.`);
-    if (!reason?.trim()) return;
+  const rows = all.filter((d) => (showRetired || d.status === 'active') && matchesFilter(d) && (`${d.name} ${d.category} ${d.genericName ?? ''}`.toLowerCase().includes(q.toLowerCase())));
+
+  const retire = async (d: DrugItem, reason: string) => {
     setMsg(null);
-    try { await api.retireDrug.mutateAsync({ id: d.id, reason: reason.trim() }); setMsg({ ok: true, text: `${d.name} retired.` }); }
-    catch (e) { setMsg({ ok: false, text: errorMessage(e) }); }
+    try { await api.retireDrug.mutateAsync({ id: d.id, reason }); setMsg({ ok: true, text: `${d.name} retired.` }); setMode(null); }
+    catch (e) { setMsg({ ok: false, text: errorMessage(e) }); setMode(null); }
   };
   const restore = async (d: DrugItem) => {
     setMsg(null);
@@ -45,17 +60,32 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <input className={`${inputClass} !w-72`} placeholder="Search name, generic or category" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search drugs" />
-          <label className="flex items-center gap-1 text-xs font-medium"><input type="checkbox" checked={showRetired} onChange={(e) => setShowRetired(e.target.checked)} /> Show retired</label>
+        <div className="flex flex-wrap items-center gap-3">
+          <input className={`${inputClass} !w-72 !min-h-11`} placeholder="Search name, generic or category" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search drugs" />
+          <label className="flex items-center gap-2 min-h-11 text-xs font-medium cursor-pointer"><input type="checkbox" className="w-5 h-5 accent-primary" checked={showRetired} onChange={(e) => setShowRetired(e.target.checked)} /> Show retired</label>
         </div>
-        <Button size="sm" onClick={() => setMode({ kind: 'add' })}>Add a drug</Button>
+        <button type="button" className="btn-primary" onClick={() => setMode({ kind: 'add' })}><Plus className="w-4 h-4" aria-hidden="true" />Add a drug</button>
       </div>
 
-      {drugs.error && <Notice ok={false}>Could not load the catalogue. Has the v22 inventory migration been applied?</Notice>}
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Stock levels">
+        {([
+          ['all', `All drugs (${activeDrugs.length})`, 'chip-neutral'],
+          ['out', `Out of stock (${summary.out})`, 'chip-danger'],
+          ['low', `Low stock (${summary.low})`, 'chip-warn'],
+          ['expiry', `Expired or near expiry (${summary.expiry})`, 'chip-warn'],
+        ] as const).map(([id, label, tone]) => (
+          <button key={id} type="button" aria-pressed={filter === id} onClick={() => setFilter(id)}
+            className={`${tone} min-h-11 px-3 text-xs font-bold cursor-pointer ${filter === id ? 'ring-2 ring-accent ring-offset-1' : 'opacity-90 hover:opacity-100'}`}>
+            {label}
+          </button>
+        ))}
+        {onShowAlerts && <button type="button" className="btn-secondary ml-auto" onClick={onShowAlerts}>Open alerts</button>}
+      </div>
+
+      {drugs.error && <Notice ok={false}>Could not load the stock list. Try again, or ask an administrator to check the inventory set-up.</Notice>}
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
 
-      <div className="bg-surface border border-line-subtle overflow-x-auto">
+      <div className="bg-surface border border-line-subtle overflow-x-auto lg:overflow-visible">
         <table className="w-full text-xs">
           <thead>
             <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
@@ -70,23 +100,50 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
                 <React.Fragment key={d.id}>
                   <tr className={`border-b border-line-subtle align-top ${retired ? 'opacity-50' : ''}`}>
                     <td className="p-3">
-                      <button type="button" className="font-bold text-ink text-left cursor-pointer" onClick={() => setOpen(open === d.id ? null : d.id)}>{d.name}</button>
-                      <div className="font-medium text-subtle">{d.category}{d.drugType ? ` · ${d.drugType}` : ''}</div>
+                      <button type="button" className="min-h-11 flex items-center gap-1.5 font-bold text-ink text-left cursor-pointer" aria-expanded={open === d.id} onClick={() => setOpen(open === d.id ? null : d.id)}>
+                        {open === d.id ? <ChevronDown className="w-4 h-4 text-accent" aria-hidden="true" /> : <ChevronRight className="w-4 h-4 text-accent" aria-hidden="true" />}
+                        {d.name}
+                      </button>
+                      <div className="font-medium text-subtle pl-5">{d.category}{d.drugType ? ` · ${d.drugType}` : ''}</div>
                     </td>
-                    <td className="p-3 text-right font-mono">{d.currentStock}{usable !== d.currentStock && <div className="text-amber-700" title="Part of the stock is expired">{usable} usable</div>}</td>
+                    <td className="p-3 text-right">
+                      <div className="font-mono font-bold text-ink">{d.currentStock}</div>
+                      {usable !== d.currentStock && <div className="text-muted" title="Part of the stock is expired">{usable} usable</div>}
+                      {!retired && (
+                        <div className="mt-1 ml-auto w-24 h-2 bg-surface-strong relative" role="img" aria-label={`${usable} in date against a reorder level of ${d.minThreshold}`}>
+                          <div className={usable === 0 ? 'h-2 bg-rose-600' : usable <= d.minThreshold ? 'h-2 bg-amber-500' : 'h-2 bg-primary'} style={{ width: `${Math.min(100, Math.round((usable / Math.max(1, d.minThreshold * 3)) * 100))}%` }} />
+                          <span className="absolute top-[-2px] bottom-[-2px] w-px bg-ink/60" style={{ left: '33.3%' }} aria-hidden="true" />
+                        </div>
+                      )}
+                    </td>
                     <td className="p-3 text-right font-mono">{d.minThreshold}</td>
                     <td className="p-3 text-right font-mono">RM{d.price.toFixed(2)}</td>
-                    <td className="p-3 space-x-1">
-                      {retired && <span className="text-2xs font-bold px-2 py-0.5 border uppercase bg-slate-100 text-muted border-slate-300">Retired</span>}
-                      {d.registerRequired && <span className="text-2xs font-bold px-2 py-0.5 border uppercase chip-info" title={controlClassLabel(d.controlClass)}>Controlled</span>}
-                      {!retired && (alertsByDrug.get(d.id) ?? 0) > 0 && <span className="text-2xs font-bold px-2 py-0.5 border uppercase chip-warn">{alertsByDrug.get(d.id)} alert{alertsByDrug.get(d.id) === 1 ? '' : 's'}</span>}
+                    <td className="p-3 space-x-1 space-y-1">
+                      {retired && <span className="chip-neutral text-2xs px-2 py-0.5 uppercase">Retired</span>}
+                      {!retired && has(d.id, 'out_of_stock') && <span className="chip-danger text-2xs px-2 py-0.5 uppercase">Out of stock</span>}
+                      {!retired && has(d.id, 'low_stock') && <span className="chip-warn text-2xs px-2 py-0.5 uppercase">Low stock</span>}
+                      {!retired && has(d.id, 'expired_stock') && <span className="chip-danger text-2xs px-2 py-0.5 uppercase">Expired batch</span>}
+                      {!retired && has(d.id, 'near_expiry') && <span className="chip-warn text-2xs px-2 py-0.5 uppercase">Near expiry</span>}
+                      {d.registerRequired && <span className="chip-info text-2xs px-2 py-0.5 uppercase" title={controlClassLabel(d.controlClass)}>Controlled</span>}
                     </td>
-                    <td className="p-3 text-right space-x-3 whitespace-nowrap">
-                      {!retired && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setMode({ kind: 'receive', drug: d })}>Receive</button>}
-                      {!retired && d.currentStock > 0 && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setMode({ kind: 'adjust', drug: d })}>Adjust</button>}
-                      {!retired && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setMode({ kind: 'edit', drug: d })}>Edit</button>}
-                      {!retired ? <button type="button" className="font-bold text-muted cursor-pointer" onClick={() => retire(d)}>Retire</button>
-                        : <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => restore(d)}>Restore</button>}
+                    <td className="p-3">
+                      <div className="flex items-center justify-end gap-2">
+                        {!retired ? (
+                          <>
+                            <button type="button" className="btn-primary" onClick={() => setMode({ kind: 'receive', drug: d })}>Receive</button>
+                            <ActionMenu
+                              label={`More actions for ${d.name}`}
+                              items={[
+                                ...(d.currentStock > 0 ? [{ label: 'Adjust stock', onSelect: () => setMode({ kind: 'adjust', drug: d }) }] : []),
+                                { label: 'Edit details', onSelect: () => setMode({ kind: 'edit', drug: d }) },
+                                { label: 'Retire drug', onSelect: () => setMode({ kind: 'retire', drug: d }) },
+                              ]}
+                            />
+                          </>
+                        ) : (
+                          <button type="button" className="btn-secondary" onClick={() => restore(d)}>Restore</button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                   {open === d.id && (
@@ -99,7 +156,7 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
                             {[...(d.batches ?? [])].sort((a, b) => (a.expiryDate ?? '9999') < (b.expiryDate ?? '9999') ? -1 : 1).map((b) => (
                               <tr key={b.id} className="border-t border-line-subtle">
                                 <td className="py-1 font-mono">{b.batchId}</td>
-                                <td className={`py-1 ${isExpired(b, today) && b.stock > 0 ? 'text-rose-700 font-bold' : ''}`}>{b.expiryDate ?? 'Unknown'}{isExpired(b, today) && b.stock > 0 ? ' (expired)' : ''}</td>
+                                <td className={`py-1 ${isExpired(b, today) && b.stock > 0 ? 'text-rose-700 dark:text-rose-300 font-bold' : ''}`}>{b.expiryDate ?? 'Unknown'}{isExpired(b, today) && b.stock > 0 ? ' (expired)' : ''}</td>
                                 <td className="py-1 text-right font-mono">{b.stock}</td>
                                 <td className="py-1 text-right text-subtle">{b.receivedAt ? new Date(b.receivedAt).toLocaleDateString() : ''}</td>
                               </tr>
@@ -123,6 +180,16 @@ export default function StockPanel({ role, focusDrugId }: { role: 'admin' | 'pha
 
       {mode?.kind === 'add' && <DrugForm role={role} onClose={() => setMode(null)} />}
       {mode?.kind === 'edit' && <DrugForm drug={mode.drug} role={role} onClose={() => setMode(null)} />}
+      {mode?.kind === 'retire' && (
+        <ReasonDialog
+          title={`Retire ${mode.drug.name}?`}
+          message="It disappears from prescribing, but its history and any remaining stock record stay. You can restore it later."
+          confirmLabel="Retire drug"
+          busy={api.retireDrug.isPending}
+          onConfirm={(reason) => retire(mode.drug, reason)}
+          onClose={() => setMode(null)}
+        />
+      )}
       {mode?.kind === 'receive' && <ReceiveDialog drug={mode.drug} onClose={() => setMode(null)} />}
       {mode?.kind === 'adjust' && <AdjustDialog drug={mode.drug} onClose={() => setMode(null)} />}
     </div>
@@ -159,9 +226,9 @@ function ReceiveDialog({ drug, onClose }: { drug: DrugItem; onClose: () => void 
         </Field>
         <Field label="Note (optional)"><input className={inputClass} value={f.notes} onChange={set('notes')} /></Field>
       </div>
-      {drug.registerRequired && <p className="text-xs text-teal-800 bg-teal-50 border border-teal-200 px-3 py-2">This is a controlled drug. The receipt goes in the register and needs a second person's signature.</p>}
+      {drug.registerRequired && <p className="chip-brand block px-3 py-2 text-xs">This is a controlled drug. The receipt goes in the register and needs a second person's signature.</p>}
       {err && <Notice ok={false}>{err}</Notice>}
-      <div className="flex justify-end gap-2"><Button variant="outline" size="sm" onClick={onClose}>Cancel</Button><Button size="sm" onClick={save} disabled={api.receiveStock.isPending}>Receive</Button></div>
+      <div className="flex justify-end gap-2"><button type="button" className="btn-secondary" onClick={onClose}>Cancel</button><button type="button" className="btn-primary" onClick={save} disabled={api.receiveStock.isPending}>Receive</button></div>
     </Dialog>
   );
 }
@@ -205,9 +272,9 @@ function AdjustDialog({ drug, onClose }: { drug: DrugItem; onClose: () => void }
         <Field label={`Quantity${batch ? ` (up to ${batch.stock} for this batch)` : ''}`}><input className={inputClass} type="number" min="1" value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} /></Field>
         <Field label="Reason (kept in the ledger)"><input className={inputClass} value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} placeholder="e.g. Expired 2026-09, broken bottle" /></Field>
       </div>
-      {drug.registerRequired && <p className="text-xs text-teal-800 bg-teal-50 border border-teal-200 px-3 py-2">This is a controlled drug. The change goes in the register and needs a second person's signature.</p>}
+      {drug.registerRequired && <p className="chip-brand block px-3 py-2 text-xs">This is a controlled drug. The change goes in the register and needs a second person's signature.</p>}
       {err && <Notice ok={false}>{err}</Notice>}
-      <div className="flex justify-end gap-2"><Button variant="outline" size="sm" onClick={onClose}>Cancel</Button><Button size="sm" onClick={save} disabled={api.adjustStock.isPending || !f.batch}>Record</Button></div>
+      <div className="flex justify-end gap-2"><button type="button" className="btn-secondary" onClick={onClose}>Cancel</button><button type="button" className="btn-primary" onClick={save} disabled={api.adjustStock.isPending || !f.batch}>Record</button></div>
     </Dialog>
   );
 }

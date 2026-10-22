@@ -49,8 +49,8 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
                 <div className="text-xs font-bold text-ink">{d.name}</div>
                 <div className="text-2xs text-subtle">{controlClassLabel(d.controlClass)}</div>
                 <div className="text-xl font-bold font-mono text-ink">{bal}<span className="text-2xs text-subtle font-medium"> in register</span></div>
-                {unsigned(d.id) > 0 && <div className="text-2xs font-bold text-teal-800">{unsigned(d.id)} awaiting signature</div>}
-                {problem && <div className="text-2xs font-bold text-rose-700">{problem}</div>}
+                {unsigned(d.id) > 0 && <div className="chip-brand inline-block px-2 py-0.5 text-2xs">{unsigned(d.id)} awaiting signature</div>}
+                {problem && <div className="chip-danger inline-block px-2 py-0.5 text-2xs">{problem}</div>}
               </button>
             );
           })}
@@ -81,9 +81,9 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
                 <td className="p-3">{e.patientName ? <>{e.patientName}<div className="font-mono text-subtle">{maskICNumber(e.patientIc, showPII)}</div></> : '–'}{e.prescriberName && <div className="text-subtle">Dr: {e.prescriberName}</div>}</td>
                 <td className="p-3">{e.performedByName ?? '?'}</td>
                 <td className="p-3">
-                  {e.signedBy ? <span className="text-emerald-700 font-bold">{e.signedByName}<div className="font-medium text-subtle">{fmtDate(e.signedAt)}</div></span>
-                    : e.performedBy === user?.id ? <span className="text-teal-800 font-bold">Needs another person</span>
-                      : <button type="button" className="font-bold text-accent cursor-pointer" disabled={api.signEntry.isPending} onClick={() => sign(e.id)}>Sign</button>}
+                  {e.signedBy ? <span className="text-accent font-bold">{e.signedByName}<div className="font-medium text-subtle">{fmtDate(e.signedAt)}</div></span>
+                    : e.performedBy === user?.id ? <span className="chip-brand px-2 py-0.5 text-2xs">Needs another person</span>
+                      : <button type="button" className="btn-primary" disabled={api.signEntry.isPending} onClick={() => sign(e.id)}>Sign</button>}
                 </td>
               </tr>
             ))}

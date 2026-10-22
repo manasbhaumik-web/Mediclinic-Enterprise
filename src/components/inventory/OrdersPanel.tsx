@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Button from '../ui/Button';
 import { useDrugs, useInventoryActions, usePurchaseOrders, useSuppliers } from '../../hooks/useInventoryData';
 import { PO_STYLE, PurchaseOrder, Supplier, isOverdue, poProgress, poTotal } from '../../domain/inventory';
-import { Dialog, Field, Notice, errorMessage, inputClass, myr, todayStr, toneClass } from './shared';
+import { Dialog, Field, Notice, ReasonDialog, errorMessage, inputClass, myr, todayStr, toneClass } from './shared';
 import type { OrderSeed } from './AlertsPanel';
 
 type Sub = 'orders' | 'suppliers';
@@ -31,6 +31,7 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
   const [receiving, setReceiving] = useState<PurchaseOrder | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<PurchaseOrder | null>(null);
   const today = todayStr();
   const supplier = new Map((suppliers.data ?? []).map((s) => [s.id, s.name]));
   const drugName = new Map((drugs.data ?? []).map((d) => [d.id, d.name]));
@@ -41,15 +42,21 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
     setMsg(null);
     try { await fn(); setMsg({ ok: true, text: ok }); } catch (e) { setMsg({ ok: false, text: errorMessage(e) }); }
   };
-  const cancel = (o: PurchaseOrder) => {
-    const reason = window.prompt(`Why is ${o.poNumber} being cancelled?`);
-    if (reason?.trim()) void act(() => api.setPoStatus.mutateAsync({ id: o.id, status: 'cancelled', reason: reason.trim() }), `${o.poNumber} cancelled.`);
-  };
+  const cancel = (o: PurchaseOrder) => setCancelling(o);
 
   return (
     <div className="space-y-3">
       <div className="flex justify-end"><Button size="sm" onClick={() => setForm({})}>New purchase order</Button></div>
-      {orders.error && <Notice ok={false}>Could not load purchase orders. Has the v22 inventory migration been applied?</Notice>}
+      {orders.error && <Notice ok={false}>Could not load purchase orders. Try again, or ask an administrator to check the inventory set-up.</Notice>}
+      {cancelling && (
+        <ReasonDialog
+          title={`Cancel ${cancelling.poNumber}?`}
+          message="The order is marked cancelled and no more stock can be received against it."
+          confirmLabel="Cancel order"
+          onConfirm={(reason) => { const o = cancelling; setCancelling(null); void act(() => api.setPoStatus.mutateAsync({ id: o.id, status: 'cancelled', reason }), `${o.poNumber} cancelled.`); }}
+          onClose={() => setCancelling(null)}
+        />
+      )}
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
@@ -63,7 +70,7 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
                   <tr className="border-b border-line-subtle">
                     <td className="p-3 font-bold text-ink"><button type="button" className="cursor-pointer" onClick={() => setOpen(open === o.id ? null : o.id)}>{o.poNumber}</button></td>
                     <td className="p-3">{supplier.get(o.supplierId) ?? '?'}</td>
-                    <td className="p-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span>{isOverdue(o, today) && <span className="ml-2 text-rose-700 font-bold">Overdue</span>}</td>
+                    <td className="p-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span>{isOverdue(o, today) && <span className="chip-danger ml-2 px-2 py-0.5 text-2xs uppercase">Overdue</span>}</td>
                     <td className="p-3 font-mono">{o.expectedDate ?? '–'}</td>
                     <td className="p-3 text-right font-mono">{pr.received}/{pr.ordered} ({pr.percent}%)</td>
                     <td className="p-3 text-right font-mono">{poTotal(o.lines) ? myr(poTotal(o.lines)) : '–'}</td>
@@ -77,7 +84,7 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
                   {open === o.id && (
                     <tr><td colSpan={7} className="p-3 bg-surface-accent">
                       {o.notes && <p className="text-xs text-muted mb-1">{o.notes}</p>}
-                      {o.cancelReason && <p className="text-xs text-rose-700 mb-1">Cancelled: {o.cancelReason}</p>}
+                      {o.cancelReason && <p className="text-xs text-rose-700 dark:text-rose-300 mb-1">Cancelled: {o.cancelReason}</p>}
                       <ul className="text-xs space-y-0.5">{o.lines.map((l) => <li key={l.id}>{drugName.get(l.inventoryId) ?? '?'}: ordered {l.quantityOrdered}, received {l.quantityReceived}{l.unitCost !== null ? ` @ ${myr(l.unitCost)}` : ''}</li>)}</ul>
                     </td></tr>
                   )}
@@ -128,14 +135,14 @@ function PoForm({ po, seed, onClose }: { po?: PurchaseOrder; seed?: OrderSeed[];
         <Field label="Expected delivery"><input className={inputClass} type="date" value={expected} onChange={(e) => setExpected(e.target.value)} /></Field>
         <Field label="Note"><input className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} /></Field>
       </div>
-      {(suppliers.data ?? []).length === 0 && <p className="text-xs text-amber-800">Add a supplier first (Suppliers tab).</p>}
+      {(suppliers.data ?? []).length === 0 && <p className="chip-warn block px-3 py-2 text-xs">Add a supplier first (Suppliers tab).</p>}
       <div className="space-y-2">
         {lines.map((l, i) => (
           <div key={i} className="flex flex-wrap items-center gap-2">
             <select className={`${inputClass} !w-72`} aria-label="Drug" value={l.inventoryId} onChange={(e) => upd(i, { inventoryId: e.target.value })}><option value="">Choose a drug…</option>{active.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
             <input className={`${inputClass} !w-24`} type="number" min="1" aria-label="Quantity" placeholder="Qty" value={l.qty} onChange={(e) => upd(i, { qty: e.target.value })} />
             <input className={`${inputClass} !w-28`} type="number" min="0" step="0.01" aria-label="Unit cost" placeholder="Unit cost" value={l.cost} onChange={(e) => upd(i, { cost: e.target.value })} />
-            <button type="button" className="text-rose-700 text-xs font-bold cursor-pointer" onClick={() => setLines(lines.filter((_, n) => n !== i))}>Remove</button>
+            <button type="button" className="btn-secondary" onClick={() => setLines(lines.filter((_, n) => n !== i))}>Remove</button>
           </div>
         ))}
         <button type="button" className="text-xs font-bold text-accent cursor-pointer" onClick={() => setLines([...lines, { inventoryId: '', qty: '', cost: '' }])}>+ Add item</button>
