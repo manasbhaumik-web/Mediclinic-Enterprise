@@ -27,14 +27,10 @@ import { useSettings } from '../context/SettingsContext';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import NotificationBell from './NotificationBell';
 import { useAuth } from '../context/AuthContext';
-import { Visit, Language } from '../types';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
   userRole: 'admin' | 'hr';
-  completedVisits?: Visit[];
-  totalRegisteredCount?: number;
-  activeLanguage?: Language;
   onOpenDashboard?: () => void;
 }
 
@@ -45,9 +41,6 @@ type AdminCategory = 'people' | 'clinical' | 'finance' | 'compliance' | 'platfor
 export default function AdminModule({
   onNavigate,
   userRole,
-  completedVisits = [],
-  totalRegisteredCount = 0,
-  activeLanguage = 'EN',
   onOpenDashboard
 }: AdminModuleProps) {
   const [activeTab, setActiveTab] = useState<AdminTab>('staff');
@@ -406,11 +399,7 @@ export default function AdminModule({
           )}
 
           {activeTab === 'moh' && userRole === 'admin' && (
-            <MOHDashboard
-              completedVisits={completedVisits}
-              totalRegisteredCount={totalRegisteredCount}
-              activeLanguage={activeLanguage}
-            />
+            <MOHDashboard onOpenTab={setActiveTab} />
           )}
 
           {activeTab === 'settings' && userRole === 'admin' && (

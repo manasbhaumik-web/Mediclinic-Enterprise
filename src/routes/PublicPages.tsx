@@ -116,9 +116,6 @@ export function AdminPage() {
     <AdminModule
       onNavigate={async () => { await signOut(); navigate('/login', { replace: true }); }}
       userRole={role as 'admin' | 'hr'}
-      completedVisits={d.completedVisits}
-      totalRegisteredCount={d.patientsList.length}
-      activeLanguage={activeLanguage}
       onOpenDashboard={() => navigate('/app/dashboard')}
     />
   );

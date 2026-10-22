@@ -1,392 +1,319 @@
-import React, { useState } from 'react';
-import { Visit, Language } from '../types';
-import { TRANSLATIONS } from '../data';
-import { useInventory } from '../context/InventoryContext';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, LineChart, Line, AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
-} from 'recharts';
-import { 
-  Building, RefreshCw, Layers, TrendingUp, AlertCircle, ShoppingCart, 
-  Globe2, CheckCircle, Database, HelpCircle, ArrowUpRight,
-  Activity, Users, DollarSign, Brain, BarChart3, Target, ChevronRight, Zap, CheckCircle2, AlertTriangle, ShieldCheck, LayoutDashboard, FileText, UploadCloud
+import React, { useEffect, useMemo, useState } from 'react';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import {
+  AlertTriangle, Building, CheckCircle2, ChevronRight, ClipboardCheck, FileText, Info, RefreshCw, ShieldCheck, Stethoscope,
 } from 'lucide-react';
+import { useCompliance } from '../hooks/useCompliance';
+import { useEquipmentList, useEquipmentSettings } from '../hooks/useEquipment';
+import { useSettings } from '../context/SettingsContext';
+import { INVENTORY_KEY } from '../context/InventoryContext';
+import { dueState } from '../domain/equipment';
+import { LicenceState, licenceStatus } from '../domain/compliance';
+import { localDateKey } from '../domain/operations';
 
-import { chartTheme } from '../theme/chartTheme';
-import { palette, seriesColors } from '../theme/palette';
 interface MOHDashboardProps {
-  completedVisits: Visit[];
-  totalRegisteredCount: number;
-  activeLanguage: Language;
+  /** Opens another Administration section. */
+  onOpenTab?: (tab: 'settings' | 'equipment' | 'medicine') => void;
 }
 
-type TabType = 'overview' | 'comparative' | 'population' | 'provider' | 'financial' | 'workflow' | 'outcomes';
+const PERIODS = [
+  { days: 30, label: 'Last 30 days' },
+  { days: 90, label: 'Last 90 days' },
+  { days: 365, label: 'Last 12 months' },
+] as const;
 
-export default function MOHDashboard({
-  completedVisits,
-  totalRegisteredCount,
-  activeLanguage
-}: MOHDashboardProps) {
-  const t = TRANSLATIONS[activeLanguage];
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
-  
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadPercent, setUploadPercent] = useState(85);
-  const [lastUploadTime, setLastUploadTime] = useState<string>('Today, 10:15 AM');
+type Tone = 'ok' | 'warn' | 'bad' | 'idle';
+const TONE_STYLE: Record<Tone, string> = {
+  ok: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+  warn: 'bg-amber-50 text-amber-800 border-amber-200',
+  bad: 'bg-rose-50 text-rose-800 border-rose-200',
+  idle: 'bg-slate-50 text-slate-700 border-line',
+};
 
-  // Compute stats today
-  const revenueTotal = completedVisits.reduce((acc, curr) => acc + (curr.paidAmount + curr.panelClaimed), 0) + 160; 
-  const patientsCount = completedVisits.length + totalRegisteredCount; 
-  const pendingTPAClaims = completedVisits.filter(v => v.panelClaimed > 0 && v.status !== 'Paid').length * 2 + 3; 
-  
-  const { catalog } = useInventory();
-  
-  // Real-time metrics
-  const activeStaff = 14;
-  const criticalPatients = 2;
-  const lowStockCount = (catalog || []).filter(d => d.currentStock <= 200).length;
+const LICENCE_TONE: Record<LicenceState, Tone> = { none: 'idle', ok: 'ok', soon: 'warn', expired: 'bad' };
 
-  // Overview Data
-  const patientVolumeData = [
-    { hour: '08:00 AM', patients: 4 },
-    { hour: '09:00 AM', patients: 14 },
-    { hour: '10:00 AM', patients: 22 },
-    { hour: '11:00 AM', patients: 28 },
-    { hour: '12:00 PM', patients: 11 },
-    { hour: '01:00 PM', patients: 5 },
-    { hour: '02:00 PM', patients: 16 },
-    { hour: '03:00 PM', patients: 21 },
-    { hour: '04:00 PM', patients: 15 },
-    { hour: '05:00 PM', patients: 8 }
-  ];
+const longDate = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' });
 
-  const icdDiagnosesData = [
-    { name: 'J06.9 Common Cold', value: 38, color: palette.brand },
-    { name: 'I10 Hypertension', value: 24, color: seriesColors.emerald },
-    { name: 'E11.9 Diabetes T2', value: 16, color: seriesColors.sky },
-    { name: 'K30 Gastritis', value: 12, color: seriesColors.amber },
-    { name: 'M79.1 Myalgia', value: 10, color: seriesColors.roseDark }
-  ];
+export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching({ predicate: (q) => q.queryKey[0] === 'compliance' || q.queryKey[0] === INVENTORY_KEY[0] }) > 0;
+  const { clinic } = useSettings();
 
-  // Financial Forecasting Data
-  const financialForecastData = [
-    { month: 'Jan', actual: 42000, projected: 42000 },
-    { month: 'Feb', actual: 46000, projected: 46000 },
-    { month: 'Mar', actual: 45500, projected: 45500 },
-    { month: 'Apr', actual: 48000, projected: 48000 },
-    { month: 'May', actual: 51000, projected: 51000 },
-    { month: 'Jun', actual: null, projected: 54000 },
-    { month: 'Jul', actual: null, projected: 56500 },
-    { month: 'Aug', actual: null, projected: 59000 },
-  ];
+  const [periodDays, setPeriodDays] = useState<number>(90);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 3_600_000);
+    return () => clearInterval(id);
+  }, []);
+  const today = localDateKey(new Date(now));
+  const from = localDateKey(new Date(now - periodDays * 86_400_000));
 
-  // Comparative Analytics Data
-  const comparativeData = [
-    { metric: 'Wait Time', clinic: 85, national: 65, fullMark: 100 },
-    { metric: 'Patient Sat', clinic: 92, national: 75, fullMark: 100 },
-    { metric: 'Cost Efficiency', clinic: 78, national: 70, fullMark: 100 },
-    { metric: 'Readmission', clinic: 95, national: 80, fullMark: 100 },
-    { metric: 'Digital Adoption', clinic: 100, national: 45, fullMark: 100 },
-  ];
+  const c = useCompliance(from, today, now);
+  const equipment = useEquipmentList();
+  const { settings: equipmentSettings } = useEquipmentSettings();
+  const soonDays = equipmentSettings.data?.dueSoonDays ?? 30;
 
-  // Provider Performance
-  const providerData = [
-    { name: 'Dr. Sarah', efficiency: 94, quality: 98, satisfaction: 4.9 },
-    { name: 'Dr. Ahmad', efficiency: 88, quality: 95, satisfaction: 4.7 },
-    { name: 'Dr. Wei', efficiency: 96, quality: 92, satisfaction: 4.8 },
-  ];
+  const licence = licenceStatus(clinic.licenseExpiry, today);
 
-  // Outcomes Tracking
-  const outcomesData = [
-    { treatment: 'Hypertension Protocol A', successRate: 92 },
-    { treatment: 'Hypertension Protocol B', successRate: 81 },
-    { treatment: 'Diabetes Mgmt Plan 1', successRate: 88 },
-    { treatment: 'URTI Standard Care', successRate: 97 },
-  ];
+  const certificates = useMemo(() => {
+    const rank = { overdue: 0, soon: 1, none: 2, ok: 3 } as const;
+    return (equipment.data ?? [])
+      .filter((e) => e.status !== 'Decommissioned')
+      .map((e) => ({
+        id: e.id, name: e.name, assetTag: e.assetTag, certRef: e.safetyCertRef, certExpiry: e.safetyCertExpiry,
+        cert: dueState(e.safetyCertExpiry, today, soonDays),
+        calibration: e.calibrationRequired ? dueState(e.nextCalibrationDue, today, soonDays) : null,
+        nextCalibrationDue: e.nextCalibrationDue,
+      }))
+      .sort((a, b) => rank[a.cert] - rank[b.cert] || a.name.localeCompare(b.name));
+  }, [equipment.data, today, soonDays]);
+  const certsNotRecorded = certificates.filter((e) => e.cert === 'none').length;
+  const certsNeedingAttention = certificates.filter((e) => e.cert === 'overdue' || e.cert === 'soon' || e.calibration === 'overdue').length;
 
-  const handleNidcsUpload = () => {
-    if (isUploading) return;
-    setIsUploading(true);
-    setUploadPercent(85);
-
-    const interval = setInterval(() => {
-      setUploadPercent((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          const now = new Date();
-          setLastUploadTime(`Today, ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
-          return 100;
-        }
-        return p + 5;
-      });
-    }, 150);
-  };
-
-  const tabs = [
-    { id: 'overview', label: 'Clinical Dashboard', icon: LayoutDashboard },
-    { id: 'population', label: 'Population Health', icon: Users },
-    { id: 'comparative', label: 'Benchmarking', icon: BarChart3 },
-    { id: 'financial', label: 'Financial Forecast', icon: DollarSign },
-    { id: 'provider', label: 'Provider Efficiency', icon: Activity },
-    { id: 'workflow', label: 'AI Optimization', icon: Brain },
-    { id: 'outcomes', label: 'Outcomes Tracking', icon: Target },
-  ] as const;
+  const coding = c.coding;
+  const recordableCount = c.recordable.total - c.recordable.uncovered.length;
+  const periodLabel = PERIODS.find((p) => p.days === periodDays)?.label.toLowerCase() ?? '';
 
   return (
     <div className="animate-fadeIn w-full space-y-6 pb-8">
-      
-      {/* 1. STRUCTURED PAGE HEADER BANNER */}
       <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
-              Public Health Compliance
-            </span>
-            <span className="flex items-center justify-center gap-1 text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              NIDCS Sync Online
-            </span>
-          </div>
           <h1 className="type-page-title text-ink flex items-center gap-2.5">
-            <Globe2 className="w-6 h-6 text-accent" />
-            MOH Regulatory Compliance &amp; Analytics
+            <ShieldCheck className="w-6 h-6 text-accent" aria-hidden="true" />
+            Regulatory Compliance
           </h1>
           <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
-            NIDCS automated disease reporting, epidemiological surveillance, and population health analytics.
+            The clinic's licence, notifiable-disease cases, how complete the records are, and equipment certificates, all read from the clinic's own data.
+            This page does not send anything to the Ministry of Health.
           </p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <button 
-            type="button"
-            onClick={handleNidcsUpload}
-            disabled={isUploading}
-            className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3.5 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all shadow-sm cursor-pointer"
+        <div className="flex items-center gap-2">
+          <label htmlFor="compliance-period" className="sr-only">Period</label>
+          <select
+            id="compliance-period"
+            value={periodDays}
+            onChange={(e) => setPeriodDays(Number(e.target.value))}
+            className="text-xs font-bold border border-line bg-white px-2 py-2 rounded-none cursor-pointer"
           >
-            <UploadCloud className="w-4 h-4" />
-            <span>{isUploading ? `Uploading ${uploadPercent}%` : 'Transmit NIDCS Report'}</span>
+            {PERIODS.map((p) => <option key={p.days} value={p.days}>{p.label}</option>)}
+          </select>
+          <button
+            type="button"
+            onClick={() => {
+              setNow(Date.now());
+              void queryClient.invalidateQueries({ queryKey: ['compliance'] });
+              void queryClient.invalidateQueries({ queryKey: INVENTORY_KEY });
+              void queryClient.invalidateQueries({ queryKey: ['equipment'] });
+            }}
+            disabled={isFetching}
+            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
+            {isFetching ? 'Refreshing…' : 'Refresh'}
           </button>
         </div>
       </div>
 
-      {/* 2. TOP METRICS SUMMARY ROW */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Total Patient Encounters</span>
-          <span className="text-xl font-bold font-mono text-ink block mt-0.5">{patientsCount} Encounters</span>
+      {c.hasError && (
+        <div role="alert" className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium">
+          <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" />
+          Some figures could not be loaded and may be incomplete. Use Refresh to try again.
         </div>
+      )}
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">NIDCS Sync Timestamp</span>
-          <span className="text-xl font-bold font-mono text-emerald-700 block mt-0.5">{lastUploadTime}</span>
-        </div>
-
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">Pending TPA Claims</span>
-          <span className="text-xl font-bold font-mono text-accent block mt-0.5">{pendingTPAClaims} Claims</span>
-        </div>
-
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
-          <span className="text-2xs font-bold uppercase text-slate-500 tracking-wider block">MOH Regulatory Status</span>
-          <span className="text-xl font-bold font-mono text-emerald-700 block mt-0.5">100% Compliant</span>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Kpi
+          label="Clinic licence"
+          value={licence.state === 'none' ? 'Not recorded' : licence.state === 'expired' ? 'Expired' : `${licence.days} days left`}
+          note={clinic.licenseExpiry ? `Expires ${longDate(clinic.licenseExpiry)}` : 'Add the expiry date in Settings'}
+          tone={LICENCE_TONE[licence.state]}
+        />
+        <Kpi
+          label="Notifiable cases"
+          value={c.isPending ? '…' : String(c.cases.totalCases)}
+          note={`Recorded ${periodLabel}`}
+          tone={c.cases.totalCases > 0 ? 'warn' : 'ok'}
+        />
+        <Kpi
+          label="Diagnosis coded"
+          value={coding?.percent === null || coding === null ? '—' : `${coding.percent}%`}
+          note={coding ? `${coding.coded} of ${coding.consulted} finished consultations` : 'Loading…'}
+          tone={coding && coding.percent !== null && coding.percent < 100 ? 'warn' : 'ok'}
+        />
+        <Kpi
+          label="Equipment certificates"
+          value={equipment.isPending ? '…' : String(certsNeedingAttention)}
+          note={`Expired, expiring soon or calibration overdue${certsNotRecorded ? `; ${certsNotRecorded} with no certificate recorded` : ''}`}
+          tone={certsNeedingAttention > 0 ? 'warn' : 'ok'}
+        />
       </div>
 
-      {/* 3. SUB-TAB NAVIGATION BAR */}
-      <div className="flex items-stretch gap-0 bg-surface-strong border-b border-line text-xs font-bold h-10 overflow-x-auto custom-scrollbar">
-        {tabs.map((tab) => {
-          const IconComp = tab.icon;
-          const isActive = activeTab === tab.id;
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          <Panel icon={Building} title="Clinic licence" action={onOpenTab && <PanelLink label="Edit in Settings" onClick={() => onOpenTab('settings')} />}>
+            <dl className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1.5 text-xs">
+              <dt className="text-slate-500">Clinic</dt><dd className="font-semibold text-ink">{clinic.name || '—'}{clinic.branch ? `, ${clinic.branch}` : ''}</dd>
+              <dt className="text-slate-500">KKM licence no.</dt><dd className="font-mono text-ink">{clinic.licenseNo || 'Not recorded'}</dd>
+              <dt className="text-slate-500">Licence expires</dt><dd className="font-semibold text-ink">{clinic.licenseExpiry ? longDate(clinic.licenseExpiry) : 'Not recorded'}</dd>
+            </dl>
+            <p className={`mt-3 text-xs border px-3 py-2 ${TONE_STYLE[LICENCE_TONE[licence.state]]}`}>
+              {licence.state === 'none' && 'No expiry date is recorded, so this page cannot warn before the licence lapses.'}
+              {licence.state === 'ok' && `The licence is valid for another ${licence.days} days.`}
+              {licence.state === 'soon' && `The licence expires in ${licence.days} day${licence.days === 1 ? '' : 's'}. Check that renewal is under way.`}
+              {licence.state === 'expired' && `The licence expired ${-(licence.days ?? 0)} day${licence.days === -1 ? '' : 's'} ago.`}
+            </p>
+          </Panel>
 
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                isActive 
-                  ? 'bg-chrome text-white font-bold' 
-                  : 'bg-transparent text-ink hover:bg-surface-strong font-bold'
-              }`}
-            >
-              <IconComp className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+          <Panel icon={ClipboardCheck} title="Record completeness">
+            <ul className="space-y-2.5 text-xs">
+              <Check
+                tone={!coding || coding.percent === null ? 'idle' : coding.missing === 0 ? 'ok' : 'warn'}
+                title="Diagnosis codes on finished consultations"
+                detail={!coding ? 'Loading…' : coding.consulted === 0 ? `No consultations finished ${periodLabel}.` : coding.missing === 0 ? `All ${coding.consulted} have a diagnosis code.` : `${coding.missing} of ${coding.consulted} have no diagnosis code, so they cannot appear in disease counts.`}
+              />
+              <Check
+                tone={c.unsigned.unsigned === 0 ? 'ok' : 'bad'}
+                title="Controlled-drug entries awaiting a second signature"
+                detail={c.unsigned.unsigned === 0 ? (c.registerEntries === 0 ? 'No controlled-drug entries have been recorded.' : `None among the latest ${c.registerEntries} register entries.`) : `${c.unsigned.unsigned} waiting; the oldest for ${c.unsigned.oldestDays} day${c.unsigned.oldestDays === 1 ? '' : 's'}.`}
+                action={c.unsigned.unsigned > 0 && onOpenTab ? <PanelLink label="Open Inventory" onClick={() => onOpenTab('medicine')} /> : undefined}
+              />
+              <Check
+                tone={c.notifiableTotal === 0 ? 'idle' : c.recordable.uncovered.length === 0 ? 'ok' : 'warn'}
+                title="Notifiable conditions a doctor can record"
+                detail={c.notifiableTotal === 0 ? 'No notifiable list is set up.' : `${recordableCount} of ${c.recordable.total} can be chosen as a diagnosis.${c.recordable.uncovered.length ? ' The rest have no matching code in the diagnosis list.' : ''}`}
+              />
+            </ul>
+            {c.recordable.uncovered.length > 0 && (
+              <p className="mt-3 text-xs text-amber-900 bg-amber-50 border border-amber-200 px-3 py-2 leading-relaxed">
+                <strong>Cannot be recorded yet:</strong> {c.recordable.uncovered.join(', ')}. Cases of these will always read zero below until their diagnosis codes are added to the catalog.
+              </p>
+            )}
+          </Panel>
+        </div>
 
-      {/* 4. OVERVIEW DASHBOARD CONTENT */}
-      {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
-          
-          {/* Patient Volume hourly chart */}
-          <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="type-card-title text-ink flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-accent" />
-                <span>Hourly Outpatient Volume Telemetry</span>
-              </h3>
-              <span className="text-2xs font-mono font-bold bg-surface-accent text-accent px-2 py-0.5 border border-line">
-                Peak: 11:00 AM (28)
-              </span>
-            </div>
+        <div className="space-y-6">
+          <Panel icon={FileText} title={`Notifiable cases, ${periodLabel}`}>
+            {c.isPending ? (
+              <p className="text-xs text-slate-500">Loading…</p>
+            ) : c.weekly.length === 0 ? (
+              <p className="flex items-center gap-2 text-xs text-emerald-700 font-medium"><CheckCircle2 className="w-4 h-4" aria-hidden="true" />No notifiable cases recorded in this period.</p>
+            ) : (
+              <>
+                <ul className="mb-3 space-y-1 text-xs">
+                  {c.cases.byCondition.map((r) => (
+                    <li key={r.condition} className="flex justify-between border-b border-slate-100 pb-1"><span className="font-bold text-ink">{r.condition}</span><span className="font-mono">{r.cases} case{r.cases === 1 ? '' : 's'}</span></li>
+                  ))}
+                </ul>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="text-ink uppercase border-b border-line font-bold">
+                      <tr><th scope="col" className="py-2 pr-3">Week of</th><th scope="col" className="py-2 pr-3">Condition</th><th scope="col" className="py-2 pr-3">Code</th><th scope="col" className="py-2 text-right">Cases</th></tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {c.weekly.map((r) => (
+                        <tr key={`${r.weekStart}-${r.icdCode}`}>
+                          <td className="py-2 pr-3 font-mono">{longDate(r.weekStart)}</td>
+                          <td className="py-2 pr-3">{r.condition}</td>
+                          <td className="py-2 pr-3 font-mono">{r.icdCode}</td>
+                          <td className="py-2 text-right font-mono font-bold">{r.cases}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+            <p className="mt-3 flex items-start gap-2 text-2xs text-slate-500 leading-relaxed">
+              <Info className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden="true" />
+              <span>Counts come from the diagnosis on each visit, matched to a notifiable-conditions list that started from the Act 342 schedule and must be checked against the current Ministry list. The app does not record whether, when or by whom a case was reported, and does not file reports.</span>
+            </p>
+          </Panel>
 
-            <div className="h-64 w-full pt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={patientVolumeData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} />
-                  <XAxis dataKey="hour" tick={chartTheme.tickSmall} />
-                  <YAxis tick={chartTheme.tickSmall} />
-                  <Tooltip contentStyle={chartTheme.tooltip} />
-                  <Bar dataKey="patients" fill={palette.brand} radius={[0, 0, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* ICD-10 Diagnoses distribution */}
-          <div className="bg-surface-accent border border-line p-5 rounded-none shadow-2xs space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="type-card-title text-ink flex items-center gap-2">
-                <Target className="w-4 h-4 text-accent" />
-                <span>Top Outpatient ICD-10 Diagnoses Distribution</span>
-              </h3>
-            </div>
-
-            <div className="h-64 w-full flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={icdDiagnosesData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                    {icdDiagnosesData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+          <Panel icon={Stethoscope} title="Equipment safety certificates" action={onOpenTab && <PanelLink label="Open Equipment" onClick={() => onOpenTab('equipment')} />}>
+            {equipment.isPending ? (
+              <p className="text-xs text-slate-500">Loading…</p>
+            ) : certificates.length === 0 ? (
+              <p className="text-xs text-slate-600">No equipment is registered.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="text-ink uppercase border-b border-line font-bold">
+                    <tr><th scope="col" className="py-2 pr-3">Equipment</th><th scope="col" className="py-2 pr-3">Safety certificate</th><th scope="col" className="py-2">Calibration</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {certificates.map((e) => (
+                      <tr key={e.id}>
+                        <th scope="row" className="py-2 pr-3 font-semibold text-ink">{e.name}<span className="block font-mono font-normal text-2xs text-slate-500">{e.assetTag}</span></th>
+                        <td className="py-2 pr-3">
+                          <Badge tone={e.cert === 'overdue' ? 'bad' : e.cert === 'soon' ? 'warn' : e.cert === 'ok' ? 'ok' : 'idle'}>
+                            {e.cert === 'overdue' ? 'Expired' : e.cert === 'soon' ? 'Expires soon' : e.cert === 'ok' ? 'Valid' : 'Not recorded'}
+                          </Badge>
+                          {e.certExpiry && <span className="block font-mono text-2xs text-slate-500 mt-0.5">{e.certRef ? `${e.certRef} · ` : ''}{longDate(e.certExpiry)}</span>}
+                        </td>
+                        <td className="py-2">
+                          {e.calibration === null ? <span className="text-slate-400">Not required</span> : (
+                            <>
+                              <Badge tone={e.calibration === 'overdue' ? 'bad' : e.calibration === 'soon' ? 'warn' : e.calibration === 'ok' ? 'ok' : 'idle'}>
+                                {e.calibration === 'overdue' ? 'Overdue' : e.calibration === 'soon' ? 'Due soon' : e.calibration === 'ok' ? 'Up to date' : 'Never recorded'}
+                              </Badge>
+                              {e.nextCalibrationDue && <span className="block font-mono text-2xs text-slate-500 mt-0.5">{longDate(e.nextCalibrationDue)}</span>}
+                            </>
+                          )}
+                        </td>
+                      </tr>
                     ))}
-                  </Pie>
-                  <Tooltip contentStyle={chartTheme.tooltip} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-        </div>
-      )}
-
-      {/* POPULATION HEALTH */}
-      {activeTab === 'population' && (
-        <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
-            <Users className="w-5 h-5 text-accent" />
-            <span>Epidemiological Surveillance &amp; Population Health</span>
-          </h3>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            Real-time disease tracking across Klang Valley. Communicable disease alerts (Dengue, Influenza A/B, COVID-19) automatically sync to MOH Disease Control Division (CPRC).
-          </p>
-        </div>
-      )}
-
-      {/* COMPARATIVE */}
-      {activeTab === 'comparative' && (
-        <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-accent" />
-            <span>National Healthcare Benchmarking</span>
-          </h3>
-          <div className="h-72 w-full pt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={comparativeData}>
-                <PolarGrid stroke={chartTheme.grid} />
-                <PolarAngleAxis dataKey="metric" tick={chartTheme.tick} />
-                <PolarRadiusAxis />
-                <Radar name="Mediclinic Enterprise" dataKey="clinic" stroke={palette.brand} fill={palette.brand} fillOpacity={0.4} />
-                <Radar name="National Average" dataKey="national" stroke={seriesColors.slate} fill={seriesColors.slate} fillOpacity={0.2} />
-                <Legend />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-
-      {/* FINANCIAL */}
-      {activeTab === 'financial' && (
-        <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-accent" />
-            <span>Predictive Financial Revenue Forecasting</span>
-          </h3>
-          <div className="h-64 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={financialForecastData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} />
-                <XAxis dataKey="month" tick={chartTheme.tick} />
-                <YAxis tick={chartTheme.tick} />
-                <Tooltip contentStyle={chartTheme.tooltip} />
-                <Area type="monotone" dataKey="actual" stroke={palette.brand} fill={palette.brand} fillOpacity={0.3} name="Actual Revenue (RM)" />
-                <Area type="monotone" dataKey="projected" stroke={seriesColors.sky} fill={seriesColors.sky} fillOpacity={0.2} name="Forecasted (RM)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-
-      {/* PROVIDER */}
-      {activeTab === 'provider' && (
-        <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
-            <Activity className="w-5 h-5 text-accent" />
-            <span>Resident Physician Efficiency Metrics</span>
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {providerData.map((p, i) => (
-              <div key={i} className="bg-surface-muted border border-line-subtle p-4 space-y-2">
-                <span className="font-bold text-sm text-ink block">{p.name}</span>
-                <div className="flex justify-between text-xs text-slate-600">
-                  <span>Consultation Speed:</span>
-                  <strong className="text-accent font-mono">{p.efficiency}% Efficiency</strong>
-                </div>
-                <div className="flex justify-between text-xs text-slate-600">
-                  <span>Patient Rating:</span>
-                  <strong className="text-amber-600 font-mono">⭐ {p.satisfaction} / 5.0</strong>
-                </div>
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            )}
+          </Panel>
         </div>
-      )}
-
-      {/* WORKFLOW */}
-      {activeTab === 'workflow' && (
-        <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
-            <Brain className="w-5 h-5 text-accent" />
-            <span>AI Clinical Workflow Optimization</span>
-          </h3>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            Neural model analyzes consultation velocity, dispensary queue times, and nurse triage priority to optimize clinic throughput by up to 24%.
-          </p>
-        </div>
-      )}
-
-      {/* OUTCOMES */}
-      {activeTab === 'outcomes' && (
-        <div className="bg-surface-accent border border-line p-6 rounded-none shadow-2xs space-y-4">
-          <h3 className="type-card-title text-ink flex items-center gap-2">
-            <Target className="w-5 h-5 text-accent" />
-            <span>Treatment Protocol Efficacy &amp; Outcomes</span>
-          </h3>
-          <div className="space-y-3">
-            {outcomesData.map((o, i) => (
-              <div key={i} className="bg-surface-muted border border-line-subtle p-3 flex justify-between items-center text-xs">
-                <span className="font-bold text-ink">{o.treatment}</span>
-                <span className="font-mono font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 border border-emerald-300">
-                  {o.successRate}% Efficacy
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+      </div>
     </div>
+  );
+}
+
+function Kpi({ label, value, note, tone }: { label: string; value: string; note: string; tone: Tone }) {
+  const color = tone === 'bad' ? 'text-rose-700' : tone === 'warn' ? 'text-amber-700' : 'text-ink';
+  return (
+    <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
+      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
+      <h3 className={`type-metric mt-2 ${color}`}>{value}</h3>
+      <p className="mt-2 text-xs text-slate-600">{note}</p>
+    </div>
+  );
+}
+
+function Panel({ icon: Icon, title, action, children }: { icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden">
+      <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between gap-3">
+        <h2 className="type-card-title text-ink flex items-center gap-2"><Icon className="w-4 h-4 text-accent" aria-hidden="true" />{title}</h2>
+        {action}
+      </div>
+      <div className="p-5">{children}</div>
+    </section>
+  );
+}
+
+const PanelLink = ({ label, onClick }: { label: string; onClick: () => void }) => (
+  <button type="button" onClick={onClick} className="text-xs font-bold text-accent hover:underline flex items-center gap-0.5 cursor-pointer">
+    {label}<ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+  </button>
+);
+
+const Badge = ({ tone, children }: { tone: Tone; children: React.ReactNode }) => (
+  <span className={`inline-block px-2 py-0.5 border text-2xs font-bold uppercase tracking-wider ${TONE_STYLE[tone]}`}>{children}</span>
+);
+
+function Check({ tone, title, detail, action }: { tone: Tone; title: string; detail: string; action?: React.ReactNode }) {
+  return (
+    <li className={`border p-2.5 flex items-start justify-between gap-3 ${TONE_STYLE[tone]}`}>
+      <div>
+        <p className="font-bold">{title}</p>
+        <p className="mt-0.5">{detail}</p>
+      </div>
+      {action}
+    </li>
   );
 }

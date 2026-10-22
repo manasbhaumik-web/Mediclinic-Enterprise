@@ -29,13 +29,15 @@ export interface ClinicProfile {
   phone: string;
   emergencyPhone: string;
   licenseNo: string;
+  /** When the licence expires, as YYYY-MM-DD; empty when not recorded. */
+  licenseExpiry: string;
 }
 
-export const EMPTY_CLINIC: ClinicProfile = { name: '', branch: '', address: '', phone: '', emergencyPhone: '', licenseNo: '' };
+export const EMPTY_CLINIC: ClinicProfile = { name: '', branch: '', address: '', phone: '', emergencyPhone: '', licenseNo: '', licenseExpiry: '' };
 
 const clinicFromRow = (d: Record<string, any>): ClinicProfile => ({
   name: d.clinic_name ?? '', branch: d.branch_name ?? '', address: d.address ?? '', phone: d.phone ?? '',
-  emergencyPhone: d.emergency_phone ?? '', licenseNo: d.license_no ?? '',
+  emergencyPhone: d.emergency_phone ?? '', licenseNo: d.license_no ?? '', licenseExpiry: d.license_expiry ?? '',
 });
 
 interface SettingsContextType {
@@ -132,6 +134,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from('clinic_settings').upsert({
       id: 1, clinic_name: profile.name.trim() || null, branch_name: profile.branch.trim() || null, address: profile.address.trim() || null,
       phone: profile.phone.trim() || null, emergency_phone: profile.emergencyPhone.trim() || null, license_no: profile.licenseNo.trim() || null,
+      license_expiry: profile.licenseExpiry || null,
     });
     if (error) throw new Error(error.message);
     setClinic(profile);
