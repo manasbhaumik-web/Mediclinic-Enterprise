@@ -97,7 +97,7 @@ export default function AdminModule({
     { id: 'billing', label: 'Billing Desk', category: 'finance', icon: DollarSign, roleReq: 'admin', enabled: settings.modules.billing },
     { id: 'payroll', label: 'Payroll', category: 'finance', icon: DollarSign, roleReq: 'all', enabled: true },
     { id: 'einvoice', label: 'e-Invoice (LHDN)', category: 'finance', icon: FileText, roleReq: 'admin', enabled: true },
-    { id: 'rcm', label: 'Revenue Cycle (RCM)', category: 'finance', icon: TrendingUp, roleReq: 'admin', enabled: true },
+    { id: 'rcm', label: 'Revenue', category: 'finance', icon: TrendingUp, roleReq: 'admin', enabled: true },
 
     // 4. Compliance & Governance
     { id: 'moh', label: 'MOH Compliance', category: 'compliance', icon: Globe2, roleReq: 'admin', enabled: true },
@@ -442,7 +442,7 @@ export default function AdminModule({
           )}
 
           {activeTab === 'rcm' && userRole === 'admin' && (
-            <RevenueCycleHub />
+            <RevenueCycleHub onOpenTab={setActiveTab} />
           )}
 
           {activeTab === 'architecture' && userRole === 'admin' && (
