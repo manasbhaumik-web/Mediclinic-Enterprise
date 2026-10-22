@@ -97,7 +97,11 @@ describe('buildInvoiceSnapshot', () => {
 
   it('has one line per charge with its name, quantity and price', () => {
     expect(snap.lines.map((l) => l.description)).toEqual(['Consultation fee', 'Clinical procedures / nursing', 'Paracetamol', 'Dressing']);
-    expect(snap.lines[2]).toEqual({ description: 'Paracetamol', quantity: 10, unitPrice: 2, amount: 20 });
+    expect(snap.lines[2]).toEqual({ description: 'Paracetamol', quantity: 10, unitPrice: 2, amount: 20, kind: 'medication' });
+  });
+
+  it('tags each line with what it is for, so revenue can be reported by category', () => {
+    expect(snap.lines.map((l) => l.kind)).toEqual(['consultation', 'procedure', 'medication', 'other']);
   });
 
   it('carries the same totals the cashier saw', () => {

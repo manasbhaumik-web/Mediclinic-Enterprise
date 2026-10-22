@@ -35,7 +35,6 @@ export function DoctorPage({ tab }: { tab: DoctorTab }) {
       doctorTab={tab}
       onTabChange={(t) => s.navigateTab(t)}
       doctorQueue={s.queues.doctor}
-      completedVisits={s.completedVisits}
       patientsMap={s.patientsMap}
       activeLanguage={s.activeLanguage}
       activeConsultationVisitId={s.activeConsultationVisitId}

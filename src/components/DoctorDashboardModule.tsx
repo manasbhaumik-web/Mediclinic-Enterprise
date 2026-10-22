@@ -2,15 +2,8 @@ import React, { useState } from 'react';
 import { Patient, Visit, Language, SOAPNotes } from '../types';
 import ConsultationRoom from './ConsultationRoom';
 import { 
-  Stethoscope, FileText, Calendar, Users, DollarSign, Activity, BrainCircuit, 
-  CalendarClock, Clock, ChevronLeft, ChevronRight, Search, Download, Filter, TrendingUp, 
-  ShieldCheck, CheckCircle2, BarChart3, CreditCard, Building2, RefreshCw, Volume2, AlertCircle,
-  Pin, Copy, Check, SlidersHorizontal, Sparkles
+  Stethoscope, Users, RefreshCw, Volume2, AlertCircle, Copy, Check
 } from 'lucide-react';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell 
-} from 'recharts';
 import { 
   getChiefComplaintLabel, 
   getRankingRationale, 
@@ -18,19 +11,13 @@ import {
 } from '../utils/queueSorter';
 import { useQueueFilter } from '../hooks/useQueueFilter';
 
-import LegendSwatch from './ui/LegendSwatch';
 import ActionMenu from './ui/ActionMenu';
-import { chartTheme } from '../theme/chartTheme';
-import { palette, seriesColors } from '../theme/palette';
 import QueueToolbar from './doctor/QueueToolbar';
 import NextPatientCard from './doctor/NextPatientCard';
 import WaitingPatientsList from './doctor/WaitingPatientsList';
-import ReportKpiGrid from './doctor/ReportKpiGrid';
-import ReportCharts from './doctor/ReportCharts';
-import EncountersTable from './doctor/EncountersTable';
+import DoctorMonthlyReport from './doctor/DoctorMonthlyReport';
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
-  completedVisits: Visit[];
   patientsMap: Record<string, Patient>;
   activeLanguage: Language;
   activeConsultationVisitId: string | null;
@@ -43,7 +30,6 @@ interface DoctorDashboardModuleProps {
 
 export default function DoctorDashboardModule({
   doctorQueue,
-  completedVisits,
   patientsMap,
   activeLanguage,
   activeConsultationVisitId,
@@ -178,78 +164,6 @@ export default function DoctorDashboardModule({
         <span>Allergy: {drugAllergies.join(', ')}</span>
       </span>
     );
-  };
-
-  // Reports Tab States & Datasets
-  const [showSampleReports, setShowSampleReports] = useState<boolean>(completedVisits.length === 0);
-  const [reportSearchQuery, setReportSearchQuery] = useState<string>('');
-  const [reportPaymentFilter, setReportPaymentFilter] = useState<string>('all');
-  const [reportMonthHorizon, setReportMonthHorizon] = useState<string>('current');
-
-  const sampleDailyRevenueData = [
-    { date: 'Sep 01', patients: 14, fees: 1820 },
-    { date: 'Sep 05', patients: 19, fees: 2470 },
-    { date: 'Sep 10', patients: 22, fees: 3100 },
-    { date: 'Sep 15', patients: 18, fees: 2350 },
-    { date: 'Sep 20', patients: 26, fees: 3840 },
-    { date: 'Sep 24', patients: 21, fees: 2980 },
-  ];
-
-  const samplePaymentMix = [
-    { name: 'Corporate Panel', value: 45, color: palette.brand },
-    { name: 'Direct Cash/QR', value: 30, color: palette.primary },
-    { name: 'Insurance (Medisave)', value: 15, color: seriesColors.tealMid },
-    { name: 'Credit Card', value: 10, color: seriesColors.amberDark },
-  ];
-
-  const sampleMonthlyEncounters = [
-    { id: 'MENC-901', date: '2026-09-24', patientName: 'Ahmad bin Razak', icdCode: 'J06.9 (URTI)', paymentMethod: 'Panel', durationMin: 12, totalFee: 145.00 },
-    { id: 'MENC-902', date: '2026-09-24', patientName: 'Siti Nurhaliza', icdCode: 'E11.9 (Type 2 DM)', paymentMethod: 'Cash', durationMin: 18, totalFee: 210.00 },
-    { id: 'MENC-903', date: '2026-09-23', patientName: 'Tan Wei Ming', icdCode: 'I10 (Essential HTN)', paymentMethod: 'Panel', durationMin: 15, totalFee: 175.50 },
-    { id: 'MENC-904', date: '2026-09-23', patientName: 'Kavitha Subramaniam', icdCode: 'M54.5 (Lumbago/Back Pain)', paymentMethod: 'Insurance', durationMin: 22, totalFee: 320.00 },
-    { id: 'MENC-905', date: '2026-09-22', patientName: 'Chong Kok Wai', icdCode: 'K21.9 (GERD)', paymentMethod: 'Credit Card', durationMin: 14, totalFee: 160.00 },
-    { id: 'MENC-906', date: '2026-09-21', patientName: 'Nurul Huda', icdCode: 'J45.909 (Asthma)', paymentMethod: 'Panel', durationMin: 16, totalFee: 195.00 },
-  ];
-
-  const displayEncounters = (showSampleReports || completedVisits.length === 0)
-    ? sampleMonthlyEncounters
-    : completedVisits.map((v) => ({
-        id: v.id,
-        date: v.date,
-        patientName: patientsMap[v.patientId]?.fullName || 'Patient #' + v.patientId,
-        icdCode: v.soap?.assessment?.icdCode || 'N/A',
-        paymentMethod: v.paymentMethod || 'Cash',
-        durationMin: 15,
-        totalFee: v.totalBill
-      }));
-
-  const filteredEncounters = displayEncounters.filter(e => {
-    const matchesSearch = e.patientName.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
-                          e.icdCode.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
-                          e.id.toLowerCase().includes(reportSearchQuery.toLowerCase());
-    const matchesPayment = reportPaymentFilter === 'all' || e.paymentMethod === reportPaymentFilter;
-    return matchesSearch && matchesPayment;
-  });
-
-  const aggregateFees = filteredEncounters.reduce((acc, curr) => acc + curr.totalFee, 0);
-  const aggregatePatients = filteredEncounters.length;
-  const avgDuration = aggregatePatients > 0 
-    ? Math.round(filteredEncounters.reduce((acc, curr) => acc + curr.durationMin, 0) / aggregatePatients) 
-    : 0;
-
-  const handleExportCSV = () => {
-    const headers = ['Encounter ID', 'Date', 'Patient Name', 'ICD-10 Diagnostic Code', 'Payment Route', 'Consult Duration (min)', 'Total Fee (RM)'];
-    const rows = filteredEncounters.map(e => [
-      e.id, e.date, `"${e.patientName}"`, `"${e.icdCode}"`, e.paymentMethod, e.durationMin, e.totalFee.toFixed(2)
-    ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Mediclinic_Doctor_Monthly_Report_${reportMonthHorizon}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   React.useEffect(() => {
@@ -528,72 +442,8 @@ export default function DoctorDashboardModule({
         </div>
       )}
 
-      {/* MONTHLY REPORTS & ANALYTICS VIEW */}
-      {internalTab === 'reports' && (
-        <div className="space-y-5 animate-fadeIn">
-          {/* Header & Controls Toolbar */}
-          <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none shadow-xs">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-accent dark:text-teal-300" />
-                  Doctor Monthly Clinical &amp; Revenue Performance
-                </h2>
-                {showSampleReports && (
-                  <span className="px-2.5 py-0.5 bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 text-2xs font-bold font-mono uppercase tracking-wider border border-amber-300 dark:border-amber-800 rounded-none">
-                    Interactive Telemetry Mode
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
-                Comprehensive consultation metrics, ICD-10 diagnostic volume, panel billing breakdown, and export options.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={() => setShowSampleReports(!showSampleReports)}
-                className={`px-3 py-1.5 text-xs font-bold font-mono uppercase tracking-wider border flex items-center gap-1.5 transition-colors rounded-none cursor-pointer ${
-                  showSampleReports
-                    ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-800'
-                    : 'bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-300 border-line dark:border-teal-800/40'
-                }`}
-                title="Toggle between real live consultation data and simulated month telemetry"
-              >
-                <RefreshCw className="w-3.5 h-3.5 text-amber-600" />
-                <span>{showSampleReports ? 'Showing Sample Data' : 'Showing Live Data'}</span>
-              </button>
-
-              <select
-                value={reportMonthHorizon}
-                onChange={(e) => setReportMonthHorizon(e.target.value)}
-                className="bg-surface dark:bg-night-900 border border-line dark:border-teal-800/40 text-ink dark:text-teal-100 text-xs font-bold px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand rounded-none cursor-pointer"
-              >
-                <option value="current">September 2026 (Current)</option>
-                <option value="last_month">August 2026</option>
-                <option value="q3_2026">Q3 2026 Cumulative</option>
-              </select>
-
-              <button
-                onClick={handleExportCSV}
-                className="px-4 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors shadow-xs rounded-none cursor-pointer focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:outline-none"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export CSV</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 4 KPI Metrics Grid */}
-          <ReportKpiGrid aggregatePatients={aggregatePatients} aggregateFees={aggregateFees} avgDuration={avgDuration} />
-
-          {/* Interactive Recharts Analytics Section */}
-          <ReportCharts sampleDailyRevenueData={sampleDailyRevenueData} samplePaymentMix={samplePaymentMix} />
-
-          {/* Interactive Encounters Table with Search & Filter */}
-          <EncountersTable filteredEncounters={filteredEncounters} reportSearchQuery={reportSearchQuery} setReportSearchQuery={setReportSearchQuery} reportPaymentFilter={reportPaymentFilter} setReportPaymentFilter={setReportPaymentFilter} displayEncounters={displayEncounters} aggregateFees={aggregateFees} />
-        </div>
-      )}
+      {/* MONTHLY REPORT: the signed-in doctor's own consultations */}
+      {internalTab === 'reports' && <DoctorMonthlyReport />}
     </div>
   );
 }
