@@ -60,7 +60,8 @@ export default function EnterpriseLayoutTemplate({
   const isFetching = useIsFetching() > 0;
   const queryCache = queryClient.getQueryCache();
   const lastSyncedAt = useSyncExternalStore(
-    (notify) => queryCache.subscribe(notify),
+    // Only successful fetches matter here; queries being created during other components' renders must not wake the header.
+    (notify) => queryCache.subscribe((event) => { if (event.type === 'updated' && event.action.type === 'success') notify(); }),
     () => queryCache.getAll().reduce((latest, q) => Math.max(latest, q.state.dataUpdatedAt), 0),
   );
   const lastSyncedTime = lastSyncedAt

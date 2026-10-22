@@ -434,7 +434,7 @@ export default function AdminModule({
           )}
 
           {activeTab === 'operations' && userRole === 'admin' && (
-            <OperationsHub />
+            <OperationsHub onOpenTab={setActiveTab} />
           )}
 
           {activeTab === 'security' && userRole === 'admin' && (
