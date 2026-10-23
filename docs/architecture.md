@@ -41,6 +41,6 @@ docs/           Feature notes.
 ## Rules
 
 - A feature may import from `domain`, `hooks`, `lib`, `utils`, `context`, `components/ui` and `theme`. Avoid importing one feature from another; if two features need the same thing, move it to `domain`, `utils` or `components/ui`. `shell` and `admin` are the exceptions: they compose other features' screens. Some leave over-reaches remain (for example payroll and inventory helpers imported by sibling folders) and are good candidates to tidy.
-- `domain` imports nothing from React, `lib` or features.
+- `domain` imports nothing from React, hooks or features (one type-only import from `lib/einvoiceQueue` in `visitWorkflow.ts` is the single exception).
 - A screen's tests and helpers sit in its feature folder; domain tests sit beside the rule they test.
 - Access is decided in two places that must agree: `routes/permissions.ts` (tabs) and the database policies in `supabase/migrations`.
