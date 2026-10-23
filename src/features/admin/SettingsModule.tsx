@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import ClinicProfileCard from './ClinicProfileCard';
+import RoomsAndServicesCard from './RoomsAndServicesCard';
 
 export default function SettingsModule() {
   const { settings, updateSettings } = useSettings();
@@ -144,6 +145,8 @@ export default function SettingsModule() {
       </div>
 
       <ClinicProfileCard />
+
+      <RoomsAndServicesCard />
 
       {/* 1. FINANCIAL PARAMETERS */}
       <section className="bg-surface rounded-none border border-line shadow-2xs overflow-hidden">

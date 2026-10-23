@@ -83,6 +83,7 @@ export function RegistrationPage() {
       addPatientToDb={s.addPatientToDb}
       addVisitToDb={s.addVisitToDb}
       updateVisitInDb={s.updateVisitInDb}
+      assignDoctor={s.assignDoctor}
       onNavigateTab={s.navigateTab}
     />
   );

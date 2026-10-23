@@ -19,6 +19,9 @@ import QueueRail from './QueueRail';
 import { formatTicket } from '../../domain/ticket';
 import { draftKey } from '../../domain/consultationDraft';
 import DoctorMonthlyReport from './DoctorMonthlyReport';
+import RoomPicker from './RoomPicker';
+import { useClinicDoctors, useConsultationRooms } from '../../hooks/useClinicSetup';
+import { assignmentOf, doctorName as nameOfDoctor, roomOptions } from '../../domain/doctorAssignment';
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
   patientsMap: Record<string, Patient>;
@@ -28,7 +31,8 @@ interface DoctorDashboardModuleProps {
   onConsultationComplete: (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   doctorName?: string;
   userId?: string | null;
-  onCallPatient?: (visitId: string, room: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+  /** `override` is true once the doctor has confirmed calling a patient who is assigned to someone else. */
+  onCallPatient?: (visitId: string, room: string, override?: boolean) => Promise<{ ok: true } | { ok: false; error: string }>;
   onReleasePatient?: (visitId: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   doctorTab?: 'queue' | 'consultation' | 'reports';
   onTabChange?: (tab: 'queue' | 'consultation' | 'reports') => void;
@@ -56,7 +60,13 @@ export default function DoctorDashboardModule({
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
   const [lastSyncedText, setLastSyncedText] = useState<string>('Just now');
   const [isRefreshingQueue, setIsRefreshingQueue] = useState<boolean>(false);
-  const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number } | null>(null);
+  const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number; assignedTo?: string } | null>(null);
+
+  // Who the doctor is (a staff record), the clinic's rooms, and which of them another doctor is using right now.
+  const doctors = useClinicDoctors();
+  const rooms = useConsultationRooms();
+  const myDoctorId = doctors.find((d) => d.authId === userId)?.id ?? null;
+  const roomChoices = roomOptions(rooms.filter((r) => r.active).map((r) => r.name), doctorQueue);
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
   const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
@@ -85,7 +95,16 @@ export default function DoctorDashboardModule({
     sortedQueue, paginatedQueue,
     nextVisit, nextPatient, remainingQueue,
     totalPages, startIndex
-  } = useQueueFilter({ queue: doctorQueue, patientsMap, initialEntriesPerPage: 6 });
+  } = useQueueFilter({ queue: doctorQueue, patientsMap, initialEntriesPerPage: 6, myDoctorId });
+
+  // Once the clinic's rooms are known, make sure the chosen room is one of them and is free.
+  React.useEffect(() => {
+    if (roomChoices.length === 0) return;
+    const current = roomChoices.find((o) => o.name === room);
+    if (current && !current.busyWith) return;
+    const free = roomChoices.find((o) => !o.busyWith);
+    if (free) setRoom(free.name);
+  }, [roomChoices.map((o) => `${o.name}:${o.busyWith ?? ''}`).join('|'), room]);
 
   // Global Keyboard Shortcuts (Alt+Q, Alt+C, Alt+F, Alt+R)
   React.useEffect(() => {
@@ -164,24 +183,27 @@ export default function DoctorDashboardModule({
 
   // Calling the next patient in turn needs no confirmation. Calling someone out of turn, or while another
   // consultation is open, asks first (and lets the doctor change the room).
+  // A patient assigned to another doctor always asks first, whatever their place in the queue.
   const requestCallPatient = (visitId: string, patientName: string, position: number) => {
-    if (position <= 1 && !activeConsultationVisitId) {
+    const visit = doctorQueue.find((v) => v.id === visitId);
+    const assignedTo = visit && assignmentOf(visit, myDoctorId) === 'other' ? (nameOfDoctor(doctors, visit.doctorId) ?? 'another doctor') : undefined;
+    if (position <= 1 && !activeConsultationVisitId && !assignedTo) {
       void performCall(visitId, patientName);
       return;
     }
-    setPendingCallVisit({ visitId, patientName, position });
+    setPendingCallVisit({ visitId, patientName, position, assignedTo });
   };
 
   const confirmCallPatient = () => {
     if (!pendingCallVisit) return;
-    const { visitId, patientName } = pendingCallVisit;
+    const { visitId, patientName, assignedTo } = pendingCallVisit;
     setPendingCallVisit(null);
-    void performCall(visitId, patientName);
+    void performCall(visitId, patientName, !!assignedTo);
   };
 
-  const performCall = async (visitId: string, patientName: string) => {
+  const performCall = async (visitId: string, patientName: string, override = false) => {
     const roomName = room.trim() || 'Consultation Room 1';
-    const result = onCallPatient ? await onCallPatient(visitId, roomName) : { ok: false as const, error: 'Calling patients is not available here.' };
+    const result = onCallPatient ? await onCallPatient(visitId, roomName, override) : { ok: false as const, error: 'Calling patients is not available here.' };
     if ('error' in result) {
       setCallAnnouncementToast(`Could not call ${patientName}: ${result.error}`);
       setTimeout(() => setCallAnnouncementToast(null), 6000);
@@ -278,19 +300,17 @@ export default function DoctorDashboardModule({
 
             <div className="space-y-2 text-xs">
               <p className="text-muted dark:text-slate-200 leading-relaxed font-sans">
-                Call <strong className="text-ink dark:text-teal-300 font-bold text-sm">{pendingCallVisit.patientName}</strong> (Queue Rank <span className="font-mono font-bold text-accent">#{pendingCallVisit.position}</span>) to Consultation Room 1 now?
+                Call <strong className="text-ink dark:text-teal-300 font-bold text-sm">{pendingCallVisit.patientName}</strong> (Queue Rank <span className="font-mono font-bold text-accent">#{pendingCallVisit.position}</span>) to {room || 'a consultation room'} now?
               </p>
 
-              <label className="block space-y-1">
-                <span className="text-2xs font-bold uppercase tracking-wider text-subtle">Consultation room</span>
-                <input
-                  className="w-full min-h-11 px-3 text-sm border border-line-strong bg-surface text-ink"
-                  value={room}
-                  maxLength={60}
-                  onChange={(e) => setRoom(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') void confirmCallPatient(); }}
-                />
-              </label>
+              <RoomPicker id="call-room" label="Consultation room" value={room} onChange={setRoom} options={roomChoices} onEnter={confirmCallPatient} />
+
+              {pendingCallVisit.assignedTo && (
+                <div role="alert" className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span>This patient is assigned to {pendingCallVisit.assignedTo}. Call them only if that doctor is unavailable.</span>
+                </div>
+              )}
 
               {pendingCallVisit.position > 1 && (
                 <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center gap-2">
@@ -446,7 +466,7 @@ export default function DoctorDashboardModule({
       {/* ========================================================================= */}
       {internalTab === 'consultation' && (
         <div className="flex flex-col lg:flex-row gap-4 items-start animate-fadeIn">
-          <QueueRail room={room} onRoomChange={(r) => { setRoom(r); try { localStorage.setItem('mediclinic.consultRoom', r); } catch { /* ignore */ } }} queue={sortedQueue} patientsMap={patientsMap} userId={userId} activeVisitId={activeConsultationVisitId} onCall={requestCallPatient} />
+          <QueueRail room={room} roomOptions={roomChoices} doctors={doctors} myDoctorId={myDoctorId} onRoomChange={(r) => { setRoom(r); try { localStorage.setItem('mediclinic.consultRoom', r); } catch { /* ignore */ } }} queue={sortedQueue} patientsMap={patientsMap} userId={userId} activeVisitId={activeConsultationVisitId} onCall={requestCallPatient} />
           <div className="flex-1 min-w-0 w-full space-y-4">
           {activeConsultationVisitId ? (
             <div className="animate-fade-in-up">

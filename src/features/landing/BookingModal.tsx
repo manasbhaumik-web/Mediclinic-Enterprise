@@ -84,15 +84,19 @@ export default function BookingModal({ isBM, selectedDoctor, onClose }: BookingM
 
   useEffect(() => {
     let live = true;
-    fetchBookingDoctors().then((d) => {
+    // The doctors offered depend on the service: a specialty service lists only that specialty's doctors.
+    fetchBookingDoctors(form.service).then((d) => {
       if (!live) return;
       setDoctors(d);
-      const wanted = selectedDoctor?.toLowerCase().replace(/^dr\.?\s*/, '');
-      const match = wanted ? d.find((x) => x.name.toLowerCase().replace(/^dr\.?\s*/, '') === wanted) : undefined;
-      if (match) setDoctorId(match.id);
+      setDoctorId((current) => {
+        if (current && d.some((x) => x.id === current)) return current;
+        const wanted = selectedDoctor?.toLowerCase().replace(/^dr\.?\s*/, '');
+        const match = wanted ? d.find((x) => x.name.toLowerCase().replace(/^dr\.?\s*/, '') === wanted) : undefined;
+        return match ? match.id : '';
+      });
     }).catch((e: Error) => { if (live) { setDoctors([]); setServerError(e.message); } });
     return () => { live = false; };
-  }, [selectedDoctor]);
+  }, [selectedDoctor, form.service]);
 
   // Times are only needed from step 3, but loading them as soon as a doctor is known keeps that step instant.
   useEffect(() => {

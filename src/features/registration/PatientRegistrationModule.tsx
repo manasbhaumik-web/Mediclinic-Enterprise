@@ -11,6 +11,7 @@ import WaitingRoomMonitor from './WaitingRoomMonitor';
 import DemographicsStep from './DemographicsStep';
 import BillingAlertsStep from './BillingAlertsStep';
 import PatientRegistryTable from './PatientRegistryTable';
+import { useClinicDoctors } from '../../hooks/useClinicSetup';
 
 interface PatientRegistrationModuleProps {
   t: any;
@@ -22,6 +23,8 @@ interface PatientRegistrationModuleProps {
   addPatientToDb: (p: Patient) => void;
   addVisitToDb: (v: Visit) => void;
   updateVisitInDb: (v: Visit) => void;
+  /** Names (or clears) the doctor a waiting patient should see. */
+  assignDoctor: (visitId: string, doctorId: string | null) => Promise<{ ok: true } | { ok: false; error: string }>;
   onNavigateTab: (tab: string) => void;
 }
 
@@ -35,8 +38,11 @@ export default function PatientRegistrationModule({
   addPatientToDb,
   addVisitToDb,
   updateVisitInDb,
+  assignDoctor,
   onNavigateTab
 }: PatientRegistrationModuleProps) {
+  const doctors = useClinicDoctors();
+  const [assignedDoctorId, setAssignedDoctorId] = useState('');
   const [activeSubTab, setActiveSubTab] = useState<'queue' | 'form' | 'registry'>('registry');
   const [registrationStep, setRegistrationStep] = useState<'id_check' | 'details'>('id_check');
   const [idCheckValue, setIdCheckValue] = useState('');
@@ -230,6 +236,7 @@ export default function PatientRegistrationModule({
       panelEmployer: 'None (Self-Pay)', chiefComplaint: '', temperature: '', bpSystolic: '', bpDiastolic: '', heartRate: '',
     });
     setAllergiesList([]);
+    setAssignedDoctorId('');
     setExistingPatientId(null);
     setCoverageStatus('unverified');
     setFieldErrors({});
@@ -326,6 +333,7 @@ export default function PatientRegistrationModule({
         plan: { prescription: [], followUpWeeks: 1, mcDays: 0, requiresReferral: false }
       },
       status: 'Awaiting Triage',
+      doctorId: assignedDoctorId || undefined,
       totalBill: 0,
       panelClaimed: 0,
       paidAmount: 0,
@@ -422,7 +430,7 @@ export default function PatientRegistrationModule({
 
       {/* WAITING ROOM MONITOR */}
       {activeSubTab === 'queue' && (
-        <WaitingRoomMonitor triageQueue={triageQueue} setActiveSubTab={setActiveSubTab} patientsMap={patientsMap} showPII={showPII} showToast={showToast} updateVisitInDb={updateVisitInDb} />
+        <WaitingRoomMonitor triageQueue={triageQueue} setActiveSubTab={setActiveSubTab} patientsMap={patientsMap} showPII={showPII} showToast={showToast} updateVisitInDb={updateVisitInDb} doctors={doctors} assignDoctor={assignDoctor} />
       )}
 
       {/* REGISTRATION FORM */}
@@ -520,7 +528,7 @@ export default function PatientRegistrationModule({
 
                 {/* Step 2: Billing & Medical Alerts */}
                 {formStep === 2 && (
-                  <BillingAlertsStep fieldErrors={fieldErrors} manualForm={manualForm} setManualForm={setManualForm} setCoverageStatus={setCoverageStatus} clearError={clearError} inputBase={inputBase} handleVerifyCoverage={handleVerifyCoverage} isVerifyingCoverage={isVerifyingCoverage} coverageStatus={coverageStatus} allergyInput={allergyInput} setAllergyInput={setAllergyInput} handleAddAllergyTag={handleAddAllergyTag} allergiesList={allergiesList} handleRemoveAllergyTag={handleRemoveAllergyTag} />
+                  <BillingAlertsStep fieldErrors={fieldErrors} manualForm={manualForm} setManualForm={setManualForm} setCoverageStatus={setCoverageStatus} clearError={clearError} inputBase={inputBase} handleVerifyCoverage={handleVerifyCoverage} isVerifyingCoverage={isVerifyingCoverage} coverageStatus={coverageStatus} allergyInput={allergyInput} setAllergyInput={setAllergyInput} handleAddAllergyTag={handleAddAllergyTag} allergiesList={allergiesList} handleRemoveAllergyTag={handleRemoveAllergyTag} doctors={doctors} assignedDoctorId={assignedDoctorId} onAssignedDoctorChange={setAssignedDoctorId} />
                 )}
 
                 {/* Footer buttons */}

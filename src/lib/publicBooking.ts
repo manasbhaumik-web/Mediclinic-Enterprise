@@ -11,8 +11,9 @@ function friendly(error: { message?: string; code?: string } | null, fallback: s
   return new Error(fallback);
 }
 
-export async function fetchBookingDoctors(): Promise<BookingDoctor[]> {
-  const { data, error } = await supabase.rpc('public_booking_doctors');
+/** The doctors who see a service (all doctors when the service is not limited to a specialty). */
+export async function fetchBookingDoctors(service?: string): Promise<BookingDoctor[]> {
+  const { data, error } = await supabase.rpc('public_booking_doctors', service ? { p_service: service } : {});
   if (error) throw friendly(error, 'Doctors could not be loaded. Please try again.');
   return (data ?? []).map((d: any) => ({ id: d.id, name: d.name, department: d.department ?? null }));
 }

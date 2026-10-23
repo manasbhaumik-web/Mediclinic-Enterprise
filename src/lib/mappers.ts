@@ -52,6 +52,7 @@ export function visitFromRow(v: any): Visit {
     mcIssued: v.mc_issued,
     registeredTime: v.registered_time ? Number(v.registered_time) : new Date(v.created_at).getTime(),
     ticketNo: v.ticket_no ?? undefined,
+    doctorId: v.doctor_id ?? undefined,
     consultRoom: v.consult_room ?? undefined,
     calledBy: v.called_by ?? undefined,
     calledByName: v.called_by_name ?? undefined,

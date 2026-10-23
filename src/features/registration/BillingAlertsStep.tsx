@@ -1,5 +1,6 @@
 import FormField, { fieldBorder } from '../../components/ui/FormField';
 import { Loader2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ClinicDoctor } from '../../domain/doctorAssignment';
 
 interface BillingAlertsStepProps {
   fieldErrors: Record<string, string>;
@@ -16,9 +17,13 @@ interface BillingAlertsStepProps {
   handleAddAllergyTag: () => void;
   allergiesList: string[];
   handleRemoveAllergyTag: (index: number) => void;
+  doctors: ClinicDoctor[];
+  /** Staff id of the doctor the patient should see, or '' for whoever is free. */
+  assignedDoctorId: string;
+  onAssignedDoctorChange: (id: string) => void;
 }
 
-export default function BillingAlertsStep({ fieldErrors, manualForm, setManualForm, setCoverageStatus, clearError, inputBase, handleVerifyCoverage, isVerifyingCoverage, coverageStatus, allergyInput, setAllergyInput, handleAddAllergyTag, allergiesList, handleRemoveAllergyTag }: BillingAlertsStepProps) {
+export default function BillingAlertsStep({ fieldErrors, manualForm, setManualForm, setCoverageStatus, clearError, inputBase, handleVerifyCoverage, isVerifyingCoverage, coverageStatus, allergyInput, setAllergyInput, handleAddAllergyTag, allergiesList, handleRemoveAllergyTag, doctors, assignedDoctorId, onAssignedDoctorChange }: BillingAlertsStepProps) {
   return (
     <div className="space-y-6 font-sans">
       <div>
@@ -104,6 +109,17 @@ export default function BillingAlertsStep({ fieldErrors, manualForm, setManualFo
               ))}
             </div>
           )}
+        </div>
+
+        <div>
+          <FormField id="reg-doctor" label="Doctor to see" hint="Leave as 'Any available doctor' unless the patient needs a particular doctor or specialist." className="space-y-2">
+            {(f) => (
+              <select {...f} value={assignedDoctorId} onChange={(e) => onAssignedDoctorChange(e.target.value)} className={`${inputBase} font-sans ${fieldBorder()}`}>
+                <option value="">Any available doctor</option>
+                {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}{d.department ? ` (${d.department})` : ''}</option>)}
+              </select>
+            )}
+          </FormField>
         </div>
       </div>
     </div>

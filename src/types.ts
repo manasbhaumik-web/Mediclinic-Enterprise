@@ -83,6 +83,8 @@ export interface Visit {
   /** Set when a doctor has called the patient (status Consulting): which room, who, and when. */
   /** Queue ticket, restarting each clinic day (see domain/ticket). */
   ticketNo?: number;
+  /** The doctor (a staff id) the patient should see: chosen at registration or booking, or assigned later. */
+  doctorId?: string;
   consultRoom?: string;
   calledBy?: string;
   calledByName?: string;

@@ -2,6 +2,7 @@ import { formatTicket } from '../../domain/ticket';
 import { Clock, Users, Plus, Activity, CheckCircle2 } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { Visit, Patient } from '../../types';
+import { ClinicDoctor } from '../../domain/doctorAssignment';
 
 interface WaitingRoomMonitorProps {
   triageQueue: Visit[];
@@ -10,9 +11,16 @@ interface WaitingRoomMonitorProps {
   showPII: boolean;
   showToast: (message: string) => void;
   updateVisitInDb: (v: Visit) => void;
+  doctors: ClinicDoctor[];
+  assignDoctor: (visitId: string, doctorId: string | null) => Promise<{ ok: true } | { ok: false; error: string }>;
 }
 
-export default function WaitingRoomMonitor({ triageQueue, setActiveSubTab, patientsMap, showPII, showToast, updateVisitInDb }: WaitingRoomMonitorProps) {
+export default function WaitingRoomMonitor({ triageQueue, setActiveSubTab, patientsMap, showPII, showToast, updateVisitInDb, doctors, assignDoctor }: WaitingRoomMonitorProps) {
+  const handleAssign = async (visit: Visit, doctorId: string) => {
+    const r = await assignDoctor(visit.id, doctorId || null);
+    if ('error' in r) showToast(r.error);
+    else showToast(doctorId ? `${patientsMap[visit.patientId]?.fullName ?? 'Patient'} assigned to ${doctors.find((d) => d.id === doctorId)?.name ?? 'the doctor'}.` : 'Doctor assignment cleared.');
+  };
   return (
     <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
       <div className="p-6">
@@ -93,6 +101,18 @@ export default function WaitingRoomMonitor({ triageQueue, setActiveSubTab, patie
                     </div>
                   </div>
     
+                  <label className="mt-3 block">
+                    <span className="text-2xs font-bold uppercase tracking-wider text-subtle">Doctor to see</span>
+                    <select
+                      value={visit.doctorId ?? ''}
+                      onChange={(e) => void handleAssign(visit, e.target.value)}
+                      className="mt-1 w-full min-h-9 px-2 text-xs border border-line-strong bg-surface text-ink"
+                    >
+                      <option value="">Any available doctor</option>
+                      {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}{d.department ? ` (${d.department})` : ''}</option>)}
+                    </select>
+                  </label>
+
                   <div className="mt-4 pt-3 border-t border-line-subtle dark:border-teal-800/30 flex gap-2 font-sans">
                     <button 
                       onClick={() => showToast(`${pt?.fullName} flagged as Priority for Doctor`)} 

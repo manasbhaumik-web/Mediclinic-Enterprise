@@ -146,6 +146,7 @@ function useClinicMutations() {
       const { data, error } = await supabase.from('visits').insert([{
         id: visit.id,
         patient_id: visit.patientId,
+        doctor_id: visit.doctorId ?? null,
         status: visit.status,
         visit_date: new Date().toISOString(),
         total_bill: visit.totalBill || 0,
@@ -296,10 +297,25 @@ function useClinicMutations() {
 
   // Calling a patient is a saved, shared status: the database takes the row lock, so two doctors cannot take the same patient.
   const callPatient = useMutation({
-    mutationFn: async ({ visitId, room }: { visitId: string; room: string }) => {
-      const { error } = await supabase.rpc('call_patient', { p_visit_id: visitId, p_room: room });
+    mutationFn: async ({ visitId, room, override }: { visitId: string; room: string; override: boolean }) => {
+      const { error } = await supabase.rpc('call_patient', { p_visit_id: visitId, p_room: room, p_override: override });
       if (error) throw error;
     },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
+  });
+  // Naming (or clearing) the doctor a waiting patient should see; the database allows it only before the consultation starts.
+  const assignDoctor = useMutation({
+    mutationFn: async ({ visitId, doctorId }: { visitId: string; doctorId: string | null }) => {
+      const { error } = await supabase.rpc('assign_visit_doctor', { p_visit_id: visitId, p_doctor: doctorId });
+      if (error) throw error;
+    },
+    onMutate: async ({ visitId, doctorId }) => {
+      await qc.cancelQueries({ queryKey: QUERY_KEYS.activeVisits });
+      const prev = qc.getQueryData<Visit[]>(QUERY_KEYS.activeVisits);
+      qc.setQueryData<Visit[]>(QUERY_KEYS.activeVisits, (old = []) => old.map((v) => (v.id === visitId ? { ...v, doctorId: doctorId ?? undefined } : v)));
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => qc.setQueryData(QUERY_KEYS.activeVisits, ctx?.prev),
     onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
   });
   const releasePatient = useMutation({
@@ -315,9 +331,14 @@ function useClinicMutations() {
     addVisitToDb: (v: Visit) => addVisit.mutateAsync(v).then(() => true as const, logFailure('insert visit')),
     updateVisitInDb: (v: Visit) => updateVisit.mutateAsync(v).then(() => true as const, logFailure('update visit')),
     /** Calls a patient into a room. Resolves with the database's reason when someone else already has them. */
-    callPatient: (visitId: string, room: string) => callPatient.mutateAsync({ visitId, room }).then(
+    callPatient: (visitId: string, room: string, override = false) => callPatient.mutateAsync({ visitId, room, override }).then(
       () => ({ ok: true as const }),
       (err: { message?: string }) => ({ ok: false as const, error: err?.message || 'The patient could not be called.' }),
+    ),
+    /** Assigns a waiting patient to a doctor (or clears it with null). */
+    assignDoctor: (visitId: string, doctorId: string | null) => assignDoctor.mutateAsync({ visitId, doctorId }).then(
+      () => ({ ok: true as const }),
+      (err: { message?: string }) => ({ ok: false as const, error: err?.message || 'The doctor could not be assigned.' }),
     ),
     /** Puts a called patient back in the queue. */
     releasePatient: (visitId: string) => releasePatient.mutateAsync(visitId).then(

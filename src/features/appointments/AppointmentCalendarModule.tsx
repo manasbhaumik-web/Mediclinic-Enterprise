@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchBookingDoctors } from '../../lib/publicBooking';
+import { useClinicDoctors } from '../../hooks/useClinicSetup';
+import { doctorName as nameOfDoctor } from '../../domain/doctorAssignment';
 import { formatNric } from '../../utils/nric';
 import { Appointment, Patient } from '../../types';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
@@ -27,8 +27,8 @@ export default function AppointmentCalendarModule({
   updateAppointment,
   checkInAppointment
 }: AppointmentCalendarProps) {
-  const doctorsQuery = useQuery({ queryKey: ['booking-doctors'], queryFn: fetchBookingDoctors, staleTime: 5 * 60_000 });
-  const doctorName = (id?: string) => doctorsQuery.data?.find((d) => d.id === id)?.name;
+  const doctors = useClinicDoctors();
+  const doctorName = (id?: string) => nameOfDoctor(doctors, id);
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
   const [checkingIn, setCheckingIn] = useState<string | null>(null);
   const handleCheckIn = async (app: Appointment) => {
@@ -53,10 +53,11 @@ export default function AppointmentCalendarModule({
     patientPhone: '',
     patientId: '',
     patientIc: '',
+    doctorId: '',
     purpose: '',
     notes: ''
   });
-  
+
   // Weekly View logic
   const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 }); // Monday
   const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(startOfCurrentWeek, i));
@@ -92,6 +93,7 @@ export default function AppointmentCalendarModule({
       patientPhone: '',
       patientId: '',
       patientIc: '',
+      doctorId: '',
       purpose: '',
       notes: ''
     });
@@ -101,8 +103,17 @@ export default function AppointmentCalendarModule({
   const handleSaveAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSlotTime) return;
-    
+
+    // One live booking per doctor and start time (the database enforces the same rule).
+    if (modalForm.doctorId && appointments.some((a) => a.status === 'Scheduled' && a.doctorId === modalForm.doctorId
+        && new Date(a.appointmentTime).getTime() === selectedSlotTime.getTime())) {
+      setNotice({ tone: 'error', text: `${doctorName(modalForm.doctorId) ?? 'That doctor'} already has a booking at ${format(selectedSlotTime, 'h:mm a')}. Choose another doctor or time.` });
+      setIsModalOpen(false);
+      return;
+    }
+
     await addAppointment({
+      doctorId: modalForm.doctorId || undefined,
       patientName: modalForm.patientName,
       patientPhone: modalForm.patientPhone,
       patientId: modalForm.patientId || undefined,
@@ -456,6 +467,21 @@ export default function AppointmentCalendarModule({
                   placeholder="900101-14-5555"
                   className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-mono focus:border-brand focus:outline-none"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="appt-doctor" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
+                  Doctor
+                </label>
+                <select
+                  id="appt-doctor"
+                  value={modalForm.doctorId}
+                  onChange={e => setModalForm({...modalForm, doctorId: e.target.value})}
+                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-medium focus:border-brand focus:outline-none"
+                >
+                  <option value="">Any available doctor</option>
+                  {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}{d.department ? ` (${d.department})` : ''}</option>)}
+                </select>
               </div>
 
               <div>

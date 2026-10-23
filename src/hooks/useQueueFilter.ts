@@ -1,14 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { Visit, Patient } from '../types';
 import { sortQueue, filterQueue, SortRule, AcuityFilter } from '../utils/queueSorter';
+import { prioritiseAssigned } from '../domain/doctorAssignment';
 
 export interface UseQueueFilterOptions {
   queue: Visit[];
   patientsMap: Record<string, Patient>;
   initialEntriesPerPage?: number;
+  /** Staff id of the doctor viewing the queue; their assigned patients are listed first. */
+  myDoctorId?: string | null;
 }
 
-export function useQueueFilter({ queue, patientsMap, initialEntriesPerPage = 6 }: UseQueueFilterOptions) {
+export function useQueueFilter({ queue, patientsMap, initialEntriesPerPage = 6, myDoctorId = null }: UseQueueFilterOptions) {
   const [sortRule, setSortRule] = useState<SortRule>('urgency');
   const [acuityFilter, setAcuityFilter] = useState<AcuityFilter>('all');
   const [queueSearchQuery, setQueueSearchQuery] = useState<string>('');
@@ -41,10 +44,12 @@ export function useQueueFilter({ queue, patientsMap, initialEntriesPerPage = 6 }
     setQueuePage(1);
   };
 
-  // 1. Sort queue
+  // 1. Sort queue. Pinned patients stay on top; after them the doctor's own assigned patients come first.
   const sortedQueue = useMemo(() => {
-    return sortQueue(queue, sortRule, patientsMap, pinnedVisitIds);
-  }, [queue, sortRule, patientsMap, pinnedVisitIds]);
+    const sorted = sortQueue(queue, sortRule, patientsMap, pinnedVisitIds);
+    if (!myDoctorId) return sorted;
+    return [...sorted.filter((v) => pinnedVisitIds[v.id]), ...prioritiseAssigned(sorted.filter((v) => !pinnedVisitIds[v.id]), myDoctorId)];
+  }, [queue, sortRule, patientsMap, pinnedVisitIds, myDoctorId]);
 
   // 2. Filter queue (Acuity + Search)
   const filteredQueue = useMemo(() => {

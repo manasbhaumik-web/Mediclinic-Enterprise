@@ -1,11 +1,18 @@
 import { formatTicket } from '../../domain/ticket';
 import { AlertCircle } from 'lucide-react';
 import { Patient, Visit } from '../../types';
+import { assignmentOf, ClinicDoctor, doctorName, RoomOption } from '../../domain/doctorAssignment';
+import RoomPicker from './RoomPicker';
 
 interface QueueRailProps {
   /** The room this doctor calls patients into; remembered between calls. */
   room?: string;
   onRoomChange?: (room: string) => void;
+  /** The clinic's rooms, with who is using each; empty when the clinic has not listed any. */
+  roomOptions?: RoomOption[];
+  doctors?: ClinicDoctor[];
+  /** This doctor's staff id, to mark their own assigned patients. */
+  myDoctorId?: string | null;
   queue: Visit[];
   patientsMap: Record<string, Patient>;
   userId: string | null;
@@ -21,7 +28,7 @@ const waitMinutes = (v: Visit) => (v.registeredTime ? Math.max(0, Math.floor((Da
  * A narrow live queue beside the consultation, so the doctor never loses sight of who is waiting.
  * While a consultation is open, calling someone else is blocked: finish or return the current patient first.
  */
-export default function QueueRail({ room, onRoomChange, queue, patientsMap, userId, activeVisitId, onCall }: QueueRailProps) {
+export default function QueueRail({ room, onRoomChange, roomOptions = [], doctors, myDoctorId = null, queue, patientsMap, userId, activeVisitId, onCall }: QueueRailProps) {
   const mine = queue.find((v) => v.id === activeVisitId) ?? queue.find((v) => v.status === 'Consulting' && v.calledBy === userId);
   const others = queue.filter((v) => v.id !== mine?.id);
   const busy = !!mine;
@@ -29,16 +36,9 @@ export default function QueueRail({ room, onRoomChange, queue, patientsMap, user
   return (
     <aside aria-label="Waiting patients" className="w-full lg:w-64 shrink-0 bg-surface border border-line-subtle p-3 space-y-2 lg:sticky lg:top-0 self-start">
       {onRoomChange && (
-        <label className="block px-1 pb-1">
-          <span className="text-2xs font-bold uppercase tracking-wider text-subtle">Your room</span>
-          <input
-            className="mt-1 w-full min-h-11 px-3 text-sm border border-line-strong bg-surface text-ink"
-            value={room ?? ''}
-            maxLength={60}
-            onChange={(e) => onRoomChange(e.target.value)}
-            aria-label="Consultation room you call patients into"
-          />
-        </label>
+        <div className="px-1 pb-1">
+          <RoomPicker id="rail-room" label="Your room" value={room ?? ''} onChange={onRoomChange} options={roomOptions} />
+        </div>
       )}
       {mine && (
         <>
@@ -58,6 +58,7 @@ export default function QueueRail({ room, onRoomChange, queue, patientsMap, user
           const mins = waitMinutes(v);
           const takenBy = v.status === 'Consulting' && v.calledBy && v.calledBy !== userId ? `${v.calledByName ?? 'Another doctor'}${v.consultRoom ? `, ${v.consultRoom}` : ''}` : null;
           const hasAllergy = (pt?.drugAllergies?.length ?? 0) > 0;
+          const assignment = assignmentOf(v, myDoctorId);
           return (
             <li key={v.id}>
               {takenBy ? (
@@ -79,8 +80,10 @@ export default function QueueRail({ room, onRoomChange, queue, patientsMap, user
                     <span className={`text-xs font-bold shrink-0 ${mins >= 20 ? 'text-amber-700 dark:text-amber-300' : 'text-muted'}`}>{mins} min</span>
                   </span>
                   {hasAllergy && (
-                    <span className="chip-danger mt-1 px-2 py-0.5 text-2xs inline-flex items-center gap-1"><AlertCircle className="w-3 h-3" aria-hidden="true" />Allergy</span>
+                    <span className="chip-danger mt-1 mr-1 px-2 py-0.5 text-2xs inline-flex items-center gap-1"><AlertCircle className="w-3 h-3" aria-hidden="true" />Allergy</span>
                   )}
+                  {assignment === 'mine' && <span className="chip-ok mt-1 px-2 py-0.5 text-2xs inline-flex items-center">Assigned to you</span>}
+                  {assignment === 'other' && <span className="chip-neutral mt-1 px-2 py-0.5 text-2xs inline-flex items-center">Assigned to {doctorName(doctors, v.doctorId) ?? 'another doctor'}</span>}
                 </button>
               )}
             </li>

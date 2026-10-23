@@ -38,6 +38,7 @@ export interface ClinicShellContext {
   navigateTab: (tab: string) => void;
   onCallPatient: ClinicData['callPatient'];
   onReleasePatient: ClinicData['releasePatient'];
+  assignDoctor: ClinicData['assignDoctor'];
   searchPatients: ClinicData['searchPatients'];
   addPatientToDb: ClinicData['addPatientToDb'];
   addVisitToDb: ClinicData['addVisitToDb'];
@@ -112,6 +113,7 @@ export default function ClinicShell() {
     roles,
     onCallPatient: data.callPatient,
     onReleasePatient: data.releasePatient,
+    assignDoctor: data.assignDoctor,
     activeLanguage,
     t,
     patientsList,
