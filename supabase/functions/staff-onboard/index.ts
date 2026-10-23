@@ -4,7 +4,7 @@
 //   grant_access  give an existing staff record a login with a role (sends the invitation)
 //   resend_invite replace a pending invitation with a fresh one
 //   send_reset    email a password-reset link to someone who has already signed in
-//   change_role   change the access role of an existing login
+//   change_role   change the access role(s) of an existing login (a person may hold several)
 //   revoke/restore  block or re-enable sign-in (the staff record is kept)
 //   access_status   invited / active / revoked for every staff record with a login
 //
@@ -14,7 +14,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { authenticate, corsHeadersFor, jsonResponse, recordEvent, serviceClient } from '../_shared/runtime.ts';
 import {
-  AccessState, SystemRole, canGrant, canManageAccessOf, isSystemRole, validateStaffInput,
+  AccessState, SystemRole, canGrantAll, canManageAccessOf, normalizeRoleSet, validateStaffInput,
 } from '../_shared/staffAccess.ts';
 import { duplicateMessage, duplicateMessageFromDbError, findStaffDuplicate } from '../_shared/staffIdentity.ts';
 
@@ -43,8 +43,14 @@ serve(async (req) => {
   const audit = (eventType: string, detail: string, status: 'success' | 'failure' = 'success') =>
     recordEvent(db, { connectionId: null, direction: 'admin', eventType, status, detail, actor: caller.userId });
 
-  /** Create the login, email the invitation and link it to the staff record with the chosen role. */
-  async function grantAccess(staff: { id: string; name: string; email: string }, role: SystemRole): Promise<{ ok: boolean; message?: string }> {
+  /** The roles a request asks for: `roles` (first = primary) or the older single `systemRole`. */
+  const requestedRoles = (): SystemRole[] => {
+    const set = normalizeRoleSet(Array.isArray(body.roles) ? body.roles : body.systemRole ? [body.systemRole] : []);
+    return set;
+  };
+
+  /** Create the login, email the invitation and link it to the staff record with the chosen roles. */
+  async function grantAccess(staff: { id: string; name: string; email: string }, roles: SystemRole[]): Promise<{ ok: boolean; message?: string }> {
     const { data, error } = await db.auth.admin.inviteUserByEmail(staff.email, {
       data: { full_name: staff.name },
       redirectTo: redirectUrl(),
@@ -54,27 +60,29 @@ serve(async (req) => {
       return { ok: false, message: exists ? 'A login with this email already exists.' : `Could not send the invitation: ${error?.message ?? 'unknown error'}` };
     }
     const userId = data.user.id;
-    const { error: profileError } = await db.from('profiles').insert({ id: userId, full_name: staff.name, role });
+    const role = roles[0];
+    const { error: profileError } = await db.from('profiles').insert({ id: userId, full_name: staff.name, role, roles });
     if (profileError) {
       await db.auth.admin.deleteUser(userId);
       return { ok: false, message: 'Could not assign the access role.' };
     }
-    const { error: linkError } = await db.from('staff').update({ auth_id: userId, system_role: role, invited_at: new Date().toISOString() }).eq('id', staff.id);
+    const { error: linkError } = await db.from('staff').update({ auth_id: userId, system_role: role, system_roles: roles, invited_at: new Date().toISOString() }).eq('id', staff.id);
     if (linkError) {
       await db.auth.admin.deleteUser(userId);
       return { ok: false, message: 'Could not link the login to the staff record.' };
     }
-    await audit('staff.access_granted', `staff ${staff.id} granted ${role}`);
+    await audit('staff.access_granted', `staff ${staff.id} granted ${roles.join(', ')}`);
     return { ok: true };
   }
 
   async function loadStaff(id: string) {
-    const { data } = await db.from('staff').select('id, name, email, auth_id, system_role').eq('id', id).maybeSingle();
-    return data as { id: string; name: string; email: string; auth_id: string | null; system_role: SystemRole | null } | null;
+    const { data } = await db.from('staff').select('id, name, email, auth_id, system_role, system_roles').eq('id', id).maybeSingle();
+    const row = data as { id: string; name: string; email: string; auth_id: string | null; system_role: SystemRole | null; system_roles: SystemRole[] | null } | null;
+    return row && { ...row, roles: normalizeRoleSet(row.system_roles ?? (row.system_role ? [row.system_role] : [])) };
   }
 
   async function adminCount(): Promise<number> {
-    const { count } = await db.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'admin');
+    const { count } = await db.from('profiles').select('id', { count: 'exact', head: true }).contains('roles', ['admin']);
     return count ?? 0;
   }
 
@@ -85,11 +93,10 @@ serve(async (req) => {
     const problems = validateStaffInput(input);
     if (problems.length) return fail(problems.join('. ') + '.');
 
-    const systemRole = body.systemRole ? String(body.systemRole) : null;
-    if (systemRole !== null) {
-      if (!isSystemRole(systemRole)) return fail('Unknown access role.');
-      if (!canGrant(caller.role, systemRole)) return fail('You are not allowed to grant that access role.', 403);
-    }
+    const roles = requestedRoles();
+    const asked = Array.isArray(body.roles) ? body.roles.length : body.systemRole ? 1 : 0;
+    if (asked > 0 && roles.length !== asked) return fail('Unknown access role.');
+    if (roles.length > 0 && !canGrantAll(caller.role, roles)) return fail('You are not allowed to grant that access role.', 403);
 
     // No duplicate records: the same email or ID number is refused; the same name and date of birth needs confirmation.
     const { data: all } = await db.from('staff').select('id, name, email, ic_number, dob');
@@ -113,9 +120,9 @@ serve(async (req) => {
     }
     await audit('staff.created', `staff ${row.id}`);
 
-    if (!systemRole) return jsonResponse(req, { ok: true, staffId: row.id, invited: false, message: 'Staff record saved. No system access was granted.' });
+    if (roles.length === 0) return jsonResponse(req, { ok: true, staffId: row.id, invited: false, message: 'Staff record saved. No system access was granted.' });
 
-    const granted = await grantAccess(row, systemRole);
+    const granted = await grantAccess(row, roles);
     if (!granted.ok) {
       await audit('staff.access_failed', `staff ${row.id}: ${granted.message}`, 'failure');
       return jsonResponse(req, { ok: true, staffId: row.id, invited: false, warning: `Staff record saved, but access was not granted. ${granted.message} You can retry from the staff list.` });
@@ -125,17 +132,17 @@ serve(async (req) => {
 
   // ---------- access status for the directory ----------
   if (action === 'access_status') {
-    const { data: staff } = await db.from('staff').select('id, auth_id, system_role').not('auth_id', 'is', null);
+    const { data: staff } = await db.from('staff').select('id, auth_id, system_role, system_roles').not('auth_id', 'is', null);
     const { data: list } = await db.auth.admin.listUsers({ page: 1, perPage: 1000 });
     const users = new Map((list?.users ?? []).map((u) => [u.id, u]));
-    const result: Record<string, { state: AccessState; role: SystemRole | null }> = {};
+    const result: Record<string, { state: AccessState; role: SystemRole | null; roles: SystemRole[] }> = {};
     for (const s of staff ?? []) {
       const u = users.get(s.auth_id);
       let state: AccessState = 'invited';
       if (!u) state = 'none';
       else if (u.banned_until && new Date(u.banned_until) > new Date()) state = 'revoked';
       else if (u.last_sign_in_at) state = 'active';
-      result[s.id] = { state, role: s.system_role };
+      result[s.id] = { state, role: s.system_role, roles: normalizeRoleSet(s.system_roles ?? (s.system_role ? [s.system_role] : [])) };
     }
     return jsonResponse(req, { ok: true, access: result });
   }
@@ -147,25 +154,25 @@ serve(async (req) => {
 
   if (action === 'grant_access') {
     if (staff.auth_id) return fail('This person already has a login.');
-    const role = String(body.systemRole ?? '');
-    if (!isSystemRole(role)) return fail('Unknown access role.');
-    if (!canGrant(caller.role, role)) return fail('You are not allowed to grant that access role.', 403);
-    const granted = await grantAccess(staff, role);
+    const roles = requestedRoles();
+    if (roles.length === 0) return fail('Unknown access role.');
+    if (!canGrantAll(caller.role, roles)) return fail('You are not allowed to grant that access role.', 403);
+    const granted = await grantAccess(staff, roles);
     return jsonResponse(req, granted.ok ? { ok: true, message: `Invitation emailed to ${staff.email}.` } : { ok: false, message: granted.message });
   }
 
   if (!staff.auth_id) return fail('This person has no login yet. Grant access first.');
-  if (!canManageAccessOf(caller.role, staff.system_role)) return fail('You are not allowed to manage this account.', 403);
+  if (!canManageAccessOf(caller.role, staff.roles)) return fail('You are not allowed to manage this account.', 403);
 
   if (action === 'resend_invite') {
     const { data: u } = await db.auth.admin.getUserById(staff.auth_id);
     if (u?.user?.last_sign_in_at) return fail('This person has already signed in. Use "Send password reset" instead.');
-    const role = staff.system_role;
-    if (!role) return fail('This person has no access role recorded.');
+    const roles = staff.roles;
+    if (roles.length === 0) return fail('This person has no access role recorded.');
     // Unlink first (staff.auth_id references the login), then remove the pending login and its profile.
-    await db.from('staff').update({ auth_id: null, system_role: null, invited_at: null }).eq('id', staff.id);
+    await db.from('staff').update({ auth_id: null, system_role: null, system_roles: null, invited_at: null }).eq('id', staff.id);
     await db.auth.admin.deleteUser(staff.auth_id);
-    const granted = await grantAccess(staff, role);
+    const granted = await grantAccess(staff, roles);
     return jsonResponse(req, granted.ok ? { ok: true, message: `A new invitation was emailed to ${staff.email}.` } : { ok: false, message: granted.message });
   }
 
@@ -181,19 +188,19 @@ serve(async (req) => {
   if (isSelf) return fail('You cannot change your own access.');
 
   if (action === 'change_role') {
-    const role = String(body.systemRole ?? '');
-    if (!isSystemRole(role)) return fail('Unknown access role.');
-    if (!canGrant(caller.role, role)) return fail('You are not allowed to grant that access role.', 403);
-    if (staff.system_role === 'admin' && role !== 'admin' && (await adminCount()) <= 1) return fail('That is the last administrator; the system must keep at least one.');
-    const { error } = await db.from('profiles').update({ role }).eq('id', staff.auth_id);
-    if (error) return fail('Could not change the access role.');
-    await db.from('staff').update({ system_role: role }).eq('id', staff.id);
-    await audit('staff.role_changed', `staff ${staff.id} ${staff.system_role} -> ${role}`);
-    return jsonResponse(req, { ok: true, message: 'Access role updated. It applies the next time they sign in.' });
+    const roles = requestedRoles();
+    if (roles.length === 0) return fail('Unknown access role.');
+    if (!canGrantAll(caller.role, roles)) return fail('You are not allowed to grant that access role.', 403);
+    if (staff.roles.includes('admin') && !roles.includes('admin') && (await adminCount()) <= 1) return fail('That is the last administrator; the system must keep at least one.');
+    const { error } = await db.from('profiles').update({ role: roles[0], roles }).eq('id', staff.auth_id);
+    if (error) return fail('Could not change the access roles.');
+    await db.from('staff').update({ system_role: roles[0], system_roles: roles }).eq('id', staff.id);
+    await audit('staff.role_changed', `staff ${staff.id} ${staff.roles.join('+')} -> ${roles.join('+')}`);
+    return jsonResponse(req, { ok: true, message: 'Access updated. It applies the next time they sign in.' });
   }
 
   if (action === 'revoke') {
-    if (staff.system_role === 'admin' && (await adminCount()) <= 1) return fail('That is the last administrator; the system must keep at least one.');
+    if (staff.roles.includes('admin') && (await adminCount()) <= 1) return fail('That is the last administrator; the system must keep at least one.');
     const { error } = await db.auth.admin.updateUserById(staff.auth_id, { ban_duration: BAN_FOREVER });
     if (error) return fail('Could not revoke access.');
     await audit('staff.access_revoked', `staff ${staff.id}`);

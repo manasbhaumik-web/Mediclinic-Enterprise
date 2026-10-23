@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  SYSTEM_ROLES, assignableRoles, canGrant, canManageAccessOf, isSystemRole, suggestSystemRole, validateStaffInput,
+  SYSTEM_ROLES, assignableRoles, canGrant, canGrantAll, canManageAccessOf, isSystemRole, normalizeRoleSet, suggestSystemRole, suggestSystemRoles, validateStaffInput,
 } from './staffAccess';
 
 describe('assignableRoles', () => {
@@ -9,13 +9,13 @@ describe('assignableRoles', () => {
   });
 
   it('HR can grant clinical and front-desk roles but never admin or HR', () => {
-    expect(assignableRoles('hr')).toEqual(['doctor', 'pharmacist', 'clinic-assistant']);
+    expect(assignableRoles('hr')).toEqual(['doctor', 'pharmacist', 'receptionist', 'clinic-assistant', 'cashier']);
     expect(canGrant('hr', 'admin')).toBe(false);
     expect(canGrant('hr', 'hr')).toBe(false);
   });
 
   it('everyone else, and signed-out callers, can grant nothing', () => {
-    for (const r of ['doctor', 'pharmacist', 'clinic-assistant', null, undefined, '']) {
+    for (const r of ['doctor', 'pharmacist', 'receptionist', 'clinic-assistant', 'cashier', null, undefined, '']) {
       expect(assignableRoles(r as string | null)).toEqual([]);
     }
   });
@@ -46,8 +46,9 @@ describe('suggestSystemRole', () => {
     ['Dr. Sarah Tan', '', 'doctor'],
     ['Chief Pharmacist', 'Pharmacy', 'pharmacist'],
     ['Staff Nurse (Shift A)', 'General Practice', 'clinic-assistant'],
-    ['Senior Patient Registrar', 'Front Desk & Reception', 'clinic-assistant'],
-    ['Receptionist & Cashier', 'Administration', 'clinic-assistant'],
+    ['Senior Patient Registrar', 'Front Desk & Reception', 'receptionist'],
+    ['Receptionist & Cashier', 'Administration', 'receptionist'],
+    ['Billing Cashier', 'Front Counter', 'cashier'],
   ])('%s -> %s', (title, dept, expected) => {
     expect(suggestSystemRole(title, dept)).toBe(expected);
   });
@@ -74,5 +75,32 @@ describe('validateStaffInput', () => {
     expect(isSystemRole('doctor')).toBe(true);
     expect(isSystemRole('superuser')).toBe(false);
     expect(isSystemRole(undefined)).toBe(false);
+  });
+});
+
+describe('several roles per person', () => {
+  it('suggests every role a job title implies', () => {
+    expect(suggestSystemRoles('Receptionist & Cashier', 'Administration')).toEqual(['receptionist', 'cashier']);
+    expect(suggestSystemRoles('Front desk, triage and billing', '')).toEqual(['receptionist', 'clinic-assistant', 'cashier']);
+    expect(suggestSystemRoles('Cleaner', '')).toEqual([]);
+  });
+
+  it('normalizes a role set: valid roles only, no repeats, order kept', () => {
+    expect(normalizeRoleSet(['cashier', 'clerk', 'receptionist', 'cashier'])).toEqual(['cashier', 'receptionist']);
+    expect(normalizeRoleSet('doctor')).toEqual([]);
+    expect(normalizeRoleSet(undefined)).toEqual([]);
+  });
+
+  it('HR may grant the front-desk roles together but not a set containing admin', () => {
+    expect(canGrantAll('hr', ['receptionist', 'clinic-assistant', 'cashier'])).toBe(true);
+    expect(canGrantAll('hr', ['receptionist', 'admin'])).toBe(false);
+    expect(canGrantAll('hr', [])).toBe(false);
+    expect(canGrantAll('admin', ['doctor', 'admin'])).toBe(true);
+  });
+
+  it('HR cannot manage a person who holds a privileged role among others', () => {
+    expect(canManageAccessOf('hr', ['receptionist', 'cashier'])).toBe(true);
+    expect(canManageAccessOf('hr', ['doctor', 'admin'])).toBe(false);
+    expect(canManageAccessOf('admin', ['doctor', 'admin'])).toBe(true);
   });
 });

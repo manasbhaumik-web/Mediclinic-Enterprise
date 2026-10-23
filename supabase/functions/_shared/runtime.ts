@@ -28,8 +28,12 @@ export function serviceClient(): SupabaseClient {
   });
 }
 
-/** Resolves the calling user and their profile role from the request's JWT, or null if unauthenticated. */
-export async function authenticate(req: Request): Promise<{ userId: string; role: string } | null> {
+/**
+ * Resolves the calling user and their roles from the request's JWT, or null if unauthenticated.
+ * A person may hold several roles; `role` is the one the privileged checks compare against: admin if they hold it,
+ * else hr, else their primary role. `roles` lists everything they hold.
+ */
+export async function authenticate(req: Request): Promise<{ userId: string; role: string; roles: string[] } | null> {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) return null;
   const userClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
@@ -38,9 +42,14 @@ export async function authenticate(req: Request): Promise<{ userId: string; role
   });
   const { data: { user }, error } = await userClient.auth.getUser();
   if (error || !user) return null;
-  const { data: profile } = await userClient.from('profiles').select('role').eq('id', user.id).single();
+  // `roles` is missing on a database from before several roles per person; fall back to the single role then.
+  let { data: profile, error: profileError } = await userClient.from('profiles').select('role, roles').eq('id', user.id).single();
+  if (profileError) ({ data: profile } = await userClient.from('profiles').select('role').eq('id', user.id).single() as any);
   if (!profile) return null;
-  return { userId: user.id, role: profile.role as string };
+  const primary = profile.role as string;
+  const roles = Array.from(new Set([primary, ...(((profile as any).roles as string[] | null) ?? [])]));
+  const role = roles.includes('admin') ? 'admin' : roles.includes('hr') ? 'hr' : primary;
+  return { userId: user.id, role, roles };
 }
 
 export async function recordEvent(

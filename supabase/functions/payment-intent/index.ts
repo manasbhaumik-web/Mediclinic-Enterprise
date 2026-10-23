@@ -8,7 +8,7 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
 })
 
 // Roles allowed to collect payment (mirrors COLLECT_PAYMENT in src/lib/rbacPermissionEngine.ts).
-const PAYMENT_ROLES = ['doctor', 'pharmacist', 'clinic-assistant', 'admin']
+const PAYMENT_ROLES = ['doctor', 'pharmacist', 'cashier', 'admin']
 // Sanity bounds in MYR. Stripe's own minimum for MYR is 2.00.
 const MIN_AMOUNT = 2
 const MAX_AMOUNT = 50000
@@ -51,8 +51,11 @@ serve(async (req) => {
     if (userError || !user) return json({ error: 'Unauthorized' }, 401)
 
     // 2. Authorize: role comes from profiles (RLS lets a user read only their own row).
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    if (!profile || !PAYMENT_ROLES.includes(profile.role)) return json({ error: 'Forbidden' }, 403)
+    // A person may hold several roles; any one of them in the list is enough. Older databases have only `role`.
+    let { data: profile, error: profileError } = await supabase.from('profiles').select('role, roles').eq('id', user.id).single()
+    if (profileError) ({ data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single() as any)
+    const held: string[] = profile ? Array.from(new Set([profile.role, ...((profile as any).roles ?? [])])) : []
+    if (!held.some((r) => PAYMENT_ROLES.includes(r))) return json({ error: 'Forbidden' }, 403)
 
     // 3. Validate input.
     const { amount, currency = 'myr', invoiceId } = await req.json()
