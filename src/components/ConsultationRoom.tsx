@@ -264,12 +264,18 @@ export default function ConsultationRoom({
   // Open Final Review Checklist Modal
   const handleOpenReviewModal = () => {
     if (!selectedICD) {
-      alert(activeLanguage === 'EN' ? 'Please select an ICD-10 diagnostic code before signing off.' : 'Sila pilih kod Pengelasan Diagnostik (ICD-10) sebelum menandatangani kes.');
+      // The hint beside the button says what is missing; take the doctor to the step that needs it.
       setActiveTab('assessment');
       return;
     }
     setIsReviewModalOpen(true);
   };
+
+  // Leaving puts the patient back in the queue and discards the draft, so confirm only when there is something to lose.
+  const [confirmReturn, setConfirmReturn] = useState(false);
+  const hasWork = !!selectedICD || rxList.length > 0 || clinicalNotes.trim().length > 0 || pharmacyMemo.trim().length > 0
+    || subjective.trim() !== (activeVisit?.soap?.subjective ?? '').trim();
+  const handleReturn = () => (hasWork ? setConfirmReturn(true) : onCancel());
 
   // Final Signoff Action
   const handleFinalSignoff = () => {
@@ -475,7 +481,7 @@ export default function ConsultationRoom({
           </div>
 
           {/* SINGLE PRIMARY WORKFLOW CTA TOOLBAR */}
-          <WorkflowToolbar onCancel={onCancel} onSaveDraft={saveDraftNow} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
+          <WorkflowToolbar onCancel={handleReturn} onSaveDraft={saveDraftNow} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
 
         </div>
 
@@ -483,6 +489,26 @@ export default function ConsultationRoom({
         <ContextPanel vitals={vitals} aiDraftDismissed={aiDraftDismissed} setSelectedICD={setSelectedICD} setAiDraftAccepted={setAiDraftAccepted} aiDraftAccepted={aiDraftAccepted} setAiDraftDismissed={setAiDraftDismissed} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} />
 
       </div>
+
+      {confirmReturn && (
+      <div className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) setConfirmReturn(false); }}>
+        <div role="alertdialog" aria-modal="true" aria-labelledby="return-title" aria-describedby="return-desc" className="bg-surface border border-line w-full max-w-md p-5 space-y-3 shadow-2xl">
+          <h3 id="return-title" className="type-heading-caps text-ink">Return patient to the queue?</h3>
+          <p id="return-desc" className="text-xs text-muted">Your notes for this consultation will be discarded and {currentPatient.fullName} goes back to the waiting list for anyone to call.</p>
+          <div className="flex justify-end gap-2">
+            <button type="button" autoFocus className="btn-secondary" onClick={() => setConfirmReturn(false)}>Keep working</button>
+            <button type="button" className="btn-danger" onClick={() => { setConfirmReturn(false); onCancel(); }}>Return patient</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+      {/* ========================================================================= */}
+      {/* AREA 4: SAFE CONSULTATION REVIEW & SIGN-OFF CHECKLIST MODAL DIALOG        */}
+      {/* ========================================================================= */}
+      {isReviewModalOpen && (
+      <ReviewSignoffModal setIsReviewModalOpen={setIsReviewModalOpen} currentPatient={currentPatient} maskedIC={maskedIC} selectedICD={selectedICD} rxList={rxList} handleFinalSignoff={handleFinalSignoff} />
+      )}
 
     </div>
   );

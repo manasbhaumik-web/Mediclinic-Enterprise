@@ -16,6 +16,7 @@ import QueueToolbar from './doctor/QueueToolbar';
 import NextPatientCard from './doctor/NextPatientCard';
 import WaitingPatientsList from './doctor/WaitingPatientsList';
 import QueueRail from './doctor/QueueRail';
+import { draftKey } from '../domain/consultationDraft';
 import DoctorMonthlyReport from './doctor/DoctorMonthlyReport';
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
@@ -160,15 +161,25 @@ export default function DoctorDashboardModule({
     }, 600);
   };
 
+  // Calling the next patient in turn needs no confirmation. Calling someone out of turn, or while another
+  // consultation is open, asks first (and lets the doctor change the room).
   const requestCallPatient = (visitId: string, patientName: string, position: number) => {
+    if (position <= 1 && !activeConsultationVisitId) {
+      void performCall(visitId, patientName);
+      return;
+    }
     setPendingCallVisit({ visitId, patientName, position });
   };
 
-  const confirmCallPatient = async () => {
+  const confirmCallPatient = () => {
     if (!pendingCallVisit) return;
     const { visitId, patientName } = pendingCallVisit;
-    const roomName = room.trim() || 'Consultation Room 1';
     setPendingCallVisit(null);
+    void performCall(visitId, patientName);
+  };
+
+  const performCall = async (visitId: string, patientName: string) => {
+    const roomName = room.trim() || 'Consultation Room 1';
     const result = onCallPatient ? await onCallPatient(visitId, roomName) : { ok: false as const, error: 'Calling patients is not available here.' };
     if ('error' in result) {
       setCallAnnouncementToast(`Could not call ${patientName}: ${result.error}`);
@@ -433,7 +444,7 @@ export default function DoctorDashboardModule({
       {/* ========================================================================= */}
       {internalTab === 'consultation' && (
         <div className="flex flex-col lg:flex-row gap-4 items-start animate-fadeIn">
-          <QueueRail queue={sortedQueue} patientsMap={patientsMap} userId={userId} activeVisitId={activeConsultationVisitId} onCall={requestCallPatient} />
+          <QueueRail room={room} onRoomChange={(r) => { setRoom(r); try { localStorage.setItem('mediclinic.consultRoom', r); } catch { /* ignore */ } }} queue={sortedQueue} patientsMap={patientsMap} userId={userId} activeVisitId={activeConsultationVisitId} onCall={requestCallPatient} />
           <div className="flex-1 min-w-0 w-full space-y-4">
           {activeConsultationVisitId ? (
             <div className="animate-fade-in-up">
@@ -445,6 +456,7 @@ export default function DoctorDashboardModule({
                 onCancel={() => {
                   // Leaving without signing off puts the patient back in the queue for everyone.
                   const id = activeConsultationVisitId;
+                  if (id) { try { sessionStorage.removeItem(draftKey(id)); } catch { /* ignore */ } }
                   setActiveConsultationVisitId(null);
                   setInternalTab('queue');
                   if (id && onReleasePatient) void onReleasePatient(id).then((r) => {

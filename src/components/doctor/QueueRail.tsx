@@ -2,6 +2,9 @@ import { AlertCircle } from 'lucide-react';
 import { Patient, Visit } from '../../types';
 
 interface QueueRailProps {
+  /** The room this doctor calls patients into; remembered between calls. */
+  room?: string;
+  onRoomChange?: (room: string) => void;
   queue: Visit[];
   patientsMap: Record<string, Patient>;
   userId: string | null;
@@ -17,13 +20,25 @@ const waitMinutes = (v: Visit) => (v.registeredTime ? Math.max(0, Math.floor((Da
  * A narrow live queue beside the consultation, so the doctor never loses sight of who is waiting.
  * While a consultation is open, calling someone else is blocked: finish or return the current patient first.
  */
-export default function QueueRail({ queue, patientsMap, userId, activeVisitId, onCall }: QueueRailProps) {
+export default function QueueRail({ room, onRoomChange, queue, patientsMap, userId, activeVisitId, onCall }: QueueRailProps) {
   const mine = queue.find((v) => v.id === activeVisitId) ?? queue.find((v) => v.status === 'Consulting' && v.calledBy === userId);
   const others = queue.filter((v) => v.id !== mine?.id);
   const busy = !!mine;
 
   return (
     <aside aria-label="Waiting patients" className="w-full lg:w-64 shrink-0 bg-surface border border-line-subtle p-3 space-y-2 lg:sticky lg:top-0 self-start">
+      {onRoomChange && (
+        <label className="block px-1 pb-1">
+          <span className="text-2xs font-bold uppercase tracking-wider text-subtle">Your room</span>
+          <input
+            className="mt-1 w-full min-h-11 px-3 text-sm border border-line-strong bg-surface text-ink"
+            value={room ?? ''}
+            maxLength={60}
+            onChange={(e) => onRoomChange(e.target.value)}
+            aria-label="Consultation room you call patients into"
+          />
+        </label>
+      )}
       {mine && (
         <>
           <h3 className="text-2xs font-bold uppercase tracking-wider text-subtle px-1">With me</h3>
