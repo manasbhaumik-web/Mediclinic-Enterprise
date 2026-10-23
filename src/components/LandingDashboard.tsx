@@ -1,7 +1,7 @@
 import { useColorTheme } from '../hooks/useColorTheme';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ROLE_BANNER, bannerFor, getGreeting } from '../lib/roleBanner';
+import { ROLE_BANNER, bannerFor, getGreeting } from '../domain/roleBanner';
 import { Visit, Patient, UserRole, Language } from '../types';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 

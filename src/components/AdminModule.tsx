@@ -27,7 +27,7 @@ import { useSettings } from '../context/SettingsContext';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import NotificationBell from './NotificationBell';
 import { useAuth } from '../context/AuthContext';
-import { getGreeting } from '../lib/roleBanner';
+import { getGreeting } from '../domain/roleBanner';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;

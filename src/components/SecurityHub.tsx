@@ -3,7 +3,7 @@ import { useQueryClient, useIsFetching } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, Check, Key, Minus, RefreshCw, ScrollText, ShieldCheck } from 'lucide-react';
 import { useAuditFeed } from '../hooks/useAuditFeed';
 import { AuditSource, AuditTone, SOURCE_LABEL, summarizeActivity } from '../domain/audit';
-import { ClinicalPermission, RBACPermissionEngine } from '../lib/rbacPermissionEngine';
+import { ClinicalPermission, RBACPermissionEngine } from '../domain/rbacPermissionEngine';
 import { UserRole } from '../types';
 
 type Tab = 'activity' | 'access';

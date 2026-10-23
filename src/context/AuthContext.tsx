@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
-import { RBACPermissionEngine } from '../lib/rbacPermissionEngine';
+import { RBACPermissionEngine } from '../domain/rbacPermissionEngine';
 import { UserRole } from '../types';
 import { normalizeRoles } from '../domain/roles';
 

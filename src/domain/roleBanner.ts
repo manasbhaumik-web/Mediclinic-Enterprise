@@ -1,5 +1,5 @@
 import type { UserRole } from '../types';
-import { ROLE_LABEL } from '../domain/roles';
+import { ROLE_LABEL } from './roles';
 
 /** Banner wording shared by the dashboard and every other staff page. */
 export const ROLE_BANNER: Record<UserRole, { label: string; subtitle: string }> = {

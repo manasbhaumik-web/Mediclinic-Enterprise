@@ -1,5 +1,5 @@
 /** Staff access (RBAC) helpers for the UI. The rules themselves live in the shared module the server also uses. */
-import { ClinicalPermission, RBACPermissionEngine } from '../lib/rbacPermissionEngine';
+import { ClinicalPermission, RBACPermissionEngine } from './rbacPermissionEngine';
 import { ADMIN_ROLES, TAB_ROLES } from '../routes/permissions';
 import { SystemRole } from '../../supabase/functions/_shared/staffAccess';
 
