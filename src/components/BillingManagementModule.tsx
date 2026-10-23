@@ -86,7 +86,7 @@ export default function BillingManagementModule() {
     <div className="animate-fadeIn w-full space-y-6 pb-8">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
@@ -109,12 +109,12 @@ export default function BillingManagementModule() {
 
       {/* 2. TOP METRICS SUMMARY ROW */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Revenue this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{rm(totalRevenue)}</span>
         </div>
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Panel claims awaiting payment</span>
           <span className={`text-xl font-bold font-mono block mt-0.5 ${pendingClaims > 0 ? 'text-amber-600' : 'text-muted'}`}>
             {rm(pendingClaims)}
@@ -122,12 +122,12 @@ export default function BillingManagementModule() {
           <span className="text-2xs text-subtle">{pendingClaimTrx.length} claim{pendingClaimTrx.length === 1 ? '' : 's'}</span>
         </div>
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">SST included (estimate)</span>
           <span className="text-xl font-bold font-mono text-accent block mt-0.5">{rm(taxIncluded)}</span>
         </div>
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Transactions this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{monthTransactions.length}</span>
         </div>
@@ -174,7 +174,7 @@ export default function BillingManagementModule() {
           
           {/* Search Bar (Only when transactions exist) */}
           {transactions.length > 0 && (
-            <div className="bg-surface-muted border border-line-subtle p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+            <div className="bg-surface border border-line-subtle p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
               <div className="relative w-full md:w-80">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input 
@@ -199,7 +199,7 @@ export default function BillingManagementModule() {
               {/* Left Hero Card */}
               <div className="lg:col-span-7 bg-surface border border-line-subtle p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
                 <div className="space-y-4">
-                  <div className="w-14 h-14 rounded-none bg-surface-accent border border-line text-accent flex items-center justify-center shadow-md">
+                  <div className="w-14 h-14 rounded-none bg-surface border border-line text-accent flex items-center justify-center shadow-md">
                     <DollarSign className="w-7 h-7" />
                   </div>
                   
@@ -223,7 +223,7 @@ export default function BillingManagementModule() {
               </div>
 
               {/* Right Workflow Guide */}
-              <div className="lg:col-span-5 bg-surface-muted border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
+              <div className="lg:col-span-5 bg-surface border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
                 <div className="space-y-3">
                   <h4 className="type-label text-accent flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5 text-accent" />

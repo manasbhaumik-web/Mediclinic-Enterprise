@@ -375,7 +375,7 @@ export default function PatientRegistrationModule({
       )}
 
       {/* Sub-Navigation Buttons Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 bg-surface-muted dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs" role="tablist" aria-label="Patient Registration Sub Navigation">
+      <div className="flex flex-wrap items-center gap-2 bg-surface dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs" role="tablist" aria-label="Patient Registration Sub Navigation">
         <button
           role="tab"
           aria-selected={activeSubTab === 'queue'}
@@ -429,7 +429,7 @@ export default function PatientRegistrationModule({
       {activeSubTab === 'form' && (
         <div className="animate-fadeIn font-sans">
           {registrationStep === 'id_check' ? (
-            <div className="max-w-md mx-auto mt-8 bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-8 font-sans">
+            <div className="max-w-md mx-auto mt-8 bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-8 font-sans">
               <div className="text-center space-y-6">
                 <div className="mx-auto w-14 h-14 bg-primary/10 dark:bg-teal-900/40 rounded-none flex items-center justify-center border border-brand/20">
                   <Search className="w-7 h-7 text-accent dark:text-teal-300" />
@@ -483,7 +483,7 @@ export default function PatientRegistrationModule({
             <div className="max-w-4xl mx-auto font-sans">
               
               {/* Wizard Stepper */}
-              <div className="mb-6 flex items-center justify-between relative bg-surface-muted dark:bg-night-850 p-4 border border-line-subtle dark:border-teal-800/40 rounded-none font-sans">
+              <div className="mb-6 flex items-center justify-between relative bg-surface dark:bg-night-850 p-4 border border-line-subtle dark:border-teal-800/40 rounded-none font-sans">
                 {[1, 2].map(stepNum => (
                   <div key={stepNum} className={`flex items-center gap-3 ${formStep >= stepNum ? '' : 'opacity-50'}`}>
                     <div className={`w-7 h-7 rounded-none flex items-center justify-center font-bold text-xs font-sans transition-colors ${
@@ -502,7 +502,7 @@ export default function PatientRegistrationModule({
                 ))}
               </div>
 
-              <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative font-sans">
+              <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative font-sans">
                 <div className="absolute top-4 right-4 z-10">
                   <button 
                     type="button" 

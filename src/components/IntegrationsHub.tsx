@@ -202,7 +202,7 @@ export default function IntegrationsHub() {
   return (
     <div className="animate-fadeIn w-full space-y-6 pb-8">
       {/* STRUCTURED CLINICAL HEADER BANNER */}
-      <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
@@ -255,7 +255,7 @@ export default function IntegrationsHub() {
 
       {/* TOP 4 SUMMARY METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-surface rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Gateway Nodes</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -270,7 +270,7 @@ export default function IntegrationsHub() {
           </div>
         </div>
 
-        <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-surface rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Packets Synced</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -285,7 +285,7 @@ export default function IntegrationsHub() {
           </div>
         </div>
 
-        <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-surface rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Avg Latency</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -300,7 +300,7 @@ export default function IntegrationsHub() {
           </div>
         </div>
 
-        <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
+        <div className="bg-surface rounded-none border border-line p-4 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Security Integrity</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
@@ -325,7 +325,7 @@ export default function IntegrationsHub() {
           return (
             <div 
               key={integration.id} 
-              className="bg-surface-accent rounded-none border border-line shadow-2xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col group"
+              className="bg-surface rounded-none border border-line shadow-2xs hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col group"
             >
               {/* Card Header */}
               <div className={`p-4 border-b ${isWarning ? 'bg-amber-50 border-amber-200' : 'bg-surface border-teal-100'} flex items-start justify-between transition-colors`}>

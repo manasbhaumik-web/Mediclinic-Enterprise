@@ -19,7 +19,7 @@ interface PatientRegistryTableProps {
 
 export default function PatientRegistryTable({ totalPatientCount, setActiveSubTab, setRegistrationStep, patientRegistrySearch, setPatientRegistrySearch, sortHeader, sortedResults, showPII, triageQueue, handleCreateTicket }: PatientRegistryTableProps) {
   return (
-    <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
+    <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
       <div className="p-6 space-y-6">
         
         {/* Header section with primary action button and total count badge */}

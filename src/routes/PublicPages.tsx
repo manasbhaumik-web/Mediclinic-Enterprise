@@ -35,7 +35,7 @@ export function TelemetryPage() {
   const d = useClinicData();
   const q = splitQueues(d.visitsQueue);
   return (
-    <div className="min-h-screen bg-surface flex flex-col font-sans selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-canvas flex flex-col font-sans selection:bg-primary selection:text-white">
       <div className="sticky top-0 z-50 bg-surface-accent/95 backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between border-b border-line shadow-xs">
         <button
           type="button"

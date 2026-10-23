@@ -105,7 +105,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
   };
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4 sm:p-8 font-sans text-strong selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-canvas flex items-center justify-center p-4 sm:p-8 font-sans text-strong selection:bg-primary selection:text-white">
       <div className="max-w-5xl w-full flex flex-col md:flex-row rounded-none border border-line-subtle bg-surface shadow-2xl overflow-hidden animate-fadeIn">
 
         {/* ========================================================================= */}

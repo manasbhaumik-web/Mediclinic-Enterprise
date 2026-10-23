@@ -22,7 +22,7 @@ export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerS
       
       {/* Payer Mix Bar Chart (6 Cols) */}
       {showPanel('payer') && (
-        <div className={`${showPanel('pharmacy') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
+        <div className={`${showPanel('pharmacy') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface border border-line-subtle rounded-none p-6 shadow-xs`}>
           <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
             <div>
               <h3 className="type-card-title text-ink flex items-center gap-2">
@@ -67,7 +67,7 @@ export default function PayerAndPharmacyCharts({ showPanel, payerMixData, payerS
     
       {/* Fast-Moving Medications Progress Meters (6 Cols) */}
       {showPanel('pharmacy') && (
-        <div className={`${showPanel('payer') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
+        <div className={`${showPanel('payer') ? 'lg:col-span-6' : 'lg:col-span-12'} bg-surface border border-line-subtle rounded-none p-6 shadow-xs`}>
           <div className="pb-4 border-b border-line-subtle mb-5 flex items-center justify-between">
             <div>
               <h3 className="type-card-title text-ink flex items-center gap-2">

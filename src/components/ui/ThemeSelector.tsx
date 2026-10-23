@@ -3,7 +3,7 @@ import { Palette } from 'lucide-react';
 import { COLOR_THEMES, ColorTheme, useColorTheme } from '../../hooks/useColorTheme';
 
 interface ThemeSelectorProps {
-  /** `menu` sits inside the dark workstation menus; `light` sits in light headers. */
+  /** `menu` sits inside the workstation menus (themed in day mode, dark in Night Shift); `light` sits in light headers. */
   variant?: 'menu' | 'light';
   className?: string;
 }
@@ -13,16 +13,16 @@ export default function ThemeSelector({ variant = 'light', className = '' }: The
 
   if (variant === 'menu') {
     return (
-      <div className={`flex items-center justify-between bg-night-800 p-2 border border-teal-900/60 ${className}`}>
-        <label htmlFor="color-theme-menu" className="text-teal-100 font-medium flex items-center gap-1.5">
-          <Palette className="w-3.5 h-3.5 text-teal-200" />
+      <div className={`flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-teal-900/60 ${className}`}>
+        <label htmlFor="color-theme-menu" className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+          <Palette className="w-3.5 h-3.5 text-accent dark:text-teal-200" />
           <span>Color Theme</span>
         </label>
         <select
           id="color-theme-menu"
           value={theme}
           onChange={(e) => setTheme(e.target.value as ColorTheme)}
-          className="h-8 bg-night-950 text-white border border-teal-700 px-2 text-xs font-semibold focus:outline-none focus:border-brand cursor-pointer"
+          className="h-8 bg-surface text-ink border border-line dark:bg-night-950 dark:text-white dark:border-teal-700 px-2 text-xs font-semibold focus:outline-none focus:border-brand cursor-pointer"
         >
           {COLOR_THEMES.map((t) => (
             <option key={t.id} value={t.id}>{t.label}</option>

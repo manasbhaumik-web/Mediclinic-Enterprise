@@ -64,7 +64,7 @@ export default function SetPasswordPage() {
   if (status === 'checking') return <GlobalSpinner />;
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4 font-sans text-ink">
+    <div className="min-h-screen bg-canvas flex items-center justify-center p-4 font-sans text-ink">
       <div className="max-w-md w-full bg-surface border border-line-subtle shadow-2xl p-8 space-y-5">
         <div className="flex items-center gap-2 text-accent">
           <ShieldCheck className="w-6 h-6" />

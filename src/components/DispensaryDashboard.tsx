@@ -155,7 +155,7 @@ export default function DispensaryDashboard({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
       
       {/* 1. DISPENSARY QUEUE LIST PANEL (Left Column - 35%) */}
-      <div className="lg:col-span-4 bg-surface-muted border border-line rounded-none p-4 space-y-4">
+      <div className="lg:col-span-4 bg-surface border border-line rounded-none p-4 space-y-4">
         
         <div className="flex items-center gap-1.5 text-accent font-semibold text-xs border-b border-line pb-2 mb-1.5">
           <Users className="w-4 h-4 text-accent" />
@@ -267,7 +267,7 @@ export default function DispensaryDashboard({
 
               <div id="prescription-itemized-stack" className="space-y-3">
                 {activeVisit.soap?.plan?.prescription?.length === 0 ? (
-                  <div className="p-4 bg-surface-muted text-subtle text-xs italic text-center rounded-none border">
+                  <div className="p-4 bg-surface text-subtle text-xs italic text-center rounded-none border">
                     No drugs compiled associated with this consultation visit.
                   </div>
                 ) : (
@@ -286,7 +286,7 @@ export default function DispensaryDashboard({
                             ? 'bg-surface-strong border-line opacity-60 grayscale'
                             : hasAllergy 
                               ? 'bg-red-50 border-red-300 shadow-glow-danger ring-1 ring-red-300'
-                              : 'bg-surface-muted border-line-subtle'
+                              : 'bg-surface border-line-subtle'
                         }`}
                       >
                         
@@ -408,7 +408,7 @@ export default function DispensaryDashboard({
             </div>
 
             {/* Pharmacist Safety validation inputs checklist */}
-            <div className="bg-surface-accent p-3.5 rounded-none border border-line space-y-2">
+            <div className="bg-surface p-3.5 rounded-none border border-line space-y-2">
               <span className="text-2xs font-bold text-accent uppercase tracking-wider flex items-center gap-1 mb-1">
                 <ShieldCheck className="w-4 h-4 text-accent" />
                 Dual-Verification Clinical Pharmacy Checks

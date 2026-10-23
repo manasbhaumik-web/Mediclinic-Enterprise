@@ -239,7 +239,7 @@ export default function ClinicLandingPage({
     : testimonials.filter(t => t.category === reviewCategory);
 
   return (
-    <div className="min-h-screen pb-[76px] sm:pb-0 bg-surface text-ink font-sans selection:bg-primary selection:text-white relative">
+    <div className="min-h-screen pb-[76px] sm:pb-0 bg-canvas text-ink font-sans selection:bg-primary selection:text-white relative">
       
       {/* ========================================================================= */}
       {/* 0. STICKY TOP REAL-TIME TICKER & PULSE BANNER                             */}

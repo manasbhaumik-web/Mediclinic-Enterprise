@@ -23,7 +23,7 @@ export default function FlowAndDiagnosisCharts({ showPanel, hasThroughput, throu
       
       {/* Hourly Patient Flow Area Chart (8 Cols) */}
       {showPanel('throughput') && (
-        <div className={`${showPanel('icd') ? 'lg:col-span-8' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs`}>
+        <div className={`${showPanel('icd') ? 'lg:col-span-8' : 'lg:col-span-12'} bg-surface border border-line-subtle rounded-none p-6 shadow-xs`}>
           <div className="flex items-center justify-between pb-4 border-b border-line-subtle mb-5">
             <div>
               <h3 className="type-card-title text-ink flex items-center gap-2">
@@ -79,7 +79,7 @@ export default function FlowAndDiagnosisCharts({ showPanel, hasThroughput, throu
     
       {/* ICD-10 Diagnosis Breakdown Pie Chart (4 Cols) */}
       {showPanel('icd') && (
-        <div className={`${showPanel('throughput') ? 'lg:col-span-4' : 'lg:col-span-12'} bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between`}>
+        <div className={`${showPanel('throughput') ? 'lg:col-span-4' : 'lg:col-span-12'} bg-surface border border-line-subtle rounded-none p-6 shadow-xs flex flex-col justify-between`}>
           <div>
             <div className="pb-4 border-b border-line-subtle mb-5">
               <h3 className="type-card-title text-ink flex items-center gap-2">

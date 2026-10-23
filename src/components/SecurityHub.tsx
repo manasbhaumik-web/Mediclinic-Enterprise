@@ -60,7 +60,7 @@ export default function SecurityHub() {
 
   return (
     <div className="animate-fadeIn w-full space-y-6 pb-8">
-      <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="type-page-title text-ink flex items-center gap-2.5">
             <ShieldCheck className="w-6 h-6 text-accent" aria-hidden="true" />
@@ -115,7 +115,7 @@ export default function SecurityHub() {
       </div>
 
       {tab === 'activity' && (
-        <section className="bg-surface-accent p-6 rounded-none shadow-xs border border-line" aria-label="Activity log">
+        <section className="bg-surface p-6 rounded-none shadow-xs border border-line" aria-label="Activity log">
           <h2 className="type-heading-caps mb-1 flex items-center gap-2 text-ink">
             <ScrollText className="w-5 h-5 text-accent" aria-hidden="true" /> Activity log
           </h2>
@@ -169,7 +169,7 @@ export default function SecurityHub() {
       )}
 
       {tab === 'access' && (
-        <section className="bg-surface-accent p-6 rounded-none shadow-xs border border-line" aria-label="Role permissions">
+        <section className="bg-surface p-6 rounded-none shadow-xs border border-line" aria-label="Role permissions">
           <h2 className="type-heading-caps mb-1 flex items-center gap-2 text-ink">
             <Key className="w-5 h-5 text-accent" aria-hidden="true" /> Role permissions
           </h2>
@@ -211,7 +211,7 @@ export default function SecurityHub() {
 
 function Kpi({ label, value, note, tone = 'ok' }: { label: string; value: string; note: string; tone?: 'ok' | 'bad' }) {
   return (
-    <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
+    <div className="bg-surface rounded-none border border-line p-4 shadow-2xs">
       <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
       <h3 className={`type-metric mt-2 ${tone === 'bad' ? 'text-rose-700' : 'text-ink'}`}>{value}</h3>
       <p className="mt-2 text-xs text-muted">{note}</p>

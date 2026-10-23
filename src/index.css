@@ -25,8 +25,8 @@
   --text-xs--line-height: 1.125rem;
 
   /* Surfaces (light ice-mint) */
-  --color-canvas: #f3f8f7;          /* workspace background behind cards */
-  --color-surface: #fbfefe;         /* cards, page background */
+  --color-canvas: #f2f9f7;          /* page background: a pale tint of the theme colour (Ice Mint) */
+  --color-surface: #ffffff;         /* cards and panels */
   --color-surface-muted: #f5fcfa;   /* nested panels, table stripes */
   --color-surface-accent: #eef9f6;  /* ice-mint cards, headers, soft buttons */
   --color-surface-strong: #e0f4ef;  /* hover / pressed on accent surfaces */
@@ -110,11 +110,16 @@
   --color-primary-hover: #0f766e;
 }
 
+/* The page itself (behind everything, and in the scrollbar gutter) is the application's page colour, not the white of cards. */
+html {
+  background-color: var(--color-canvas);
+}
+
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-surface);
+  background-color: var(--color-canvas);
   color: var(--color-ink);
 }
 
@@ -287,7 +292,7 @@ strong {
 
   /* Boot screen shown by index.html before React mounts */
   .app-preloader {
-    @apply fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-surface text-ink font-sans;
+    @apply fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-canvas text-ink font-sans;
   }
   .app-preloader-mark { @apply relative flex items-center justify-center mb-6; }
   .app-preloader-ring {
@@ -594,8 +599,8 @@ strong {
 /* Tailwind's teal ramp is remapped to sky so raw `teal-*` classes follow.   */
 /* ========================================================================= */
 [data-theme="sky"] {
-  --color-canvas: #f1f7fc;
-  --color-surface: #fbfdff;
+  --color-canvas: #f4f9fe;          /* Sky Blue page background */
+  --color-surface: #ffffff;
   --color-surface-muted: #f4f9fe;
   --color-surface-accent: #eaf4fc;
   --color-surface-strong: #d9ebf9;
@@ -675,5 +680,99 @@ strong {
   --color-brand: #0ea5e9;
   --color-primary: #0284c7;
   --color-primary-hover: #0369a1;
+}
+
+/* ========================================================================= */
+/* ICE BLUE THEME                                                            */
+/* Selected with <html data-theme="ice">. A pale, cool blue-white scheme with */
+/* a steel-cyan chrome. Text and filled-button colours keep AA contrast on    */
+/* the light surfaces. The teal ramp is remapped to cyan so raw `teal-*`      */
+/* classes follow, and the neutral ramp is tinted to match.                   */
+/* ========================================================================= */
+[data-theme="ice"] {
+  --color-canvas: #f0f9fd;          /* Ice Blue page background */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f2fafe;
+  --color-surface-accent: #e6f6fc;
+  --color-surface-strong: #d2edf8;
+
+  --color-line-subtle: #d3ecf6;
+  --color-line: #b3e0f0;
+  --color-line-strong: #7fcbe4;
+
+  --color-ink: #0b3a4e;
+  --color-deep: #0b3a4e;
+  --color-accent: #0e7490;
+  --color-strong: #0c2d3d;
+  --color-muted: #3b5d6e;
+  --color-subtle: #4e7284;
+
+  --color-brand: #0891b2;
+  --color-primary: #0e7490;
+  --color-primary-hover: #155e75;
+
+  --color-chrome: #0f6f8c;
+  --color-chrome-nav: #0b6280;
+  --color-chrome-active: #0a5670;
+  --color-chrome-deep: #0b607c;
+  --color-chrome-line: #07445a;
+  --color-chrome-hover: #08495f;
+
+  --color-slate-50: #f1f8fb;
+  --color-slate-100: #e2eff5;
+  --color-slate-200: #cde1ea;
+  --color-slate-300: #aec9d6;
+  --color-slate-400: #85a8b9;
+  --color-slate-500: #4e7284;
+  --color-slate-600: #3b5d6e;
+  --color-slate-700: #2c4a5a;
+  --color-slate-800: #1b3a4a;
+  --color-slate-900: #0c2d3d;
+  --color-slate-950: #061f2c;
+
+  --color-night-950: #04202b;
+  --color-night-900: #062a38;
+  --color-night-850: #08303f;
+  --color-night-800: #0c4052;
+  --color-night-700: #0f5167;
+  --color-night-600: #14647f;
+
+  --color-teal-50: #ecfeff;
+  --color-teal-100: #cffafe;
+  --color-teal-200: #a5f3fc;
+  --color-teal-300: #67e8f9;
+  --color-teal-400: #22d3ee;
+  --color-teal-500: #06b6d4;
+  --color-teal-600: #0891b2;
+  --color-teal-700: #0e7490;
+  --color-teal-800: #155e75;
+  --color-teal-900: #164e63;
+  --color-teal-950: #083344;
+}
+
+/* Night Shift under Ice Blue */
+[data-theme="ice"] .dark,
+[data-theme="ice"].dark {
+  --color-chart-grid: rgb(148 163 184 / 0.28);
+
+  --color-canvas: #062a38;
+  --color-surface: #08303f;
+  --color-surface-muted: #0a3a4c;
+  --color-surface-accent: #08303f;
+  --color-surface-strong: #0f5167;
+
+  --color-line-subtle: rgb(34 211 238 / 0.2);
+  --color-line: rgb(34 211 238 / 0.25);
+  --color-line-strong: rgb(34 211 238 / 0.4);
+
+  --color-ink: #67e8f9;
+  --color-accent: #22d3ee;
+  --color-strong: #f8fafc;
+  --color-muted: #cbd5e1;
+  --color-subtle: #94a3b8;
+
+  --color-brand: #06b6d4;
+  --color-primary: #0891b2;
+  --color-primary-hover: #0e7490;
 }
 

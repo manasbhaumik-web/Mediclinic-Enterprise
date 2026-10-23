@@ -136,11 +136,11 @@ export default function EnterpriseLayoutTemplate({
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
-      isNightShift ? 'dark bg-night-850 text-slate-100' : 'bg-slate-50 text-ink'
+      isNightShift ? 'dark bg-night-850 text-slate-100' : 'bg-canvas text-ink'
     }`}>
       
       {/* GLOBAL TOP HEADER BAR */}
-      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans">
+      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans shadow-[0_1px_3px_rgb(15_60_76/0.18)]">
 
         {/* Left: Brand Identity & Interactive Clinic Tooltip */}
         <div ref={clinicRef} className="flex items-center gap-3 relative">
@@ -167,21 +167,21 @@ export default function EnterpriseLayoutTemplate({
 
           {/* Clinic Information Popover Tooltip */}
           {showClinicInfoTooltip && (
-            <div className="absolute top-12 left-0 z-50 bg-chrome-deep border border-white/25 p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-white font-sans">
-              <div className="flex items-center justify-between border-b border-white/25 pb-2">
-                <span className="font-bold text-white uppercase flex items-center gap-1.5">
-                  <Building className="w-3.5 h-3.5 text-teal-100" /> Clinic Info & License
+            <div className="absolute top-12 left-0 z-50 bg-surface dark:bg-chrome-deep border border-line dark:border-white/25 p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-ink dark:text-white font-sans">
+              <div className="flex items-center justify-between border-b border-line dark:border-white/25 pb-2">
+                <span className="font-bold text-ink dark:text-white uppercase flex items-center gap-1.5">
+                  <Building className="w-3.5 h-3.5 text-ink dark:text-teal-100" /> Clinic Info & License
                 </span>
               </div>
               {clinicHasDetails ? (
-                <div className="space-y-1 text-teal-50 font-mono text-2xs">
+                <div className="space-y-1 text-muted dark:text-teal-50 font-mono text-2xs">
                   {clinic.address && <p>📍 {clinic.address}</p>}
                   {clinic.licenseNo && <p>📋 KKM Licence: {clinic.licenseNo}</p>}
                   {clinic.phone && <p>📞 Phone: {clinic.phone}</p>}
                   {clinic.emergencyPhone && <p>🚨 Emergency hotline: {clinic.emergencyPhone}</p>}
                 </div>
               ) : (
-                <p className="text-teal-100 text-2xs">Clinic details have not been set. An administrator can add them under Settings, Clinic profile.</p>
+                <p className="text-ink dark:text-teal-100 text-2xs">Clinic details have not been set. An administrator can add them under Settings, Clinic profile.</p>
               )}
             </div>
           )}
@@ -232,11 +232,11 @@ export default function EnterpriseLayoutTemplate({
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 top-12 w-72 bg-night-900 border border-white/15 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
-                <div className="flex items-center justify-between border-b border-white/15 pb-2.5">
+              <div className="absolute right-0 top-12 w-72 bg-surface dark:bg-night-900 border border-line dark:border-white/15 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-ink dark:text-white z-50 font-sans">
+                <div className="flex items-center justify-between border-b border-line dark:border-white/15 pb-2.5">
                   <div>
-                    <p className="font-bold text-sm text-teal-300">{userName || 'Clinician'}</p>
-                    <p className="text-2xs text-teal-200 font-mono uppercase">{joinRoleLabels(held)}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
+                    <p className="font-bold text-sm text-accent dark:text-teal-300">{userName || 'Clinician'}</p>
+                    <p className="text-2xs text-muted dark:text-teal-200 font-mono uppercase">{joinRoleLabels(held)}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" title="Active workstation session"></span>
                 </div>
@@ -246,27 +246,27 @@ export default function EnterpriseLayoutTemplate({
                   type="button"
                   id="user-menu-my-leave"
                   onClick={() => { setActiveTab('my-leave'); setShowUserMenu(false); }}
-                  className="w-full min-h-11 flex items-center gap-2 px-3 bg-night-800 border border-white/15 hover:bg-night-700 text-teal-100 font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+                  className="w-full min-h-11 flex items-center gap-2 px-3 bg-surface-accent dark:bg-night-800 border border-line dark:border-white/15 hover:bg-surface-strong dark:hover:bg-night-700 text-ink dark:text-teal-100 font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
                 >
-                  <CalendarClock className="w-4 h-4 text-teal-200" aria-hidden="true" />
+                  <CalendarClock className="w-4 h-4 text-muted dark:text-teal-200" aria-hidden="true" />
                   <span>My leave &amp; attendance</span>
                 </button>
 
                 {/* Utility Section: Workstation Settings */}
                 <div className="space-y-2.5 pt-1">
-                  <p className="text-2xs font-mono uppercase text-teal-300 tracking-wider font-bold">Workstation Settings</p>
+                  <p className="text-2xs font-mono uppercase text-accent dark:text-teal-300 tracking-wider font-bold">Workstation Settings</p>
                   
                   {/* 1. Day / Night Shift Mode Toggle */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
-                      {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-200" />}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" />}
                       <span>Theme Mode</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => setIsNightShift(!isNightShift)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        isNightShift ? 'bg-teal-950 text-amber-300 border-teal-700' : 'bg-primary text-white border-teal-600'
+                        isNightShift ? 'bg-teal-950 text-amber-300 border-line dark:border-teal-700' : 'bg-primary text-white border-teal-600'
                       }`}
                     >
                       {isNightShift ? 'Night Shift' : 'Day Mode'}
@@ -277,16 +277,16 @@ export default function EnterpriseLayoutTemplate({
                   <ThemeSelector variant="menu" />
 
                   {/* 2. Privacy Mode (PII Masking) Toggle */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
-                      {showPII ? <Eye className="w-3.5 h-3.5 text-amber-200" /> : <EyeOff className="w-3.5 h-3.5 text-emerald-300" />}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {showPII ? <Eye className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" /> : <EyeOff className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" />}
                       <span>Privacy Mask</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowPII(!showPII)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        showPII ? 'bg-amber-500/30 text-amber-100 border-amber-400/50' : 'bg-emerald-500/30 text-emerald-200 border-emerald-400/40'
+                        showPII ? 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-500/30 dark:text-amber-100 dark:border-amber-400/50' : 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-500/30 dark:text-emerald-200 dark:border-emerald-400/40'
                       }`}
                     >
                       {showPII ? 'Off (Exposed)' : 'On (Masked)'}
@@ -295,9 +295,9 @@ export default function EnterpriseLayoutTemplate({
 
                   {/* 3. Network simulator: development builds only. Production follows the browser's real connection. */}
                   {import.meta.env.DEV && (
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
-                      {isOnline ? <Wifi className="w-3.5 h-3.5 text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-300" />}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {isOnline ? <Wifi className="w-3.5 h-3.5 text-muted dark:text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />}
                       <span>Network State</span>
                     </span>
                     <button
@@ -313,23 +313,23 @@ export default function EnterpriseLayoutTemplate({
                   )}
 
                   {/* 4. Language Switcher */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5 text-teal-200" />
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-muted dark:text-teal-200" />
                       <span>Language</span>
                     </span>
-                    <div className="inline-flex border border-teal-700 font-mono text-2xs">
+                    <div className="inline-flex border border-line dark:border-teal-700 font-mono text-2xs">
                       <button
                         type="button"
                         onClick={() => setActiveLanguage('EN')}
-                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'EN' ? 'bg-primary text-white font-bold' : 'text-teal-200 hover:text-white'}`}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'EN' ? 'bg-primary text-white font-bold' : 'text-muted dark:text-teal-200 hover:text-white'}`}
                       >
                         EN
                       </button>
                       <button
                         type="button"
                         onClick={() => setActiveLanguage('BM')}
-                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'BM' ? 'bg-primary text-white font-bold' : 'text-teal-200 hover:text-white'}`}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'BM' ? 'bg-primary text-white font-bold' : 'text-muted dark:text-teal-200 hover:text-white'}`}
                       >
                         BM
                       </button>
@@ -338,19 +338,19 @@ export default function EnterpriseLayoutTemplate({
                 </div>
 
                 {/* Sign Out Action */}
-                <div className="border-t border-white/15 pt-2.5">
+                <div className="border-t border-line dark:border-white/15 pt-2.5">
                   <button 
                     type="button"
                     onClick={() => {
                       setShowUserMenu(false);
                       setShowSignOutConfirm(true);
                     }}
-                    className="w-full text-left px-3 py-2 bg-rose-950/50 hover:bg-rose-900/80 text-rose-200 border border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
+                    className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/80 dark:text-rose-200 dark:border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
                       <LogOut className="w-4 h-4 text-rose-400" /> Sign Out Workstation...
                     </span>
-                    <ChevronRight className="w-3.5 h-3.5 text-rose-300" />
+                    <ChevronRight className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
                   </button>
                 </div>
               </div>
@@ -360,16 +360,11 @@ export default function EnterpriseLayoutTemplate({
 
       </header>
 
-      {/* Banner top shadow, cast up onto the header; click-through so header menus still work */}
-      <div className="relative z-40 h-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-t from-[rgb(15_60_76/0.2)] to-transparent" />
-      </div>
-
-      {/* PAGE BANNER + NAVBAR: one attached block, shadowed top and bottom */}
-      <section className={`w-full bg-surface-accent text-ink relative z-20 px-4 sm:px-6 shrink-0 font-sans ${activeTab === 'dashboard' ? 'py-4' : 'py-2'}`} aria-label="Page banner">
+      {/* PAGE BANNER + NAVBAR: one attached block, shadowed at the bottom only */}
+      <section className={`w-full bg-surface-accent/95 backdrop-blur-md border-b border-line text-ink relative z-20 px-4 sm:px-6 shrink-0 font-sans ${activeTab === 'dashboard' ? 'py-4' : 'py-2'}`} aria-label="Page banner">
         <div className="flex items-center gap-4">
           {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
-          <div className={`${activeTab === 'dashboard' ? 'w-14 h-14' : 'w-10 h-10'} shrink-0 bg-surface-strong border border-line flex items-center justify-center text-accent`} role="img" aria-label="Profile photo placeholder">
+          <div className={`${activeTab === 'dashboard' ? 'w-14 h-14' : 'w-10 h-10'} shrink-0 bg-surface-strong border border-line rounded-full flex items-center justify-center text-accent`} role="img" aria-label="Profile photo placeholder">
             <User className={activeTab === 'dashboard' ? 'w-8 h-8' : 'w-6 h-6'} aria-hidden="true" />
           </div>
           {activeTab === 'dashboard' ? (
@@ -379,8 +374,8 @@ export default function EnterpriseLayoutTemplate({
             // Work pages: one line, so the page content gets the space
             <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
               <h1 className="type-card-title text-ink truncate">{`${getGreeting()}, ${userName}`}</h1>
-              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-2xs font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
-              <span className={`px-2 py-0.5 ${isOnline ? 'chip-ok' : 'chip-danger'} font-mono text-2xs font-bold uppercase tracking-wider border rounded-none flex items-center justify-center gap-1`}>
+              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
+              <span className={`px-2 py-0.5 ${isOnline ? 'chip-ok' : 'chip-danger'} font-mono text-[10px] font-bold uppercase tracking-wider border rounded-none flex items-center justify-center gap-1`}>
                 <span className={`w-1.5 h-1.5 rounded-none animate-pulse ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
                 {isOnline ? 'All systems operational' : 'Offline'}
               </span>

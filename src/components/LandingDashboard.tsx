@@ -344,16 +344,15 @@ export default function LandingDashboard({
 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-2xs font-bold uppercase tracking-wider rounded-none">
+              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">
                 {userRole ? roleConfig.label : 'Clinic overview'}
               </span>
-              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono text-2xs font-bold uppercase tracking-wider border border-emerald-300 rounded-none flex items-center justify-center gap-1">
+              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold uppercase tracking-wider border border-emerald-300 rounded-none flex items-center justify-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
                 All systems operational
               </span>
             </div>
             <h2 className="type-section-title text-ink flex items-center gap-2.5">
-              <Activity className="w-7 h-7 text-accent" />
               <span>
                 {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
               </span>
@@ -396,14 +395,14 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 1. ENTERPRISE COMMAND-CENTER HEADER & CONTROL BAR                         */}
       {/* ========================================================================= */}
-      {bannerSlot ? createPortal(headerBanner, bannerSlot) : <div className="bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs">{headerBanner}</div>}
+      {bannerSlot ? createPortal(headerBanner, bannerSlot) : <div className="bg-surface border border-line-subtle rounded-none p-6 shadow-xs">{headerBanner}</div>}
 
       {/* ROLE WORKLISTS: what this role needs to act on next */}
       {showPanel('worklist') && worklists.map(({ kind, visits }) => {
         const cfg = WORK_SECTIONS[kind];
         const KindIcon = kind === 'dispense' ? Pill : kind === 'billing' ? CreditCard : kind === 'triage' ? Activity : Stethoscope;
         return (
-          <div key={kind} className="bg-surface-muted border border-line-subtle rounded-none shadow-xs">
+          <div key={kind} className="bg-surface border border-line-subtle rounded-none shadow-xs">
             <div className="flex items-center justify-between gap-3 p-4 border-b border-line-subtle">
               <div>
                 <h3 className="type-card-title text-ink flex items-center gap-2">

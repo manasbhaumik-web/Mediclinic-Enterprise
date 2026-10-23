@@ -104,7 +104,7 @@ export default function AppointmentCalendarModule({
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Top Header Controls Toolbar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface-muted dark:bg-night-850 p-4 rounded-none shadow-xs border border-line-subtle dark:border-teal-800/40">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface dark:bg-night-850 p-4 rounded-none shadow-xs border border-line-subtle dark:border-teal-800/40">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
             <Calendar className="w-5 h-5 text-accent dark:text-teal-300" />
@@ -164,7 +164,7 @@ export default function AppointmentCalendarModule({
         
         {/* Left Sidebar: Week Day Picker & Daily Summary */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none p-4 space-y-4 shadow-xs">
+          <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none p-4 space-y-4 shadow-xs">
             <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-2">
               <h3 className="type-label text-accent dark:text-teal-300 font-mono">This Week</h3>
               <span className="text-2xs font-mono font-bold text-accent bg-primary/10 dark:bg-teal-900/40 px-1.5 py-0.5 rounded-none">
@@ -200,7 +200,7 @@ export default function AppointmentCalendarModule({
           </div>
 
           {/* Daily Quick Stats Card */}
-          <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none p-4 space-y-3 shadow-xs">
+          <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none p-4 space-y-3 shadow-xs">
             <h4 className="type-label text-accent dark:text-teal-300 font-mono border-b border-line-subtle dark:border-teal-800/40 pb-2">Day Summary</h4>
             <div className="grid grid-cols-2 gap-2 text-center">
               <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2.5 rounded-none">
@@ -221,7 +221,7 @@ export default function AppointmentCalendarModule({
 
         {/* Right Main Area: Time Slots for Selected Day */}
         <div className="lg:col-span-3">
-          <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs min-h-[600px] flex flex-col">
+          <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs min-h-[600px] flex flex-col">
             
             {/* Header bar */}
             <div className="bg-surface-accent/60 dark:bg-night-900 border-b border-line-subtle dark:border-teal-800/40 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">

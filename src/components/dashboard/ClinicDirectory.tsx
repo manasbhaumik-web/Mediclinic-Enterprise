@@ -11,7 +11,7 @@ export default function ClinicDirectory({ showPanel }: ClinicDirectoryProps) {
       
       {/* Clinic Facility & License Info (7 Cols) */}
       {showPanel('facility') && (
-        <div className="lg:col-span-12 bg-surface-muted border border-line-subtle rounded-none p-6 shadow-xs space-y-5">
+        <div className="lg:col-span-12 bg-surface border border-line-subtle rounded-none p-6 shadow-xs space-y-5">
           <div className="flex items-center justify-between border-b border-line-subtle pb-4">
             <h3 className="type-card-title text-strong flex items-center gap-2">
               <Building2 className="w-5 h-5 text-accent" />

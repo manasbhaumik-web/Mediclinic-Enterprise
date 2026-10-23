@@ -1,10 +1,11 @@
 import { useSyncExternalStore } from 'react';
 
-export type ColorTheme = 'mint' | 'sky';
+export type ColorTheme = 'mint' | 'sky' | 'ice';
 
 export const COLOR_THEMES: { id: ColorTheme; label: string }[] = [
   { id: 'mint', label: 'Ice Mint' },
   { id: 'sky', label: 'Sky Blue' },
+  { id: 'ice', label: 'Ice Blue' },
 ];
 
 const STORAGE_KEY = 'mediclinic.colorTheme';
@@ -13,7 +14,7 @@ const listeners = new Set<() => void>();
 function readStored(): ColorTheme {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
-    if (v === 'mint' || v === 'sky') return v;
+    if (v === 'mint' || v === 'sky' || v === 'ice') return v;
   } catch { /* storage unavailable */ }
   return 'mint';
 }

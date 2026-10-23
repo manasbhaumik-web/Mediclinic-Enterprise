@@ -83,7 +83,7 @@ export default function ReportsAnalyticsModule() {
 
   return (
     <div className="animate-fadeIn w-full space-y-6 pb-8">
-      <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="type-page-title text-ink flex items-center gap-2.5">
             <BarChart3 className="w-6 h-6 text-accent" aria-hidden="true" />
@@ -313,7 +313,7 @@ export default function ReportsAnalyticsModule() {
 
 function Kpi({ icon: Icon, label, value, note, tone = 'ok' }: { icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; label: string; value: string; note: string; tone?: 'ok' | 'warn' }) {
   return (
-    <div className="bg-surface-accent rounded-none border border-line p-4 shadow-2xs">
+    <div className="bg-surface rounded-none border border-line p-4 shadow-2xs">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
         <div className="p-2 bg-teal-50 rounded-none text-accent"><Icon className="w-5 h-5" aria-hidden="true" /></div>
@@ -326,7 +326,7 @@ function Kpi({ icon: Icon, label, value, note, tone = 'ok' }: { icon: React.Comp
 
 function Panel({ icon: Icon, title, action, className = '', children }: { icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; title: string; action?: React.ReactNode; className?: string; children: React.ReactNode }) {
   return (
-    <section className={`bg-surface-accent rounded-none border border-line shadow-2xs overflow-hidden ${className}`}>
+    <section className={`bg-surface rounded-none border border-line shadow-2xs overflow-hidden ${className}`}>
       <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between gap-3">
         <h2 className="type-card-title text-ink flex items-center gap-2"><Icon className="w-4 h-4 text-accent" aria-hidden="true" />{title}</h2>
         {action}

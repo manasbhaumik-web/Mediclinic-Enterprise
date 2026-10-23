@@ -123,7 +123,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
         </div>
       </div>
 
-      <form className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6 bg-slate-50/50" onSubmit={handleSubmit}>
+      <form className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6 bg-canvas" onSubmit={handleSubmit}>
         
         {/* Section 1: Primary & Account Details */}
         <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">

@@ -6,7 +6,7 @@ import {
   Building, ShieldAlert, LogOut, Server, Database, Globe2, TrendingUp,
   Clock, ShieldCheck, Moon, Sun, ChevronDown, ChevronRight, Eye, EyeOff, Wifi, WifiOff,
   Layers, FolderKanban, CalendarClock,
-  LayoutDashboard
+  LayoutDashboard, UserCog
 } from 'lucide-react';
 import StaffManagementModule from './StaffManagementModule';
 import InventoryPage from './inventory/InventoryPage';
@@ -27,6 +27,7 @@ import { useSettings } from '../context/SettingsContext';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import NotificationBell from './NotificationBell';
 import { useAuth } from '../context/AuthContext';
+import { getGreeting } from '../lib/roleBanner';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
@@ -134,7 +135,7 @@ export default function AdminModule({
       {/* ========================================================================= */}
       {/* GLOBAL TOP ADMIN HEADER BAR                                               */}
       {/* ========================================================================= */}
-      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between border-b border-white/20 shrink-0 shadow-xs shadow-black/10 relative z-30 sticky top-0 font-sans">
+      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-[0_1px_3px_rgb(15_60_76/0.18)] relative z-30 sticky top-0 font-sans">
         
         {/* Left: Product Title & Branch Context */}
         <div className="flex items-center gap-3">
@@ -207,30 +208,30 @@ export default function AdminModule({
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 top-12 w-72 bg-night-900 border border-white/15 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-white z-50 font-sans">
-                <div className="flex items-center justify-between border-b border-white/15 pb-2.5">
+              <div className="absolute right-0 top-12 w-72 bg-surface dark:bg-night-900 border border-line dark:border-white/15 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-ink dark:text-white z-50 font-sans">
+                <div className="flex items-center justify-between border-b border-line dark:border-white/15 pb-2.5">
                   <div>
-                    <p className="font-bold text-sm text-teal-300">{adminName}</p>
-                    <p className="text-2xs text-teal-200 font-mono uppercase">{userRole.toUpperCase()} Suite • Station #04</p>
+                    <p className="font-bold text-sm text-accent dark:text-teal-300">{adminName}</p>
+                    <p className="text-2xs text-muted dark:text-teal-200 font-mono uppercase">{userRole.toUpperCase()} Suite • Station #04</p>
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active session"></span>
                 </div>
 
                 {/* Console Settings Controls */}
                 <div className="space-y-2.5 pt-1">
-                  <p className="text-2xs font-mono uppercase text-teal-300 tracking-wider font-bold">Console Settings</p>
+                  <p className="text-2xs font-mono uppercase text-accent dark:text-teal-300 tracking-wider font-bold">Console Settings</p>
                   
                   {/* Theme Switch */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
-                      {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-200" />}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" />}
                       <span>Theme Mode</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => setIsNightShift(!isNightShift)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        isNightShift ? 'bg-teal-950 text-amber-300 border-teal-700' : 'bg-primary text-white border-teal-600'
+                        isNightShift ? 'bg-teal-950 text-amber-300 border-line dark:border-teal-700' : 'bg-primary text-white border-teal-600'
                       }`}
                     >
                       {isNightShift ? 'Night' : 'Day'}
@@ -241,16 +242,16 @@ export default function AdminModule({
                   <ThemeSelector variant="menu" />
 
                   {/* PII Privacy Mask Toggle */}
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
-                      {showPII ? <Eye className="w-3.5 h-3.5 text-teal-300" /> : <EyeOff className="w-3.5 h-3.5 text-rose-300" />}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {showPII ? <Eye className="w-3.5 h-3.5 text-accent dark:text-teal-300" /> : <EyeOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />}
                       <span>Mask Patient PII</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowPII(!showPII)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        showPII ? 'bg-primary text-white border-teal-600' : 'bg-rose-950 text-rose-300 border-rose-800'
+                        showPII ? 'bg-primary text-white border-teal-600' : 'bg-rose-950 text-rose-600 dark:text-rose-300 border-rose-800'
                       }`}
                     >
                       {showPII ? 'Unmasked' : 'Masked'}
@@ -259,16 +260,16 @@ export default function AdminModule({
 
                   {/* Network simulator: development builds only. Production follows the browser. */}
                   {import.meta.env.DEV && (
-                  <div className="flex items-center justify-between bg-night-800 p-2 border border-white/15">
-                    <span className="text-teal-100 font-medium flex items-center gap-1.5">
-                      {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-400" /> : <WifiOff className="w-3.5 h-3.5 text-rose-400" />}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <WifiOff className="w-3.5 h-3.5 text-rose-400" />}
                       <span>Network Sync</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => setIsOnline(!isOnline)}
                       className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
-                        isOnline ? 'bg-emerald-950 text-emerald-300 border-emerald-700' : 'bg-rose-950 text-rose-300 border-rose-800'
+                        isOnline ? 'bg-emerald-950 text-emerald-600 dark:text-emerald-300 border-emerald-700' : 'bg-rose-950 text-rose-600 dark:text-rose-300 border-rose-800'
                       }`}
                     >
                       {isOnline ? 'Online' : 'Offline'}
@@ -278,19 +279,19 @@ export default function AdminModule({
                 </div>
 
                 {/* Sign Out Action */}
-                <div className="border-t border-white/15 pt-2.5">
+                <div className="border-t border-line dark:border-white/15 pt-2.5">
                   <button 
                     type="button"
                     onClick={() => {
                       setShowUserMenu(false);
                       setShowSignOutConfirm(true);
                     }}
-                    className="w-full text-left px-3 py-2 bg-rose-950/50 hover:bg-rose-900/80 text-rose-200 border border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
+                    className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/80 dark:text-rose-200 dark:border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
                       <LogOut className="w-4 h-4 text-rose-400" /> Terminate Session...
                     </span>
-                    <ChevronRight className="w-3.5 h-3.5 text-rose-300" />
+                    <ChevronRight className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
                   </button>
                 </div>
               </div>
@@ -310,6 +311,19 @@ export default function AdminModule({
 
         </div>
       </header>
+
+      {/* PAGE BANNER: same fill, blur and border as the public page header */}
+      <section className="w-full bg-surface-accent/95 backdrop-blur-md border-b border-line text-ink relative z-20 px-4 sm:px-6 py-2 shrink-0 font-sans" aria-label="Page banner">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 shrink-0 bg-surface-strong border border-line rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
+            <UserCog className="w-6 h-6" aria-hidden="true" />
+          </div>
+          <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h1 className="type-card-title text-ink truncate">{getGreeting()}, {adminName}</h1>
+            <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">{userRole === 'admin' ? 'Administrator dashboard' : 'HR dashboard'}</span>
+          </div>
+        </div>
+      </section>
 
       {/* ========================================================================= */}
       {/* GROUPED CATEGORIZED MODULE NAVIGATION STRIP                               */}
