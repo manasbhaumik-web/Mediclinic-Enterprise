@@ -1,28 +1,27 @@
 import React from 'react';
+import RoleChecks from './RoleChecks';
 import { KeyRound } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import {
-  ROLE_LABELS, SystemRole, assignableRoles, describeRoleAccess, suggestSystemRole,
+  ROLE_LABELS, SystemRole, assignableRoles, describeRoleAccess, suggestSystemRoles,
 } from '../../domain/staffAccess';
 
 interface StaffAccessSectionProps {
   jobTitle: string;
   department: string;
   email: string;
-  value: SystemRole | null;
-  onChange: (role: SystemRole | null) => void;
+  /** Roles ticked, in order; the first is primary. Empty = no system access. */
+  value: SystemRole[];
+  onChange: (roles: SystemRole[]) => void;
   /** Editing an existing record: access is managed from the staff list, not here. */
   existing?: boolean;
 }
 
-const selectClass =
-  'w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-none text-xs text-strong font-semibold focus:bg-white focus:border-brand focus:ring-1 focus:ring-brand transition-all shadow-2xs';
-
 export default function StaffAccessSection({ jobTitle, department, email, value, onChange, existing }: StaffAccessSectionProps) {
   const { role: callerRole } = useAuth();
   const options = assignableRoles(callerRole);
-  const suggestion = suggestSystemRole(jobTitle, department);
-  const access = value ? describeRoleAccess(value) : null;
+  const suggestion = suggestSystemRoles(jobTitle, department).filter((r) => options.includes(r));
+  const access = value.length > 0 ? describeRoleAccess(value) : null;
 
   return (
     <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
@@ -44,39 +43,22 @@ export default function StaffAccessSection({ jobTitle, department, email, value,
               "No system access" to save the staff record only.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label htmlFor="staff-system-role" className="block text-2xs font-bold uppercase tracking-wider text-ink mb-1.5">Access role</label>
-                <select
-                  id="staff-system-role"
-                  className={selectClass}
-                  value={value ?? ''}
-                  onChange={(e) => onChange((e.target.value || null) as SystemRole | null)}
-                >
-                  <option value="">No system access</option>
-                  {options.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-                </select>
-                {callerRole === 'hr' && (
-                  <p className="text-2xs text-subtle mt-1">HR can grant clinical and front-desk roles. Administrator and HR accounts must be created by an administrator.</p>
-                )}
-              </div>
-
-              {suggestion && !value && options.includes(suggestion) && (
-                <div className="self-end">
-                  <button
-                    type="button"
-                    onClick={() => onChange(suggestion)}
-                    className="text-xs font-bold text-accent underline cursor-pointer"
-                  >
-                    Suggested from the job title: {ROLE_LABELS[suggestion]}. Use it
-                  </button>
-                </div>
+            <div className="space-y-3">
+              <RoleChecks legend="Access roles" options={options} value={value} onChange={onChange} />
+              <p className="text-2xs text-subtle">Tick more than one role when one person covers several jobs (for example Receptionist, Assistant and Cashier in a small clinic). They see every page their roles allow.</p>
+              {callerRole === 'hr' && (
+                <p className="text-2xs text-subtle">HR can grant clinical and front-desk roles. Administrator and HR accounts must be created by an administrator.</p>
+              )}
+              {suggestion.length > 0 && value.length === 0 && (
+                <button type="button" onClick={() => onChange(suggestion)} className="text-xs font-bold text-accent underline cursor-pointer min-h-11">
+                  Suggested from the job title: {suggestion.map((r) => ROLE_LABELS[r]).join(' + ')}. Use it
+                </button>
               )}
             </div>
 
-            {access && value && (
+            {access && value.length > 0 && (
               <div className="border border-line bg-surface-accent/40 p-4 space-y-2" aria-live="polite">
-                <p className="text-xs font-bold text-ink">{ROLE_LABELS[value]} will be able to:</p>
+                <p className="text-xs font-bold text-ink">{value.map((r) => ROLE_LABELS[r]).join(' + ')} will be able to:</p>
                 <ul className="grid md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-muted list-disc pl-5">
                   {access.pages.map((p) => <li key={p}>Open: {p}</li>)}
                   {access.adminConsole && <li>Open: Admin console</li>}

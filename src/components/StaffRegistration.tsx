@@ -10,12 +10,12 @@ import {
 interface StaffRegistrationProps {
   initialData?: StaffMember;
   onCancel: () => void;
-  /** `systemRole` is the access role to create a login with, or null to save the record without a login. */
-  onSubmit: (newStaff: StaffMember, systemRole: SystemRole | null) => void;
+  /** `systemRoles` are the access roles to create a login with (first = primary), or empty to save the record without a login. */
+  onSubmit: (newStaff: StaffMember, systemRoles: SystemRole[]) => void;
 }
 
 export default function StaffRegistration({ initialData, onCancel, onSubmit }: StaffRegistrationProps) {
-  const [systemRole, setSystemRole] = useState<SystemRole | null>(null);
+  const [systemRoles, setSystemRoles] = useState<SystemRole[]>([]);
 
   // Form State initialized with defaults
   const [formData, setFormData] = useState<Partial<StaffMember>>(initialData || {
@@ -79,7 +79,7 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
       id: initialData?.id || `S${Math.floor(Math.random() * 9000) + 1000}`, // Keep ID if editing, else generate
     };
 
-    onSubmit(newStaff, initialData ? null : systemRole);
+    onSubmit(newStaff, initialData ? [] : systemRoles);
   };
 
   return (
@@ -342,8 +342,8 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
           jobTitle={formData.role || ''}
           department={formData.department || ''}
           email={formData.email || ''}
-          value={systemRole}
-          onChange={setSystemRole}
+          value={systemRoles}
+          onChange={setSystemRoles}
           existing={!!initialData}
         />
 

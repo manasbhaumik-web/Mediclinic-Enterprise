@@ -4,7 +4,7 @@ import { ADMIN_ROLES, TAB_ROLES } from '../routes/permissions';
 import { SystemRole } from '../../supabase/functions/_shared/staffAccess';
 
 export {
-  ROLE_LABELS, SYSTEM_ROLES, assignableRoles, canGrant, canManageAccessOf, isSystemRole, suggestSystemRole, validateStaffInput,
+  ROLE_LABELS, SYSTEM_ROLES, assignableRoles, canGrant, canGrantAll, canManageAccessOf, isSystemRole, normalizeRoleSet, suggestSystemRole, suggestSystemRoles, validateStaffInput,
 } from '../../supabase/functions/_shared/staffAccess';
 export type { AccessState, SystemRole } from '../../supabase/functions/_shared/staffAccess';
 
@@ -18,6 +18,8 @@ const PAGE_LABELS: Record<string, string> = {
   appointments: 'Appointments',
   dispensary: 'Dispensary',
   billing: 'Billing desk',
+  inventory: 'Inventory',
+  'my-leave': 'My leave',
 };
 
 const PERMISSION_LABELS: Record<ClinicalPermission, string> = {
@@ -40,15 +42,16 @@ export interface RoleAccess {
   adminConsole: boolean;
 }
 
-/** What a role can open and do, read from the same tables the app enforces (route guards and the RBAC engine). */
-export function describeRoleAccess(role: SystemRole): RoleAccess {
+/** What a person holding these roles can open and do: the union over their roles, from the same tables the app enforces. */
+export function describeRoleAccess(roles: SystemRole | readonly SystemRole[]): RoleAccess {
+  const held = (Array.isArray(roles) ? roles : [roles]) as readonly SystemRole[];
   const pages = (Object.keys(TAB_ROLES) as (keyof typeof TAB_ROLES)[])
-    .filter((tab) => TAB_ROLES[tab].includes(role))
+    .filter((tab) => held.some((r) => TAB_ROLES[tab].includes(r)))
     .map((tab) => PAGE_LABELS[tab] ?? tab);
   return {
     pages,
-    permissions: RBACPermissionEngine.getPermissionsForRole(role).map((p) => PERMISSION_LABELS[p] ?? p),
-    adminConsole: ADMIN_ROLES.includes(role),
+    permissions: RBACPermissionEngine.getPermissionsForRole(held).map((p) => PERMISSION_LABELS[p] ?? p),
+    adminConsole: held.some((r) => ADMIN_ROLES.includes(r)),
   };
 }
 

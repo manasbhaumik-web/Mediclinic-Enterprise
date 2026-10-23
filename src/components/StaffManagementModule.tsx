@@ -9,13 +9,13 @@ import {
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../lib/supabase';
 import StaffAccessCell from './staff/StaffAccessCell';
-import { AccessState, SystemRole } from '../domain/staffAccess';
+import { AccessState, SystemRole, normalizeRoleSet } from '../domain/staffAccess';
 import { CSV_TEMPLATE, CsvParseResult, parseStaffCsv } from '../domain/staffCsv';
 import {
   StaffIdentity, duplicateMessage, duplicateMessageFromDbError, findStaffDuplicate,
 } from '../../supabase/functions/_shared/staffIdentity';
 import {
-  changeRole, createStaff, grantAccess, loadAccessStatus, restoreAccess, resendInvite, revokeAccess, sendPasswordReset,
+  changeRoles, createStaff, grantAccess, loadAccessStatus, restoreAccess, resendInvite, revokeAccess, sendPasswordReset,
 } from '../lib/staffOnboarding';
 
 import ProgressBar from './ui/ProgressBar';
@@ -40,6 +40,7 @@ export interface StaffMember {
 
   /** Application access role of this person's login, if they have one. */
   systemRole?: SystemRole | null;
+  systemRoles?: SystemRole[];
   hasLogin?: boolean;
 
   /** Extra HR fields captured by the registration form. */
@@ -90,7 +91,7 @@ export default function StaffManagementModule() {
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [accessMap, setAccessMap] = useState<Record<string, { state: AccessState; role: SystemRole | null }>>({});
+  const [accessMap, setAccessMap] = useState<Record<string, { state: AccessState; role: SystemRole | null; roles: SystemRole[] }>>({});
   const [accessBusy, setAccessBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [csvPreview, setCsvPreview] = useState<{ fileName: string; result: CsvParseResult } | null>(null);
@@ -117,6 +118,7 @@ export default function StaffManagementModule() {
         leaveBalance: s.leave_balance ?? 0,
         leavesTaken: s.leaves_taken ?? 0,
         systemRole: s.system_role ?? null,
+        systemRoles: normalizeRoleSet(s.system_roles ?? (s.system_role ? [s.system_role] : [])),
         hasLogin: !!s.auth_id
       })));
     } else {
@@ -169,7 +171,7 @@ export default function StaffManagementModule() {
   const knownPeople = (): StaffIdentity[] =>
     staffList.map((s) => ({ id: s.id, name: s.name, email: s.email, icNumber: s.icNumber, dob: s.dob }));
 
-  const handleAddStaffSubmit = async (newStaff: StaffMember, systemRole: SystemRole | null) => {
+  const handleAddStaffSubmit = async (newStaff: StaffMember, systemRoles: SystemRole[]) => {
     setNotice(null);
 
     // No duplicate records: refuse the same email or ID number, and ask before adding the same name + birth date.
@@ -212,11 +214,11 @@ Add anyway?`)) return;
           status: newStaff.status, gender: newStaff.gender, dob: newStaff.dob, icNumber: newStaff.icNumber,
           phone: newStaff.phone, salaryBase: newStaff.salaryBase || 0,
         };
-        let res = await createStaff(payload, systemRole, !!duplicate);
+        let res = await createStaff(payload, systemRoles, !!duplicate);
         // The server may know of a probable duplicate this screen's list did not (for example, just added by someone else).
         if (res.possibleDuplicate) {
           if (!confirm(`${res.message}\n\nAdd anyway?`)) return;
-          res = await createStaff(payload, systemRole, true);
+          res = await createStaff(payload, systemRoles, true);
         }
         if (!res.ok) {
           setNotice({ ok: false, text: res.message ?? 'Could not create the staff member.' });
@@ -706,13 +708,13 @@ Add anyway?`)) return;
                           <td className="px-6 py-4 min-w-[220px]">
                             <StaffAccessCell
                               hasLogin={!!staff.hasLogin}
-                              systemRole={accessMap[staff.id]?.role ?? staff.systemRole ?? null}
+                              systemRoles={accessMap[staff.id]?.roles ?? staff.systemRoles ?? (staff.systemRole ? [staff.systemRole] : [])}
                               state={accessMap[staff.id]?.state}
                               busy={accessBusy === staff.id}
-                              onGrant={(role) => runAccess(staff.id, () => grantAccess(staff.id, role))}
+                              onGrant={(roles) => runAccess(staff.id, () => grantAccess(staff.id, roles))}
                               onResend={() => runAccess(staff.id, () => resendInvite(staff.id))}
                               onReset={() => runAccess(staff.id, () => sendPasswordReset(staff.id))}
-                              onChangeRole={(role) => runAccess(staff.id, () => changeRole(staff.id, role))}
+                              onChangeRoles={(roles) => runAccess(staff.id, () => changeRoles(staff.id, roles))}
                               onRevoke={() => { if (confirm(`Revoke ${staff.name}'s access? They will no longer be able to sign in.`)) runAccess(staff.id, () => revokeAccess(staff.id)); }}
                               onRestore={() => runAccess(staff.id, () => restoreAccess(staff.id))}
                             />
