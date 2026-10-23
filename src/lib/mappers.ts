@@ -51,6 +51,7 @@ export function visitFromRow(v: any): Visit {
     glNumber: v.gl_number,
     mcIssued: v.mc_issued,
     registeredTime: v.registered_time ? Number(v.registered_time) : new Date(v.created_at).getTime(),
+    ticketNo: v.ticket_no ?? undefined,
     consultRoom: v.consult_room ?? undefined,
     calledBy: v.called_by ?? undefined,
     calledByName: v.called_by_name ?? undefined,
@@ -91,6 +92,12 @@ export function visitFromRow(v: any): Visit {
         mcDays: soap.mc_days || 0,
         requiresReferral: soap.requires_referral || false,
         pharmacyMemo: soap.pharmacy_memo,
+        mcReason: soap.mc_reason ?? undefined,
+        labOrders: Array.isArray(soap.lab_orders) ? soap.lab_orders : [],
+        labReason: soap.lab_reason ?? undefined,
+        referralDetails: soap.referral_hospital || soap.referral_department || soap.referral_reason
+          ? { hospital: soap.referral_hospital ?? '', department: soap.referral_department ?? '', reason: soap.referral_reason ?? '' }
+          : undefined,
       },
     },
   } as Visit;
@@ -113,6 +120,12 @@ export function soapToRow(visit: Visit) {
     mc_days: soap.plan.mcDays,
     requires_referral: soap.plan.requiresReferral,
     pharmacy_memo: soap.plan.pharmacyMemo,
+    mc_reason: soap.plan.mcDays > 0 ? soap.plan.mcReason ?? null : null,
+    referral_hospital: soap.plan.referralDetails?.hospital ?? null,
+    referral_department: soap.plan.referralDetails?.department ?? null,
+    referral_reason: soap.plan.referralDetails?.reason ?? null,
+    lab_orders: soap.plan.labOrders ?? [],
+    lab_reason: soap.plan.labReason ?? null,
   };
 }
 

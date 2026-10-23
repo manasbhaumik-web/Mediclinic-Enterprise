@@ -23,6 +23,13 @@ describe('parseDraft', () => {
   it('accepts a blank day count', () => {
     expect(parseDraft(JSON.stringify({ ...draft, mcDays: '' }))?.mcDays).toBe('');
   });
+  it('keeps the plan details, and still reads drafts saved before they existed', () => {
+    const withPlan = { ...draft, labOrders: ['FBC'], labReason: 'Anaemia?', mcReason: 'Fever', followUpWeeks: 2 };
+    expect(parseDraft(JSON.stringify(withPlan))).toEqual(withPlan);
+    expect(parseDraft(JSON.stringify(draft))?.labOrders).toBeUndefined();
+    expect(parseDraft(JSON.stringify({ ...draft, labOrders: 'FBC' }))).toBeNull();
+    expect(parseDraft(JSON.stringify({ ...draft, followUpWeeks: 'x' }))).toBeNull();
+  });
   it('rejects missing, damaged and other-version data', () => {
     expect(parseDraft(null)).toBeNull();
     expect(parseDraft('not json')).toBeNull();

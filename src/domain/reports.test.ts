@@ -167,6 +167,11 @@ describe('summarizeDoctorMonth', () => {
     expect(s.byMethod).toEqual([{ method: 'Cash', count: 2, amount: 100 }, { method: 'Panel', count: 1, amount: 70 }].sort((a, b) => b.amount - a.amount));
   });
 
+  it('counts visits that had lab orders', () => {
+    const s = summarizeDoctorMonth([v({ labOrders: ['FBC', 'RFT'] }), v({ labOrders: [] }), v({})]);
+    expect(s.withLabOrders).toBe(1);
+  });
+
   it('copes with a month with no consultations', () => {
     expect(summarizeDoctorMonth([])).toMatchObject({ encounters: 0, billed: 0, averageBill: null, topDiagnosis: null, byDay: [], byMethod: [] });
   });

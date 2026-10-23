@@ -41,7 +41,7 @@ export default function DoctorMonthlyReport() {
 
   return (
     <div className="space-y-5 animate-fadeIn">
-      <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none shadow-xs">
+      <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-none shadow-xs">
         <div>
           <h2 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-accent dark:text-teal-300" aria-hidden="true" />
@@ -56,7 +56,7 @@ export default function DoctorMonthlyReport() {
           <select id="doctor-report-month" value={month} onChange={(e) => setMonth(e.target.value)} className="bg-surface dark:bg-night-900 border border-line dark:border-teal-800/40 text-ink dark:text-teal-100 text-xs font-bold px-3 py-1.5 rounded-none cursor-pointer">
             {months.map((m, i) => <option key={m} value={m}>{monthLabel(m)}{i === 0 ? ' (this month)' : ''}</option>)}
           </select>
-          <button type="button" onClick={() => void queryClient.invalidateQueries({ queryKey: ['reports'] })} className="px-3 py-1.5 text-xs font-bold border border-line bg-white text-accent hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer rounded-none">
+          <button type="button" onClick={() => void queryClient.invalidateQueries({ queryKey: ['reports'] })} className="btn-secondary">
             <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" /> Refresh
           </button>
         </div>
@@ -68,15 +68,21 @@ export default function DoctorMonthlyReport() {
           Your report could not be loaded. Use Refresh to try again.
         </div>
       )}
+      {report.truncated && (
+        <div role="status" className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium">
+          <Info className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" />
+          Only the latest 2,000 consultations are listed, so the totals below may be lower than the true month.
+        </div>
+      )}
       {report.unattributed > 0 && (
         <div role="status" className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium">
           <Info className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" />
-          {report.unattributed} consultation{report.unattributed === 1 ? '' : 's'} finished in {label} before doctors were recorded on sign-off, so {report.unattributed === 1 ? 'it is' : 'they are'} not counted here. Consultations you sign off from now on are.
+          Across the clinic, {report.unattributed} consultation{report.unattributed === 1 ? '' : 's'} in {label} finished before the signing doctor was recorded, so {report.unattributed === 1 ? 'it is' : 'they are'} not in anyone's report. Consultations signed off from now on are counted.
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Kpi icon={Users} label="Consultations signed off" value={report.isPending ? '…' : String(s.encounters)} note={`${s.certificates} medical certificate${s.certificates === 1 ? '' : 's'} · ${s.referrals} referral${s.referrals === 1 ? '' : 's'}`} />
+        <Kpi icon={Users} label="Consultations signed off" value={report.isPending ? '…' : String(s.encounters)} note={`${s.certificates} certificate${s.certificates === 1 ? '' : 's'} · ${s.referrals} referral${s.referrals === 1 ? '' : 's'} · ${s.withLabOrders} with lab orders`} />
         <Kpi icon={Wallet} label="Billed (paid visits)" value={report.isPending ? '…' : formatRM(s.billed)} note={s.averageBill === null ? 'Nothing paid yet' : `Average ${formatRM(s.averageBill)} over ${s.billedVisits} visit${s.billedVisits === 1 ? '' : 's'}`} />
         <Kpi icon={Stethoscope} label="Top diagnosis" value={s.topDiagnosis ? s.topDiagnosis.code : '—'} note={s.topDiagnosis ? `${s.topDiagnosis.diagnosis ?? ''} · ${s.topDiagnosis.sharePercent}% of coded visits` : 'No coded diagnoses yet'} />
         <Kpi icon={FileText} label="Diagnosis coded" value={s.encounters ? `${Math.round((s.coded / s.encounters) * 100)}%` : '—'} note={s.encounters ? `${s.uncoded} without a code` : 'No consultations yet'} tone={s.uncoded > 0 ? 'warn' : 'ok'} />
@@ -123,10 +129,10 @@ export default function DoctorMonthlyReport() {
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" aria-hidden="true" />
               <label htmlFor="doctor-report-search" className="sr-only">Search consultations</label>
-              <input id="doctor-report-search" type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Patient or diagnosis" className="pl-8 pr-3 py-1.5 text-xs border border-line bg-white rounded-none w-48 focus:ring-1 focus:ring-brand outline-none" />
+              <input id="doctor-report-search" type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Patient or diagnosis" className="pl-8 pr-3 py-1.5 text-xs border border-line bg-surface rounded-none w-48 focus:ring-1 focus:ring-brand outline-none" />
             </div>
             <label htmlFor="doctor-report-method" className="sr-only">Payment method</label>
-            <select id="doctor-report-method" value={method} onChange={(e) => setMethod(e.target.value)} className="text-xs font-bold border border-line bg-white px-2 py-1.5 rounded-none cursor-pointer">
+            <select id="doctor-report-method" value={method} onChange={(e) => setMethod(e.target.value)} className="text-xs font-bold border border-line bg-surface px-2 py-1.5 rounded-none cursor-pointer">
               <option value="all">All payment methods</option>
               {methodsPresent.map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
@@ -139,7 +145,7 @@ export default function DoctorMonthlyReport() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-surface-muted text-ink uppercase border-b border-line font-bold">
-                <tr><th scope="col" className="px-4 py-3">Signed off</th><th scope="col" className="px-4 py-3">Patient</th><th scope="col" className="px-4 py-3">Diagnosis</th><th scope="col" className="px-4 py-3">Payment</th><th scope="col" className="px-4 py-3 text-right">Billed</th></tr>
+                <tr><th scope="col" className="px-4 py-3">Signed off</th><th scope="col" className="px-4 py-3">Patient</th><th scope="col" className="px-4 py-3">Diagnosis</th><th scope="col" className="px-4 py-3">Plan</th><th scope="col" className="px-4 py-3">Payment</th><th scope="col" className="px-4 py-3 text-right">Billed</th></tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {shown.map((v) => (
@@ -147,13 +153,14 @@ export default function DoctorMonthlyReport() {
                     <td className="px-4 py-2.5 font-mono whitespace-nowrap">{new Date(v.signedOffAt).toLocaleString('en-MY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })}</td>
                     <th scope="row" className="px-4 py-2.5 font-semibold text-ink">{v.patientName}</th>
                     <td className="px-4 py-2.5">{v.icdCode && v.icdCode.toUpperCase() !== 'N/A' ? <><span className="font-mono font-bold">{v.icdCode}</span> {v.diagnosis}</> : <span className="text-amber-800">Not coded</span>}</td>
+                    <td className="px-4 py-2.5">{[v.mcDays > 0 ? `MC ${v.mcDays}d${v.mcReason ? ` (${v.mcReason})` : ''}` : '', v.referral ? `Referral${v.referralTo ? `: ${v.referralTo}` : ''}` : '', v.labOrders && v.labOrders.length ? `${v.labOrders.length} lab order${v.labOrders.length === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ') || '—'}</td>
                     <td className="px-4 py-2.5">{v.paymentMethod ?? '—'}</td>
                     <td className="px-4 py-2.5 text-right font-mono">{v.fee === null ? <span className="text-slate-400">Not paid yet</span> : formatRM(v.fee)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t border-line font-bold"><td className="px-4 py-2.5" colSpan={4}>Billed on the visits shown</td><td className="px-4 py-2.5 text-right font-mono">{formatRM(shownSummary.billed)}</td></tr>
+                <tr className="border-t border-line font-bold"><td className="px-4 py-2.5" colSpan={5}>Billed on the visits shown</td><td className="px-4 py-2.5 text-right font-mono">{formatRM(shownSummary.billed)}</td></tr>
               </tfoot>
             </table>
           </div>

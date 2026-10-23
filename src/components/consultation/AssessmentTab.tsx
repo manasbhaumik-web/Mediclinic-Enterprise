@@ -41,7 +41,7 @@ export default function AssessmentTab({
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Header bar */}
-      <div className="bg-surface-accent p-3.5 rounded-none border border-line shadow-xs flex items-center justify-between">
+      <div className="bg-surface p-3.5 rounded-none border border-line shadow-xs flex items-center justify-between">
         <div>
           <h4 className="type-label text-ink flex items-center gap-1.5">
             <Stethoscope className="w-4 h-4 text-accent" />

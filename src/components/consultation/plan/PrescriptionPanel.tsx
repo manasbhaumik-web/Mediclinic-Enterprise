@@ -57,7 +57,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
           </button>
         </div>
       ) : (
-        <div className="bg-surface-accent p-3.5 rounded-none border border-line shadow-xs space-y-2.5">
+        <div className="bg-surface p-3.5 rounded-none border border-line shadow-xs space-y-2.5">
           <div className="flex items-center justify-between border-b border-line pb-2">
             <h4 className="type-label text-ink flex items-center gap-1.5">
               <Activity className="w-4 h-4 text-accent" /> Pediatric Weight-Based Dosage Calculator

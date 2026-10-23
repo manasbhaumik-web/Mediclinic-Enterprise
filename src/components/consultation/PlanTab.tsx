@@ -33,6 +33,14 @@ interface PlanTabProps {
   setReferralDetails: React.Dispatch<React.SetStateAction<{ hospital: string; department: string; reason: string; }>>;
   referralGenerated: boolean;
   setReferralGenerated: React.Dispatch<React.SetStateAction<boolean>>;
+  labOrders: string[];
+  setLabOrders: React.Dispatch<React.SetStateAction<string[]>>;
+  labReason: string;
+  setLabReason: React.Dispatch<React.SetStateAction<string>>;
+  mcReason: string;
+  setMcReason: React.Dispatch<React.SetStateAction<string>>;
+  followUpWeeks: number;
+  setFollowUpWeeks: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function PlanTab({
@@ -49,7 +57,15 @@ export default function PlanTab({
   referralDetails,
   setReferralDetails,
   referralGenerated,
-  setReferralGenerated
+  setReferralGenerated,
+  labOrders: selectedLabs,
+  setLabOrders: setSelectedLabs,
+  labReason,
+  setLabReason,
+  mcReason,
+  setMcReason,
+  followUpWeeks,
+  setFollowUpWeeks
 }: PlanTabProps) {
   const { showPII } = useAuth();
   const { inventory } = useInventory();
@@ -76,15 +92,9 @@ export default function PlanTab({
   const [searchDrugQuery, setSearchDrugQuery] = useState('');
 
   // Diagnostic Investigations State
-  const [selectedLabs, setSelectedLabs] = useState<string[]>([
-    'Full Blood Count (FBC)',
-    'Renal Function Test (RFT)'
-  ]);
-  const [labReason, setLabReason] = useState('');
 
   // Document Modal States
   const [isMcModalOpen, setIsMcModalOpen] = useState(false);
-  const [mcReason, setMcReason] = useState('Acute Upper Respiratory Tract Infection');
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
 
   // Interruptive Allergy Override State
@@ -289,7 +299,7 @@ export default function PlanTab({
           </div>
         </div>
       ) : rxList.length > 0 ? (
-        <div className="bg-surface-accent text-accent p-2.5 rounded-none border border-line flex items-center justify-between text-xs font-bold shadow-2xs">
+        <div className="bg-surface text-accent p-2.5 rounded-none border border-line flex items-center justify-between text-xs font-bold shadow-2xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-accent" />
             <span>Allergy check: no conflict with the patient's recorded allergies</span>
@@ -380,7 +390,7 @@ export default function PlanTab({
       {/* SUB-TAB 3: DOCUMENTS & CERTIFICATES (MC & REFERRAL)                       */}
       {/* ========================================================================= */}
       {subTab === 'documents' && (
-        <CertificatesAndReferralPanel mcGenerated={mcGenerated} mcDays={mcDays} setMcDays={setMcDays} mcReason={mcReason} setMcReason={setMcReason} setMcGenerated={setMcGenerated} referralGenerated={referralGenerated} referralDetails={referralDetails} setReferralDetails={setReferralDetails} setReferralGenerated={setReferralGenerated} />
+        <CertificatesAndReferralPanel mcGenerated={mcGenerated} mcDays={mcDays} setMcDays={setMcDays} mcReason={mcReason} setMcReason={setMcReason} setMcGenerated={setMcGenerated} referralGenerated={referralGenerated} referralDetails={referralDetails} setReferralDetails={setReferralDetails} setReferralGenerated={setReferralGenerated} followUpWeeks={followUpWeeks} setFollowUpWeeks={setFollowUpWeeks} />
       )}
 
       {/* ========================================================================= */}

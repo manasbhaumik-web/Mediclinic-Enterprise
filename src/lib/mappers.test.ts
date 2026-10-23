@@ -84,6 +84,19 @@ describe('visit mapping', () => {
     expect(v.soap.plan.prescription[0]).toMatchObject({ drugName: 'Paracetamol', quantity: 10 });
   });
 
+  it('sends lab orders, referral details and the MC reason, and reads them back', () => {
+    const v = { ...visit, soap: { ...visit.soap, plan: { ...visit.soap!.plan, mcReason: 'Fever', labOrders: ['FBC'], labReason: 'Anaemia?', referralDetails: { hospital: 'HKL', department: 'ENT', reason: 'Recurrent sinusitis' } } } } as unknown as Visit;
+    const row = soapToRow(v);
+    expect(row).toMatchObject({ mc_reason: 'Fever', lab_orders: ['FBC'], lab_reason: 'Anaemia?', referral_hospital: 'HKL', referral_department: 'ENT', referral_reason: 'Recurrent sinusitis' });
+    const back = visitFromRow({ id: 'v1', patient_id: 'p', status: 'Awaiting Dispensation', created_at: '2026-01-01T00:00:00Z', soap_notes: [{ mc_days: 2, mc_reason: 'Fever', lab_orders: ['FBC'], lab_reason: 'Anaemia?', referral_hospital: 'HKL', referral_department: 'ENT', referral_reason: 'Recurrent sinusitis' }] });
+    expect(back.soap.plan).toMatchObject({ mcReason: 'Fever', labOrders: ['FBC'], labReason: 'Anaemia?', referralDetails: { hospital: 'HKL', department: 'ENT', reason: 'Recurrent sinusitis' } });
+  });
+
+  it('does not keep an MC reason when no certificate is issued', () => {
+    const v = { ...visit, soap: { ...visit.soap, plan: { ...visit.soap!.plan, mcDays: 0, mcReason: 'Fever' } } } as unknown as Visit;
+    expect(soapToRow(v).mc_reason).toBeNull();
+  });
+
   it('tolerates a visit with no soap note or prescriptions yet', () => {
     const v = visitFromRow({ id: 'v2', patient_id: 'p', status: 'Awaiting Triage', created_at: '2026-01-01T00:00:00Z' });
     expect(v.soap.subjective).toBe('');
@@ -137,5 +150,14 @@ describe('called-patient mapping', () => {
     expect(v.consultRoom).toBeUndefined();
     expect(v.calledBy).toBeUndefined();
     expect(v.calledAt).toBeUndefined();
+  });
+});
+
+describe('ticket mapping', () => {
+  it('reads the queue ticket', () => {
+    expect(visitFromRow({ id: 'v', patient_id: 'p', status: 'Awaiting Consult', created_at: '2026-01-01T00:00:00Z', ticket_no: 14 }).ticketNo).toBe(14);
+  });
+  it('leaves it empty for a visit from before tickets', () => {
+    expect(visitFromRow({ id: 'v', patient_id: 'p', status: 'Awaiting Consult', created_at: '2026-01-01T00:00:00Z', ticket_no: null }).ticketNo).toBeUndefined();
   });
 });

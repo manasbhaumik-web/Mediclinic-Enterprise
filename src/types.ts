@@ -56,6 +56,9 @@ export interface SOAPNotes {
     mcDays: number;
     requiresReferral: boolean;
     pharmacyMemo?: string;
+    mcReason?: string;
+    labOrders?: string[];
+    labReason?: string;
     referralDetails?: {
       hospital: string;
       department: string;
@@ -78,6 +81,8 @@ export interface Visit {
   mcIssued?: boolean;
   registeredTime?: number;
   /** Set when a doctor has called the patient (status Consulting): which room, who, and when. */
+  /** Queue ticket, restarting each clinic day (see domain/ticket). */
+  ticketNo?: number;
   consultRoom?: string;
   calledBy?: string;
   calledByName?: string;

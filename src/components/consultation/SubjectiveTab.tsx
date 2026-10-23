@@ -31,7 +31,7 @@ export default function SubjectiveTab({
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Header bar & quick actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-accent p-3.5 rounded-none border border-line shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3.5 rounded-none border border-line shadow-xs">
         <div>
           <h4 className="type-label text-ink flex items-center gap-1.5">
             <MessageSquare className="w-4 h-4 text-accent" />

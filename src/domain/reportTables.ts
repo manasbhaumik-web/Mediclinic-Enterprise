@@ -108,21 +108,24 @@ export const stockTable = (drugs: Pick<DrugItem, 'name' | 'status' | 'minThresho
 
 
 export const doctorEncountersTable = (
-  visits: { signedOffAt: string; patientName: string; icdCode: string | null; diagnosis: string | null; paymentMethod: string | null; fee: number | null; mcDays: number; referral: boolean }[],
+  visits: { signedOffAt: string; patientName: string; icdCode: string | null; diagnosis: string | null; paymentMethod: string | null; fee: number | null; mcDays: number; referral: boolean; mcReason?: string | null; referralTo?: string | null; labOrders?: string[] }[],
   monthText: string,
 ): ReportTable => ({
   title: `My consultations, ${monthText}`,
   subtitle: 'Consultations signed off by you. Contains patient names and diagnoses: keep confidential.',
-  columns: ['Signed off', 'Patient', 'ICD-10 code', 'Diagnosis', 'MC days', 'Referral', 'Payment method', 'Billed (RM)'],
+  columns: ['Signed off', 'Patient', 'ICD-10 code', 'Diagnosis', 'MC days', 'MC reason', 'Referral', 'Referred to', 'Lab orders', 'Payment method', 'Billed (RM)'],
   rows: visits.map((v) => [
     new Date(v.signedOffAt).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', hour12: false }),
     v.patientName,
     v.icdCode && v.icdCode.trim().toUpperCase() !== 'N/A' ? v.icdCode : '',
     v.diagnosis ?? '',
     v.mcDays || '',
+    v.mcReason ?? '',
     v.referral ? 'Yes' : '',
+    v.referralTo ?? '',
+    (v.labOrders ?? []).join('; '),
     v.paymentMethod ?? '',
     v.fee === null ? '' : money(v.fee),
   ]),
-  numeric: [4, 7],
+  numeric: [4, 10],
 });

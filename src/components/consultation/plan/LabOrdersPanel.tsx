@@ -14,7 +14,7 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
   return (
     <div className="space-y-4 animate-fadeIn">
       
-      <div className="bg-surface-muted border border-line p-3 rounded-none flex items-center justify-between">
+      <div className="bg-surface border border-line p-3 rounded-none flex items-center justify-between">
         <div>
           <h4 className="type-label text-ink flex items-center gap-1.5">
             <Microscope className="w-4 h-4 text-accent" /> Diagnostic Lab &amp; Imaging Requisition
@@ -36,7 +36,7 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
               {...buttonProps(() => toggleLabSelection(test.name), isSelected)}
               className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${focusRing} ${
                 isSelected
-                  ? 'bg-surface-accent border-brand text-ink dark:text-white shadow-2xs font-bold'
+                  ? 'bg-surface border-brand text-ink dark:text-white shadow-2xs font-bold'
                   : 'bg-surface border-slate-200 dark:border-teal-800/40 text-muted dark:text-slate-300 hover:border-line'
               }`}
             >

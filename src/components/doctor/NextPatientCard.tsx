@@ -1,3 +1,4 @@
+import { formatTicket } from '../../domain/ticket';
 import type { SortRule, TriageDetails } from '../../utils/queueSorter';
 import type { VitalSigns } from '../../types';
 import { Pin, Stethoscope, Volume2, Copy } from 'lucide-react';
@@ -66,7 +67,7 @@ export default function NextPatientCard({ userId = null, pinnedVisitIds, nextVis
         <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
           <div className="min-w-0 space-y-3">
             <div className="space-y-1.5">
-              <h3 className="text-2xl font-bold text-ink leading-tight">{nextPatient.fullName}</h3>
+              <h3 className="text-2xl font-bold text-ink leading-tight">{formatTicket(nextVisit.ticketNo) && <span className="font-mono text-accent mr-2">{formatTicket(nextVisit.ticketNo)}</span>}{nextPatient.fullName}</h3>
               <p className="text-sm text-muted">ID {nextPatient.id} · {nextPatient.gender} · Born {nextPatient.dob}</p>
             </div>
             <div className="flex flex-wrap gap-2">

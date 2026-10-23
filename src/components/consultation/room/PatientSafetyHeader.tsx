@@ -18,11 +18,13 @@ interface PatientSafetyHeaderProps {
   allergies?: string[];
   vitalsText?: string;
   roomText?: string;
+  /** The visit's queue ticket, for example "#014". */
+  ticketText?: string;
 }
 
-export default function PatientSafetyHeader({ allergies = [], vitalsText, roomText, currentPatient, patientAge, maskedIC, setIsPiiRevealed, isPiiRevealed, maskedPhone, lastSavedTime, completedStepsCount, soapProgressPercent, setIsLocked, setShowShortcutsHelp, showShortcutsHelp }: PatientSafetyHeaderProps) {
+export default function PatientSafetyHeader({ ticketText, allergies = [], vitalsText, roomText, currentPatient, patientAge, maskedIC, setIsPiiRevealed, isPiiRevealed, maskedPhone, lastSavedTime, completedStepsCount, soapProgressPercent, setIsLocked, setShowShortcutsHelp, showShortcutsHelp }: PatientSafetyHeaderProps) {
   return (
-    <div className="sticky top-0 z-20 bg-surface-muted border border-line-subtle rounded-none p-4 shadow-bar-up flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-brand">
+    <div className="sticky top-0 z-20 bg-surface border border-line-subtle rounded-none p-4 shadow-bar-up flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-brand">
       
       {/* Patient Demographics & PII Controls */}
       <div className="flex items-center gap-3">
@@ -31,7 +33,7 @@ export default function PatientSafetyHeader({ allergies = [], vitalsText, roomTe
         </div>
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="type-card-title text-ink">{currentPatient.fullName}</h2>
+            <h2 className="type-card-title text-ink">{ticketText && <span className="font-mono text-accent mr-2">{ticketText}</span>}{currentPatient.fullName}</h2>
             <span className="text-xs text-muted dark:text-slate-300 font-bold">({patientAge} Yrs, {currentPatient.gender})</span>
             <span id="patient-banner-status" className="bg-surface-accent text-accent border border-line text-2xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-none flex items-center justify-center gap-1 font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>

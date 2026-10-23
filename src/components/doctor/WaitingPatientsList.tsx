@@ -1,3 +1,4 @@
+import { formatTicket } from '../../domain/ticket';
 import type { SortRule } from '../../utils/queueSorter';
 import { getTriageDetails, getChiefComplaintLabel, getRankingRationale } from '../../utils/queueSorter';
 import ActionMenu from '../ui/ActionMenu';
@@ -97,7 +98,7 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
     
                   <div role="cell" className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-                      <h4 className="text-sm font-semibold text-ink">{pt.fullName}</h4>
+                      <h4 className="text-sm font-semibold text-ink">{formatTicket(visit.ticketNo) && <span className="font-mono text-accent mr-1.5">{formatTicket(visit.ticketNo)}</span>}{pt.fullName}</h4>
                       <span className="text-xs text-muted">ID {pt.id}</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">

@@ -12,9 +12,11 @@ interface CertificatesAndReferralPanelProps {
   referralDetails: { hospital: string; department: string; reason: string; };
   setReferralDetails: React.Dispatch<React.SetStateAction<{ hospital: string; department: string; reason: string; }>>;
   setReferralGenerated: React.Dispatch<React.SetStateAction<boolean>>;
+  followUpWeeks: number;
+  setFollowUpWeeks: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setMcDays, mcReason, setMcReason, setMcGenerated, referralGenerated, referralDetails, setReferralDetails, setReferralGenerated }: CertificatesAndReferralPanelProps) {
+export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setMcDays, mcReason, setMcReason, setMcGenerated, referralGenerated, referralDetails, setReferralDetails, setReferralGenerated, followUpWeeks, setFollowUpWeeks }: CertificatesAndReferralPanelProps) {
   return (
     <div className="space-y-4 animate-fadeIn">
       
@@ -60,10 +62,12 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
           <button
             type="button"
             onClick={() => setMcGenerated(true)}
+            disabled={!mcGenerated && mcReason.trim() === ''}
+            title={!mcGenerated && mcReason.trim() === '' ? 'Enter the reason first' : undefined}
             className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
               mcGenerated
                 ? 'bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700'
-                : 'bg-primary text-white border-primary hover:bg-primary-hover'
+                : 'bg-primary text-white border-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
           >
             {mcGenerated ? '✓ Medical Certificate (MC) Created & Attached' : 'Create medical certificate'}
@@ -105,15 +109,28 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 className="w-full text-xs p-2 border border-slate-300 rounded-none"
               />
             </div>
+
+            <div>
+              <label className="block text-2xs font-bold text-subtle uppercase mb-1">Reason for referral</label>
+              <Input
+                type="text"
+                value={referralDetails.reason}
+                onChange={e => setReferralDetails({ ...referralDetails, reason: e.target.value })}
+                placeholder="Why the patient is being referred"
+                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+              />
+            </div>
           </div>
     
           <button
             type="button"
             onClick={() => setReferralGenerated(true)}
+            disabled={!referralGenerated && (referralDetails.hospital.trim() === '' || referralDetails.reason.trim() === '')}
+            title={!referralGenerated && (referralDetails.hospital.trim() === '' || referralDetails.reason.trim() === '') ? 'Enter the hospital and the reason first' : undefined}
             className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
               referralGenerated
                 ? 'bg-primary text-white border-teal-700 hover:bg-primary'
-                : 'bg-surface text-ink dark:text-slate-200 border-line hover:bg-surface-accent'
+                : 'bg-surface text-ink dark:text-slate-200 border-line hover:bg-surface-accent disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
           >
             {referralGenerated ? '✓ Specialist Referral Created & Attached' : 'Create referral draft'}
@@ -122,6 +139,20 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
     
       </div>
     
+      <div className="border border-line bg-surface p-4 rounded-none flex flex-wrap items-center gap-3">
+        <label htmlFor="follow-up-weeks" className="text-2xs font-bold text-subtle uppercase">Follow-up visit in (weeks)</label>
+        <Input
+          id="follow-up-weeks"
+          type="number"
+          min="0"
+          max="52"
+          value={followUpWeeks}
+          onChange={e => setFollowUpWeeks(Math.min(52, Math.max(0, parseInt(e.target.value) || 0)))}
+          className="w-20 text-xs p-2 border border-slate-300 rounded-none font-bold"
+        />
+        <span className="text-2xs text-subtle">0 means no follow-up is needed</span>
+      </div>
+
     </div>
   );
 }

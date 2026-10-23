@@ -225,6 +225,9 @@ export interface DoctorVisit {
   fee: number | null;
   mcDays: number;
   referral: boolean;
+  mcReason?: string | null;
+  referralTo?: string | null;
+  labOrders?: string[];
 }
 
 const hasCode = (c: string | null | undefined) => !!c && c.trim() !== '' && c.trim().toUpperCase() !== 'N/A';
@@ -236,6 +239,8 @@ export interface DoctorMonth {
   averageBill: number | null;
   certificates: number;
   referrals: number;
+  /** Visits with at least one lab or imaging order. */
+  withLabOrders: number;
   coded: number;
   uncoded: number;
   topDiagnosis: { code: string; diagnosis: string | null; count: number; sharePercent: number } | null;
@@ -251,6 +256,7 @@ export function summarizeDoctorMonth(visits: DoctorVisit[]): DoctorMonth {
   let billedVisits = 0;
   let certificates = 0;
   let referrals = 0;
+  let withLabOrders = 0;
   let coded = 0;
   for (const v of visits) {
     const day = localDateKey(new Date(v.signedOffAt));
@@ -265,6 +271,7 @@ export function summarizeDoctorMonth(visits: DoctorVisit[]): DoctorMonth {
     }
     if (v.mcDays > 0) certificates++;
     if (v.referral) referrals++;
+    if (v.labOrders && v.labOrders.length > 0) withLabOrders++;
     if (hasCode(v.icdCode)) {
       coded++;
       const c = codes.get(v.icdCode as string) ?? { code: v.icdCode as string, diagnosis: v.diagnosis, count: 0 };
@@ -280,6 +287,7 @@ export function summarizeDoctorMonth(visits: DoctorVisit[]): DoctorMonth {
     averageBill: billedVisits ? round2(billed / billedVisits) : null,
     certificates,
     referrals,
+    withLabOrders,
     coded,
     uncoded: visits.length - coded,
     topDiagnosis: top ? { ...top, sharePercent: Math.round((top.count / coded) * 100) } : null,

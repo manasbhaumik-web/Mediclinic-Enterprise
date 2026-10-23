@@ -25,6 +25,7 @@ import WorkflowToolbar from './consultation/room/WorkflowToolbar';
 import ContextPanel from './consultation/room/ContextPanel';
 import ReviewSignoffModal from './consultation/room/ReviewSignoffModal';
 import { visitFromRow } from '../lib/mappers';
+import { formatTicket } from '../domain/ticket';
 import { ConsultationDraft, draftKey, parseDraft } from '../domain/consultationDraft';
 
 interface ConsultationRoomProps {
@@ -161,6 +162,12 @@ export default function ConsultationRoom({
   });
   const [referralGenerated, setReferralGenerated] = useState(false);
 
+  // Plan details the doctor enters; nothing is pre-selected or pre-filled.
+  const [labOrders, setLabOrders] = useState<string[]>([]);
+  const [labReason, setLabReason] = useState('');
+  const [mcReason, setMcReason] = useState('');
+  const [followUpWeeks, setFollowUpWeeks] = useState<number>(0);
+
   // Populate longitudinal history for active patient
   const [patientPastVisits, setPatientPastVisits] = useState<Visit[]>([]);
 
@@ -213,6 +220,7 @@ export default function ConsultationRoom({
       setSubjective(d.subjective); setVitals(d.vitals); setSelectedICD(d.icd); setClinicalNotes(d.clinicalNotes);
       setRxList(d.rx); setMcDays(d.mcDays); setMcGenerated(d.mcGenerated); setPharmacyMemo(d.pharmacyMemo);
       setReferralDetails(d.referralDetails); setReferralGenerated(d.referralGenerated);
+      setLabOrders(d.labOrders ?? []); setLabReason(d.labReason ?? ''); setMcReason(d.mcReason ?? ''); setFollowUpWeeks(d.followUpWeeks ?? 0);
       setLastSavedTime(clock(d.savedAt));
     }
     restoredFor.current = id;
@@ -222,13 +230,13 @@ export default function ConsultationRoom({
     const id = activeVisit?.id;
     if (!id || restoredFor.current !== id) return;
     const savedAt = Date.now();
-    const draft: ConsultationDraft = { v: 1, subjective, vitals, icd: selectedICD, clinicalNotes, rx: rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, savedAt };
+    const draft: ConsultationDraft = { v: 1, subjective, vitals, icd: selectedICD, clinicalNotes, rx: rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, labOrders, labReason, mcReason, followUpWeeks, savedAt };
     try { sessionStorage.setItem(draftKey(id), JSON.stringify(draft)); setLastSavedTime(clock(savedAt)); } catch { /* storage full or unavailable */ }
   };
   useEffect(() => {
     const t = setTimeout(saveDraftNow, 800);
     return () => clearTimeout(t);
-  }, [subjective, vitals, selectedICD, clinicalNotes, rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated]);
+  }, [subjective, vitals, selectedICD, clinicalNotes, rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, labOrders, labReason, mcReason, followUpWeeks]);
 
   if (!currentPatient) {
     return (
@@ -286,10 +294,13 @@ export default function ConsultationRoom({
       },
       plan: {
         prescription: rxList,
-        followUpWeeks: 1,
+        followUpWeeks,
         mcDays: mcGenerated ? (parseInt(mcDays.toString()) || 1) : 0,
         requiresReferral: referralGenerated,
         pharmacyMemo: pharmacyMemo,
+        mcReason: mcGenerated ? mcReason.trim() : undefined,
+        labOrders,
+        labReason: labOrders.length > 0 ? labReason.trim() : undefined,
         referralDetails: referralGenerated ? referralDetails : undefined
       }
     };
@@ -347,7 +358,7 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
       {/* ========================================================================= */}
-      <PatientSafetyHeader allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
+      <PatientSafetyHeader ticketText={formatTicket(activeVisit?.ticketNo)} allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
 
       {/* KEYBOARD SHORTCUTS OVERLAY BANNER */}
       {showShortcutsHelp && (
@@ -405,7 +416,7 @@ export default function ConsultationRoom({
             </div>
 
             {/* STEPPER HEADER TOOLBAR */}
-            <div className="bg-surface-muted p-3.5 border border-line-subtle rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-surface p-3.5 border border-line-subtle rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-2xs font-bold text-accent uppercase tracking-wider block font-mono">Consultation Draft in Progress</span>
                 <h3 className="type-card-title text-ink flex items-center gap-1.5 mt-0.5">
@@ -469,6 +480,10 @@ export default function ConsultationRoom({
                   pharmacyMemo={pharmacyMemo}
                   setPharmacyMemo={setPharmacyMemo}
                   referralDetails={referralDetails}
+                  labOrders={labOrders} setLabOrders={setLabOrders}
+                  labReason={labReason} setLabReason={setLabReason}
+                  mcReason={mcReason} setMcReason={setMcReason}
+                  followUpWeeks={followUpWeeks} setFollowUpWeeks={setFollowUpWeeks}
                   setReferralDetails={setReferralDetails}
                   referralGenerated={referralGenerated}
                   setReferralGenerated={setReferralGenerated}

@@ -16,6 +16,7 @@ import QueueToolbar from './doctor/QueueToolbar';
 import NextPatientCard from './doctor/NextPatientCard';
 import WaitingPatientsList from './doctor/WaitingPatientsList';
 import QueueRail from './doctor/QueueRail';
+import { formatTicket } from '../domain/ticket';
 import { draftKey } from '../domain/consultationDraft';
 import DoctorMonthlyReport from './doctor/DoctorMonthlyReport';
 interface DoctorDashboardModuleProps {
@@ -189,7 +190,8 @@ export default function DoctorDashboardModule({
     try { localStorage.setItem('mediclinic.consultRoom', roomName); } catch { /* ignore */ }
     const timeStr = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
     setActiveConsultationVisitId(visitId);
-    setCallAnnouncementToast(`Patient called: ${patientName} to ${roomName} (${timeStr})`);
+    const ticket = formatTicket(doctorQueue.find((v) => v.id === visitId)?.ticketNo);
+    setCallAnnouncementToast(`Patient called: ${ticket ? `${ticket} ` : ''}${patientName} to ${roomName} (${timeStr})`);
     playCallChime();
     setTimeout(() => setCallAnnouncementToast(null), 4500);
   };
@@ -359,7 +361,7 @@ export default function DoctorDashboardModule({
                   </div>
                 )}
 
-                <div className="bg-surface-accent dark:bg-night-850 text-ink dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-line dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                <div className="bg-surface dark:bg-night-850 text-ink dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-line dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                   {/* Left: Section Title & Live Telemetry Badge */}
                   <div className="flex items-center gap-3 shrink-0">
                     <div className="p-2 bg-teal-50 dark:bg-teal-950/60 border border-line dark:border-teal-800 text-accent dark:text-teal-400">

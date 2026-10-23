@@ -1,3 +1,4 @@
+import { formatTicket } from '../../domain/ticket';
 import { Clock, Users, Plus, Activity, CheckCircle2 } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { Visit, Patient } from '../../types';
@@ -13,7 +14,7 @@ interface WaitingRoomMonitorProps {
 
 export default function WaitingRoomMonitor({ triageQueue, setActiveSubTab, patientsMap, showPII, showToast, updateVisitInDb }: WaitingRoomMonitorProps) {
   return (
-    <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
+    <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs font-sans">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6 border-b border-line-subtle dark:border-teal-800/40 pb-4">
           <div className="flex items-center gap-3">
@@ -62,7 +63,7 @@ export default function WaitingRoomMonitor({ triageQueue, setActiveSubTab, patie
                   
                   <div className="flex justify-between items-start">
                     <span className="text-2xs font-mono font-bold bg-primary/10 dark:bg-teal-900/40 text-accent dark:text-teal-200 px-2 py-0.5 rounded-none border border-brand/20 tracking-wider">
-                      # {visit.id.substring(0, 8).toUpperCase()}
+                      {formatTicket(visit.ticketNo) || `# ${visit.id.substring(0, 8).toUpperCase()}`}
                     </span>
                     <span className={`text-2xs font-mono font-bold px-2 py-0.5 rounded-none flex items-center gap-1 border ${
                       waitStatusColor === 'rose' ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800' :

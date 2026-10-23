@@ -89,7 +89,7 @@ export function useDoctorMonth(userId: string | undefined, monthKey: string) {
     enabled: !!userId,
     queryFn: async (): Promise<DoctorVisit[]> => {
       const { data, error } = await supabase.from('visits')
-        .select('id, status, paid_amount, panel_claimed, payment_method, signed_off_at, patients(full_name), soap_notes(icd_code, description, mc_days, requires_referral)')
+        .select('id, status, paid_amount, panel_claimed, payment_method, signed_off_at, patients(full_name), soap_notes(icd_code, description, mc_days, requires_referral, mc_reason, referral_hospital, referral_department, lab_orders)')
         .eq('signed_off_by', userId!).gte('signed_off_at', from).lt('signed_off_at', to)
         .order('signed_off_at', { ascending: false }).limit(2000);
       if (error) throw error;
@@ -106,6 +106,9 @@ export function useDoctorMonth(userId: string | undefined, monthKey: string) {
           fee: v.status === 'Paid' ? Number(v.paid_amount) + Number(v.panel_claimed) : null,
           mcDays: Number(soap?.mc_days ?? 0),
           referral: !!soap?.requires_referral,
+          mcReason: soap?.mc_reason ?? null,
+          referralTo: [soap?.referral_hospital, soap?.referral_department].filter(Boolean).join(', ') || null,
+          labOrders: Array.isArray(soap?.lab_orders) ? soap.lab_orders : [],
         };
       });
     },
@@ -129,6 +132,8 @@ export function useDoctorMonth(userId: string | undefined, monthKey: string) {
     visits,
     summary,
     unattributed: unattributed.data ?? 0,
+    /** True when the row limit was reached, so the month may hold more consultations than are listed. */
+    truncated: visits.length >= 2000,
     isPending: mine.isPending,
     hasError: !!(mine.error || unattributed.error),
   };

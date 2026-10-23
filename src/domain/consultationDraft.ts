@@ -21,6 +21,11 @@ export interface ConsultationDraft {
   pharmacyMemo: string;
   referralDetails: { hospital: string; department: string; reason: string };
   referralGenerated: boolean;
+  /** Added after v1 drafts were first saved, so older drafts may lack them. */
+  labOrders?: string[];
+  labReason?: string;
+  mcReason?: string;
+  followUpWeeks?: number;
   savedAt: number;
 }
 
@@ -39,6 +44,10 @@ export function parseDraft(raw: string | null): ConsultationDraft | null {
   if (!(d.mcDays === '' || isNum(d.mcDays))) return null;
   const r = d.referralDetails;
   if (!r || typeof r.hospital !== 'string' || typeof r.department !== 'string' || typeof r.reason !== 'string') return null;
+  if (d.labOrders !== undefined && !(Array.isArray(d.labOrders) && d.labOrders.every((x: unknown) => typeof x === 'string'))) return null;
+  if (d.labReason !== undefined && typeof d.labReason !== 'string') return null;
+  if (d.mcReason !== undefined && typeof d.mcReason !== 'string') return null;
+  if (d.followUpWeeks !== undefined && !isNum(d.followUpWeeks)) return null;
   return d as ConsultationDraft;
 }
 
