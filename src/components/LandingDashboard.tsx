@@ -1,7 +1,7 @@
 import { useColorTheme } from '../hooks/useColorTheme';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ROLE_BANNER, getGreeting } from '../lib/roleBanner';
+import { ROLE_BANNER, bannerFor, getGreeting } from '../lib/roleBanner';
 import { Visit, Patient, UserRole, Language } from '../types';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
@@ -26,6 +26,8 @@ import PayerAndPharmacyCharts from './dashboard/PayerAndPharmacyCharts';
 import ClinicDirectory from './dashboard/ClinicDirectory';
 interface LandingDashboardProps {
   userRole: UserRole | null;
+  /** Every role the person holds. The dashboard shows the union of their tiles, KPIs, panels and worklists. */
+  roles?: UserRole[];
   userName?: string;
   triageQueue?: Visit[];
   doctorQueue: Visit[];
@@ -41,6 +43,7 @@ interface LandingDashboardProps {
 
 export default function LandingDashboard({
   userRole,
+  roles,
   userName = "Dr. Sarah Tan",
   triageQueue = [],
   doctorQueue,
@@ -170,11 +173,23 @@ export default function LandingDashboard({
       kpis: ['prescriptions', 'encounters', 'efficiency'],
       panels: ['worklist', 'pharmacy', 'facility'],
     },
+    receptionist: {
+      ...ROLE_BANNER['receptionist'],
+      modules: ['registration', 'appointments'],
+      kpis: ['encounters', 'waiting'],
+      panels: ['worklist', 'throughput', 'facility'],
+    },
     'clinic-assistant': {
       ...ROLE_BANNER['clinic-assistant'],
-      modules: ['registration', 'triage', 'appointments', 'billing'],
-      kpis: ['encounters', 'waiting', 'collections'],
-      panels: ['worklist', 'throughput', 'payer', 'facility'],
+      modules: ['triage'],
+      kpis: ['waiting', 'encounters'],
+      panels: ['worklist', 'throughput', 'facility'],
+    },
+    cashier: {
+      ...ROLE_BANNER['cashier'],
+      modules: ['billing'],
+      kpis: ['collections', 'encounters'],
+      panels: ['worklist', 'payer', 'facility'],
     },
     admin: {
       ...ROLE_BANNER['admin'],
@@ -189,22 +204,30 @@ export default function LandingDashboard({
       panels: ['facility'],
     },
   };
-  const roleConfig = userRole ? ROLE_DASHBOARDS[userRole] : ROLE_DASHBOARDS.admin;
+  // Someone with several roles (a small clinic's front desk) gets the union of what each role sees.
+  const held: UserRole[] = roles && roles.length > 0 ? roles : userRole ? [userRole] : [];
+  const configs = (held.length > 0 ? held : (['admin'] as UserRole[])).map((r) => ROLE_DASHBOARDS[r]);
+  const union = <T,>(pick: (c: (typeof configs)[number]) => T[]): T[] => Array.from(new Set(configs.flatMap(pick)));
+  const roleConfig = { ...bannerFor(held.length > 0 ? held : ['admin']), modules: union((c) => c.modules), kpis: union((c) => c.kpis), panels: union((c) => c.panels) };
   // Role worklists: the visits this role must act on next, longest wait first
-  type WorkKind = 'consult' | 'dispense' | 'triage' | 'billing';
+  type WorkKind = 'consult' | 'dispense' | 'registered' | 'triage' | 'billing';
   const byWait = (list: Visit[]) =>
     list.slice().sort((a, b) => (a.registeredTime ?? Infinity) - (b.registeredTime ?? Infinity)).slice(0, 6);
   const WORK_SECTIONS: Record<WorkKind, { title: string; subtitle: string; cta: string; rowCta: string; tab: string; empty: string }> = {
     consult: { title: 'Next patients', subtitle: 'Longest-waiting first. Patients already in consultation are shown at their queue position.', cta: 'Open full queue', rowCta: 'Go to queue', tab: 'queue', empty: 'No patients waiting.' },
     dispense: { title: 'Prescriptions to dispense', subtitle: 'Longest-waiting first.', cta: 'Open dispensary', rowCta: 'Dispense', tab: 'dispensary', empty: 'No prescriptions waiting.' },
+    registered: { title: 'Registered, waiting for triage', subtitle: 'Patients you registered who have not had their readings taken yet.', cta: 'Open registration', rowCta: 'Open registration', tab: 'registration', empty: 'No one is waiting for triage.' },
     triage: { title: 'Waiting for triage', subtitle: 'Registered patients who still need vitals taken.', cta: 'Open triage', rowCta: 'Take vitals', tab: 'triage', empty: 'No patients waiting for triage.' },
     billing: { title: 'Awaiting payment', subtitle: 'Visits finished and ready for the cashier.', cta: 'Open billing', rowCta: 'Collect payment', tab: 'billing', empty: 'No visits waiting for payment.' },
   };
-  const worklists: { kind: WorkKind; visits: Visit[] }[] =
-    userRole === 'pharmacist' ? [{ kind: 'dispense', visits: byWait(pharmacyQueue) }]
-    : userRole === 'clinic-assistant' ? [{ kind: 'triage', visits: byWait(triageQueue) }, { kind: 'billing', visits: byWait(cashierQueue) }]
-    : userRole === 'doctor' ? [{ kind: 'consult', visits: byWait(doctorQueue) }]
-    : [];
+  // In visit order: registered, triage, consult, dispense, billing. Each role's list is only what it acts on.
+  const worklists: { kind: WorkKind; visits: Visit[] }[] = [
+    ...(held.includes('receptionist') && !held.includes('clinic-assistant') ? [{ kind: 'registered' as WorkKind, visits: byWait(triageQueue) }] : []),
+    ...(held.includes('clinic-assistant') ? [{ kind: 'triage' as WorkKind, visits: byWait(triageQueue) }] : []),
+    ...(held.includes('doctor') ? [{ kind: 'consult' as WorkKind, visits: byWait(doctorQueue) }] : []),
+    ...(held.includes('pharmacist') ? [{ kind: 'dispense' as WorkKind, visits: byWait(pharmacyQueue) }] : []),
+    ...(held.includes('cashier') ? [{ kind: 'billing' as WorkKind, visits: byWait(cashierQueue) }] : []),
+  ];
   const waitMinutes = (v: Visit) => (v.registeredTime ? Math.max(0, Math.round((Date.now() - v.registeredTime) / 60000)) : null);
   const vitalsFlag = (v: Visit) => {
     const o = v.soap?.objective;

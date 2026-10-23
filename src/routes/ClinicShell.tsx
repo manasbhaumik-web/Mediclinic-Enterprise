@@ -25,6 +25,7 @@ export interface ClinicShellContext {
   role: UserRole;
   userName: string;
   userId: string | null;
+  roles: UserRole[];
   activeLanguage: Language;
   t: ReturnType<typeof useLanguage>['t'];
   patientsList: Patient[];
@@ -53,7 +54,7 @@ export interface ClinicShellContext {
 export const useClinicShell = () => useOutletContext<ClinicShellContext>();
 
 export default function ClinicShell() {
-  const { user, role, fullName, showPII, setShowPII, signOut } = useAuth();
+  const { user, role, roles, fullName, showPII, setShowPII, signOut } = useAuth();
   const { settleVisit } = useBillingActions();
   const { activeLanguage, setActiveLanguage, t } = useLanguage();
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ export default function ClinicShell() {
     role: role as UserRole,
     userName,
     userId: user?.id ?? null,
+    roles,
     onCallPatient: data.callPatient,
     onReleasePatient: data.releasePatient,
     activeLanguage,
@@ -183,6 +185,7 @@ export default function ClinicShell() {
         setActiveTab={navigateTab}
         userName={userName}
         userRole={role ?? 'doctor'}
+        userRoles={roles}
         isOnline={isOnline}
         setIsOnline={setIsOnline}
         showPII={showPII}

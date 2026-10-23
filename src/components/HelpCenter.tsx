@@ -32,7 +32,9 @@ const FALLBACK: Guide = { title: 'This screen', summary: 'Use the side navigatio
 const ROLE_INTRO: Record<string, string> = {
   doctor: 'You see the doctor queue and the consultation room. Prescribe from the stock list so the pharmacy can dispense exactly what you chose.',
   pharmacist: 'You dispense prescriptions and manage stock, batches, orders and the controlled-drug register.',
-  'clinic-assistant': 'You register patients, record triage and handle billing and appointments.',
+  receptionist: 'You register patients with their details and manage appointments. Each registered patient moves to the triage list.',
+  'clinic-assistant': 'You take triage readings for registered patients. Finishing triage moves the patient to the doctor\'s queue.',
+  cashier: 'You collect payment for visits that have finished at the pharmacy and issue receipts.',
   admin: 'You manage staff, stock, equipment, payroll, leave, settings and reports from the admin console.',
   hr: 'You manage staff, leave, attendance and payroll.',
 };
@@ -111,7 +113,7 @@ export function AppFooter({ online, onHelp }: { online: boolean; onHelp: () => v
 }
 
 /** Slide-in help: what this screen does, shortcuts, what the colours mean, and who to contact. */
-export default function HelpCenter({ open, onClose, role, activeTab }: { open: boolean; onClose: () => void; role: string | null | undefined; activeTab: string }) {
+export default function HelpCenter({ open, onClose, role, roles, activeTab }: { open: boolean; onClose: () => void; roles?: string[]; role: string | null | undefined; activeTab: string }) {
   const { clinic } = useSettings();
   const [section, setSection] = useState<Section>('guide');
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -153,10 +155,10 @@ export default function HelpCenter({ open, onClose, role, activeTab }: { open: b
                 <p className="text-muted mt-1">{guide.summary}</p>
               </div>
               <ol className="list-decimal pl-5 space-y-1.5 text-muted">{guide.steps.map((s) => <li key={s}>{s}</li>)}</ol>
-              {role && ROLE_INTRO[role] && (
-                <div className="bg-surface-accent border border-line-subtle p-3">
-                  <p className="font-bold text-ink mb-1">Your role</p>
-                  <p className="text-muted">{ROLE_INTRO[role]}</p>
+              {(roles && roles.length ? roles : role ? [role] : []).filter((r) => ROLE_INTRO[r]).length > 0 && (
+                <div className="bg-surface-accent border border-line-subtle p-3 space-y-1.5">
+                  <p className="font-bold text-ink">Your role{(roles?.length ?? 0) > 1 ? 's' : ''}</p>
+                  {(roles && roles.length ? roles : [role as string]).filter((r) => ROLE_INTRO[r]).map((r) => <p key={r} className="text-muted">{ROLE_INTRO[r]}</p>)}
                 </div>
               )}
               <div className="text-muted">

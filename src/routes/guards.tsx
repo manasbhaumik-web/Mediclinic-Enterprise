@@ -13,13 +13,13 @@ export function RequireAuth() {
   return <Outlet />;
 }
 
-/** Renders children only for the listed roles; everyone else is sent to `fallback`. */
-export function RequireRole({ roles, fallback = '/app/dashboard', children }: {
+/** Renders children only when the person holds one of the listed roles; everyone else is sent to `fallback`. */
+export function RequireRole({ roles: allowed, fallback = '/app/dashboard', children }: {
   roles: readonly UserRole[];
   fallback?: string;
   children: React.ReactNode;
 }) {
-  const { role } = useAuth();
-  if (!role || !roles.includes(role)) return <Navigate to={fallback} replace />;
+  const { roles } = useAuth();
+  if (!roles.some((r) => allowed.includes(r))) return <Navigate to={fallback} replace />;
   return <>{children}</>;
 }

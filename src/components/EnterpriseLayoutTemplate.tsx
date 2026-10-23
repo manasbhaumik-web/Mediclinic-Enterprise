@@ -5,7 +5,9 @@ import ThemeSelector from './ui/ThemeSelector';
 import NotificationBell from './NotificationBell';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import { brandName } from '../lib/brandName';
-import { ROLE_BANNER, getGreeting } from '../lib/roleBanner';
+import { bannerFor, getGreeting } from '../lib/roleBanner';
+import { canOpenTab } from '../routes/permissions';
+import { joinRoleLabels } from '../domain/roles';
 import type { UserRole } from '../types';
 import { useSettings } from '../context/SettingsContext';
 import {
@@ -19,6 +21,8 @@ interface EnterpriseLayoutTemplateProps {
   setActiveTab: (tab: string) => void;
   userName: string;
   userRole: string;
+  /** Every role the person holds; the navbar shows the union of their pages. */
+  userRoles?: UserRole[];
   isOnline: boolean;
   setIsOnline: (val: boolean) => void;
   showPII: boolean;
@@ -40,6 +44,7 @@ export default function EnterpriseLayoutTemplate({
   setActiveTab,
   userName,
   userRole,
+  userRoles,
   isOnline,
   setIsOnline,
   showPII,
@@ -124,8 +129,10 @@ export default function EnterpriseLayoutTemplate({
     return name.slice(0, 2).toUpperCase();
   };
 
-  const banner = ROLE_BANNER[userRole as UserRole];
-  const roleLabel = banner?.label ?? (userRole ? userRole.replace(/-/g, ' ') : '');
+  const held: UserRole[] = userRoles && userRoles.length > 0 ? userRoles : [userRole as UserRole];
+  const roleLabel = bannerFor(held).label;
+  // Navbar items come from the same table as the route guards, so a page is shown exactly when it can be opened.
+  const can = (tab: Parameters<typeof canOpenTab>[1]) => canOpenTab(held, tab);
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
@@ -216,7 +223,7 @@ export default function EnterpriseLayoutTemplate({
               <div className="text-left hidden sm:block">
                 <p className="text-white text-xs font-bold leading-none">{userName || 'Clinician'}</p>
                 <p className="text-2xs text-teal-100 font-mono uppercase tracking-wider mt-0.5">
-                  {userRole ? `${userRole.charAt(0).toUpperCase() + userRole.slice(1)}` : 'Staff'}
+                  {userRole ? joinRoleLabels(held) : 'Staff'}
                 </p>
               </div>
               <Settings className="w-4 h-4 text-teal-100 ml-1" />
@@ -229,7 +236,7 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center justify-between border-b border-white/15 pb-2.5">
                   <div>
                     <p className="font-bold text-sm text-teal-300">{userName || 'Clinician'}</p>
-                    <p className="text-2xs text-teal-200 font-mono uppercase">{userRole}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
+                    <p className="text-2xs text-teal-200 font-mono uppercase">{joinRoleLabels(held)}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" title="Active workstation session"></span>
                 </div>
@@ -407,7 +414,7 @@ export default function EnterpriseLayoutTemplate({
             </button>
 
             {/* Administration Console Link (admin / HR) */}
-            {(userRole === 'admin' || userRole === 'hr') && (
+            {(held.includes('admin') || held.includes('hr')) && (
               <button
                 type="button"
                 id="sidebar-link-admin"
@@ -422,7 +429,7 @@ export default function EnterpriseLayoutTemplate({
             )}
 
             {/* Registration Navigation Link */}
-            {userRole === 'clinic-assistant' && (
+            {can('registration') && (
               <button
                 type="button"
                 id="sidebar-link-registration"
@@ -441,7 +448,7 @@ export default function EnterpriseLayoutTemplate({
             )}
 
             {/* Triage Module Link */}
-            {userRole === 'clinic-assistant' && (
+            {can('triage') && (
               <button
                 type="button"
                 id="sidebar-link-triage"
@@ -467,7 +474,7 @@ export default function EnterpriseLayoutTemplate({
             )}
 
             {/* Appointments Link */}
-            {userRole === 'clinic-assistant' && (
+            {held.includes('receptionist') && can('appointments') && (
               <button
                 type="button"
                 id="sidebar-link-appointments"
@@ -486,7 +493,7 @@ export default function EnterpriseLayoutTemplate({
             )}
 
             {/* Doctor Suite Links */}
-            {userRole === 'doctor' && (
+            {can('queue') && (
               <>
                 <button
                   type="button"
@@ -546,7 +553,7 @@ export default function EnterpriseLayoutTemplate({
             )}
 
             {/* Pharmacy Link */}
-            {userRole === 'pharmacist' && (
+            {can('dispensary') && (
               <button
                 type="button"
                 id="sidebar-link-dispensary"
@@ -572,7 +579,7 @@ export default function EnterpriseLayoutTemplate({
             )}
 
             {/* Inventory & stock (pharmacist) */}
-            {userRole === 'pharmacist' && (
+            {can('inventory') && (
               <button
                 type="button"
                 id="sidebar-link-inventory"
@@ -589,7 +596,7 @@ export default function EnterpriseLayoutTemplate({
             )}
 
             {/* Billing Link */}
-            {userRole === 'clinic-assistant' && (
+            {can('billing') && (
               <button
                 type="button"
                 id="sidebar-link-billing"
@@ -649,7 +656,7 @@ export default function EnterpriseLayoutTemplate({
       </div>
 
       <AppFooter online={isOnline} onHelp={help.show} />
-      <HelpCenter open={help.open} onClose={help.hide} role={userRole} activeTab={activeTab} />
+      <HelpCenter open={help.open} onClose={help.hide} role={userRole} roles={held} activeTab={activeTab} />
 
       {/* Sign Out Confirmation Modal */}
       {showSignOutConfirm && (

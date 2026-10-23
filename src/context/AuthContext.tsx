@@ -3,14 +3,15 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { RBACPermissionEngine } from '../lib/rbacPermissionEngine';
 import { UserRole } from '../types';
-
-const VALID_ROLES: UserRole[] = ['doctor', 'pharmacist', 'clinic-assistant', 'admin', 'hr'];
+import { normalizeRoles } from '../domain/roles';
 
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   /** Role read from `profiles.role` for the signed-in Supabase user. Never set from the client. */
   role: UserRole | null;
+  /** Every role the person holds (primary first). Empty when signed out. */
+  roles: UserRole[];
   /** Display name from `profiles.full_name`, when set. */
   fullName: string | null;
   isLoading: boolean;
@@ -28,20 +29,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
+  const [roles, setRoles] = useState<UserRole[]>([]);
   const [fullName, setFullName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showPII, setShowPIIState] = useState(false);
 
   // Resolves the role (and display name) for a user; returns null when there is no valid profile.
-  const fetchProfile = useCallback(async (userId: string): Promise<{ role: UserRole; fullName: string | null } | null> => {
+  const fetchProfile = useCallback(async (userId: string): Promise<{ role: UserRole; roles: UserRole[]; fullName: string | null } | null> => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role, full_name')
-        .eq('id', userId)
-        .single();
-      if (error || !data || !VALID_ROLES.includes(data.role as UserRole)) return null;
-      return { role: data.role as UserRole, fullName: (data.full_name as string | null)?.trim() || null };
+      // `roles` lists every role the person holds. If the database predates it, fall back to the single `role`.
+      let { data, error } = await supabase.from('profiles').select('role, roles, full_name').eq('id', userId).single();
+      if (error) ({ data, error } = await supabase.from('profiles').select('role, full_name').eq('id', userId).single() as any);
+      if (error || !data) return null;
+      const held = normalizeRoles((data as any).role, (data as any).roles);
+      if (held.length === 0) return null;
+      return { role: held[0], roles: held, fullName: ((data as any).full_name as string | null)?.trim() || null };
     } catch (err) {
       console.error('Error fetching role:', err);
       return null;
@@ -56,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(next?.user ?? null);
       if (!next?.user) {
         setRole(null);
+        setRoles([]);
         setFullName(null);
         setShowPIIState(false);
         setIsLoading(false);
@@ -64,6 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const resolved = await fetchProfile(next.user.id);
       if (cancelled) return;
       setRole(resolved?.role ?? null);
+      setRoles(resolved?.roles ?? []);
       setFullName(resolved?.fullName ?? null);
       setIsLoading(false);
     };
@@ -102,6 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession(data.session);
     setUser(data.user);
     setRole(resolved.role);
+    setRoles(resolved.roles);
     setFullName(resolved.fullName);
     setShowPIIState(false);
     return null;
@@ -116,11 +121,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Unmasking is only honoured for roles holding VIEW_FULL_NRIC; masking is always allowed.
   const setShowPII = (show: boolean) => {
-    setShowPIIState(show && RBACPermissionEngine.hasPermission(role, 'VIEW_FULL_NRIC'));
+    setShowPIIState(show && RBACPermissionEngine.hasPermission(roles, 'VIEW_FULL_NRIC'));
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, role, fullName, isLoading, showPII, setShowPII, signIn, signOut }}>
+    <AuthContext.Provider value={{ session, user, role, roles, fullName, isLoading, showPII, setShowPII, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

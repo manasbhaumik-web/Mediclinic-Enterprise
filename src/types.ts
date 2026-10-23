@@ -1,5 +1,5 @@
 export type Language = 'EN' | 'BM';
-export type UserRole = 'doctor' | 'pharmacist' | 'clinic-assistant' | 'admin' | 'hr';
+export type UserRole = 'doctor' | 'pharmacist' | 'receptionist' | 'clinic-assistant' | 'cashier' | 'admin' | 'hr';
 
 export interface Patient {
   id: string;

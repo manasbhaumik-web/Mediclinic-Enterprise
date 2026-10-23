@@ -36,8 +36,15 @@ const ROLE_PERMISSIONS: Record<UserRole, Set<ClinicalPermission>> = {
     'COLLECT_PAYMENT',
     'MANAGE_INVENTORY_STOCK',
   ]),
+  // Registers patients, so needs the full NRIC. Never takes payment.
+  receptionist: new Set([
+    'VIEW_FULL_NRIC',
+  ]),
+  // Takes triage readings only.
   'clinic-assistant': new Set([
     'VIEW_FULL_NRIC',
+  ]),
+  cashier: new Set([
     'COLLECT_PAYMENT',
     'APPLY_BILLING_DISCOUNT',
   ]),
@@ -65,25 +72,26 @@ export class RBACPermissionEngine {
   /**
    * Checks whether a given user role possesses the requested permission.
    */
-  public static hasPermission(role: UserRole | null | undefined, permission: ClinicalPermission): boolean {
+  public static hasPermission(role: UserRole | readonly UserRole[] | null | undefined, permission: ClinicalPermission): boolean {
     if (!role) return false;
-    const permissions = ROLE_PERMISSIONS[role];
-    return permissions ? permissions.has(permission) : false;
+    const held = Array.isArray(role) ? role : [role as UserRole];
+    return held.some((r) => ROLE_PERMISSIONS[r]?.has(permission));
   }
 
   /**
    * Asserts permission and throws an explicit security exception if access is denied.
    */
-  public static assertPermission(role: UserRole | null | undefined, permission: ClinicalPermission, contextLabel: string = 'Operation'): void {
+  public static assertPermission(role: UserRole | readonly UserRole[] | null | undefined, permission: ClinicalPermission, contextLabel: string = 'Operation'): void {
     if (!this.hasPermission(role, permission)) {
-      throw new Error(`[RBAC Access Denied] Role '${role || 'unauthenticated'}' lacks permission '${permission}' required for ${contextLabel}.`);
+      throw new Error(`[RBAC Access Denied] Role '${(Array.isArray(role) ? role.join(' + ') : role) || 'unauthenticated'}' lacks permission '${permission}' required for ${contextLabel}.`);
     }
   }
 
   /**
    * Gets all authorized permissions for a role.
    */
-  public static getPermissionsForRole(role: UserRole): ClinicalPermission[] {
-    return Array.from(ROLE_PERMISSIONS[role] || []);
+  public static getPermissionsForRole(role: UserRole | readonly UserRole[]): ClinicalPermission[] {
+    const held = Array.isArray(role) ? role : [role as UserRole];
+    return Array.from(new Set(held.flatMap((r) => Array.from(ROLE_PERMISSIONS[r] || []))));
   }
 }

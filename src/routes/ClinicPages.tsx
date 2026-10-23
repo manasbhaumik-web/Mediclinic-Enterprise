@@ -54,6 +54,7 @@ export function DashboardPage() {
   return (
     <LandingDashboard
       userRole={s.role}
+      roles={s.roles}
       userName={s.userName}
       triageQueue={s.queues.triage}
       doctorQueue={s.queues.doctor}

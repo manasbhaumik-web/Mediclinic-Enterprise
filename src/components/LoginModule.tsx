@@ -41,12 +41,28 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
       username: 'pharmacist@mediclinic.local'
     },
     {
+      id: 'receptionist' as UserRole,
+      title: 'Reception',
+      name: 'Front desk',
+      detail: 'Patient registration',
+      icon: ClipboardList,
+      username: 'reception@mediclinic.local'
+    },
+    {
       id: 'clinic-assistant' as UserRole,
       title: 'Assistant',
       name: 'Siti Aishah',
-      detail: 'Triage & MyKad Desk',
+      detail: 'Triage readings',
       icon: ClipboardList,
       username: 'assistant@mediclinic.local'
+    },
+    {
+      id: 'cashier' as UserRole,
+      title: 'Cashier',
+      name: 'Billing desk',
+      detail: 'Payments and receipts',
+      icon: Users,
+      username: 'cashier@mediclinic.local'
     },
     {
       id: 'admin' as UserRole,

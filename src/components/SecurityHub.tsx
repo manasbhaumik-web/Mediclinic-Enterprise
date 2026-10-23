@@ -12,7 +12,9 @@ const ROLES: { id: UserRole; label: string }[] = [
   { id: 'admin', label: 'Admin' },
   { id: 'doctor', label: 'Doctor' },
   { id: 'pharmacist', label: 'Pharmacist' },
-  { id: 'clinic-assistant', label: 'Clinic assistant' },
+  { id: 'receptionist', label: 'Receptionist' },
+  { id: 'clinic-assistant', label: 'Assistant' },
+  { id: 'cashier', label: 'Cashier' },
   { id: 'hr', label: 'HR' },
 ];
 
