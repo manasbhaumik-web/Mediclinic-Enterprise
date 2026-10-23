@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Patient, Visit, ICD10Code, PrescriptionItem, Language, SOAPNotes
 } from '../types';
@@ -24,6 +24,8 @@ import ConsultationStepper from './consultation/room/ConsultationStepper';
 import WorkflowToolbar from './consultation/room/WorkflowToolbar';
 import ContextPanel from './consultation/room/ContextPanel';
 import ReviewSignoffModal from './consultation/room/ReviewSignoffModal';
+import { visitFromRow } from '../lib/mappers';
+import { ConsultationDraft, draftKey, parseDraft } from '../domain/consultationDraft';
 
 interface ConsultationRoomProps {
   currentPatient: Patient | null;
@@ -51,7 +53,7 @@ export default function ConsultationRoom({
   // PII Privacy Masking State
   const [isPiiRevealed, setIsPiiRevealed] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
-  const [lastSavedTime, setLastSavedTime] = useState<string>('Just now');
+  const [lastSavedTime, setLastSavedTime] = useState<string>('');
 
   // Keyboard Hotkeys Help Overlay
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
@@ -92,7 +94,8 @@ export default function ConsultationRoom({
         });
       }
     }
-  }, [activeVisit]);
+    // Seed once per visit: a live refresh of the visit must not overwrite what the doctor has typed.
+  }, [activeVisit?.id]);
 
   // Automated Vitals Abnormality Helper
   const vitalsAlerts = useMemo(() => {
@@ -165,17 +168,19 @@ export default function ConsultationRoom({
   const [patientPastVisits, setPatientPastVisits] = useState<Visit[]>([]);
 
   useEffect(() => {
-    if (currentPatient) {
-      supabase.from('visits')
-        .select('*')
-        .eq('patientId', currentPatient.id)
-        .neq('status', 'Consultation')
-        .order('createdAt', { ascending: false })
-        .then(({ data }) => {
-          if (data) setPatientPastVisits(data as any[]);
-        });
-    }
-  }, [currentPatient]);
+    if (!currentPatient) return;
+    let live = true;
+    supabase.from('visits')
+      .select('*, soap_notes(*), prescriptions(*)')
+      .eq('patient_id', currentPatient.id)
+      .in('status', ['Awaiting Dispensation', 'Dispensing', 'Awaiting Billing', 'Paid'])
+      .order('created_at', { ascending: false })
+      .limit(10)
+      .then(({ data }) => {
+        if (live && data) setPatientPastVisits(data.map(visitFromRow).filter((v) => v.id !== activeVisit?.id));
+      });
+    return () => { live = false; };
+  }, [currentPatient?.id, activeVisit?.id]);
 
   // Calculate Patient Age
   const patientAge = useMemo(() => {
@@ -197,6 +202,36 @@ export default function ConsultationRoom({
     if (isPiiRevealed) return currentPatient.phone;
     return `${currentPatient.phone.slice(0, 4)}***${currentPatient.phone.slice(-2)}`;
   }, [currentPatient, isPiiRevealed]);
+
+  // A consultation in progress is kept for this browser session; restoring it wins over the triage pre-fill.
+  const restoredFor = useRef<string | null>(null);
+  const clock = (t: number) => new Date(t).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+  useEffect(() => {
+    const id = activeVisit?.id;
+    if (!id) return;
+    restoredFor.current = null;
+    let d: ConsultationDraft | null = null;
+    try { d = parseDraft(sessionStorage.getItem(draftKey(id))); } catch { /* storage unavailable */ }
+    if (d) {
+      setSubjective(d.subjective); setVitals(d.vitals); setSelectedICD(d.icd); setClinicalNotes(d.clinicalNotes);
+      setRxList(d.rx); setMcDays(d.mcDays); setMcGenerated(d.mcGenerated); setPharmacyMemo(d.pharmacyMemo);
+      setReferralDetails(d.referralDetails); setReferralGenerated(d.referralGenerated);
+      setLastSavedTime(clock(d.savedAt));
+    }
+    restoredFor.current = id;
+  }, [activeVisit?.id]);
+
+  const saveDraftNow = () => {
+    const id = activeVisit?.id;
+    if (!id || restoredFor.current !== id) return;
+    const savedAt = Date.now();
+    const draft: ConsultationDraft = { v: 1, subjective, vitals, icd: selectedICD, clinicalNotes, rx: rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, savedAt };
+    try { sessionStorage.setItem(draftKey(id), JSON.stringify(draft)); setLastSavedTime(clock(savedAt)); } catch { /* storage full or unavailable */ }
+  };
+  useEffect(() => {
+    const t = setTimeout(saveDraftNow, 800);
+    return () => clearTimeout(t);
+  }, [subjective, vitals, selectedICD, clinicalNotes, rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated]);
 
   if (!currentPatient) {
     return (
@@ -440,7 +475,7 @@ export default function ConsultationRoom({
           </div>
 
           {/* SINGLE PRIMARY WORKFLOW CTA TOOLBAR */}
-          <WorkflowToolbar onCancel={onCancel} setLastSavedTime={setLastSavedTime} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} />
+          <WorkflowToolbar onCancel={onCancel} onSaveDraft={saveDraftNow} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
 
         </div>
 
@@ -448,13 +483,6 @@ export default function ConsultationRoom({
         <ContextPanel vitals={vitals} aiDraftDismissed={aiDraftDismissed} setSelectedICD={setSelectedICD} setAiDraftAccepted={setAiDraftAccepted} aiDraftAccepted={aiDraftAccepted} setAiDraftDismissed={setAiDraftDismissed} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} />
 
       </div>
-
-      {/* ========================================================================= */}
-      {/* AREA 4: SAFE CONSULTATION REVIEW & SIGN-OFF CHECKLIST MODAL DIALOG        */}
-      {/* ========================================================================= */}
-      {isReviewModalOpen && (
-        <ReviewSignoffModal setIsReviewModalOpen={setIsReviewModalOpen} currentPatient={currentPatient} maskedIC={maskedIC} selectedICD={selectedICD} rxList={rxList} handleFinalSignoff={handleFinalSignoff} />
-      )}
 
     </div>
   );

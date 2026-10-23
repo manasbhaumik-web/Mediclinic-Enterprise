@@ -85,7 +85,7 @@ export default function PatientSafetyHeader({ allergies = [], vitalsText, roomTe
         {/* Auto-Save Indicator */}
         <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-1 rounded-none font-bold font-mono">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span>Saved {lastSavedTime}</span>
+          <span>{lastSavedTime ? `Draft saved ${lastSavedTime}` : 'Draft not saved yet'}</span>
         </div>
     
         {/* Single Authoritative Progress Indicator */}
