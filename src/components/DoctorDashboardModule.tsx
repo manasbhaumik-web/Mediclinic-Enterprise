@@ -15,6 +15,7 @@ import ActionMenu from './ui/ActionMenu';
 import QueueToolbar from './doctor/QueueToolbar';
 import NextPatientCard from './doctor/NextPatientCard';
 import WaitingPatientsList from './doctor/WaitingPatientsList';
+import QueueRail from './doctor/QueueRail';
 import DoctorMonthlyReport from './doctor/DoctorMonthlyReport';
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
@@ -431,7 +432,9 @@ export default function DoctorDashboardModule({
       {/* 2. SEPARATE PAGE: DEDICATED CONSULTATION SUITE PAGE                       */}
       {/* ========================================================================= */}
       {internalTab === 'consultation' && (
-        <div className="space-y-4 animate-fadeIn">
+        <div className="flex flex-col lg:flex-row gap-4 items-start animate-fadeIn">
+          <QueueRail queue={sortedQueue} patientsMap={patientsMap} userId={userId} activeVisitId={activeConsultationVisitId} onCall={requestCallPatient} />
+          <div className="flex-1 min-w-0 w-full space-y-4">
           {activeConsultationVisitId ? (
             <div className="animate-fade-in-up">
               <ConsultationRoom
@@ -457,7 +460,7 @@ export default function DoctorDashboardModule({
               </div>
               <h4 className="type-section-title text-strong">No Active Patient Selected</h4>
               <p className="text-xs text-subtle mt-2 max-w-md mx-auto leading-relaxed font-medium">
-                Please choose an outpatient from your active patient queue to start SOAP clinical diagnosis, vitals examination, and prescription writing.
+                Choose a waiting patient from the list on the left to call them and start the consultation.
               </p>
               <button
                 type="button"
@@ -469,6 +472,7 @@ export default function DoctorDashboardModule({
               </button>
             </div>
           )}
+          </div>
         </div>
       )}
 

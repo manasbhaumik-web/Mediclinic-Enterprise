@@ -1,4 +1,4 @@
-import { EyeOff, Eye, CheckCircle2, Activity, Lock, HelpCircle } from 'lucide-react';
+import { EyeOff, Eye, CheckCircle2, Activity, Lock, HelpCircle, AlertTriangle } from 'lucide-react';
 import { Patient } from '../../../types';
 
 interface PatientSafetyHeaderProps {
@@ -14,11 +14,15 @@ interface PatientSafetyHeaderProps {
   setIsLocked: React.Dispatch<React.SetStateAction<boolean>>;
   setShowShortcutsHelp: React.Dispatch<React.SetStateAction<boolean>>;
   showShortcutsHelp: boolean;
+  /** Drug allergies, vitals recorded at triage and the room, kept in view while the doctor scrolls. */
+  allergies?: string[];
+  vitalsText?: string;
+  roomText?: string;
 }
 
-export default function PatientSafetyHeader({ currentPatient, patientAge, maskedIC, setIsPiiRevealed, isPiiRevealed, maskedPhone, lastSavedTime, completedStepsCount, soapProgressPercent, setIsLocked, setShowShortcutsHelp, showShortcutsHelp }: PatientSafetyHeaderProps) {
+export default function PatientSafetyHeader({ allergies = [], vitalsText, roomText, currentPatient, patientAge, maskedIC, setIsPiiRevealed, isPiiRevealed, maskedPhone, lastSavedTime, completedStepsCount, soapProgressPercent, setIsLocked, setShowShortcutsHelp, showShortcutsHelp }: PatientSafetyHeaderProps) {
   return (
-    <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/50 rounded-none p-4 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-brand">
+    <div className="sticky top-0 z-20 bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/50 rounded-none p-4 shadow-bar-up flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-l-4 border-l-brand">
       
       {/* Patient Demographics & PII Controls */}
       <div className="flex items-center gap-3">
@@ -58,9 +62,23 @@ export default function PatientSafetyHeader({ currentPatient, patientAge, masked
     
             <span>Coverage: <strong className="text-accent dark:text-teal-400 font-bold">{currentPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : currentPatient.panelEmployer}</strong></span>
           </div>
+
+          {/* Always in view: allergies, triage vitals and room */}
+          <div className="flex flex-wrap items-center gap-2 mt-2" aria-label="Safety summary">
+            {allergies.length > 0 ? (
+              <>
+                <span className="chip-danger px-2.5 py-1 text-xs font-bold inline-flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" aria-hidden="true" />ALLERGY</span>
+                {allergies.map((a) => <span key={a} className="chip-danger px-2.5 py-1 text-xs font-bold uppercase inline-flex items-center">{a}</span>)}
+              </>
+            ) : (
+              <span className="chip-neutral px-2.5 py-1 text-xs font-bold inline-flex items-center">No known drug allergies</span>
+            )}
+            {vitalsText && <span className="chip-brand px-2.5 py-1 text-xs font-bold inline-flex items-center">{vitalsText}</span>}
+            {roomText && <span className="chip-info px-2.5 py-1 text-xs font-bold inline-flex items-center">{roomText}</span>}
+          </div>
         </div>
       </div>
-    
+
       {/* Header Right Toolbar: Single Authoritative Progress + Auto-Save State + Lock Screen */}
       <div className="flex flex-wrap items-center gap-2.5 shrink-0">
         

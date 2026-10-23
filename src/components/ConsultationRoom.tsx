@@ -296,13 +296,20 @@ export default function ConsultationRoom({
     );
   }
 
+  // Vitals as recorded at triage (not the editable form defaults), and where the patient was called to.
+  const triage = activeVisit?.soap?.objective;
+  const triageVitals = triage && (triage.bpSystolic || triage.temperature || triage.heartRate)
+    ? [triage.bpSystolic ? `BP ${triage.bpSystolic}/${triage.bpDiastolic}` : '', triage.temperature ? `Temp ${triage.temperature}` : '', triage.heartRate ? `HR ${triage.heartRate}` : ''].filter(Boolean).join(' · ')
+    : undefined;
+  const roomText = activeVisit?.consultRoom ? `${activeVisit.consultRoom}${activeVisit.calledAt ? `, called ${new Date(activeVisit.calledAt).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })}` : ''}` : undefined;
+
   return (
     <div className="space-y-4 pb-16 relative animate-fadeIn text-ink dark:text-slate-50">
       
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
       {/* ========================================================================= */}
-      <PatientSafetyHeader currentPatient={currentPatient} patientAge={patientAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
+      <PatientSafetyHeader allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
 
       {/* KEYBOARD SHORTCUTS OVERLAY BANNER */}
       {showShortcutsHelp && (
@@ -317,30 +324,6 @@ export default function ConsultationRoom({
           <button type="button" onClick={() => setShowShortcutsHelp(false)} className="text-slate-400 hover:text-muted">
             <X className="w-4 h-4" />
           </button>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* HIGH-PRIORITY PERSISTENT DRUG ALLERGY SAFETY ALERT BANNER                 */}
-      {/* ========================================================================= */}
-      {currentPatient.drugAllergies.length > 0 && (
-        <div className="bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 p-3.5 rounded-none flex items-center justify-between gap-3 text-rose-900 dark:text-rose-200 shadow-2xs animate-fadeIn">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-none bg-rose-500 text-white flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-4.5 h-4.5" />
-            </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-rose-800 dark:text-rose-300">
-                <span>CRITICAL PATIENT SAFETY ALERT: REGISTERED DRUG ALLERGIES</span>
-              </div>
-              <p className="text-xs mt-0.5 font-medium text-rose-700/90 dark:text-rose-300/90">
-                Patient registered allergies: <strong className="font-bold underline uppercase">{currentPatient.drugAllergies.join(', ')}</strong>. Automatic contraindication checks active.
-              </p>
-            </div>
-          </div>
-          <span className="bg-rose-500 text-white font-mono text-2xs font-bold uppercase px-2.5 py-1 rounded-none shrink-0">
-            SAFETY CHECKS ENFORCED
-          </span>
         </div>
       )}
 
