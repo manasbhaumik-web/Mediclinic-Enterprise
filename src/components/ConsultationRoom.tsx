@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase';
 import { 
   History, Stethoscope, Activity, ClipboardList, Pill, Plus, Trash2, 
   AlertTriangle, Check, FileText, Printer, Clock, Heart, Thermometer, Info, ChevronRight, UserMinus,
-  Mic, MicOff, Bluetooth, Zap, Eye, EyeOff, TrendingUp, Brain, CheckCircle2, TestTube, Share, LineChart, Copy,
+  Zap, Eye, EyeOff, TrendingUp, CheckCircle2, TestTube, Share, LineChart, Copy,
   X, Lock, ShieldAlert, Sparkles, ChevronDown, HelpCircle, ArrowRight, Save
 } from 'lucide-react';
 import SubjectiveTab from './consultation/SubjectiveTab';
@@ -64,20 +64,17 @@ export default function ConsultationRoom({
   // Interactive past history view
   const [selectedPastVisit, setSelectedPastVisit] = useState<Visit | null>(null);
 
-  // AI Decision Support Acceptance State
-  const [aiDraftAccepted, setAiDraftAccepted] = useState(false);
-  const [aiDraftDismissed, setAiDraftDismissed] = useState(false);
-
   // SOAP Inputs
   const [subjective, setSubjective] = useState('');
   
   // Vitals State
+  // 0 means "not recorded". Nothing is assumed: the form starts empty and takes triage values when there are some.
   const [vitals, setVitals] = useState({
-    bpSystolic: 120,
-    bpDiastolic: 80,
-    heartRate: 72,
-    temperature: 36.8,
-    respiratoryRate: 16
+    bpSystolic: 0,
+    bpDiastolic: 0,
+    heartRate: 0,
+    temperature: 0,
+    respiratoryRate: 0
   });
 
   // Pre-fill vitals and chief complaint from initial triage registration
@@ -86,11 +83,11 @@ export default function ConsultationRoom({
       if (activeVisit.soap.subjective) setSubjective(activeVisit.soap.subjective);
       if (activeVisit.soap.objective) {
         setVitals({
-          bpSystolic: activeVisit.soap.objective.bpSystolic || 120,
-          bpDiastolic: activeVisit.soap.objective.bpDiastolic || 80,
-          heartRate: activeVisit.soap.objective.heartRate || 72,
-          temperature: activeVisit.soap.objective.temperature || 36.8,
-          respiratoryRate: activeVisit.soap.objective.respiratoryRate || 16
+          bpSystolic: activeVisit.soap.objective.bpSystolic || 0,
+          bpDiastolic: activeVisit.soap.objective.bpDiastolic || 0,
+          heartRate: activeVisit.soap.objective.heartRate || 0,
+          temperature: activeVisit.soap.objective.temperature || 0,
+          respiratoryRate: activeVisit.soap.objective.respiratoryRate || 0
         });
       }
     }
@@ -102,7 +99,7 @@ export default function ConsultationRoom({
     const alerts: { label: string; value: string; isHigh: boolean; type: string }[] = [];
     if (vitals.temperature >= 37.5) {
       alerts.push({
-        label: vitals.temperature >= 38.5 ? '⚠️ High Fever' : '⚠️ Mild Fever',
+        label: vitals.temperature >= 38.5 ? 'High Fever' : 'Mild Fever',
         value: `${vitals.temperature}°C`,
         isHigh: true,
         type: 'temp'
@@ -110,7 +107,7 @@ export default function ConsultationRoom({
     }
     if (vitals.bpSystolic >= 130 || vitals.bpDiastolic >= 85) {
       alerts.push({
-        label: vitals.bpSystolic >= 140 || vitals.bpDiastolic >= 90 ? '⚠️ Stage 2 HTN' : '⚠️ Elevated BP',
+        label: vitals.bpSystolic >= 140 || vitals.bpDiastolic >= 90 ? 'Stage 2 HTN' : 'Elevated BP',
         value: `${vitals.bpSystolic}/${vitals.bpDiastolic} mmHg`,
         isHigh: true,
         type: 'bp'
@@ -118,14 +115,14 @@ export default function ConsultationRoom({
     }
     if (vitals.heartRate >= 100) {
       alerts.push({
-        label: '⚠️ Tachycardia',
+        label: 'Tachycardia',
         value: `${vitals.heartRate} bpm`,
         isHigh: true,
         type: 'hr'
       });
     } else if (vitals.heartRate > 0 && vitals.heartRate < 60) {
       alerts.push({
-        label: '⚠️ Bradycardia',
+        label: 'Bradycardia',
         value: `${vitals.heartRate} bpm`,
         isHigh: false,
         type: 'hr'
@@ -133,7 +130,7 @@ export default function ConsultationRoom({
     }
     if (vitals.respiratoryRate >= 20) {
       alerts.push({
-        label: '⚠️ Tachypnea',
+        label: 'Tachypnea',
         value: `${vitals.respiratoryRate} bpm`,
         isHigh: true,
         type: 'rr'
@@ -235,9 +232,9 @@ export default function ConsultationRoom({
 
   if (!currentPatient) {
     return (
-      <div className="bg-white dark:bg-night-850 p-12 text-center rounded-none border border-line-subtle dark:border-teal-800/40">
+      <div className="bg-surface p-12 text-center rounded-none border border-line-subtle">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h3 className="type-section-title text-ink dark:text-teal-300">No Patient Selected</h3>
+        <h3 className="type-section-title text-ink">No Patient Selected</h3>
         <p className="text-subtle dark:text-slate-400 text-xs mt-1">Please select an outpatient from the waiting queue to begin clinical documentation.</p>
       </div>
     );
@@ -246,7 +243,7 @@ export default function ConsultationRoom({
   // Authoritative Single Progress & Step Requirements
   const soapSteps = [
     { key: 'subjective', title: '1. Subjective History', isDone: subjective.trim().length > 0 },
-    { key: 'objective', title: '2. Objective Vitals', isDone: vitals.temperature > 0 },
+    { key: 'objective', title: '2. Objective Vitals', isDone: vitals.temperature > 0 || vitals.bpSystolic > 0 || vitals.heartRate > 0 || vitals.respiratoryRate > 0 },
     { key: 'assessment', title: '3. ICD-10 Diagnosis', isDone: selectedICD !== null },
     { key: 'plan', title: '4. Plan & Prescribe', isDone: rxList.length > 0 || (clinicalNotes && clinicalNotes.trim().length > 0) }
   ];
@@ -320,9 +317,9 @@ export default function ConsultationRoom({
 
   if (isLocked) {
     return (
-      <div className="bg-white dark:bg-night-900 border-2 border-brand p-12 text-center rounded-none shadow-2xl max-w-md mx-auto my-12 animate-fadeIn">
+      <div className="bg-surface border-2 border-brand p-12 text-center rounded-none shadow-2xl max-w-md mx-auto my-12 animate-fadeIn">
         <Lock className="w-12 h-12 text-accent mx-auto mb-4" />
-        <h3 className="type-section-title text-ink dark:text-teal-300">Privacy Lock Screen</h3>
+        <h3 className="type-section-title text-ink">Privacy Lock Screen</h3>
         <p className="text-xs text-subtle dark:text-slate-400 mt-2 leading-relaxed">
           Clinician privacy screen is locked. Click unlock to resume encounter for <strong>{currentPatient.fullName}</strong>.
         </p>
@@ -354,13 +351,13 @@ export default function ConsultationRoom({
 
       {/* KEYBOARD SHORTCUTS OVERLAY BANNER */}
       {showShortcutsHelp && (
-        <div className="bg-surface-accent dark:bg-night-850 border border-line dark:border-teal-800/50 p-3 rounded-none flex items-center justify-between text-xs text-accent dark:text-teal-300 font-mono animate-fadeIn">
+        <div className="bg-surface-accent border border-line p-3 rounded-none flex items-center justify-between text-xs text-accent font-mono animate-fadeIn">
           <div className="flex flex-wrap items-center gap-4">
-            <span><kbd className="bg-white dark:bg-night-900 px-1.5 py-0.5 border border-line text-deep font-bold">Alt+1</kbd> Subjective</span>
-            <span><kbd className="bg-white dark:bg-night-900 px-1.5 py-0.5 border border-line text-deep font-bold">Alt+2</kbd> Objective Vitals</span>
-            <span><kbd className="bg-white dark:bg-night-900 px-1.5 py-0.5 border border-line text-deep font-bold">Alt+3</kbd> ICD-10 Diagnosis</span>
-            <span><kbd className="bg-white dark:bg-night-900 px-1.5 py-0.5 border border-line text-deep font-bold">Alt+4</kbd> Plan &amp; Rx</span>
-            <span><kbd className="bg-white dark:bg-night-900 px-1.5 py-0.5 border border-line text-deep font-bold">Ctrl+Enter</kbd> Review &amp; Sign Off</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+1</kbd> Subjective</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+2</kbd> Objective Vitals</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+3</kbd> ICD-10 Diagnosis</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+4</kbd> Plan &amp; Rx</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Ctrl+Enter</kbd> Review &amp; Sign Off</span>
           </div>
           <button type="button" onClick={() => setShowShortcutsHelp(false)} className="text-slate-400 hover:text-muted">
             <X className="w-4 h-4" />
@@ -374,51 +371,51 @@ export default function ConsultationRoom({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[500px]">
         
         {/* AREA 2: MAIN CONSULTATION WORKSPACE (8 COLS / 65%) */}
-        <div className="lg:col-span-8 bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 p-5 rounded-none flex flex-col justify-between shadow-xs space-y-5">
+        <div className="lg:col-span-8 bg-surface border border-line-subtle p-5 rounded-none flex flex-col justify-between shadow-xs space-y-5">
           
           <div className="space-y-4">
             
             {/* EXPLICIT CLINICAL WORKFLOW STATE SEQUENCE BAR */}
-            <div className="bg-surface-muted dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 p-2 rounded-none flex items-center justify-between text-2xs font-mono font-bold">
+            <div className="bg-surface-muted border border-line-subtle p-2 rounded-none flex items-center justify-between text-2xs font-mono font-bold">
               <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar">
                 <span className="bg-primary text-white px-2 py-0.5 rounded-none flex items-center justify-center gap-1">
                   <CheckCircle2 className="w-3 h-3 text-emerald-300" />
                   1. Draft Saved
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-surface dark:bg-night-800 text-accent dark:text-teal-300 border-brand' : 'bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border-line dark:border-teal-800/40'}`}>
+                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-surface text-accent border-brand' : 'bg-surface-accent text-subtle dark:text-slate-400 border-line'}`}>
                   2. Ready for Review
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-surface-accent text-subtle dark:text-slate-400 border border-line px-2 py-0.5 rounded-none">
                   3. Signed Note
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-surface-accent text-subtle dark:text-slate-400 border border-line px-2 py-0.5 rounded-none">
                   4. Prescription Routed
                 </span>
                 <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent dark:bg-night-850 text-subtle dark:text-slate-400 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none">
+                <span className="bg-surface-accent text-subtle dark:text-slate-400 border border-line px-2 py-0.5 rounded-none">
                   5. Encounter Closed
                 </span>
               </div>
-              <span className="text-2xs text-accent dark:text-teal-300 shrink-0 font-sans hidden sm:inline">
+              <span className="text-2xs text-accent shrink-0 font-sans hidden sm:inline">
                 Autosaved · {lastSavedTime}
               </span>
             </div>
 
             {/* STEPPER HEADER TOOLBAR */}
-            <div className="bg-surface-muted dark:bg-night-850 p-3.5 border border-line-subtle dark:border-teal-800/40 rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-surface-muted p-3.5 border border-line-subtle rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-2xs font-bold text-accent uppercase tracking-wider block font-mono">Consultation Draft in Progress</span>
-                <h3 className="type-card-title text-ink dark:text-teal-300 flex items-center gap-1.5 mt-0.5">
+                <h3 className="type-card-title text-ink flex items-center gap-1.5 mt-0.5">
                   <Stethoscope className="w-4 h-4 text-accent" />
                   <span>Encounter Workspace — {activeTab.toUpperCase()}</span>
                 </h3>
               </div>
 
               {/* Actionable Requirement Status Text */}
-              <div className="bg-surface dark:bg-night-900 px-3 py-1.5 border border-line dark:border-teal-800/40 text-2xs font-bold text-accent dark:text-teal-300 rounded-none">
+              <div className="bg-surface px-3 py-1.5 border border-line text-2xs font-bold text-accent rounded-none">
                 {activeTab === 'subjective' && (subjective.trim() ? 'Subjective: Complete ✓' : 'Subjective: Enter Symptoms')}
                 {activeTab === 'objective' && (vitals.temperature > 0 ? 'Objective: Vitals Complete ✓' : 'Objective: Check Vitals')}
                 {activeTab === 'assessment' && (selectedICD ? `Assessment: ${selectedICD.code} Selected ✓` : 'Required Next: Select ICD-10 Diagnosis')}
@@ -442,6 +439,7 @@ export default function ConsultationRoom({
 
               {activeTab === 'objective' && (
                 <ObjectiveTab
+                  triageVitals={activeVisit?.soap?.objective}
                   vitals={vitals}
                   setVitals={setVitals}
                   patientPastVisits={patientPastVisits}
@@ -486,7 +484,7 @@ export default function ConsultationRoom({
         </div>
 
         {/* AREA 3: CONTEXTUAL RIGHT PANEL — SUPPORTING DATA & QUICK TOOLS (4 COLS / 35%) */}
-        <ContextPanel vitals={vitals} aiDraftDismissed={aiDraftDismissed} setSelectedICD={setSelectedICD} setAiDraftAccepted={setAiDraftAccepted} aiDraftAccepted={aiDraftAccepted} setAiDraftDismissed={setAiDraftDismissed} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} />
+        <ContextPanel vitals={vitals} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} />
 
       </div>
 

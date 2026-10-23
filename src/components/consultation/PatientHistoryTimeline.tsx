@@ -21,22 +21,22 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
   }));
 
   return (
-    <div className="md:col-span-1 bg-surface dark:bg-night-900 border-r border-line dark:border-teal-800/40 p-4 h-full overflow-y-auto flex flex-col gap-4">
+    <div className="md:col-span-1 bg-surface border-r border-line p-4 h-full overflow-y-auto flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
-          <History className="w-4 h-4 text-accent dark:text-teal-400" />
+        <h3 className="type-label text-ink flex items-center gap-1.5">
+          <History className="w-4 h-4 text-accent" />
           Longitudinal Medical Timeline
         </h3>
-        <span className="text-2xs bg-white dark:bg-night-800 text-accent dark:text-teal-300 border border-line dark:border-teal-800/40 px-2 py-0.5 rounded-none font-bold">
+        <span className="text-2xs bg-surface text-accent border border-line px-2 py-0.5 rounded-none font-bold">
           {patientPastVisits.length} Records
         </span>
       </div>
 
       {/* Vitals Trend Chart */}
       {chartData.length > 0 && (
-        <div className="bg-white dark:bg-night-800 p-3 rounded-none border border-line dark:border-teal-800/50 shadow-xs">
-          <h4 className="type-label text-ink dark:text-teal-300 mb-2 text-center flex items-center justify-center gap-1">
-            <Activity className="w-3.5 h-3.5 text-accent dark:text-teal-400" /> Vitals Trend (BP &amp; Pulse)
+        <div className="bg-surface p-3 rounded-none border border-line shadow-xs">
+          <h4 className="type-label text-ink mb-2 text-center flex items-center justify-center gap-1">
+            <Activity className="w-3.5 h-3.5 text-accent" /> Vitals Trend (BP &amp; Pulse)
           </h4>
           <div className="h-40 w-full text-2xs">
             <ResponsiveContainer width="100%" height="100%">
@@ -59,10 +59,10 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
       )}
 
       {/* Timeline List */}
-      <div className="relative border-l-2 border-line dark:border-teal-800/40 ml-2.5 space-y-4">
+      <div className="relative border-l-2 border-line ml-2.5 space-y-4">
         {patientPastVisits.length === 0 ? (
-          <div className="bg-white dark:bg-night-800 p-4 rounded-none border border-line dark:border-teal-800/50 text-center ml-4">
-            <Calendar className="w-6 h-6 text-accent dark:text-teal-400 mx-auto mb-1 opacity-60" />
+          <div className="bg-surface p-4 rounded-none border border-line text-center ml-4">
+            <Calendar className="w-6 h-6 text-accent mx-auto mb-1 opacity-60" />
             <p className="text-xs text-subtle dark:text-slate-400 font-medium">No past visit history found.</p>
             <span className="text-2xs text-slate-400 dark:text-subtle">First-time outpatient consultation</span>
           </div>
@@ -70,16 +70,16 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
           patientPastVisits.map((visit, idx) => (
             <div key={idx} className="relative pl-4 group">
               <div className="absolute w-2.5 h-2.5 bg-primary dark:bg-teal-400 rounded-full -left-[5.5px] top-1.5 animate-pulse" />
-              <div className="bg-white dark:bg-night-800 p-3 rounded-none border border-line dark:border-teal-800/50 shadow-2xs group-hover:border-brand transition-all">
+              <div className="bg-surface p-3 rounded-none border border-line shadow-2xs group-hover:border-brand transition-all">
                 
                 <div className="flex justify-between items-start mb-1.5">
-                  <span className="text-2xs font-bold text-accent dark:text-teal-300 bg-surface-accent dark:bg-night-850 px-2 py-0.5 rounded-none border border-line dark:border-teal-800/40">
+                  <span className="text-2xs font-bold text-accent bg-surface-accent px-2 py-0.5 rounded-none border border-line">
                     {new Date(visit.date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
                 </div>
                 
                 <h4 className="type-label text-ink dark:text-slate-50 mt-1">
-                  <span className="text-accent dark:text-teal-400 font-mono">{visit.soap.assessment.icdCode}</span> - {visit.soap.assessment.description}
+                  <span className="text-accent font-mono">{visit.soap.assessment.icdCode}</span> - {visit.soap.assessment.description}
                 </h4>
                 
                 <div className="mt-2 space-y-1">

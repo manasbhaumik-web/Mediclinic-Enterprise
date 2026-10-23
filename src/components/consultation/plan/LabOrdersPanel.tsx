@@ -14,14 +14,14 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
   return (
     <div className="space-y-4 animate-fadeIn">
       
-      <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-3 rounded-none flex items-center justify-between">
+      <div className="bg-surface-muted border border-line p-3 rounded-none flex items-center justify-between">
         <div>
-          <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
+          <h4 className="type-label text-ink flex items-center gap-1.5">
             <Microscope className="w-4 h-4 text-accent" /> Diagnostic Lab &amp; Imaging Requisition
           </h4>
           <p className="text-2xs text-subtle dark:text-slate-400 mt-0.5">Select laboratory investigations to order for this clinical encounter.</p>
         </div>
-        <span className="text-xs font-mono font-bold text-accent bg-white dark:bg-night-850 px-2.5 py-1 border border-line">
+        <span className="text-xs font-mono font-bold text-accent bg-surface px-2.5 py-1 border border-line">
           {selectedLabs.length} Tests Selected
         </span>
       </div>
@@ -36,8 +36,8 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
               {...buttonProps(() => toggleLabSelection(test.name), isSelected)}
               className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${focusRing} ${
                 isSelected
-                  ? 'bg-surface-accent dark:bg-night-800 border-brand text-ink dark:text-white shadow-2xs font-bold'
-                  : 'bg-white dark:bg-night-900 border-slate-200 dark:border-teal-800/40 text-muted dark:text-slate-300 hover:border-line'
+                  ? 'bg-surface-accent border-brand text-ink dark:text-white shadow-2xs font-bold'
+                  : 'bg-surface border-slate-200 dark:border-teal-800/40 text-muted dark:text-slate-300 hover:border-line'
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -64,12 +64,12 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
     
       {/* CLINICAL INDICATIONS / NOTES FOR LAB */}
       <div>
-        <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase mb-1">
+        <label className="block text-xs font-bold text-ink uppercase mb-1">
           Clinical Rationale &amp; Indications for Investigations
         </label>
         <Input 
           type="text"
-          className="w-full text-xs px-3 py-2 border border-line dark:border-teal-800/40 rounded-none bg-white dark:bg-night-900 text-ink dark:text-white"
+          className="w-full text-xs px-3 py-2 border border-line rounded-none bg-surface text-ink dark:text-white"
           value={labReason}
           onChange={e => setLabReason(e.target.value)}
           placeholder="e.g. Evaluate fever origin, rule out urinary tract infection..."

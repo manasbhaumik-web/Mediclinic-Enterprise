@@ -41,10 +41,10 @@ export default function AssessmentTab({
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Header bar */}
-      <div className="bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs flex items-center justify-between">
+      <div className="bg-surface-accent p-3.5 rounded-none border border-line shadow-xs flex items-center justify-between">
         <div>
-          <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
-            <Stethoscope className="w-4 h-4 text-accent dark:text-teal-400" />
+          <h4 className="type-label text-ink flex items-center gap-1.5">
+            <Stethoscope className="w-4 h-4 text-accent" />
             Assessment &amp; Clinical Diagnostic Classification
           </h4>
           <p className="text-2xs text-subtle dark:text-slate-400 font-medium">Select standardized ICD-10 diagnostic code for sign-off.</p>
@@ -54,7 +54,7 @@ export default function AssessmentTab({
       {/* ICD-10 Search & Quick Pills */}
       <div className="space-y-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase tracking-tight">
+          <label className="block text-xs font-bold text-ink uppercase tracking-tight">
             Search ICD-10 Diagnostic Catalog <span className="text-rose-500">*</span>
           </label>
           
@@ -63,21 +63,21 @@ export default function AssessmentTab({
             <button 
               type="button"
               onClick={() => setSelectedICD(catalog.find(i => i.code === 'J06.9') || { code: 'J06.9', desc: 'Acute upper respiratory infection, unspecified (URTI)', category: 'Infectious / Respiratory' })} 
-              className="text-2xs bg-surface-accent dark:bg-night-700 hover:bg-primary hover:text-white text-accent dark:text-teal-300 font-bold px-2.5 py-1 rounded-none cursor-pointer transition-all border border-line dark:border-teal-700/50 shadow-2xs"
+              className="text-2xs bg-surface-accent hover:bg-primary hover:text-white text-accent font-bold px-2.5 py-1 rounded-none cursor-pointer transition-all border border-line shadow-2xs"
             >
               URTI (J06.9)
             </button>
             <button 
               type="button"
               onClick={() => setSelectedICD(catalog.find(i => i.code === 'I10') || { code: 'I10', desc: 'Essential (primary) hypertension (HTN)', category: 'Cardiovascular' })} 
-              className="text-2xs bg-surface-accent dark:bg-night-700 hover:bg-primary hover:text-white text-accent dark:text-teal-300 font-bold px-2.5 py-1 rounded-none cursor-pointer transition-all border border-line dark:border-teal-700/50 shadow-2xs"
+              className="text-2xs bg-surface-accent hover:bg-primary hover:text-white text-accent font-bold px-2.5 py-1 rounded-none cursor-pointer transition-all border border-line shadow-2xs"
             >
               HTN (I10)
             </button>
             <button 
               type="button"
               onClick={() => setSelectedICD(catalog.find(i => i.code === 'E11.9') || { code: 'E11.9', desc: 'Type 2 diabetes mellitus (T2DM)', category: 'Endocrine / Metabolic' })} 
-              className="text-2xs bg-surface-accent dark:bg-night-700 hover:bg-primary hover:text-white text-accent dark:text-teal-300 font-bold px-2.5 py-1 rounded-none cursor-pointer transition-all border border-line dark:border-teal-700/50 shadow-2xs"
+              className="text-2xs bg-surface-accent hover:bg-primary hover:text-white text-accent font-bold px-2.5 py-1 rounded-none cursor-pointer transition-all border border-line shadow-2xs"
             >
               T2DM (E11.9)
             </button>
@@ -90,7 +90,7 @@ export default function AssessmentTab({
             <Input
               type="text"
               id="icd10-catalog-search"
-              className="w-full text-xs pl-9 pr-4 py-2.5 bg-white dark:bg-night-900 text-ink dark:text-white border border-line dark:border-teal-800/50 rounded-none focus:ring-3 focus:ring-brand/15 focus:border-brand focus:outline-none font-medium placeholder:text-slate-400"
+              className="w-full text-xs pl-9 pr-4 py-2.5 bg-surface text-ink dark:text-white border border-line rounded-none focus:ring-3 focus:ring-brand/15 focus:border-brand focus:outline-none font-medium placeholder:text-slate-400"
               value={searchICDQuery}
               onChange={(e) => setSearchICDQuery(e.target.value)}
               placeholder="Search diagnosis by keyword or code (e.g., 'Fever', 'J06', 'Hypertension', 'Diabetes', 'Gastritis')..."
@@ -98,7 +98,7 @@ export default function AssessmentTab({
           </div>
           
           {searchICDQuery.trim().length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-night-850 border border-line dark:border-teal-700/50 rounded-none shadow-2xl z-20 max-h-[240px] overflow-y-auto divide-y divide-slate-100 dark:divide-teal-800/40">
+            <div className="absolute left-0 right-0 top-full mt-1 bg-surface border border-line rounded-none shadow-2xl z-20 max-h-[240px] overflow-y-auto divide-y divide-slate-100 dark:divide-teal-800/40">
               {icdSuggestions.map((item) => (
                 <button
                   key={item.code}
@@ -110,10 +110,10 @@ export default function AssessmentTab({
                   className="w-full text-left px-3.5 py-2.5 text-xs hover:bg-surface-accent/60 dark:hover:bg-night-700 flex items-center justify-between cursor-pointer transition-colors"
                 >
                   <div className="pr-2">
-                    <span className="font-mono font-bold text-accent dark:text-teal-400 block text-2xs">{item.code}</span>
+                    <span className="font-mono font-bold text-accent block text-2xs">{item.code}</span>
                     <span className="text-ink dark:text-slate-50 font-semibold block text-xs">{item.desc}</span>
                   </div>
-                  <span className="text-2xs text-accent dark:text-teal-300 bg-surface-accent dark:bg-night-800 px-2 py-0.5 rounded-none font-bold uppercase shrink-0 border border-line dark:border-teal-800/40">
+                  <span className="text-2xs text-accent bg-surface-accent px-2 py-0.5 rounded-none font-bold uppercase shrink-0 border border-line">
                     {item.category}
                   </span>
                 </button>
@@ -142,7 +142,7 @@ export default function AssessmentTab({
 
       {/* Assessment display selection indicator */}
       {selectedICD ? (
-        <div id="selected-icd-indicator" className="bg-surface-accent dark:bg-night-850 border-2 border-brand dark:border-teal-400 p-4 rounded-none shadow-xs">
+        <div id="selected-icd-indicator" className="bg-surface-accent border-2 border-brand dark:border-teal-400 p-4 rounded-none shadow-xs">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-2xs bg-primary text-white px-2.5 py-0.5 rounded-none font-mono font-bold tracking-wide flex items-center justify-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -168,12 +168,12 @@ export default function AssessmentTab({
 
       {/* Clinician notes description */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase tracking-tight">
+        <label className="block text-xs font-bold text-ink uppercase tracking-tight">
           Clinical Sign-Off Notes &amp; Examination Summary
         </label>
         <textarea
           id="soap-notes-clinical-desc"
-          className="w-full bg-white dark:bg-night-900 border border-line dark:border-teal-800/50 focus:border-brand focus:ring-3 focus:ring-brand/15 rounded-none px-4 py-3.5 text-xs text-ink dark:text-slate-50 transition-all outline-none shadow-xs resize-y min-h-[130px] leading-relaxed placeholder:text-slate-400"
+          className="w-full bg-surface border border-line focus:border-brand focus:ring-3 focus:ring-brand/15 rounded-none px-4 py-3.5 text-xs text-ink dark:text-slate-50 transition-all outline-none shadow-xs resize-y min-h-[130px] leading-relaxed placeholder:text-slate-400"
           value={clinicalNotes}
           onChange={(e) => setClinicalNotes(e.target.value)}
           placeholder="Enter medical assessment summary, specialist report references, diagnostic reasoning, follow-up advice..."

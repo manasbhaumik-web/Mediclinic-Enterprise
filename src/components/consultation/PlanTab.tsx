@@ -279,7 +279,7 @@ export default function PlanTab({
         <div className="bg-rose-600 text-white p-3 rounded-none shadow-xs flex items-start gap-3 border border-rose-700">
           <AlertTriangle className="w-5 h-5 shrink-0 text-white mt-0.5" />
           <div>
-            <h4 className="type-label">AI SAFETY ALERT: Drug Contraindication Conflict Detected!</h4>
+            <h4 className="type-label">ALLERGY ALERT: a prescribed drug conflicts with a recorded allergy</h4>
             <p className="text-2xs mt-0.5 opacity-95">Patient registered allergies conflict with active prescription choices.</p>
             <ul className="text-2xs mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded-none">
               {allergyAlerts.map((alert, idx) => (
@@ -289,12 +289,12 @@ export default function PlanTab({
           </div>
         </div>
       ) : rxList.length > 0 ? (
-        <div className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-300 p-2.5 rounded-none border border-line dark:border-teal-800/50 flex items-center justify-between text-xs font-bold shadow-2xs">
+        <div className="bg-surface-accent text-accent p-2.5 rounded-none border border-line flex items-center justify-between text-xs font-bold shadow-2xs">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-accent dark:text-teal-400" />
-            <span>AI Interaction Check: Pass (Zero Drug-Allergy Contraindications)</span>
+            <CheckCircle2 className="w-4 h-4 text-accent" />
+            <span>Allergy check: no conflict with the patient's recorded allergies</span>
           </div>
-          <span className="font-mono text-2xs bg-white dark:bg-night-900 px-2 py-0.5 border border-line text-accent">
+          <span className="font-mono text-2xs bg-surface px-2 py-0.5 border border-line text-accent">
             {rxList.length} Items Prescribed
           </span>
         </div>
@@ -303,7 +303,7 @@ export default function PlanTab({
       {/* ------------------------------------------------------------------------- */}
       {/* 4 STRUCTURED SUB-TABS NAVIGATION BAR                                      */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex border border-line dark:border-teal-800/40 bg-surface dark:bg-night-900 p-1 rounded-none gap-1" role="tablist">
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1" role="tablist">
         
         <button
           type="button"
@@ -316,7 +316,7 @@ export default function PlanTab({
         >
           <Pill className="w-4 h-4" />
           <span>1. Medication Prescribing</span>
-          {rxList.length > 0 && <span className="bg-white text-accent px-1 font-mono text-2xs font-bold">{rxList.length}</span>}
+          {rxList.length > 0 && <span className="bg-surface text-accent px-1 font-mono text-2xs font-bold">{rxList.length}</span>}
         </button>
 
         <button

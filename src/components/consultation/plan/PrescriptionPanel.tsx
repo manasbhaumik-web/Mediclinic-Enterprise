@@ -43,7 +43,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
       
       {/* CONTEXT-AWARE PEDIATRIC DOSAGE CALCULATOR ASSIST */}
       {!showPediatricCalc ? (
-        <div className="bg-surface-muted dark:bg-night-900 border border-line dark:border-teal-800/40 p-2.5 rounded-none flex items-center justify-between text-xs text-muted dark:text-slate-300">
+        <div className="bg-surface-muted border border-line p-2.5 rounded-none flex items-center justify-between text-xs text-muted dark:text-slate-300">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-accent" />
             <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAge})</span>
@@ -51,22 +51,22 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
           <button
             type="button"
             onClick={() => setShowPediatricCalc(true)}
-            className="text-2xs font-bold text-accent dark:text-teal-400 border border-line dark:border-teal-800/50 px-2.5 py-1 hover:bg-surface-accent cursor-pointer"
+            className="text-2xs font-bold text-accent border border-line px-2.5 py-1 hover:bg-surface-accent cursor-pointer"
           >
             + Show Pediatric Dose Assist
           </button>
         </div>
       ) : (
-        <div className="bg-surface-accent dark:bg-night-850 p-3.5 rounded-none border border-line dark:border-teal-800/50 shadow-xs space-y-2.5">
-          <div className="flex items-center justify-between border-b border-line dark:border-teal-800/40 pb-2">
-            <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-accent dark:text-teal-400" /> Pediatric Weight-Based Dosage Calculator
+        <div className="bg-surface-accent p-3.5 rounded-none border border-line shadow-xs space-y-2.5">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <h4 className="type-label text-ink flex items-center gap-1.5">
+              <Activity className="w-4 h-4 text-accent" /> Pediatric Weight-Based Dosage Calculator
             </h4>
             <div className="flex items-center gap-2 font-mono text-2xs">
-              <span className="bg-white dark:bg-night-900 text-accent dark:text-teal-300 px-2 py-0.5 border border-line">
+              <span className="bg-surface text-accent px-2 py-0.5 border border-line">
                 Triage Recorded Today
               </span>
-              <span className="bg-white dark:bg-night-900 text-accent dark:text-teal-300 px-2 py-0.5 border border-line">
+              <span className="bg-surface text-accent px-2 py-0.5 border border-line">
                 Range: 10 - 15 mg/kg
               </span>
               <span className="bg-rose-50 text-rose-700 px-2 py-0.5 border border-rose-200 font-bold">
@@ -87,7 +87,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
               </label>
               <Input 
                 type="number" 
-                className="w-full text-xs px-3 py-1.5 border border-line dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-brand outline-none bg-white dark:bg-night-900 text-ink dark:text-white font-bold"
+                className="w-full text-xs px-3 py-1.5 border border-line rounded-none focus:ring-2 focus:ring-brand outline-none bg-surface text-ink dark:text-white font-bold"
                 value={patientWeight}
                 onChange={e => setPatientWeight(e.target.value)}
                 placeholder="e.g. 12"
@@ -101,7 +101,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                     className={`text-2xs font-bold px-2 py-0.5 rounded-none border transition-all ${
                       patientWeight === w 
                         ? 'bg-primary text-white border-brand' 
-                        : 'bg-white dark:bg-night-700 text-accent dark:text-teal-300 border-line dark:border-teal-700/50 hover:bg-surface-accent cursor-pointer'
+                        : 'bg-surface text-accent border-line hover:bg-surface-accent cursor-pointer'
                     }`}
                   >
                     {w}kg
@@ -117,7 +117,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
               <select
                 value={medConcentration}
                 onChange={e => setMedConcentration(e.target.value)}
-                className="w-full text-xs px-3 py-1.5 border border-line dark:border-teal-800/40 rounded-none focus:ring-2 focus:ring-brand outline-none bg-white dark:bg-night-900 text-ink dark:text-white font-bold"
+                className="w-full text-xs px-3 py-1.5 border border-line rounded-none focus:ring-2 focus:ring-brand outline-none bg-surface text-ink dark:text-white font-bold"
               >
                 <option value="24">120mg / 5ml (Standard Syrup)</option>
                 <option value="50">250mg / 5ml (Forte Syrup)</option>
@@ -127,9 +127,9 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
             <div>
               {calculatedDose ? (
-                <div className="bg-white dark:bg-night-900 border border-brand p-2 rounded-none text-center">
+                <div className="bg-surface border border-brand p-2 rounded-none text-center">
                   <span className="text-2xs text-slate-400 font-bold block uppercase">Recommended Single Dose</span>
-                  <span className="text-sm font-mono font-bold text-accent dark:text-teal-400">
+                  <span className="text-sm font-mono font-bold text-accent">
                     {calculatedDose.toFixed(1)} ml TDS
                   </span>
                   <button
@@ -155,13 +155,13 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
       {/* SEARCH DRUG CATALOG */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase tracking-tight">
+        <label className="block text-xs font-bold text-ink uppercase tracking-tight">
           Prescribe Medication (Trade / Generic / Brand Search) <span className="text-rose-500">*</span>
         </label>
         <div className="relative">
           <Input 
             type="text"
-            className="w-full text-xs px-3 py-2 border border-line dark:border-teal-800/50 rounded-none focus:ring-2 focus:ring-brand outline-none bg-white dark:bg-night-900 text-ink dark:text-white font-medium"
+            className="w-full text-xs px-3 py-2 border border-line rounded-none focus:ring-2 focus:ring-brand outline-none bg-surface text-ink dark:text-white font-medium"
             value={searchDrugQuery}
             onChange={e => setSearchDrugQuery(e.target.value)}
             placeholder="Type medication name (e.g. Paracetamol, Panadol, Augmentin, Ponstan, Zyrtec)..."
@@ -169,7 +169,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
           {/* AUTOCOMPLETE DROPDOWN */}
           {drugSuggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 z-30 bg-white dark:bg-night-900 border-2 border-brand shadow-2xl max-h-60 overflow-y-auto rounded-none mt-1">
+            <div className="absolute top-full left-0 right-0 z-30 bg-surface border-2 border-brand shadow-2xl max-h-60 overflow-y-auto rounded-none mt-1">
               {drugSuggestions.map(drug => (
                 <div
                   key={drug.id}
@@ -177,13 +177,13 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                   className={`p-2.5 border-b border-slate-100 dark:border-teal-800/30 hover:bg-surface-muted dark:hover:bg-night-800 cursor-pointer flex items-center justify-between text-xs transition-colors ${focusRing}`}
                 >
                   <div>
-                    <strong className="text-ink dark:text-teal-300 font-bold block">{drug.name}</strong>
+                    <strong className="text-ink font-bold block">{drug.name}</strong>
                     <span className="text-2xs text-subtle dark:text-slate-400 font-medium">
                       Category: {drug.category} | Class: {drug.allergyGroup || 'General'}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-mono font-bold text-accent dark:text-teal-400 block">
+                    <span className="text-xs font-mono font-bold text-accent block">
                       RM {(drug.pricePerUnit || 0.5).toFixed(2)}
                     </span>
                     <span className="text-2xs text-slate-400">Stock: {drug.currentStock || 100}</span>
@@ -197,7 +197,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
       {/* PRESCRIPTION LIST TABLE */}
       <div className="space-y-2">
-        <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-between">
+        <h4 className="type-label text-ink flex items-center justify-between">
           <span>Active Prescription Items ({rxList.length})</span>
           {rxList.length > 0 && (
             <span className="text-subtle dark:text-slate-400 font-mono text-2xs font-normal">
@@ -212,9 +212,9 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
             <span>No medication items added. Search above to add items to prescription plan.</span>
           </div>
         ) : (
-          <div className="border border-line dark:border-teal-800/40 overflow-hidden rounded-none">
+          <div className="border border-line overflow-hidden rounded-none">
             <table className="w-full text-left border-collapse text-xs">
-              <thead className="bg-surface-accent dark:bg-night-900 text-ink dark:text-teal-300 font-bold border-b border-line dark:border-teal-800/40">
+              <thead className="bg-surface-accent text-ink font-bold border-b border-line">
                 <tr>
                   <th className="p-2">Medication</th>
                   <th className="p-2">Dosage / Instructions</th>
@@ -224,7 +224,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                   <th className="p-2 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-teal-800/30 bg-white dark:bg-night-850">
+              <tbody className="divide-y divide-slate-100 dark:divide-teal-800/30 bg-surface">
                 {rxList.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-night-800 transition-colors">
                     <td className="p-2 font-bold text-ink dark:text-white">
@@ -271,12 +271,12 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
       {/* DISPENSING PHARMACY MEMO */}
       <div>
-        <label className="block text-xs font-bold text-ink dark:text-teal-300 uppercase mb-1">
+        <label className="block text-xs font-bold text-ink uppercase mb-1">
           Internal Pharmacy Memo / Notes for Dispensing Pharmacist
         </label>
         <Input 
           type="text"
-          className="w-full text-xs px-3 py-2 border border-line dark:border-teal-800/40 rounded-none bg-white dark:bg-night-900 text-ink dark:text-white"
+          className="w-full text-xs px-3 py-2 border border-line rounded-none bg-surface text-ink dark:text-white"
           value={pharmacyMemo}
           onChange={e => setPharmacyMemo(e.target.value)}
           placeholder="e.g. Split tablets into half doses, patient requested original trade pack..."

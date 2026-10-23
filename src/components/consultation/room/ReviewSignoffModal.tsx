@@ -13,9 +13,9 @@ interface ReviewSignoffModalProps {
 export default function ReviewSignoffModal({ setIsReviewModalOpen, currentPatient, maskedIC, selectedICD, rxList, handleFinalSignoff }: ReviewSignoffModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn" role="dialog" aria-modal="true">
-      <div className="bg-white dark:bg-night-900 border-2 border-brand shadow-2xl max-w-2xl w-full p-6 rounded-none space-y-5 text-ink dark:text-white">
+      <div className="bg-surface border-2 border-brand shadow-2xl max-w-2xl w-full p-6 rounded-none space-y-5 text-ink dark:text-white">
         
-        <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-3">
+        <div className="flex items-center justify-between border-b border-line-subtle pb-3">
           <div className="flex items-center gap-2.5">
             <Stethoscope className="w-5 h-5 text-accent" />
             <h3 className="type-heading-caps">Review and send prescription</h3>
@@ -26,14 +26,14 @@ export default function ReviewSignoffModal({ setIsReviewModalOpen, currentPatien
         </div>
     
         <div className="space-y-3.5 text-xs">
-          <div className="bg-surface-muted dark:bg-night-850 p-3 border border-line dark:border-teal-800/40 flex justify-between items-center font-bold">
+          <div className="bg-surface-muted p-3 border border-line flex justify-between items-center font-bold">
             <span>Patient: <strong>{currentPatient.fullName}</strong></span>
             <span>IC: <strong className="font-mono">{maskedIC}</strong></span>
           </div>
     
           <div>
             <span className="text-slate-400 uppercase font-bold text-2xs block">Primary ICD-10 Diagnosis</span>
-            <div className="bg-surface-accent dark:bg-teal-950 p-2.5 border border-line dark:border-teal-800/50 font-bold text-accent dark:text-teal-300 mt-1 flex items-center justify-between">
+            <div className="bg-surface-accent dark:bg-teal-950 p-2.5 border border-line font-bold text-accent mt-1 flex items-center justify-between">
               <span>{selectedICD?.code} — {selectedICD?.desc}</span>
               <CheckCircle2 className="w-4 h-4 text-accent" />
             </div>
@@ -63,11 +63,11 @@ export default function ReviewSignoffModal({ setIsReviewModalOpen, currentPatien
           )}
         </div>
     
-        <div className="bg-surface-muted dark:bg-night-900 p-3 border border-line dark:border-teal-800/40 font-mono text-2xs text-accent dark:text-teal-300">
+        <div className="bg-surface-muted p-3 border border-line font-mono text-2xs text-accent">
           This will sign the consultation note and send {rxList.length} medication order(s) to the dispensary.
         </div>
     
-        <div className="border-t border-line-subtle dark:border-teal-800/40 pt-4 flex items-center justify-between">
+        <div className="border-t border-line-subtle pt-4 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setIsReviewModalOpen(false)}

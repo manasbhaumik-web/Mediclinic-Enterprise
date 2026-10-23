@@ -21,9 +21,9 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         {/* MEDICAL CERTIFICATE ISSUANCE CARD */}
-        <div className="border border-line dark:border-teal-800/40 bg-white dark:bg-night-900 p-4 rounded-none space-y-3">
+        <div className="border border-line bg-surface p-4 rounded-none space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-            <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-2">
+            <h4 className="type-label text-ink flex items-center gap-2">
               <FileText className="w-4 h-4 text-accent" /> Digital Medical Certificate (MC)
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
@@ -71,9 +71,9 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
         </div>
     
         {/* SPECIALIST REFERRAL LETTER CARD */}
-        <div className="border border-line dark:border-teal-800/40 bg-white dark:bg-night-900 p-4 rounded-none space-y-3">
+        <div className="border border-line bg-surface p-4 rounded-none space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
-            <h4 className="type-label text-ink dark:text-teal-300 flex items-center gap-2">
+            <h4 className="type-label text-ink flex items-center gap-2">
               <Share className="w-4 h-4 text-accent" /> Specialist Referral Note
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
@@ -113,7 +113,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
               referralGenerated
                 ? 'bg-primary text-white border-teal-700 hover:bg-primary'
-                : 'bg-white dark:bg-night-900 text-ink dark:text-slate-200 border-line dark:border-teal-800/40 hover:bg-surface-accent'
+                : 'bg-surface text-ink dark:text-slate-200 border-line hover:bg-surface-accent'
             }`}
           >
             {referralGenerated ? '✓ Specialist Referral Created & Attached' : 'Create referral draft'}

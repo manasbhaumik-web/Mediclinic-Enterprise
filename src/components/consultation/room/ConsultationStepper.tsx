@@ -12,7 +12,7 @@ interface ConsultationStepperProps {
 
 export default function ConsultationStepper({ activeTab, setActiveTab, subjective, vitals, selectedICD, rxList }: ConsultationStepperProps) {
   return (
-    <div className="flex border border-line-subtle dark:border-teal-800/40 bg-surface-accent dark:bg-night-850 p-1 rounded-none gap-1" role="tablist">
+    <div className="flex border border-line-subtle bg-surface-accent p-1 rounded-none gap-1" role="tablist">
       <button
         type="button"
         role="tab"

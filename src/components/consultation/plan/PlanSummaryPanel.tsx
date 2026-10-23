@@ -14,8 +14,8 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
   return (
     <div className="space-y-4 animate-fadeIn">
       
-      <div className="border border-line dark:border-teal-800/40 bg-surface dark:bg-night-900 p-4 rounded-none space-y-3">
-        <h4 className="type-label text-ink dark:text-teal-300 flex items-center justify-between border-b border-line pb-2">
+      <div className="border border-line bg-surface p-4 rounded-none space-y-3">
+        <h4 className="type-label text-ink flex items-center justify-between border-b border-line pb-2">
           <span>Full Order &amp; Plan Verification Summary</span>
           <span className="font-mono text-emerald-600 font-bold">Ready for Final Sign-Off</span>
         </h4>
@@ -23,8 +23,8 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           
           {/* Prescribed Drugs List Summary */}
-          <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-            <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
+          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+            <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               1. Prescribed Medications ({rxList.length})
             </span>
             {rxList.length === 0 ? (
@@ -42,8 +42,8 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
           </div>
     
           {/* Lab Requisitions Summary */}
-          <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-            <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
+          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+            <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               2. Diagnostic Investigations ({selectedLabs.length})
             </span>
             {selectedLabs.length === 0 ? (
@@ -61,8 +61,8 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
           </div>
     
           {/* Certificates & Notes Summary */}
-          <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-            <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
+          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+            <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               3. Certificates &amp; Referrals
             </span>
             <p className="text-2xs text-muted dark:text-slate-300">
@@ -74,8 +74,8 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
           </div>
     
           {/* Dispensing Notes Summary */}
-          <div className="bg-white dark:bg-night-850 p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
-            <span className="font-bold text-2xs text-ink dark:text-teal-300 uppercase block mb-1.5">
+          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+            <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               4. Dispensing Memo
             </span>
             <p className="text-2xs font-mono text-muted dark:text-slate-300">
