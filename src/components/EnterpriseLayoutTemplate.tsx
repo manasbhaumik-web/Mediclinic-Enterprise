@@ -126,7 +126,6 @@ export default function EnterpriseLayoutTemplate({
 
   const banner = ROLE_BANNER[userRole as UserRole];
   const roleLabel = banner?.label ?? (userRole ? userRole.replace(/-/g, ' ') : '');
-  const roleSubtitle = banner?.subtitle ?? '';
 
   return (
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
@@ -234,6 +233,17 @@ export default function EnterpriseLayoutTemplate({
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" title="Active workstation session"></span>
                 </div>
+
+                {/* Leave and attendance live here, so the navbar holds only clinical work */}
+                <button
+                  type="button"
+                  id="user-menu-my-leave"
+                  onClick={() => { setActiveTab('my-leave'); setShowUserMenu(false); }}
+                  className="w-full min-h-11 flex items-center gap-2 px-3 bg-night-800 border border-white/15 hover:bg-night-700 text-teal-100 font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+                >
+                  <CalendarClock className="w-4 h-4 text-teal-200" aria-hidden="true" />
+                  <span>My leave &amp; attendance</span>
+                </button>
 
                 {/* Utility Section: Workstation Settings */}
                 <div className="space-y-2.5 pt-1">
@@ -349,30 +359,24 @@ export default function EnterpriseLayoutTemplate({
       </div>
 
       {/* PAGE BANNER + NAVBAR: one attached block, shadowed top and bottom */}
-      <section className="w-full bg-surface-accent text-ink relative z-20 px-4 sm:px-6 py-4 shrink-0 font-sans" aria-label="Page banner">
+      <section className={`w-full bg-surface-accent text-ink relative z-20 px-4 sm:px-6 shrink-0 font-sans ${activeTab === 'dashboard' ? 'py-4' : 'py-2'}`} aria-label="Page banner">
         <div className="flex items-center gap-4">
           {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
-          <div className="w-14 h-14 shrink-0 bg-surface-accent border border-line flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
-            <User className="w-8 h-8" aria-hidden="true" />
+          <div className={`${activeTab === 'dashboard' ? 'w-14 h-14' : 'w-10 h-10'} shrink-0 bg-surface-strong border border-line flex items-center justify-center text-accent`} role="img" aria-label="Profile photo placeholder">
+            <User className={activeTab === 'dashboard' ? 'w-8 h-8' : 'w-6 h-6'} aria-hidden="true" />
           </div>
           {activeTab === 'dashboard' ? (
             // The dashboard portals its greeting card in here
             <div id="page-banner-slot" className="min-w-0 flex-1" />
           ) : (
-            // Same layout as the dashboard banner: chips, title, subtitle
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-2xs font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
-                <span className={`px-2 py-0.5 ${isOnline ? 'chip-ok' : 'chip-danger'} font-mono text-2xs font-bold uppercase tracking-wider border rounded-none flex items-center justify-center gap-1`}>
-                  <span className={`w-1.5 h-1.5 rounded-none animate-pulse ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-                  {isOnline ? 'All systems operational' : 'Offline'}
-                </span>
-              </div>
-              <h1 className="type-section-title text-ink flex items-center gap-2.5">
-                <Activity className="w-7 h-7 text-accent" aria-hidden="true" />
-                <span className="truncate">{`${getGreeting()}, ${userName}`}</span>
-              </h1>
-              {roleSubtitle && <p className="text-xs sm:text-sm text-ink/75 mt-1 font-normal">{roleSubtitle}</p>}
+            // Work pages: one line, so the page content gets the space
+            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h1 className="type-card-title text-ink truncate">{`${getGreeting()}, ${userName}`}</h1>
+              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-2xs font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
+              <span className={`px-2 py-0.5 ${isOnline ? 'chip-ok' : 'chip-danger'} font-mono text-2xs font-bold uppercase tracking-wider border rounded-none flex items-center justify-center gap-1`}>
+                <span className={`w-1.5 h-1.5 rounded-none animate-pulse ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                {isOnline ? 'All systems operational' : 'Offline'}
+              </span>
             </div>
           )}
         </div>
@@ -399,21 +403,6 @@ export default function EnterpriseLayoutTemplate({
                 {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
                 <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-accent' : 'text-subtle'}`} />
                 <span>{t.dashboard || 'Dashboard'}</span>
-              </div>
-            </button>
-
-            {/* My leave & attendance (every role) */}
-            <button
-              type="button"
-              id="sidebar-link-my-leave"
-              onClick={() => setActiveTab('my-leave')}
-              aria-current={activeTab === 'my-leave' ? 'page' : undefined}
-              className={`nav-btn ${activeTab === 'my-leave' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
-            >
-              <div className="flex items-center gap-2">
-                {activeTab === 'my-leave' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
-                <CalendarClock className={`w-4 h-4 ${activeTab === 'my-leave' ? 'text-accent' : 'text-subtle'}`} />
-                <span>My Leave</span>
               </div>
             </button>
 
