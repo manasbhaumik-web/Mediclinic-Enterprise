@@ -77,6 +77,11 @@ export interface Visit {
   glNumber?: string;
   mcIssued?: boolean;
   registeredTime?: number;
+  /** Set when a doctor has called the patient (status Consulting): which room, who, and when. */
+  consultRoom?: string;
+  calledBy?: string;
+  calledByName?: string;
+  calledAt?: number;
 }
 
 export interface ICD10Code {

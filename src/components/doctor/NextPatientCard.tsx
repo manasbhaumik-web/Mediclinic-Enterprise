@@ -14,6 +14,7 @@ interface NextPatientCardProps {
   heroTriage: TriageDetails;
   renderAllergyBadge: (drugAllergies?: string[]) => React.JSX.Element;
   activeConsultationVisitId: string;
+  userId?: string | null;
   calledVisitId: string;
   handleStartConsultation: (visitId: string) => void;
   requestCallPatient: (visitId: string, patientName: string, position: number) => void;
@@ -26,7 +27,7 @@ interface NextPatientCardProps {
   sortRule: SortRule;
 }
 
-export default function NextPatientCard({ pinnedVisitIds, nextVisit, calledTimestampMap, stepIndex, nextPatient, heroTriage, renderAllergyBadge, activeConsultationVisitId, calledVisitId, handleStartConsultation, requestCallPatient, toggleDetails, expandedDetails, togglePinVisit, copyToClipboard, obj, heroWait, sortRule }: NextPatientCardProps) {
+export default function NextPatientCard({ userId = null, pinnedVisitIds, nextVisit, calledTimestampMap, stepIndex, nextPatient, heroTriage, renderAllergyBadge, activeConsultationVisitId, calledVisitId, handleStartConsultation, requestCallPatient, toggleDetails, expandedDetails, togglePinVisit, copyToClipboard, obj, heroWait, sortRule }: NextPatientCardProps) {
   return (
     <section aria-label="Next patient in line" className="bg-surface border border-line shadow-2xs">
       <div className="bg-surface-accent border-b border-line-subtle px-6 py-3 flex flex-wrap items-center justify-between gap-3">
@@ -78,7 +79,9 @@ export default function NextPatientCard({ pinnedVisitIds, nextVisit, calledTimes
           </div>
     
           <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
-            {activeConsultationVisitId === nextVisit.id || calledVisitId === nextVisit.id ? (
+            {nextVisit.status === 'Consulting' && nextVisit.calledBy && nextVisit.calledBy !== userId ? (
+              <span className="chip-info min-h-11 px-4 inline-flex items-center text-sm font-bold whitespace-nowrap">With {nextVisit.calledByName ?? 'another doctor'}{nextVisit.consultRoom ? `, ${nextVisit.consultRoom}` : ''}</span>
+            ) : activeConsultationVisitId === nextVisit.id || calledVisitId === nextVisit.id ? (
               <button
                 type="button"
                 onClick={() => handleStartConsultation(nextVisit.id)}

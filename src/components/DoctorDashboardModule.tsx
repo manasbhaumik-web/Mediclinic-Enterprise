@@ -24,6 +24,9 @@ interface DoctorDashboardModuleProps {
   setActiveConsultationVisitId: (id: string | null) => void;
   onConsultationComplete: (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   doctorName?: string;
+  userId?: string | null;
+  onCallPatient?: (visitId: string, room: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+  onReleasePatient?: (visitId: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   doctorTab?: 'queue' | 'consultation' | 'reports';
   onTabChange?: (tab: 'queue' | 'consultation' | 'reports') => void;
 }
@@ -37,19 +40,36 @@ export default function DoctorDashboardModule({
   onConsultationComplete,
   doctorName = "Dr. Sarah Tan",
   doctorTab = "queue",
+  userId = null,
+  onCallPatient,
+  onReleasePatient,
   onTabChange
 }: DoctorDashboardModuleProps) {
   const [internalTab, setInternalTab] = useState<'queue' | 'consultation' | 'reports'>(doctorTab);
-  const [calledVisitId, setCalledVisitId] = useState<string | null>(null);
+  const [room, setRoom] = useState<string>(() => {
+    try { return localStorage.getItem('mediclinic.consultRoom') || 'Consultation Room 1'; } catch { return 'Consultation Room 1'; }
+  });
   const [callAnnouncementToast, setCallAnnouncementToast] = useState<string | null>(null);
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
-  const [calledTimestampMap, setCalledTimestampMap] = useState<Record<string, string>>({});
   const [lastSyncedText, setLastSyncedText] = useState<string>('Just now');
   const [isRefreshingQueue, setIsRefreshingQueue] = useState<boolean>(false);
   const [pendingCallVisit, setPendingCallVisit] = useState<{ visitId: string; patientName: string; position: number } | null>(null);
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
   const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
+
+  // Who has been called is saved on the visit, so it survives a refresh and every screen sees it.
+  const calledVisitId = doctorQueue.find((v) => v.status === 'Consulting' && v.calledBy === userId)?.id ?? null;
+  const calledTimestampMap: Record<string, string> = Object.fromEntries(
+    doctorQueue.filter((v) => v.status === 'Consulting' && v.calledAt).map((v) => [
+      v.id,
+      `${new Date(v.calledAt as number).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })} by ${v.calledByName ?? 'a doctor'}${v.consultRoom ? `, ${v.consultRoom}` : ''}`,
+    ]),
+  );
+  // After a refresh, pick the consultation back up.
+  React.useEffect(() => {
+    if (calledVisitId && !activeConsultationVisitId) setActiveConsultationVisitId(calledVisitId);
+  }, [calledVisitId, activeConsultationVisitId, setActiveConsultationVisitId]);
 
   // Custom Hook: Extracted queue sorting, filtering, pinning, and pagination
   const {
@@ -143,16 +163,22 @@ export default function DoctorDashboardModule({
     setPendingCallVisit({ visitId, patientName, position });
   };
 
-  const confirmCallPatient = () => {
+  const confirmCallPatient = async () => {
     if (!pendingCallVisit) return;
     const { visitId, patientName } = pendingCallVisit;
-    const timeStr = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
-    setCalledVisitId(visitId);
-    setCalledTimestampMap(prev => ({ ...prev, [visitId]: `${timeStr} by ${doctorName}` }));
-    setActiveConsultationVisitId(visitId);
-    setCallAnnouncementToast(`📢 Patient Called: ${patientName} → Consultation Room 1 (${timeStr})`);
-    playCallChime();
+    const roomName = room.trim() || 'Consultation Room 1';
     setPendingCallVisit(null);
+    const result = onCallPatient ? await onCallPatient(visitId, roomName) : { ok: false as const, error: 'Calling patients is not available here.' };
+    if ('error' in result) {
+      setCallAnnouncementToast(`Could not call ${patientName}: ${result.error}`);
+      setTimeout(() => setCallAnnouncementToast(null), 6000);
+      return;
+    }
+    try { localStorage.setItem('mediclinic.consultRoom', roomName); } catch { /* ignore */ }
+    const timeStr = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+    setActiveConsultationVisitId(visitId);
+    setCallAnnouncementToast(`Patient called: ${patientName} to ${roomName} (${timeStr})`);
+    playCallChime();
     setTimeout(() => setCallAnnouncementToast(null), 4500);
   };
 
@@ -185,16 +211,6 @@ export default function DoctorDashboardModule({
     return 'Good Evening';
   };
 
-  // Step 1: Call patient for consultation
-  const handleCallPatient = (visitId: string, patientName: string) => {
-    const timeStr = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
-    setCalledVisitId(visitId);
-    setCalledTimestampMap(prev => ({ ...prev, [visitId]: timeStr }));
-    setActiveConsultationVisitId(visitId);
-    setCallAnnouncementToast(`📢 Calling Patient: ${patientName} to Consultation Room 1...`);
-    setTimeout(() => setCallAnnouncementToast(null), 4000);
-  };
-
   // Step 2: Start consultation when patient is attended
   const handleStartConsultation = (visitId: string) => {
     setActiveConsultationVisitId(visitId);
@@ -205,7 +221,6 @@ export default function DoctorDashboardModule({
   const handleDoctorSoapComplete = (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => {
     onConsultationComplete(soapData, issueMc, mcDuration);
     setActiveConsultationVisitId(null);
-    setCalledVisitId(null);
     handleTabChange('queue'); // Auto-return back to Queue!
   };
 
@@ -219,7 +234,7 @@ export default function DoctorDashboardModule({
             📢
           </div>
           <div>
-            <h4 className="type-card-title text-teal-300">Public PA Call System</h4>
+            <h4 className="type-card-title text-teal-300">Patient call</h4>
             <p className="text-xs text-slate-200 font-medium">{callAnnouncementToast}</p>
           </div>
         </div>
@@ -249,8 +264,19 @@ export default function DoctorDashboardModule({
 
             <div className="space-y-2 text-xs">
               <p className="text-muted dark:text-slate-200 leading-relaxed font-sans">
-                Broadcast public PA announcement and call <strong className="text-ink dark:text-teal-300 font-bold text-sm">{pendingCallVisit.patientName}</strong> (Queue Rank <span className="font-mono font-bold text-accent">#{pendingCallVisit.position}</span>) to Consultation Room 1 now?
+                Call <strong className="text-ink dark:text-teal-300 font-bold text-sm">{pendingCallVisit.patientName}</strong> (Queue Rank <span className="font-mono font-bold text-accent">#{pendingCallVisit.position}</span>) to Consultation Room 1 now?
               </p>
+
+              <label className="block space-y-1">
+                <span className="text-2xs font-bold uppercase tracking-wider text-subtle">Consultation room</span>
+                <input
+                  className="w-full min-h-11 px-3 text-sm border border-line-strong bg-surface text-ink"
+                  value={room}
+                  maxLength={60}
+                  onChange={(e) => setRoom(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') void confirmCallPatient(); }}
+                />
+              </label>
 
               {pendingCallVisit.position > 1 && (
                 <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-2.5 text-amber-800 dark:text-amber-300 text-2xs font-medium flex items-center gap-2">
@@ -390,12 +416,12 @@ export default function DoctorDashboardModule({
                 const obj = nextVisit.soap?.objective;
                 const stepIndex = activeConsultationVisitId === nextVisit.id ? 2 : calledVisitId === nextVisit.id ? 1 : 0;
                 return (
-                  <NextPatientCard pinnedVisitIds={pinnedVisitIds} nextVisit={nextVisit} calledTimestampMap={calledTimestampMap} stepIndex={stepIndex} nextPatient={nextPatient} heroTriage={heroTriage} renderAllergyBadge={renderAllergyBadge} activeConsultationVisitId={activeConsultationVisitId} calledVisitId={calledVisitId} handleStartConsultation={handleStartConsultation} requestCallPatient={requestCallPatient} toggleDetails={toggleDetails} expandedDetails={expandedDetails} togglePinVisit={togglePinVisit} copyToClipboard={copyToClipboard} obj={obj} heroWait={heroWait} sortRule={sortRule} />
+                  <NextPatientCard userId={userId} pinnedVisitIds={pinnedVisitIds} nextVisit={nextVisit} calledTimestampMap={calledTimestampMap} stepIndex={stepIndex} nextPatient={nextPatient} heroTriage={heroTriage} renderAllergyBadge={renderAllergyBadge} activeConsultationVisitId={activeConsultationVisitId} calledVisitId={calledVisitId ?? ''} handleStartConsultation={handleStartConsultation} requestCallPatient={requestCallPatient} toggleDetails={toggleDetails} expandedDetails={expandedDetails} togglePinVisit={togglePinVisit} copyToClipboard={copyToClipboard} obj={obj} heroWait={heroWait} sortRule={sortRule} />
                 );
               })()}
 
               {/* WAITING PATIENTS LIST */}
-              <WaitingPatientsList currentPage={currentPage} sortedQueue={sortedQueue} totalPages={totalPages} sortRule={sortRule} remainingQueue={remainingQueue} nextVisit={nextVisit} patientsMap={patientsMap} activeConsultationVisitId={activeConsultationVisitId} expandedDetails={expandedDetails} startIndex={startIndex} pinnedVisitIds={pinnedVisitIds} toggleDetails={toggleDetails} renderAllergyBadge={renderAllergyBadge} togglePinVisit={togglePinVisit} copyToClipboard={copyToClipboard} handleStartConsultation={handleStartConsultation} requestCallPatient={requestCallPatient} entriesPerPage={entriesPerPage} setEntriesPerPage={setEntriesPerPage} setQueuePage={setQueuePage} />
+              <WaitingPatientsList userId={userId} currentPage={currentPage} sortedQueue={sortedQueue} totalPages={totalPages} sortRule={sortRule} remainingQueue={remainingQueue} nextVisit={nextVisit} patientsMap={patientsMap} activeConsultationVisitId={activeConsultationVisitId} expandedDetails={expandedDetails} startIndex={startIndex} pinnedVisitIds={pinnedVisitIds} toggleDetails={toggleDetails} renderAllergyBadge={renderAllergyBadge} togglePinVisit={togglePinVisit} copyToClipboard={copyToClipboard} handleStartConsultation={handleStartConsultation} requestCallPatient={requestCallPatient} entriesPerPage={entriesPerPage} setEntriesPerPage={setEntriesPerPage} setQueuePage={setQueuePage} />
             </div>
           )}
         </div>
@@ -414,9 +440,13 @@ export default function DoctorDashboardModule({
                 activeLanguage={activeLanguage}
                 onConsultationComplete={handleDoctorSoapComplete}
                 onCancel={() => {
+                  // Leaving without signing off puts the patient back in the queue for everyone.
+                  const id = activeConsultationVisitId;
                   setActiveConsultationVisitId(null);
-                  setCalledVisitId(null);
                   setInternalTab('queue');
+                  if (id && onReleasePatient) void onReleasePatient(id).then((r) => {
+                    if ('error' in r) { setCallAnnouncementToast(r.error); setTimeout(() => setCallAnnouncementToast(null), 6000); }
+                  });
                 }}
               />
             </div>

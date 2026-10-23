@@ -23,6 +23,7 @@ type ClinicData = ReturnType<typeof useClinicData>;
 export interface ClinicShellContext {
   role: UserRole;
   userName: string;
+  userId: string | null;
   activeLanguage: Language;
   t: ReturnType<typeof useLanguage>['t'];
   patientsList: Patient[];
@@ -33,6 +34,8 @@ export interface ClinicShellContext {
   activeConsultationVisitId: string | null;
   setActiveConsultationVisitId: (id: string | null) => void;
   navigateTab: (tab: string) => void;
+  onCallPatient: ClinicData['callPatient'];
+  onReleasePatient: ClinicData['releasePatient'];
   searchPatients: ClinicData['searchPatients'];
   addPatientToDb: ClinicData['addPatientToDb'];
   addVisitToDb: ClinicData['addVisitToDb'];
@@ -101,6 +104,9 @@ export default function ClinicShell() {
   const ctx: ClinicShellContext = {
     role: role as UserRole,
     userName,
+    userId: user?.id ?? null,
+    onCallPatient: data.callPatient,
+    onReleasePatient: data.releasePatient,
     activeLanguage,
     t,
     patientsList,

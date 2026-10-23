@@ -51,6 +51,10 @@ export function visitFromRow(v: any): Visit {
     glNumber: v.gl_number,
     mcIssued: v.mc_issued,
     registeredTime: v.registered_time ? Number(v.registered_time) : new Date(v.created_at).getTime(),
+    consultRoom: v.consult_room ?? undefined,
+    calledBy: v.called_by ?? undefined,
+    calledByName: v.called_by_name ?? undefined,
+    calledAt: v.called_at ? new Date(v.called_at).getTime() : undefined,
     soap: {
       subjective: soap.subjective || '',
       objective: {

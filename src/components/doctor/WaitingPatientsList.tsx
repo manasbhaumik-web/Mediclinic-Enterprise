@@ -13,6 +13,7 @@ interface WaitingPatientsListProps {
   nextVisit: Visit;
   patientsMap: Record<string, Patient>;
   activeConsultationVisitId: string;
+  userId?: string | null;
   expandedDetails: Record<string, boolean>;
   startIndex: number;
   pinnedVisitIds: Record<string, boolean>;
@@ -27,7 +28,7 @@ interface WaitingPatientsListProps {
   setQueuePage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export default function WaitingPatientsList({ currentPage, sortedQueue, totalPages, sortRule, remainingQueue, nextVisit, patientsMap, activeConsultationVisitId, expandedDetails, startIndex, pinnedVisitIds, toggleDetails, renderAllergyBadge, togglePinVisit, copyToClipboard, handleStartConsultation, requestCallPatient, entriesPerPage, setEntriesPerPage, setQueuePage }: WaitingPatientsListProps) {
+export default function WaitingPatientsList({ userId = null, currentPage, sortedQueue, totalPages, sortRule, remainingQueue, nextVisit, patientsMap, activeConsultationVisitId, expandedDetails, startIndex, pinnedVisitIds, toggleDetails, renderAllergyBadge, togglePinVisit, copyToClipboard, handleStartConsultation, requestCallPatient, entriesPerPage, setEntriesPerPage, setQueuePage }: WaitingPatientsListProps) {
   return (
     <section aria-label="Waiting patients" className="bg-surface border border-line-subtle">
       <div className="px-5 py-4 flex flex-wrap items-baseline justify-between gap-2 border-b border-line-subtle">
@@ -59,7 +60,8 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
           {remainingQueue.map((visit, index) => {
             const pt = patientsMap[visit.patientId];
             if (!pt) return null;
-            const isConsulting = activeConsultationVisitId === visit.id;
+            const takenBy = visit.status === 'Consulting' && visit.calledBy && visit.calledBy !== userId ? `${visit.calledByName ?? 'Another doctor'}${visit.consultRoom ? `, ${visit.consultRoom}` : ''}` : null;
+            const isConsulting = !takenBy && (activeConsultationVisitId === visit.id || (visit.status === 'Consulting' && visit.calledBy === userId));
             const isExpanded = expandedDetails[visit.id];
             const globalRankIndex = currentPage === 1 ? index + 1 : startIndex + index;
             const queuePosition = globalRankIndex + 1;
@@ -142,7 +144,9 @@ export default function WaitingPatientsList({ currentPage, sortedQueue, totalPag
                         },
                       ]}
                     />
-                    {isConsulting ? (
+                    {takenBy ? (
+                      <span className="chip-info min-h-11 px-3 inline-flex items-center text-xs font-bold whitespace-nowrap">With {takenBy}</span>
+                    ) : isConsulting ? (
                       <button
                         type="button"
                         onClick={() => handleStartConsultation(visit.id)}

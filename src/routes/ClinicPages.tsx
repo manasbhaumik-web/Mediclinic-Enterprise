@@ -41,6 +41,9 @@ export function DoctorPage({ tab }: { tab: DoctorTab }) {
       setActiveConsultationVisitId={s.setActiveConsultationVisitId}
       onConsultationComplete={s.onConsultationComplete}
       doctorName={s.userName}
+      userId={s.userId}
+      onCallPatient={s.onCallPatient}
+      onReleasePatient={s.onReleasePatient}
     />
   );
 }

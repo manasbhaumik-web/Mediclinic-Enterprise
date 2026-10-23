@@ -126,3 +126,16 @@ describe('buildSignoffArgs', () => {
     expect(everything).not.toMatch(/total_bill|paid_amount|panel_claimed|payment_method|"status"/);
   });
 });
+
+describe('called-patient mapping', () => {
+  it('reads who called the patient, the room and the time', () => {
+    const v = visitFromRow({ id: 'v', patient_id: 'p', status: 'Consulting', created_at: '2026-01-01T00:00:00Z', consult_room: 'Room 2', called_by: 'u1', called_by_name: 'Dr. Sarah Jenkins', called_at: '2026-01-01T09:30:00Z' });
+    expect(v).toMatchObject({ status: 'Consulting', consultRoom: 'Room 2', calledBy: 'u1', calledByName: 'Dr. Sarah Jenkins', calledAt: Date.parse('2026-01-01T09:30:00Z') });
+  });
+  it('leaves the call fields empty for a patient nobody has called', () => {
+    const v = visitFromRow({ id: 'v', patient_id: 'p', status: 'Awaiting Consult', created_at: '2026-01-01T00:00:00Z', consult_room: null, called_by: null, called_by_name: null, called_at: null });
+    expect(v.consultRoom).toBeUndefined();
+    expect(v.calledBy).toBeUndefined();
+    expect(v.calledAt).toBeUndefined();
+  });
+});

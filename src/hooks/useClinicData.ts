@@ -281,10 +281,36 @@ function useClinicMutations() {
     onSettled: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.appointments }),
   });
 
+  // Calling a patient is a saved, shared status: the database takes the row lock, so two doctors cannot take the same patient.
+  const callPatient = useMutation({
+    mutationFn: async ({ visitId, room }: { visitId: string; room: string }) => {
+      const { error } = await supabase.rpc('call_patient', { p_visit_id: visitId, p_room: room });
+      if (error) throw error;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
+  });
+  const releasePatient = useMutation({
+    mutationFn: async (visitId: string) => {
+      const { error } = await supabase.rpc('release_patient', { p_visit_id: visitId });
+      if (error) throw error;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
+  });
+
   return {
     addPatientToDb: (p: Patient) => addPatient.mutateAsync(p).then(() => true as const, logFailure('insert patient')),
     addVisitToDb: (v: Visit) => addVisit.mutateAsync(v).then(() => true as const, logFailure('insert visit')),
     updateVisitInDb: (v: Visit) => updateVisit.mutateAsync(v).then(() => true as const, logFailure('update visit')),
+    /** Calls a patient into a room. Resolves with the database's reason when someone else already has them. */
+    callPatient: (visitId: string, room: string) => callPatient.mutateAsync({ visitId, room }).then(
+      () => ({ ok: true as const }),
+      (err: { message?: string }) => ({ ok: false as const, error: err?.message || 'The patient could not be called.' }),
+    ),
+    /** Puts a called patient back in the queue. */
+    releasePatient: (visitId: string) => releasePatient.mutateAsync(visitId).then(
+      () => ({ ok: true as const }),
+      (err: { message?: string }) => ({ ok: false as const, error: err?.message || 'The patient could not be returned to the queue.' }),
+    ),
     /** Resolves with the database's reason when the sign-off is refused or cannot be saved. */
     signOffConsultation: (visit: Visit, issueMc: boolean) => signOff.mutateAsync({ visit, issueMc }).then(
       () => ({ ok: true as const }),
