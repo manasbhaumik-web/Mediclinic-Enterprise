@@ -5,7 +5,7 @@ import { AppNotification, Severity, useNotifications } from '../../hooks/useNoti
 const DOT: Record<Severity, string> = { critical: 'bg-rose-400', warn: 'bg-amber-300', info: 'bg-sky-300' };
 
 /** Header bell: what needs this person's attention right now, from the live records. */
-export default function NotificationBell({ onOpenTab, onOpenAdmin }: { onOpenTab: (tab: string) => void; onOpenAdmin?: (tab?: string) => void }) {
+export default function NotificationBell({ onOpenTab, onOpenAdmin, light = false }: { onOpenTab: (tab: string) => void; onOpenAdmin?: (tab?: string) => void; light?: boolean }) {
   const { items, count } = useNotifications();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -31,9 +31,9 @@ export default function NotificationBell({ onOpenTab, onOpenAdmin }: { onOpenTab
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={count > 0 ? `Notifications, ${count} need attention` : 'Notifications, nothing needs attention'}
-        className="relative flex items-center justify-center w-10 h-10 rounded-full bg-chrome-deep hover:bg-chrome-line border border-teal-300/40 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
+        className={`relative flex items-center justify-center w-10 h-10 rounded-full border cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none ${light ? 'bg-surface hover:bg-surface-strong border-line' : 'bg-chrome-deep hover:bg-chrome-line border-teal-300/40'}`}
       >
-        <Bell className="w-4 h-4 text-teal-100" />
+        <Bell className={`w-4 h-4 ${light ? 'text-accent' : 'text-teal-100'}`} />
         {count > 0 && (
           <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-2xs font-bold flex items-center justify-center">{count > 99 ? '99+' : count}</span>
         )}

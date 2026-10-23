@@ -72,16 +72,17 @@ export function useHelp() {
 }
 
 /** Header button. */
-export function HelpButton({ onClick }: { onClick: () => void }) {
+/** `light` is for a pale header; the default suits the dark teal header. */
+export function HelpButton({ onClick, light = false }: { onClick: () => void; light?: boolean }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label="Open help"
       title="Help (press ?)"
-      className="flex items-center justify-center w-10 h-10 rounded-full bg-chrome-deep hover:bg-chrome-line border border-teal-300/40 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
+      className={`flex items-center justify-center w-10 h-10 rounded-full border cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none ${light ? 'bg-surface hover:bg-surface-strong border-line' : 'bg-chrome-deep hover:bg-chrome-line border-teal-300/40'}`}
     >
-      <CircleHelp className="w-4 h-4 text-teal-100" />
+      <CircleHelp className={`w-4 h-4 ${light ? 'text-accent' : 'text-teal-100'}`} />
     </button>
   );
 }

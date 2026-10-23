@@ -233,11 +233,11 @@ strong {
   }
 
   .nav-btn-inactive {
-    @apply text-ink hover:bg-surface-muted hover:text-accent border-0 font-semibold;
+    @apply text-ink hover:bg-surface hover:text-accent border-0 font-semibold;
   }
 
   .nav-btn-active {
-    @apply bg-surface-accent text-accent border-b-2 border-b-primary font-bold shadow-none ring-0;
+    @apply bg-surface text-accent border-b-2 border-b-primary font-bold shadow-none ring-0;
   }
 
   .changer-container {

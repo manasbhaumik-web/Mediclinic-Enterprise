@@ -6,7 +6,7 @@ import { Visit, Patient, UserRole, Language } from '../../types';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
   TrendingUp, ArrowUpRight, ShieldCheck, MapPin, Phone, Building2,
-  Calendar, CheckCircle2, ChevronRight, AlertCircle, BarChart3, PieChart as PieChartIcon, Zap, LogIn, Download, Filter, FileText, ExternalLink, RefreshCw, LayoutDashboard
+  Calendar, CheckCircle2, ChevronRight, AlertCircle, BarChart3, PieChart as PieChartIcon, Zap, LogIn, Download, Filter, FileText, ExternalLink, RefreshCw, LayoutDashboard, User
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -340,11 +340,21 @@ export default function LandingDashboard({
 
   // The staff shell hosts this block as its page banner; on the public page there is no slot, so it renders inline.
   const headerBanner = (
-    <>
-<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">
+    <div className={bannerSlot ? 'pt-3' : ''}>
+      {/* Only the greeting row and its buttons take the header colour; inside the staff shell it also carries the persona icon */}
+      <div className={`flex flex-wrap items-center gap-4 ${bannerSlot ? 'bg-chrome text-white px-4 sm:px-6 py-3' : ''}`}>
+        {bannerSlot && (
+          <div className="w-24 h-24 -mt-6 relative z-10 shrink-0 bg-surface-strong ring-4 ring-primary rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
+            <User className="w-12 h-12" aria-hidden="true" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h2 className={`type-section-title ${bannerSlot ? 'text-white' : 'text-ink'}`}>
+              {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider rounded-none ${bannerSlot ? 'bg-white/15 border border-white/40 text-white' : 'bg-primary text-white'}`}>
                 {userRole ? roleConfig.label : 'Clinic overview'}
               </span>
               <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold uppercase tracking-wider border border-emerald-300 rounded-none flex items-center justify-center gap-1">
@@ -352,41 +362,37 @@ export default function LandingDashboard({
                 All systems operational
               </span>
             </div>
-            <h2 className="type-section-title text-ink flex items-center gap-2.5">
-              <span>
-                {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
-              </span>
-            </h2>
-            <p className="text-xs sm:text-sm text-ink/75 mt-1 font-normal">
-              {userRole ? roleConfig.subtitle : 'Unified healthcare operations launchpad, outpatient telemetry, clinical analytics, and facility status.'}
-            </p>
           </div>
+          <p className={`text-xs sm:text-sm font-normal mt-0.5 ${bannerSlot ? 'text-white/85' : 'text-ink/75'}`}>
+            {userRole ? roleConfig.subtitle : 'Unified healthcare operations launchpad, outpatient telemetry, clinical analytics, and facility status.'}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {/* Export Telemetry Button */}
+          <button
+            type="button"
+            onClick={handleExportTelemetry}
+            disabled={isExporting}
+            className="px-4 py-2 rounded-none bg-surface-accent hover:bg-surface-strong text-accent border border-line font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+          >
+            <Download className={`w-3.5 h-3.5 text-accent ${isExporting ? 'animate-bounce' : ''}`} />
+            <span>{isExporting ? 'Exporting CSV...' : 'Export Telemetry'}</span>
+          </button>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            {/* Export Telemetry Button */}
+          {!userRole && (
             <button
               type="button"
-              onClick={handleExportTelemetry}
-              disabled={isExporting}
-              className="px-4 py-2 rounded-none bg-surface-accent hover:bg-surface-strong text-accent border border-line font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+              onClick={onOpenLogin}
+              className="px-5 py-2 rounded-none bg-primary hover:bg-deep text-white font-bold text-xs shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Download className={`w-3.5 h-3.5 text-accent ${isExporting ? 'animate-bounce' : ''}`} />
-              <span>{isExporting ? 'Exporting CSV...' : 'Export Telemetry'}</span>
+              <LogIn className="w-4 h-4" />
+              <span>Staff Portal</span>
             </button>
-
-            {!userRole && (
-              <button
-                type="button"
-                onClick={onOpenLogin}
-                className="px-5 py-2 rounded-none bg-primary hover:bg-deep text-white font-bold text-xs shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>Staff Portal</span>
-              </button>
-            )}
-          </div>
+          )}
         </div>
-    </>
+      </div>
+
+    </div>
   );
 
   return (

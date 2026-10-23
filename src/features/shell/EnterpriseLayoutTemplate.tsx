@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import logoUrl from '../../assets/logo_transparent.svg';
 import ThemeSelector from '../../components/ui/ThemeSelector';
 import NotificationBell from './NotificationBell';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
@@ -12,7 +11,7 @@ import type { UserRole } from '../../types';
 import { useSettings } from '../../context/SettingsContext';
 import {
   Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
-  FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
+  FileText, Pill, CreditCard, Search, Clock, RefreshCw, 
   ChevronDown, ChevronRight, LogOut, CalendarClock, PackageOpen, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck, User
 } from 'lucide-react';
 
@@ -74,16 +73,13 @@ export default function EnterpriseLayoutTemplate({
   const lastSyncedTime = lastSyncedAt
     ? new Date(lastSyncedAt).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })
     : '';
-  const [showClinicInfoTooltip, setShowClinicInfoTooltip] = useState<boolean>(false);
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
   const [isNightShift, setIsNightShift] = useState<boolean>(false);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const clinicRef = useRef<HTMLDivElement>(null);
   const { clinic } = useSettings();
   const help = useHelp();
-  const clinicHasDetails = !!(clinic.address || clinic.licenseNo || clinic.phone || clinic.emergencyPhone);
 
   // Close workstation settings popup when clicking outside
   useEffect(() => {
@@ -99,16 +95,6 @@ export default function EnterpriseLayoutTemplate({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showUserMenu]);
-
-  // The clinic-info popover opens on click (so it works on touch and keyboard) and closes on Escape or an outside click.
-  useEffect(() => {
-    if (!showClinicInfoTooltip) return;
-    const away = (e: MouseEvent) => { if (clinicRef.current && !clinicRef.current.contains(e.target as Node)) setShowClinicInfoTooltip(false); };
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowClinicInfoTooltip(false); };
-    document.addEventListener('mousedown', away);
-    document.addEventListener('keydown', esc);
-    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
-  }, [showClinicInfoTooltip]);
 
   useEffect(() => {
     const updateClock = () => {
@@ -140,52 +126,12 @@ export default function EnterpriseLayoutTemplate({
     }`}>
       
       {/* GLOBAL TOP HEADER BAR */}
-      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans shadow-[0_1px_3px_rgb(15_60_76/0.18)]">
+      <header className="h-[70px] bg-surface-accent text-ink px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans">
 
-        {/* Left: Brand Identity & Interactive Clinic Tooltip */}
-        <div ref={clinicRef} className="flex items-center gap-3 relative">
-          <button
-            type="button"
-            onClick={() => setShowClinicInfoTooltip(!showClinicInfoTooltip)}
-            aria-expanded={showClinicInfoTooltip}
-            aria-label="Clinic information"
-            className="flex items-center justify-center gap-3 cursor-pointer group text-left focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none rounded-none"
-          >
-            <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
-              <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <h1 className="type-brand font-sans text-white group-hover:text-teal-100 transition-colors flex items-center gap-1.5">
-                <span>{brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-teal-100 opacity-80 group-hover:opacity-100 transition-opacity" />
-              </h1>
-              {clinic.branch && (
-                <span className="text-2xs text-teal-50 font-mono tracking-wider font-semibold block mt-0.5">{clinic.branch}</span>
-              )}
-            </div>
-          </button>
-
-          {/* Clinic Information Popover Tooltip */}
-          {showClinicInfoTooltip && (
-            <div className="absolute top-12 left-0 z-50 bg-surface dark:bg-chrome-deep border border-line dark:border-white/25 p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-ink dark:text-white font-sans">
-              <div className="flex items-center justify-between border-b border-line dark:border-white/25 pb-2">
-                <span className="font-bold text-ink dark:text-white uppercase flex items-center gap-1.5">
-                  <Building className="w-3.5 h-3.5 text-ink dark:text-teal-100" /> Clinic Info & License
-                </span>
-              </div>
-              {clinicHasDetails ? (
-                <div className="space-y-1 text-muted dark:text-teal-50 font-mono text-2xs">
-                  {clinic.address && <p>📍 {clinic.address}</p>}
-                  {clinic.licenseNo && <p>📋 KKM Licence: {clinic.licenseNo}</p>}
-                  {clinic.phone && <p>📞 Phone: {clinic.phone}</p>}
-                  {clinic.emergencyPhone && <p>🚨 Emergency hotline: {clinic.emergencyPhone}</p>}
-                </div>
-              ) : (
-                <p className="text-ink dark:text-teal-100 text-2xs">Clinic details have not been set. An administrator can add them under Settings, Clinic profile.</p>
-              )}
-            </div>
-          )}
-        </div>
+        {/* Left: clinic name */}
+        <h1 className="type-brand font-sans text-ink" style={{ fontSize: '24px' }}>
+          {brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}
+        </h1>
 
         {/* Center: Persistent Abnormal State Indicator (Shows ONLY when offline or abnormal) */}
         {!isOnline && (
@@ -199,35 +145,35 @@ export default function EnterpriseLayoutTemplate({
         <div className="flex items-center gap-3 relative">
 
           {/* Live Clock */}
-          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-teal-300/40 font-mono text-xs text-white rounded-none font-bold shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-teal-100" />
+          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-surface px-2.5 py-1 border border-line font-mono text-xs text-ink rounded-none font-bold shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-accent" />
             <span>{timeString || '--:--:-- MYT'}</span>
           </div>
 
-          <HelpButton onClick={help.show} />
+          <HelpButton onClick={help.show} light />
 
-          <NotificationBell onOpenTab={setActiveTab} onOpenAdmin={onOpenAdmin} />
+          <NotificationBell onOpenTab={setActiveTab} onOpenAdmin={onOpenAdmin} light />
 
           {/* Combined Workstation Settings & Profile Menu Trigger */}
           <div ref={userMenuRef} className="relative">
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-teal-300/40 px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
+              className="flex items-center justify-center gap-2 bg-surface hover:bg-surface-strong border border-line px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
               title="Workstation settings, user profile, and preferences"
               aria-expanded={showUserMenu}
             >
-              <div className="w-6 h-6 bg-chrome text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none border border-teal-300/40">
+              <div className="w-6 h-6 bg-primary text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none">
                 {getUserInitials(userName)}
               </div>
               <div className="text-left hidden sm:block">
-                <p className="text-white text-xs font-bold leading-none">{userName || 'Clinician'}</p>
-                <p className="text-2xs text-teal-100 font-mono uppercase tracking-wider mt-0.5">
+                <p className="text-ink text-xs font-bold leading-none">{userName || 'Clinician'}</p>
+                <p className="text-2xs text-muted font-mono uppercase tracking-wider mt-0.5">
                   {userRole ? joinRoleLabels(held) : 'Staff'}
                 </p>
               </div>
-              <Settings className="w-4 h-4 text-teal-100 ml-1" />
-              <ChevronDown className="w-3.5 h-3.5 text-teal-200" />
+              <Settings className="w-4 h-4 text-accent ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-accent" />
             </button>
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
@@ -236,7 +182,7 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center justify-between border-b border-line dark:border-white/15 pb-2.5">
                   <div>
                     <p className="font-bold text-sm text-accent dark:text-teal-300">{userName || 'Clinician'}</p>
-                    <p className="text-2xs text-muted dark:text-teal-200 font-mono uppercase">{joinRoleLabels(held)}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
+                    <p className="text-2xs text-muted dark:text-teal-200 font-mono uppercase">{joinRoleLabels(held)}</p>
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" title="Active workstation session"></span>
                 </div>
@@ -360,34 +306,34 @@ export default function EnterpriseLayoutTemplate({
 
       </header>
 
-      {/* PAGE BANNER + NAVBAR: one attached block, shadowed at the bottom only */}
-      <section className={`w-full bg-surface-accent/95 backdrop-blur-md border-b border-line text-ink relative z-20 px-4 sm:px-6 shrink-0 font-sans ${activeTab === 'dashboard' ? 'py-4' : 'py-2'}`} aria-label="Page banner">
-        <div className="flex items-center gap-4">
-          {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
-          <div className={`${activeTab === 'dashboard' ? 'w-14 h-14' : 'w-10 h-10'} shrink-0 bg-surface-strong border border-line rounded-full flex items-center justify-center text-accent`} role="img" aria-label="Profile photo placeholder">
-            <User className={activeTab === 'dashboard' ? 'w-8 h-8' : 'w-6 h-6'} aria-hidden="true" />
-          </div>
-          {activeTab === 'dashboard' ? (
-            // The dashboard portals its greeting card in here
-            <div id="page-banner-slot" className="min-w-0 flex-1" />
-          ) : (
-            // Work pages: one line, so the page content gets the space
+      {/* PAGE BANNER + NAVBAR: flat, separated by hairlines only */}
+      <section className="w-full bg-surface-accent text-ink relative z-20 pt-3 shrink-0 font-sans" aria-label="Page banner">
+        {activeTab === 'dashboard' ? (
+          // The dashboard portals its greeting block in here, persona icon included
+          <div id="page-banner-slot" className="min-w-0" />
+        ) : (
+          // Work pages: one teal line, so the page content gets the space
+          <div className="flex items-center gap-4 bg-chrome text-white px-4 sm:px-6 py-2">
+            {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
+            <div className="w-16 h-16 -mt-3 relative z-10 shrink-0 bg-surface-strong ring-4 ring-primary rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
+              <User className="w-9 h-9" aria-hidden="true" />
+            </div>
             <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h1 className="type-card-title text-ink truncate">{`${getGreeting()}, ${userName}`}</h1>
-              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
+              <h1 className="type-card-title text-white truncate">{`${getGreeting()}, ${userName}`}</h1>
+              <span className="px-2.5 py-0.5 bg-white/15 border border-white/40 text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
               <span className={`px-2 py-0.5 ${isOnline ? 'chip-ok' : 'chip-danger'} font-mono text-[10px] font-bold uppercase tracking-wider border rounded-none flex items-center justify-center gap-1`}>
                 <span className={`w-1.5 h-1.5 rounded-none animate-pulse ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
                 {isOnline ? 'All systems operational' : 'Offline'}
               </span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
       {/* WORKSPACE SUB-NAVIGATION BAR */}
       <div className="flex-1 flex flex-col overflow-hidden relative font-sans">
 
-        <nav className="w-full bg-surface-strong text-ink flex items-stretch justify-between shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar relative z-10 font-sans">
+        <nav className="w-full bg-surface-accent text-ink border-b border-line flex items-stretch justify-between shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar relative z-10 font-sans">
 
           <div className="flex items-stretch h-full" id="sidebar-navigation-links">
 
@@ -630,7 +576,7 @@ export default function EnterpriseLayoutTemplate({
               type="button"
               onClick={handleManualSync}
               disabled={isFetching || !isOnline}
-              className="px-2.5 py-1 hover:bg-surface-accent text-accent rounded-none transition-colors border border-line font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-2.5 py-1 hover:bg-surface text-accent rounded-none transition-colors border border-line font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
               title="Refresh clinical records from the server"
             >
               <RefreshCw className={`w-3 h-3 ${isFetching ? 'motion-safe:animate-spin text-accent' : ''}`} />
