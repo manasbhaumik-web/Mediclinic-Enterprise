@@ -170,6 +170,11 @@ export function appointmentFromRow(a: any): Appointment {
     doctorId: a.doctor_id,
     notes: a.notes,
     createdAt: a.created_at,
+    source: a.source === 'online' ? 'online' : 'staff',
+    bookingRef: a.booking_ref ?? undefined,
+    patientIc: a.patient_ic ?? undefined,
+    visitId: a.visit_id ?? undefined,
+    checkedInAt: a.checked_in_at ?? undefined,
   };
 }
 
@@ -185,5 +190,6 @@ export function appointmentToRow(app: Appointment) {
     status: app.status,
     doctor_id: app.doctorId,
     notes: app.notes,
+    patient_ic: app.patientIc ?? null,
   };
 }

@@ -105,6 +105,22 @@ describe('visit mapping', () => {
   });
 });
 
+describe('online booking rows', () => {
+  it('reads the source, reference and check-in link of an appointment row', () => {
+    const a = appointmentFromRow({ id: 'a', patient_name: 'P', patient_phone: '0123456789', appointment_time: '2026-10-26T01:00:00Z', duration_minutes: 30, purpose: 'GP', status: 'Scheduled', created_at: '2026-10-24T00:00:00Z', source: 'online', booking_ref: 'MC-ABC234', patient_ic: '900101-14-5555', visit_id: null });
+    expect(a).toMatchObject({ source: 'online', bookingRef: 'MC-ABC234', patientIc: '900101-14-5555' });
+    expect(a.visitId).toBeUndefined();
+  });
+  it('treats rows without a source as staff bookings and never sends the source back', () => {
+    const a = appointmentFromRow({ id: 'a', patient_name: 'P', patient_phone: '1', appointment_time: 'x', purpose: 'p', status: 'Scheduled', created_at: 'x' });
+    expect(a.source).toBe('staff');
+    const row = appointmentToRow({ ...a, patientIc: '900101-14-5555' });
+    expect(row).toMatchObject({ patient_ic: '900101-14-5555' });
+    expect(row).not.toHaveProperty('source');
+    expect(row).not.toHaveProperty('booking_ref');
+  });
+});
+
 describe('appointment mapping', () => {
   it('round-trips the writable fields', () => {
     const app: Appointment = {

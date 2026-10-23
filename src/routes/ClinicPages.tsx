@@ -107,6 +107,7 @@ export function AppointmentsPage() {
       patientsList={s.patientsList}
       addAppointment={s.addAppointment}
       updateAppointment={s.updateAppointment}
+      checkInAppointment={s.checkInAppointment}
     />
   );
 }

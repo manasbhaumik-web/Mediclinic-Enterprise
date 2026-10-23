@@ -281,6 +281,19 @@ function useClinicMutations() {
     onSettled: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.appointments }),
   });
 
+  // Checking a booked patient in finds or registers them and starts a visit at Awaiting Triage, in one database step.
+  const checkIn = useMutation({
+    mutationFn: async (appointmentId: string) => {
+      const { error } = await supabase.rpc('appointment_check_in', { p_appointment_id: appointmentId });
+      if (error) throw error;
+    },
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: QUERY_KEYS.appointments });
+      void qc.invalidateQueries({ queryKey: ['visits'] });
+      void qc.invalidateQueries({ queryKey: QUERY_KEYS.patients });
+    },
+  });
+
   // Calling a patient is a saved, shared status: the database takes the row lock, so two doctors cannot take the same patient.
   const callPatient = useMutation({
     mutationFn: async ({ visitId, room }: { visitId: string; room: string }) => {
@@ -320,6 +333,11 @@ function useClinicMutations() {
       },
     ),
     addAppointmentToDb: (a: Appointment) => addAppointment.mutateAsync(a).then(() => true as const, logFailure('insert appointment')),
+    /** Checks a booked patient in. Resolves with the database's reason when it cannot be done. */
+    checkInAppointment: (id: string) => checkIn.mutateAsync(id).then(
+      () => ({ ok: true as const }),
+      (err: { message?: string }) => ({ ok: false as const, error: err?.message || 'The patient could not be checked in.' }),
+    ),
     updateAppointmentInDb: (a: Appointment) => updateAppointment.mutateAsync(a).then(() => true as const, logFailure('update appointment')),
   };
 }

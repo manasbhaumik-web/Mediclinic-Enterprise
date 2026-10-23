@@ -39,7 +39,6 @@ export default function ClinicLandingPage({
 
   // Appointment Booking Modal State
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
 
   // Filter & Search State for Doctors and Panels
@@ -69,34 +68,11 @@ export default function ClinicLandingPage({
     return () => clearInterval(timer);
   }, [heroImages.length]);
 
-  const [bookingForm, setBookingForm] = useState({
-    fullName: '',
-    icNumber: '',
-    phone: '',
-    service: 'General Outpatient Consultation',
-    preferredDate: '',
-    preferredTime: '10:00 AM'
-  });
-
   const isBM = activeLanguage === 'BM';
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setBookingSubmitted(true);
-  };
-
-  const resetBooking = () => {
-    setBookingSubmitted(false);
+  const closeBooking = () => {
     setIsBookingOpen(false);
     setSelectedDoctor(null);
-    setBookingForm({
-      fullName: '',
-      icNumber: '',
-      phone: '',
-      service: 'General Outpatient Consultation',
-      preferredDate: '',
-      preferredTime: '10:00 AM'
-    });
   };
 
   const openDoctorBooking = (doctorName: string) => {
@@ -415,7 +391,7 @@ export default function ClinicLandingPage({
       {/* 10. APPOINTMENT BOOKING MODAL                                              */}
       {/* ========================================================================= */}
       {isBookingOpen && (
-        <BookingModal isBM={isBM} selectedDoctor={selectedDoctor} setIsBookingOpen={setIsBookingOpen} bookingSubmitted={bookingSubmitted} bookingForm={bookingForm} resetBooking={resetBooking} handleBookingSubmit={handleBookingSubmit} setBookingForm={setBookingForm} />
+        <BookingModal isBM={isBM} selectedDoctor={selectedDoctor} onClose={closeBooking} />
       )}
 
     </div>

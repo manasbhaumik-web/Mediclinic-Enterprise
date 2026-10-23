@@ -1,11 +1,14 @@
 import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchBookingDoctors } from '../../lib/publicBooking';
+import { formatNric } from '../../utils/nric';
 import { Appointment, Patient } from '../../types';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { 
   Calendar, Clock, Plus, Search, User, Phone, CheckCircle2, 
-  XCircle, AlertCircle, ChevronLeft, ChevronRight, Check, Activity, Filter
+  XCircle, AlertCircle, ChevronLeft, ChevronRight, Check, Activity, Filter, Globe, LogIn
 } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay, parseISO, setHours, setMinutes } from 'date-fns';
 
@@ -14,14 +17,28 @@ interface AppointmentCalendarProps {
   patientsList: Patient[];
   addAppointment: (app: Omit<Appointment, 'id' | 'createdAt'>) => Promise<void>;
   updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>;
+  checkInAppointment: (id: string) => Promise<{ ok: true } | { ok: false; error: string }>;
 }
 
 export default function AppointmentCalendarModule({
   appointments,
   patientsList,
   addAppointment,
-  updateAppointment
+  updateAppointment,
+  checkInAppointment
 }: AppointmentCalendarProps) {
+  const doctorsQuery = useQuery({ queryKey: ['booking-doctors'], queryFn: fetchBookingDoctors, staleTime: 5 * 60_000 });
+  const doctorName = (id?: string) => doctorsQuery.data?.find((d) => d.id === id)?.name;
+  const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const [checkingIn, setCheckingIn] = useState<string | null>(null);
+  const handleCheckIn = async (app: Appointment) => {
+    setCheckingIn(app.id);
+    const r = await checkInAppointment(app.id);
+    setCheckingIn(null);
+    setNotice('error' in r
+      ? { tone: 'error', text: r.error }
+      : { tone: 'ok', text: `${app.patientName} is checked in and waiting for triage.` });
+  };
   // Configurable settings
   const [slotDuration, setSlotDuration] = useState(30); // minutes
   const clinicStartTime = 9; // 9 AM
@@ -35,6 +52,7 @@ export default function AppointmentCalendarModule({
     patientName: '',
     patientPhone: '',
     patientId: '',
+    patientIc: '',
     purpose: '',
     notes: ''
   });
@@ -73,6 +91,7 @@ export default function AppointmentCalendarModule({
       patientName: '',
       patientPhone: '',
       patientId: '',
+      patientIc: '',
       purpose: '',
       notes: ''
     });
@@ -87,6 +106,7 @@ export default function AppointmentCalendarModule({
       patientName: modalForm.patientName,
       patientPhone: modalForm.patientPhone,
       patientId: modalForm.patientId || undefined,
+      patientIc: modalForm.patientIc || undefined,
       appointmentTime: selectedSlotTime.toISOString(),
       durationMinutes: slotDuration,
       purpose: modalForm.purpose,
@@ -158,6 +178,13 @@ export default function AppointmentCalendarModule({
           </div>
         </div>
       </div>
+
+      {notice && (
+        <div role={notice.tone === 'error' ? 'alert' : 'status'} className={`flex items-start justify-between gap-3 p-3 text-xs font-medium border ${notice.tone === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
+          <span>{notice.text}</span>
+          <button type="button" onClick={() => setNotice(null)} className="font-bold underline cursor-pointer">Dismiss</button>
+        </div>
+      )}
 
       {/* Main Calendar Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -244,13 +271,13 @@ export default function AppointmentCalendarModule({
             {/* Time Slot List */}
             <div className="p-4 space-y-3.5 flex-1">
               {timeSlots.map(time => {
-                // Find if an appointment exists for this slot
-                const appointment = todayAppointments.find(a => {
+                // Every booking that starts in this slot (different doctors can share a time)
+                const slotAppointments = todayAppointments.filter(a => {
                   const aTime = parseISO(a.appointmentTime);
                   return aTime.getTime() >= time.getTime() && aTime.getTime() < time.getTime() + slotDuration * 60000;
                 });
 
-                if (appointment) {
+                if (slotAppointments.length > 0) {
                   return (
                     <div key={time.toISOString()} className="flex items-stretch gap-3 group">
                       <div className="w-20 sm:w-24 text-right pr-2 pt-3 shrink-0">
@@ -259,7 +286,9 @@ export default function AppointmentCalendarModule({
                         </span>
                       </div>
                       
-                      <div className={`flex-1 rounded-none p-4 border transition-all relative ${
+                      <div className="flex-1 space-y-2">
+                      {slotAppointments.map((appointment) => (
+                      <div key={appointment.id} className={`rounded-none p-4 border transition-all relative ${
                         appointment.status === 'Cancelled' ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40 border-l-4 border-l-rose-500 opacity-75' :
                         appointment.status === 'Completed' ? 'bg-slate-50 dark:bg-night-950 border-slate-200 dark:border-teal-900/40 border-l-4 border-l-slate-400 opacity-85' :
                         appointment.status === 'No-Show' ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500' :
@@ -271,6 +300,14 @@ export default function AppointmentCalendarModule({
                               <h4 className="type-card-title text-ink dark:text-teal-300">
                                 {appointment.patientName}
                               </h4>
+                              {appointment.source === 'online' && (
+                                <span className="chip-info px-1.5 py-0.5 text-2xs font-bold inline-flex items-center gap-1" title="Booked on the clinic website">
+                                  <Globe className="w-3 h-3" aria-hidden="true" />Online{appointment.bookingRef ? ` · ${appointment.bookingRef}` : ''}
+                                </span>
+                              )}
+                              {doctorName(appointment.doctorId) && (
+                                <span className="chip-neutral px-1.5 py-0.5 text-2xs font-bold">{doctorName(appointment.doctorId)}</span>
+                              )}
                               {appointment.patientId && (
                                 <span className="bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 text-2xs font-bold px-1.5 py-0.5 rounded-none uppercase font-mono border border-brand/20">
                                   Reg # {appointment.patientId}
@@ -306,10 +343,11 @@ export default function AppointmentCalendarModule({
                         {appointment.status === 'Scheduled' && (
                           <div className="mt-3 pt-2.5 border-t border-line-subtle dark:border-teal-800/30 flex flex-wrap gap-2">
                             <button 
-                              onClick={() => handleStatusChange(appointment.id, 'Completed')} 
-                              className="bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
+                              onClick={() => void handleCheckIn(appointment)}
+                              disabled={checkingIn === appointment.id}
+                              className="disabled:opacity-60 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
                             >
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Mark Arrived
+                              <LogIn className="w-3.5 h-3.5" /> {checkingIn === appointment.id ? 'Checking in…' : 'Check in'}
                             </button>
                             <button 
                               onClick={() => handleStatusChange(appointment.id, 'No-Show')} 
@@ -325,6 +363,8 @@ export default function AppointmentCalendarModule({
                             </button>
                           </div>
                         )}
+                      </div>
+                      ))}
                       </div>
                     </div>
                   );
@@ -399,6 +439,21 @@ export default function AppointmentCalendarModule({
                   value={modalForm.patientPhone}
                   onChange={e => setModalForm({...modalForm, patientPhone: e.target.value})}
                   placeholder="e.g. +60123456789"
+                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-mono focus:border-brand focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="appt-ic" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
+                  MyKad Number <span className="text-subtle normal-case">(needed to check the patient in)</span>
+                </label>
+                <input
+                  id="appt-ic"
+                  type="text"
+                  inputMode="numeric"
+                  value={modalForm.patientIc}
+                  onChange={e => setModalForm({...modalForm, patientIc: formatNric(e.target.value)})}
+                  placeholder="900101-14-5555"
                   className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-mono focus:border-brand focus:outline-none"
                 />
               </div>

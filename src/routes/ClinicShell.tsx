@@ -44,6 +44,7 @@ export interface ClinicShellContext {
   updateVisitInDb: ClinicData['updateVisitInDb'];
   addAppointment: (app: Omit<Appointment, 'id' | 'createdAt'>) => Promise<void>;
   updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>;
+  checkInAppointment: (id: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
   onConsultationComplete: (soap: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onDispenseVerified: (visitId: string) => void;
@@ -128,6 +129,7 @@ export default function ClinicShell() {
     addAppointment: async (app) => {
       await data.addAppointmentToDb({ ...app, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
     },
+    checkInAppointment: data.checkInAppointment,
     updateAppointment: async (id, updates) => {
       const existing = appointments.find((a) => a.id === id);
       if (existing) await data.updateAppointmentInDb({ ...existing, ...updates });

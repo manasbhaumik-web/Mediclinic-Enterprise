@@ -114,4 +114,11 @@ export interface Appointment {
   doctorId?: string;
   notes?: string;
   createdAt: string;
+  /** Where the booking came from: front-desk staff or the public website. */
+  source?: 'staff' | 'online';
+  bookingRef?: string;
+  patientIc?: string;
+  /** The visit started when the patient was checked in. */
+  visitId?: string;
+  checkedInAt?: string;
 }
