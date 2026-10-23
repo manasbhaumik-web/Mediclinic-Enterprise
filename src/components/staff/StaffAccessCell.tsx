@@ -61,7 +61,7 @@ export default function StaffAccessCell(p: StaffAccessCellProps) {
         <p className="text-2xs text-subtle">Managed by an administrator</p>
       ) : (
         <div className="flex flex-wrap items-center gap-1">
-          {p.hasLogin && p.state === 'invited' && <button type="button" className={smallBtn} disabled={p.busy} onClick={p.onResend}>Resend invite</button>}
+          {p.hasLogin && p.state === 'invited' && <button type="button" className={smallBtn} disabled={p.busy} onClick={p.onResend}>Resend notification</button>}
           {p.hasLogin && p.state === 'active' && <button type="button" className={smallBtn} disabled={p.busy} onClick={p.onReset}>Send password reset</button>}
           {p.hasLogin && (p.state === 'revoked'
             ? <button type="button" className={smallBtn} disabled={p.busy} onClick={p.onRestore}>Restore access</button>

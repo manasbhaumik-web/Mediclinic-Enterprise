@@ -38,9 +38,8 @@ export default function StaffAccessSection({ jobTitle, department, email, value,
         ) : (
           <>
             <p className="text-xs text-muted leading-relaxed">
-              Choose an access role to create a login for this person. They will receive an email invitation at{' '}
-              <b className="font-mono">{email || 'their email address'}</b> and choose their own password. Leave it as
-              "No system access" to save the staff record only.
+              Tick the access roles to give this person a login now. Access starts straight away; a notification is then emailed to{' '}
+              <b className="font-mono">{email || 'their email address'}</b> so they can choose their own password. If that email cannot be sent, the access still stands and you can resend the notification from the staff list. Leave everything unticked to save the staff record only.
             </p>
 
             <div className="space-y-3">

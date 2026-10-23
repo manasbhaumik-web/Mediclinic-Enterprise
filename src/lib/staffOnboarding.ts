@@ -20,6 +20,10 @@ export interface OnboardResult {
   warning?: string;
   staffId?: string;
   invited?: boolean;
+  /** The login exists and the roles are set. False only when granting failed. */
+  accessGranted?: boolean;
+  /** The "your access is ready" email went out. Access stands either way. */
+  notified?: boolean;
   /** The same name and date of birth already exists: ask the user to confirm, then resend with allowPossibleDuplicate. */
   possibleDuplicate?: boolean;
   access?: Record<string, { state: AccessState; role: SystemRole | null; roles: SystemRole[] }>;

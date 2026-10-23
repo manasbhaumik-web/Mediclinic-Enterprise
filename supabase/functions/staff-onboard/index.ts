@@ -1,15 +1,17 @@
 // Staff onboarding with system access (RBAC), admin and HR only.
 //
-//   create        add a staff record; if a system role is chosen, also create the login and email an invitation
-//   grant_access  give an existing staff record a login with a role (sends the invitation)
-//   resend_invite replace a pending invitation with a fresh one
+//   create        add a staff record; if roles are chosen, also grant access (login) and then notify
+//   grant_access  give an existing staff record a login with roles, then notify
+//   resend_invite email the access notification again (to someone who has not signed in yet)
 //   send_reset    email a password-reset link to someone who has already signed in
 //   change_role   change the access role(s) of an existing login (a person may hold several)
 //   revoke/restore  block or re-enable sign-in (the staff record is kept)
 //   access_status   invited / active / revoked for every staff record with a login
 //
-// New users receive an invitation link and choose their own password: no password is ever generated, emailed
-// or visible to the person who created the account.
+// Access is granted straight away: the login is created and linked with no invitation email. A notification
+// (a link to choose their own password) is then emailed as a separate, best-effort step. If that email cannot be
+// sent the access still stands, and the result says so, so it can be re-sent from the staff list. No password is ever
+// generated, emailed or visible to the person who gave the access.
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { authenticate, corsHeadersFor, jsonResponse, recordEvent, serviceClient } from '../_shared/runtime.ts';
@@ -49,15 +51,30 @@ serve(async (req) => {
     return set;
   };
 
-  /** Create the login, email the invitation and link it to the staff record with the chosen roles. */
-  async function grantAccess(staff: { id: string; name: string; email: string }, roles: SystemRole[]): Promise<{ ok: boolean; message?: string }> {
-    const { data, error } = await db.auth.admin.inviteUserByEmail(staff.email, {
-      data: { full_name: staff.name },
-      redirectTo: redirectUrl(),
+  /**
+   * Tell the person their access is ready, with a link to choose their own password. Best effort: it reports
+   * whether it worked and never changes the access that was already given.
+   */
+  async function notifyAccess(email: string): Promise<{ ok: boolean; message?: string }> {
+    try {
+      const anon = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, { auth: { persistSession: false } });
+      const { error } = await anon.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl() });
+      return error ? { ok: false, message: error.message } : { ok: true };
+    } catch (e) {
+      return { ok: false, message: e instanceof Error ? e.message : 'The email service did not respond.' };
+    }
+  }
+
+  /** Create the login (no email is sent here) and link it to the staff record with the chosen roles. */
+  async function grantAccess(staff: { id: string; name: string; email: string }, roles: SystemRole[]): Promise<{ ok: boolean; message?: string; notified?: boolean; notifyError?: string }> {
+    const { data, error } = await db.auth.admin.createUser({
+      email: staff.email,
+      email_confirm: true,
+      user_metadata: { full_name: staff.name },
     });
     if (error || !data?.user) {
       const exists = /already|registered|exists/i.test(error?.message ?? '');
-      return { ok: false, message: exists ? 'A login with this email already exists.' : `Could not send the invitation: ${error?.message ?? 'unknown error'}` };
+      return { ok: false, message: exists ? 'A login with this email already exists.' : `Could not create the login: ${error?.message ?? 'unknown error'}` };
     }
     const userId = data.user.id;
     const role = roles[0];
@@ -72,7 +89,11 @@ serve(async (req) => {
       return { ok: false, message: 'Could not link the login to the staff record.' };
     }
     await audit('staff.access_granted', `staff ${staff.id} granted ${roles.join(', ')}`);
-    return { ok: true };
+
+    // Access is now given. The notification is a separate step whose outcome is reported, not required.
+    const notice = await notifyAccess(staff.email);
+    await audit(notice.ok ? 'staff.access_notified' : 'staff.notify_failed', `staff ${staff.id}${notice.ok ? '' : `: ${notice.message}`}`, notice.ok ? 'success' : 'failure');
+    return { ok: true, notified: notice.ok, notifyError: notice.message };
   }
 
   async function loadStaff(id: string) {
@@ -125,9 +146,11 @@ serve(async (req) => {
     const granted = await grantAccess(row, roles);
     if (!granted.ok) {
       await audit('staff.access_failed', `staff ${row.id}: ${granted.message}`, 'failure');
-      return jsonResponse(req, { ok: true, staffId: row.id, invited: false, warning: `Staff record saved, but access was not granted. ${granted.message} You can retry from the staff list.` });
+      return jsonResponse(req, { ok: true, staffId: row.id, accessGranted: false, notified: false, invited: false, warning: `Staff record saved, but access was not granted. ${granted.message} You can retry from the staff list.` });
     }
-    return jsonResponse(req, { ok: true, staffId: row.id, invited: true, message: `Staff record saved. An invitation was emailed to ${row.email}.` });
+    return jsonResponse(req, granted.notified
+      ? { ok: true, staffId: row.id, accessGranted: true, notified: true, invited: true, message: `Staff record saved and access granted. A notification was emailed to ${row.email}.` }
+      : { ok: true, staffId: row.id, accessGranted: true, notified: false, invited: true, warning: `Staff record saved and access granted, but the notification email could not be sent (${granted.notifyError ?? 'unknown reason'}). Use "Resend notification" in the staff list.` });
   }
 
   // ---------- access status for the directory ----------
@@ -158,7 +181,10 @@ serve(async (req) => {
     if (roles.length === 0) return fail('Unknown access role.');
     if (!canGrantAll(caller.role, roles)) return fail('You are not allowed to grant that access role.', 403);
     const granted = await grantAccess(staff, roles);
-    return jsonResponse(req, granted.ok ? { ok: true, message: `Invitation emailed to ${staff.email}.` } : { ok: false, message: granted.message });
+    if (!granted.ok) return jsonResponse(req, { ok: false, message: granted.message });
+    return jsonResponse(req, granted.notified
+      ? { ok: true, accessGranted: true, notified: true, message: `Access granted. A notification was emailed to ${staff.email}.` }
+      : { ok: true, accessGranted: true, notified: false, warning: `Access granted, but the notification email could not be sent (${granted.notifyError ?? 'unknown reason'}). Use "Resend notification" in the staff list.` });
   }
 
   if (!staff.auth_id) return fail('This person has no login yet. Grant access first.');
@@ -167,13 +193,11 @@ serve(async (req) => {
   if (action === 'resend_invite') {
     const { data: u } = await db.auth.admin.getUserById(staff.auth_id);
     if (u?.user?.last_sign_in_at) return fail('This person has already signed in. Use "Send password reset" instead.');
-    const roles = staff.roles;
-    if (roles.length === 0) return fail('This person has no access role recorded.');
-    // Unlink first (staff.auth_id references the login), then remove the pending login and its profile.
-    await db.from('staff').update({ auth_id: null, system_role: null, system_roles: null, invited_at: null }).eq('id', staff.id);
-    await db.auth.admin.deleteUser(staff.auth_id);
-    const granted = await grantAccess(staff, roles);
-    return jsonResponse(req, granted.ok ? { ok: true, message: `A new invitation was emailed to ${staff.email}.` } : { ok: false, message: granted.message });
+    const notice = await notifyAccess(staff.email);
+    await audit(notice.ok ? 'staff.access_notified' : 'staff.notify_failed', `staff ${staff.id}${notice.ok ? '' : `: ${notice.message}`}`, notice.ok ? 'success' : 'failure');
+    return jsonResponse(req, notice.ok
+      ? { ok: true, notified: true, message: `Notification emailed to ${staff.email}.` }
+      : { ok: false, notified: false, message: `The notification email could not be sent (${notice.message ?? 'unknown reason'}). Their access is unchanged; try again later.` });
   }
 
   if (action === 'send_reset') {

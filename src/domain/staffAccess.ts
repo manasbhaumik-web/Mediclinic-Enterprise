@@ -59,7 +59,7 @@ export type AccessLabelTone = 'ok' | 'info' | 'warn' | 'idle';
 
 export function accessBadge(state: 'none' | 'invited' | 'active' | 'revoked' | undefined, hasRole: boolean): { label: string; tone: AccessLabelTone } {
   if (state === 'active') return { label: 'Has access', tone: 'ok' };
-  if (state === 'invited') return { label: 'Invited', tone: 'info' };
+  if (state === 'invited') return { label: 'Access given, not signed in yet', tone: 'info' };
   if (state === 'revoked') return { label: 'Access revoked', tone: 'warn' };
   return { label: hasRole ? 'Not signed up' : 'No system access', tone: 'idle' };
 }

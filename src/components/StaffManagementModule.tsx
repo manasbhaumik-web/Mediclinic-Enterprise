@@ -208,7 +208,7 @@ Add anyway?`)) return;
         setEditingStaffId(null);
         setNotice({ ok: true, text: 'Staff record updated.' });
       } else {
-        // Creating goes through the server so the login, invitation email and role are set up together.
+        // Creating goes through the server: it saves the record, grants the access, then emails a notification (access stands even if that email fails).
         const payload = {
           name: newStaff.name, email: newStaff.email, role: newStaff.role, department: newStaff.department,
           status: newStaff.status, gender: newStaff.gender, dob: newStaff.dob, icNumber: newStaff.icNumber,
@@ -224,7 +224,8 @@ Add anyway?`)) return;
           setNotice({ ok: false, text: res.message ?? 'Could not create the staff member.' });
           return;
         }
-        setNotice({ ok: !res.warning, text: res.warning ?? res.message ?? 'Staff member created.' });
+        // A notification that could not be sent is a warning, not a failure: the access was given.
+        setNotice({ ok: res.accessGranted !== false || !res.warning, text: res.warning ?? res.message ?? 'Staff member created.' });
       }
       setCurrentView('list');
       fetchStaff();
@@ -365,7 +366,7 @@ Add anyway?`)) return;
       )}
 
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-surface-accent text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
@@ -415,22 +416,22 @@ Add anyway?`)) return;
 
       {/* 2. TOP METRICS CARDS ROW (Gives immediate structure & balance) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Registered Personnel</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{staffList.length} Members</span>
         </div>
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Active Duty Staff</span>
           <span className="text-xl font-bold font-mono text-emerald-700 block mt-0.5">{activeCount} Active</span>
         </div>
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Est. Monthly Payroll</span>
           <span className="text-xl font-bold font-mono text-accent block mt-0.5">RM {totalPayroll.toLocaleString()}</span>
         </div>
 
-        <div className="bg-surface-accent border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Pending Disbursals</span>
           <span className="text-xl font-bold font-mono text-amber-700 block mt-0.5">{pendingPayments} Pending</span>
         </div>
@@ -495,7 +496,7 @@ Add anyway?`)) return;
               
               {/* Search & Filter Bar (Only when staff records exist) */}
               {staffList.length > 0 && (
-                <div className="bg-surface-muted border border-line-subtle p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+                <div className="bg-surface border border-line-subtle p-3.5 rounded-none shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
                   <div className="relative w-full md:w-72">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input 
@@ -546,9 +547,9 @@ Add anyway?`)) return;
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-2">
                   
                   {/* Left Column: Hero Onboarding Card */}
-                  <div className="lg:col-span-7 bg-surface-accent border border-line p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
+                  <div className="lg:col-span-7 bg-surface border border-line p-8 rounded-none shadow-xs space-y-6 flex flex-col justify-between">
                     <div className="space-y-4">
-                      <div className="w-14 h-14 rounded-none bg-surface-accent border border-line text-accent flex items-center justify-center shadow-md">
+                      <div className="w-14 h-14 rounded-none bg-surface border border-line text-accent flex items-center justify-center shadow-md">
                         <UserPlus className="w-7 h-7" />
                       </div>
                       
@@ -585,7 +586,7 @@ Add anyway?`)) return;
                   </div>
 
                   {/* Right Column: Quick Onboarding Workflow Guide */}
-                  <div className="lg:col-span-5 bg-surface-muted border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
+                  <div className="lg:col-span-5 bg-surface border border-line-subtle p-6 rounded-none space-y-4 shadow-2xs flex flex-col justify-between">
                     <div className="space-y-3">
                       <h4 className="type-label text-accent flex items-center gap-1.5">
                         <Activity className="w-3.5 h-3.5 text-accent" />
