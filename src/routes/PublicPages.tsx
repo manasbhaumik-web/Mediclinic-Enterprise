@@ -8,10 +8,10 @@ import { splitQueues } from '../domain/visitWorkflow';
 import GlobalSpinner from '../components/ui/GlobalSpinner';
 import { ADMIN_ROLES } from './permissions';
 
-const ClinicLandingPage = React.lazy(() => import('../components/ClinicLandingPage'));
-const LandingDashboard = React.lazy(() => import('../components/LandingDashboard'));
-const LoginModule = React.lazy(() => import('../components/LoginModule'));
-const AdminModule = React.lazy(() => import('../components/AdminModule'));
+const ClinicLandingPage = React.lazy(() => import('../features/landing/ClinicLandingPage'));
+const LandingDashboard = React.lazy(() => import('../features/dashboard/LandingDashboard'));
+const LoginModule = React.lazy(() => import('../features/auth/LoginModule'));
+const AdminModule = React.lazy(() => import('../features/admin/AdminModule'));
 
 export function LandingPage() {
   const navigate = useNavigate();

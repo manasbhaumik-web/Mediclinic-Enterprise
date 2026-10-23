@@ -1,0 +1,690 @@
+import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import logoUrl from '../../assets/logo_transparent.svg';
+import ThemeSelector from '../../components/ui/ThemeSelector';
+import NotificationBell from './NotificationBell';
+import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
+import { brandName } from '../../utils/brandName';
+import { bannerFor, getGreeting } from '../../domain/roleBanner';
+import { canOpenTab } from '../../routes/permissions';
+import { joinRoleLabels } from '../../domain/roles';
+import type { UserRole } from '../../types';
+import { useSettings } from '../../context/SettingsContext';
+import {
+  Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
+  FileText, Pill, CreditCard, Search, Clock, RefreshCw, Building, 
+  ChevronDown, ChevronRight, LogOut, CalendarClock, PackageOpen, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck, User
+} from 'lucide-react';
+
+interface EnterpriseLayoutTemplateProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  userName: string;
+  userRole: string;
+  /** Every role the person holds; the navbar shows the union of their pages. */
+  userRoles?: UserRole[];
+  isOnline: boolean;
+  setIsOnline: (val: boolean) => void;
+  showPII: boolean;
+  setShowPII: (val: boolean) => void;
+  activeLanguage: string;
+  setActiveLanguage: (val: string) => void;
+  onSignOut: () => void;
+  onOpenAdmin?: () => void;
+  t: any;
+  triageQueueLength?: number;
+  doctorQueueLength: number;
+  pharmacyQueueLength: number;
+  cashierQueueLength: number;
+  children: React.ReactNode;
+}
+
+export default function EnterpriseLayoutTemplate({
+  activeTab,
+  setActiveTab,
+  userName,
+  userRole,
+  userRoles,
+  isOnline,
+  setIsOnline,
+  showPII,
+  setShowPII,
+  activeLanguage,
+  setActiveLanguage,
+  onSignOut,
+  onOpenAdmin,
+  t,
+  triageQueueLength = 0,
+  doctorQueueLength,
+  pharmacyQueueLength,
+  cashierQueueLength,
+  children
+}: EnterpriseLayoutTemplateProps) {
+  // Live Real-Time Clock & Sync timestamp
+  const [timeString, setTimeString] = useState<string>('');
+  // Sync status reflects the real query cache: the newest successful fetch and any fetch in flight.
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching() > 0;
+  const queryCache = queryClient.getQueryCache();
+  const lastSyncedAt = useSyncExternalStore(
+    // Only successful fetches matter here; queries being created during other components' renders must not wake the header.
+    (notify) => queryCache.subscribe((event) => { if (event.type === 'updated' && event.action.type === 'success') notify(); }),
+    () => queryCache.getAll().reduce((latest, q) => Math.max(latest, q.state.dataUpdatedAt), 0),
+  );
+  const lastSyncedTime = lastSyncedAt
+    ? new Date(lastSyncedAt).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })
+    : '';
+  const [showClinicInfoTooltip, setShowClinicInfoTooltip] = useState<boolean>(false);
+  const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
+  const [isNightShift, setIsNightShift] = useState<boolean>(false);
+
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const clinicRef = useRef<HTMLDivElement>(null);
+  const { clinic } = useSettings();
+  const help = useHelp();
+  const clinicHasDetails = !!(clinic.address || clinic.licenseNo || clinic.phone || clinic.emergencyPhone);
+
+  // Close workstation settings popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
+  // The clinic-info popover opens on click (so it works on touch and keyboard) and closes on Escape or an outside click.
+  useEffect(() => {
+    if (!showClinicInfoTooltip) return;
+    const away = (e: MouseEvent) => { if (clinicRef.current && !clinicRef.current.contains(e.target as Node)) setShowClinicInfoTooltip(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowClinicInfoTooltip(false); };
+    document.addEventListener('mousedown', away);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
+  }, [showClinicInfoTooltip]);
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      setTimeString(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' MYT');
+    };
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleManualSync = () => { void queryClient.invalidateQueries(); };
+
+  const getUserInitials = (name: string) => {
+    if (!name) return 'EX';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const held: UserRole[] = userRoles && userRoles.length > 0 ? userRoles : [userRole as UserRole];
+  const roleLabel = bannerFor(held).label;
+  // Navbar items come from the same table as the route guards, so a page is shown exactly when it can be opened.
+  const can = (tab: Parameters<typeof canOpenTab>[1]) => canOpenTab(held, tab);
+
+  return (
+    <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
+      isNightShift ? 'dark bg-night-850 text-slate-100' : 'bg-canvas text-ink'
+    }`}>
+      
+      {/* GLOBAL TOP HEADER BAR */}
+      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans shadow-[0_1px_3px_rgb(15_60_76/0.18)]">
+
+        {/* Left: Brand Identity & Interactive Clinic Tooltip */}
+        <div ref={clinicRef} className="flex items-center gap-3 relative">
+          <button
+            type="button"
+            onClick={() => setShowClinicInfoTooltip(!showClinicInfoTooltip)}
+            aria-expanded={showClinicInfoTooltip}
+            aria-label="Clinic information"
+            className="flex items-center justify-center gap-3 cursor-pointer group text-left focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none rounded-none"
+          >
+            <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
+              <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h1 className="type-brand font-sans text-white group-hover:text-teal-100 transition-colors flex items-center gap-1.5">
+                <span>{brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-teal-100 opacity-80 group-hover:opacity-100 transition-opacity" />
+              </h1>
+              {clinic.branch && (
+                <span className="text-2xs text-teal-50 font-mono tracking-wider font-semibold block mt-0.5">{clinic.branch}</span>
+              )}
+            </div>
+          </button>
+
+          {/* Clinic Information Popover Tooltip */}
+          {showClinicInfoTooltip && (
+            <div className="absolute top-12 left-0 z-50 bg-surface dark:bg-chrome-deep border border-line dark:border-white/25 p-4 shadow-2xl text-xs space-y-2 w-72 rounded-none animate-fadeIn text-ink dark:text-white font-sans">
+              <div className="flex items-center justify-between border-b border-line dark:border-white/25 pb-2">
+                <span className="font-bold text-ink dark:text-white uppercase flex items-center gap-1.5">
+                  <Building className="w-3.5 h-3.5 text-ink dark:text-teal-100" /> Clinic Info & License
+                </span>
+              </div>
+              {clinicHasDetails ? (
+                <div className="space-y-1 text-muted dark:text-teal-50 font-mono text-2xs">
+                  {clinic.address && <p>📍 {clinic.address}</p>}
+                  {clinic.licenseNo && <p>📋 KKM Licence: {clinic.licenseNo}</p>}
+                  {clinic.phone && <p>📞 Phone: {clinic.phone}</p>}
+                  {clinic.emergencyPhone && <p>🚨 Emergency hotline: {clinic.emergencyPhone}</p>}
+                </div>
+              ) : (
+                <p className="text-ink dark:text-teal-100 text-2xs">Clinic details have not been set. An administrator can add them under Settings, Clinic profile.</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Center: Persistent Abnormal State Indicator (Shows ONLY when offline or abnormal) */}
+        {!isOnline && (
+          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase motion-safe:animate-pulse">
+            <WifiOff className="w-3.5 h-3.5 text-rose-300" />
+            <span>Offline Mode (Cached local data)</span>
+          </div>
+        )}
+
+        {/* Right Controls: Consolidated Workstation Settings & User Menu */}
+        <div className="flex items-center gap-3 relative">
+
+          {/* Live Clock */}
+          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-teal-300/40 font-mono text-xs text-white rounded-none font-bold shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-teal-100" />
+            <span>{timeString || '--:--:-- MYT'}</span>
+          </div>
+
+          <HelpButton onClick={help.show} />
+
+          <NotificationBell onOpenTab={setActiveTab} onOpenAdmin={onOpenAdmin} />
+
+          {/* Combined Workstation Settings & Profile Menu Trigger */}
+          <div ref={userMenuRef} className="relative">
+            <button 
+              type="button"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-teal-300/40 px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
+              title="Workstation settings, user profile, and preferences"
+              aria-expanded={showUserMenu}
+            >
+              <div className="w-6 h-6 bg-chrome text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none border border-teal-300/40">
+                {getUserInitials(userName)}
+              </div>
+              <div className="text-left hidden sm:block">
+                <p className="text-white text-xs font-bold leading-none">{userName || 'Clinician'}</p>
+                <p className="text-2xs text-teal-100 font-mono uppercase tracking-wider mt-0.5">
+                  {userRole ? joinRoleLabels(held) : 'Staff'}
+                </p>
+              </div>
+              <Settings className="w-4 h-4 text-teal-100 ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-teal-200" />
+            </button>
+
+            {/* Consolidated Workstation Settings & Utility Popover Menu */}
+            {showUserMenu && (
+              <div className="absolute right-0 top-12 w-72 bg-surface dark:bg-night-900 border border-line dark:border-white/15 p-4 shadow-2xl text-xs space-y-3 rounded-none animate-fadeIn text-ink dark:text-white z-50 font-sans">
+                <div className="flex items-center justify-between border-b border-line dark:border-white/15 pb-2.5">
+                  <div>
+                    <p className="font-bold text-sm text-accent dark:text-teal-300">{userName || 'Clinician'}</p>
+                    <p className="text-2xs text-muted dark:text-teal-200 font-mono uppercase">{joinRoleLabels(held)}{clinic.branch ? ` • ${clinic.branch}` : ''}</p>
+                  </div>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" title="Active workstation session"></span>
+                </div>
+
+                {/* Leave and attendance live here, so the navbar holds only clinical work */}
+                <button
+                  type="button"
+                  id="user-menu-my-leave"
+                  onClick={() => { setActiveTab('my-leave'); setShowUserMenu(false); }}
+                  className="w-full min-h-11 flex items-center gap-2 px-3 bg-surface-accent dark:bg-night-800 border border-line dark:border-white/15 hover:bg-surface-strong dark:hover:bg-night-700 text-ink dark:text-teal-100 font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+                >
+                  <CalendarClock className="w-4 h-4 text-muted dark:text-teal-200" aria-hidden="true" />
+                  <span>My leave &amp; attendance</span>
+                </button>
+
+                {/* Utility Section: Workstation Settings */}
+                <div className="space-y-2.5 pt-1">
+                  <p className="text-2xs font-mono uppercase text-accent dark:text-teal-300 tracking-wider font-bold">Workstation Settings</p>
+                  
+                  {/* 1. Day / Night Shift Mode Toggle */}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" />}
+                      <span>Theme Mode</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsNightShift(!isNightShift)}
+                      className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                        isNightShift ? 'bg-teal-950 text-amber-300 border-line dark:border-teal-700' : 'bg-primary text-white border-teal-600'
+                      }`}
+                    >
+                      {isNightShift ? 'Night Shift' : 'Day Mode'}
+                    </button>
+                  </div>
+
+                  {/* Colour theme (Ice Mint / Sky Blue) */}
+                  <ThemeSelector variant="menu" />
+
+                  {/* 2. Privacy Mode (PII Masking) Toggle */}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {showPII ? <Eye className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" /> : <EyeOff className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" />}
+                      <span>Privacy Mask</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowPII(!showPII)}
+                      className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                        showPII ? 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-500/30 dark:text-amber-100 dark:border-amber-400/50' : 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-500/30 dark:text-emerald-200 dark:border-emerald-400/40'
+                      }`}
+                    >
+                      {showPII ? 'Off (Exposed)' : 'On (Masked)'}
+                    </button>
+                  </div>
+
+                  {/* 3. Network simulator: development builds only. Production follows the browser's real connection. */}
+                  {import.meta.env.DEV && (
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      {isOnline ? <Wifi className="w-3.5 h-3.5 text-muted dark:text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />}
+                      <span>Network State</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsOnline(!isOnline)}
+                      className={`px-2.5 py-1 text-2xs font-bold font-mono uppercase transition-colors cursor-pointer border ${
+                        isOnline ? 'bg-emerald-700 text-white border-emerald-600' : 'bg-rose-900 text-rose-200 border-rose-700'
+                      }`}
+                    >
+                      {isOnline ? 'Online' : 'Simulate Offline'}
+                    </button>
+                  </div>
+                  )}
+
+                  {/* 4. Language Switcher */}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-muted dark:text-teal-200" />
+                      <span>Language</span>
+                    </span>
+                    <div className="inline-flex border border-line dark:border-teal-700 font-mono text-2xs">
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('EN')}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'EN' ? 'bg-primary text-white font-bold' : 'text-muted dark:text-teal-200 hover:text-white'}`}
+                      >
+                        EN
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('BM')}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'BM' ? 'bg-primary text-white font-bold' : 'text-muted dark:text-teal-200 hover:text-white'}`}
+                      >
+                        BM
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sign Out Action */}
+                <div className="border-t border-line dark:border-white/15 pt-2.5">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      setShowSignOutConfirm(true);
+                    }}
+                    className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/80 dark:text-rose-200 dark:border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <LogOut className="w-4 h-4 text-rose-400" /> Sign Out Workstation...
+                    </span>
+                    <ChevronRight className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </header>
+
+      {/* PAGE BANNER + NAVBAR: one attached block, shadowed at the bottom only */}
+      <section className={`w-full bg-surface-accent/95 backdrop-blur-md border-b border-line text-ink relative z-20 px-4 sm:px-6 shrink-0 font-sans ${activeTab === 'dashboard' ? 'py-4' : 'py-2'}`} aria-label="Page banner">
+        <div className="flex items-center gap-4">
+          {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
+          <div className={`${activeTab === 'dashboard' ? 'w-14 h-14' : 'w-10 h-10'} shrink-0 bg-surface-strong border border-line rounded-full flex items-center justify-center text-accent`} role="img" aria-label="Profile photo placeholder">
+            <User className={activeTab === 'dashboard' ? 'w-8 h-8' : 'w-6 h-6'} aria-hidden="true" />
+          </div>
+          {activeTab === 'dashboard' ? (
+            // The dashboard portals its greeting card in here
+            <div id="page-banner-slot" className="min-w-0 flex-1" />
+          ) : (
+            // Work pages: one line, so the page content gets the space
+            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h1 className="type-card-title text-ink truncate">{`${getGreeting()}, ${userName}`}</h1>
+              <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">{roleLabel}</span>
+              <span className={`px-2 py-0.5 ${isOnline ? 'chip-ok' : 'chip-danger'} font-mono text-[10px] font-bold uppercase tracking-wider border rounded-none flex items-center justify-center gap-1`}>
+                <span className={`w-1.5 h-1.5 rounded-none animate-pulse ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                {isOnline ? 'All systems operational' : 'Offline'}
+              </span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* WORKSPACE SUB-NAVIGATION BAR */}
+      <div className="flex-1 flex flex-col overflow-hidden relative font-sans">
+
+        <nav className="w-full bg-surface-strong text-ink flex items-stretch justify-between shrink-0 px-4 h-11 overflow-x-auto custom-scrollbar relative z-10 font-sans">
+
+          <div className="flex items-stretch h-full" id="sidebar-navigation-links">
+
+            {/* Dashboard Link */}
+            <button
+              type="button"
+              id="sidebar-link-dashboard"
+              onClick={() => setActiveTab('dashboard')}
+              aria-current={activeTab === 'dashboard' ? 'page' : undefined}
+              className={`nav-btn ${
+                activeTab === 'dashboard' ? 'nav-btn-active' : 'nav-btn-inactive'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-accent' : 'text-subtle'}`} />
+                <span>{t.dashboard || 'Dashboard'}</span>
+              </div>
+            </button>
+
+            {/* Administration Console Link (admin / HR) */}
+            {(held.includes('admin') || held.includes('hr')) && (
+              <button
+                type="button"
+                id="sidebar-link-admin"
+                onClick={() => onOpenAdmin?.()}
+                className="nav-btn nav-btn-inactive"
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-subtle" />
+                  <span>Administration</span>
+                </div>
+              </button>
+            )}
+
+            {/* Registration Navigation Link */}
+            {can('registration') && (
+              <button
+                type="button"
+                id="sidebar-link-registration"
+                onClick={() => setActiveTab('registration')}
+              aria-current={activeTab === 'registration' ? 'page' : undefined}
+                className={`nav-btn ${
+                  activeTab === 'registration' ? 'nav-btn-active' : 'nav-btn-inactive'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {activeTab === 'registration' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-accent' : 'text-subtle'}`} />
+                  <span>{t.patientRegistration || 'Patients & Registry'}</span>
+                </div>
+              </button>
+            )}
+
+            {/* Triage Module Link */}
+            {can('triage') && (
+              <button
+                type="button"
+                id="sidebar-link-triage"
+                onClick={() => setActiveTab('triage')}
+              aria-current={activeTab === 'triage' ? 'page' : undefined}
+                className={`nav-btn ${
+                  activeTab === 'triage' ? 'nav-btn-active' : 'nav-btn-inactive'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-accent' : 'text-subtle'}`} />
+                  <span>Triage Module</span>
+                </div>
+                {triageQueueLength > 0 && (
+                  <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
+                    activeTab === 'triage' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
+                  }`}>
+                    {triageQueueLength}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Appointments Link */}
+            {held.includes('receptionist') && can('appointments') && (
+              <button
+                type="button"
+                id="sidebar-link-appointments"
+                onClick={() => setActiveTab('appointments')}
+              aria-current={activeTab === 'appointments' ? 'page' : undefined}
+                className={`nav-btn ${
+                  activeTab === 'appointments' ? 'nav-btn-active' : 'nav-btn-inactive'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-accent' : 'text-subtle'}`} />
+                  <span>Appointments</span>
+                </div>
+              </button>
+            )}
+
+            {/* Doctor Suite Links */}
+            {can('queue') && (
+              <>
+                <button
+                  type="button"
+                  id="sidebar-link-queue"
+                  onClick={() => setActiveTab('queue')}
+              aria-current={activeTab === 'queue' ? 'page' : undefined}
+                  className={`nav-btn ${
+                    activeTab === 'queue' ? 'nav-btn-active' : 'nav-btn-inactive'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                    <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-accent' : 'text-subtle'}`} />
+                    <span>Patient Queue</span>
+                  </div>
+                  {activeTab !== 'consultation' && doctorQueueLength > 0 && (
+                    <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
+                      activeTab === 'queue' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
+                    }`}>
+                      {doctorQueueLength}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  id="sidebar-link-consultation"
+                  onClick={() => setActiveTab('consultation')}
+              aria-current={activeTab === 'consultation' ? 'page' : undefined}
+                  className={`nav-btn ${
+                    activeTab === 'consultation' ? 'nav-btn-active' : 'nav-btn-inactive'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                    <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-accent' : 'text-subtle'}`} />
+                    <span>Consultation Suite</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  id="sidebar-link-reports"
+                  onClick={() => setActiveTab('reports')}
+              aria-current={activeTab === 'reports' ? 'page' : undefined}
+                  className={`nav-btn ${
+                    activeTab === 'reports' ? 'nav-btn-active' : 'nav-btn-inactive'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                    <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-accent' : 'text-subtle'}`} />
+                    <span>Monthly Reports</span>
+                  </div>
+                </button>
+              </>
+            )}
+
+            {/* Pharmacy Link */}
+            {can('dispensary') && (
+              <button
+                type="button"
+                id="sidebar-link-dispensary"
+                onClick={() => setActiveTab('dispensary')}
+              aria-current={activeTab === 'dispensary' ? 'page' : undefined}
+                className={`nav-btn ${
+                  activeTab === 'dispensary' ? 'nav-btn-active' : 'nav-btn-inactive'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {activeTab === 'dispensary' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-accent' : 'text-subtle'}`} />
+                  <span>{t.dispensary || 'Dispensary'}</span>
+                </div>
+                {pharmacyQueueLength > 0 && (
+                  <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
+                    activeTab === 'dispensary' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
+                  }`}>
+                    {pharmacyQueueLength}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Inventory & stock (pharmacist) */}
+            {can('inventory') && (
+              <button
+                type="button"
+                id="sidebar-link-inventory"
+                onClick={() => setActiveTab('inventory')}
+              aria-current={activeTab === 'inventory' ? 'page' : undefined}
+                className={`nav-btn ${activeTab === 'inventory' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
+              >
+                <div className="flex items-center gap-2">
+                  {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-accent' : 'text-subtle'}`} />
+                  <span>Inventory</span>
+                </div>
+              </button>
+            )}
+
+            {/* Billing Link */}
+            {can('billing') && (
+              <button
+                type="button"
+                id="sidebar-link-billing"
+                onClick={() => setActiveTab('billing')}
+              aria-current={activeTab === 'billing' ? 'page' : undefined}
+                className={`nav-btn ${
+                  activeTab === 'billing' ? 'nav-btn-active' : 'nav-btn-inactive'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {activeTab === 'billing' && <span className="w-1.5 h-1.5 rounded-none bg-primary"></span>}
+                  <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-accent' : 'text-subtle'}`} />
+                  <span>{t.billing || 'Billing'}</span>
+                </div>
+                {cashierQueueLength > 0 && (
+                  <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
+                    activeTab === 'billing' ? 'bg-primary text-white font-bold' : 'bg-primary text-white border-0'
+                  }`}>
+                    {cashierQueueLength}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* Sync Status & Sync Now Action */}
+          <div className="hidden lg:flex items-center space-x-3 text-xs text-muted font-sans pl-4 border-l border-line ml-4">
+            <div className="flex items-center gap-1.5" role="status" aria-live="polite">
+              <span className={`inline-flex rounded-full h-2 w-2 ${!isOnline ? 'bg-rose-400' : isFetching ? 'bg-amber-300 motion-safe:animate-pulse' : 'bg-emerald-400'}`}></span>
+              <span className="text-ink font-bold font-mono">
+                {!isOnline ? 'Offline' : isFetching ? 'Syncing…' : lastSyncedTime ? `Last synced: ${lastSyncedTime}` : 'Not synced yet'}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleManualSync}
+              disabled={isFetching || !isOnline}
+              className="px-2.5 py-1 hover:bg-surface-accent text-accent rounded-none transition-colors border border-line font-sans text-2xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+              title="Refresh clinical records from the server"
+            >
+              <RefreshCw className={`w-3 h-3 ${isFetching ? 'motion-safe:animate-spin text-accent' : ''}`} />
+              <span>Sync Now</span>
+            </button>
+          </div>
+
+        </nav>
+
+        <div className="relative z-40 h-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-b from-[rgb(15_60_76/0.2)] to-transparent" />
+        </div>
+
+        {/* MAIN CONTAINER */}
+        <main className="flex-1 p-5 overflow-y-auto max-h-full font-sans">
+          {children}
+        </main>
+      </div>
+
+      <AppFooter online={isOnline} onHelp={help.show} />
+      <HelpCenter open={help.open} onClose={help.hide} role={userRole} roles={held} activeTab={activeTab} />
+
+      {/* Sign Out Confirmation Modal */}
+      {showSignOutConfirm && (
+        <div className="fixed inset-0 bg-night-950/70 backdrop-blur-xs flex items-center justify-center z-50 p-4 font-sans">
+          <div className="bg-surface dark:bg-night-900 border border-rose-500/50 rounded-none shadow-2xl max-w-sm w-full p-6 text-center space-y-4 animate-slideUp">
+            <div className="w-12 h-12 bg-rose-100 dark:bg-rose-950/60 rounded-none mx-auto flex items-center justify-center text-rose-600 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+              <LogOut className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="type-heading-caps text-ink dark:text-teal-300">Sign Out Workstation</h3>
+              <p className="text-xs text-muted dark:text-slate-300 mt-1 font-medium">Are you sure you want to end your clinical session?</p>
+            </div>
+            <div className="flex gap-2 justify-center pt-2">
+              <button
+                onClick={() => setShowSignOutConfirm(false)}
+                className="px-4 py-2 bg-surface-muted dark:bg-night-850 text-accent dark:text-teal-300 border border-line dark:border-teal-800 font-bold text-xs rounded-none uppercase"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowSignOutConfirm(false);
+                  onSignOut();
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-none uppercase shadow-xs"
+              >
+                Confirm Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+

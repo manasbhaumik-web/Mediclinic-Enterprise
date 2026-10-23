@@ -6,20 +6,20 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { useClinicShell } from './ClinicShell';
 
-const DoctorDashboardModule = React.lazy(() => import('../components/DoctorDashboardModule'));
-const LandingDashboard = React.lazy(() => import('../components/LandingDashboard'));
-const PatientRegistrationModule = React.lazy(() => import('../components/PatientRegistrationModule'));
-const TriageModule = React.lazy(() => import('../components/TriageModule'));
-const AppointmentCalendarModule = React.lazy(() => import('../components/AppointmentCalendarModule'));
-const DispensaryDashboard = React.lazy(() => import('../components/DispensaryDashboard'));
-const BillingDesk = React.lazy(() => import('../components/BillingDesk'));
-const MyLeave = React.lazy(() => import('../components/leave/MyLeave'));
+const DoctorDashboardModule = React.lazy(() => import('../features/doctor/DoctorDashboardModule'));
+const LandingDashboard = React.lazy(() => import('../features/dashboard/LandingDashboard'));
+const PatientRegistrationModule = React.lazy(() => import('../features/registration/PatientRegistrationModule'));
+const TriageModule = React.lazy(() => import('../features/triage/TriageModule'));
+const AppointmentCalendarModule = React.lazy(() => import('../features/appointments/AppointmentCalendarModule'));
+const DispensaryDashboard = React.lazy(() => import('../features/pharmacy/DispensaryDashboard'));
+const BillingDesk = React.lazy(() => import('../features/billing/BillingDesk'));
+const MyLeave = React.lazy(() => import('../features/leave/MyLeave'));
 
 export function MyLeavePage() {
   return <MyLeave />;
 }
 
-const InventoryPageLazy = React.lazy(() => import('../components/inventory/InventoryPage'));
+const InventoryPageLazy = React.lazy(() => import('../features/inventory/InventoryPage'));
 
 /** Pharmacists manage stock here; administrators reach the same screen from the admin console. */
 export function InventoryRoutePage() {

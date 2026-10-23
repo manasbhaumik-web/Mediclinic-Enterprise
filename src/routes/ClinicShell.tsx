@@ -12,7 +12,7 @@ import { useClinicData, useClinicRealtime } from '../hooks/useClinicData';
 import {
   PaymentInfo, completeConsultation, completeDispensing, completeTriage, splitQueues,
 } from '../domain/visitWorkflow';
-import EnterpriseLayoutTemplate from '../components/EnterpriseLayoutTemplate';
+import EnterpriseLayoutTemplate from '../features/shell/EnterpriseLayoutTemplate';
 import GlobalSpinner from '../components/ui/GlobalSpinner';
 import { enqueueIntegration } from '../lib/integrationQueue';
 import { recordEInvoice } from '../lib/einvoiceQueue';

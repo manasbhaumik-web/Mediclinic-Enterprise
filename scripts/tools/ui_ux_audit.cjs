@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const dir = 'src/components';
-const files = fs.readdirSync(dir).filter(f => f.endsWith('.tsx'));
+const root = 'src';
+const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+const files = walk(root).filter(f => f.endsWith('.tsx') && !f.endsWith('.test.tsx'));
+const dir = '.';
 
 let totalSm = 0, totalMd = 0, totalLg = 0, totalAria = 0, totalAnimate = 0, totalTransitions = 0;
 
