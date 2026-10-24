@@ -141,40 +141,42 @@ export default function AdminModule({
       <header className="workspace-header">
         
         {/* Left: Product Title & Branch Context */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border border-line bg-surface-accent p-1.5 shrink-0 flex items-center justify-center shadow-2xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-full border border-line bg-surface-accent p-1.5 shrink-0 flex items-center justify-center shadow-2xs">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
-          <div>
-            <h1 className="type-brand font-sans text-ink flex items-center gap-2 text-[20px]" style={{ fontSize: '20px' }}>
-              <span>Mediclinic Admin Console</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="workspace-header-title truncate text-[20px]" style={{ fontSize: '20px' }}>
+              Mediclinic Admin Console
             </h1>
-            <span className="text-2xs text-muted font-mono tracking-wider font-semibold block mt-0.5">
-              {clinic.branch ? `${clinic.branch} • ` : ''}Executive Console
-            </span>
+            {clinic.branch && (
+              <span className="hidden md:inline-block px-2 py-0.5 bg-surface-accent text-accent border border-line text-2xs font-mono font-semibold rounded-none shrink-0">
+                {clinic.branch}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Center: Offline Warning Indicator */}
         {!isOnline && (
-          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase animate-pulse">
-            <WifiOff className="w-3.5 h-3.5 text-rose-300" />
-            <span>Offline Simulation Mode</span>
+          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-700 dark:text-rose-200 border border-rose-300 dark:border-rose-700 rounded-none text-xs font-mono font-bold uppercase motion-safe:animate-pulse">
+            <WifiOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
+            <span>Offline Mode</span>
           </div>
         )}
 
         {/* Right Controls: Notifications & Workstation Settings */}
-        <div className="flex items-center gap-3 relative">
+        <div className="flex items-center gap-2 sm:gap-3 relative shrink-0">
 
           {onOpenDashboard && (
             <button
               type="button"
               onClick={onOpenDashboard}
-              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-strong border border-line text-ink text-xs font-bold cursor-pointer transition-colors rounded-none"
-              title="Back to dashboard"
+              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-accent border border-line text-accent text-xs font-bold cursor-pointer transition-colors rounded-none"
+              title="Back to Clinical Dashboard"
             >
-              <LayoutDashboard className="w-4 h-4 text-teal-200" />
-              <span>Dashboard</span>
+              <LayoutDashboard className="w-3.5 h-3.5 text-accent" />
+              <span className="hidden sm:inline">Dashboard</span>
             </button>
           )}
           
@@ -183,8 +185,8 @@ export default function AdminModule({
           <NotificationBell onOpenTab={() => {}} onOpenAdmin={(tab) => { if (tab) setActiveTab(tab as AdminTab); }} />
 
           {/* Live Clock */}
-          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-white/25 font-mono tabular-nums text-xs text-white rounded-none font-bold shadow-none">
-            <Clock className="w-3.5 h-3.5 text-teal-100" />
+          <div className="workspace-header-clock">
+            <Clock className="w-3.5 h-3.5 text-accent" />
             <span>{timeString || '14:20:15 MYT'}</span>
           </div>
 
@@ -193,20 +195,20 @@ export default function AdminModule({
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-white/25 px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-none"
+              className="workspace-header-user-btn"
               title="Console Settings"
             >
-              <div className="w-6 h-6 bg-chrome text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none border border-teal-300/40">
+              <div className="workspace-header-avatar-badge">
                 {userRole === 'admin' ? 'AD' : 'HR'}
               </div>
               <div className="text-left hidden sm:block">
-                <p className="text-white text-xs font-bold leading-none">{adminName}</p>
-                <p className="text-2xs text-teal-100 font-mono uppercase tracking-wider mt-0.5">
+                <p className="text-xs font-bold leading-none text-ink">{adminName}</p>
+                <p className="text-2xs text-muted font-mono uppercase tracking-wider mt-0.5">
                   {userRole.toUpperCase()} Console
                 </p>
               </div>
-              <Settings className="w-4 h-4 text-teal-100 ml-1" />
-              <ChevronDown className="w-3.5 h-3.5 text-teal-200" />
+              <Settings className="w-3.5 h-3.5 text-accent ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-muted" />
             </button>
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
@@ -305,7 +307,7 @@ export default function AdminModule({
           <button
             type="button"
             onClick={() => onNavigate('landing')}
-            className="flex items-center justify-center gap-1.5 bg-chrome-deep hover:bg-rose-700 text-teal-100 hover:text-white px-3 py-1.5 border border-white/25 hover:border-rose-600 transition-colors text-xs font-bold cursor-pointer"
+            className="flex items-center justify-center gap-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 px-3 py-1.5 border border-rose-300 dark:border-rose-800 transition-colors text-xs font-bold cursor-pointer rounded-none"
             title="Exit Admin Console"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -315,7 +317,7 @@ export default function AdminModule({
         </div>
       </header>
 
-      {/* PAGE BANNER: footer color chrome shade with protruding persona avatar */}
+      {/* PAGE BANNER */}
       <section className="workspace-banner-section" aria-label="Page banner">
         <div className="workspace-banner-bar">
           <div className="flex items-center gap-3.5 min-w-0 overflow-visible">
@@ -326,21 +328,24 @@ export default function AdminModule({
                 className="w-full h-full object-cover" 
               />
             </div>
-            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h1 className="type-card-title-lg text-white font-bold tracking-tight truncate">{getGreeting()}, {adminName}</h1>
-              <span className="workspace-banner-pill">{userRole === 'admin' ? 'Administrator dashboard' : 'HR dashboard'}</span>
-              <span className="workspace-banner-status">
-                <span className="w-1.5 h-1.5 rounded-none bg-emerald-400 animate-pulse"></span>
-                All systems operational
-              </span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="workspace-banner-title">{getGreeting()}, {adminName}</h1>
+                <span className="workspace-banner-pill">{userRole === 'admin' ? 'Administrator console' : 'HR console'}</span>
+                <span className="workspace-banner-status">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  All systems operational
+                </span>
+              </div>
+              <p className="text-2xs text-teal-50 font-mono mt-0.5 truncate">
+                Authenticated administrative session • User: {adminName} • Console Station #04
+              </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <div className="flex items-center gap-2 font-mono text-xs">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border border-white/15 text-white rounded-none shadow-none">
-                <Clock className="w-3.5 h-3.5 text-teal-200" />
-                <span>Console: <strong className="text-white font-bold">Active</strong></span>
-              </div>
+          <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+            <div className="workspace-banner-telemetry">
+              <Clock className="w-3.5 h-3.5 text-teal-100" />
+              <span>Console: <strong className="text-white font-bold">Active</strong></span>
             </div>
           </div>
         </div>
@@ -349,61 +354,77 @@ export default function AdminModule({
       {/* ========================================================================= */}
       {/* GROUPED CATEGORIZED MODULE NAVIGATION STRIP                               */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
+      <div className="flex-1 flex flex-col overflow-hidden relative font-sans">
 
-        <nav className="workspace-navbar min-h-[44px] flex flex-col md:flex-row md:items-stretch">
+        <nav className="workspace-navbar">
           
-          {/* Category Filter Pills */}
-          <div className="flex items-stretch gap-0 overflow-x-auto text-xs">
-            <span className="text-2xs font-mono uppercase text-teal-200 tracking-wider font-bold px-3 flex items-center gap-1 shrink-0">
-              <FolderKanban className="w-3.5 h-3.5 text-teal-200" />
-              <span>Group:</span>
-            </span>
-            {availableCategories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => {
-                  setActiveCategory(cat.id as any);
-                  const firstInCat = filteredModules.find(m => m.category === cat.id);
-                  if (firstInCat) setActiveTab(firstInCat.id as any);
-                }}
-                className={`px-4 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer border-0 flex items-center justify-center h-full ${
-                  activeCategory === cat.id 
-                    ? 'bg-chrome text-white' 
-                    : 'bg-transparent text-teal-100 hover:bg-chrome-hover hover:text-white'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+          <div className="flex items-stretch h-full overflow-x-auto scrollbar-none" id="admin-navigation-links">
 
-          {/* Module Tabs within Active Category */}
-          <div className="flex items-stretch space-x-0 overflow-x-auto custom-scrollbar">
-            {filteredModules
-              .filter(m => m.category === activeCategory)
-              .map((mod) => {
-                const IconComponent = mod.icon;
-                const isActive = activeTab === mod.id;
-
+            {/* Category Groups Inset Selector */}
+            <div className="flex items-stretch bg-chrome-deep/60 border-r-2 border-chrome-deep shrink-0">
+              <div className="px-3 flex items-center gap-1.5 text-2xs font-mono uppercase text-teal-200 tracking-wider font-bold border-r border-chrome-deep shrink-0">
+                <FolderKanban className="w-3.5 h-3.5 text-teal-200" />
+                <span className="hidden sm:inline">Group:</span>
+              </div>
+              {availableCategories.map((cat) => {
+                const isCatActive = activeCategory === cat.id;
                 return (
                   <button
-                    key={mod.id}
+                    key={cat.id}
                     type="button"
-                    onClick={() => handleSelectTab(mod.id as any, mod.category as any)}
-                    className={`flex items-center px-4 py-2.5 text-xs cursor-pointer transition-all whitespace-nowrap border-0 rounded-none h-full ${
-                      isActive
-                        ? 'bg-chrome text-white font-bold'
-                        : 'bg-transparent text-teal-100 hover:bg-chrome-hover hover:text-white font-bold'
+                    onClick={() => {
+                      setActiveCategory(cat.id as any);
+                      const firstInCat = filteredModules.find(m => m.category === cat.id);
+                      if (firstInCat) setActiveTab(firstInCat.id as any);
+                    }}
+                    className={`h-full px-3 sm:px-3.5 text-xs font-bold transition-all cursor-pointer border-r border-chrome-deep flex items-center gap-1.5 shrink-0 ${
+                      isCatActive 
+                        ? 'bg-chrome text-white border-b-2 border-b-teal-300 font-bold' 
+                        : 'text-teal-100/80 hover:bg-chrome-hover hover:text-white bg-transparent'
                     }`}
                   >
-                    <IconComponent className={`w-3.5 h-3.5 mr-1.5 ${isActive ? 'text-teal-200' : 'text-teal-300'}`} />
-                    <span>{mod.label}</span>
-                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ml-2 animate-pulse"></span>}
+                    <span>{cat.label}</span>
                   </button>
                 );
               })}
+            </div>
+
+            {/* Module Navigation Tabs (Standardized nav-btn, nav-btn-active, nav-btn-inactive) */}
+            <div className="flex items-stretch overflow-x-auto scrollbar-none">
+              {filteredModules
+                .filter(m => m.category === activeCategory)
+                .map((mod) => {
+                  const IconComponent = mod.icon;
+                  const isActive = activeTab === mod.id;
+
+                  return (
+                    <button
+                      key={mod.id}
+                      type="button"
+                      onClick={() => handleSelectTab(mod.id as any, mod.category as any)}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`nav-btn ${
+                        isActive ? 'nav-btn-active' : 'nav-btn-inactive'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {isActive && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
+                        <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : 'text-teal-100/90'}`} />
+                        <span>{mod.label}</span>
+                      </div>
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ml-2 animate-pulse"></span>}
+                    </button>
+                  );
+                })}
+            </div>
+
+          </div>
+
+          {/* Right Status Indicator */}
+          <div className="hidden xl:flex items-center space-x-3 text-xs text-teal-100 font-sans pl-4 border-l border-chrome-deep ml-auto pr-3 shrink-0">
+            <span className="font-mono text-2xs tracking-wider uppercase text-teal-200">
+              Active: <strong className="text-white">{filteredModules.find(m => m.id === activeTab)?.label}</strong>
+            </span>
           </div>
 
         </nav>
