@@ -29,32 +29,61 @@ interface WaitingPatientsListProps {
   setQueuePage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export default function WaitingPatientsList({ userId = null, currentPage, sortedQueue, totalPages, sortRule, remainingQueue, nextVisit, patientsMap, activeConsultationVisitId, expandedDetails, startIndex, pinnedVisitIds, toggleDetails, renderAllergyBadge, togglePinVisit, copyToClipboard, handleStartConsultation, requestCallPatient, entriesPerPage, setEntriesPerPage, setQueuePage }: WaitingPatientsListProps) {
+export default function WaitingPatientsList({
+  userId = null,
+  currentPage,
+  sortedQueue,
+  totalPages,
+  sortRule,
+  remainingQueue,
+  nextVisit,
+  patientsMap,
+  activeConsultationVisitId,
+  expandedDetails,
+  startIndex,
+  pinnedVisitIds,
+  toggleDetails,
+  renderAllergyBadge,
+  togglePinVisit,
+  copyToClipboard,
+  handleStartConsultation,
+  requestCallPatient,
+  entriesPerPage,
+  setEntriesPerPage,
+  setQueuePage
+}: WaitingPatientsListProps) {
   return (
-    <section aria-label="Waiting patients" className="bg-surface border border-line-subtle">
-      <div className="px-5 py-4 flex flex-wrap items-baseline justify-between gap-2 border-b border-line-subtle">
-        <h4 className="text-base font-bold text-ink">
-          {currentPage === 1 ? 'Waiting after the next patient' : 'Patient queue list'}
-        </h4>
-        <span className="text-sm text-muted">
-          {sortedQueue.length} total · Page {currentPage} of {totalPages}
+    <section aria-label="Waiting patients" className="bg-surface border border-line">
+      {/* Table Title Bar */}
+      <div className="px-5 py-3.5 flex flex-wrap items-baseline justify-between gap-2 border-b border-line bg-surface">
+        <div className="flex items-center gap-2">
+          <h4 className="text-sm font-bold uppercase tracking-wider text-ink font-mono">
+            {currentPage === 1 ? 'Waiting Roster (Position #2+)' : 'Patient Queue Roster'}
+          </h4>
+          <span className="text-2xs font-mono tabular-nums text-accent bg-surface-accent px-2 py-0.5 border border-line font-bold">
+            {remainingQueue.length} Active
+          </span>
+        </div>
+        <span className="text-xs text-muted font-mono tabular-nums">
+          {sortedQueue.length} Total Patients · Page {currentPage} of {totalPages}
         </span>
       </div>
     
       <div className="overflow-x-auto">
         <div role="table" aria-label="Waiting patients" className="md:min-w-[960px]">
-          <div role="row" className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line-subtle text-xs font-semibold uppercase tracking-wider text-muted">
+          {/* Header Row */}
+          <div role="row" className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line text-2xs font-bold uppercase tracking-wider text-muted font-mono">
             <span role="columnheader">{sortRule === 'urgency' ? 'Rank' : 'Order'}</span>
-            <span role="columnheader">Patient</span>
-            <span role="columnheader">Complaint</span>
-            <span role="columnheader">Why this position</span>
-            <span role="columnheader">Waiting</span>
+            <span role="columnheader">Patient &amp; Demographics</span>
+            <span role="columnheader">Presenting Complaint</span>
+            <span role="columnheader">Triage Rationale</span>
+            <span role="columnheader">Wait Time</span>
             <span role="columnheader" className="text-right">Actions</span>
           </div>
     
           {remainingQueue.length === 0 && (
-            <div className="px-5 py-10 text-center text-sm text-muted">
-              {nextVisit ? 'No other patients are waiting.' : 'No patients match this filter.'}
+            <div className="px-5 py-12 text-center text-xs text-muted italic">
+              {nextVisit ? 'No other patients are currently waiting in the roster.' : 'No patients match the current search or filter criteria.'}
             </div>
           )}
     
@@ -74,13 +103,22 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
               ? 'chip-danger'
               : triage.level === 'Medium'
               ? 'chip-warn'
-              : 'bg-surface-accent text-ink border-line-subtle';
+              : 'bg-surface-accent text-ink border-line';
+    
+            // 3px Left Acuity Bars for Instant Visual Triage
+            const acuityStripe = isConsulting
+              ? ''
+              : triage.level === 'High'
+              ? ''
+              : overSla || triage.level === 'Medium'
+              ? ''
+              : '';
     
             return (
               <div
                 key={visit.id}
                 role="rowgroup"
-                className={`border-b border-line-subtle transition-colors ${
+                className={`border-b border-line ${acuityStripe} transition-colors ${
                   isConsulting ? 'bg-surface-accent' : isPinned ? 'bg-surface-muted' : 'bg-surface hover:bg-surface-muted'
                 }`}
               >
@@ -90,45 +128,54 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
                   onClick={() => toggleDetails(visit.id)}
                   aria-expanded={!!isExpanded}
                   onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleDetails(visit.id); } }}
-                  className="grid grid-cols-1 md:grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-3 md:gap-4 items-center px-5 py-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                  className="grid grid-cols-1 md:grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-3 md:gap-4 items-center px-5 py-3.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                 >
-                  <span role="cell" className={`w-10 h-10 border text-sm font-bold flex items-center justify-center ${rankTint}`}>
+                  {/* Position Rank */}
+                  <span role="cell" className={`w-9 h-9 border text-xs font-bold flex items-center justify-center font-mono tabular-nums ${rankTint}`}>
                     #{queuePosition}
                   </span>
     
-                  <div role="cell" className="min-w-0 space-y-2">
-                    <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-                      <h4 className="text-sm font-semibold text-ink">{formatTicket(visit.ticketNo) && <span className="font-mono text-accent mr-1.5">{formatTicket(visit.ticketNo)}</span>}{pt.fullName}</h4>
-                      <span className="text-xs text-muted">ID {pt.id}</span>
+                  {/* Demographics */}
+                  <div role="cell" className="min-w-0 space-y-1.5">
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <h4 className="text-sm font-bold text-ink">
+                        {formatTicket(visit.ticketNo) && <span className="font-mono tabular-nums text-accent mr-1.5">{formatTicket(visit.ticketNo)}</span>}
+                        {pt.fullName}
+                      </h4>
+                      <span className="text-2xs text-muted font-mono tabular-nums">ID {pt.id}</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {isPinned && (
-                        <span className="bg-amber-100 text-amber-900 border border-amber-300 text-2xs font-bold uppercase px-2 py-0.5">Pinned</span>
+                        <span className="bg-amber-100 text-amber-900 border border-amber-300 text-2xs font-bold uppercase px-1.5 py-0.2 font-mono">Pinned</span>
                       )}
-                      <span className={`text-2xs font-bold uppercase tracking-wide px-2 py-0.5 ${triage.badgeBg}`}>
+                      <span className={`text-2xs font-bold uppercase tracking-wide px-1.5 py-0.2 ${triage.badgeBg}`}>
                         {triage.level}
                       </span>
                       {renderAllergyBadge(pt.drugAllergies)}
                     </div>
                   </div>
     
-                  <span role="cell" className="text-sm font-medium text-accent min-w-0">
+                  {/* Chief Complaint */}
+                  <span role="cell" className="text-xs font-semibold text-accent min-w-0">
                     {getChiefComplaintLabel(visit.soap?.subjective)}
                   </span>
     
+                  {/* Triage Rationale */}
                   <span role="cell" className="text-xs leading-snug text-muted min-w-0">
                     {getRankingRationale(pt, visit, globalRankIndex, sortRule)}
                   </span>
     
-                  <div role="cell" className="flex flex-col items-start gap-1">
-                    <span className={`text-sm font-bold px-2.5 py-1 border ${
-                      overSla ? 'chip-warn' : 'bg-surface-accent text-ink border-line-subtle'
+                  {/* Wait Time */}
+                  <div role="cell" className="flex flex-col items-start gap-0.5">
+                    <span className={`text-xs font-bold font-mono tabular-nums px-2 py-0.5 border ${
+                      overSla ? 'chip-warn' : 'bg-surface-accent text-ink border-line'
                     }`}>
                       {waitMins} min
                     </span>
-                    {overSla && <span className="text-2xs font-semibold text-amber-900">Over SLA</span>}
+                    {overSla && <span className="text-2xs font-bold text-amber-700 dark:text-amber-300 font-mono">Over SLA</span>}
                   </div>
     
+                  {/* Actions */}
                   <div role="cell" className="flex items-center gap-2 md:justify-end" onClick={(e) => e.stopPropagation()}>
                     <ActionMenu
                       label={`More actions for ${pt.fullName}`}
@@ -146,15 +193,17 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
                       ]}
                     />
                     {takenBy ? (
-                      <span className="chip-info min-h-11 px-3 inline-flex items-center text-xs font-bold whitespace-nowrap">With {takenBy}</span>
+                      <span className="chip-info min-h-9 px-3 inline-flex items-center text-xs font-bold whitespace-nowrap font-mono">
+                        With {takenBy}
+                      </span>
                     ) : isConsulting ? (
                       <button
                         type="button"
                         onClick={() => handleStartConsultation(visit.id)}
                         aria-label={`Resume consultation for ${pt.fullName}`}
-                        className="h-11 px-4 bg-deep text-white text-sm font-semibold flex items-center gap-2 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                        className="h-9 px-3.5 bg-deep text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                       >
-                        <Stethoscope className="w-4 h-4" />
+                        <Stethoscope className="w-3.5 h-3.5" />
                         <span>Resume</span>
                       </button>
                     ) : (
@@ -162,49 +211,52 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
                         type="button"
                         onClick={() => requestCallPatient(visit.id, pt.fullName, queuePosition)}
                         aria-label={`Call patient ${pt.fullName}`}
-                        className="h-11 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                        className="h-9 px-3.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                       >
-                        Call patient
+                        Call Patient
                       </button>
                     )}
                   </div>
                 </div>
     
+                {/* Expanded Details Drawer */}
                 {isExpanded && (
-                  <div role="row" className="mx-5 mb-4"><div role="cell" aria-colspan={6} className="border border-line-subtle bg-surface-muted p-4 text-sm text-ink space-y-3 animate-fadeIn">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Full reason / symptoms</strong>
-                        <p className="leading-relaxed">{visit.soap?.subjective || 'General Medical Consultation'}</p>
+                  <div role="row" className="mx-5 mb-4">
+                    <div role="cell" aria-colspan={6} className="border border-line bg-surface-muted p-4 text-xs text-ink space-y-3 animate-fadeIn">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1 font-mono">Full reason / symptoms</strong>
+                          <p className="leading-relaxed">{visit.soap?.subjective || 'General Medical Consultation'}</p>
+                        </div>
+                        <div>
+                          <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1 font-mono">Panel employer</strong>
+                          <p className="font-bold text-accent">{pt.panelEmployer}</p>
+                        </div>
+                        <div>
+                          <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1 font-mono">Demographics &amp; contact</strong>
+                          <p className="font-mono tabular-nums">{pt.gender}, {pt.dob} · <span className="font-sans">{pt.phone}</span></p>
+                        </div>
                       </div>
-                      <div>
-                        <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Panel employer</strong>
-                        <p className="font-semibold text-accent">{pt.panelEmployer}</p>
-                      </div>
-                      <div>
-                        <strong className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">Demographics &amp; contact</strong>
-                        <p>{pt.gender}, {pt.dob} · {pt.phone}</p>
+                      <div className="flex items-center gap-2 pt-3 border-t border-line flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => handleStartConsultation(visit.id)}
+                          className="h-9 px-4 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer"
+                        >
+                          <Stethoscope className="w-3.5 h-3.5" />
+                          <span>Direct consultation draft</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => copyToClipboard(`${pt.fullName} (${pt.id})`, 'Patient Details', e)}
+                          className="h-9 px-4 bg-surface text-ink border border-line text-xs font-bold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy record</span>
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 pt-3 border-t border-line-subtle flex-wrap">
-                      <button
-                        type="button"
-                        onClick={() => handleStartConsultation(visit.id)}
-                        className="h-10 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold flex items-center gap-2 cursor-pointer"
-                      >
-                        <Stethoscope className="w-4 h-4" />
-                        <span>Direct consultation draft</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => copyToClipboard(`${pt.fullName} (${pt.id})`, 'Patient Details', e)}
-                        className="h-10 px-4 bg-surface text-ink border border-line text-sm font-semibold flex items-center gap-2 hover:bg-surface-accent cursor-pointer"
-                      >
-                        <Copy className="w-4 h-4" />
-                        <span>Copy record</span>
-                      </button>
-                    </div>
-                  </div></div>
+                  </div>
                 )}
               </div>
             );
@@ -213,29 +265,29 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
       </div>
     
       {/* FOOTER: SHORTCUTS, PAGE SIZE, PAGINATION */}
-      <div className="bg-surface-muted px-5 py-3.5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-xs text-muted">
+      <div className="bg-surface-muted px-5 py-3.5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-xs text-muted border-t border-line">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold">
+          <span className="font-mono tabular-nums font-bold text-ink">
             Showing {sortedQueue.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + entriesPerPage, sortedQueue.length)} of {sortedQueue.length}
           </span>
           <span className="hidden lg:inline text-slate-400">|</span>
           <span className="hidden lg:flex items-center gap-2">
-            <span className="font-semibold">Shortcuts</span>
+            <span className="font-bold font-mono text-2xs uppercase">Shortcuts</span>
             {[['Alt+Q', 'Queue'], ['Alt+C', 'Consult'], ['Alt+F', 'Search'], ['Alt+R', 'Refresh']].map(([key, label]) => (
-              <span key={key} className="border border-line bg-surface px-2 py-0.5 text-ink">
-                <kbd className="font-sans font-semibold">{key}</kbd> {label}
+              <span key={key} className="border border-line bg-surface px-2 py-0.5 text-ink font-mono text-2xs">
+                <kbd className="font-sans font-bold">{key}</kbd> {label}
               </span>
             ))}
           </span>
         </div>
     
         <div className="flex items-center gap-2.5 flex-wrap">
-          <label className="flex items-center gap-2">
-            <span className="font-semibold">Per page</span>
+          <label className="flex items-center gap-2 font-mono text-xs">
+            <span className="font-bold">Per page</span>
             <select
               value={entriesPerPage}
               onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setQueuePage(1); }}
-              className="h-10 bg-surface text-ink border border-line px-2 text-sm focus:outline-none focus:border-brand cursor-pointer"
+              className="h-9 bg-surface text-ink border border-line px-2 text-xs font-mono tabular-nums focus:outline-none focus:border-brand cursor-pointer"
             >
               <option value={6}>6</option>
               <option value={12}>12</option>
@@ -247,14 +299,14 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
             type="button"
             disabled={currentPage === 1}
             onClick={() => setQueuePage(prev => Math.max(1, prev - 1))}
-            className={`h-10 px-3.5 text-sm font-semibold border flex items-center gap-1 transition-colors ${
+            className={`h-9 px-3 text-xs font-bold border flex items-center gap-1 transition-colors ${
               currentPage === 1
                 ? 'bg-surface text-slate-400 border-line-subtle cursor-not-allowed'
                 : 'bg-surface text-ink border-line hover:bg-surface-accent cursor-pointer'
             }`}
           >
             <ChevronLeft className="w-4 h-4" />
-            <span>Previous</span>
+            <span>Prev</span>
           </button>
     
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
@@ -263,7 +315,7 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
               type="button"
               aria-current={pageNum === currentPage ? 'page' : undefined}
               onClick={() => setQueuePage(pageNum)}
-              className={`w-10 h-10 text-sm font-semibold border flex items-center justify-center transition-colors cursor-pointer ${
+              className={`w-9 h-9 text-xs font-bold font-mono tabular-nums border flex items-center justify-center transition-colors cursor-pointer ${
                 pageNum === currentPage
                   ? 'bg-primary text-white border-primary'
                   : 'bg-surface text-ink border-line hover:bg-surface-accent'
@@ -277,7 +329,7 @@ export default function WaitingPatientsList({ userId = null, currentPage, sorted
             type="button"
             disabled={currentPage === totalPages}
             onClick={() => setQueuePage(prev => Math.min(totalPages, prev + 1))}
-            className={`h-10 px-3.5 text-sm font-semibold border flex items-center gap-1 transition-colors ${
+            className={`h-9 px-3 text-xs font-bold border flex items-center gap-1 transition-colors ${
               currentPage === totalPages
                 ? 'bg-surface text-slate-400 border-line-subtle cursor-not-allowed'
                 : 'bg-surface text-ink border-line hover:bg-surface-accent cursor-pointer'

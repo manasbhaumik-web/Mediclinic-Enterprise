@@ -83,10 +83,10 @@ export default function BillingManagementModule() {
   );
 
   return (
-    <div className="animate-fadeIn w-full space-y-6 pb-8">
+    <div className="animate-fadeIn w-full space-y-3.5 pb-6">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-3.5 rounded-none shadow-none border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
@@ -108,13 +108,13 @@ export default function BillingManagementModule() {
       </div>
 
       {/* 2. TOP METRICS SUMMARY ROW */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Revenue this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{rm(totalRevenue)}</span>
         </div>
 
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Panel claims awaiting payment</span>
           <span className={`text-xl font-bold font-mono block mt-0.5 ${pendingClaims > 0 ? 'text-amber-600' : 'text-muted'}`}>
             {rm(pendingClaims)}
@@ -122,12 +122,12 @@ export default function BillingManagementModule() {
           <span className="text-2xs text-subtle">{pendingClaimTrx.length} claim{pendingClaimTrx.length === 1 ? '' : 's'}</span>
         </div>
 
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">SST included (estimate)</span>
           <span className="text-xl font-bold font-mono text-accent block mt-0.5">{rm(taxIncluded)}</span>
         </div>
 
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Transactions this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{monthTransactions.length}</span>
         </div>
@@ -138,6 +138,7 @@ export default function BillingManagementModule() {
         <button
           type="button"
           onClick={() => setActiveTab('ledger')}
+          title="Daily Transaction Ledger: View paid outpatient receipts, payment methods, SST breakdowns, and e-Invoices"
           className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === 'ledger' 
               ? 'bg-chrome text-white font-bold' 
@@ -151,6 +152,7 @@ export default function BillingManagementModule() {
         <button
           type="button"
           onClick={() => setActiveTab('claims')}
+          title="Corporate Panel & TPA Claims: Manage pending Guarantee Letters (GL), insurer batch submissions, and settlement reconciliation"
           className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === 'claims' 
               ? 'bg-chrome text-white font-bold' 
@@ -438,11 +440,11 @@ export default function BillingManagementModule() {
             <div className="space-y-3 text-xs">
               <div>
                 <label htmlFor="claim-ref" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Panel payment / statement reference</label>
-                <input id="claim-ref" autoFocus type="text" value={claimRef} onChange={(e) => setClaimRef(e.target.value)} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
+                <input id="claim-ref" autoFocus type="text" value={claimRef} onChange={(e) => setClaimRef(e.target.value)} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none bg-surface focus:ring-1 focus:ring-brand outline-none" />
               </div>
               <div>
                 <label htmlFor="claim-date" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Date received</label>
-                <input id="claim-date" type="date" max={today} value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className="w-full border border-line px-3 py-2 text-sm rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
+                <input id="claim-date" type="date" max={today} value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className="w-full border border-line px-3 py-2 text-sm rounded-none bg-surface focus:ring-1 focus:ring-brand outline-none" />
               </div>
             </div>
             {claimError && <p role="alert" className="text-xs text-rose-700 font-medium">{claimError}</p>}

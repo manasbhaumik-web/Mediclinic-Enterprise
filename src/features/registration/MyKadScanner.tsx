@@ -104,7 +104,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
 
   return (
     <div id="mykad-scanner-modal" role="dialog" aria-modal="true" aria-labelledby="mykad-scanner-title" className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-      <div className="bg-white rounded-none shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+      <div className="bg-surface rounded-none shadow-none max-w-lg w-full overflow-hidden border border-line">
         
         {/* Header */}
         <div className="bg-primary px-5 py-4 text-white flex items-center justify-between">
@@ -196,7 +196,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
                   className={`p-2.5 rounded-none border text-left flex flex-col transition-all cursor-pointer ${
                     selectedKad.icNumber === kad.icNumber 
                       ? 'border-brand bg-teal-50/50 text-accent font-medium ring-2 ring-teal-600/10' 
-                      : 'border-slate-200 bg-white hover:bg-slate-50 text-muted'
+                      : 'border-line bg-surface hover:bg-surface-strong text-muted'
                   }`}
                 >
                   <span className="font-medium truncate">{kad.fullName}</span>
@@ -222,7 +222,7 @@ export default function MyKadScanner({ onScanComplete, onClose }: MyKadScannerPr
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-slate-200 text-muted rounded-none text-xs font-medium hover:bg-slate-100 transition-colors cursor-pointer"
+            className="px-4 py-2 border border-line text-muted rounded-none text-xs font-medium hover:bg-surface-strong transition-colors cursor-pointer"
           >
             Cancel
           </button>

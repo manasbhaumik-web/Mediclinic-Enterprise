@@ -133,11 +133,11 @@ export default function AppointmentCalendarModule({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-3.5 animate-fadeIn">
       {/* Top Header Controls Toolbar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface dark:bg-night-850 p-4 rounded-none shadow-xs border border-line-subtle dark:border-teal-800/40">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-surface p-3 rounded-none shadow-none border border-line">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
+          <div className="w-8 h-8 bg-primary/10 border border-brand/20 flex items-center justify-center rounded-none">
             <Calendar className="w-5 h-5 text-accent dark:text-teal-300" />
           </div>
           <div>
@@ -198,11 +198,11 @@ export default function AppointmentCalendarModule({
       )}
 
       {/* Main Calendar Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3.5">
         
         {/* Left Sidebar: Week Day Picker & Daily Summary */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none p-4 space-y-4 shadow-xs">
+        <div className="lg:col-span-1 space-y-3">
+          <div className="bg-surface border border-line rounded-none p-3 space-y-2.5 shadow-none">
             <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-2">
               <h3 className="type-label text-accent dark:text-teal-300 font-mono">This Week</h3>
               <span className="text-2xs font-mono font-bold text-accent bg-primary/10 dark:bg-teal-900/40 px-1.5 py-0.5 rounded-none">
@@ -218,7 +218,7 @@ export default function AppointmentCalendarModule({
                   <button
                     key={day.toISOString()}
                     onClick={() => setCurrentDate(day)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-none text-xs font-bold transition-all border ${
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-bold transition-all border ${
                       isSelected 
                         ? 'bg-primary text-white border-brand shadow-xs' 
                         : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
@@ -238,7 +238,7 @@ export default function AppointmentCalendarModule({
           </div>
 
           {/* Daily Quick Stats Card */}
-          <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none p-4 space-y-3 shadow-xs">
+          <div className="bg-surface border border-line rounded-none p-3 space-y-2 shadow-none">
             <h4 className="type-label text-accent dark:text-teal-300 font-mono border-b border-line-subtle dark:border-teal-800/40 pb-2">Day Summary</h4>
             <div className="grid grid-cols-2 gap-2 text-center">
               <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2.5 rounded-none">
@@ -262,7 +262,7 @@ export default function AppointmentCalendarModule({
           <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs min-h-[600px] flex flex-col">
             
             {/* Header bar */}
-            <div className="bg-surface-accent/60 dark:bg-night-900 border-b border-line-subtle dark:border-teal-800/40 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <div className="bg-surface-accent border-b border-line px-3.5 py-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div className="flex items-center gap-2.5">
                 <h3 className="type-heading-caps text-ink dark:text-teal-300 font-mono">
                   {format(currentDate, 'EEEE, MMMM d, yyyy')}
@@ -280,7 +280,7 @@ export default function AppointmentCalendarModule({
             </div>
 
             {/* Time Slot List */}
-            <div className="p-4 space-y-3.5 flex-1">
+            <div className="p-3 space-y-2 flex-1">
               {timeSlots.map(time => {
                 // Every booking that starts in this slot (different doctors can share a time)
                 const slotAppointments = todayAppointments.filter(a => {
@@ -299,12 +299,7 @@ export default function AppointmentCalendarModule({
                       
                       <div className="flex-1 space-y-2">
                       {slotAppointments.map((appointment) => (
-                      <div key={appointment.id} className={`rounded-none p-4 border transition-all relative ${
-                        appointment.status === 'Cancelled' ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40 border-l-4 border-l-rose-500 opacity-75' :
-                        appointment.status === 'Completed' ? 'bg-slate-50 dark:bg-night-950 border-slate-200 dark:border-teal-900/40 border-l-4 border-l-slate-400 opacity-85' :
-                        appointment.status === 'No-Show' ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40 border-l-4 border-l-amber-500' :
-                        'bg-surface dark:bg-night-900 border-brand/30 dark:border-teal-700/50 border-l-4 border-l-brand shadow-2xs'
-                      }`}>
+                      <div key={appointment.id} className="rounded-none p-3 border border-line bg-surface hover:bg-surface-accent/40 transition-colors relative shadow-none">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
@@ -333,10 +328,10 @@ export default function AppointmentCalendarModule({
                           
                           <div className="flex items-center gap-2">
                             <span className={`text-2xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-none font-mono border ${
-                              appointment.status === 'Completed' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' :
-                              appointment.status === 'Cancelled' ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800' :
-                              appointment.status === 'No-Show' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800' :
-                              'bg-white dark:bg-night-850 text-accent dark:text-teal-300 border-line-subtle dark:border-teal-800/40'
+                              appointment.status === 'Completed' ? 'chip-ok' :
+                              appointment.status === 'Cancelled' ? 'chip-danger' :
+                              appointment.status === 'No-Show' ? 'chip-warn' :
+                              'chip-brand'
                             }`}>
                               {appointment.status}
                             </span>
@@ -392,7 +387,7 @@ export default function AppointmentCalendarModule({
                     <div className="flex-1">
                       <button 
                         onClick={() => handleOpenModal(time)}
-                        className="w-full h-11 border border-dashed border-line dark:border-teal-800/50 bg-surface/60 dark:bg-night-900/40 rounded-none flex items-center justify-center text-accent dark:text-teal-300 hover:bg-surface-accent dark:hover:bg-night-800 hover:border-brand hover:text-accent transition-all group/btn"
+                        className="w-full h-8 text-xs border border-dashed border-line dark:border-teal-800/50 bg-surface/60 dark:bg-night-900/40 rounded-none flex items-center justify-center text-accent dark:text-teal-300 hover:bg-surface-accent dark:hover:bg-night-800 hover:border-brand hover:text-accent transition-all group/btn"
                       >
                         <Plus className="w-4 h-4 mr-1.5 text-accent dark:text-teal-300 transition-transform group-hover/btn:scale-110" />
                         <span className="text-xs font-bold uppercase tracking-wider font-mono">Book Slot</span>

@@ -8,7 +8,7 @@ interface BillingAlertsStepProps {
   setManualForm: React.Dispatch<React.SetStateAction<{ fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; }>>;
   setCoverageStatus: React.Dispatch<React.SetStateAction<'unverified' | 'verified' | 'failed'>>;
   clearError: (key: string) => void;
-  inputBase: 'w-full bg-surface dark:bg-night-900 border rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 outline-none';
+  inputBase: 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none';
   handleVerifyCoverage: () => void;
   isVerifyingCoverage: boolean;
   coverageStatus: 'unverified' | 'verified' | 'failed';
@@ -25,15 +25,15 @@ interface BillingAlertsStepProps {
 
 export default function BillingAlertsStep({ fieldErrors, manualForm, setManualForm, setCoverageStatus, clearError, inputBase, handleVerifyCoverage, isVerifyingCoverage, coverageStatus, allergyInput, setAllergyInput, handleAddAllergyTag, allergiesList, handleRemoveAllergyTag, doctors, assignedDoctorId, onAssignedDoctorChange }: BillingAlertsStepProps) {
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-3 font-sans">
       <div>
-        <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">
+        <h3 className="type-heading-caps text-ink font-sans">
           Billing Sponsor & Medical Alerts
         </h3>
-        <p className="text-xs text-accent dark:text-teal-300 font-sans mt-0.5">Configure insurance panels and drug allergies</p>
+        <p className="text-xs text-muted font-sans mt-0.5">Configure insurance panels and drug allergies</p>
       </div>
     
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <FormField id="reg-panel" label="Panel / Corporate Sponsor" error={fieldErrors.panel} className="space-y-2">
             {(f) => (
@@ -92,7 +92,7 @@ export default function BillingAlertsStep({ fieldErrors, manualForm, setManualFo
                 <button
                   type="button"
                   onClick={handleAddAllergyTag}
-                  className="bg-surface dark:bg-night-900 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 border border-line-subtle dark:border-teal-800/50 font-bold text-xs px-3 py-2 rounded-none font-sans uppercase"
+                  className="btn-secondary text-xs px-3 py-2 rounded-none font-sans uppercase font-bold"
                 >
                   + Add
                 </button>

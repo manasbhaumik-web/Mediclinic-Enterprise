@@ -23,7 +23,7 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           
           {/* Prescribed Drugs List Summary */}
-          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+          <div className="bg-surface p-3 border border-line dark:border-teal-800/40 rounded-none">
             <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               1. Prescribed Medications ({rxList.length})
             </span>
@@ -42,7 +42,7 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
           </div>
     
           {/* Lab Requisitions Summary */}
-          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+          <div className="bg-surface p-3 border border-line dark:border-teal-800/40 rounded-none">
             <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               2. Diagnostic Investigations ({selectedLabs.length})
             </span>
@@ -61,7 +61,7 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
           </div>
     
           {/* Certificates & Notes Summary */}
-          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+          <div className="bg-surface p-3 border border-line dark:border-teal-800/40 rounded-none">
             <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               3. Certificates &amp; Referrals
             </span>
@@ -74,7 +74,7 @@ export default function PlanSummaryPanel({ rxList, selectedLabs, mcGenerated, mc
           </div>
     
           {/* Dispensing Notes Summary */}
-          <div className="bg-surface p-3 border border-slate-200 dark:border-teal-800/40 rounded-none">
+          <div className="bg-surface p-3 border border-line dark:border-teal-800/40 rounded-none">
             <span className="font-bold text-2xs text-ink uppercase block mb-1.5">
               4. Dispensing Memo
             </span>

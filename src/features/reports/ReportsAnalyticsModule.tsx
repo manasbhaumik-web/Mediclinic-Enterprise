@@ -23,11 +23,11 @@ import {
 
 type Tab = 'overview' | 'clinical' | 'financial' | 'stock';
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'clinical', label: 'Clinical' },
-  { id: 'financial', label: 'Financial & claims' },
-  { id: 'stock', label: 'Stock & assets' },
+const TABS: { id: Tab; label: string; tooltip: string }[] = [
+  { id: 'overview', label: 'Overview', tooltip: 'Executive Overview: Monthly revenue trends, patient visits, and clinic operational throughput' },
+  { id: 'clinical', label: 'Clinical', tooltip: 'Clinical Analytics: Patient visit volumes, top ICD-10 diagnoses, and epidemiological patterns' },
+  { id: 'financial', label: 'Financial & claims', tooltip: 'Financial Performance: Revenue by category, outstanding panel claims, and payment ledger' },
+  { id: 'stock', label: 'Stock & assets', tooltip: 'Pharmaceutical Stock Reports: High-volume prescribed medications and stock-on-hand valuation' },
 ];
 
 const PERIODS = [
@@ -95,14 +95,14 @@ export default function ReportsAnalyticsModule() {
         </div>
         <div className="flex items-center gap-2">
           <label htmlFor="report-period" className="sr-only">Period</label>
-          <select id="report-period" value={period} onChange={(e) => setPeriod(e.target.value as typeof period)} className="text-xs font-bold border border-line bg-white px-2 py-2 rounded-none cursor-pointer">
+          <select id="report-period" value={period} onChange={(e) => setPeriod(e.target.value as typeof period)} className="text-xs font-bold border border-line bg-surface text-ink px-2 py-2 rounded-none cursor-pointer">
             {PERIODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
           </select>
           <button
             type="button"
             onClick={() => { setNow(Date.now()); void queryClient.invalidateQueries({ queryKey: ['reports'] }); void queryClient.invalidateQueries({ queryKey: ['inventory'] }); }}
             disabled={isFetching}
-            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+            className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
             {isFetching ? 'Refreshing…' : 'Refresh'}
@@ -132,7 +132,7 @@ export default function ReportsAnalyticsModule() {
 
       <div role="tablist" aria-label="Report sections" className="flex items-stretch gap-0 bg-surface-strong border-b border-line text-xs font-bold h-10 overflow-x-auto custom-scrollbar">
         {TABS.map((t) => (
-          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+          <button key={t.id} type="button" role="tab" title={t.tooltip} aria-selected={tab === t.id} onClick={() => setTab(t.id)}
             className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer whitespace-nowrap ${tab === t.id ? 'bg-chrome text-white font-bold' : 'bg-transparent text-ink hover:bg-surface-strong font-bold'}`}>
             {t.label}
           </button>

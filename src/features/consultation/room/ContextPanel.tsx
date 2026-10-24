@@ -1,3 +1,4 @@
+import React from 'react';
 import { Activity, History, Clock } from 'lucide-react';
 import { buttonProps, focusRing } from '../../../lib/a11y';
 import { Visit } from '../../../types';
@@ -6,8 +7,8 @@ interface ContextPanelProps {
   vitals: { bpSystolic: number; bpDiastolic: number; heartRate: number; temperature: number; respiratoryRate: number; };
   t: { dashboard: string; patientRegistration: string; consultation: string; dispensary: string; billing: string; reports: string; networkStatus: string; bmToggle: string; enToggle: string; clinicName: string; online: string; offline: string; scanMyKad: string; registerNew: string; fullName: string; icNumber: string; gender: string; dob: string; address: string; phone: string; panelEmployer: string; drugAllergies: string; saveRegistration: string; male: string; female: string; activeAllergies: string; searchPatient: string; queueNo: string; patientQueue: string; longitudinalHistory: string; pastVisits: string; consultationRoom: string; subjective: string; objective: string; assessment: string; plan: string; vitalsSign: string; systolic: string; diastolic: string; pulse: string; temp: string; respRate: string; icd10Search: string; symptomsNotes: string; generateMc: string; mcDays: string; drugSearch: string; interactionAlert: string; dispensaryQueue: string; prescribedMeds: string; visualVerify: string; dosageInstruction: string; expiryWarnings: string; printLabel: string; totalBilling: string; selfPay: string; panelClaims: string; tpaSelect: string; glRef: string; proceedPayment: string; paymentDone: string; complianceText: string; nationalReporting: string; revenueToday: string; patientsToday: string; pendingClaims: string; lowStock: string; patientByHour: string; icdDistribution: string; } | { dashboard: string; patientRegistration: string; consultation: string; dispensary: string; billing: string; reports: string; networkStatus: string; bmToggle: string; enToggle: string; clinicName: string; online: string; offline: string; scanMyKad: string; registerNew: string; fullName: string; icNumber: string; gender: string; dob: string; address: string; phone: string; panelEmployer: string; drugAllergies: string; saveRegistration: string; male: string; female: string; activeAllergies: string; searchPatient: string; queueNo: string; patientQueue: string; longitudinalHistory: string; pastVisits: string; consultationRoom: string; subjective: string; objective: string; assessment: string; plan: string; vitalsSign: string; systolic: string; diastolic: string; pulse: string; temp: string; respRate: string; icd10Search: string; symptomsNotes: string; generateMc: string; mcDays: string; drugSearch: string; interactionAlert: string; dispensaryQueue: string; prescribedMeds: string; visualVerify: string; dosageInstruction: string; expiryWarnings: string; printLabel: string; totalBilling: string; selfPay: string; panelClaims: string; tpaSelect: string; glRef: string; proceedPayment: string; paymentDone: string; complianceText: string; nationalReporting: string; revenueToday: string; patientsToday: string; pendingClaims: string; lowStock: string; patientByHour: string; icdDistribution: string; };
   patientPastVisits: Visit[];
-  selectedPastVisit: Visit;
-  setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit>>;
+  selectedPastVisit: Visit | null;
+  setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit | null>>;
 }
 
 export default function ContextPanel({ vitals, t, patientPastVisits, selectedPastVisit, setSelectedPastVisit }: ContextPanelProps) {
@@ -15,16 +16,16 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
     <div className="lg:col-span-4 space-y-4">
       
       {/* Contextual Recent Vitals Card */}
-      <div className="bg-surface p-4 rounded-none border border-line-subtle shadow-xs space-y-2.5">
-        <div className="flex items-center justify-between border-b border-line-subtle pb-2">
-          <h3 className="type-label text-ink flex items-center gap-1.5">
+      <div className="bg-surface p-4 rounded-none border border-line space-y-2.5">
+        <div className="flex items-center justify-between border-b border-line pb-2">
+          <h3 className="type-label text-ink flex items-center gap-1.5 font-bold">
             <Activity className="w-4 h-4 text-accent" />
             Vitals for this visit
           </h3>
-          <span className="text-xs text-subtle">Blank = not recorded</span>
+          <span className="text-2xs text-subtle font-mono">Blank = unrecorded</span>
         </div>
     
-        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+        <div className="grid grid-cols-2 gap-2 text-xs font-mono tabular-nums">
           <div className="bg-surface-muted p-2 border border-line">
             <span className="text-2xs text-subtle block font-sans">BP</span>
             <strong className="text-ink dark:text-white">{vitals.bpSystolic > 0 ? `${vitals.bpSystolic}/${vitals.bpDiastolic} mmHg` : 'Not recorded'}</strong>
@@ -45,13 +46,13 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
       </div>
     
       {/* Longitudinal Clinical History Timeline */}
-      <div className="bg-surface p-4 rounded-none border border-line-subtle shadow-xs space-y-3 flex-1 flex flex-col">
-        <div className="flex items-center justify-between border-b border-line-subtle pb-2">
-          <h3 className="type-label text-ink flex items-center gap-1.5">
+      <div className="bg-surface p-4 rounded-none border border-line space-y-3 flex-1 flex flex-col">
+        <div className="flex items-center justify-between border-b border-line pb-2">
+          <h3 className="type-label text-ink flex items-center gap-1.5 font-bold">
             <History className="w-4 h-4 text-accent" />
             {t.longitudinalHistory}
           </h3>
-          <span className="bg-surface-accent text-accent border border-line px-2 py-0.5 rounded-none text-2xs font-mono font-bold">
+          <span className="bg-surface-accent text-accent border border-line px-2 py-0.5 rounded-none text-2xs font-mono tabular-nums font-bold">
             {patientPastVisits.length} Visits
           </span>
         </div>
@@ -72,13 +73,13 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
                   {...buttonProps(() => setSelectedPastVisit(isSelected ? null : visit), isSelected)}
                   className={`p-3 rounded-none border transition-all text-left cursor-pointer ${focusRing} hover:bg-surface-muted dark:hover:bg-night-800 bg-surface-muted ${
                     isSelected 
-                      ? 'border-brand dark:border-teal-400 bg-surface-accent shadow-xs' 
-                      : 'border-line-subtle'
+                      ? 'border-brand dark:border-teal-400 bg-surface-accent' 
+                      : 'border-line hover:border-l-primary'
                   }`}
                 >
                   <div className="flex items-center justify-between text-2xs">
-                    <span className="font-mono font-bold text-muted dark:text-slate-300">{visit.date}</span>
-                    <span className="text-accent bg-surface-accent dark:bg-teal-950 border border-line font-bold text-2xs px-1.5 py-0.5 rounded-none">
+                    <span className="font-mono tabular-nums font-bold text-muted dark:text-slate-300">{visit.date}</span>
+                    <span className="text-accent bg-surface-accent dark:bg-teal-950 border border-line font-bold font-mono text-2xs px-1.5 py-0.5 rounded-none">
                       {visit.soap.assessment.icdCode}
                     </span>
                   </div>
@@ -90,8 +91,8 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
                   </p>
     
                   {isSelected && (
-                    <div className="mt-3 pt-2 border-t border-slate-200 dark:border-teal-800/40 text-2xs space-y-1.5 text-muted dark:text-slate-300 animate-fadeIn">
-                      <div><strong>Objective:</strong> BP {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg.</div>
+                    <div className="mt-3 pt-2 border-t border-line text-2xs space-y-1.5 text-muted dark:text-slate-300 animate-fadeIn">
+                      <div className="font-mono tabular-nums"><strong>Objective:</strong> BP {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg.</div>
                       <div><strong>Notes:</strong> {visit.soap.assessment.clinicalNotes}</div>
                     </div>
                   )}

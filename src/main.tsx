@@ -10,6 +10,7 @@ import { SettingsProvider } from './context/SettingsContext.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
 import { AuxiliaryProvider } from './context/AuxiliaryContext.tsx';
 import { LanguageProvider } from './context/LanguageContext.tsx';
+import { TelemetryProvider } from './context/TelemetryContext.tsx';
 // Styles: src/index.css is linked once from index.html (<head>) so it applies before any JS runs.
 
 createRoot(document.getElementById('root')!).render(
@@ -17,17 +18,19 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <LanguageProvider>
-            <InventoryProvider>
-              <FinancialProvider>
-                <SettingsProvider>
-                  <AuxiliaryProvider>
-                    <App />
-                  </AuxiliaryProvider>
-                </SettingsProvider>
-              </FinancialProvider>
-            </InventoryProvider>
-          </LanguageProvider>
+          <TelemetryProvider>
+            <LanguageProvider>
+              <InventoryProvider>
+                <FinancialProvider>
+                  <SettingsProvider>
+                    <AuxiliaryProvider>
+                      <App />
+                    </AuxiliaryProvider>
+                  </SettingsProvider>
+                </FinancialProvider>
+              </InventoryProvider>
+            </LanguageProvider>
+          </TelemetryProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

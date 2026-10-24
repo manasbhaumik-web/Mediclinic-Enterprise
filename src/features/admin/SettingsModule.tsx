@@ -70,7 +70,7 @@ export default function SettingsModule() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs">
+          <button className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none">
             <RotateCcw className="w-3.5 h-3.5 text-accent" />
             Reset Defaults
           </button>
@@ -303,7 +303,7 @@ export default function SettingsModule() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             
             {/* MyKad */}
-            <div className={`p-4 rounded-none border transition-all ${settings.hardware.mykadScanner ? 'border-brand bg-surface' : 'border-slate-200 bg-slate-50/50'}`}>
+            <div className={`p-4 rounded-none border transition-all ${settings.hardware.mykadScanner ? 'border-brand bg-surface' : 'border-line bg-surface-muted'}`}>
               <div className="flex justify-between items-start mb-3">
                 <div className={`p-2.5 rounded-none ${settings.hardware.mykadScanner ? 'bg-primary text-white' : 'bg-slate-200 text-subtle'}`}>
                   <CreditCard className="w-5 h-5" />
@@ -324,7 +324,7 @@ export default function SettingsModule() {
             </div>
 
             {/* Thermal Receipt Printer */}
-            <div className={`p-4 rounded-none border transition-all ${settings.hardware.receiptPrinter ? 'border-brand bg-surface' : 'border-slate-200 bg-slate-50/50'}`}>
+            <div className={`p-4 rounded-none border transition-all ${settings.hardware.receiptPrinter ? 'border-brand bg-surface' : 'border-line bg-surface-muted'}`}>
               <div className="flex justify-between items-start mb-3">
                 <div className={`p-2.5 rounded-none ${settings.hardware.receiptPrinter ? 'bg-primary text-white' : 'bg-slate-200 text-subtle'}`}>
                   <Printer className="w-5 h-5" />
@@ -345,7 +345,7 @@ export default function SettingsModule() {
             </div>
 
             {/* Barcode Scanner */}
-            <div className={`p-4 rounded-none border transition-all ${settings.hardware.barcodeScanner ? 'border-brand bg-surface' : 'border-slate-200 bg-slate-50/50'}`}>
+            <div className={`p-4 rounded-none border transition-all ${settings.hardware.barcodeScanner ? 'border-brand bg-surface' : 'border-line bg-surface-muted'}`}>
               <div className="flex justify-between items-start mb-3">
                 <div className={`p-2.5 rounded-none ${settings.hardware.barcodeScanner ? 'bg-primary text-white' : 'bg-slate-200 text-subtle'}`}>
                   <ScanLine className="w-5 h-5" />

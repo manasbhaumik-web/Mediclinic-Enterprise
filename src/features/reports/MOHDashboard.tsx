@@ -93,7 +93,7 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
             id="compliance-period"
             value={periodDays}
             onChange={(e) => setPeriodDays(Number(e.target.value))}
-            className="text-xs font-bold border border-line bg-white px-2 py-2 rounded-none cursor-pointer"
+            className="text-xs font-bold border border-line bg-surface text-ink px-2 py-2 rounded-none cursor-pointer"
           >
             {PERIODS.map((p) => <option key={p.days} value={p.days}>{p.label}</option>)}
           </select>
@@ -106,7 +106,7 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
               void queryClient.invalidateQueries({ queryKey: ['equipment'] });
             }}
             disabled={isFetching}
-            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+            className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
             {isFetching ? 'Refreshing…' : 'Refresh'}

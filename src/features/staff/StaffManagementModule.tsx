@@ -392,7 +392,7 @@ Add anyway?`)) return;
               <button 
                 type="button"
                 onClick={() => setIsImportModalOpen(true)}
-                className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
+                className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
                 <span>Import Staff CSV</span>

@@ -160,7 +160,7 @@ export default function DispensaryDashboard({
         <div className="flex items-center gap-1.5 text-accent font-semibold text-xs border-b border-line pb-2 mb-1.5">
           <Users className="w-4 h-4 text-accent" />
           <span id="dispensary-queue-title">{t.dispensaryQueue}</span>
-          <span className="chip-warn px-2 py-0.5 rounded-full text-2xs font-mono font-bold">
+          <span className="chip-warn px-2 py-0.5 rounded-full text-2xs font-mono tabular-nums font-bold">
             {queue.length} Patients
           </span>
         </div>
@@ -184,15 +184,15 @@ export default function DispensaryDashboard({
                   {...buttonProps(() => handleSelectVisit(visit.id), isSelected)}
                   className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer ${focusRing} hover:bg-surface-muted bg-surface ${
                     isSelected 
-                      ? 'border-brand bg-surface-accent shadow-xs' 
+                      ? 'border-brand bg-surface-accent shadow-none' 
                       : 'border-line'
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="bg-surface-strong text-muted font-mono px-1.5 py-0.5 rounded-none font-bold">
+                    <span className="bg-surface-strong text-muted font-mono tabular-nums px-1.5 py-0.5 rounded-none font-bold">
                       RX-QUEUE #{index + 101}
                     </span>
-                    <span className="text-subtle font-mono">{visit.date}</span>
+                    <span className="text-subtle font-mono tabular-nums">{visit.date}</span>
                   </div>
 
                   <h5 className="type-heading-caps text-strong mt-1.5 truncate">
@@ -516,7 +516,7 @@ export default function DispensaryDashboard({
       {/* DRUG LABEL PRINTING PREVIEW MODAL */}
       {isLabelModalOpen && selectedLabelRx && activePatient && (
         <div id="drug-label-print-modal" className="fixed inset-0 bg-night-950/70 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-none shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+          <div className="bg-surface rounded-none shadow-none max-w-md w-full overflow-hidden border border-line">
             
             {/* Header */}
             <div className="bg-deep text-white px-5 py-3.5 flex items-center justify-between">

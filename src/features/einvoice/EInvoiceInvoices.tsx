@@ -13,7 +13,7 @@ const toneClass: Record<Tone, string> = {
   warn: 'chip-warn',
   bad: 'chip-danger',
   info: 'chip-info',
-  idle: 'bg-slate-100 text-muted border-slate-300',
+  idle: 'chip-neutral',
 };
 
 const inputClass =

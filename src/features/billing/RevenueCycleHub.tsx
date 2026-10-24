@@ -30,8 +30,8 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
   const topMethodAmount = Math.max(1, ...r.current.byMethod.map((m) => m.amount));
 
   return (
-    <div className="animate-fadeIn w-full space-y-6 pb-8">
-      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="animate-fadeIn w-full space-y-3.5 pb-6">
+      <div className="bg-surface text-ink p-3.5 rounded-none shadow-none border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="type-page-title text-ink flex items-center gap-2.5">
             <TrendingUp className="w-6 h-6 text-accent" aria-hidden="true" />
@@ -45,7 +45,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
           type="button"
           onClick={() => void queryClient.invalidateQueries({ queryKey: ['revenue'] })}
           disabled={isFetching}
-          className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+          className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
           {isFetching ? 'Refreshing…' : 'Refresh'}
@@ -65,7 +65,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         <Kpi
           label="Revenue this month"
           value={r.isPending ? '…' : formatRM(r.current.total)}
@@ -76,7 +76,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
         <Kpi label="Waiting at cashier" value={String(r.awaitingBilling)} note="Visits ready to be billed" tone={r.awaitingBilling > 0 ? 'warn' : 'ok'} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
         <Panel icon={Wallet} title={`Payment methods, ${monthLabel}`}>
           {r.current.byMethod.length === 0 ? (
             <p className="text-xs text-muted">No paid visits yet this month.</p>
@@ -86,7 +86,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
                 <div key={m.method} className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="font-bold text-ink">{m.method} <span className="font-normal text-subtle">({m.count} visit{m.count === 1 ? '' : 's'})</span></span>
-                    <span className="font-mono text-muted">{formatRM(m.amount)}</span>
+                    <span className="font-mono tabular-nums text-muted">{formatRM(m.amount)}</span>
                   </div>
                   <ProgressBar value={(m.amount / topMethodAmount) * 100} size="sm" label={`${m.method}: ${formatRM(m.amount)}`} />
                 </div>
@@ -117,7 +117,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
                 {STATUS_ORDER.filter((s) => r.eInvoiceHealth.counts[s] > 0).map((s) => (
                   <div key={s} className="bg-surface border border-teal-100 p-2.5 text-center">
                     <dt className="text-2xs text-subtle font-bold uppercase">{STATUS_LABELS[s].label}</dt>
-                    <dd className="type-metric text-ink mt-1">{r.eInvoiceHealth.counts[s]}</dd>
+                    <dd className="type-metric font-mono tabular-nums text-ink mt-1">{r.eInvoiceHealth.counts[s]}</dd>
                   </div>
                 ))}
               </dl>
@@ -142,7 +142,7 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
                   {r.panels.map((p) => (
                     <tr key={p.name}>
                       <th scope="row" className="py-2 pr-4 font-semibold text-ink">{p.name}</th>
-                      <td className="py-2 pr-4 font-mono">{formatRM(p.coverageLimit)}</td>
+                      <td className="py-2 pr-4 font-mono tabular-nums">{formatRM(p.coverageLimit)}</td>
                       <td className="py-2">{p.coPayRequired ? (p.coPayPercentage !== undefined ? `${p.coPayPercentage}%` : 'Required') : 'None'}</td>
                     </tr>
                   ))}
@@ -165,9 +165,9 @@ export default function RevenueCycleHub({ onOpenTab }: RevenueCycleHubProps) {
 
 function Kpi({ label, value, note, tone = 'ok' }: { label: string; value: string; note: string; tone?: 'ok' | 'warn' }) {
   return (
-    <div className="bg-surface rounded-none border border-line p-4 shadow-2xs">
+    <div className="bg-surface rounded-none border border-line p-4 shadow-none">
       <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
-      <h3 className={`type-metric mt-2 ${tone === 'warn' ? 'text-amber-700' : 'text-ink'}`}>{value}</h3>
+      <h3 className={`type-metric font-mono tabular-nums mt-2 ${tone === 'warn' ? 'text-amber-700' : 'text-ink'}`}>{value}</h3>
       <p className="mt-2 text-xs text-muted">{note}</p>
     </div>
   );
@@ -175,7 +175,7 @@ function Kpi({ label, value, note, tone = 'ok' }: { label: string; value: string
 
 function Panel({ icon: Icon, title, action, children }: { icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="bg-surface rounded-none border border-line shadow-2xs overflow-hidden">
+    <section className="bg-surface rounded-none border border-line shadow-none overflow-hidden">
       <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between gap-3">
         <h2 className="type-card-title text-ink flex items-center gap-2"><Icon className="w-4 h-4 text-accent" aria-hidden="true" />{title}</h2>
         {action}

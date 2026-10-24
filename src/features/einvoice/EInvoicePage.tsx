@@ -27,7 +27,7 @@ export default function EInvoicePage() {
             e-Invoice (LHDN MyInvois)
           </h1>
           {conn && (
-            <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${conn.enabled ? 'chip-ok' : 'bg-slate-100 text-muted border-slate-300'}`}>
+            <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${conn.enabled ? 'chip-ok' : 'chip-neutral'}`}>
               {conn.enabled ? `ON · ${conn.mode}` : 'OFF'}
             </span>
           )}

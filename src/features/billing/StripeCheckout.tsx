@@ -57,13 +57,13 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
   };
 
   return (
-    <div className="bg-white rounded-none shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn">
+    <div className="bg-surface rounded-none shadow-none border border-line overflow-hidden max-w-md w-full mx-auto animate-fadeIn">
       {/* Stripe Header */}
       <div className="bg-stripe p-6 text-white flex flex-col justify-center items-center relative">
         <button 
           onClick={onCancel}
           type="button"
-          className="absolute left-4 top-4 p-1.5 bg-white/10 hover:bg-white/20 rounded-none transition-colors cursor-pointer"
+          className="absolute left-4 top-4 p-1.5 bg-surface/10 hover:bg-surface/20 rounded-none transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
@@ -148,7 +148,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
   };
 
   return (
-    <div className="bg-white rounded-none shadow-2xl border border-slate-200 overflow-hidden max-w-md w-full mx-auto animate-fadeIn relative">
+    <div className="bg-surface rounded-none shadow-none border border-line overflow-hidden max-w-md w-full mx-auto animate-fadeIn relative">
       <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-2xs font-bold text-center py-0.5 z-10 uppercase tracking-wider">
         Development only: no real payment
       </div>
@@ -158,7 +158,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
         <button 
           onClick={onCancel}
           type="button"
-          className="absolute left-4 top-8 p-1.5 bg-white/10 hover:bg-white/20 rounded-none transition-colors cursor-pointer"
+          className="absolute left-4 top-8 p-1.5 bg-surface/10 hover:bg-surface/20 rounded-none transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
@@ -195,7 +195,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
           <div className="pt-2">
             <label className="block text-xs font-bold text-muted mb-1">Card Information</label>
             <div className="border border-slate-300 rounded-none overflow-hidden flex flex-col">
-              <div className="relative border-b border-slate-200">
+              <div className="relative border-b border-line">
                 <CreditCard className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                 <input 
                   type="text" 
@@ -212,7 +212,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
                   type="text" 
                   value={expiry}
                   onChange={(e) => setExpiry(e.target.value)}
-                  className="w-1/2 border-r border-slate-200 px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
+                  className="w-1/2 border-r border-line px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
                   placeholder="MM / YY"
                   maxLength={5}
                   required
@@ -266,7 +266,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
 
 function CardUnavailable({ message, onCancel }: { message: string; onCancel: () => void }) {
   return (
-    <div role="alert" className="bg-white rounded-none shadow-2xl max-w-md w-full mx-auto p-8 text-center border border-slate-200 space-y-3">
+    <div role="alert" className="bg-surface rounded-none shadow-none max-w-md w-full mx-auto p-8 text-center border border-line space-y-3">
       <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" aria-hidden="true" />
       <h3 className="type-section-title text-strong">Card payment unavailable</h3>
       <p className="text-sm text-muted">{message} Take another payment method, or ask an administrator to check the card payment setup.</p>
@@ -318,7 +318,7 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
   // We are using real Stripe, but waiting for the Edge function to return clientSecret
   if (!clientSecret) {
     return (
-      <div className="bg-white rounded-none shadow-2xl max-w-md w-full mx-auto p-12 flex flex-col items-center justify-center gap-4 border border-slate-200">
+      <div className="bg-surface rounded-none shadow-none max-w-md w-full mx-auto p-12 flex flex-col items-center justify-center gap-4 border border-line">
         <Loader2 className="w-8 h-8 text-stripe animate-spin" />
         <span className="text-sm font-medium text-subtle">Initializing secure checkout...</span>
       </div>

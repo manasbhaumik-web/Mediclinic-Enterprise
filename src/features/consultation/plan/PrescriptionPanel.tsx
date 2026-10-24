@@ -57,7 +57,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
           </button>
         </div>
       ) : (
-        <div className="bg-surface p-3.5 rounded-none border border-line shadow-xs space-y-2.5">
+        <div className="bg-surface p-3.5 rounded-none border border-line space-y-2.5">
           <div className="flex items-center justify-between border-b border-line pb-2">
             <h4 className="type-label text-ink flex items-center gap-1.5">
               <Activity className="w-4 h-4 text-accent" /> Pediatric Weight-Based Dosage Calculator
@@ -144,7 +144,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                   </p>
                 </div>
               ) : (
-                <div className="p-2.5 text-center text-slate-400 border border-dashed border-slate-300 dark:border-teal-800/40 text-2xs">
+                <div className="p-2.5 text-center text-slate-400 border border-dashed border-line dark:border-teal-800/40 text-2xs">
                   Enter child weight to calculate dose.
                 </div>
               )}
@@ -169,7 +169,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
     
           {/* AUTOCOMPLETE DROPDOWN */}
           {drugSuggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 z-30 bg-surface border-2 border-brand shadow-2xl max-h-60 overflow-y-auto rounded-none mt-1">
+            <div className="absolute top-full left-0 right-0 z-30 bg-surface border-2 border-brand max-h-60 overflow-y-auto rounded-none mt-1">
               {drugSuggestions.map(drug => (
                 <div
                   key={drug.id}
@@ -183,7 +183,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-mono font-bold text-accent block">
+                    <span className="text-xs font-mono tabular-nums font-bold text-accent block">
                       RM {(drug.pricePerUnit || 0.5).toFixed(2)}
                     </span>
                     <span className="text-2xs text-slate-400">Stock: {drug.currentStock || 100}</span>
@@ -200,14 +200,14 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
         <h4 className="type-label text-ink flex items-center justify-between">
           <span>Active Prescription Items ({rxList.length})</span>
           {rxList.length > 0 && (
-            <span className="text-subtle dark:text-slate-400 font-mono text-2xs font-normal">
+            <span className="text-subtle dark:text-slate-400 font-mono tabular-nums text-2xs font-normal">
               Subtotal: RM {(rxList.reduce((acc, r) => acc + ((r.pricePerUnit || 0.5) * (r.quantity || 1)), 0)).toFixed(2)}
             </span>
           )}
         </h4>
     
         {rxList.length === 0 ? (
-          <div className="p-6 text-center bg-slate-50 dark:bg-night-850 border border-dashed border-slate-300 dark:border-teal-800/40 text-slate-400 text-xs">
+          <div className="p-6 text-center bg-slate-50 dark:bg-night-850 border border-dashed border-line dark:border-teal-800/40 text-slate-400 text-xs">
             <Pill className="w-8 h-8 text-slate-300 dark:text-muted mx-auto mb-2" />
             <span>No medication items added. Search above to add items to prescription plan.</span>
           </div>
@@ -220,7 +220,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                   <th className="p-2">Dosage / Instructions</th>
                   <th className="p-2">Frequency</th>
                   <th className="p-2">Qty</th>
-                  <th className="p-2 text-right font-mono">Price</th>
+                  <th className="p-2 text-right font-mono tabular-nums">Price</th>
                   <th className="p-2 text-center">Action</th>
                 </tr>
               </thead>
@@ -245,10 +245,10 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
                           const val = parseInt(e.target.value) || 1;
                           setRxList(rxList.map(r => r.id === item.id ? { ...r, quantity: val } : r));
                         }}
-                        className="w-14 px-2 py-0.5 border border-slate-300 dark:border-teal-800/40 rounded-none text-xs text-center font-bold"
+                        className="w-14 px-2 py-0.5 border border-line rounded-none text-xs text-center font-bold font-mono tabular-nums"
                       />
                     </td>
-                    <td className="p-2 text-right font-mono text-subtle dark:text-slate-400">
+                    <td className="p-2 text-right font-mono tabular-nums text-subtle dark:text-slate-400">
                       RM {((item.pricePerUnit || 0.5) * (item.quantity || 1)).toFixed(2)}
                     </td>
                     <td className="p-2 text-center">

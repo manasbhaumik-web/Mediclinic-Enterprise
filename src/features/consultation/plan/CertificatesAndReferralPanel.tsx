@@ -29,7 +29,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
               <FileText className="w-4 h-4 text-accent" /> Digital Medical Certificate (MC)
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
-              mcGenerated ? 'chip-ok' : 'bg-slate-100 text-subtle border-slate-200'
+              mcGenerated ? 'chip-ok' : 'bg-slate-100 text-subtle border-line'
             }`}>
               {mcGenerated ? 'ISSUED' : 'NOT ISSUED'}
             </span>
@@ -44,7 +44,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 max="14"
                 value={mcDays}
                 onChange={e => setMcDays(parseInt(e.target.value) || 1)}
-                className="w-full text-xs p-2 border border-slate-300 rounded-none font-bold"
+                className="w-full text-xs p-2 border border-line rounded-none font-bold"
               />
             </div>
     
@@ -54,7 +54,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 type="text"
                 value={mcReason}
                 onChange={e => setMcReason(e.target.value)}
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
               <Share className="w-4 h-4 text-accent" /> Specialist Referral Note
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
-              referralGenerated ? 'chip-info' : 'bg-slate-100 text-subtle border-slate-200'
+              referralGenerated ? 'chip-info' : 'bg-slate-100 text-subtle border-line'
             }`}>
               {referralGenerated ? 'ATTACHED' : 'NONE'}
             </span>
@@ -95,7 +95,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 value={referralDetails.hospital}
                 onChange={e => setReferralDetails({ ...referralDetails, hospital: e.target.value })}
                 placeholder="e.g. Hospital Kuala Lumpur / Pantai Hospital"
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
     
@@ -106,7 +106,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 value={referralDetails.department}
                 onChange={e => setReferralDetails({ ...referralDetails, department: e.target.value })}
                 placeholder="e.g. ENT / General Medicine / Cardiology"
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
 
@@ -117,7 +117,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 value={referralDetails.reason}
                 onChange={e => setReferralDetails({ ...referralDetails, reason: e.target.value })}
                 placeholder="Why the patient is being referred"
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
           max="52"
           value={followUpWeeks}
           onChange={e => setFollowUpWeeks(Math.min(52, Math.max(0, parseInt(e.target.value) || 0)))}
-          className="w-20 text-xs p-2 border border-slate-300 rounded-none font-bold"
+          className="w-20 text-xs p-2 border border-line rounded-none font-bold"
         />
         <span className="text-2xs text-subtle">0 means no follow-up is needed</span>
       </div>

@@ -15,7 +15,7 @@ export default function SubjectiveTab({
   patientPastVisits,
   activeLanguage
 }: SubjectiveTabProps) {
-  // Quick complain suggestions
+  // Quick complaint suggestions
   const complainTemplateList = [
     activeLanguage === 'EN' ? 'Fever and runny nose for 2 days' : 'Demam dan selesema selama 2 hari',
     activeLanguage === 'EN' ? 'Productive cough with white sputum, sore throat' : 'Batuk berkahak putih dengan sakit tekak',
@@ -29,11 +29,11 @@ export default function SubjectiveTab({
   };
 
   return (
-    <div className="space-y-5 animate-fadeIn">
+    <div className="space-y-4 animate-fadeIn">
       {/* Header bar & quick actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3.5 rounded-none border border-line shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3.5 rounded-none border border-line">
         <div>
-          <h4 className="type-label text-ink flex items-center gap-1.5">
+          <h4 className="type-label text-ink flex items-center gap-1.5 font-bold">
             <MessageSquare className="w-4 h-4 text-accent" />
             Subjective History &amp; Presenting Complaints
           </h4>
@@ -49,7 +49,8 @@ export default function SubjectiveTab({
               }
             }}
             disabled={patientPastVisits.length === 0}
-            className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-none text-2xs font-bold transition-all shadow-xs border bg-surface text-accent border-line hover:bg-surface-accent dark:hover:bg-night-600 hover:border-brand disabled:opacity-40 cursor-pointer"
+            title="Copy presenting complaint and symptoms history from patient's previous clinic encounter"
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-none text-2xs font-bold transition-all border bg-surface text-accent border-line hover:bg-surface-accent dark:hover:bg-night-600 hover:border-brand disabled:opacity-40 cursor-pointer"
           >
             <Copy className="w-3.5 h-3.5 text-accent" />
             Copy Previous
@@ -61,21 +62,21 @@ export default function SubjectiveTab({
       <div className="relative group">
         <textarea
           id="soap-subjective-input"
-          className="w-full bg-surface border border-line focus:border-brand focus:ring-3 focus:ring-brand/15 rounded-none px-4 py-3.5 text-xs text-ink dark:text-slate-50 transition-all outline-none shadow-xs resize-y min-h-[190px] leading-relaxed font-sans placeholder:text-slate-400"
+          className="w-full bg-surface border border-line focus:border-brand focus:ring-1 focus:ring-brand rounded-none px-4 py-3.5 text-xs text-ink dark:text-slate-50 transition-all outline-none resize-y min-h-[190px] leading-relaxed font-sans placeholder:text-slate-400"
           value={subjective}
           onChange={(e) => setSubjective(e.target.value)}
           placeholder="Record presenting symptoms, onset duration, severity, localized area, aggravating factors, and patient medical history..."
         />
-        <div className="absolute bottom-3 right-3 text-2xs text-slate-400 dark:text-slate-400 font-mono pointer-events-none bg-slate-50/80 dark:bg-night-850 px-2 py-0.5 rounded-none border border-slate-200 dark:border-teal-800/40">
+        <div className="absolute bottom-3 right-3 text-2xs text-slate-400 dark:text-slate-400 font-mono tabular-nums pointer-events-none bg-surface px-2 py-0.5 rounded-none border border-line">
           {subjective.length} characters
         </div>
       </div>
 
       {/* Malaysia clinical quick complaint templates */}
-      <div className="bg-surface border border-line rounded-none p-3.5 shadow-xs space-y-2">
+      <div className="bg-surface border border-line rounded-none p-3.5 space-y-2">
         <div className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span className="text-2xs font-bold text-ink uppercase tracking-wider">
+          <span className="text-2xs font-bold text-ink uppercase tracking-wider font-mono">
             Clinical Symptom Quick-Templates:
           </span>
         </div>
@@ -85,7 +86,8 @@ export default function SubjectiveTab({
               key={i}
               type="button"
               onClick={() => handleApplySymptomTemplate(tpl)}
-              className="py-1.5 px-3 bg-surface hover:bg-surface-accent dark:hover:bg-night-600 border border-line text-2xs font-medium text-accent rounded-none cursor-pointer transition-all hover:border-brand shadow-2xs hover:shadow-xs flex items-center justify-center gap-1"
+              title={`Click to insert symptom template: "${tpl}"`}
+              className="py-1.5 px-3 bg-surface hover:bg-surface-accent dark:hover:bg-night-600 border border-line text-2xs font-medium text-accent rounded-none cursor-pointer transition-all hover:border-brand flex items-center justify-center gap-1"
             >
               <span className="text-accent font-bold">+</span>
               <span>{tpl}</span>

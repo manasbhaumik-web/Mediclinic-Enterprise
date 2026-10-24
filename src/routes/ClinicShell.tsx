@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { MessageCircle, X } from 'lucide-react';
 import { Appointment, Language, Patient, SOAPNotes, UserRole, VitalSigns, Visit } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { clearAllDrafts, draftKey } from '../domain/consultationDraft';
+import { clearAllDrafts, draftKey, removeDraft } from '../domain/consultationDraft';
 import { useBillingActions } from '../hooks/useBilling';
 import type { SettleResult } from '../domain/billing';
 import { useLanguage } from '../context/LanguageContext';
@@ -151,7 +151,7 @@ export default function ClinicShell() {
         }
         // Queue the external hand-off only once the note is saved; the worker reads it from the database.
         void enqueueIntegration('fhir', 'consultation.completed', 'visit', visit.id);
-        try { sessionStorage.removeItem(draftKey(visit.id)); } catch { /* ignore */ }
+        removeDraft(visit.id);
         setActiveConsultationVisitId(null);
         navigateTab('dashboard');
       });

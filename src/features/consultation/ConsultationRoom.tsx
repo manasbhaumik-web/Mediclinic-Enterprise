@@ -26,7 +26,7 @@ import ContextPanel from './room/ContextPanel';
 import ReviewSignoffModal from './room/ReviewSignoffModal';
 import { visitFromRow } from '../../lib/mappers';
 import { formatTicket } from '../../domain/ticket';
-import { ConsultationDraft, draftKey, parseDraft } from '../../domain/consultationDraft';
+import { ConsultationDraft, draftKey, getSavedDraft, parseDraft, saveDraft } from '../../domain/consultationDraft';
 
 interface ConsultationRoomProps {
   currentPatient: Patient | null;
@@ -64,6 +64,7 @@ export default function ConsultationRoom({
 
   // Interactive past history view
   const [selectedPastVisit, setSelectedPastVisit] = useState<Visit | null>(null);
+  const [showContextPanel, setShowContextPanel] = useState(true);
 
   // SOAP Inputs
   const [subjective, setSubjective] = useState('');
@@ -78,22 +79,7 @@ export default function ConsultationRoom({
     respiratoryRate: 0
   });
 
-  // Pre-fill vitals and chief complaint from initial triage registration
-  useEffect(() => {
-    if (activeVisit?.soap) {
-      if (activeVisit.soap.subjective) setSubjective(activeVisit.soap.subjective);
-      if (activeVisit.soap.objective) {
-        setVitals({
-          bpSystolic: activeVisit.soap.objective.bpSystolic || 0,
-          bpDiastolic: activeVisit.soap.objective.bpDiastolic || 0,
-          heartRate: activeVisit.soap.objective.heartRate || 0,
-          temperature: activeVisit.soap.objective.temperature || 0,
-          respiratoryRate: activeVisit.soap.objective.respiratoryRate || 0
-        });
-      }
-    }
-    // Seed once per visit: a live refresh of the visit must not overwrite what the doctor has typed.
-  }, [activeVisit?.id]);
+  // Initial visit seeding & full draft restoration is unified in the effect below.
 
   // Automated Vitals Abnormality Helper
   const vitalsAlerts = useMemo(() => {
@@ -207,36 +193,121 @@ export default function ConsultationRoom({
     return `${currentPatient.phone.slice(0, 4)}***${currentPatient.phone.slice(-2)}`;
   }, [currentPatient, isPiiRevealed]);
 
-  // A consultation in progress is kept for this browser session; restoring it wins over the triage pre-fill.
+  // Unified consultation draft restoration & persistent local autosave
   const restoredFor = useRef<string | null>(null);
   const clock = (t: number) => new Date(t).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+  const [draftToast, setDraftToast] = useState<string | null>(null);
+
   useEffect(() => {
     const id = activeVisit?.id;
     if (!id) return;
     restoredFor.current = null;
     let d: ConsultationDraft | null = null;
-    try { d = parseDraft(sessionStorage.getItem(draftKey(id))); } catch { /* storage unavailable */ }
+    try { d = getSavedDraft(id); } catch { /* storage unavailable */ }
+
     if (d) {
-      setSubjective(d.subjective); setVitals(d.vitals); setSelectedICD(d.icd); setClinicalNotes(d.clinicalNotes);
-      setRxList(d.rx); setMcDays(d.mcDays); setMcGenerated(d.mcGenerated); setPharmacyMemo(d.pharmacyMemo);
-      setReferralDetails(d.referralDetails); setReferralGenerated(d.referralGenerated);
-      setLabOrders(d.labOrders ?? []); setLabReason(d.labReason ?? ''); setMcReason(d.mcReason ?? ''); setFollowUpWeeks(d.followUpWeeks ?? 0);
+      if (d.activeTab) setActiveTab(d.activeTab);
+      setSubjective(d.subjective);
+      // Merge saved draft vitals with authoritative triage vitals:
+      // Any vital recorded at triage is locked and always authoritative.
+      const triageObj = activeVisit?.soap?.objective;
+      const mergedVitals = {
+        bpSystolic: (triageObj?.bpSystolic && triageObj.bpSystolic > 0) ? triageObj.bpSystolic : (d.vitals.bpSystolic || 0),
+        bpDiastolic: (triageObj?.bpDiastolic && triageObj.bpDiastolic > 0) ? triageObj.bpDiastolic : (d.vitals.bpDiastolic || 0),
+        heartRate: (triageObj?.heartRate && triageObj.heartRate > 0) ? triageObj.heartRate : (d.vitals.heartRate || 0),
+        temperature: (triageObj?.temperature && triageObj.temperature > 0) ? triageObj.temperature : (d.vitals.temperature || 0),
+        respiratoryRate: (triageObj?.respiratoryRate && triageObj.respiratoryRate > 0) ? triageObj.respiratoryRate : (d.vitals.respiratoryRate || 0),
+      };
+      setVitals(mergedVitals);
+      setSelectedICD(d.icd);
+      setClinicalNotes(d.clinicalNotes);
+      setRxList(d.rx);
+      setMcDays(d.mcDays);
+      setMcGenerated(d.mcGenerated);
+      setPharmacyMemo(d.pharmacyMemo);
+      setReferralDetails(d.referralDetails);
+      setReferralGenerated(d.referralGenerated);
+      setLabOrders(d.labOrders ?? []);
+      setLabReason(d.labReason ?? '');
+      setMcReason(d.mcReason ?? '');
+      setFollowUpWeeks(d.followUpWeeks ?? 0);
       setLastSavedTime(clock(d.savedAt));
+    } else if (activeVisit?.soap) {
+      // No saved draft yet: pre-fill from visit record
+      if (activeVisit.soap.subjective) setSubjective(activeVisit.soap.subjective);
+      if (activeVisit.soap.objective) {
+        setVitals({
+          bpSystolic: activeVisit.soap.objective.bpSystolic || 0,
+          bpDiastolic: activeVisit.soap.objective.bpDiastolic || 0,
+          heartRate: activeVisit.soap.objective.heartRate || 0,
+          temperature: activeVisit.soap.objective.temperature || 0,
+          respiratoryRate: activeVisit.soap.objective.respiratoryRate || 0
+        });
+      }
+      if (activeVisit.soap.assessment) {
+        if (activeVisit.soap.assessment.icdCode) {
+          setSelectedICD({
+            code: activeVisit.soap.assessment.icdCode,
+            desc: activeVisit.soap.assessment.description || '',
+            category: 'Assessment'
+          });
+        }
+        if (activeVisit.soap.assessment.clinicalNotes) {
+          setClinicalNotes(activeVisit.soap.assessment.clinicalNotes);
+        }
+      }
+      if (activeVisit.soap.plan) {
+        if (activeVisit.soap.plan.prescription) setRxList(activeVisit.soap.plan.prescription);
+        if (activeVisit.soap.plan.mcDays) setMcDays(activeVisit.soap.plan.mcDays);
+        if (activeVisit.soap.plan.pharmacyMemo) setPharmacyMemo(activeVisit.soap.plan.pharmacyMemo);
+        if (activeVisit.soap.plan.referralDetails) {
+          setReferralDetails(activeVisit.soap.plan.referralDetails);
+          setReferralGenerated(Boolean(activeVisit.soap.plan.requiresReferral));
+        }
+        if (activeVisit.soap.plan.labOrders) setLabOrders(activeVisit.soap.plan.labOrders);
+        if (activeVisit.soap.plan.labReason) setLabReason(activeVisit.soap.plan.labReason);
+        if (activeVisit.soap.plan.mcReason) setMcReason(activeVisit.soap.plan.mcReason);
+        if (activeVisit.soap.plan.followUpWeeks) setFollowUpWeeks(activeVisit.soap.plan.followUpWeeks);
+      }
     }
     restoredFor.current = id;
   }, [activeVisit?.id]);
 
-  const saveDraftNow = () => {
+  const saveDraftNow = (isManual = false) => {
     const id = activeVisit?.id;
     if (!id || restoredFor.current !== id) return;
     const savedAt = Date.now();
-    const draft: ConsultationDraft = { v: 1, subjective, vitals, icd: selectedICD, clinicalNotes, rx: rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, labOrders, labReason, mcReason, followUpWeeks, savedAt };
-    try { sessionStorage.setItem(draftKey(id), JSON.stringify(draft)); setLastSavedTime(clock(savedAt)); } catch { /* storage full or unavailable */ }
+    const draft: ConsultationDraft = {
+      v: 1,
+      activeTab,
+      subjective,
+      vitals,
+      icd: selectedICD,
+      clinicalNotes,
+      rx: rxList,
+      mcDays,
+      mcGenerated,
+      pharmacyMemo,
+      referralDetails,
+      referralGenerated,
+      labOrders,
+      labReason,
+      mcReason,
+      followUpWeeks,
+      savedAt
+    };
+    saveDraft(id, draft);
+    setLastSavedTime(clock(savedAt));
+    if (isManual) {
+      setDraftToast(`✓ Consultation draft saved at ${clock(savedAt)} (${activeTab.toUpperCase()}: ${selectedICD ? selectedICD.code : 'Diagnosis & notes preserved'})`);
+      setTimeout(() => setDraftToast(null), 4000);
+    }
   };
+
   useEffect(() => {
-    const t = setTimeout(saveDraftNow, 800);
+    const t = setTimeout(() => saveDraftNow(false), 800);
     return () => clearTimeout(t);
-  }, [subjective, vitals, selectedICD, clinicalNotes, rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, labOrders, labReason, mcReason, followUpWeeks]);
+  }, [activeTab, subjective, vitals, selectedICD, clinicalNotes, rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, labOrders, labReason, mcReason, followUpWeeks]);
 
   if (!currentPatient) {
     return (
@@ -328,7 +399,7 @@ export default function ConsultationRoom({
 
   if (isLocked) {
     return (
-      <div className="bg-surface border-2 border-brand p-12 text-center rounded-none shadow-2xl max-w-md mx-auto my-12 animate-fadeIn">
+      <div className="bg-surface border-2 border-brand p-12 text-center rounded-none max-w-md mx-auto my-12 animate-fadeIn">
         <Lock className="w-12 h-12 text-accent mx-auto mb-4" />
         <h3 className="type-section-title text-ink">Privacy Lock Screen</h3>
         <p className="text-xs text-subtle dark:text-slate-400 mt-2 leading-relaxed">
@@ -337,7 +408,7 @@ export default function ConsultationRoom({
         <button
           type="button"
           onClick={() => setIsLocked(false)}
-          className="mt-6 w-full bg-primary hover:bg-primary-hover text-white py-2.5 font-bold text-xs uppercase tracking-wider rounded-none shadow-xs transition-all cursor-pointer"
+          className="mt-6 w-full bg-primary hover:bg-primary-hover text-white py-2.5 font-bold text-xs uppercase tracking-wider rounded-none transition-all cursor-pointer"
         >
           Unlock Consultation Room
         </button>
@@ -359,6 +430,19 @@ export default function ConsultationRoom({
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
       {/* ========================================================================= */}
       <PatientSafetyHeader ticketText={formatTicket(activeVisit?.ticketNo)} allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
+
+      {/* DRAFT SAVED NOTIFICATION TOAST BANNER */}
+      {draftToast && (
+        <div role="status" className="bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-400 text-emerald-900 dark:text-emerald-200 px-4 py-2.5 rounded-none text-xs font-mono font-bold flex items-center justify-between shadow-none animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{draftToast}</span>
+          </div>
+          <button type="button" onClick={() => setDraftToast(null)} className="p-1 hover:text-emerald-950 cursor-pointer">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* KEYBOARD SHORTCUTS OVERLAY BANNER */}
       {showShortcutsHelp && (
@@ -382,12 +466,12 @@ export default function ConsultationRoom({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[500px]">
         
         {/* AREA 2: MAIN CONSULTATION WORKSPACE (8 COLS / 65%) */}
-        <div className="lg:col-span-8 bg-surface border border-line-subtle p-5 rounded-none flex flex-col justify-between shadow-xs space-y-5">
+        <div className="lg:col-span-8 bg-surface border border-line p-5 rounded-none flex flex-col justify-between space-y-5">
           
           <div className="space-y-4">
             
             {/* EXPLICIT CLINICAL WORKFLOW STATE SEQUENCE BAR */}
-            <div className="bg-surface-muted border border-line-subtle p-2 rounded-none flex items-center justify-between text-2xs font-mono font-bold">
+            <div className="bg-surface-muted border border-line p-2 rounded-none flex items-center justify-between text-2xs font-mono tabular-nums font-bold">
               <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar">
                 <span className="bg-primary text-white px-2 py-0.5 rounded-none flex items-center justify-center gap-1">
                   <CheckCircle2 className="w-3 h-3 text-emerald-300" />
@@ -416,7 +500,7 @@ export default function ConsultationRoom({
             </div>
 
             {/* STEPPER HEADER TOOLBAR */}
-            <div className="bg-surface p-3.5 border border-line-subtle rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-surface p-3.5 border border-line rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-2xs font-bold text-accent uppercase tracking-wider block font-mono">Consultation Draft in Progress</span>
                 <h3 className="type-card-title text-ink flex items-center gap-1.5 mt-0.5">
@@ -464,6 +548,7 @@ export default function ConsultationRoom({
                   clinicalNotes={clinicalNotes}
                   setClinicalNotes={setClinicalNotes}
                   activeLanguage={activeLanguage}
+                  onProceedToPlan={() => setActiveTab('plan')}
                 />
               )}
 
@@ -494,7 +579,7 @@ export default function ConsultationRoom({
           </div>
 
           {/* SINGLE PRIMARY WORKFLOW CTA TOOLBAR */}
-          <WorkflowToolbar onCancel={handleReturn} onSaveDraft={saveDraftNow} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
+          <WorkflowToolbar onCancel={handleReturn} onSaveDraft={() => saveDraftNow(true)} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
 
         </div>
 
@@ -505,7 +590,7 @@ export default function ConsultationRoom({
 
       {confirmReturn && (
       <div className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) setConfirmReturn(false); }}>
-        <div role="alertdialog" aria-modal="true" aria-labelledby="return-title" aria-describedby="return-desc" className="bg-surface border border-line w-full max-w-md p-5 space-y-3 shadow-2xl">
+        <div role="alertdialog" aria-modal="true" aria-labelledby="return-title" aria-describedby="return-desc" className="bg-surface border-2 border-line w-full max-w-md p-5 space-y-3">
           <h3 id="return-title" className="type-heading-caps text-ink">Return patient to the queue?</h3>
           <p id="return-desc" className="text-xs text-muted">Your notes for this consultation will be discarded and {currentPatient.fullName} goes back to the waiting list for anyone to call.</p>
           <div className="flex justify-end gap-2">

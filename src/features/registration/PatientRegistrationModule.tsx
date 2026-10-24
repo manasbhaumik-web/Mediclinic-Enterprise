@@ -90,7 +90,7 @@ export default function PatientRegistrationModule({
       return rest;
     });
   const focusField = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.focus());
-  const inputBase = 'w-full bg-surface dark:bg-night-900 border rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 outline-none';
+  const inputBase = 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none';
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -372,7 +372,7 @@ export default function PatientRegistrationModule({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn relative font-sans">
+    <div className="space-y-3.5 animate-fadeIn relative font-sans">
       
       {/* Toast Notification */}
       {toastMessage && (
@@ -383,17 +383,18 @@ export default function PatientRegistrationModule({
       )}
 
       {/* Sub-Navigation Buttons Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 bg-surface dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs" role="tablist" aria-label="Patient Registration Sub Navigation">
+      <div className="flex flex-wrap items-center gap-1.5 bg-surface border border-line p-1.5 rounded-none shadow-none" role="tablist" aria-label="Patient Registration Sub Navigation">
         <button
           role="tab"
           aria-selected={activeSubTab === 'queue'}
           id="subtab-queue"
           aria-controls="subtab-panel-queue"
+          title="Waiting Room Monitor: Live check-in queue, triage status, and doctor room assignments"
           onClick={() => setActiveSubTab('queue')}
-          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
+          className={`px-3 py-1.5 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'queue' 
               ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
+              : 'bg-surface text-muted border-line hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           Waiting Room Monitor
@@ -403,11 +404,12 @@ export default function PatientRegistrationModule({
           aria-selected={activeSubTab === 'form'}
           id="subtab-form"
           aria-controls="subtab-panel-form"
+          title="New Registration Form: MyKad biometric intake, patient demographics, and corporate panel selection"
           onClick={() => setActiveSubTab('form')}
-          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
+          className={`px-3 py-1.5 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'form' 
               ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
+              : 'bg-surface text-muted border-line hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           Registration Form
@@ -417,11 +419,12 @@ export default function PatientRegistrationModule({
           aria-selected={activeSubTab === 'registry'}
           id="subtab-registry"
           aria-controls="subtab-panel-registry"
+          title="Patient Master Registry: Search existing patient EHR records, contact details, and past visit logs"
           onClick={() => setActiveSubTab('registry')}
-          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
+          className={`px-3 py-1.5 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
             activeSubTab === 'registry' 
               ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
+              : 'bg-surface text-muted border-line hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
           Patient Registry
@@ -437,14 +440,14 @@ export default function PatientRegistrationModule({
       {activeSubTab === 'form' && (
         <div className="animate-fadeIn font-sans">
           {registrationStep === 'id_check' ? (
-            <div className="max-w-md mx-auto mt-8 bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-8 font-sans">
+            <div className="max-w-md mx-auto mt-4 bg-surface border border-line rounded-none shadow-none p-5 font-sans">
               <div className="text-center space-y-6">
-                <div className="mx-auto w-14 h-14 bg-primary/10 dark:bg-teal-900/40 rounded-none flex items-center justify-center border border-brand/20">
-                  <Search className="w-7 h-7 text-accent dark:text-teal-300" />
+                <div className="mx-auto w-10 h-10 bg-primary/10 rounded-none flex items-center justify-center border border-brand/20">
+                  <Search className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">Identify Patient</h3>
-                  <p className="text-xs text-accent dark:text-teal-300 font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
+                  <h3 className="type-heading-caps text-ink font-sans">Identify Patient</h3>
+                  <p className="text-xs text-muted font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
                 </div>
                 
                 <form onSubmit={handleIdCheckSubmit} noValidate className="space-y-4 text-left font-sans">
@@ -473,17 +476,17 @@ export default function PatientRegistrationModule({
                 </form>
                 
                 <div className="relative flex py-2 items-center">
-                  <div className="flex-grow border-t border-line-subtle dark:border-teal-800/40"></div>
-                  <span className="flex-shrink-0 mx-4 text-accent dark:text-teal-300 text-xs uppercase font-sans font-bold">Or</span>
-                  <div className="flex-grow border-t border-line-subtle dark:border-teal-800/40"></div>
+                  <div className="flex-grow border-t border-line"></div>
+                  <span className="flex-shrink-0 mx-4 text-muted text-xs uppercase font-sans font-bold">Or</span>
+                  <div className="flex-grow border-t border-line"></div>
                 </div>
                 
                 <button 
                   type="button" 
                   onClick={() => setIsMyKadOpen(true)}
-                  className="w-full bg-surface dark:bg-night-900 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 border border-line-subtle dark:border-teal-800/50 font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
+                  className="w-full btn-secondary font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
                 >
-                  <Globe className="w-4 h-4 text-accent dark:text-teal-300" /> Scan PWA MyKad
+                  <Globe className="w-4 h-4 text-accent" /> Scan PWA MyKad
                 </button>
               </div>
             </div>
@@ -491,7 +494,7 @@ export default function PatientRegistrationModule({
             <div className="max-w-4xl mx-auto font-sans">
               
               {/* Wizard Stepper */}
-              <div className="mb-6 flex items-center justify-between relative bg-surface dark:bg-night-850 p-4 border border-line-subtle dark:border-teal-800/40 rounded-none font-sans">
+              <div className="mb-3 flex items-center justify-between relative bg-surface p-2.5 border border-line rounded-none font-sans">
                 {[1, 2].map(stepNum => (
                   <div key={stepNum} className={`flex items-center gap-3 ${formStep >= stepNum ? '' : 'opacity-50'}`}>
                     <div className={`w-7 h-7 rounded-none flex items-center justify-center font-bold text-xs font-sans transition-colors ${
@@ -499,23 +502,23 @@ export default function PatientRegistrationModule({
                         ? 'bg-primary text-white' 
                         : formStep > stepNum 
                         ? 'bg-emerald-600 text-white' 
-                        : 'bg-surface dark:bg-night-900 text-accent border border-line-subtle'
+                        : 'bg-surface text-muted border border-line-subtle'
                     }`}>
                       {formStep > stepNum ? <Check className="w-4 h-4" /> : stepNum}
                     </div>
-                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-ink dark:text-teal-300">
+                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-ink">
                       {stepNum === 1 ? '1. Patient Demographics' : '2. Billing & Medical Alerts'}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative font-sans">
+              <div className="bg-surface-muted border border-line rounded-none shadow-xs p-4 sm:p-5 relative font-sans">
                 <div className="absolute top-4 right-4 z-10">
                   <button 
                     type="button" 
                     onClick={handleClearForm} 
-                    className="text-xs font-sans font-bold text-accent dark:text-teal-400 hover:text-accent flex items-center justify-center gap-1 bg-surface dark:bg-night-900 px-3 py-1.5 border border-line-subtle dark:border-teal-800/40"
+                    className="text-xs font-sans font-bold text-accent hover:text-primary-hover flex items-center justify-center gap-1 bg-surface px-3 py-1.5 border border-line"
                   >
                     <RotateCcw className="w-3.5 h-3.5" /> Restart
                   </button>
@@ -532,12 +535,12 @@ export default function PatientRegistrationModule({
                 )}
 
                 {/* Footer buttons */}
-                <div className="mt-8 pt-4 border-t border-line-subtle dark:border-teal-800/40 flex items-center justify-between font-sans">
+                <div className="mt-4 pt-3 border-t border-line flex items-center justify-between font-sans">
                   {formStep > 1 ? (
                     <button 
                       type="button" 
                       onClick={() => setFormStep(1)}
-                      className="bg-surface dark:bg-night-900 hover:bg-surface-accent text-accent dark:text-teal-300 border border-line-subtle font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5"
+                      className="btn-secondary font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5"
                     >
                       <ArrowLeft className="w-4 h-4" /> Back
                     </button>

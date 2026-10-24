@@ -12,7 +12,7 @@ const toneClass: Record<StatusTone, string> = {
   ok: 'chip-ok',
   warn: 'chip-warn',
   bad: 'chip-danger',
-  idle: 'bg-slate-100 text-muted border-slate-300',
+  idle: 'chip-neutral',
 };
 
 const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : 'never');

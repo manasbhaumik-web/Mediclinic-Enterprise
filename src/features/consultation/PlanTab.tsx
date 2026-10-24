@@ -286,7 +286,7 @@ export default function PlanTab({
       {/* PERSISTENT AI DRUG INTERACTION SAFETY BANNER                             */}
       {/* ------------------------------------------------------------------------- */}
       {allergyAlerts.length > 0 ? (
-        <div className="bg-rose-600 text-white p-3 rounded-none shadow-xs flex items-start gap-3 border border-rose-700">
+        <div className="bg-rose-600 text-white p-3 rounded-none flex items-start gap-3 border border-rose-700">
           <AlertTriangle className="w-5 h-5 shrink-0 text-white mt-0.5" />
           <div>
             <h4 className="type-label">ALLERGY ALERT: a prescribed drug conflicts with a recorded allergy</h4>
@@ -299,7 +299,7 @@ export default function PlanTab({
           </div>
         </div>
       ) : rxList.length > 0 ? (
-        <div className="bg-surface text-accent p-2.5 rounded-none border border-line flex items-center justify-between text-xs font-bold shadow-2xs">
+        <div className="bg-surface text-accent p-2.5 rounded-none border border-line flex items-center justify-between text-xs font-bold">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-accent" />
             <span>Allergy check: no conflict with the patient's recorded allergies</span>
@@ -320,7 +320,7 @@ export default function PlanTab({
           onClick={() => setSubTab('medication')}
           className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'medication'
-              ? 'bg-primary text-white shadow-2xs'
+              ? 'bg-primary text-white '
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
@@ -334,7 +334,7 @@ export default function PlanTab({
           onClick={() => setSubTab('investigations')}
           className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'investigations'
-              ? 'bg-primary text-white shadow-2xs'
+              ? 'bg-primary text-white '
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
@@ -348,7 +348,7 @@ export default function PlanTab({
           onClick={() => setSubTab('documents')}
           className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'documents'
-              ? 'bg-primary text-white shadow-2xs'
+              ? 'bg-primary text-white '
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >
@@ -362,7 +362,7 @@ export default function PlanTab({
           onClick={() => setSubTab('summary')}
           className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'summary'
-              ? 'bg-primary text-white shadow-2xs'
+              ? 'bg-primary text-white '
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
         >

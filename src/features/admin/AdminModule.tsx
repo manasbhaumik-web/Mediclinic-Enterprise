@@ -1,3 +1,4 @@
+import { getPersonaAvatar } from '../../utils/personaAvatars';
 import React, { useState, useEffect } from 'react';
 import logoUrl from '../../assets/logo_transparent.svg';
 import ThemeSelector from '../../components/ui/ThemeSelector';
@@ -8,21 +9,23 @@ import {
   Layers, FolderKanban, CalendarClock,
   LayoutDashboard, UserCog
 } from 'lucide-react';
-import StaffManagementModule from '../staff/StaffManagementModule';
-import InventoryPage from '../inventory/InventoryPage';
-import EquipmentPage from '../equipment/EquipmentPage';
-import BillingManagementModule from '../billing/BillingManagementModule';
-import ReportsAnalyticsModule from '../reports/ReportsAnalyticsModule';
-import SettingsModule from './SettingsModule';
-import MOHDashboard from '../reports/MOHDashboard';
-import EInvoicePage from '../einvoice/EInvoicePage';
-import PayrollPage from '../payroll/PayrollPage';
-import LeavePage from '../leave/LeavePage';
-import IntegrationsPage from '../integrations/IntegrationsPage';
-import OperationsHub from '../operations/OperationsHub';
-import SecurityHub from './SecurityHub';
-import RevenueCycleHub from '../billing/RevenueCycleHub';
-import SystemArchitectureHub from './SystemArchitectureHub';
+import GlobalSpinner from '../../components/ui/GlobalSpinner';
+
+const StaffManagementModule = React.lazy(() => import('../staff/StaffManagementModule'));
+const InventoryPage = React.lazy(() => import('../inventory/InventoryPage'));
+const EquipmentPage = React.lazy(() => import('../equipment/EquipmentPage'));
+const BillingManagementModule = React.lazy(() => import('../billing/BillingManagementModule'));
+const ReportsAnalyticsModule = React.lazy(() => import('../reports/ReportsAnalyticsModule'));
+const SettingsModule = React.lazy(() => import('./SettingsModule'));
+const MOHDashboard = React.lazy(() => import('../reports/MOHDashboard'));
+const EInvoicePage = React.lazy(() => import('../einvoice/EInvoicePage'));
+const PayrollPage = React.lazy(() => import('../payroll/PayrollPage'));
+const LeavePage = React.lazy(() => import('../leave/LeavePage'));
+const IntegrationsPage = React.lazy(() => import('../integrations/IntegrationsPage'));
+const OperationsHub = React.lazy(() => import('../operations/OperationsHub'));
+const SecurityHub = React.lazy(() => import('./SecurityHub'));
+const RevenueCycleHub = React.lazy(() => import('../billing/RevenueCycleHub'));
+const SystemArchitectureHub = React.lazy(() => import('./SystemArchitectureHub'));
 import { useSettings } from '../../context/SettingsContext';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from '../shell/HelpCenter';
 import NotificationBell from '../shell/NotificationBell';
@@ -135,18 +138,18 @@ export default function AdminModule({
       {/* ========================================================================= */}
       {/* GLOBAL TOP ADMIN HEADER BAR                                               */}
       {/* ========================================================================= */}
-      <header className="h-[70px] bg-chrome text-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-[0_1px_3px_rgb(15_60_76/0.18)] relative z-30 sticky top-0 font-sans">
+      <header className="workspace-header">
         
         {/* Left: Product Title & Branch Context */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full border border-line bg-surface-accent p-1.5 shrink-0 flex items-center justify-center shadow-2xs">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="type-brand font-sans text-white flex items-center gap-2">
+            <h1 className="type-brand font-sans text-ink flex items-center gap-2 text-[20px]" style={{ fontSize: '20px' }}>
               <span>Mediclinic Admin Console</span>
             </h1>
-            <span className="text-2xs text-teal-100 font-mono tracking-wider font-semibold block mt-0.5">
+            <span className="text-2xs text-muted font-mono tracking-wider font-semibold block mt-0.5">
               {clinic.branch ? `${clinic.branch} • ` : ''}Executive Console
             </span>
           </div>
@@ -167,7 +170,7 @@ export default function AdminModule({
             <button
               type="button"
               onClick={onOpenDashboard}
-              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-chrome-deep hover:bg-chrome-line border border-white/25 text-white text-xs font-bold cursor-pointer transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-strong border border-line text-ink text-xs font-bold cursor-pointer transition-colors rounded-none"
               title="Back to dashboard"
             >
               <LayoutDashboard className="w-4 h-4 text-teal-200" />
@@ -180,7 +183,7 @@ export default function AdminModule({
           <NotificationBell onOpenTab={() => {}} onOpenAdmin={(tab) => { if (tab) setActiveTab(tab as AdminTab); }} />
 
           {/* Live Clock */}
-          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-white/25 font-mono text-xs text-white rounded-none font-bold shadow-2xs">
+          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-chrome-deep px-2.5 py-1 border border-white/25 font-mono tabular-nums text-xs text-white rounded-none font-bold shadow-none">
             <Clock className="w-3.5 h-3.5 text-teal-100" />
             <span>{timeString || '14:20:15 MYT'}</span>
           </div>
@@ -190,7 +193,7 @@ export default function AdminModule({
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-white/25 px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs"
+              className="flex items-center justify-center gap-2 bg-chrome-deep hover:bg-chrome-line border border-white/25 px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-none"
               title="Console Settings"
             >
               <div className="w-6 h-6 bg-chrome text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none border border-teal-300/40">
@@ -312,15 +315,33 @@ export default function AdminModule({
         </div>
       </header>
 
-      {/* PAGE BANNER: same fill, blur and border as the public page header */}
-      <section className="w-full bg-surface-accent/95 backdrop-blur-md border-b border-line text-ink relative z-20 px-4 sm:px-6 py-2 shrink-0 font-sans" aria-label="Page banner">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 shrink-0 bg-surface-strong border border-line rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
-            <UserCog className="w-6 h-6" aria-hidden="true" />
+      {/* PAGE BANNER: footer color chrome shade with protruding persona avatar */}
+      <section className="workspace-banner-section" aria-label="Page banner">
+        <div className="workspace-banner-bar">
+          <div className="flex items-center gap-3.5 min-w-0 overflow-visible">
+            <div className="workspace-banner-avatar" role="img" aria-label="Profile photo">
+              <img 
+                src={getPersonaAvatar(userRole)} 
+                alt={adminName || 'Administrator'} 
+                className="w-full h-full object-cover" 
+              />
+            </div>
+            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h1 className="type-card-title-lg text-white font-bold tracking-tight truncate">{getGreeting()}, {adminName}</h1>
+              <span className="workspace-banner-pill">{userRole === 'admin' ? 'Administrator dashboard' : 'HR dashboard'}</span>
+              <span className="workspace-banner-status">
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-400 animate-pulse"></span>
+                All systems operational
+              </span>
+            </div>
           </div>
-          <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <h1 className="type-card-title text-ink truncate">{getGreeting()}, {adminName}</h1>
-            <span className="px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider rounded-none">{userRole === 'admin' ? 'Administrator dashboard' : 'HR dashboard'}</span>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border border-white/15 text-white rounded-none shadow-none">
+                <Clock className="w-3.5 h-3.5 text-teal-200" />
+                <span>Console: <strong className="text-white font-bold">Active</strong></span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -330,7 +351,7 @@ export default function AdminModule({
       {/* ========================================================================= */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
 
-        <nav className="w-full bg-chrome-deep text-white border-b border-white/25 shrink-0 px-4 flex flex-col md:flex-row md:items-stretch justify-between font-sans min-h-[44px]">
+        <nav className="workspace-navbar min-h-[44px] flex flex-col md:flex-row md:items-stretch">
           
           {/* Category Filter Pills */}
           <div className="flex items-stretch gap-0 overflow-x-auto text-xs">
@@ -391,6 +412,7 @@ export default function AdminModule({
         {/* MAIN CONTENT AREA                                                         */}
         {/* ========================================================================= */}
         <main className="flex-1 p-5 overflow-y-auto bg-canvas dark:bg-night-900 text-ink dark:text-slate-100">
+          <React.Suspense fallback={<GlobalSpinner />}>
 
           {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
             <StaffManagementModule />
@@ -452,6 +474,8 @@ export default function AdminModule({
             <SystemArchitectureHub onOpenTab={setActiveTab} />
           )}
 
+        
+          </React.Suspense>
         </main>
       </div>
 
@@ -483,7 +507,7 @@ export default function AdminModule({
                   setShowSignOutConfirm(false);
                   onNavigate('landing');
                 }}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer shadow-md"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer shadow-none"
               >
                 Terminate Session
               </button>

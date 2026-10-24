@@ -40,13 +40,13 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
   };
 
   return (
-    <div className="space-y-5 animate-fadeIn">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3.5 rounded-none border border-line shadow-xs">
+    <div className="space-y-4 animate-fadeIn">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3.5 rounded-none border border-line">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h4 className="type-label text-ink flex items-center gap-1.5">
+            <h4 className="type-label text-ink flex items-center gap-1.5 font-bold">
               <Activity className="w-4 h-4 text-accent" aria-hidden="true" />
-              Objective: vitals
+              Objective: Clinical Vitals
             </h4>
             {anyLocked && <span className="chip-warn px-2 py-0.5 text-2xs inline-flex items-center gap-1"><Lock className="w-3 h-3" aria-hidden="true" />Recorded at triage</span>}
           </div>
@@ -66,13 +66,13 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
         <div className="bg-surface rounded-none p-3 border border-line flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <LineChart className="w-4 h-4 text-accent" aria-hidden="true" />
-            <span className="text-xs font-bold text-ink uppercase tracking-wider">Blood pressure, last 3 visits</span>
+            <span className="text-xs font-bold text-ink uppercase tracking-wider font-mono">Blood pressure, last 3 visits</span>
           </div>
           <div className="flex items-center gap-3">
             {patientPastVisits.slice(0, 3).map((v) => (
               <div key={v.id} className="flex flex-col items-center bg-surface-muted px-2.5 py-1 rounded-none border border-line">
-                <span className="text-xs text-subtle font-mono">{v.date.substring(5)}</span>
-                <span className="text-xs font-bold font-mono text-accent">{v.soap.objective.bpSystolic > 0 ? `${v.soap.objective.bpSystolic}/${v.soap.objective.bpDiastolic}` : 'Not recorded'}</span>
+                <span className="text-xs text-subtle font-mono tabular-nums">{v.date.substring(5)}</span>
+                <span className="text-xs font-bold font-mono tabular-nums text-accent">{v.soap.objective.bpSystolic > 0 ? `${v.soap.objective.bpSystolic}/${v.soap.objective.bpDiastolic}` : 'Not recorded'}</span>
               </div>
             ))}
           </div>
@@ -85,8 +85,17 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
           const recorded = value > 0;
           const isLocked = locked(f.key);
           const note = recorded ? f.note(value) : null;
+          
+          const stripeClass = !recorded 
+            ? ''
+            : note?.tone === 'danger'
+              ? ''
+              : note?.tone === 'warn'
+                ? ''
+                : '';
+
           return (
-            <div key={f.key} className="p-3.5 bg-surface border border-line rounded-none shadow-2xs">
+            <div key={f.key} className={`p-3.5 bg-surface border border-line rounded-none ${stripeClass}`}>
               <label htmlFor={f.id} className="block text-xs font-bold text-subtle uppercase tracking-wider mb-1">{f.label}</label>
               <input
                 id={f.id}
@@ -98,10 +107,10 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
                 value={recorded ? value : ''}
                 placeholder="Not recorded"
                 onChange={(e) => setVitals({ ...vitals, [f.key]: e.target.value === '' ? 0 : Number(e.target.value) })}
-                className={`w-full min-h-11 px-3 text-sm font-mono font-bold text-ink border border-line-strong ${isLocked ? 'bg-surface-muted' : 'bg-surface'}`}
+                className={`w-full min-h-11 px-3 text-sm font-mono tabular-nums font-bold text-ink border border-line-strong ${isLocked ? 'bg-surface-muted' : 'bg-surface'}`}
               />
-              {note ? <span className={`${CHIP[note.tone]} mt-1.5 px-2 py-0.5 text-xs inline-flex items-center`}>{note.text}</span>
-                : <span className="chip-neutral mt-1.5 px-2 py-0.5 text-xs inline-flex items-center">Not recorded</span>}
+              {note ? <span className={`${CHIP[note.tone]} mt-1.5 px-2 py-0.5 text-xs inline-flex items-center font-mono tabular-nums`}>{note.text}</span>
+                : <span className="chip-neutral mt-1.5 px-2 py-0.5 text-xs inline-flex items-center font-mono">Not recorded</span>}
             </div>
           );
         })}

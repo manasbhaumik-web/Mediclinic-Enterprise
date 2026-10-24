@@ -8,14 +8,14 @@ interface DemographicsStepProps {
   manualForm: { fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; };
   setManualForm: React.Dispatch<React.SetStateAction<{ fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; }>>;
   clearError: (key: string) => void;
-  inputBase: 'w-full bg-surface dark:bg-night-900 border rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 outline-none';
+  inputBase: 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none';
 }
 
 export default function DemographicsStep({ existingPatientId, fieldErrors, manualForm, setManualForm, clearError, inputBase }: DemographicsStepProps) {
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-3 font-sans">
       <div>
-        <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">
+        <h3 className="type-heading-caps text-ink font-sans">
           Patient Demographics
         </h3>
         {existingPatientId && (
@@ -25,7 +25,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
         )}
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <FormField id="reg-fullName" label="Full Name" required error={fieldErrors.fullName}>
             {(f) => (

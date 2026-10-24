@@ -85,7 +85,7 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
       {drugs.error && <Notice ok={false}>Could not load the stock list. Try again, or ask an administrator to check the inventory set-up.</Notice>}
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
 
-      <div className="bg-surface border border-line-subtle overflow-x-auto lg:overflow-visible">
+      <div className="bg-surface border border-line overflow-x-auto lg:overflow-visible shadow-none">
         <table className="w-full text-xs">
           <thead>
             <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">

@@ -10,7 +10,7 @@ export default function ExportButtons({ table }: { table: ReportTable }) {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const empty = table.rows.length === 0;
-  const base = 'text-2xs font-bold uppercase px-2.5 py-1 border border-line bg-white text-accent hover:bg-teal-50 flex items-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
+  const base = 'text-2xs font-bold uppercase px-2.5 py-1 border border-line bg-surface text-accent hover:bg-surface-accent flex items-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
 
   const pdf = async () => {
     setBusy(true); setFailed(false);

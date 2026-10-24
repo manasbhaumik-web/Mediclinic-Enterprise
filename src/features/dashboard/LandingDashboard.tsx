@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ROLE_BANNER, bannerFor, getGreeting } from '../../domain/roleBanner';
 import { Visit, Patient, UserRole, Language } from '../../types';
+import { getPersonaAvatar } from '../../utils/personaAvatars';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
   TrendingUp, ArrowUpRight, ShieldCheck, MapPin, Phone, Building2,
@@ -18,6 +19,7 @@ import LegendSwatch from '../../components/ui/LegendSwatch';
 import { chartTheme } from '../../theme/chartTheme';
 import { palette, seriesColors } from '../../theme/palette';
 import { useInventory } from '../../context/InventoryContext';
+import { useTelemetry } from '../../context/TelemetryContext';
 import MicroSparkline from './MicroSparkline';
 import type { KpiId, PanelId } from './types';
 import KpiCards from './KpiCards';
@@ -54,35 +56,22 @@ export default function LandingDashboard({
   activeLanguage,
   onNavigateTab,
   onOpenLogin,
-  onOpenAdmin
-}: LandingDashboardProps) {
+  onOpenAdmin,}: LandingDashboardProps) {
   useColorTheme(); // re-render when the colour theme changes so palette colours refresh
 
   // Time Horizon & Filter State
   const [isExporting, setIsExporting] = useState(false);
   const [activeQuickFilter, setActiveQuickFilter] = useState<'all' | 'urgent' | 'panel'>('all');
 
+  const { exportTelemetryJson, logAuditEvent } = useTelemetry();
+
   const handleExportTelemetry = () => {
     setIsExporting(true);
+    logAuditEvent('telemetry.exported', { totalEncountersToday, activeQueueCount, revenue: calculatedRevenue });
     setTimeout(() => {
       setIsExporting(false);
-      // Trigger instant CSV download
-      const headers = ['Telemetry Metric', 'Value', 'Status', 'Timestamp'];
-      const rows = [
-        ['Total Encounters Today', totalEncountersToday, 'Optimal', new Date().toISOString()],
-        ['Active Queue Volume', activeQueueCount, 'SLA Target Met', new Date().toISOString()],
-        ['Daily Revenue (RM)', calculatedRevenue.toFixed(2), '100% Panel Verified', new Date().toISOString()],
-        ['Clinic Efficiency Index', '96.4%', 'KKM Compliant', new Date().toISOString()]
-      ];
-      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `MediClinic_Enterprise_Telemetry.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }, 600);
+      exportTelemetryJson('mediclinic-telemetry-metrics');
+    }, 400);
   };
 
   const { inventory, logs } = useInventory();
@@ -335,63 +324,66 @@ export default function LandingDashboard({
     },
   ].filter((m) => roleConfig.modules.includes(m.id));
 
-  const [bannerSlot, setBannerSlot] = useState<HTMLElement | null>(() => document.getElementById('page-banner-slot'));
+
+    const [bannerSlot, setBannerSlot] = useState<HTMLElement | null>(() => document.getElementById('page-banner-slot'));
   React.useEffect(() => { setBannerSlot(document.getElementById('page-banner-slot')); }, []);
 
   // The staff shell hosts this block as its page banner; on the public page there is no slot, so it renders inline.
   const headerBanner = (
-    <div className={bannerSlot ? 'pt-3' : ''}>
-      {/* Only the greeting row and its buttons take the header colour; inside the staff shell it also carries the persona icon */}
-      <div className={`flex flex-wrap items-center gap-4 ${bannerSlot ? 'bg-chrome text-white pl-[29px] pr-6 sm:pl-[45px] sm:pr-10 py-3' : ''}`}>
-        {bannerSlot && (
-          <div className="w-24 h-24 -mt-6 relative z-10 shrink-0 bg-surface-strong ring-1 ring-primary rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
-            <User className="w-12 h-12" aria-hidden="true" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <h2 className={`type-section-title ${bannerSlot ? 'text-white' : 'text-ink'}`}>
+    <div className="workspace-banner-bar">
+      {/* Left: Clinician profile badge & greetings */}
+      <div className="flex items-center gap-3.5 min-w-0">
+        <div className="workspace-banner-avatar">
+          <img 
+            src={getPersonaAvatar(userRole)} 
+            alt={userName || 'Staff'} 
+            className="w-full h-full object-cover" 
+          />
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="workspace-banner-title">
               {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
             </h2>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider rounded-none ${bannerSlot ? 'bg-white/15 border border-white/40 text-white' : 'bg-primary text-white'}`}>
-                {userRole ? roleConfig.label : 'Clinic overview'}
-              </span>
-              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold uppercase tracking-wider border border-emerald-300 rounded-none flex items-center justify-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
-                All systems operational
-              </span>
-            </div>
+            <span className="workspace-banner-pill">
+              {userRole ? roleConfig.label : 'Clinic overview'}
+            </span>
+            <span className="workspace-banner-status">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              All systems operational
+            </span>
           </div>
-          <p className={`text-xs sm:text-sm font-normal mt-0.5 ${bannerSlot ? 'text-white/85' : 'text-ink/75'}`}>
+          <p className="text-2xs text-teal-50 font-normal mt-0.5 truncate">
             {userRole ? roleConfig.subtitle : 'Unified healthcare operations launchpad, outpatient telemetry, clinical analytics, and facility status.'}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          {/* Export Telemetry Button */}
-          <button
-            type="button"
-            onClick={handleExportTelemetry}
-            disabled={isExporting}
-            className="px-4 py-2 rounded-none bg-surface-accent hover:bg-surface-strong text-accent border border-line font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
-          >
-            <Download className={`w-3.5 h-3.5 text-accent ${isExporting ? 'animate-bounce' : ''}`} />
-            <span>{isExporting ? 'Exporting CSV...' : 'Export Telemetry'}</span>
-          </button>
-
-          {!userRole && (
-            <button
-              type="button"
-              onClick={onOpenLogin}
-              className="px-5 py-2 rounded-none bg-primary hover:bg-deep text-white font-bold text-xs shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Staff Portal</span>
-            </button>
-          )}
-        </div>
       </div>
 
+      {/* Right: Telemetry Export Action */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        <button
+          type="button"
+          onClick={handleExportTelemetry}
+          disabled={isExporting}
+          className="workspace-banner-btn"
+        >
+          <Download className={`w-3.5 h-3.5 text-teal-200 ${isExporting ? 'animate-bounce' : ''}`} />
+          <span className="font-mono text-2xs uppercase tracking-wider font-bold">
+            {isExporting ? 'Exporting...' : 'Export Telemetry'}
+          </span>
+        </button>
+
+        {!userRole && (
+          <button
+            type="button"
+            onClick={onOpenLogin}
+            className="px-4 py-1.5 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-none flex items-center justify-center gap-2 transition-all cursor-pointer font-mono uppercase tracking-wider"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Staff Portal</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 
@@ -401,26 +393,33 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 1. ENTERPRISE COMMAND-CENTER HEADER & CONTROL BAR                         */}
       {/* ========================================================================= */}
-      {bannerSlot ? createPortal(headerBanner, bannerSlot) : <div className="bg-surface border border-line-subtle rounded-none p-6 shadow-xs">{headerBanner}</div>}
+      {bannerSlot ? createPortal(headerBanner, bannerSlot) : <div className="bg-surface border border-line rounded-none p-6 shadow-none">{headerBanner}</div>}
 
       {/* ROLE WORKLISTS: what this role needs to act on next */}
       {showPanel('worklist') && worklists.map(({ kind, visits }) => {
         const cfg = WORK_SECTIONS[kind];
         const KindIcon = kind === 'dispense' ? Pill : kind === 'billing' ? CreditCard : kind === 'triage' ? Activity : Stethoscope;
         return (
-          <div key={kind} className="bg-surface border border-line-subtle rounded-none shadow-xs">
-            <div className="flex items-center justify-between gap-3 p-4 border-b border-line-subtle">
-              <div>
-                <h3 className="type-card-title text-ink flex items-center gap-2">
-                  <KindIcon className="w-5 h-5 text-accent" />
-                  {cfg.title}
-                </h3>
-                <p className="text-xs text-ink/75 mt-0.5">{cfg.subtitle}</p>
+          <div key={kind} className="bg-surface border border-line rounded-none shadow-none">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2.5 border-b border-line bg-surface-muted/20">
+              <div className="flex items-center gap-3">
+                <span className="p-1.5 bg-surface-muted border border-line text-accent shrink-0 rounded-none">
+                  <KindIcon className="w-4 h-4" />
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="type-card-title text-ink font-bold">{cfg.title}</h3>
+                    <span className="font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 border border-line bg-surface text-accent">
+                      <strong className="tabular-nums text-ink">{visits.length}</strong> in queue
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted mt-0.5">{cfg.subtitle}</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => onNavigateTab(cfg.tab)}
-                className="min-h-11 px-4 bg-primary hover:bg-deep text-white text-xs font-bold rounded-none cursor-pointer flex items-center gap-1.5"
+                className="min-h-8 px-3 bg-primary hover:bg-deep text-white text-xs font-mono uppercase font-bold tracking-wider rounded-none cursor-pointer flex items-center gap-1 border border-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {cfg.cta}
                 <ChevronRight className="w-4 h-4" />
@@ -428,7 +427,7 @@ export default function LandingDashboard({
             </div>
 
             {visits.length === 0 ? (
-              <div className="p-6 text-sm text-ink/75 flex items-center gap-2">
+              <div className="p-4 text-xs text-muted font-mono flex items-center justify-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-accent" />
                 {cfg.empty}
               </div>
@@ -446,39 +445,47 @@ export default function LandingDashboard({
                     : kind === 'billing' ? `Outstanding RM ${outstanding.toFixed(2)}${patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? ` · Panel: ${patient.panelEmployer}` : ' · Self-pay'}`
                     : kind === 'triage' ? (patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? `Panel: ${patient.panelEmployer}` : 'Self-pay')
                     : (v.soap?.subjective || 'No complaint recorded');
+
                   return (
-                    <li key={v.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-surface hover:bg-surface-muted transition-colors">
+                    <li key={v.id} className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2 bg-surface hover:bg-surface-muted/50 transition-colors border-b border-line-subtle last:border-b-0">
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-7 h-7 shrink-0 flex items-center justify-center bg-surface-accent border border-line text-accent font-mono text-xs font-bold">{idx + 1}</span>
+                        <span className="w-6 h-6 shrink-0 flex items-center justify-center bg-surface-muted border border-line text-ink font-mono tabular-nums text-2xs font-bold">{idx + 1}</span>
                         <div className="min-w-0">
-                          <p className="text-sm font-bold text-ink truncate">{patient?.fullName ?? `Visit ${v.id}`}</p>
-                          <p className="text-xs text-ink/75 truncate">{detail}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-bold text-ink truncate">{patient?.fullName ?? `Visit ${v.id}`}</p>
+                            {patient?.gender && (
+                              <span className="text-2xs font-mono text-muted uppercase">({patient.gender})</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted truncate mt-0.5">{detail}</p>
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
                         {allergies.length > 0 && kind !== 'billing' && (
-                          <span className="chip chip-danger">
-                            <AlertCircle className="w-3.5 h-3.5" /> Allergy: {allergies.join(', ')}
+                          <span className="border border-rose-300 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" /> Allergy: {allergies.join(', ')}
                           </span>
                         )}
                         {flag && (
-                          <span className="chip chip-danger">
-                            <AlertCircle className="w-3.5 h-3.5" /> {flag}
+                          <span className="border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" /> {flag}
                           </span>
                         )}
                         {v.status === 'Consulting' && (
-                          <span className="chip chip-info">In consultation</span>
+                          <span className="border border-teal-300 dark:border-teal-900 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5">
+                            In consultation
+                          </span>
                         )}
-                        <span className={`chip font-mono ${mins !== null && mins >= 20 ? 'chip-warn' : 'chip-brand'}`}>
-                          <Clock className="w-3.5 h-3.5" /> {mins !== null ? `${mins} min` : 'Just in'}
+                        <span className={`font-mono text-xs font-bold px-2 py-1 border flex items-center gap-1.5 ${mins !== null && mins >= 20 ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'border-line bg-surface-accent text-accent'}`}>
+                          <Clock className="w-3 h-3" /> {mins !== null ? `${mins} min` : 'Just in'}
                         </span>
                         <button
                           type="button"
                           onClick={() => onNavigateTab(cfg.tab)}
-                          className="min-h-11 px-4 bg-primary hover:bg-deep text-white text-xs font-bold rounded-none cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                          className="min-h-7 px-2.5 bg-surface hover:bg-surface-accent text-accent hover:text-ink border border-line text-2xs font-bold font-mono uppercase tracking-wider rounded-none cursor-pointer flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         >
                           {cfg.rowCta}
-                          <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                          <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </div>
                     </li>
@@ -505,35 +512,40 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {worklists.length > 0 ? (
         // A worklist leads this role's page, so the shortcuts shrink to one row of links
-        <nav aria-label="Workspaces" className="flex flex-wrap items-center gap-2">
-          <span className="type-heading-caps text-ink/75 mr-1">Workspaces</span>
-          {workspaceModules.map((mod) => {
-            const IconComponent = mod.icon;
-            return (
-              <button
-                key={mod.id}
-                type="button"
-                onClick={() => (mod.tabKey === 'admin' ? onOpenAdmin?.() : onNavigateTab(mod.tabKey))}
-                aria-label={`${mod.title}: ${mod.badge}`}
-                className="min-h-11 px-3 bg-surface border border-line hover:bg-surface-strong text-ink text-xs font-bold rounded-none cursor-pointer flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-              >
-                <IconComponent className="w-4 h-4 text-accent" aria-hidden="true" />
-                {mod.title}
-                <span className={`chip font-mono ${mod.badgeColor}`}>{mod.badge}</span>
-              </button>
-            );
-          })}
-        </nav>
+        <div className="bg-surface border border-line px-3 py-2 rounded-none shadow-none flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-2xs font-mono uppercase font-bold tracking-wider text-muted">
+            <LayoutDashboard className="w-4 h-4 text-accent" />
+            <span>Clinical Workspaces</span>
+          </div>
+          <nav aria-label="Workspaces" className="flex flex-wrap items-center gap-2">
+            {workspaceModules.map((mod) => {
+              const IconComponent = mod.icon;
+              return (
+                <button
+                  key={mod.id}
+                  type="button"
+                  onClick={() => (mod.tabKey === 'admin' ? onOpenAdmin?.() : onNavigateTab(mod.tabKey))}
+                  aria-label={`${mod.title}: ${mod.badge}`}
+                  className="px-2.5 py-1.5 bg-surface hover:bg-surface-muted text-ink border border-line text-xs font-bold rounded-none cursor-pointer flex items-center gap-2 transition-colors group shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <IconComponent className="w-4 h-4 text-accent group-hover:text-primary transition-colors" aria-hidden="true" />
+                  <span>{mod.title}</span>
+                  <span className={`px-1.5 py-0.2 text-2xs font-mono font-bold uppercase tracking-wider border rounded-none ${mod.badgeColor}`}>{mod.badge}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       ) : (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="type-heading-caps text-ink/75 flex items-center gap-2">
+          <h3 className="type-heading-caps text-muted flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4 text-accent" />
             Choose a workspace
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
           {workspaceModules.map((mod) => {
             const IconComponent = mod.icon;
             return (
@@ -542,11 +554,11 @@ export default function LandingDashboard({
                 type="button"
                 onClick={() => (mod.tabKey === 'admin' ? onOpenAdmin?.() : onNavigateTab(mod.tabKey))}
                 aria-label={`${mod.title}: ${mod.badge}. ${mod.actionText}`}
-                className={`text-left w-full bg-surface border border-line p-4 rounded-none shadow-2xs hover:bg-surface-muted transition-colors cursor-pointer flex flex-col justify-between group gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`}
+                className="text-left w-full bg-surface border border-line p-3 rounded-none shadow-none hover:bg-surface-muted transition-colors cursor-pointer flex flex-col justify-between group gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <span className="block space-y-2 w-full">
                   <span className="flex items-center justify-between">
-                    <span className="p-2 bg-surface-muted border border-line-subtle group-hover:bg-surface-strong transition-colors">
+                    <span className="p-1.5 bg-surface-muted border border-line-subtle group-hover:bg-surface-strong transition-colors rounded-none">
                       <IconComponent className="w-5 h-5 text-accent" aria-hidden="true" />
                     </span>
                     <span className={`px-2 py-0.5 text-2xs font-bold font-mono uppercase tracking-wider border rounded-none ${mod.badgeColor}`}>
@@ -558,13 +570,13 @@ export default function LandingDashboard({
                     <span className="type-card-title text-ink group-hover:text-accent transition-colors block">
                       {mod.title}
                     </span>
-                    <span className="text-xs text-ink/75 mt-1 line-clamp-2 leading-relaxed block">
+                    <span className="text-xs text-muted mt-1 line-clamp-2 leading-relaxed block">
                       {mod.subtitle}
                     </span>
                   </span>
                 </span>
 
-                <span className="pt-2 border-t border-line-subtle flex items-center justify-between text-xs font-bold text-accent group-hover:text-ink transition-colors w-full">
+                <span className="pt-2 border-t border-line-subtle flex items-center justify-between text-xs font-bold text-accent group-hover:text-ink transition-colors w-full font-mono uppercase tracking-wider">
                   <span>{mod.actionText}</span>
                   <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </span>
