@@ -14,6 +14,7 @@ import {
   FileText, Pill, CreditCard, Search, Clock, RefreshCw, 
   ChevronDown, ChevronRight, LogOut, CalendarClock, PackageOpen, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck, User
 } from 'lucide-react';
+import logoUrl from '../../assets/logo_transparent.svg';
 
 interface EnterpriseLayoutTemplateProps {
   activeTab: string;
@@ -126,12 +127,17 @@ export default function EnterpriseLayoutTemplate({
     }`}>
       
       {/* GLOBAL TOP HEADER BAR */}
-      <header className="h-[70px] bg-surface-accent text-ink px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans">
+      <header className="h-[65px] bg-surface-accent text-ink px-4 sm:px-6 flex items-center justify-between shrink-0 relative z-30 sticky top-0 font-sans">
 
-        {/* Left: clinic name */}
-        <h1 className="type-brand font-sans text-ink" style={{ fontSize: '24px' }}>
-          {brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}
-        </h1>
+        {/* Left: logo and clinic name */}
+        <div className="flex items-center gap-1">
+          <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center">
+            <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
+          </div>
+          <h1 className="type-brand font-sans text-ink" style={{ fontSize: '24px' }}>
+            {brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}
+          </h1>
+        </div>
 
         {/* Center: Persistent Abnormal State Indicator (Shows ONLY when offline or abnormal) */}
         {!isOnline && (
@@ -313,7 +319,7 @@ export default function EnterpriseLayoutTemplate({
           <div id="page-banner-slot" className="min-w-0" />
         ) : (
           // Work pages: one teal line, so the page content gets the space
-          <div className="flex items-center gap-4 bg-chrome text-white px-4 sm:px-6 py-2">
+          <div className="flex items-center gap-4 bg-chrome text-white pl-[29px] pr-6 sm:pl-[45px] sm:pr-10 py-2">
             {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
             <div className="w-16 h-16 -mt-3 relative z-10 shrink-0 bg-surface-strong ring-4 ring-primary rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
               <User className="w-9 h-9" aria-hidden="true" />

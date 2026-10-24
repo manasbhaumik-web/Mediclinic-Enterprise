@@ -342,7 +342,7 @@ export default function LandingDashboard({
   const headerBanner = (
     <div className={bannerSlot ? 'pt-3' : ''}>
       {/* Only the greeting row and its buttons take the header colour; inside the staff shell it also carries the persona icon */}
-      <div className={`flex flex-wrap items-center gap-4 ${bannerSlot ? 'bg-chrome text-white px-4 sm:px-6 py-3' : ''}`}>
+      <div className={`flex flex-wrap items-center gap-4 ${bannerSlot ? 'bg-chrome text-white pl-[29px] pr-6 sm:pl-[45px] sm:pr-10 py-3' : ''}`}>
         {bannerSlot && (
           <div className="w-24 h-24 -mt-6 relative z-10 shrink-0 bg-surface-strong ring-4 ring-primary rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
             <User className="w-12 h-12" aria-hidden="true" />
