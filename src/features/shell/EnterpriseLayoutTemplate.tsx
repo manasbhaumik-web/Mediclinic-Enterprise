@@ -131,10 +131,10 @@ export default function EnterpriseLayoutTemplate({
 
         {/* Left: logo and clinic name */}
         <div className="flex items-center gap-1">
-          <div className="w-12 h-12 rounded-none shrink-0 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-none shrink-0 flex items-center justify-center">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
-          <h1 className="type-brand font-sans text-ink" style={{ fontSize: '24px' }}>
+          <h1 className="type-brand font-sans text-ink" style={{ fontSize: '22px' }}>
             {brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}
           </h1>
         </div>
@@ -321,7 +321,7 @@ export default function EnterpriseLayoutTemplate({
           // Work pages: one teal line, so the page content gets the space
           <div className="flex items-center gap-4 bg-chrome text-white pl-[29px] pr-6 sm:pl-[45px] sm:pr-10 py-2">
             {/* Persona image placeholder: swap the icon for the user's photo once avatars are stored */}
-            <div className="w-16 h-16 -mt-3 relative z-10 shrink-0 bg-surface-strong ring-4 ring-primary rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
+            <div className="w-16 h-16 -mt-3 relative z-10 shrink-0 bg-surface-strong ring-1 ring-primary rounded-full flex items-center justify-center text-accent" role="img" aria-label="Profile photo placeholder">
               <User className="w-9 h-9" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
