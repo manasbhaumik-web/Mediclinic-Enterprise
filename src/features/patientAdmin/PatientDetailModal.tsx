@@ -196,7 +196,7 @@ export default function PatientDetailModal({
   const effectivePII = showPII || localShowPII;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
+    <div role="dialog" aria-modal="true" aria-labelledby="patient-detail-title" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
       <div className="bg-surface border border-line rounded-none shadow-2xl max-w-5xl w-full h-[90vh] max-h-[850px] flex flex-col overflow-hidden">
         
         {/* MODAL HEADER */}
@@ -207,7 +207,7 @@ export default function PatientDetailModal({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="type-section-title text-ink truncate font-bold">
+                <h2 id="patient-detail-title" className="type-section-title text-ink truncate font-bold">
                   {formData.fullName}
                 </h2>
                 <span className="font-mono text-2xs px-2 py-0.5 bg-surface border border-line text-accent font-bold">
@@ -259,8 +259,8 @@ export default function PatientDetailModal({
             )}
             <button
               onClick={onClose}
-              className="p-1.5 text-muted hover:text-ink hover:bg-surface-accent transition-colors"
-              aria-label="Close modal"
+              className="min-w-[40px] min-h-[40px] flex items-center justify-center text-muted hover:text-ink hover:bg-surface-accent transition-colors"
+              aria-label="Close patient details modal"
             >
               <X className="w-5 h-5" />
             </button>

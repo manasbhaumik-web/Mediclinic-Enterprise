@@ -458,9 +458,9 @@ export default function BillingManagementModule() {
 
       {/* RECORD A PANEL PAYMENT */}
       {settling && (
-        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !claimSaving) setSettling(null); }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="settle-panel-title" onKeyDown={(e) => { if (e.key === 'Escape' && !claimSaving) setSettling(null); }} className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !claimSaving) setSettling(null); }}>
           <div role="dialog" aria-modal="true" aria-label="Record panel payment" className="bg-surface rounded-none shadow-2xl max-w-sm w-full border border-line p-6 space-y-4">
-            <h3 className="type-heading-caps text-ink">Record panel payment</h3>
+            <h3 id="settle-panel-title" className="type-heading-caps text-ink">Record panel payment</h3>
             <div className="text-xs space-y-1 font-mono">
               <div className="flex justify-between"><span className="text-subtle">Claim</span><span>{settling.id}</span></div>
               <div className="flex justify-between"><span className="text-subtle">GL reference</span><span>{settling.glNumber ?? 'N/A'}</span></div>

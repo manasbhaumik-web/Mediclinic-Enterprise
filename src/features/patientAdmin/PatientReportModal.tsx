@@ -247,7 +247,7 @@ export default function PatientReportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
+    <div role="dialog" aria-modal="true" aria-labelledby="patient-report-title" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
       <div className="bg-surface border border-line rounded-none shadow-2xl max-w-6xl w-full h-[92vh] max-h-[900px] flex flex-col overflow-hidden">
         
         {/* HEADER */}
@@ -257,7 +257,7 @@ export default function PatientReportModal({
               <FileSpreadsheet className="w-5 h-5 text-accent" />
             </div>
             <div>
-              <h2 className="type-section-title text-ink font-bold">
+              <h2 id="patient-report-title" className="type-section-title text-ink font-bold">
                 {isBM ? 'Penjana Laporan Pesakit & Lawatan' : 'Patient Administration & Encounter Reports'}
               </h2>
               <p className="text-xs text-muted">
@@ -295,8 +295,8 @@ export default function PatientReportModal({
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-muted hover:text-ink hover:bg-surface-accent transition-colors ml-2"
-              aria-label="Close modal"
+              className="min-w-[40px] min-h-[40px] flex items-center justify-center text-muted hover:text-ink hover:bg-surface-accent transition-colors ml-2"
+              aria-label="Close patient report modal"
             >
               <X className="w-5 h-5" />
             </button>

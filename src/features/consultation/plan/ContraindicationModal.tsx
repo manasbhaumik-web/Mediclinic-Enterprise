@@ -13,14 +13,14 @@ interface ContraindicationModalProps {
 
 export default function ContraindicationModal({ currentPatient, pendingAllergyDrug, overrideRationale, setOverrideRationale, setPendingAllergyDrug, confirmAddDrug }: ContraindicationModalProps) {
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+    <div role="alertdialog" aria-modal="true" aria-labelledby="contraindication-dialog-title" aria-describedby="contraindication-dialog-desc" onKeyDown={(e) => { if (e.key === 'Escape') { setPendingAllergyDrug(null); setOverrideRationale(''); } }} className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-surface border-2 border-rose-600 max-w-lg w-full p-6 rounded-none space-y-4  text-ink dark:text-white">
         <div className="flex items-center gap-3 text-rose-600">
           <AlertTriangle className="w-6 h-6 shrink-0" />
-          <h3 className="type-heading-caps">CRITICAL DRUG CONTRAINDICATION ALERT</h3>
+          <h3 id="contraindication-dialog-title" className="type-heading-caps">CRITICAL DRUG CONTRAINDICATION ALERT</h3>
         </div>
         
-        <div className="text-xs text-muted dark:text-slate-300 leading-relaxed font-medium space-y-2">
+        <div id="contraindication-dialog-desc" className="text-xs text-muted dark:text-slate-300 leading-relaxed font-medium space-y-2">
           <p>
             Patient <strong className="text-ink">{currentPatient.fullName}</strong> has registered allergies matching <strong className="text-rose-600 uppercase underline font-bold">{pendingAllergyDrug.allergyGroup || pendingAllergyDrug.name}</strong>.
           </p>

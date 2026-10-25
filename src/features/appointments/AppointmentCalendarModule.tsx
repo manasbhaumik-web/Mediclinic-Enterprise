@@ -438,18 +438,20 @@ export default function AppointmentCalendarModule({
 
       {/* New Appointment Modal */}
       {isModalOpen && selectedSlotTime && (
-        <div className="fixed inset-0 bg-night-950/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="new-appt-title" onKeyDown={(e) => { if (e.key === 'Escape') setIsModalOpen(false); }} className="fixed inset-0 bg-night-950/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/60 rounded-none shadow-2xl max-w-md w-full overflow-hidden animate-slideUp">
             <div className="p-5 border-b border-line-subtle dark:border-teal-800/40 bg-surface-muted dark:bg-night-850 flex justify-between items-center">
               <div>
-                <h3 className="type-section-title text-ink dark:text-teal-300">Book New Appointment</h3>
+                <h3 id="new-appt-title" className="type-section-title text-ink dark:text-teal-300">Book New Appointment</h3>
                 <p className="text-xs text-accent dark:text-teal-300 font-bold font-mono mt-0.5">
                   {format(selectedSlotTime, 'EEEE, MMMM d, yyyy • hh:mm a')}
                 </p>
               </div>
               <button 
+                type="button"
                 onClick={() => setIsModalOpen(false)} 
-                className="text-accent dark:text-teal-400 hover:text-accent dark:hover:text-teal-300 transition-colors p-1"
+                className="text-accent dark:text-teal-400 hover:text-accent dark:hover:text-teal-300 transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
+                aria-label="Close booking dialog"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -457,10 +459,11 @@ export default function AppointmentCalendarModule({
             
             <form onSubmit={handleSaveAppointment} className="p-6 space-y-4">
               <div>
-                <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
+                <label htmlFor="appt-patient-name" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
                   Patient Name <span className="text-rose-500">*</span>
                 </label>
                 <input
+                  id="appt-patient-name"
                   type="text"
                   required
                   value={modalForm.patientName}
@@ -471,10 +474,11 @@ export default function AppointmentCalendarModule({
               </div>
 
               <div>
-                <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
+                <label htmlFor="appt-patient-phone" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
                   Phone Number <span className="text-rose-500">*</span>
                 </label>
                 <input
+                  id="appt-patient-phone"
                   type="text"
                   required
                   value={modalForm.patientPhone}
@@ -515,10 +519,11 @@ export default function AppointmentCalendarModule({
               </div>
 
               <div>
-                <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
+                <label htmlFor="appt-purpose" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
                   Purpose of Visit <span className="text-rose-500">*</span>
                 </label>
                 <input
+                  id="appt-purpose"
                   type="text"
                   required
                   value={modalForm.purpose}
@@ -529,10 +534,11 @@ export default function AppointmentCalendarModule({
               </div>
 
               <div>
-                <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
+                <label htmlFor="appt-notes" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
                   Additional Notes
                 </label>
                 <textarea
+                  id="appt-notes"
                   rows={3}
                   className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-medium focus:border-brand focus:outline-none resize-none"
                   value={modalForm.notes}

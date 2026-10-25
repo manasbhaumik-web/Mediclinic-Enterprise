@@ -606,7 +606,7 @@ export default function ConsultationRoom({
       </div>
 
       {confirmReturn && (
-      <div className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) setConfirmReturn(false); }}>
+      <div role="region" aria-label="Return patient modal overlay" onKeyDown={(e) => { if (e.key === 'Escape') setConfirmReturn(false); }} className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) setConfirmReturn(false); }}>
         <div role="alertdialog" aria-modal="true" aria-labelledby="return-title" aria-describedby="return-desc" className="bg-surface border-2 border-line w-full max-w-md p-5 space-y-3">
           <h3 id="return-title" className="type-heading-caps text-ink">Return patient to the queue?</h3>
           <p id="return-desc" className="text-xs text-muted">Your notes for this consultation will be discarded and {currentPatient.fullName} goes back to the waiting list for anyone to call.</p>

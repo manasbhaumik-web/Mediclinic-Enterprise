@@ -20,15 +20,15 @@ export default function ReviewSignoffModal({
   handleFinalSignoff
 }: ReviewSignoffModalProps) {
   return (
-    <div className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn" role="dialog" aria-modal="true">
+    <div role="dialog" aria-modal="true" aria-labelledby="review-signoff-title" onKeyDown={(e) => { if (e.key === 'Escape') setIsReviewModalOpen(false); }} className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-surface border-2 border-primary max-w-2xl w-full p-6 rounded-none space-y-5 text-ink dark:text-white">
         
         <div className="flex items-center justify-between border-b border-line pb-3">
           <div className="flex items-center gap-2.5">
             <Stethoscope className="w-5 h-5 text-accent" />
-            <h3 className="type-heading-caps font-bold">Review and Send Prescription</h3>
+            <h3 id="review-signoff-title" className="type-heading-caps font-bold">Review and Send Prescription</h3>
           </div>
-          <button type="button" onClick={() => setIsReviewModalOpen(false)} className="text-slate-400 hover:text-muted cursor-pointer">
+          <button type="button" onClick={() => setIsReviewModalOpen(false)} className="text-slate-400 hover:text-muted cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center" aria-label="Close review dialog">
             <X className="w-5 h-5" />
           </button>
         </div>

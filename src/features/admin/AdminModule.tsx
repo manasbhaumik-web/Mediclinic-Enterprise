@@ -1,5 +1,6 @@
 import { getPersonaAvatar } from '../../utils/personaAvatars';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import logoUrl from '../../assets/logo_transparent.svg';
 import ThemeSelector from '../../components/ui/ThemeSelector';
 import BrandName from '../../components/ui/BrandName';
@@ -57,6 +58,7 @@ export default function AdminModule({
   const help = useHelp();
   const clinicData = useClinicData();
   const { activeLanguage, setActiveLanguage, t } = useLanguage();
+  const navigate = useNavigate();
 
   // Workstation Header State
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
@@ -193,7 +195,7 @@ export default function AdminModule({
           
           <HelpButton onClick={help.show} light />
 
-          <NotificationBell onOpenTab={() => {}} onOpenAdmin={(tab) => { if (tab) setActiveTab(tab as AdminTab); }} light />
+          <NotificationBell onOpenTab={(tab) => { if (tab) navigate('/app/' + tab); }} onOpenAdmin={(tab) => { if (tab) setActiveTab(tab as AdminTab); }} light />
 
           {/* Live Clock */}
           <div className="workspace-header-clock">
@@ -527,11 +529,11 @@ export default function AdminModule({
 
       {/* Sign Out Confirmation Modal */}
       {showSignOutConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+        <div role="alertdialog" aria-modal="true" aria-labelledby="signout-dialog-title" onKeyDown={(e) => { if (e.key === 'Escape') setShowSignOutConfirm(false); }} className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-night-900 border border-rose-500/50 max-w-md w-full p-6 shadow-2xl space-y-4 text-white">
             <div className="flex items-center gap-3 text-rose-400">
               <LogOut className="w-6 h-6 shrink-0" />
-              <h3 className="type-heading-caps text-white">{t.signOutConfirmTitle || "Confirm Console Termination"}</h3>
+              <h3 id="signout-dialog-title" className="type-heading-caps text-white">{t.signOutConfirmTitle || "Confirm Console Termination"}</h3>
             </div>
             <p className="text-xs text-teal-100/80 leading-relaxed">
               {t.signOutConfirmText || "Are you sure you want to terminate your administrative session? Unsaved configuration changes will be safely persisted to Supabase."}

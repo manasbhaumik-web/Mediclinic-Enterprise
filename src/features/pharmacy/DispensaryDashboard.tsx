@@ -580,19 +580,19 @@ export default function DispensaryDashboard({
 
       {/* DRUG LABEL PRINTING PREVIEW MODAL */}
       {isLabelModalOpen && selectedLabelRx && activePatient && (
-        <div id="drug-label-print-modal" className="fixed inset-0 bg-night-950/70 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+        <div id="drug-label-print-modal" role="dialog" aria-modal="true" aria-labelledby="drug-label-title" onKeyDown={(e) => { if (e.key === 'Escape') { setIsLabelModalOpen(false); setSelectedLabelRx(null); } }} className="fixed inset-0 bg-night-950/70 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
           <div className="bg-surface rounded-none shadow-none max-w-md w-full overflow-hidden border border-line">
             
             {/* Header */}
             <div className="bg-deep text-white px-5 py-3.5 flex items-center justify-between">
-              <span className="font-bold text-xs tracking-wider uppercase font-mono">Malaysian Sticker Pharmacist Label (4 x 2)</span>
+              <span id="drug-label-title" className="font-bold text-xs tracking-wider uppercase font-mono">Malaysian Sticker Pharmacist Label (4 x 2)</span>
               <button
                 type="button"
                 onClick={() => {
                   setIsLabelModalOpen(false);
                   setSelectedLabelRx(null);
                 }}
-                className="text-white hover:text-slate-300 font-bold text-lg cursor-pointer"
+                className="text-white hover:text-slate-300 font-bold text-lg cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center" aria-label="Close drug label preview"
               >
                 &times;
               </button>

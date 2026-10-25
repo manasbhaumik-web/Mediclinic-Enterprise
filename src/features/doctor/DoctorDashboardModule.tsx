@@ -312,14 +312,14 @@ export default function DoctorDashboardModule({
 
       {/* Healthcare Safety Call Confirmation Modal */}
       {pendingCallVisit && (
-        <div className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+        <div role="dialog" aria-modal="true" aria-labelledby="call-confirm-title" onKeyDown={(e) => { if (e.key === 'Escape') setPendingCallVisit(null); }} className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-surface border-2 border-brand max-w-md w-full p-5 rounded-none shadow-none space-y-4 text-ink">
             <div className="flex items-center gap-3 border-b border-line dark:border-teal-800/60 pb-3">
               <div className="w-9 h-9 bg-teal-50 dark:bg-teal-950 text-accent dark:text-teal-400 border border-line flex items-center justify-center shrink-0 font-bold text-base">
                 📢
               </div>
               <div>
-                <h3 className="type-card-title">Confirm Patient Call</h3>
+                <h3 id="call-confirm-title" className="type-card-title">Confirm Patient Call</h3>
                 <p className="text-xs text-subtle dark:text-slate-400 font-medium">Healthcare Safety Verification</p>
               </div>
             </div>

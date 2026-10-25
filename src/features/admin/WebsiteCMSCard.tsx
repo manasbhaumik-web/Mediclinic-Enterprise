@@ -691,13 +691,13 @@ export default function WebsiteCMSCard() {
 
       {/* LIVE DEVICE PREVIEW MODAL */}
       {showPreviewModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="cms-preview-title" onKeyDown={(e) => { if (e.key === 'Escape') setShowPreviewModal(false); }} className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-canvas border border-line w-full max-w-5xl h-[85vh] flex flex-col rounded-none shadow-2xl overflow-hidden animate-fadeIn">
             {/* Modal Bar */}
             <div className="bg-surface-muted px-4 py-3 border-b border-line flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-accent" />
-                <span className="text-xs font-bold text-ink">Live Patient-Facing Website Preview</span>
+                <span id="cms-preview-title" className="text-xs font-bold text-ink">Live Patient-Facing Website Preview</span>
                 <span className="text-3xs font-mono px-2 py-0.5 bg-teal-50 text-accent border border-teal-200">
                   {cmsState.hero.clinicName}
                 </span>
@@ -709,7 +709,7 @@ export default function WebsiteCMSCard() {
                   type="button"
                   onClick={() => setPreviewViewport('desktop')}
                   className={`p-1.5 cursor-pointer ${previewViewport === 'desktop' ? 'bg-primary text-white' : 'text-subtle'}`}
-                  title="Desktop Preview"
+                  title="Desktop Preview" aria-label="Desktop preview"
                 >
                   <Monitor className="w-3.5 h-3.5" />
                 </button>
@@ -717,7 +717,7 @@ export default function WebsiteCMSCard() {
                   type="button"
                   onClick={() => setPreviewViewport('tablet')}
                   className={`p-1.5 cursor-pointer ${previewViewport === 'tablet' ? 'bg-primary text-white' : 'text-subtle'}`}
-                  title="Tablet Preview"
+                  title="Tablet Preview" aria-label="Tablet preview"
                 >
                   <Tablet className="w-3.5 h-3.5" />
                 </button>
@@ -725,7 +725,7 @@ export default function WebsiteCMSCard() {
                   type="button"
                   onClick={() => setPreviewViewport('mobile')}
                   className={`p-1.5 cursor-pointer ${previewViewport === 'mobile' ? 'bg-primary text-white' : 'text-subtle'}`}
-                  title="Mobile Preview"
+                  title="Mobile Preview" aria-label="Mobile preview"
                 >
                   <Smartphone className="w-3.5 h-3.5" />
                 </button>
@@ -734,7 +734,8 @@ export default function WebsiteCMSCard() {
               <button
                 type="button"
                 onClick={() => setShowPreviewModal(false)}
-                className="text-xs font-bold text-subtle hover:text-ink cursor-pointer"
+                aria-label="Close live preview"
+                className="text-xs font-bold text-subtle hover:text-ink cursor-pointer px-2 py-1 min-h-[36px]"
               >
                 Close Preview (✕)
               </button>

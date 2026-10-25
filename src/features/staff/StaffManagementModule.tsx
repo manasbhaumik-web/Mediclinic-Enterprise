@@ -788,12 +788,12 @@ export default function StaffManagementModule() {
 
       {/* CSV Import Modal */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+        <div role="dialog" aria-modal="true" aria-labelledby="staff-import-title" onKeyDown={(e) => { if (e.key === 'Escape') setIsImportModalOpen(false); }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-surface border border-line-subtle max-w-md w-full p-6 shadow-2xl space-y-5 relative text-ink">
             <div className="flex items-center justify-between border-b border-line-subtle pb-3">
               <div className="flex items-center gap-2">
                 <FileSpreadsheet className="w-5 h-5 text-accent" />
-                <h3 className="type-card-title">Import Staff Roster (CSV)</h3>
+                <h3 id="staff-import-title" className="type-card-title">Import Staff Roster (CSV)</h3>
               </div>
               <button 
                 type="button"

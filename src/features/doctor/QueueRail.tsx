@@ -177,7 +177,14 @@ export default function QueueRail({
 
   if (isDrawer) {
     return (
-      <div className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex justify-start animate-fadeIn">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-label="Waiting patients drawer"
+        onMouseDown={(e) => { if (e.target === e.currentTarget && onClose) onClose(); }}
+        onKeyDown={(e) => { if (e.key === 'Escape' && onClose) onClose(); }}
+        className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex justify-start animate-fadeIn"
+      >
         <aside
           aria-label="Waiting patients drawer"
           className="w-80 sm:w-96 bg-surface h-full border-r border-line shadow-2xl p-4 overflow-y-auto space-y-3 animate-slideInLeft"

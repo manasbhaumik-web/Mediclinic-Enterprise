@@ -718,6 +718,14 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
 }
 
 function Dialog({ title, onClose, busy = false, children }: { title: string; onClose: () => void; busy?: boolean; children: React.ReactNode }) {
+  React.useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !busy) onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [busy, onClose]);
+
   return (
     <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
       <div role="dialog" aria-modal="true" aria-label={title} className="bg-surface rounded-none shadow-none max-w-sm w-full border border-line p-6 space-y-4">
