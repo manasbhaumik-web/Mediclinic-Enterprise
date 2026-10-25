@@ -32,8 +32,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
   const can = runActions(run.status, role);
   const totals = run.status === 'draft' || run.status === 'reviewed' ? liveTotals(slips) : run.totals;
 
-  const act = async (body: Record<string, unknown>, confirm?: string) => {
-    if (confirm && !window.confirm(confirm)) return;
+  const act = async (body: Record<string, unknown>) => {
     setMsg(null);
     try {
       const res = await api.call.mutateAsync({ runId, ...body });
@@ -48,8 +47,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
   };
 
   const cancel = () => {
-    const reason = window.prompt('Reason for cancelling this payroll run? It stays on record.');
-    if (reason && reason.trim()) void act({ action: 'cancel', reason: reason.trim() });
+    setIsCancelling(true);
   };
 
   const warned = slips.filter((s) => s.warnings.length > 0);
@@ -73,14 +71,14 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
 
         <div className="flex flex-wrap items-end gap-2">
           {can.recalc && <Button variant="outline" size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'recalc_run' })}>Recalculate</Button>}
-          {can.submit && <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'submit_review' }, 'Submit this run for approval? You will not be able to edit figures unless it is returned to draft.')}>Submit for approval</Button>}
+          {can.submit && <Button size="sm" disabled={api.call.isPending} onClick={() => setConfirmAction({ body: { action: 'submit_review' }, title: 'Submit for Approval', message: 'Submit this payroll run for approval? You will not be able to edit employee figures unless it is returned to draft.' })}>Submit for approval</Button>}
           {can.returnToDraft && <Button variant="outline" size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'return_to_draft' })}>Return to draft</Button>}
-          {can.approve && <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'approve' }, 'Approve this payroll? It becomes frozen and cannot be edited.')}>Approve</Button>}
+          {can.approve && <Button size="sm" disabled={api.call.isPending} onClick={() => setConfirmAction({ body: { action: 'approve' }, title: 'Approve Payroll Run', message: 'Approve this payroll? It becomes permanently frozen and cannot be modified.' })}>Approve</Button>}
           {can.markPaid && (
             <>
               <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-subtle">Paid on</span>
                 <input className={`${inputClass} !w-40`} type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} /></label>
-              <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'mark_paid', paidOn }, 'Record that salaries were paid? This cannot be undone.')}>Mark as paid</Button>
+              <Button size="sm" disabled={api.call.isPending} onClick={() => setConfirmAction({ body: { action: 'mark_paid', paidOn }, title: 'Confirm Salary Payment', message: 'Record that salaries were disbursed on ' + paidOn + '? This action cannot be reversed.' })}>Mark as paid</Button>
             </>
           )}
           {can.cancel && <Button variant="outline" size="sm" disabled={api.call.isPending} onClick={cancel}>Cancel run</Button>}

@@ -98,6 +98,9 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
               <span className="bg-surface-accent text-accent border border-line text-xs font-mono font-bold px-2.5 py-0.5 rounded-none">
                 {triageQueue.length}
               </span>
+              <div role="status" aria-live="polite" className="sr-only">
+                {triageQueue.length} {isBM ? 'pesakit menunggu penilaian triaj' : 'patients awaiting triage assessment'}
+              </div>
             </CardHeader>
             
             <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-surface">

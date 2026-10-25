@@ -35,7 +35,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
                 value={manualForm.fullName}
                 onChange={(e) => { setManualForm({ ...manualForm, fullName: e.target.value }); clearError('fullName'); }}
                 placeholder="e.g. MOHD HAFIZ BIN RAZALI"
-                autoComplete="off"
+                autoComplete="name"
                 className={`${inputBase} font-bold font-sans ${fieldBorder(fieldErrors.fullName)}`}
               />
             )}
@@ -101,7 +101,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
                 value={manualForm.phone}
                 onChange={(e) => { setManualForm({ ...manualForm, phone: e.target.value }); clearError('phone'); }}
                 placeholder="e.g. 012-3456789"
-                autoComplete="off"
+                autoComplete="tel"
                 className={`${inputBase} font-mono ${fieldBorder(fieldErrors.phone)}`}
               />
             )}
@@ -118,7 +118,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
               value={manualForm.address}
               onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
               placeholder="Enter full residential address..."
-              autoComplete="off"
+              autoComplete="street-address"
               className={`${inputBase} font-sans ${fieldBorder()}`}
             />
           )}

@@ -19,6 +19,7 @@ import {
 } from '../../lib/staffOnboarding';
 
 import ProgressBar from '../../components/ui/ProgressBar';
+import { Dialog } from '../inventory/shared';
 import { Pagination } from '../../components/ui/Pagination';
 export interface StaffMember {
   id: string;
@@ -95,6 +96,9 @@ export default function StaffManagementModule() {
   const [accessMap, setAccessMap] = useState<Record<string, { state: AccessState; role: SystemRole | null; roles: SystemRole[] }>>({});
   const [accessBusy, setAccessBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [staffToDelete, setStaffToDelete] = useState<string | null>(null);
+  const [staffToRevoke, setStaffToRevoke] = useState<{ id: string; name: string } | null>(null);
+  const [duplicatePrompt, setDuplicatePrompt] = useState<{ message: string; onProceed: () => void } | null>(null);
   const [csvPreview, setCsvPreview] = useState<{ fileName: string; result: CsvParseResult } | null>(null);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -181,7 +185,7 @@ export default function StaffManagementModule() {
   const knownPeople = (): StaffIdentity[] =>
     staffList.map((s) => ({ id: s.id, name: s.name, email: s.email, icNumber: s.icNumber, dob: s.dob }));
 
-  const handleAddStaffSubmit = async (newStaff: StaffMember, systemRoles: SystemRole[]) => {
+  const handleAddStaffSubmit = async (newStaff: StaffMember, systemRoles: SystemRole[], forceDuplicate = false) => {
     setNotice(null);
 
     // No duplicate records: refuse the same email or ID number, and ask before adding the same name + birth date.
@@ -193,9 +197,13 @@ export default function StaffManagementModule() {
       setNotice({ ok: false, text: duplicateMessage(duplicate) });
       return;
     }
-    if (duplicate && !confirm(`${duplicateMessage(duplicate)}
-
-Add anyway?`)) return;
+    if (duplicate && !forceDuplicate) {
+      setDuplicatePrompt({
+        message: duplicateMessage(duplicate) + '\n\nAdd anyway?',
+        onProceed: () => void handleAddStaffSubmit(newStaff, systemRoles, true),
+      });
+      return;
+    }
 
     try {
       if (editingStaffId) {
@@ -226,9 +234,12 @@ Add anyway?`)) return;
         };
         let res = await createStaff(payload, systemRoles, !!duplicate);
         // The server may know of a probable duplicate this screen's list did not (for example, just added by someone else).
-        if (res.possibleDuplicate) {
-          if (!confirm(`${res.message}\n\nAdd anyway?`)) return;
-          res = await createStaff(payload, systemRoles, true);
+        if (res.possibleDuplicate && !forceDuplicate) {
+          setDuplicatePrompt({
+            message: (res.message ?? 'Potential duplicate staff record.') + '\n\nAdd anyway?',
+            onProceed: () => void handleAddStaffSubmit(newStaff, systemRoles, true),
+          });
+          return;
         }
         if (!res.ok) {
           setNotice({ ok: false, text: res.message ?? 'Could not create the staff member.' });
@@ -334,6 +345,7 @@ Add anyway?`)) return;
       fetchStaff();
     } catch (err) {
       console.error('Failed to insert sample roster', err);
+      setNotice({ ok: false, text: err instanceof Error ? err.message : 'Failed to insert sample staff roster.' });
     } finally {
       setIsLoading(false);
     }
@@ -357,13 +369,10 @@ Add anyway?`)) return;
   const deleteStaff = async (id: string) => {
     const target = staffList.find(s => s.id === id);
     if (target?.hasLogin && accessMap[id]?.state !== 'revoked') {
-      alert('This person still has a login. Revoke their access first, then delete the record.');
+      setNotice({ ok: false, text: 'This person still has an active login. Revoke their access first, then delete the record.' });
       return;
     }
-    if (confirm('Are you sure you want to permanently delete this staff record?')) {
-      await supabase.from('staff').delete().eq('id', id);
-      fetchStaff();
-    }
+    setStaffToDelete(id);
   };
 
   return (
@@ -726,7 +735,7 @@ Add anyway?`)) return;
                               onResend={() => runAccess(staff.id, () => resendInvite(staff.id))}
                               onReset={() => runAccess(staff.id, () => sendPasswordReset(staff.id))}
                               onChangeRoles={(roles) => runAccess(staff.id, () => changeRoles(staff.id, roles))}
-                              onRevoke={() => { if (confirm(`Revoke ${staff.name}'s access? They will no longer be able to sign in.`)) runAccess(staff.id, () => revokeAccess(staff.id)); }}
+                              onRevoke={() => setStaffToRevoke({ id: staff.id, name: staff.name })}
                               onRestore={() => runAccess(staff.id, () => restoreAccess(staff.id))}
                             />
                           </td>

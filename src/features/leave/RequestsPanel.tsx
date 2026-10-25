@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useHrEvents, useLeaveActions, useLeaveReference, useLeaveRequests, useStaffForLeave } from '../../hooks/useLeave';
 import { REQUEST_STYLE, formatRange, requestActions } from '../../domain/leave';
 import LeaveRequestForm from './LeaveRequestForm';
+import { ReasonDialog } from '../inventory/shared';
 import { errorMessage, toneClass } from '../payroll/shared';
 
 /** Leave requests for HR and administrators: review, approve, reject, cancel, or file on someone's behalf. */
@@ -14,6 +15,7 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
   const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [reasonTarget, setReasonTarget] = useState<{ id: string; action: 'reject' | 'cancel'; title: string; prompt: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 15;
 
@@ -34,8 +36,7 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
     } catch (e) { setMsg({ ok: false, text: errorMessage(e) }); }
   };
   const withReason = (id: string, action: 'reject' | 'cancel', prompt: string) => {
-    const reason = window.prompt(prompt);
-    if (reason && reason.trim()) void act({ action, requestId: id, reason: reason.trim() });
+    setReasonTarget({ id, action, title: action === 'reject' ? 'Reject Leave Request' : 'Cancel Leave Request', prompt });
   };
 
   return (

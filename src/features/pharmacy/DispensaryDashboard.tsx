@@ -118,11 +118,11 @@ export default function DispensaryDashboard({
   const triggerDispensingSignoff = async () => {
     if (!selectedVisitId || !activeVisit) return;
     if (!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained) {
-      alert(activeLanguage === 'EN' ? 'Safety Checklist incomplete. Please manually verify all safety safeguards first.' : 'Senarai Semak Keselamatan belum lengkap. Sila sahkan semua langkah keselamatan terlebih dahulu.');
+      setDispenseError(activeLanguage === 'EN' ? 'Safety Checklist incomplete. Please manually verify all safety safeguards first.' : 'Senarai Semak Keselamatan belum lengkap. Sila sahkan semua langkah keselamatan terlebih dahulu.');
       return;
     }
     if (hasUnskippedAllergies) {
-      alert(activeLanguage === 'EN' ? 'CRITICAL: Allergy conflict detected in active prescriptions. You must skip the conflicting drug or resolve the allergy before dispensing.' : 'KRITIKAL: Konflik alahan dikesan. Anda mesti melangkau ubat tersebut atau menyelesaikan alahan sebelum mendispens.');
+      setDispenseError(activeLanguage === 'EN' ? 'CRITICAL: Allergy conflict detected in active prescriptions. You must skip the conflicting drug or resolve the allergy before dispensing.' : 'KRITIKAL: Konflik alahan dikesan. Anda mesti melangkau ubat tersebut atau menyelesaikan alahan sebelum mendispens.');
       return;
     }
     setDispenseError(null);
@@ -678,7 +678,6 @@ export default function DispensaryDashboard({
               <button
                 type="button"
                 onClick={() => {
-                  alert("Label formatted successfully. Sent to thermal label printer queue.");
                   setIsLabelModalOpen(false);
                   setSelectedLabelRx(null);
                 }}

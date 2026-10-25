@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, RefreshCw, Trash2, Settings2, PlugZap } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import ConnectionForm from './ConnectionForm';
+import { Dialog } from '../inventory/shared';
 import { useIntegrations, TestResult } from '../../hooks/useIntegrations';
 import { validateEndpoint } from '../../../supabase/functions/_shared/endpoint';
 import {
@@ -24,6 +25,7 @@ export default function ConnectionsPanel() {
   const [formError, setFormError] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, TestResult & { error?: string }>>({});
   const [rowError, setRowError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<IntegrationConnection | null>(null);
 
   const connections = api.connections.data ?? [];
   const health = api.health.data ?? {};
@@ -48,14 +50,8 @@ export default function ConnectionsPanel() {
     }
   };
 
-  const remove = async (c: IntegrationConnection) => {
-    if (!window.confirm(`Delete "${c.name}"? Its queued messages and stored credential are removed too.`)) return;
-    setRowError(null);
-    try {
-      await api.remove.mutateAsync(c.id);
-    } catch (e) {
-      setRowError(errorMessage(e));
-    }
+  const remove = (c: IntegrationConnection) => {
+    setDeleteTarget(c);
   };
 
   const save = async (draft: Parameters<typeof api.save.mutateAsync>[0]['draft'], secret?: string) => {
@@ -187,6 +183,27 @@ export default function ConnectionsPanel() {
         </div>
         <p className="text-2xs text-subtle">The activity log records what was sent and the result, never patient data or credentials.</p>
       </div>
+
+      {deleteTarget && (
+        <Dialog title="Delete Integration" onClose={() => setDeleteTarget(null)}>
+          <p className="text-xs text-muted leading-relaxed">
+            Delete integration connection <strong>"{deleteTarget.name}"</strong>? Any queued outbound messages and stored authentication credentials will be permanently removed.
+          </p>
+          <div className="flex justify-end gap-2 pt-3">
+            <button type="button" className="btn-secondary" onClick={() => setDeleteTarget(null)}>Keep it</button>
+            <button type="button" className="btn-danger" onClick={async () => {
+              const target = deleteTarget;
+              setDeleteTarget(null);
+              setRowError(null);
+              try {
+                await api.remove.mutateAsync(target.id);
+              } catch (e) {
+                setRowError(errorMessage(e));
+              }
+            }}>Delete Connection</button>
+          </div>
+        </Dialog>
+      )}
 
       {editing && (
         <ConnectionForm

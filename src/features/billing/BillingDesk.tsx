@@ -257,6 +257,9 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" aria-hidden="true" />
             <span>{t.totalBilling}</span>
             <span className="bg-emerald-100 text-accent px-2 py-0.5 rounded-full text-2xs font-mono tabular-nums font-bold">{queue.length} Pending</span>
+            <div role="status" aria-live="polite" className="sr-only">
+              {queue.length} patient{queue.length === 1 ? '' : 's'} in cashier billing queue
+            </div>
           </div>
 
           {queue.length === 0 ? (

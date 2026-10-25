@@ -16,6 +16,7 @@ interface StaffRegistrationProps {
 
 export default function StaffRegistration({ initialData, onCancel, onSubmit }: StaffRegistrationProps) {
   const [systemRoles, setSystemRoles] = useState<SystemRole[]>([]);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Form State initialized with defaults
   const [formData, setFormData] = useState<Partial<StaffMember>>(initialData || {
@@ -64,13 +65,13 @@ export default function StaffRegistration({ initialData, onCancel, onSubmit }: S
     
     // Validate required fields
     if (!formData.name || !formData.email || !formData.icNumber) {
-      alert('Please fill out all required fields marked with an asterisk (*).');
+      setFormError('Please fill out all required fields marked with an asterisk (*).');
       return;
     }
 
     const problems = validateStaffInput({ name: formData.name, email: formData.email, role: formData.role, salaryBase: formData.salaryBase });
     if (problems.length) {
-      alert(problems.join('\n'));
+      setFormError(problems.join('\n'));
       return;
     }
 
