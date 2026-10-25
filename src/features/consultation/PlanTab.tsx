@@ -18,6 +18,7 @@ import LabOrdersPanel from './plan/LabOrdersPanel';
 import CertificatesAndReferralPanel from './plan/CertificatesAndReferralPanel';
 import PlanSummaryPanel from './plan/PlanSummaryPanel';
 import ContraindicationModal from './plan/ContraindicationModal';
+import { calculatePatientAge } from '../../domain/patientAge';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
@@ -73,15 +74,12 @@ export default function PlanTab({
   // Active Sub-Tab State
   const [subTab, setSubTab] = useState<'medication' | 'investigations' | 'documents' | 'summary'>('medication');
 
-  // Patient Age Context
-  const patientAge = useMemo(() => {
-    if (!currentPatient?.dob) return 36;
-    const birthYear = new Date(currentPatient.dob).getFullYear();
-    const currentYear = new Date().getFullYear();
-    return currentYear - birthYear;
-  }, [currentPatient]);
-
-  const isPediatricPatient = patientAge < 12;
+  // Patient Age Context with Clinical Precision
+  const patientAgeDetails = useMemo(() => {
+    return calculatePatientAge(currentPatient?.dob);
+  }, [currentPatient?.dob]);
+  const patientAge = patientAgeDetails.years;
+  const isPediatricPatient = patientAgeDetails.isPediatric;
   const [showPediatricCalc, setShowPediatricCalc] = useState(isPediatricPatient);
   
   // Local State for Pediatric Calculator
@@ -376,7 +374,7 @@ export default function PlanTab({
       {/* SUB-TAB 1: MEDICATION PRESCRIBING                                         */}
       {/* ========================================================================= */}
       {subTab === 'medication' && (
-        <PrescriptionPanel showPediatricCalc={showPediatricCalc} patientAge={patientAge} setShowPediatricCalc={setShowPediatricCalc} isPediatricPatient={isPediatricPatient} patientWeight={patientWeight} setPatientWeight={setPatientWeight} medConcentration={medConcentration} setMedConcentration={setMedConcentration} calculatedDose={calculatedDose} handleAddPediatricSyrup={handleAddPediatricSyrup} searchDrugQuery={searchDrugQuery} setSearchDrugQuery={setSearchDrugQuery} drugSuggestions={drugSuggestions} handleAddDrug={handleAddDrug} rxList={rxList} setRxList={setRxList} pharmacyMemo={pharmacyMemo} setPharmacyMemo={setPharmacyMemo} />
+        <PrescriptionPanel showPediatricCalc={showPediatricCalc} patientAge={patientAge} patientAgeDisplay={patientAgeDetails.displayAge} setShowPediatricCalc={setShowPediatricCalc} isPediatricPatient={isPediatricPatient} patientWeight={patientWeight} setPatientWeight={setPatientWeight} medConcentration={medConcentration} setMedConcentration={setMedConcentration} calculatedDose={calculatedDose} handleAddPediatricSyrup={handleAddPediatricSyrup} searchDrugQuery={searchDrugQuery} setSearchDrugQuery={setSearchDrugQuery} drugSuggestions={drugSuggestions} handleAddDrug={handleAddDrug} rxList={rxList} setRxList={setRxList} pharmacyMemo={pharmacyMemo} setPharmacyMemo={setPharmacyMemo} />
       )}
 
       {/* ========================================================================= */}

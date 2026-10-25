@@ -26,6 +26,7 @@ import ContextPanel from './room/ContextPanel';
 import ReviewSignoffModal from './room/ReviewSignoffModal';
 import { visitFromRow } from '../../lib/mappers';
 import { formatTicket } from '../../domain/ticket';
+import { calculatePatientAge } from '../../domain/patientAge';
 import { ConsultationDraft, draftKey, getSavedDraft, parseDraft, saveDraft } from '../../domain/consultationDraft';
 
 interface ConsultationRoomProps {
@@ -172,13 +173,11 @@ export default function ConsultationRoom({
     return () => { live = false; };
   }, [currentPatient?.id, activeVisit?.id]);
 
-  // Calculate Patient Age
-  const patientAge = useMemo(() => {
-    if (!currentPatient?.dob) return 30;
-    const birthYear = new Date(currentPatient.dob).getFullYear();
-    const currentYear = new Date().getFullYear();
-    return currentYear - birthYear;
-  }, [currentPatient]);
+  // Calculate Patient Age with Clinical Precision
+  const patientAgeDetails = useMemo(() => {
+    return calculatePatientAge(currentPatient?.dob);
+  }, [currentPatient?.dob]);
+  const patientAge = patientAgeDetails.years;
 
   // PII Masking Utilities
   const maskedIC = useMemo(() => {
@@ -429,7 +428,7 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
       {/* ========================================================================= */}
-      <PatientSafetyHeader ticketText={formatTicket(activeVisit?.ticketNo)} allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
+      <PatientSafetyHeader ticketText={formatTicket(activeVisit?.ticketNo)} allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} patientAgeDisplay={patientAgeDetails.displayAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
 
       {/* DRAFT SAVED NOTIFICATION TOAST BANNER */}
       {draftToast && (

@@ -4,14 +4,16 @@ import logoUrl from '../../assets/logo_transparent.svg';
 import ThemeSelector from '../../components/ui/ThemeSelector';
 import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
-  Building, ShieldAlert, LogOut, Server, Database, Globe2, TrendingUp,
+  Building, ShieldAlert, LogOut, Server, Database, Globe2, Globe, TrendingUp,
   Clock, ShieldCheck, Moon, Sun, ChevronDown, ChevronRight, Eye, EyeOff, Wifi, WifiOff,
-  Layers, FolderKanban, CalendarClock,
+  Layers, FolderKanban, CalendarClock, FolderCheck,
   LayoutDashboard, UserCog
 } from 'lucide-react';
 import GlobalSpinner from '../../components/ui/GlobalSpinner';
+import { useClinicData } from '../../hooks/useClinicData';
 
 const StaffManagementModule = React.lazy(() => import('../staff/StaffManagementModule'));
+const PatientAdminView = React.lazy(() => import('../patientAdmin/PatientAdminView'));
 const InventoryPage = React.lazy(() => import('../inventory/InventoryPage'));
 const EquipmentPage = React.lazy(() => import('../equipment/EquipmentPage'));
 const BillingManagementModule = React.lazy(() => import('../billing/BillingManagementModule'));
@@ -30,6 +32,7 @@ import { useSettings } from '../../context/SettingsContext';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from '../shell/HelpCenter';
 import NotificationBell from '../shell/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { getGreeting } from '../../domain/roleBanner';
 
 interface AdminModuleProps {
@@ -38,7 +41,7 @@ interface AdminModuleProps {
   onOpenDashboard?: () => void;
 }
 
-type AdminTab = 'staff' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'einvoice' | 'payroll' | 'leave' | 'architecture';
+type AdminTab = 'staff' | 'patients' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'einvoice' | 'payroll' | 'leave' | 'architecture';
 
 type AdminCategory = 'people' | 'clinical' | 'finance' | 'compliance' | 'platform';
 
@@ -51,6 +54,8 @@ export default function AdminModule({
   const [activeCategory, setActiveCategory] = useState<AdminCategory>('people');
   const { settings, clinic } = useSettings();
   const help = useHelp();
+  const clinicData = useClinicData();
+  const { activeLanguage, setActiveLanguage, t } = useLanguage();
 
   // Workstation Header State
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
@@ -77,34 +82,37 @@ export default function AdminModule({
     return () => clearInterval(interval);
   }, []);
 
-  const adminName = userRole === 'admin' ? 'System Administrator' : 'HR Executive';
+  const adminName = userRole === 'admin'
+    ? (activeLanguage === 'BM' ? 'Pentadbir Sistem' : 'System Administrator')
+    : (activeLanguage === 'BM' ? 'Eksekutif Sumber Manusia' : 'HR Executive');
 
   // Navigation module definition with categories
   const modules = [
     // 1. People
-    { id: 'staff', label: 'Staff Directory', category: 'people', icon: Users, roleReq: 'all', enabled: settings.modules.staff },
-    { id: 'leave', label: 'Leave & Attendance', category: 'people', icon: CalendarClock, roleReq: 'all', enabled: true },
+    { id: 'staff', label: activeLanguage === 'BM' ? 'Direktori Staf' : 'Staff Directory', category: 'people', icon: Users, roleReq: 'all', enabled: settings.modules.staff },
+    { id: 'patients', label: activeLanguage === 'BM' ? 'Pentadbiran Pesakit' : 'Patient Administration', category: 'people', icon: FolderCheck, roleReq: 'admin', enabled: true },
+    { id: 'leave', label: activeLanguage === 'BM' ? 'Cuti & Kehadiran' : 'Leave & Attendance', category: 'people', icon: CalendarClock, roleReq: 'all', enabled: true },
     
     // 2. Clinical Operations
-    { id: 'medicine', label: 'Inventory & Pharmacy', category: 'clinical', icon: Pill, roleReq: 'admin', enabled: settings.modules.medicine },
-    { id: 'equipment', label: 'Equipment & Assets', category: 'clinical', icon: Stethoscope, roleReq: 'admin', enabled: settings.modules.equipment },
-    { id: 'operations', label: 'Operations Hub', category: 'clinical', icon: Activity, roleReq: 'admin', enabled: true },
+    { id: 'medicine', label: activeLanguage === 'BM' ? 'Inventori & Farmasi' : 'Inventory & Pharmacy', category: 'clinical', icon: Pill, roleReq: 'admin', enabled: settings.modules.medicine },
+    { id: 'equipment', label: activeLanguage === 'BM' ? 'Peralatan & Aset' : 'Equipment & Assets', category: 'clinical', icon: Stethoscope, roleReq: 'admin', enabled: settings.modules.equipment },
+    { id: 'operations', label: activeLanguage === 'BM' ? 'Hab Operasi' : 'Operations Hub', category: 'clinical', icon: Activity, roleReq: 'admin', enabled: true },
     
     // 3. Finance
-    { id: 'billing', label: 'Billing Desk', category: 'finance', icon: DollarSign, roleReq: 'admin', enabled: settings.modules.billing },
-    { id: 'payroll', label: 'Payroll', category: 'finance', icon: DollarSign, roleReq: 'all', enabled: true },
-    { id: 'einvoice', label: 'e-Invoice (LHDN)', category: 'finance', icon: FileText, roleReq: 'admin', enabled: true },
-    { id: 'rcm', label: 'Revenue', category: 'finance', icon: TrendingUp, roleReq: 'admin', enabled: true },
+    { id: 'billing', label: activeLanguage === 'BM' ? 'Meja Pengebilan' : 'Billing Desk', category: 'finance', icon: DollarSign, roleReq: 'admin', enabled: settings.modules.billing },
+    { id: 'payroll', label: activeLanguage === 'BM' ? 'Gaji & Imbuhan' : 'Payroll', category: 'finance', icon: DollarSign, roleReq: 'all', enabled: true },
+    { id: 'einvoice', label: activeLanguage === 'BM' ? 'e-Invois (LHDN)' : 'e-Invoice (LHDN)', category: 'finance', icon: FileText, roleReq: 'admin', enabled: true },
+    { id: 'rcm', label: activeLanguage === 'BM' ? 'Hasil & Kutipan' : 'Revenue', category: 'finance', icon: TrendingUp, roleReq: 'admin', enabled: true },
 
     // 4. Compliance & Governance
-    { id: 'moh', label: 'MOH Compliance', category: 'compliance', icon: Globe2, roleReq: 'admin', enabled: true },
-    { id: 'reports', label: 'Analytics Reports', category: 'compliance', icon: FileText, roleReq: 'admin', enabled: settings.modules.reports },
-    { id: 'security', label: 'Security & Audit', category: 'compliance', icon: ShieldAlert, roleReq: 'admin', enabled: true },
+    { id: 'moh', label: activeLanguage === 'BM' ? 'Kepatuhan KKM' : 'MOH Compliance', category: 'compliance', icon: Globe2, roleReq: 'admin', enabled: true },
+    { id: 'reports', label: activeLanguage === 'BM' ? 'Laporan Analitik' : 'Analytics Reports', category: 'compliance', icon: FileText, roleReq: 'admin', enabled: settings.modules.reports },
+    { id: 'security', label: activeLanguage === 'BM' ? 'Keselamatan & Audit' : 'Security & Audit', category: 'compliance', icon: ShieldAlert, roleReq: 'admin', enabled: true },
 
     // 5. Platform
-    { id: 'architecture', label: 'System Status', category: 'platform', icon: Server, roleReq: 'admin', enabled: true },
-    { id: 'integrations', label: 'Integrations', category: 'platform', icon: Database, roleReq: 'admin', enabled: true },
-    { id: 'settings', label: 'Console Settings', category: 'platform', icon: Settings, roleReq: 'admin', enabled: true }
+    { id: 'architecture', label: activeLanguage === 'BM' ? 'Status Sistem' : 'System Status', category: 'platform', icon: Server, roleReq: 'admin', enabled: true },
+    { id: 'integrations', label: activeLanguage === 'BM' ? 'Integrasi Sistem' : 'Integrations', category: 'platform', icon: Database, roleReq: 'admin', enabled: true },
+    { id: 'settings', label: activeLanguage === 'BM' ? 'Tetapan Konsol' : 'Console Settings', category: 'platform', icon: Settings, roleReq: 'admin', enabled: true }
   ];
 
   const handleSelectTab = (tabId: AdminTab, cat: AdminCategory) => {
@@ -119,11 +127,11 @@ export default function AdminModule({
   });
 
   const categories = [
-    { id: 'people', label: 'People' },
-    { id: 'clinical', label: 'Clinical Ops' },
-    { id: 'finance', label: 'Finance' },
-    { id: 'compliance', label: 'Compliance' },
-    { id: 'platform', label: 'Platform' }
+    { id: 'people', label: activeLanguage === 'BM' ? 'Kakitangan' : 'People' },
+    { id: 'clinical', label: activeLanguage === 'BM' ? 'Operasi Klinikal' : 'Clinical Ops' },
+    { id: 'finance', label: activeLanguage === 'BM' ? 'Kewangan' : 'Finance' },
+    { id: 'compliance', label: activeLanguage === 'BM' ? 'Pematuhan' : 'Compliance' },
+    { id: 'platform', label: activeLanguage === 'BM' ? 'Platform' : 'Platform' }
   ];
 
   const availableCategories = categories.filter(cat => 
@@ -141,74 +149,80 @@ export default function AdminModule({
       <header className="workspace-header">
         
         {/* Left: Product Title & Branch Context */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-full border border-line bg-surface-accent p-1.5 shrink-0 flex items-center justify-center shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full border border-line bg-surface-accent p-1.5 shrink-0 flex items-center justify-center shadow-2xs">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
-          <div className="flex items-center gap-2 min-w-0">
-            <h1 className="workspace-header-title truncate text-[20px]" style={{ fontSize: '20px' }}>
-              Mediclinic Admin Console
+          <div>
+            <h1 className="type-brand font-sans text-ink flex items-center gap-2 text-[22px]" style={{ fontSize: '22px' }}>
+              <span>Mediclinic Admin Console</span>
             </h1>
-            {clinic.branch && (
-              <span className="hidden md:inline-block px-2 py-0.5 bg-surface-accent text-accent border border-line text-2xs font-mono font-semibold rounded-none shrink-0">
-                {clinic.branch}
-              </span>
-            )}
+            <span className="text-2xs text-muted font-mono tracking-wider font-semibold block mt-0.5">
+              {clinic.branch ? `${clinic.branch} • ` : ''}Executive Console
+            </span>
           </div>
         </div>
 
         {/* Center: Offline Warning Indicator */}
         {!isOnline && (
-          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-700 dark:text-rose-200 border border-rose-300 dark:border-rose-700 rounded-none text-xs font-mono font-bold uppercase motion-safe:animate-pulse">
-            <WifiOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
-            <span>Offline Mode</span>
+          <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-100 border border-rose-400/50 rounded-none text-xs font-mono font-bold uppercase animate-pulse">
+            <WifiOff className="w-3.5 h-3.5 text-rose-300" />
+            <span>Offline Simulation Mode</span>
           </div>
         )}
 
         {/* Right Controls: Notifications & Workstation Settings */}
-        <div className="flex items-center gap-2 sm:gap-3 relative shrink-0">
+        <div className="flex items-center gap-3 relative">
 
           {onOpenDashboard && (
             <button
               type="button"
               onClick={onOpenDashboard}
-              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-accent border border-line text-accent text-xs font-bold cursor-pointer transition-colors rounded-none"
-              title="Back to Clinical Dashboard"
+              className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-strong border border-line text-ink text-xs font-bold cursor-pointer transition-colors rounded-none"
+              title="Back to dashboard"
             >
-              <LayoutDashboard className="w-3.5 h-3.5 text-accent" />
-              <span className="hidden sm:inline">Dashboard</span>
+              <LayoutDashboard className="w-4 h-4 text-teal-200" />
+              <span>{t.dashboard || 'Dashboard'}</span>
             </button>
           )}
           
-          <HelpButton onClick={help.show} />
+          <HelpButton onClick={help.show} light />
 
-          <NotificationBell onOpenTab={() => {}} onOpenAdmin={(tab) => { if (tab) setActiveTab(tab as AdminTab); }} />
+          <NotificationBell onOpenTab={() => {}} onOpenAdmin={(tab) => { if (tab) setActiveTab(tab as AdminTab); }} light />
 
           {/* Live Clock */}
           <div className="workspace-header-clock">
-            <Clock className="w-3.5 h-3.5 text-accent" />
+            <Clock className="w-3.5 h-3.5 text-accent dark:text-teal-400" />
             <span>{timeString || '14:20:15 MYT'}</span>
           </div>
 
-          {/* Workstation Settings Popover & User Trigger */}
+          {/* User Profile Card */}
+          <div 
+            className="workspace-header-user-box"
+            title={`Console Session: ${adminName} (${userRole.toUpperCase()} Console)`}
+          >
+            <div className="workspace-header-avatar-badge">
+              {userRole === 'admin' ? 'AD' : 'HR'}
+            </div>
+            <div className="text-left hidden sm:block">
+              <p className="text-ink dark:text-white text-xs font-bold leading-none">{adminName}</p>
+              <p className="text-2xs text-accent dark:text-teal-300 font-mono uppercase tracking-wider mt-0.5">
+                {userRole.toUpperCase()} Console
+              </p>
+            </div>
+          </div>
+
+          {/* Standalone Workstation Settings Button & Menu */}
           <div className="relative">
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="workspace-header-user-btn"
+              className="workspace-header-settings-btn"
               title="Console Settings"
+              aria-label="Console Settings"
+              aria-expanded={showUserMenu}
             >
-              <div className="workspace-header-avatar-badge">
-                {userRole === 'admin' ? 'AD' : 'HR'}
-              </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-xs font-bold leading-none text-ink">{adminName}</p>
-                <p className="text-2xs text-muted font-mono uppercase tracking-wider mt-0.5">
-                  {userRole.toUpperCase()} Console
-                </p>
-              </div>
-              <Settings className="w-3.5 h-3.5 text-accent ml-1" />
-              <ChevronDown className="w-3.5 h-3.5 text-muted" />
+              <Settings className="w-4 h-4" />
             </button>
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
@@ -224,13 +238,13 @@ export default function AdminModule({
 
                 {/* Console Settings Controls */}
                 <div className="space-y-2.5 pt-1">
-                  <p className="text-2xs font-mono uppercase text-accent dark:text-teal-300 tracking-wider font-bold">Console Settings</p>
+                  <p className="text-2xs font-mono uppercase text-accent dark:text-teal-300 tracking-wider font-bold">{t.consoleSettings || 'Console Settings'}</p>
                   
                   {/* Theme Switch */}
                   <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
                     <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
                       {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" />}
-                      <span>Theme Mode</span>
+                      <span>{t.themeMode || 'Theme Mode'}</span>
                     </span>
                     <button
                       type="button"
@@ -239,7 +253,7 @@ export default function AdminModule({
                         isNightShift ? 'bg-teal-950 text-amber-300 border-line dark:border-teal-700' : 'bg-primary text-white border-teal-600'
                       }`}
                     >
-                      {isNightShift ? 'Night' : 'Day'}
+                      {isNightShift ? (t.nightShift || 'Night') : (t.dayMode || 'Day')}
                     </button>
                   </div>
 
@@ -250,7 +264,7 @@ export default function AdminModule({
                   <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
                     <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
                       {showPII ? <Eye className="w-3.5 h-3.5 text-accent dark:text-teal-300" /> : <EyeOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />}
-                      <span>Mask Patient PII</span>
+                      <span>{t.maskPatientPii || 'Mask Patient PII'}</span>
                     </span>
                     <button
                       type="button"
@@ -259,7 +273,7 @@ export default function AdminModule({
                         showPII ? 'bg-primary text-white border-teal-600' : 'bg-rose-950 text-rose-600 dark:text-rose-300 border-rose-800'
                       }`}
                     >
-                      {showPII ? 'Unmasked' : 'Masked'}
+                      {showPII ? (t.unmasked || 'Unmasked') : (t.masked || 'Masked')}
                     </button>
                   </div>
 
@@ -268,7 +282,7 @@ export default function AdminModule({
                   <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
                     <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
                       {isOnline ? <Wifi className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <WifiOff className="w-3.5 h-3.5 text-rose-400" />}
-                      <span>Network Sync</span>
+                      <span>{t.networkSync || 'Network Sync'}</span>
                     </span>
                     <button
                       type="button"
@@ -277,10 +291,34 @@ export default function AdminModule({
                         isOnline ? 'bg-emerald-950 text-emerald-600 dark:text-emerald-300 border-emerald-700' : 'bg-rose-950 text-rose-600 dark:text-rose-300 border-rose-800'
                       }`}
                     >
-                      {isOnline ? 'Online' : 'Offline'}
+                      {isOnline ? (t.online || 'Online') : (t.offline || 'Offline')}
                     </button>
                   </div>
                   )}
+
+                  {/* Language */}
+                  <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
+                    <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-muted dark:text-teal-200" />
+                      <span>{t.language || 'Language'}</span>
+                    </span>
+                    <div className="inline-flex border border-line dark:border-teal-700 font-mono text-2xs">
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('EN')}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'EN' ? 'bg-primary text-white font-bold' : 'text-muted dark:text-teal-200 hover:text-white'}`}
+                      >
+                        EN
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('BM')}
+                        className={`px-2 py-0.5 cursor-pointer uppercase ${activeLanguage === 'BM' ? 'bg-primary text-white font-bold' : 'text-muted dark:text-teal-200 hover:text-white'}`}
+                      >
+                        BM
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Sign Out Action */}
@@ -294,7 +332,7 @@ export default function AdminModule({
                     className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/80 dark:text-rose-200 dark:border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <LogOut className="w-4 h-4 text-rose-400" /> Terminate Session...
+                      <LogOut className="w-4 h-4 text-rose-400" /> {t.terminateSession || 'Terminate Session...'}
                     </span>
                     <ChevronRight className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
                   </button>
@@ -302,22 +340,10 @@ export default function AdminModule({
               </div>
             )}
           </div>
-
-          {/* Quick Exit Button */}
-          <button
-            type="button"
-            onClick={() => onNavigate('landing')}
-            className="flex items-center justify-center gap-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 px-3 py-1.5 border border-rose-300 dark:border-rose-800 transition-colors text-xs font-bold cursor-pointer rounded-none"
-            title="Exit Admin Console"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Exit</span>
-          </button>
-
         </div>
       </header>
 
-      {/* PAGE BANNER */}
+      {/* PAGE BANNER: footer color chrome shade with protruding persona avatar */}
       <section className="workspace-banner-section" aria-label="Page banner">
         <div className="workspace-banner-bar">
           <div className="flex items-center gap-3.5 min-w-0 overflow-visible">
@@ -328,24 +354,21 @@ export default function AdminModule({
                 className="w-full h-full object-cover" 
               />
             </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="workspace-banner-title">{getGreeting()}, {adminName}</h1>
-                <span className="workspace-banner-pill">{userRole === 'admin' ? 'Administrator console' : 'HR console'}</span>
-                <span className="workspace-banner-status">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  All systems operational
-                </span>
-              </div>
-              <p className="text-2xs text-teal-50 font-mono mt-0.5 truncate">
-                Authenticated administrative session • User: {adminName} • Console Station #04
-              </p>
+            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h1 className="workspace-banner-title">{getGreeting(undefined, activeLanguage)}, {adminName}</h1>
+              <span className="workspace-banner-pill">{userRole === 'admin' ? (activeLanguage === 'BM' ? 'Papan Pemuka Pentadbir' : 'Administrator dashboard') : (activeLanguage === 'BM' ? 'Papan Pemuka Sumber Manusia' : 'HR dashboard')}</span>
+              <span className="workspace-banner-status">
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-400 animate-pulse"></span>
+                {isOnline ? (t.allSystemsOperational || 'All systems operational') : (t.offline || 'Offline')}
+              </span>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2.5 shrink-0">
-            <div className="workspace-banner-telemetry">
-              <Clock className="w-3.5 h-3.5 text-teal-100" />
-              <span>Console: <strong className="text-white font-bold">Active</strong></span>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border border-white/15 text-white rounded-none shadow-none">
+                <Clock className="w-3.5 h-3.5 text-teal-200" />
+                <span>{activeLanguage === 'BM' ? 'Konsol:' : 'Console:'} <strong className="text-white font-bold">{activeLanguage === 'BM' ? 'Aktif' : 'Active'}</strong></span>
+              </div>
             </div>
           </div>
         </div>
@@ -354,77 +377,61 @@ export default function AdminModule({
       {/* ========================================================================= */}
       {/* GROUPED CATEGORIZED MODULE NAVIGATION STRIP                               */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex flex-col overflow-hidden relative font-sans">
+      <div className="flex-1 flex flex-col relative">
 
-        <nav className="workspace-navbar">
+        <nav className="workspace-navbar min-h-[44px] flex flex-col md:flex-row md:items-stretch">
           
-          <div className="flex items-stretch h-full overflow-x-auto scrollbar-none" id="admin-navigation-links">
+          {/* Category Filter Pills */}
+          <div className="flex items-stretch gap-0 overflow-x-auto text-xs">
+            <span className="text-2xs font-mono uppercase text-teal-200 tracking-wider font-bold px-3 flex items-center gap-1 shrink-0">
+              <FolderKanban className="w-3.5 h-3.5 text-teal-200" />
+              <span>{activeLanguage === 'BM' ? 'Kumpulan:' : 'Group:'}</span>
+            </span>
+            {availableCategories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  setActiveCategory(cat.id as any);
+                  const firstInCat = filteredModules.find(m => m.category === cat.id);
+                  if (firstInCat) setActiveTab(firstInCat.id as any);
+                }}
+                className={`px-4 py-2.5 rounded-none text-xs font-bold transition-all cursor-pointer border-0 flex items-center justify-center h-full ${
+                  activeCategory === cat.id 
+                    ? 'bg-chrome text-white' 
+                    : 'bg-transparent text-teal-100 hover:bg-chrome-hover hover:text-white'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
 
-            {/* Category Groups Inset Selector */}
-            <div className="flex items-stretch bg-chrome-deep/60 border-r-2 border-chrome-deep shrink-0">
-              <div className="px-3 flex items-center gap-1.5 text-2xs font-mono uppercase text-teal-200 tracking-wider font-bold border-r border-chrome-deep shrink-0">
-                <FolderKanban className="w-3.5 h-3.5 text-teal-200" />
-                <span className="hidden sm:inline">Group:</span>
-              </div>
-              {availableCategories.map((cat) => {
-                const isCatActive = activeCategory === cat.id;
+          {/* Module Tabs within Active Category */}
+          <div className="flex items-stretch space-x-0 overflow-x-auto custom-scrollbar">
+            {filteredModules
+              .filter(m => m.category === activeCategory)
+              .map((mod) => {
+                const IconComponent = mod.icon;
+                const isActive = activeTab === mod.id;
+
                 return (
                   <button
-                    key={cat.id}
+                    key={mod.id}
                     type="button"
-                    onClick={() => {
-                      setActiveCategory(cat.id as any);
-                      const firstInCat = filteredModules.find(m => m.category === cat.id);
-                      if (firstInCat) setActiveTab(firstInCat.id as any);
-                    }}
-                    className={`h-full px-3 sm:px-3.5 text-xs font-bold transition-all cursor-pointer border-r border-chrome-deep flex items-center gap-1.5 shrink-0 ${
-                      isCatActive 
-                        ? 'bg-chrome text-white border-b-2 border-b-teal-300 font-bold' 
-                        : 'text-teal-100/80 hover:bg-chrome-hover hover:text-white bg-transparent'
+                    onClick={() => handleSelectTab(mod.id as any, mod.category as any)}
+                    className={`flex items-center px-4 py-2.5 text-xs cursor-pointer transition-all whitespace-nowrap border-0 rounded-none h-full ${
+                      isActive
+                        ? 'bg-chrome text-white font-bold'
+                        : 'bg-transparent text-teal-100 hover:bg-chrome-hover hover:text-white font-bold'
                     }`}
                   >
-                    <span>{cat.label}</span>
+                    <IconComponent className={`w-3.5 h-3.5 mr-1.5 ${isActive ? 'text-teal-200' : 'text-teal-300'}`} />
+                    <span>{mod.label}</span>
+                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ml-2 animate-pulse"></span>}
                   </button>
                 );
               })}
-            </div>
-
-            {/* Module Navigation Tabs (Standardized nav-btn, nav-btn-active, nav-btn-inactive) */}
-            <div className="flex items-stretch overflow-x-auto scrollbar-none">
-              {filteredModules
-                .filter(m => m.category === activeCategory)
-                .map((mod) => {
-                  const IconComponent = mod.icon;
-                  const isActive = activeTab === mod.id;
-
-                  return (
-                    <button
-                      key={mod.id}
-                      type="button"
-                      onClick={() => handleSelectTab(mod.id as any, mod.category as any)}
-                      aria-current={isActive ? 'page' : undefined}
-                      className={`nav-btn ${
-                        isActive ? 'nav-btn-active' : 'nav-btn-inactive'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {isActive && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                        <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : 'text-teal-100/90'}`} />
-                        <span>{mod.label}</span>
-                      </div>
-                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ml-2 animate-pulse"></span>}
-                    </button>
-                  );
-                })}
-            </div>
-
-          </div>
-
-          {/* Right Status Indicator */}
-          <div className="hidden xl:flex items-center space-x-3 text-xs text-teal-100 font-sans pl-4 border-l border-chrome-deep ml-auto pr-3 shrink-0">
-            <span className="font-mono text-2xs tracking-wider uppercase text-teal-200">
-              Active: <strong className="text-white">{filteredModules.find(m => m.id === activeTab)?.label}</strong>
-            </span>
           </div>
 
         </nav>
@@ -437,6 +444,16 @@ export default function AdminModule({
 
           {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
             <StaffManagementModule />
+          )}
+
+          {activeTab === 'patients' && userRole === 'admin' && (
+            <PatientAdminView
+              patientsList={clinicData.patientsList}
+              completedVisits={clinicData.completedVisits}
+              activeVisits={clinicData.visitsQueue}
+              onUpdatePatient={clinicData.updatePatientInDb}
+              activeLanguage={activeLanguage}
+            />
           )}
 
           {activeTab === 'medicine' && userRole === 'admin' && settings.modules.medicine && (
@@ -509,10 +526,10 @@ export default function AdminModule({
           <div className="bg-night-900 border border-rose-500/50 max-w-md w-full p-6 shadow-2xl space-y-4 text-white">
             <div className="flex items-center gap-3 text-rose-400">
               <LogOut className="w-6 h-6 shrink-0" />
-              <h3 className="type-heading-caps text-white">Confirm Console Termination</h3>
+              <h3 className="type-heading-caps text-white">{t.signOutConfirmTitle || "Confirm Console Termination"}</h3>
             </div>
             <p className="text-xs text-teal-100/80 leading-relaxed">
-              Are you sure you want to terminate your administrative session? Unsaved configuration changes will be safely persisted to Supabase.
+              {t.signOutConfirmText || "Are you sure you want to terminate your administrative session? Unsaved configuration changes will be safely persisted to Supabase."}
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
@@ -520,7 +537,7 @@ export default function AdminModule({
                 onClick={() => setShowSignOutConfirm(false)}
                 className="px-4 py-2 bg-night-800 hover:bg-night-700 text-teal-100 font-bold text-xs border border-white/15 cursor-pointer"
               >
-                Cancel
+                {t.cancel || "Cancel"}
               </button>
               <button
                 type="button"
@@ -530,7 +547,7 @@ export default function AdminModule({
                 }}
                 className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer shadow-none"
               >
-                Terminate Session
+                {t.confirmSignOut || "Terminate Session"}
               </button>
             </div>
           </div>

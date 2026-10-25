@@ -34,7 +34,7 @@ describe('route permissions', () => {
 
 describe('the front-desk workflow is split by role', () => {
   it('registration and appointments belong to the receptionist, triage to the assistant, billing to the cashier', () => {
-    expect(TAB_ROLES.registration).toEqual(['receptionist']);
+    expect(TAB_ROLES.registration).toEqual(['receptionist', 'clinic-assistant']);
     expect(TAB_ROLES.triage).toEqual(['clinic-assistant']);
     expect(TAB_ROLES.appointments).toEqual(['receptionist', 'admin']);
     expect(TAB_ROLES.billing).toEqual(['cashier']);
@@ -43,8 +43,9 @@ describe('the front-desk workflow is split by role', () => {
   it('each front-desk role sees only its own pages (plus the dashboard and My Leave)', () => {
     const pages = (role: UserRole) => (Object.keys(TAB_ROLES) as (keyof typeof TAB_ROLES)[]).filter((t) => canOpenTab([role], t)).sort();
     expect(pages('receptionist')).toEqual(['appointments', 'dashboard', 'my-leave', 'registration']);
-    expect(pages('clinic-assistant')).toEqual(['dashboard', 'my-leave', 'triage']);
+    expect(pages('clinic-assistant')).toEqual(['dashboard', 'my-leave', 'registration', 'triage']);
     expect(pages('cashier')).toEqual(['billing', 'dashboard', 'my-leave']);
+    expect(pages('admin')).not.toContain('registration');
   });
 
   it('a person holding several roles gets the union of their pages', () => {

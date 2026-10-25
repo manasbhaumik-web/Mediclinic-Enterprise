@@ -8,7 +8,7 @@ interface DemographicsStepProps {
   manualForm: { fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; };
   setManualForm: React.Dispatch<React.SetStateAction<{ fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; }>>;
   clearError: (key: string) => void;
-  inputBase: 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none';
+  inputBase: string;
 }
 
 export default function DemographicsStep({ existingPatientId, fieldErrors, manualForm, setManualForm, clearError, inputBase }: DemographicsStepProps) {

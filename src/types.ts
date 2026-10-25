@@ -77,6 +77,9 @@ export interface Visit {
   panelClaimed: number;
   paidAmount: number;
   paymentMethod?: 'Cash' | 'Credit Card' | 'e-Wallet' | 'Panel';
+  doctorName?: string;
+  roomId?: string;
+  receiptNumber?: string;
   glNumber?: string;
   mcIssued?: boolean;
   registeredTime?: number;

@@ -23,7 +23,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         {/* MEDICAL CERTIFICATE ISSUANCE CARD */}
-        <div className="border border-line bg-surface p-4 rounded-none space-y-3">
+        <div className="border border-line bg-surface p-4 rounded-none flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
             <h4 className="type-label text-ink flex items-center gap-2">
               <FileText className="w-4 h-4 text-accent" /> Digital Medical Certificate (MC)
@@ -75,7 +75,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
         </div>
     
         {/* SPECIALIST REFERRAL LETTER CARD */}
-        <div className="border border-line bg-surface p-4 rounded-none space-y-3">
+        <div className="border border-line bg-surface p-4 rounded-none flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
             <h4 className="type-label text-ink flex items-center gap-2">
               <Share className="w-4 h-4 text-accent" /> Specialist Referral Note

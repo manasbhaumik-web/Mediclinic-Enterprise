@@ -12,7 +12,7 @@ import {
   appointmentFromRow, appointmentToRow, patientFromRow, patientToRow,
   buildSignoffArgs, prescriptionsToRows, soapToRow, visitFromRow,
 } from '../lib/mappers';
-import { SEED_PATIENTS, SEED_VISITS } from '../mocks/seed';
+import { SEED_PATIENTS, SEED_VISITS, SEED_COMPLETED_VISITS } from '../mocks/seed';
 
 export const QUERY_KEYS = {
   patients: ['patients'] as const,
@@ -71,7 +71,7 @@ export function useClinicData() {
         .select(VISIT_SELECT).eq('status', 'Paid')
         .order('visit_date', { ascending: false }).limit(200);
       if (error) throw error;
-      return (data ?? []).map(visitFromRow);
+      return mergeSeed((data ?? []).map(visitFromRow), SEED_COMPLETED_VISITS);
     },
   });
 
@@ -125,6 +125,21 @@ const logFailure = (action: string) => (err: unknown): false => {
 
 function useClinicMutations() {
   const qc = useQueryClient();
+
+  const updatePatient = useMutation({
+    mutationFn: async (patient: Patient) => {
+      const { error } = await supabase.from('patients').update(patientToRow(patient)).eq('id', patient.id);
+      if (error) throw error;
+    },
+    onMutate: async (patient) => {
+      await qc.cancelQueries({ queryKey: QUERY_KEYS.patients });
+      const prev = qc.getQueryData<Patient[]>(QUERY_KEYS.patients);
+      qc.setQueryData<Patient[]>(QUERY_KEYS.patients, (old = []) => old.map((p) => p.id === patient.id ? patient : p));
+      return { prev };
+    },
+    onError: (_e, _p, ctx) => qc.setQueryData(QUERY_KEYS.patients, ctx?.prev),
+    onSettled: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.patients }),
+  });
 
   const addPatient = useMutation({
     mutationFn: async (patient: Patient) => {
@@ -328,6 +343,7 @@ function useClinicMutations() {
 
   return {
     addPatientToDb: (p: Patient) => addPatient.mutateAsync(p).then(() => true as const, logFailure('insert patient')),
+    updatePatientInDb: (p: Patient) => updatePatient.mutateAsync(p).then(() => true as const, logFailure('update patient')),
     addVisitToDb: (v: Visit) => addVisit.mutateAsync(v).then(() => true as const, logFailure('insert visit')),
     updateVisitInDb: (v: Visit) => updateVisit.mutateAsync(v).then(() => true as const, logFailure('update visit')),
     /** Calls a patient into a room. Resolves with the database's reason when someone else already has them. */

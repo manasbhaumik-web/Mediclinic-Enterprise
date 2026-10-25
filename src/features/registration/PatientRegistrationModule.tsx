@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Users, Globe, UserCheck, FolderCheck, Plus, RotateCcw, Activity, ShieldAlert, ArrowRight, ArrowLeft, Search, Loader2, ShieldCheck, CheckCircle2, Clock, Check, Filter, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { Patient, Visit, Language } from '../../types';
 import MyKadScanner from './MyKadScanner';
@@ -11,6 +11,9 @@ import WaitingRoomMonitor from './WaitingRoomMonitor';
 import DemographicsStep from './DemographicsStep';
 import BillingAlertsStep from './BillingAlertsStep';
 import PatientRegistryTable from './PatientRegistryTable';
+import PatientDetailModal from '../patientAdmin/PatientDetailModal';
+import PatientReportModal from '../patientAdmin/PatientReportModal';
+import { UserRole } from '../../types';
 import { useClinicDoctors } from '../../hooks/useClinicSetup';
 
 interface PatientRegistrationModuleProps {
@@ -18,6 +21,7 @@ interface PatientRegistrationModuleProps {
   activeLanguage: Language;
   searchPatients: (query: string) => Promise<Patient[]>;
   totalPatientCount: number;
+  patientsList?: Patient[];
   triageQueue: Visit[];
   patientsMap: Record<string, Patient>;
   addPatientToDb: (p: Patient) => void;
@@ -26,6 +30,9 @@ interface PatientRegistrationModuleProps {
   /** Names (or clears) the doctor a waiting patient should see. */
   assignDoctor: (visitId: string, doctorId: string | null) => Promise<{ ok: true } | { ok: false; error: string }>;
   onNavigateTab: (tab: string) => void;
+  userRole?: UserRole;
+  updatePatientInDb?: (p: Patient) => Promise<any> | void;
+  completedVisits?: Visit[];
 }
 
 export default function PatientRegistrationModule({
@@ -33,13 +40,17 @@ export default function PatientRegistrationModule({
   activeLanguage,
   searchPatients,
   totalPatientCount,
+  patientsList,
   triageQueue,
   patientsMap,
   addPatientToDb,
   addVisitToDb,
   updateVisitInDb,
   assignDoctor,
-  onNavigateTab
+  onNavigateTab,
+  userRole,
+  updatePatientInDb,
+  completedVisits = []
 }: PatientRegistrationModuleProps) {
   const doctors = useClinicDoctors();
   const [assignedDoctorId, setAssignedDoctorId] = useState('');
@@ -52,6 +63,24 @@ export default function PatientRegistrationModule({
   
   // Toast Notification State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Patient Admin & Reports Modals
+  const [selectedPatientForDetail, setSelectedPatientForDetail] = useState<Patient | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailInitialTab, setDetailInitialTab] = useState<'profile' | 'visits' | 'medications' | 'billing' | 'dossier'>('profile');
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportPreselectedPatientId, setReportPreselectedPatientId] = useState<string | null>(null);
+
+  const handleOpenPatientDetail = (patient: Patient, initialTab: 'profile' | 'visits' | 'medications' | 'billing' | 'dossier' = 'profile') => {
+    setSelectedPatientForDetail(patient);
+    setDetailInitialTab(initialTab);
+    setDetailModalOpen(true);
+  };
+
+  const handleOpenReports = (patientId?: string) => {
+    setReportPreselectedPatientId(patientId || 'ALL');
+    setReportModalOpen(true);
+  };
 
   // Global PII Masking State
   const { showPII } = useAuth();
@@ -90,17 +119,38 @@ export default function PatientRegistrationModule({
       return rest;
     });
   const focusField = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.focus());
-  const inputBase = 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none';
+  const inputBase = 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none focus:border-brand focus:ring-1 focus:ring-brand';
 
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const allPatients = useMemo(() => {
+    if (patientsList && patientsList.length > 0) return patientsList;
+    return Object.values(patientsMap);
+  }, [patientsList, patientsMap]);
+
   // Auto-populate form if IC Number exists in patientsList
   useEffect(() => {
     const icClean = manualForm.icNumber.replace(/-/g, '');
     if (icClean.length >= 6) {
+      const localMatch = allPatients.find(p => p.icNumber.replace(/-/g, '') === icClean);
+      if (localMatch && localMatch.id !== existingPatientId) {
+        setExistingPatientId(localMatch.id);
+        setManualForm(prev => ({
+          ...prev,
+          fullName: localMatch.fullName,
+          gender: localMatch.gender as any,
+          dob: localMatch.dob,
+          phone: localMatch.phone,
+          address: localMatch.address,
+          panelEmployer: localMatch.panelEmployer,
+        }));
+        setAllergiesList(localMatch.drugAllergies);
+        setCoverageStatus(localMatch.panelEmployer === 'None (Self-Pay)' ? 'verified' : 'unverified');
+        return;
+      }
       searchPatients(icClean).then(results => {
         const match = results.find(p => p.icNumber.replace(/-/g, '') === icClean);
         if (match && match.id !== existingPatientId) {
@@ -116,16 +166,16 @@ export default function PatientRegistrationModule({
           }));
           setAllergiesList(match.drugAllergies);
           setCoverageStatus(match.panelEmployer === 'None (Self-Pay)' ? 'verified' : 'unverified');
-        } else if (!match && existingPatientId) {
+        } else if (!match && !localMatch && existingPatientId) {
           setExistingPatientId(null);
           setCoverageStatus('unverified');
         }
       });
     }
-  }, [manualForm.icNumber, searchPatients, existingPatientId]);
+  }, [manualForm.icNumber, searchPatients, existingPatientId, allPatients]);
 
   // Registry Search State
-  const [registryResults, setRegistryResults] = useState<Patient[]>([]);
+  const [registryResults, setRegistryResults] = useState<Patient[]>(allPatients);
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' } | null>(null);
   const toggleSort = (key: SortKey) =>
     setSort((cur) => (!cur || cur.key !== key ? { key, dir: 'asc' } : cur.dir === 'asc' ? { key, dir: 'desc' } : null));
@@ -161,10 +211,36 @@ export default function PatientRegistrationModule({
   };
   useEffect(() => {
     if (activeSubTab === 'registry') {
-      const q = patientRegistrySearch.trim() || ' ';
-      searchPatients(q).then(setRegistryResults);
+      const q = patientRegistrySearch.trim().toLowerCase();
+      if (!q) {
+        setRegistryResults(allPatients);
+        return;
+      }
+      const cleanQ = q.replace(/[\s-]/g, '');
+      const localMatches = allPatients.filter((p) =>
+        p.fullName.toLowerCase().includes(q) ||
+        p.icNumber.replace(/-/g, '').includes(cleanQ) ||
+        p.phone.replace(/[\s-]/g, '').includes(cleanQ) ||
+        p.id.toLowerCase().includes(q)
+      );
+      setRegistryResults(localMatches);
+
+      if (q.length >= 2) {
+        searchPatients(q).then((remoteResults) => {
+          if (remoteResults && remoteResults.length > 0) {
+            setRegistryResults((prev) => {
+              const map = new Map<string, Patient>();
+              prev.forEach((p) => map.set(p.id, p));
+              remoteResults.forEach((p) => map.set(p.id, p));
+              return Array.from(map.values());
+            });
+          }
+        }).catch(() => {
+          // retain local matches
+        });
+      }
     }
-  }, [patientRegistrySearch, activeSubTab, searchPatients]);
+  }, [patientRegistrySearch, activeSubTab, searchPatients, allPatients]);
 
   // Trigger MyKad OCR simulated fill
   const handleMyKadComplete = (scannedDetails: any) => {
@@ -572,7 +648,22 @@ export default function PatientRegistrationModule({
 
       {/* PATIENT REGISTRY TABLE TAB */}
       {activeSubTab === 'registry' && (
-        <PatientRegistryTable totalPatientCount={totalPatientCount} setActiveSubTab={setActiveSubTab} setRegistrationStep={setRegistrationStep} patientRegistrySearch={patientRegistrySearch} setPatientRegistrySearch={setPatientRegistrySearch} sortHeader={sortHeader} sortedResults={sortedResults} showPII={showPII} triageQueue={triageQueue} handleCreateTicket={handleCreateTicket} />
+        <PatientRegistryTable
+          totalPatientCount={totalPatientCount}
+          setActiveSubTab={setActiveSubTab}
+          setRegistrationStep={setRegistrationStep}
+          patientRegistrySearch={patientRegistrySearch}
+          setPatientRegistrySearch={setPatientRegistrySearch}
+          sortHeader={sortHeader}
+          sortedResults={sortedResults}
+          showPII={showPII}
+          triageQueue={triageQueue}
+          handleCreateTicket={handleCreateTicket}
+          userRole={userRole}
+          onOpenPatientDetail={handleOpenPatientDetail}
+          onOpenReports={handleOpenReports}
+          activeLanguage={activeLanguage}
+        />
       )}
 
       {isMyKadOpen && (
@@ -581,6 +672,39 @@ export default function PatientRegistrationModule({
           onClose={() => setIsMyKadOpen(false)}
         />
       )}
+
+      {/* Patient Detail / Longitudinal Clinical History Modal */}
+      <PatientDetailModal
+        patient={selectedPatientForDetail}
+        isOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        onSavePatient={async (updatedPatient) => {
+          if (updatePatientInDb) {
+            await updatePatientInDb(updatedPatient);
+          }
+          setSelectedPatientForDetail(updatedPatient);
+          setToastMessage(activeLanguage === 'BM' ? 'Rekod pesakit berjaya dikemaskini.' : 'Patient record updated successfully.');
+          setTimeout(() => setToastMessage(null), 3000);
+        }}
+        visits={[...completedVisits, ...triageQueue]}
+        activeLanguage={activeLanguage}
+        canEdit={true}
+        initialTab={detailInitialTab}
+        onGenerateReport={(patientId) => {
+          setDetailModalOpen(false);
+          handleOpenReports(patientId);
+        }}
+      />
+
+      {/* Patient & Encounters Reports Generator Modal */}
+      <PatientReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        patientsList={allPatients}
+        completedVisits={[...completedVisits, ...triageQueue]}
+        activeLanguage={activeLanguage}
+        preselectedPatientId={reportPreselectedPatientId}
+      />
     </div>
   );
 }

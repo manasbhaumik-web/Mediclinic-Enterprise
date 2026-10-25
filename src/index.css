@@ -247,19 +247,27 @@ strong {
   
   /* Top Header Bar */
   .workspace-header {
-    @apply h-[60px] min-h-[60px] bg-surface text-ink px-3 sm:px-6 flex items-center justify-between border-b border-line shrink-0 relative z-30 sticky top-0 font-sans shadow-none;
+    @apply h-[60px] min-h-[60px] bg-surface text-ink px-3 sm:px-6 flex items-center justify-between border-b border-line shrink-0 sticky top-0 z-50 font-sans shadow-none;
   }
 
   .workspace-header-title {
-    @apply text-base sm:text-[20px] font-semibold tracking-tight leading-none font-sans text-ink;
+    @apply text-base sm:text-[22px] font-semibold tracking-tight leading-none font-sans text-ink;
   }
 
   .workspace-header-clock {
-    @apply hidden xl:flex items-center justify-center gap-1.5 bg-surface px-2.5 py-1 border border-line font-mono text-xs text-ink rounded-none font-bold shadow-none;
+    @apply hidden xl:flex items-center justify-center gap-2 bg-surface-accent dark:bg-night-800 px-3 py-1.5 border border-line dark:border-teal-800/40 font-mono text-xs text-ink dark:text-white rounded-none font-medium shadow-2xs;
+  }
+
+  .workspace-header-user-box {
+    @apply flex items-center justify-center gap-2.5 bg-surface-accent dark:bg-night-800 border border-line dark:border-teal-800/40 px-3 py-1.5 rounded-none shadow-2xs text-ink dark:text-white;
+  }
+
+  .workspace-header-settings-btn {
+    @apply flex items-center justify-center w-9 h-9 bg-surface-accent dark:bg-night-800 hover:bg-surface-strong dark:hover:bg-night-700 active:bg-surface-muted border border-line dark:border-teal-800/40 text-accent dark:text-teal-300 rounded-none cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none shadow-2xs;
   }
 
   .workspace-header-user-btn {
-    @apply flex items-center justify-center gap-2 bg-surface hover:bg-surface-strong border border-line px-3 py-1.5 rounded-none cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none shadow-none;
+    @apply flex items-center justify-center gap-2 bg-surface-accent dark:bg-night-800 hover:bg-surface-strong dark:hover:bg-night-700 border border-line dark:border-teal-800/40 px-3 py-1.5 rounded-none cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none shadow-2xs text-ink dark:text-white;
   }
 
   .workspace-header-avatar-badge {
@@ -272,7 +280,7 @@ strong {
   }
 
   .workspace-banner-bar {
-    @apply w-full h-auto min-h-[70px] sm:h-[70px] bg-chrome-deep text-white border-b border-chrome-line px-3 sm:px-6 py-2 sm:py-0 flex items-center justify-between gap-3 sm:gap-4 overflow-visible relative font-sans shadow-none;
+    @apply w-[97%] mx-auto h-auto min-h-[70px] sm:h-[70px] bg-chrome-deep text-white border-b border-chrome-line px-3 sm:px-6 py-2 sm:py-0 flex items-center justify-between gap-3 sm:gap-4 overflow-visible relative font-sans shadow-none;
   }
 
   .workspace-banner-avatar {
@@ -280,7 +288,7 @@ strong {
   }
 
   .workspace-banner-title {
-    @apply text-base sm:text-lg font-bold tracking-tight leading-snug text-white truncate;
+    @apply text-[18px] font-bold tracking-tight leading-snug text-white truncate;
   }
 
   .workspace-banner-pill {
@@ -301,7 +309,7 @@ strong {
 
   /* Workspace Navbar */
   .workspace-navbar {
-    @apply w-full bg-chrome text-white border-b border-chrome-deep flex items-stretch justify-between shrink-0 px-2 sm:px-6 h-11 overflow-x-auto relative z-10 font-sans shadow-none scrollbar-none touch-pan-x;
+    @apply w-full bg-chrome text-white border-b border-chrome-deep flex items-stretch justify-between shrink-0 px-2 sm:px-6 h-11 overflow-x-auto sticky top-[60px] z-40 font-sans shadow-xs scrollbar-none touch-pan-x;
   }
 
   .workspace-nav-badge-active {
@@ -553,12 +561,34 @@ strong {
 }
 
 /* Inputs */
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  border-color: var(--color-brand, #087873) !important;
+  box-shadow: 0 0 0 1px var(--color-brand, #087873) !important;
+}
+
 .dark input,
 .dark select,
 .dark textarea {
   background-color: var(--color-night-950) !important;
   color: #f8fafc !important;
   border-color: rgb(45 212 191 / 0.35) !important;
+}
+
+.dark input:focus,
+.dark input:focus-visible,
+.dark select:focus,
+.dark select:focus-visible,
+.dark textarea:focus,
+.dark textarea:focus-visible {
+  outline: none !important;
+  border-color: #2dd4bf !important;
+  box-shadow: 0 0 0 1px #2dd4bf !important;
 }
 
 .dark input::placeholder,

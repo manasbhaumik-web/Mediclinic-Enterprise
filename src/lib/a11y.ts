@@ -22,4 +22,4 @@ export function buttonProps(onActivate: () => void, pressed?: boolean) {
 }
 
 export const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1';
+  'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand focus-visible:border-brand';

@@ -18,6 +18,7 @@ import NextPatientCard from './NextPatientCard';
 import WaitingPatientsList from './WaitingPatientsList';
 import QueueRail from './QueueRail';
 import { formatTicket } from '../../domain/ticket';
+import { calculatePatientAge } from '../../domain/patientAge';
 import { draftKey } from '../../domain/consultationDraft';
 import DoctorMonthlyReport from './DoctorMonthlyReport';
 import RoomPicker from './RoomPicker';
@@ -665,7 +666,7 @@ export default function DoctorDashboardModule({
                       <h4 className="text-base font-bold text-ink flex items-center gap-2">
                         <span>{nextPatient.fullName}</span>
                         <span className="text-xs text-muted font-normal">
-                          ({nextPatient.dob ? new Date().getFullYear() - new Date(nextPatient.dob).getFullYear() : 30} Yrs, {nextPatient.gender})
+                          ({calculatePatientAge(nextPatient.dob).displayAge}, {nextPatient.gender})
                         </span>
                       </h4>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted mt-1.5">

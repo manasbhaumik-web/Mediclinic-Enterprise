@@ -1,14 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { useClinicDoctors } from '../../hooks/useClinicSetup';
+import { useLanguage } from '../../context/LanguageContext';
 import { doctorName as nameOfDoctor } from '../../domain/doctorAssignment';
 import { formatNric } from '../../utils/nric';
-import { Appointment, Patient } from '../../types';
+import { Appointment, Patient, UserRole } from '../../types';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { 
   Calendar, Clock, Plus, Search, User, Phone, CheckCircle2, 
-  XCircle, AlertCircle, ChevronLeft, ChevronRight, Check, Activity, Filter, Globe, LogIn
+  XCircle, AlertCircle, ChevronLeft, ChevronRight, Check, Activity, Filter, Globe, LogIn, ShieldAlert
 } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay, parseISO, setHours, setMinutes } from 'date-fns';
 
@@ -18,6 +19,7 @@ interface AppointmentCalendarProps {
   addAppointment: (app: Omit<Appointment, 'id' | 'createdAt'>) => Promise<void>;
   updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>;
   checkInAppointment: (id: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+  userRole?: UserRole;
 }
 
 export default function AppointmentCalendarModule({
@@ -25,8 +27,12 @@ export default function AppointmentCalendarModule({
   patientsList,
   addAppointment,
   updateAppointment,
-  checkInAppointment
+  checkInAppointment,
+  userRole
 }: AppointmentCalendarProps) {
+  const isAdmin = userRole === 'admin';
+  const { activeLanguage, t } = useLanguage();
+  const isBM = activeLanguage === 'BM';
   const doctors = useClinicDoctors();
   const doctorName = (id?: string) => nameOfDoctor(doctors, id);
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
@@ -87,6 +93,7 @@ export default function AppointmentCalendarModule({
   const totalBooked = todayAppointments.length;
 
   const handleOpenModal = (time: Date) => {
+    if (isAdmin) return;
     setSelectedSlotTime(time);
     setModalForm({
       patientName: '',
@@ -141,8 +148,8 @@ export default function AppointmentCalendarModule({
             <Calendar className="w-5 h-5 text-accent dark:text-teal-300" />
           </div>
           <div>
-            <h2 className="type-section-title text-ink dark:text-teal-300">Appointment Scheduler</h2>
-            <p className="text-xs text-accent dark:text-teal-300 font-mono font-medium">Manage clinical slots, consultation bookings, and queue statuses</p>
+            <h2 className="type-section-title text-ink dark:text-teal-300">{isBM ? 'Penjadual Temu Janji' : 'Appointment Scheduler'}</h2>
+            <p className="text-xs text-accent dark:text-teal-300 font-mono font-medium">{isBM ? 'Urus slot klinikal, tempahan perundingan dan status giliran' : 'Manage clinical slots, consultation bookings, and queue statuses'}</p>
           </div>
         </div>
         
@@ -152,7 +159,7 @@ export default function AppointmentCalendarModule({
             className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-2 rounded-none transition-colors shadow-xs uppercase tracking-wider font-mono flex items-center justify-center gap-1.5"
           >
             <Clock className="w-3.5 h-3.5" />
-            Today
+            {isBM ? 'Hari Ini' : 'Today'}
           </button>
           
           <div className="flex items-center bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/50 rounded-none p-0.5">
@@ -190,6 +197,17 @@ export default function AppointmentCalendarModule({
         </div>
       </div>
 
+      {isAdmin && (
+        <div className="flex items-center gap-2 p-3 text-xs bg-primary/10 border border-brand/20 text-accent font-medium">
+          <ShieldAlert className="w-4 h-4 shrink-0" />
+          <span>
+            {isBM
+              ? 'Paparan Pentadbir: Jadual temu janji adalah untuk bacaan sahaja. Tempahan temu janji pesakit dikhaskan untuk kakitangan kaunter penyambut tetamu.'
+              : 'Administrator Notice: Appointment scheduling is read-only. Clinical appointment bookings are reserved for front desk receptionists.'}
+          </span>
+        </div>
+      )}
+
       {notice && (
         <div role={notice.tone === 'error' ? 'alert' : 'status'} className={`flex items-start justify-between gap-3 p-3 text-xs font-medium border ${notice.tone === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
           <span>{notice.text}</span>
@@ -204,7 +222,7 @@ export default function AppointmentCalendarModule({
         <div className="lg:col-span-1 space-y-3">
           <div className="bg-surface border border-line rounded-none p-3 space-y-2.5 shadow-none">
             <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-2">
-              <h3 className="type-label text-accent dark:text-teal-300 font-mono">This Week</h3>
+              <h3 className="type-label text-accent dark:text-teal-300 font-mono">{isBM ? 'Minggu Ini' : 'This Week'}</h3>
               <span className="text-2xs font-mono font-bold text-accent bg-primary/10 dark:bg-teal-900/40 px-1.5 py-0.5 rounded-none">
                 {format(startOfCurrentWeek, 'MMM d')} - {format(addDays(startOfCurrentWeek, 6), 'MMM d')}
               </span>
@@ -239,20 +257,20 @@ export default function AppointmentCalendarModule({
 
           {/* Daily Quick Stats Card */}
           <div className="bg-surface border border-line rounded-none p-3 space-y-2 shadow-none">
-            <h4 className="type-label text-accent dark:text-teal-300 font-mono border-b border-line-subtle dark:border-teal-800/40 pb-2">Day Summary</h4>
+            <h4 className="type-label text-accent dark:text-teal-300 font-mono border-b border-line-subtle dark:border-teal-800/40 pb-2">{isBM ? 'Ringkasan Harian' : 'Day Summary'}</h4>
             <div className="grid grid-cols-2 gap-2 text-center">
               <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2.5 rounded-none">
                 <span className="block text-xl font-bold font-mono text-ink dark:text-teal-300">{totalBooked}</span>
-                <span className="text-2xs font-bold uppercase tracking-wider text-accent dark:text-teal-300 font-mono">Booked</span>
+                <span className="text-2xs font-bold uppercase tracking-wider text-accent dark:text-teal-300 font-mono">{isBM ? 'Ditempah' : 'Booked'}</span>
               </div>
               <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2.5 rounded-none">
                 <span className="block text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{completedCount}</span>
-                <span className="text-2xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 font-mono">Completed</span>
+                <span className="text-2xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 font-mono">{isBM ? 'Selesai' : 'Completed'}</span>
               </div>
             </div>
             <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2 rounded-none flex justify-between items-center px-3">
-              <span className="text-xs font-bold text-accent dark:text-teal-300">Pending Slots:</span>
-              <span className="font-mono font-bold text-xs text-accent dark:text-teal-300">{timeSlots.length - totalBooked} Available</span>
+              <span className="text-xs font-bold text-accent dark:text-teal-300">{isBM ? 'Slot Kosong:' : 'Pending Slots:'}</span>
+              <span className="font-mono font-bold text-xs text-accent dark:text-teal-300">{timeSlots.length - totalBooked} {isBM ? 'Tersedia' : 'Available'}</span>
             </div>
           </div>
         </div>
@@ -376,7 +394,24 @@ export default function AppointmentCalendarModule({
                   );
                 }
 
-                // Empty Slot Button
+                // Empty Slot
+                if (isAdmin) {
+                  return (
+                    <div key={time.toISOString()} className="flex items-center gap-3 opacity-60">
+                      <div className="w-20 sm:w-24 text-right pr-2 shrink-0">
+                        <span className="font-mono text-xs font-bold text-muted">
+                          {format(time, 'hh:mm a')}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="w-full h-7 text-2xs border border-line-subtle bg-surface-muted/30 rounded-none flex items-center justify-center text-muted font-mono italic">
+                          {isBM ? 'Slot Tersedia' : 'Available Slot'}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div key={time.toISOString()} className="flex items-center gap-3 group">
                     <div className="w-20 sm:w-24 text-right pr-2 shrink-0">

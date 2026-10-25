@@ -41,6 +41,7 @@ export interface ClinicShellContext {
   assignDoctor: ClinicData['assignDoctor'];
   searchPatients: ClinicData['searchPatients'];
   addPatientToDb: ClinicData['addPatientToDb'];
+  updatePatientInDb: ClinicData['updatePatientInDb'];
   addVisitToDb: ClinicData['addVisitToDb'];
   updateVisitInDb: ClinicData['updateVisitInDb'];
   addAppointment: (app: Omit<Appointment, 'id' | 'createdAt'>) => Promise<void>;
@@ -126,6 +127,7 @@ export default function ClinicShell() {
     navigateTab,
     searchPatients: data.searchPatients,
     addPatientToDb: data.addPatientToDb,
+    updatePatientInDb: data.updatePatientInDb,
     addVisitToDb: data.addVisitToDb,
     updateVisitInDb,
     addAppointment: async (app) => {

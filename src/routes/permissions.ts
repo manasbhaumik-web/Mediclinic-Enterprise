@@ -10,7 +10,7 @@ export const TAB_ROLES: Record<AppTab, readonly UserRole[]> = {
   queue: ['doctor'],
   consultation: ['doctor'],
   reports: ['doctor'],
-  registration: ['receptionist'],
+  registration: ['receptionist', 'clinic-assistant'],
   triage: ['clinic-assistant'],
   appointments: ['receptionist', 'admin'],
   dispensary: ['pharmacist'],

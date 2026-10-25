@@ -6,8 +6,8 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { useClinicShell } from './ClinicShell';
 
+import LandingDashboard from '../features/dashboard/LandingDashboard';
 const DoctorDashboardModule = React.lazy(() => import('../features/doctor/DoctorDashboardModule'));
-const LandingDashboard = React.lazy(() => import('../features/dashboard/LandingDashboard'));
 const PatientRegistrationModule = React.lazy(() => import('../features/registration/PatientRegistrationModule'));
 const TriageModule = React.lazy(() => import('../features/triage/TriageModule'));
 const AppointmentCalendarModule = React.lazy(() => import('../features/appointments/AppointmentCalendarModule'));
@@ -78,6 +78,7 @@ export function RegistrationPage() {
       activeLanguage={s.activeLanguage}
       searchPatients={s.searchPatients}
       totalPatientCount={s.patientsList.length}
+      patientsList={s.patientsList}
       triageQueue={s.queues.triage}
       patientsMap={s.patientsMap}
       addPatientToDb={s.addPatientToDb}
@@ -109,6 +110,7 @@ export function AppointmentsPage() {
       addAppointment={s.addAppointment}
       updateAppointment={s.updateAppointment}
       checkInAppointment={s.checkInAppointment}
+      userRole={s.role}
     />
   );
 }

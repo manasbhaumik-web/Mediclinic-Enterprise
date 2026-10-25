@@ -119,7 +119,7 @@ export default function EnterpriseLayoutTemplate({
   };
 
   const held: UserRole[] = userRoles && userRoles.length > 0 ? userRoles : [userRole as UserRole];
-  const roleLabel = bannerFor(held).label;
+  const roleLabel = bannerFor(held, activeLanguage).label;
   // Navbar items come from the same table as the route guards, so a page is shown exactly when it can be opened.
   const can = (tab: Parameters<typeof canOpenTab>[1]) => canOpenTab(held, tab);
 
@@ -137,7 +137,7 @@ export default function EnterpriseLayoutTemplate({
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div className="flex items-center gap-2 min-w-0">
-            <h1 className="workspace-header-title truncate text-[20px]" style={{ fontSize: '20px' }}>
+            <h1 className="workspace-header-title truncate text-[22px]" style={{ fontSize: '22px' }}>
               {brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}
             </h1>
             {clinic.branch && (
@@ -152,16 +152,16 @@ export default function EnterpriseLayoutTemplate({
         {!isOnline && (
           <div className="flex items-center justify-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-700 dark:text-rose-200 border border-rose-300 dark:border-rose-700 rounded-none text-xs font-mono font-bold uppercase motion-safe:animate-pulse">
             <WifiOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
-            <span>Offline Mode</span>
+            <span>{t.offlineMode || 'Offline Mode'}</span>
           </div>
         )}
 
-        {/* Right Controls: Clock, Help, Alerts, Profile */}
+        {/* Right Controls: Clock, Help, Alerts, User Profile, Settings */}
         <div className="flex items-center gap-2 sm:gap-3 relative shrink-0">
 
           {/* Live Clock */}
           <div className="workspace-header-clock">
-            <Clock className="w-3.5 h-3.5 text-accent" />
+            <Clock className="w-3.5 h-3.5 text-accent dark:text-teal-400" />
             <span>{timeString || '--:--:-- MYT'}</span>
           </div>
 
@@ -169,26 +169,33 @@ export default function EnterpriseLayoutTemplate({
 
           <NotificationBell onOpenTab={setActiveTab} onOpenAdmin={onOpenAdmin} light />
 
-          {/* User Profile Card Menu Trigger */}
+          {/* User Profile Card */}
+          <div 
+            className="workspace-header-user-box"
+            title={`Logged in as ${userName || 'Clinician'} (${userRole ? joinRoleLabels(held, activeLanguage) : (activeLanguage === 'BM' ? 'Kakitangan' : 'Staff')})`}
+          >
+            <div className="workspace-header-avatar-badge">
+              {getUserInitials(userName)}
+            </div>
+            <div className="text-left hidden sm:block">
+              <p className="text-ink dark:text-white text-xs font-bold leading-none">{userName || 'Clinician'}</p>
+              <p className="text-[10px] text-accent dark:text-teal-400 font-mono uppercase tracking-wider mt-0.5 font-bold">
+                {userRole ? joinRoleLabels(held, activeLanguage) : (activeLanguage === 'BM' ? 'Kakitangan' : 'Staff')}
+              </p>
+            </div>
+          </div>
+
+          {/* Standalone Workstation Settings Button & Menu */}
           <div ref={userMenuRef} className="relative">
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="workspace-header-user-btn"
-              title="Workstation settings, user profile, and preferences"
+              className="workspace-header-settings-btn"
+              title="Workstation settings and preferences"
+              aria-label="Workstation settings"
               aria-expanded={showUserMenu}
             >
-              <div className="workspace-header-avatar-badge">
-                {getUserInitials(userName)}
-              </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-ink text-xs font-bold leading-none">{userName || 'Clinician'}</p>
-                <p className="text-[10px] text-accent font-mono uppercase tracking-wider mt-0.5 font-bold">
-                  {userRole ? joinRoleLabels(held) : 'Staff'}
-                </p>
-              </div>
-              <Settings className="w-3.5 h-3.5 text-accent ml-0.5" />
-              <ChevronDown className="w-3.5 h-3.5 text-accent" />
+              <Settings className="w-4 h-4" />
             </button>
 
             {/* Consolidated Workstation Settings & Utility Popover Menu */}
@@ -197,7 +204,7 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center justify-between border-b border-line dark:border-white/15 pb-2.5">
                   <div>
                     <p className="font-bold text-sm text-accent dark:text-teal-300">{userName || 'Clinician'}</p>
-                    <p className="text-2xs text-muted dark:text-teal-200 font-mono uppercase font-bold">{joinRoleLabels(held)}</p>
+                    <p className="text-2xs text-muted dark:text-teal-200 font-mono uppercase font-bold">{joinRoleLabels(held, activeLanguage)}</p>
                   </div>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" title="Active workstation session"></span>
                 </div>
@@ -209,17 +216,17 @@ export default function EnterpriseLayoutTemplate({
                   className="w-full min-h-11 flex items-center gap-2 px-3 bg-surface-accent dark:bg-night-800 border border-line dark:border-white/15 hover:bg-surface-strong dark:hover:bg-night-700 text-ink dark:text-teal-100 font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
                 >
                   <CalendarClock className="w-4 h-4 text-muted dark:text-teal-200" aria-hidden="true" />
-                  <span>My leave &amp; attendance</span>
+                  <span>{t.myLeave || 'My leave & attendance'}</span>
                 </button>
 
                 <div className="space-y-2.5 pt-1">
-                  <p className="text-2xs font-mono uppercase text-accent dark:text-teal-300 tracking-wider font-bold">Workstation Settings</p>
+                  <p className="text-2xs font-mono uppercase text-accent dark:text-teal-300 tracking-wider font-bold">{t.workstationSettings || 'Workstation Settings'}</p>
                   
                   {/* Theme Mode Toggle */}
                   <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
                     <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
                       {isNightShift ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" />}
-                      <span>Theme Mode</span>
+                      <span>{t.themeMode || 'Theme Mode'}</span>
                     </span>
                     <button
                       type="button"
@@ -228,7 +235,7 @@ export default function EnterpriseLayoutTemplate({
                         isNightShift ? 'bg-teal-950 text-amber-300 border-line dark:border-teal-700' : 'bg-primary text-white border-teal-600'
                       }`}
                     >
-                      {isNightShift ? 'Night Shift' : 'Day Mode'}
+                      {isNightShift ? (t.nightShift || 'Night Shift') : (t.dayMode || 'Day Mode')}
                     </button>
                   </div>
 
@@ -238,7 +245,7 @@ export default function EnterpriseLayoutTemplate({
                   <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
                     <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
                       {showPII ? <Eye className="w-3.5 h-3.5 text-amber-600 dark:text-amber-200" /> : <EyeOff className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" />}
-                      <span>Privacy Mask</span>
+                      <span>{t.privacyMask || 'Privacy Mask'}</span>
                     </span>
                     <button
                       type="button"
@@ -247,7 +254,7 @@ export default function EnterpriseLayoutTemplate({
                         showPII ? 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-500/30 dark:text-amber-100 dark:border-amber-400/50' : 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-500/30 dark:text-emerald-200 dark:border-emerald-400/40'
                       }`}
                     >
-                      {showPII ? 'Off (Exposed)' : 'On (Masked)'}
+                      {showPII ? (t.unmasked || 'Off (Exposed)') : (t.masked || 'On (Masked)')}
                     </button>
                   </div>
 
@@ -256,7 +263,7 @@ export default function EnterpriseLayoutTemplate({
                     <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
                       <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
                         {isOnline ? <Wifi className="w-3.5 h-3.5 text-muted dark:text-teal-200" /> : <WifiOff className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />}
-                        <span>Network State</span>
+                        <span>{t.networkState || 'Network State'}</span>
                       </span>
                       <button
                         type="button"
@@ -265,7 +272,7 @@ export default function EnterpriseLayoutTemplate({
                           isOnline ? 'bg-emerald-700 text-white border-emerald-600' : 'bg-rose-900 text-rose-200 border-rose-700'
                         }`}
                       >
-                        {isOnline ? 'Online' : 'Simulate Offline'}
+                        {isOnline ? (t.online || 'Online') : (activeLanguage === 'BM' ? 'Simulasi Luar Talian' : 'Simulate Offline')}
                       </button>
                     </div>
                   )}
@@ -274,7 +281,7 @@ export default function EnterpriseLayoutTemplate({
                   <div className="flex items-center justify-between bg-surface-accent dark:bg-night-800 p-2 border border-line dark:border-white/15">
                     <span className="text-ink dark:text-teal-100 font-medium flex items-center gap-1.5">
                       <Globe className="w-3.5 h-3.5 text-muted dark:text-teal-200" />
-                      <span>Language</span>
+                      <span>{t.language || 'Language'}</span>
                     </span>
                     <div className="inline-flex border border-line dark:border-teal-700 font-mono text-2xs">
                       <button
@@ -306,7 +313,7 @@ export default function EnterpriseLayoutTemplate({
                     className="w-full text-left px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/80 dark:text-rose-200 dark:border-rose-800/60 font-bold flex items-center justify-between rounded-none transition-colors cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <LogOut className="w-4 h-4 text-rose-400" /> Sign Out Workstation...
+                      <LogOut className="w-4 h-4 text-rose-400" /> {t.signOutWorkstation || 'Sign Out Workstation...'}
                     </span>
                     <ChevronRight className="w-3.5 h-3.5 text-rose-600 dark:text-rose-300" />
                   </button>
@@ -318,42 +325,39 @@ export default function EnterpriseLayoutTemplate({
 
       </header>
 
-      {/* PAGE BANNER */}
+      {/* PAGE BANNER - Unified and persistent across all tabs to eliminate layout jumps & flickering */}
       <section className="workspace-banner-section" aria-label="Page banner">
-        {activeTab === 'dashboard' ? (
-          // The dashboard portals its greeting card in here
-          <div id="page-banner-slot" className="min-w-0" />
-        ) : (
-          // Work pages: integrated enterprise banner bar
-          <div className="workspace-banner-bar">
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="workspace-banner-avatar">
-                <img 
-                  src={getPersonaAvatar(userRole)} 
-                  alt={userName || 'Staff'} 
-                  className="w-full h-full object-cover" 
-                />
-              </div>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="workspace-banner-title">{getGreeting()}, {userName}</h1>
-                  <span className="workspace-banner-pill">{roleLabel}</span>
-                  <span className="workspace-banner-status">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    {isOnline ? 'All systems operational' : 'Offline'}
-                  </span>
-                </div>
-                <p className="text-2xs text-teal-50 font-mono mt-0.5 truncate">
-                  Authenticated clinical session • User: {userName}
-                </p>
+        <div className="workspace-banner-bar">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="workspace-banner-avatar">
+              <img 
+                src={getPersonaAvatar(userRole)} 
+                alt={userName || 'Staff'} 
+                className="w-full h-full object-cover" 
+              />
+            </div>
+            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h1 className="workspace-banner-title">{getGreeting(undefined, activeLanguage)}, {userName}</h1>
+              <span className="workspace-banner-pill">{roleLabel}</span>
+              <span className="workspace-banner-status">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                {isOnline ? (t.allSystemsOperational || 'All systems operational') : (t.offline || 'Offline')}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border border-white/15 text-white rounded-none shadow-none">
+                <Clock className="w-3.5 h-3.5 text-teal-200" />
+                <span>{activeLanguage === 'BM' ? 'Sesi:' : 'Session:'} <strong className="text-white font-bold">{activeLanguage === 'BM' ? 'Aktif' : 'Active'}</strong></span>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </section>
 
       {/* WORKSPACE SUB-NAVIGATION BAR */}
-      <div className="flex-1 flex flex-col overflow-hidden relative font-sans">
+      <div className="flex-1 flex flex-col relative font-sans">
 
         <nav className="workspace-navbar">
 
@@ -386,7 +390,7 @@ export default function EnterpriseLayoutTemplate({
               >
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-teal-100/90" />
-                  <span>Administration</span>
+                  <span>{t.administration || 'Administration'}</span>
                 </div>
               </button>
             )}
@@ -424,7 +428,7 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center gap-2">
                   {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
                   <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>Triage Module</span>
+                  <span>{t.triageModule || 'Triage Module'}</span>
                 </div>
                 {triageQueueLength > 0 && (
                   <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
@@ -450,7 +454,7 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center gap-2">
                   {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
                   <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>Appointments</span>
+                  <span>{t.appointments || 'Appointments'}</span>
                 </div>
               </button>
             )}
@@ -470,7 +474,7 @@ export default function EnterpriseLayoutTemplate({
                   <div className="flex items-center gap-2">
                     {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
                     <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-white' : 'text-teal-100/90'}`} />
-                    <span>Patient Queue</span>
+                    <span>{t.patientQueue || 'Patient Queue'}</span>
                   </div>
                   {activeTab !== 'consultation' && doctorQueueLength > 0 && (
                     <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
@@ -493,7 +497,7 @@ export default function EnterpriseLayoutTemplate({
                   <div className="flex items-center gap-2">
                     {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
                     <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-white' : 'text-teal-100/90'}`} />
-                    <span>Consultation Suite</span>
+                    <span>{t.consultationSuite || 'Consultation Suite'}</span>
                   </div>
                 </button>
 
@@ -509,7 +513,7 @@ export default function EnterpriseLayoutTemplate({
                   <div className="flex items-center gap-2">
                     {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
                     <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-white' : 'text-teal-100/90'}`} />
-                    <span>Monthly Reports</span>
+                    <span>{t.monthlyReports || 'Monthly Reports'}</span>
                   </div>
                 </button>
               </>
@@ -553,7 +557,7 @@ export default function EnterpriseLayoutTemplate({
                 <div className="flex items-center gap-2">
                   {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
                   <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>Inventory</span>
+                  <span>{t.inventory || 'Inventory'}</span>
                 </div>
               </button>
             )}
@@ -590,7 +594,7 @@ export default function EnterpriseLayoutTemplate({
             <div className="flex items-center gap-1.5" role="status" aria-live="polite">
               <span className={`inline-flex rounded-full h-2 w-2 ${!isOnline ? 'bg-rose-400' : isFetching ? 'bg-amber-300 motion-safe:animate-pulse' : 'bg-emerald-400'}`}></span>
               <span className="text-white font-bold font-mono">
-                {!isOnline ? 'Offline' : isFetching ? 'Syncing…' : lastSyncedTime ? `Last synced: ${lastSyncedTime}` : 'Not synced yet'}
+                {!isOnline ? (t.offline || 'Offline') : isFetching ? (t.syncing || 'Syncing…') : lastSyncedTime ? `${t.lastSynced || 'Last synced'}: ${lastSyncedTime}` : (t.notSyncedYet || 'Not synced yet')}
               </span>
             </div>
 
@@ -602,7 +606,7 @@ export default function EnterpriseLayoutTemplate({
               title="Refresh clinical records from the server"
             >
               <RefreshCw className={`w-3 h-3 ${isFetching ? 'motion-safe:animate-spin text-white' : ''}`} />
-              <span>Sync Now</span>
+              <span>{t.syncNow || 'Sync Now'}</span>
             </button>
           </div>
 
@@ -625,8 +629,8 @@ export default function EnterpriseLayoutTemplate({
       <Modal
         isOpen={showSignOutConfirm}
         onClose={() => setShowSignOutConfirm(false)}
-        title="Sign Out Workstation"
-        subtitle="End clinical session and purge cached data"
+        title={t.signOutConfirmTitle || "Sign Out Workstation"}
+        subtitle={t.signOutConfirmSubtitle || "End clinical session and purge cached data"}
         size="sm"
       >
         <div className="text-center space-y-4">
@@ -634,7 +638,7 @@ export default function EnterpriseLayoutTemplate({
             <LogOut className="w-6 h-6" />
           </div>
           <p className="text-xs text-muted dark:text-slate-300 font-medium leading-relaxed">
-            Are you sure you want to end your clinical session? Cached patient information will be safely cleared.
+            {t.signOutConfirmText || "Are you sure you want to end your clinical session? Cached patient information will be safely cleared."}
           </p>
           <div className="flex gap-2 justify-center pt-2">
             <button
@@ -642,7 +646,7 @@ export default function EnterpriseLayoutTemplate({
               onClick={() => setShowSignOutConfirm(false)}
               className="px-4 py-2 bg-surface-muted dark:bg-night-850 text-accent dark:text-teal-300 border border-line dark:border-teal-800 font-bold text-xs rounded-none uppercase cursor-pointer"
             >
-              Cancel
+              {t.cancel || "Cancel"}
             </button>
             <button
               type="button"
@@ -652,7 +656,7 @@ export default function EnterpriseLayoutTemplate({
               }}
               className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-none uppercase shadow-xs cursor-pointer"
             >
-              Confirm Sign Out
+              {t.confirmSignOut || "Confirm Sign Out"}
             </button>
           </div>
         </div>

@@ -19,6 +19,7 @@ import { PrescriptionItem } from '../../../types';
 interface PrescriptionPanelProps {
   showPediatricCalc: boolean;
   patientAge: number;
+  patientAgeDisplay?: string;
   setShowPediatricCalc: React.Dispatch<React.SetStateAction<boolean>>;
   isPediatricPatient: boolean;
   patientWeight: string;
@@ -37,7 +38,7 @@ interface PrescriptionPanelProps {
   setPharmacyMemo: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function PrescriptionPanel({ showPediatricCalc, patientAge, setShowPediatricCalc, isPediatricPatient, patientWeight, setPatientWeight, medConcentration, setMedConcentration, calculatedDose, handleAddPediatricSyrup, searchDrugQuery, setSearchDrugQuery, drugSuggestions, handleAddDrug, rxList, setRxList, pharmacyMemo, setPharmacyMemo }: PrescriptionPanelProps) {
+export default function PrescriptionPanel({ showPediatricCalc, patientAge, patientAgeDisplay, setShowPediatricCalc, isPediatricPatient, patientWeight, setPatientWeight, medConcentration, setMedConcentration, calculatedDose, handleAddPediatricSyrup, searchDrugQuery, setSearchDrugQuery, drugSuggestions, handleAddDrug, rxList, setRxList, pharmacyMemo, setPharmacyMemo }: PrescriptionPanelProps) {
   return (
     <div className="space-y-4 animate-fadeIn">
       
@@ -46,7 +47,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
         <div className="bg-surface-muted border border-line p-2.5 rounded-none flex items-center justify-between text-xs text-muted dark:text-slate-300">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-accent" />
-            <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAge})</span>
+            <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAgeDisplay || `${patientAge} Yrs`})</span>
           </div>
           <button
             type="button"
@@ -80,28 +81,28 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-            <div>
-              <label className="block text-2xs font-bold text-subtle dark:text-slate-400 uppercase mb-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+            <div className="flex flex-col">
+              <label className="block text-2xs font-bold text-subtle dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Patient Body Weight (kg)
               </label>
-              <Input 
+              <input 
                 type="number" 
-                className="w-full text-xs px-3 py-1.5 border border-line rounded-none focus:ring-2 focus:ring-brand outline-none bg-surface text-ink dark:text-white font-bold"
+                className="w-full h-10 text-xs px-3 border border-line rounded-none focus:ring-2 focus:ring-brand outline-none bg-surface text-ink dark:text-white font-bold"
                 value={patientWeight}
                 onChange={e => setPatientWeight(e.target.value)}
                 placeholder="e.g. 12"
               />
-              <div className="flex gap-1 mt-1 flex-wrap">
+              <div className="flex gap-1 mt-2 flex-wrap">
                 {['5', '8', '10', '12', '15', '20'].map(w => (
                   <button
                     key={w}
                     type="button"
                     onClick={() => setPatientWeight(w)}
-                    className={`text-2xs font-bold px-2 py-0.5 rounded-none border transition-all ${
+                    className={`text-2xs font-bold px-2 py-1 rounded-none border transition-all cursor-pointer ${
                       patientWeight === w 
                         ? 'bg-primary text-white border-brand' 
-                        : 'bg-surface text-accent border-line hover:bg-surface-accent cursor-pointer'
+                        : 'bg-surface text-accent border-line hover:bg-surface-accent'
                     }`}
                   >
                     {w}kg
@@ -110,43 +111,56 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, setSh
               </div>
             </div>
     
-            <div>
-              <label className="block text-2xs font-bold text-subtle dark:text-slate-400 uppercase mb-1">
+            <div className="flex flex-col">
+              <label className="block text-2xs font-bold text-subtle dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Liquid Formulation Concentration
               </label>
               <select
                 value={medConcentration}
                 onChange={e => setMedConcentration(e.target.value)}
-                className="w-full text-xs px-3 py-1.5 border border-line rounded-none focus:ring-2 focus:ring-brand outline-none bg-surface text-ink dark:text-white font-bold"
+                className="w-full h-10 text-xs px-3 border border-line rounded-none focus:ring-2 focus:ring-brand outline-none bg-surface text-ink dark:text-white font-bold cursor-pointer"
               >
                 <option value="24">120mg / 5ml (Standard Syrup)</option>
                 <option value="50">250mg / 5ml (Forte Syrup)</option>
                 <option value="100">100mg / 1ml (Infant Drops)</option>
               </select>
+              <div className="mt-2 text-2xs text-subtle dark:text-slate-400 font-mono py-1">
+                Concentration: {medConcentration === '24' ? '24 mg/ml (120mg/5ml)' : medConcentration === '50' ? '50 mg/ml (250mg/5ml)' : '100 mg/ml (Infant Drops)'}
+              </div>
             </div>
     
-            <div>
+            <div className="flex flex-col">
+              <label className="block text-2xs font-bold text-subtle dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                Recommended Single Dose
+              </label>
               {calculatedDose ? (
-                <div className="bg-surface border border-brand p-2 rounded-none text-center">
-                  <span className="text-2xs text-slate-400 font-bold block uppercase">Recommended Single Dose</span>
-                  <span className="text-sm font-mono font-bold text-accent">
-                    {calculatedDose.toFixed(1)} ml TDS
-                  </span>
+                <div className="bg-surface border border-brand p-2.5 rounded-none text-center shadow-xs">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-2xs text-subtle dark:text-slate-400 font-bold uppercase">Calculated</span>
+                    <span className="text-sm font-mono font-bold text-accent">
+                      {calculatedDose.toFixed(1)} ml TDS
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={handleAddPediatricSyrup}
-                    className="mt-1 w-full bg-primary hover:bg-primary-hover text-white font-bold text-2xs uppercase py-1 rounded-none transition-colors"
+                    className="mt-1.5 w-full bg-primary hover:bg-primary-hover text-white font-bold text-2xs uppercase py-1.5 rounded-none transition-colors cursor-pointer"
                   >
                     + Add Syrup to Rx List
                   </button>
-                  <p className="text-2xs text-amber-700 dark:text-amber-300 font-bold mt-1.5 leading-tight">
+                  <p className="text-2xs text-amber-700 dark:text-amber-300 font-semibold mt-1 leading-tight">
                     ⚠️ Requires clinical verification by attending physician.
                   </p>
                 </div>
               ) : (
-                <div className="p-2.5 text-center text-slate-400 border border-dashed border-line dark:border-teal-800/40 text-2xs">
-                  Enter child weight to calculate dose.
-                </div>
+                <>
+                  <div className="h-10 border border-dashed border-line dark:border-teal-800/40 flex items-center justify-center px-3 text-center text-2xs text-slate-400 bg-surface-muted/20">
+                    Enter child weight to calculate dose.
+                  </div>
+                  <div className="mt-2 text-2xs text-subtle dark:text-slate-400 font-mono py-1">
+                    Guideline: 10 - 15 mg/kg per dose
+                  </div>
+                </>
               )}
             </div>
           </div>

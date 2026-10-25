@@ -5,6 +5,7 @@ import { Patient } from '../../../types';
 interface PatientSafetyHeaderProps {
   currentPatient: Patient;
   patientAge: number;
+  patientAgeDisplay?: string;
   maskedIC: string;
   setIsPiiRevealed: React.Dispatch<React.SetStateAction<boolean>>;
   isPiiRevealed: boolean;
@@ -30,6 +31,7 @@ export default function PatientSafetyHeader({
   roomText,
   currentPatient,
   patientAge,
+  patientAgeDisplay,
   maskedIC,
   setIsPiiRevealed,
   isPiiRevealed,
@@ -58,7 +60,7 @@ export default function PatientSafetyHeader({
               {currentPatient.fullName}
             </h2>
             <span className="text-xs text-muted dark:text-slate-300 font-bold">
-              (<span className="font-mono tabular-nums">{patientAge}</span> Yrs, {currentPatient.gender})
+              (<span className="font-mono tabular-nums">{patientAgeDisplay || `${patientAge} Yrs`}</span>, {currentPatient.gender})
             </span>
             <span id="patient-banner-status" className="bg-surface-accent text-accent border border-line text-2xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-none flex items-center justify-center gap-1.5 font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Patient, Visit, VitalSigns } from '../../types';
 import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
+import { calculatePatientAge } from '../../domain/patientAge';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Card, CardHeader, CardContent, CardFooter } from '../../components/ui/Card';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface TriageModuleProps {
   triageQueue: Visit[];
@@ -13,6 +15,8 @@ interface TriageModuleProps {
 }
 
 export default function TriageModule({ triageQueue, patientsMap, onTriageComplete }: TriageModuleProps) {
+  const { activeLanguage, t } = useLanguage();
+  const isBM = activeLanguage === 'BM';
   const [activeVisitId, setActiveVisitId] = useState<string | null>(null);
   const [vitalsForm, setVitalsForm] = useState({
     temperature: '',
@@ -58,7 +62,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
 
     onTriageComplete(activeVisitId, parsedVitals, vitalsForm.chiefComplaint);
     
-    showToast(`${activePatient?.fullName} triaged and sent to Doctor Queue.`);
+    showToast(isBM ? `${activePatient?.fullName} telah ditriaj dan dihantar ke Giliran Doktor.` : `${activePatient?.fullName} triaged and sent to Doctor Queue.`);
     setActiveVisitId(null);
   };
 
@@ -80,7 +84,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
             <CardHeader className="bg-surface-muted flex justify-between items-center px-3.5 py-2.5 border-b border-line">
               <h3 className="type-heading-caps text-ink flex items-center gap-2">
                 <Users className="w-4 h-4 text-accent" />
-                Awaiting Triage
+                {isBM ? 'Menunggu Triaj' : 'Awaiting Triage'}
               </h3>
               <span className="bg-surface-accent text-accent border border-line text-xs font-mono font-bold px-2.5 py-0.5 rounded-none">
                 {triageQueue.length}
@@ -91,7 +95,7 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
               {triageQueue.length === 0 ? (
                 <div className="text-center py-10 text-slate-400">
                   <Activity className="w-10 h-10 mx-auto text-accent opacity-40 mb-2" />
-                  <p className="text-sm font-bold text-muted dark:text-slate-400">Triage Queue Empty</p>
+                  <p className="text-sm font-bold text-muted dark:text-slate-400">{isBM ? 'Giliran Triaj Kosong' : 'Triage Queue Empty'}</p>
                 </div>
               ) : (
                 triageQueue.map(visit => {
@@ -133,10 +137,10 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
               <CardHeader className="bg-surface-muted flex items-center justify-between px-3.5 py-2.5 border-b border-line">
                 <div>
                   <h2 className="type-heading-caps text-ink dark:text-white">{activePatient.fullName}</h2>
-                  <p className="text-xs text-muted dark:text-slate-300 font-mono mt-0.5">Age: {new Date().getFullYear() - new Date(activePatient.dob).getFullYear()} • IC: {activePatient.icNumber}</p>
+                  <p className="text-xs text-muted dark:text-slate-300 font-mono mt-0.5">{isBM ? 'Umur' : 'Age'}: {calculatePatientAge(activePatient.dob).displayAge} • IC: {activePatient.icNumber}</p>
                 </div>
                 <div className="bg-surface-accent text-accent border border-line text-xs font-mono font-bold px-3 py-1 rounded-none flex items-center justify-center gap-1.5 uppercase">
-                  <Activity className="w-3.5 h-3.5 text-accent" /> Triaging Active
+                  <Activity className="w-3.5 h-3.5 text-accent" /> {isBM ? 'Triaj Aktif' : 'Triaging Active'}
                 </div>
               </CardHeader>
 
@@ -145,35 +149,35 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                   
                   <div className="space-y-3">
                     <h4 className="type-label text-ink border-b border-line pb-2 flex items-center gap-2">
-                      <Stethoscope className="w-4 h-4 text-accent" /> Vitals Examination
+                      <Stethoscope className="w-4 h-4 text-accent" /> {t.vitalsSign || 'Vitals Examination'}
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
                       <Input
-                        label="Temp (°C)"
+                        label={isBM ? 'Suhu (°C)' : 'Temp (°C)'}
                         type="number" step="0.1" required
                         value={vitalsForm.temperature} onChange={e => setVitalsForm({...vitalsForm, temperature: e.target.value})}
                         placeholder="36.6"
                       />
                       <Input
-                        label="BP Sys"
+                        label={isBM ? 'BP Sistolik' : 'BP Sys'}
                         type="number" required
                         value={vitalsForm.bpSystolic} onChange={e => setVitalsForm({...vitalsForm, bpSystolic: e.target.value})}
                         placeholder="120"
                       />
                       <Input
-                        label="BP Dia"
+                        label={isBM ? 'BP Diastolik' : 'BP Dia'}
                         type="number" required
                         value={vitalsForm.bpDiastolic} onChange={e => setVitalsForm({...vitalsForm, bpDiastolic: e.target.value})}
                         placeholder="80"
                       />
                       <Input
-                        label="Heart Rate"
+                        label={isBM ? 'Nadi (bpm)' : 'Heart Rate'}
                         type="number" required
                         value={vitalsForm.heartRate} onChange={e => setVitalsForm({...vitalsForm, heartRate: e.target.value})}
                         placeholder="72"
                       />
                       <Input
-                        label="Resp. Rate"
+                        label={isBM ? 'Pernafasan' : 'Resp. Rate'}
                         type="number" required
                         value={vitalsForm.respiratoryRate} onChange={e => setVitalsForm({...vitalsForm, respiratoryRate: e.target.value})}
                         placeholder="16"
@@ -183,13 +187,13 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
 
                   <div className="space-y-3">
                     <h4 className="type-label text-ink border-b border-line pb-2 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-accent" /> Chief Complaint
+                      <FileText className="w-4 h-4 text-accent" /> {isBM ? 'Aduan Utama' : 'Chief Complaint'}
                     </h4>
                     <textarea
                       required rows={3}
                       className="w-full bg-surface border border-line rounded-none px-3 py-2 text-xs transition-all focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-surface-accent dark:focus:bg-night-800 outline-none resize-none text-strong dark:text-white"
                       value={vitalsForm.chiefComplaint} onChange={e => setVitalsForm({...vitalsForm, chiefComplaint: e.target.value})}
-                      placeholder="Patient's primary complaint..."
+                      placeholder={isBM ? 'Aduan utama pesakit...' : "Patient's primary complaint..."}
                     />
                   </div>
 
@@ -198,14 +202,14 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
 
               <CardFooter className="justify-end bg-surface-muted border-t border-line px-3.5 py-2">
                 <Button type="submit" form="triage-form" title="Save vital signs and route patient to active doctor consultation queue" className="rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs">
-                  Send to Doctor Suite <ArrowRight className="w-4 h-4 ml-1" />
+                  {isBM ? 'Hantar ke Sut Doktor' : 'Send to Doctor Suite'} <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardFooter>
             </Card>
           ) : (
             <div className="h-[calc(100vh-170px)] min-h-[480px] flex flex-col items-center justify-center text-slate-400 bg-surface rounded-none border border-dashed border-line">
               <Activity className="w-16 h-16 text-accent opacity-30 mb-4" />
-              <p className="font-bold text-sm text-ink">Select a patient from the queue to begin triage.</p>
+              <p className="font-bold text-sm text-ink">{isBM ? 'Pilih pesakit daripada giliran untuk memulakan triaj.' : 'Select a patient from the queue to begin triage.'}</p>
             </div>
           )}
         </div>

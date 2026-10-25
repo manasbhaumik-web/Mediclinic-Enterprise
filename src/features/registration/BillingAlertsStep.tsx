@@ -8,7 +8,7 @@ interface BillingAlertsStepProps {
   setManualForm: React.Dispatch<React.SetStateAction<{ fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; }>>;
   setCoverageStatus: React.Dispatch<React.SetStateAction<'unverified' | 'verified' | 'failed'>>;
   clearError: (key: string) => void;
-  inputBase: 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none';
+  inputBase: string;
   handleVerifyCoverage: () => void;
   isVerifyingCoverage: boolean;
   coverageStatus: 'unverified' | 'verified' | 'failed';

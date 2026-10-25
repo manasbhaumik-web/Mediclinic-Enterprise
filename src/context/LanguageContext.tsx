@@ -11,7 +11,25 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeLanguage, setActiveLanguage] = useState<Language>('EN');
+  const [activeLanguage, setActiveLanguageState] = useState<Language>(() => {
+    try {
+      const stored = localStorage.getItem('mediclinic.language');
+      if (stored === 'BM' || stored === 'EN') return stored;
+    } catch {
+      // ignore
+    }
+    return 'EN';
+  });
+
+  const setActiveLanguage = (lang: Language) => {
+    setActiveLanguageState(lang);
+    try {
+      localStorage.setItem('mediclinic.language', lang);
+    } catch {
+      // ignore
+    }
+  };
+
   return (
     <LanguageContext.Provider value={{ activeLanguage, setActiveLanguage, t: TRANSLATIONS[activeLanguage] }}>
       {children}

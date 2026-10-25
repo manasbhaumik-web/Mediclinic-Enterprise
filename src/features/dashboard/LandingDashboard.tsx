@@ -2,6 +2,7 @@ import { useColorTheme } from '../../hooks/useColorTheme';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ROLE_BANNER, bannerFor, getGreeting } from '../../domain/roleBanner';
+import { TRANSLATIONS } from '../../data';
 import { Visit, Patient, UserRole, Language } from '../../types';
 import { getPersonaAvatar } from '../../utils/personaAvatars';
 import { 
@@ -58,6 +59,8 @@ export default function LandingDashboard({
   onOpenLogin,
   onOpenAdmin,}: LandingDashboardProps) {
   useColorTheme(); // re-render when the colour theme changes so palette colours refresh
+  const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.EN;
+  const isBM = activeLanguage === 'BM';
 
   // Time Horizon & Filter State
   const [isExporting, setIsExporting] = useState(false);
@@ -182,7 +185,7 @@ export default function LandingDashboard({
     },
     admin: {
       ...ROLE_BANNER['admin'],
-      modules: ['appointments', 'admin'],
+      modules: ['admin'],
       kpis: ['encounters', 'waiting', 'collections', 'efficiency'],
       panels: ['throughput', 'icd', 'payer', 'pharmacy', 'facility'],
     },
@@ -197,17 +200,52 @@ export default function LandingDashboard({
   const held: UserRole[] = roles && roles.length > 0 ? roles : userRole ? [userRole] : [];
   const configs = (held.length > 0 ? held : (['admin'] as UserRole[])).map((r) => ROLE_DASHBOARDS[r]);
   const union = <T,>(pick: (c: (typeof configs)[number]) => T[]): T[] => Array.from(new Set(configs.flatMap(pick)));
-  const roleConfig = { ...bannerFor(held.length > 0 ? held : ['admin']), modules: union((c) => c.modules), kpis: union((c) => c.kpis), panels: union((c) => c.panels) };
+  const roleConfig = { ...bannerFor(held.length > 0 ? held : ['admin'], activeLanguage), modules: union((c) => c.modules), kpis: union((c) => c.kpis), panels: union((c) => c.panels) };
   // Role worklists: the visits this role must act on next, longest wait first
   type WorkKind = 'consult' | 'dispense' | 'registered' | 'triage' | 'billing';
   const byWait = (list: Visit[]) =>
     list.slice().sort((a, b) => (a.registeredTime ?? Infinity) - (b.registeredTime ?? Infinity)).slice(0, 6);
   const WORK_SECTIONS: Record<WorkKind, { title: string; subtitle: string; cta: string; rowCta: string; tab: string; empty: string }> = {
-    consult: { title: 'Next patients', subtitle: 'Longest-waiting first. Patients already in consultation are shown at their queue position.', cta: 'Open full queue', rowCta: 'Go to queue', tab: 'queue', empty: 'No patients waiting.' },
-    dispense: { title: 'Prescriptions to dispense', subtitle: 'Longest-waiting first.', cta: 'Open dispensary', rowCta: 'Dispense', tab: 'dispensary', empty: 'No prescriptions waiting.' },
-    registered: { title: 'Registered, waiting for triage', subtitle: 'Patients you registered who have not had their readings taken yet.', cta: 'Open registration', rowCta: 'Open registration', tab: 'registration', empty: 'No one is waiting for triage.' },
-    triage: { title: 'Waiting for triage', subtitle: 'Registered patients who still need vitals taken.', cta: 'Open triage', rowCta: 'Take vitals', tab: 'triage', empty: 'No patients waiting for triage.' },
-    billing: { title: 'Awaiting payment', subtitle: 'Visits finished and ready for the cashier.', cta: 'Open billing', rowCta: 'Collect payment', tab: 'billing', empty: 'No visits waiting for payment.' },
+    consult: {
+      title: isBM ? 'Pesakit seterusnya' : 'Next patients',
+      subtitle: isBM ? 'Menunggu paling lama dahulu. Pesakit dalam perundingan dipaparkan mengikut giliran.' : 'Longest-waiting first. Patients already in consultation are shown at their queue position.',
+      cta: t.openFullQueue || 'Open full queue',
+      rowCta: t.goToQueue || 'Go to queue',
+      tab: 'queue',
+      empty: t.noPatientsWaiting || 'No patients waiting.'
+    },
+    dispense: {
+      title: isBM ? 'Preskripsi untuk didispens' : 'Prescriptions to dispense',
+      subtitle: isBM ? 'Menunggu paling lama dahulu.' : 'Longest-waiting first.',
+      cta: t.openDispensary || 'Open dispensary',
+      rowCta: t.dispense || 'Dispense',
+      tab: 'dispensary',
+      empty: isBM ? 'Tiada preskripsi menunggu.' : 'No prescriptions waiting.'
+    },
+    registered: {
+      title: isBM ? 'Berdaftar, menunggu triaj' : 'Registered, waiting for triage',
+      subtitle: isBM ? 'Pesakit yang didaftarkan belum diambil tanda vital.' : 'Patients you registered who have not had their readings taken yet.',
+      cta: t.openRegistration || 'Open registration',
+      rowCta: t.openRegistration || 'Open registration',
+      tab: 'registration',
+      empty: isBM ? 'Tiada sesiapa menunggu triaj.' : 'No one is waiting for triage.'
+    },
+    triage: {
+      title: isBM ? 'Menunggu triaj' : 'Waiting for triage',
+      subtitle: isBM ? 'Pesakit berdaftar yang masih memerlukan bacaan tanda vital.' : 'Registered patients who still need vitals taken.',
+      cta: t.openTriage || 'Open triage',
+      rowCta: t.takeVitals || 'Take vitals',
+      tab: 'triage',
+      empty: isBM ? 'Tiada pesakit menunggu triaj.' : 'No patients waiting for triage.'
+    },
+    billing: {
+      title: isBM ? 'Menunggu pembayaran' : 'Awaiting payment',
+      subtitle: isBM ? 'Lawatan selesai sedia untuk juruwang.' : 'Visits finished and ready for the cashier.',
+      cta: t.openBilling || 'Open billing',
+      rowCta: t.collectPayment || 'Collect payment',
+      tab: 'billing',
+      empty: isBM ? 'Tiada lawatan menunggu pembayaran.' : 'No visits waiting for payment.'
+    },
   };
   // In visit order: registered, triage, consult, dispense, billing. Each role's list is only what it acts on.
   const worklists: { kind: WorkKind; visits: Visit[] }[] = [
@@ -221,7 +259,7 @@ export default function LandingDashboard({
   const vitalsFlag = (v: Visit) => {
     const o = v.soap?.objective;
     if (!o) return null;
-    if (o.temperature >= 38 || o.heartRate > 110 || o.bpSystolic >= 160 || o.respiratoryRate > 24) return 'Abnormal vitals';
+    if (o.temperature >= 38 || o.heartRate > 110 || o.bpSystolic >= 160 || o.respiratoryRate > 24) return t.abnormalVitals || 'Abnormal vitals';
     return null;
   };
   const showKpi = (id: KpiId) => roleConfig.kpis.includes(id);
@@ -234,99 +272,98 @@ export default function LandingDashboard({
   const workspaceModules = [
     {
       id: 'registration',
-      title: 'Patient Registration & Triage',
-      subtitle: 'Biometric MyKad OCR, Patient Records & Triage Queue',
+      title: isBM ? 'Pendaftaran Pesakit & Triaj' : 'Patient Registration & Triage',
+      subtitle: isBM ? 'OCR Biometrik MyKad, Rekod Pesakit & Giliran Triaj' : 'Biometric MyKad OCR, Patient Records & Triage Queue',
       icon: Users,
-      badge: `${patientsList.length} Registered`,
+      badge: `${patientsList.length} ${t.registered || 'Registered'}`,
       badgeColor: 'chip-brand',
-      actionText: 'Launch Registration',
+      actionText: isBM ? 'Lancarkan Pendaftaran' : 'Launch Registration',
       tabKey: 'registration'
     },
     {
       id: 'consultation',
-      title: 'Doctor Consultation Suite',
-      subtitle: 'SOAP EHR Notes, ICD-10 Coding & Public PA Call System',
+      title: isBM ? 'Sut Perundingan Doktor' : 'Doctor Consultation Suite',
+      subtitle: isBM ? 'Nota Rekod SOAP EHR, Kod ICD-10 & Sistem Panggilan PA' : 'SOAP EHR Notes, ICD-10 Coding & Public PA Call System',
       icon: Stethoscope,
-      badge: `${doctorQueue.length} Waiting`,
+      badge: `${doctorQueue.length} ${t.waiting || 'Waiting'}`,
       badgeColor: doctorQueue.length > 0 ? WAITING_BADGE : NEUTRAL_BADGE,
-      actionText: 'Enter Doctor Suite',
+      actionText: isBM ? 'Masuk Sut Doktor' : 'Enter Doctor Suite',
       tabKey: 'consultation'
     },
     {
       id: 'dispensary',
-      title: 'Pharmacy & Dispensary Suite',
-      subtitle: 'e-Prescription Fulfillment, FIFO Batch & Labeling',
+      title: isBM ? 'Sut Farmasi & Dispensari' : 'Pharmacy & Dispensary Suite',
+      subtitle: isBM ? 'Pengeluaran e-Preskripsi, Kelompok FIFO & Pelabelan' : 'e-Prescription Fulfillment, FIFO Batch & Labeling',
       icon: Pill,
-      badge: `${pharmacyQueue.length} Pending Orders`,
+      badge: `${pharmacyQueue.length} ${isBM ? 'Pesanan Menunggu' : 'Pending Orders'}`,
       badgeColor: 'chip-info',
-      actionText: 'Open Dispensary',
+      actionText: isBM ? 'Buka Dispensari' : 'Open Dispensary',
       tabKey: 'dispensary'
     },
     {
       id: 'billing',
-      title: 'Billing Desk & Cashier',
-      subtitle: 'Corporate Panel e-GL Claims, Cash/QR & Receipts',
+      title: isBM ? 'Kaunter Pengebilan & Juruwang' : 'Billing Desk & Cashier',
+      subtitle: isBM ? 'Tuntutan e-GL Panel Korporat, Tunai/DuitNow QR & Resit' : 'Corporate Panel e-GL Claims, Cash/QR & Receipts',
       icon: CreditCard,
-      badge: `${cashierQueue.length} Unpaid Visits`,
+      badge: `${cashierQueue.length} ${isBM ? 'Lawatan Belum Dibayar' : 'Unpaid Visits'}`,
       badgeColor: 'chip-info',
-      actionText: 'Launch Cashier Desk',
+      actionText: isBM ? 'Lancarkan Kaunter Juruwang' : 'Launch Cashier Desk',
       tabKey: 'billing'
     },
     {
       id: 'report',
-      title: 'My Monthly Report',
-      subtitle: 'Your signed-off consultations, billing and diagnoses for the month',
+      title: isBM ? 'Laporan Bulanan Saya' : 'My Monthly Report',
+      subtitle: isBM ? 'Perundingan disahkan, pengebilan dan diagnosis bulanan anda' : 'Your signed-off consultations, billing and diagnoses for the month',
       icon: BarChart3,
-      badge: 'This month',
+      badge: isBM ? 'Bulan ini' : 'This month',
       badgeColor: NEUTRAL_BADGE,
-      actionText: 'Open Monthly Report',
+      actionText: isBM ? 'Buka Laporan Bulanan' : 'Open Monthly Report',
       tabKey: 'reports'
     },
     {
       id: 'queue',
-      title: 'My Patient Queue',
-      subtitle: 'Patients waiting for consultation, ordered by triage priority',
+      title: isBM ? 'Giliran Pesakit Saya' : 'My Patient Queue',
+      subtitle: isBM ? 'Pesakit menunggu perundingan, disusun mengikut keutamaan triaj' : 'Patients waiting for consultation, ordered by triage priority',
       icon: Users,
-      badge: `${doctorQueue.length} Waiting`,
+      badge: `${doctorQueue.length} ${t.waiting || 'Waiting'}`,
       badgeColor: doctorQueue.length > 0 ? WAITING_BADGE : NEUTRAL_BADGE,
-      actionText: 'Open Queue',
+      actionText: isBM ? 'Buka Giliran' : 'Open Queue',
       tabKey: 'queue'
     },
     {
       id: 'triage',
-      title: 'Triage Station',
-      subtitle: 'Vitals capture and priority assignment before consultation',
+      title: isBM ? 'Stesen Triaj' : 'Triage Station',
+      subtitle: isBM ? 'Pengambilan tanda vital dan penetapan keutamaan sebelum perundingan' : 'Vitals capture and priority assignment before consultation',
       icon: Activity,
-      badge: `${triageQueue.length} In Triage`,
+      badge: `${triageQueue.length} ${isBM ? 'Dalam Triaj' : 'In Triage'}`,
       badgeColor: 'chip-brand',
-      actionText: 'Open Triage',
+      actionText: isBM ? 'Buka Triaj' : 'Open Triage',
       tabKey: 'triage'
     },
     {
       id: 'appointments',
-      title: 'Appointments',
-      subtitle: 'Bookings, check-ins and walk-in scheduling',
+      title: isBM ? 'Temu Janji' : 'Appointments',
+      subtitle: isBM ? 'Tempahan, daftar masuk dan penjadualan pesakit luar' : 'Bookings, check-ins and walk-in scheduling',
       icon: Calendar,
-      badge: 'Schedule',
+      badge: isBM ? 'Jadual' : 'Schedule',
       badgeColor: 'chip-info',
-      actionText: 'Open Appointments',
+      actionText: isBM ? 'Buka Temu Janji' : 'Open Appointments',
       tabKey: 'appointments'
     },
     {
       id: 'admin',
-      title: 'Administration Console',
-      subtitle: 'Staff, inventory, equipment, security and system settings',
+      title: isBM ? 'Konsol Pentadbiran & Operasi' : 'Administrative & Operations Console',
+      subtitle: isBM ? 'Pengurusan Kakitangan, Audit Keselamatan, Pematuhan KKM & Integrasi' : 'Staff Management, Security Audit, MOH Compliance & Integrations',
       icon: ShieldCheck,
-      badge: 'Admin',
+      badge: isBM ? 'Pentadbir' : 'Admin',
       badgeColor: 'chip-info',
-      actionText: 'Open Console',
+      actionText: isBM ? 'Buka Konsol' : 'Open Console',
       tabKey: 'admin'
     },
   ].filter((m) => roleConfig.modules.includes(m.id));
 
 
-    const [bannerSlot, setBannerSlot] = useState<HTMLElement | null>(() => document.getElementById('page-banner-slot'));
-  React.useEffect(() => { setBannerSlot(document.getElementById('page-banner-slot')); }, []);
+
 
   // The staff shell hosts this block as its page banner; on the public page there is no slot, so it renders inline.
   const headerBanner = (
@@ -340,27 +377,26 @@ export default function LandingDashboard({
             className="w-full h-full object-cover" 
           />
         </div>
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="workspace-banner-title">
-              {userRole ? `${getGreeting()}, ${userName}` : 'MediClinic Enterprise Workspace Dashboard'}
-            </h2>
-            <span className="workspace-banner-pill">
-              {userRole ? roleConfig.label : 'Clinic overview'}
-            </span>
-            <span className="workspace-banner-status">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              All systems operational
-            </span>
-          </div>
-          <p className="text-2xs text-teal-50 font-normal mt-0.5 truncate">
-            {userRole ? roleConfig.subtitle : 'Unified healthcare operations launchpad, outpatient telemetry, clinical analytics, and facility status.'}
-          </p>
+        <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <h2 className="workspace-banner-title">
+            {userRole ? `${getGreeting(undefined, activeLanguage)}, ${userName}` : (isBM ? 'Papan Pemuka Ruang Kerja MediClinic Enterprise' : 'MediClinic Enterprise Workspace Dashboard')}
+          </h2>
+          <span className="workspace-banner-pill">
+            {userRole ? roleConfig.label : (t.clinicOverview || 'Clinic overview')}
+          </span>
+          <span className="workspace-banner-status">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            {t.allSystemsOperational || 'All systems operational'}
+          </span>
         </div>
       </div>
 
-      {/* Right: Telemetry Export Action */}
+      {/* Right: Telemetry Export Action & Session Status */}
       <div className="flex items-center gap-2.5 shrink-0">
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border border-white/15 text-white rounded-none shadow-none font-mono text-xs">
+          <Clock className="w-3.5 h-3.5 text-teal-200" />
+          <span>{isBM ? 'Sesi:' : 'Session:'} <strong className="text-white font-bold">{isBM ? 'Aktif' : 'Active'}</strong></span>
+        </div>
         <button
           type="button"
           onClick={handleExportTelemetry}
@@ -369,7 +405,7 @@ export default function LandingDashboard({
         >
           <Download className={`w-3.5 h-3.5 text-teal-200 ${isExporting ? 'animate-bounce' : ''}`} />
           <span className="font-mono text-2xs uppercase tracking-wider font-bold">
-            {isExporting ? 'Exporting...' : 'Export Telemetry'}
+            {isExporting ? (t.exporting || 'Exporting...') : (t.exportTelemetry || 'Export Telemetry')}
           </span>
         </button>
 
@@ -380,7 +416,7 @@ export default function LandingDashboard({
             className="px-4 py-1.5 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-none flex items-center justify-center gap-2 transition-all cursor-pointer font-mono uppercase tracking-wider"
           >
             <LogIn className="w-4 h-4" />
-            <span>Staff Portal</span>
+            <span>{t.staffPortal || 'Staff Portal'}</span>
           </button>
         )}
       </div>
@@ -388,12 +424,38 @@ export default function LandingDashboard({
   );
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12 font-sans text-ink">
+    <div className="space-y-6 pb-12 font-sans text-ink">
 
-      {/* ========================================================================= */}
-      {/* 1. ENTERPRISE COMMAND-CENTER HEADER & CONTROL BAR                         */}
-      {/* ========================================================================= */}
-      {bannerSlot ? createPortal(headerBanner, bannerSlot) : <div className="bg-surface border border-line rounded-none p-6 shadow-none">{headerBanner}</div>}
+      {/* Top telemetry control bar for authenticated staff (page banner is permanently hosted by EnterpriseLayoutTemplate) */}
+      {!userRole ? (
+        <section className="workspace-banner-section" aria-label="Page banner">
+          {headerBanner}
+        </section>
+      ) : (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface border border-line px-4 py-3 rounded-none shadow-2xs">
+          <div>
+            <h3 className="type-section-title text-ink font-bold">
+              {isBM ? 'Pusat Kawalan & Pemantauan Operasi' : 'Clinical Operations & Command Center'}
+            </h3>
+            <p className="text-xs text-muted font-medium">
+              {isBM
+                ? 'Pemantauan masa nyata aliran pesakit, telemetri fasiliti dan metrik prestasi klinikal.'
+                : 'Real-time telemetry, queue throughput, and clinical performance overview.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportTelemetry}
+              disabled={isExporting}
+              className="btn-outline-primary text-xs px-3.5 py-1.5 inline-flex items-center gap-1.5 font-mono"
+            >
+              <Download className={`w-3.5 h-3.5 text-accent ${isExporting ? 'animate-bounce' : ''}`} />
+              <span>{isExporting ? (t.exporting || 'Exporting...') : (t.exportTelemetry || 'Export Telemetry')}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ROLE WORKLISTS: what this role needs to act on next */}
       {showPanel('worklist') && worklists.map(({ kind, visits }) => {
@@ -410,7 +472,7 @@ export default function LandingDashboard({
                   <div className="flex items-center gap-2">
                     <h3 className="type-card-title text-ink font-bold">{cfg.title}</h3>
                     <span className="font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 border border-line bg-surface text-accent">
-                      <strong className="tabular-nums text-ink">{visits.length}</strong> in queue
+                      <strong className="tabular-nums text-ink">{visits.length}</strong> {t.inQueue || 'in queue'}
                     </span>
                   </div>
                   <p className="text-xs text-muted mt-0.5">{cfg.subtitle}</p>
@@ -440,11 +502,12 @@ export default function LandingDashboard({
                   const allergies = patient?.drugAllergies?.filter(Boolean) ?? [];
                   const items = v.soap?.plan?.prescription ?? [];
                   const outstanding = Math.max(0, (v.totalBill || 0) - (v.paidAmount || 0) - (v.panelClaimed || 0));
+                  const itemLabel = items.length === 1 ? (t.item || 'item') : (t.items || 'items');
                   const detail =
-                    kind === 'dispense' ? `${items.length} item${items.length === 1 ? '' : 's'}${v.soap?.plan?.pharmacyMemo ? ` · Memo: ${v.soap.plan.pharmacyMemo}` : ''}`
-                    : kind === 'billing' ? `Outstanding RM ${outstanding.toFixed(2)}${patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? ` · Panel: ${patient.panelEmployer}` : ' · Self-pay'}`
-                    : kind === 'triage' ? (patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? `Panel: ${patient.panelEmployer}` : 'Self-pay')
-                    : (v.soap?.subjective || 'No complaint recorded');
+                    kind === 'dispense' ? `${items.length} ${itemLabel}${v.soap?.plan?.pharmacyMemo ? ` · Memo: ${v.soap.plan.pharmacyMemo}` : ''}`
+                    : kind === 'billing' ? `${t.outstanding || 'Outstanding'} RM ${outstanding.toFixed(2)}${patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? ` · ${t.panelText || 'Panel'}: ${patient.panelEmployer}` : ` · ${t.selfPayText || 'Self-pay'}`}`
+                    : kind === 'triage' ? (patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? `${t.panelText || 'Panel'}: ${patient.panelEmployer}` : (t.selfPayText || 'Self-pay'))
+                    : (v.soap?.subjective || (isBM ? 'Tiada aduan dicatat' : 'No complaint recorded'));
 
                   return (
                     <li key={v.id} className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2 bg-surface hover:bg-surface-muted/50 transition-colors border-b border-line-subtle last:border-b-0">
@@ -463,7 +526,7 @@ export default function LandingDashboard({
                       <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
                         {allergies.length > 0 && kind !== 'billing' && (
                           <span className="border border-rose-300 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> Allergy: {allergies.join(', ')}
+                            <AlertCircle className="w-3 h-3" /> {t.allergy || 'Allergy'}: {allergies.join(', ')}
                           </span>
                         )}
                         {flag && (
@@ -473,11 +536,11 @@ export default function LandingDashboard({
                         )}
                         {v.status === 'Consulting' && (
                           <span className="border border-teal-300 dark:border-teal-900 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5">
-                            In consultation
+                            {t.inConsultation || 'In consultation'}
                           </span>
                         )}
                         <span className={`font-mono text-xs font-bold px-2 py-1 border flex items-center gap-1.5 ${mins !== null && mins >= 20 ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'border-line bg-surface-accent text-accent'}`}>
-                          <Clock className="w-3 h-3" /> {mins !== null ? `${mins} min` : 'Just in'}
+                          <Clock className="w-3 h-3" /> {mins !== null ? `${mins} min` : (t.justIn || 'Just in')}
                         </span>
                         <button
                           type="button"
@@ -497,7 +560,7 @@ export default function LandingDashboard({
             {kind === 'dispense' && lowStockDrugs.length > 0 && (
               <div className="px-4 py-3 border-t border-line-subtle bg-amber-50 dark:bg-amber-950/40 text-xs text-amber-900 dark:text-amber-100 flex flex-wrap items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
-                <strong>Low stock:</strong>
+                <strong>{t.lowStock || 'Low stock'}:</strong>
                 {lowStockDrugs.slice(0, 6).map((d) => (
                   <span key={d.id} className="chip chip-warn">{d.name} ({d.currentStock})</span>
                 ))}
@@ -515,7 +578,7 @@ export default function LandingDashboard({
         <div className="bg-surface border border-line px-3 py-2 rounded-none shadow-none flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-2xs font-mono uppercase font-bold tracking-wider text-muted">
             <LayoutDashboard className="w-4 h-4 text-accent" />
-            <span>Clinical Workspaces</span>
+            <span>{t.clinicalWorkspaces || 'Clinical Workspaces'}</span>
           </div>
           <nav aria-label="Workspaces" className="flex flex-wrap items-center gap-2">
             {workspaceModules.map((mod) => {

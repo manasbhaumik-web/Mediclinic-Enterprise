@@ -17,6 +17,16 @@ export const ROLE_LABEL: Record<UserRole, string> = {
   hr: 'HR',
 };
 
+export const ROLE_LABEL_BM: Record<UserRole, string> = {
+  doctor: 'Doktor',
+  pharmacist: 'Pegawai Farmasi',
+  receptionist: 'Penyambut Tetamu',
+  'clinic-assistant': 'Pembantu Klinik',
+  cashier: 'Juruwang',
+  admin: 'Pentadbir',
+  hr: 'Sumber Manusia',
+};
+
 export const isUserRole = (value: unknown): value is UserRole => typeof value === 'string' && (ALL_ROLES as readonly string[]).includes(value);
 
 /** Valid roles from a stored list, in the order of ALL_ROLES with the primary role first and no repeats. */
@@ -33,4 +43,7 @@ export const hasAnyRole = (held: readonly UserRole[] | null | undefined, allowed
   !!held && held.some((r) => allowed.includes(r));
 
 /** "Receptionist · Assistant · Cashier" for a person with several roles. */
-export const joinRoleLabels = (held: readonly UserRole[]): string => held.map((r) => ROLE_LABEL[r]).join(' · ');
+export const joinRoleLabels = (held: readonly UserRole[], lang: string = 'EN'): string => {
+  const dict = lang === 'BM' ? ROLE_LABEL_BM : ROLE_LABEL;
+  return held.map((r) => dict[r] || ROLE_LABEL[r]).join(' · ');
+};
