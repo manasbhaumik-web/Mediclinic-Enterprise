@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useState } from 'react';
 import { ArrowLeft, Download } from 'lucide-react';
 import Button from '../../components/ui/Button';
@@ -16,11 +17,14 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [editing, setEditing] = useState<Payslip | null>(null);
   const [viewing, setViewing] = useState<Payslip | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
   const [exportProblems, setExportProblems] = useState<string[]>([]);
   const [paidOn, setPaidOn] = useState(new Date().toISOString().slice(0, 10));
 
   const run = runQ.data;
   const slips = slipsQ.data ?? [];
+  const paginatedSlips = slips.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   if (runQ.isLoading) return <p className="text-xs text-subtle">Loading…</p>;
   if (!run) return <div className="space-y-3"><p className="text-xs text-rose-700 font-bold">This run could not be found.</p><Button variant="outline" size="sm" onClick={onBack}>Back</Button></div>;
 
@@ -121,7 +125,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
             </tr>
           </thead>
           <tbody>
-            {slips.map((s) => (
+            {paginatedSlips.map((s) => (
               <tr key={s.id} className="border-b border-line-subtle">
                 <td className="p-3 font-bold text-ink">{s.employee.name}{s.warnings.length > 0 && <span className="ml-2 text-amber-700" title={s.warnings.join(' ')}>⚠</span>}</td>
                 <td className="p-3 text-right font-mono">{myr(s.employee.baseSalary)}</td>
@@ -138,6 +142,13 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
             {slips.length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No payslips in this run.</td></tr>}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={slips.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="payslips"
+        />
       </div>
 
       <div className="bg-surface border border-line-subtle p-4 space-y-2">

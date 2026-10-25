@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RefreshCw, Send } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import Pagination from '../../components/ui/Pagination';
 import FormField from '../../components/ui/FormField';
 import { BuyerInput, useEInvoice } from '../../hooks/useEInvoice';
 import {
@@ -29,8 +30,16 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [editing, setEditing] = useState<EInvoiceRow | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
 
-  const rows = api.invoices.data ?? [];
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, month]);
+
+  const allRows = api.invoices.data ?? [];
+  const startIdx = (currentPage - 1) * pageSize;
+  const rows = allRows.slice(startIdx, startIdx + pageSize);
   const counts = summariseInvoices((api.counts.data ?? []) as { status: EInvoiceStatus }[]);
   const due = consolidatedDueDate(month);
 
@@ -158,6 +167,15 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
             {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-subtle">No e-invoices {filter === 'all' ? 'yet' : 'with this status'}. They appear here when a payment is settled while e-Invoicing is ON.</td></tr>}
           </tbody>
         </table>
+
+        {/* 15 Records Per Page Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={allRows.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="e-invoices"
+        />
       </div>
 
       {editing && (

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import Pagination from '../../components/ui/Pagination';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   CreditCard, DollarSign, Search, FileText, CheckCircle, Clock,
   ShieldCheck, Plus, Activity, CheckCircle2, AlertCircle, RefreshCw, Loader2
@@ -81,6 +82,18 @@ export default function BillingManagementModule() {
     (t.patientName ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (t.receiptNo ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const [ledgerPage, setLedgerPage] = useState(1);
+  const [claimsPage, setClaimsPage] = useState(1);
+  const pageSize = 15;
+
+  useEffect(() => {
+    setLedgerPage(1);
+    setClaimsPage(1);
+  }, [searchQuery, activeTab]);
+
+  const paginatedLedger = filteredLedger.slice((ledgerPage - 1) * pageSize, ledgerPage * pageSize);
+  const paginatedClaims = filteredClaims.slice((claimsPage - 1) * pageSize, claimsPage * pageSize);
 
   return (
     <div className="animate-fadeIn w-full space-y-3.5 pb-6">
@@ -303,7 +316,7 @@ export default function BillingManagementModule() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line-subtle">
-                  {filteredLedger.map((trx) => (
+                  {paginatedLedger.map((trx) => (
                     <tr key={trx.id} className="hover:bg-surface-muted transition-colors">
                       <td className="px-6 py-4">
                         <p className="font-bold text-ink text-xs">{trx.patientName ?? 'Patient not recorded'}</p>
@@ -350,6 +363,13 @@ export default function BillingManagementModule() {
                   ))}
                 </tbody>
               </table>
+              <Pagination
+                currentPage={ledgerPage}
+                totalItems={filteredLedger.length}
+                pageSize={pageSize}
+                onPageChange={setLedgerPage}
+                itemLabel="transactions"
+              />
             </div>
           )}
 
@@ -376,7 +396,7 @@ export default function BillingManagementModule() {
                     <p className="text-xs font-bold text-ink">No panel claims match your criteria.</p>
                   </td>
                 </tr>
-              ) : filteredClaims.map((claim) => (
+              ) : paginatedClaims.map((claim) => (
                 <tr key={claim.id} className="hover:bg-surface-muted transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-bold text-ink flex items-center gap-2">
@@ -423,6 +443,15 @@ export default function BillingManagementModule() {
               ))}
             </tbody>
           </table>
+          {filteredClaims.length > 0 && (
+            <Pagination
+              currentPage={claimsPage}
+              totalItems={filteredClaims.length}
+              pageSize={pageSize}
+              onPageChange={setClaimsPage}
+              itemLabel="claims"
+            />
+          )}
         </div>
       )}
 

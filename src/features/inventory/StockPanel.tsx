@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Plus, Search, Bell, AlertTriangle, XCircle, PackageCheck, Archive } from 'lucide-react';
 import ActionMenu from '../../components/ui/ActionMenu';
+import Pagination from '../../components/ui/Pagination';
 import { useDrugs, useInventoryActions, useInventorySettings, useSuppliers } from '../../hooks/useInventoryData';
 import { DrugItem, buildAlerts, controlClassLabel, isExpired, usableStock } from '../../domain/inventory';
 import DrugForm from './DrugForm';
@@ -19,6 +20,12 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
   const [open, setOpen] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [q, filter, showRetired]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const today = todayStr();
 
@@ -45,7 +52,9 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
   const matchesFilter = (d: DrugItem) =>
     filter === 'all' || (filter === 'out' && has(d.id, 'out_of_stock')) || (filter === 'low' && has(d.id, 'low_stock')) || (filter === 'expiry' && has(d.id, 'expired_stock', 'near_expiry'));
 
-  const rows = all.filter((d) => (showRetired || d.status === 'active') && matchesFilter(d) && (`${d.name} ${d.category} ${d.genericName ?? ''}`.toLowerCase().includes(q.toLowerCase())));
+  const filteredRows = all.filter((d) => (showRetired || d.status === 'active') && matchesFilter(d) && (`${d.name} ${d.category} ${d.genericName ?? ''}`.toLowerCase().includes(q.toLowerCase())));
+  const startIndex = (currentPage - 1) * pageSize;
+  const rows = filteredRows.slice(startIndex, startIndex + pageSize);
 
   const retire = async (d: DrugItem, reason: string) => {
     setMsg(null);
@@ -257,13 +266,22 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                 </React.Fragment>
               );
             })}
-            {rows.length === 0 && !drugs.isLoading && (
+            {filteredRows.length === 0 && !drugs.isLoading && (
               <tr><td className="p-6 text-subtle text-center" colSpan={6}>
                 {all.length === 0 ? 'No drugs yet. Add your first drug, then receive stock into it.' : 'Nothing matches that search.'}
               </td></tr>
             )}
           </tbody>
         </table>
+
+        {/* 15 Records Per Page Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredRows.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="drugs"
+        />
       </div>
 
       {mode?.kind === 'add' && <DrugForm role={role} onClose={() => setMode(null)} />}

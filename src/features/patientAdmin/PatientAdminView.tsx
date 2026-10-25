@@ -11,6 +11,7 @@ import { calculatePatientAge } from '../../domain/patientAge';
 import { useAuth } from '../../context/AuthContext';
 import PatientDetailModal from './PatientDetailModal';
 import PatientReportModal from './PatientReportModal';
+import Pagination from '../../components/ui/Pagination';
 
 interface PatientAdminViewProps {
   patientsList: Patient[];
@@ -41,6 +42,12 @@ export default function PatientAdminView({
   const [allergyFilter, setAllergyFilter] = useState('ALL');
   const [sortField, setSortField] = useState<SortField>('registeredDate');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, panelFilter, allergyFilter, sortField, sortDir]);
 
   // Modals state
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -117,6 +124,10 @@ export default function PatientAdminView({
       return sortDir === 'asc' ? cmp : -cmp;
     });
   }, [patientsList, panelFilter, allergyFilter, searchTerm, sortField, sortDir, patientMetrics]);
+  const paginatedPatients = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredPatients.slice(start, start + pageSize);
+  }, [filteredPatients, currentPage, pageSize]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -276,14 +287,14 @@ export default function PatientAdminView({
             </tr>
           </thead>
           <tbody className="divide-y divide-line bg-surface">
-            {filteredPatients.length === 0 ? (
+            {paginatedPatients.length === 0 ? (
               <tr>
                 <td colSpan={9} className="px-4 py-10 text-center text-muted font-medium">
                   {isBM ? 'Tiada rekod pesakit yang sepadan dengan carian.' : 'No patient records found matching your filters.'}
                 </td>
               </tr>
             ) : (
-              filteredPatients.map((p) => {
+              paginatedPatients.map((p) => {
                 const metrics = patientMetrics[p.id] || { visitCount: 0, lifetimeSpend: 0, latestVisitDate: null };
                 const ageDetails = calculatePatientAge(p.dob);
                 return (
@@ -375,6 +386,15 @@ export default function PatientAdminView({
             )}
           </tbody>
         </table>
+
+        {/* 15 Records Per Page Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredPatients.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel={isBM ? "pesakit" : "patients"}
+        />
       </div>
 
       {/* DETAIL MODAL */}

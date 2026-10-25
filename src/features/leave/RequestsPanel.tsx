@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
+import Pagination from '../../components/ui/Pagination';
 import { useAuth } from '../../context/AuthContext';
 import { useHrEvents, useLeaveActions, useLeaveReference, useLeaveRequests, useStaffForLeave } from '../../hooks/useLeave';
 import { REQUEST_STYLE, formatRange, requestActions } from '../../domain/leave';
@@ -13,6 +14,12 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
   const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [status]);
   const requests = useLeaveRequests({ status });
   const { types } = useLeaveReference();
   const staff = useStaffForLeave();
@@ -57,7 +64,11 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
             </tr>
           </thead>
           <tbody>
-            {(requests.data ?? []).map((r) => {
+            {(() => {
+              const allReqs = requests.data ?? [];
+              const startIdx = (currentPage - 1) * pageSize;
+              const pagedReqs = allReqs.slice(startIdx, startIdx + pageSize);
+              return pagedReqs.map((r) => {
               const st = REQUEST_STYLE[r.status];
               const can = requestActions(r, role, user?.id);
               return (
@@ -82,10 +93,20 @@ export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {
                   {open === r.id && <tr><td colSpan={6} className="p-3 bg-surface-accent"><RequestHistory id={r.id} /></td></tr>}
                 </React.Fragment>
               );
-            })}
+            });
+            })()}
             {(requests.data ?? []).length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No requests here.</td></tr>}
           </tbody>
         </table>
+
+        {/* 15 Records Per Page Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={(requests.data ?? []).length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="leave requests"
+        />
       </div>
     </div>
   );

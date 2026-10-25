@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useMemo, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useEquipmentEvents, useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -24,6 +25,8 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<'active' | EquipmentStatus | 'all'>('active');
   const [mode, setMode] = useState<Mode>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
   const today = todayStr();
   const soon = settings.data?.dueSoonDays ?? 30;
   const items = list.data ?? [];
@@ -42,14 +45,15 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
     if (status === 'active') return e.status !== 'Decommissioned';
     return status === 'all' || e.status === status;
   });
+  const paginatedShown = shown.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const close = () => setMode(null);
   const open = (kind: Exclude<NonNullable<Mode>, { kind: 'add' }>['kind'], item: EquipmentItem) => setMode({ kind, item } as Mode);
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
-        <input className={`${inputClass} !w-72`} placeholder="Search name, tag, serial, room or person" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search equipment" />
-        <select className={`${inputClass} !w-48`} value={status} onChange={(e) => setStatus(e.target.value as typeof status)} aria-label="Status filter">
+        <input className={`${inputClass} !w-72`} placeholder="Search name, tag, serial, room or person" value={q} onChange={(e) => { setQ(e.target.value); setCurrentPage(1); }} aria-label="Search equipment" />
+        <select className={`${inputClass} !w-48`} value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setCurrentPage(1); }} aria-label="Status filter">
           <option value="active">All in service</option><option value="Operational">Operational</option><option value="Maintenance">Needs maintenance</option>
           <option value="Out of service">Out of service</option><option value="Decommissioned">Decommissioned</option><option value="all">Everything</option>
         </select>
@@ -69,7 +73,7 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
               <th className="p-3">Equipment</th><th className="p-3">Location / custodian</th><th className="p-3">Status</th><th className="p-3">Next service</th><th className="p-3">Next calibration</th><th className="p-3 text-right">Actions</th>
             </tr></thead>
             <tbody>
-              {shown.map((e) => (
+              {paginatedShown.map((e) => (
                 <tr key={e.id} className="border-b border-line-subtle align-top">
                   <td className="p-3">
                     <button className="font-bold text-ink text-left hover:underline cursor-pointer" onClick={() => open('detail', e)}>{e.name}</button>
@@ -102,6 +106,13 @@ export default function EquipmentRegister({ focusId, onFocused }: { focusId?: st
               {shown.length === 0 && <tr><td className="p-6 text-center text-subtle" colSpan={6}>Nothing matches.</td></tr>}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={shown.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            itemLabel="devices"
+          />
         </div>
       )}
 

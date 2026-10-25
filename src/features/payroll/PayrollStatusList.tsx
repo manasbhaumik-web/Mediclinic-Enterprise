@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useState } from 'react';
 import { usePayProfiles, usePayrollRun, usePayrollRuns } from '../../hooks/usePayroll';
 import { RunStatus, STATUS_STYLE, monthLabel } from '../../domain/payroll';
@@ -17,6 +18,9 @@ export default function PayrollStatusList() {
   const { slips } = usePayrollRun(run?.id ?? null);
   const slipByStaff = new Map((slips.data ?? []).map((s) => [s.staffId, s]));
   const people = (profiles.data ?? []).filter((p) => p.status === 'Active');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+  const paginatedPeople = people.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const statusFor = (staffId: string): { label: string; tone: keyof typeof toneClass } => {
     if (!run) return { label: 'No payroll run', tone: 'idle' };
@@ -32,7 +36,7 @@ export default function PayrollStatusList() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-xs font-bold text-muted">
           Month
-          <select className="px-3 py-2 bg-surface border border-line-subtle text-xs font-medium text-ink" value={month} onChange={(e) => setMonth(e.target.value)}>
+          <select className="px-3 py-2 bg-surface border border-line-subtle text-xs font-medium text-ink" value={month} onChange={(e) => { setMonth(e.target.value); setCurrentPage(1); }}>
             {months.map((m) => <option key={m} value={m}>{monthLabel(m)}</option>)}
           </select>
         </label>
@@ -51,7 +55,7 @@ export default function PayrollStatusList() {
             <tr><th className="px-6 py-3.5">Employee</th><th className="px-6 py-3.5">Role</th><th className="px-6 py-3.5 text-right">Net pay</th><th className="px-6 py-3.5">Salary status</th></tr>
           </thead>
           <tbody className="divide-y divide-line-subtle">
-            {people.map((p) => {
+            {paginatedPeople.map((p) => {
               const st = statusFor(p.id);
               const slip = slipByStaff.get(p.id);
               return (
@@ -66,6 +70,13 @@ export default function PayrollStatusList() {
             {people.length === 0 && <tr><td className="px-6 py-4 text-subtle" colSpan={4}>No active staff.</td></tr>}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={people.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="employees"
+        />
       </div>
     </div>
   );

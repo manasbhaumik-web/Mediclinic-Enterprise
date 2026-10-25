@@ -19,6 +19,7 @@ import {
 } from '../../lib/staffOnboarding';
 
 import ProgressBar from '../../components/ui/ProgressBar';
+import { Pagination } from '../../components/ui/Pagination';
 export interface StaffMember {
   id: string;
   name: string;
@@ -162,6 +163,15 @@ export default function StaffManagementModule() {
 
     return matchesSearch && matchesDept && matchesStatus;
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, departmentFilter, statusFilter]);
+
+  const paginatedStaff = filteredStaff.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const activeCount = staffList.filter(s => s.status === 'Active').length;
   const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
@@ -668,7 +678,7 @@ Add anyway?`)) return;
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-line-subtle">
-                      {filteredStaff.map((staff) => (
+                      {paginatedStaff.map((staff) => (
                         <tr key={staff.id} className="hover:bg-surface-muted transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -747,6 +757,13 @@ Add anyway?`)) return;
                       ))}
                     </tbody>
                   </table>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredStaff.length}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    itemLabel="staff members"
+                  />
                 </div>
               )}
             </div>

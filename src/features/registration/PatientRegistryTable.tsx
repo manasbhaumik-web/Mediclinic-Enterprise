@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Pagination from '../../components/ui/Pagination';
 import type { SortKey } from './types';
 import { FolderCheck, Plus, Search, ShieldAlert, Clock, UserCheck, Edit3, FileSpreadsheet, Eye } from 'lucide-react';
 import { formatNric } from '../../utils/nric';
@@ -40,7 +41,16 @@ export default function PatientRegistryTable({
 }: PatientRegistryTableProps) {
   const isBM = activeLanguage === 'BM';
   const isAdmin = userRole === 'admin';
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
 
+  // Reset page when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [patientRegistrySearch]);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedResults = sortedResults.slice(startIndex, startIndex + pageSize);
   return (
     <div className="bg-surface-muted border border-line rounded-none shadow-xs font-sans">
       <div className="p-3.5 space-y-3">
@@ -146,14 +156,14 @@ export default function PatientRegistryTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-line-subtle/50 dark:divide-teal-800/30 bg-surface font-sans">
-              {sortedResults.length === 0 ? (
+              {paginatedResults.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-6 text-center text-muted font-sans font-medium">
                     {isBM ? 'Tiada rekod pesakit yang sepadan dengan carian anda.' : 'No patient records found matching your search term.'}
                   </td>
                 </tr>
               ) : (
-                sortedResults.map(p => (
+                paginatedResults.map(p => (
                   <tr key={p.id} className="hover:bg-surface-accent/40 dark:hover:bg-night-800/40 transition-colors">
                     <td className="px-3 py-2 font-mono text-accent text-xs font-bold">
                       {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
@@ -250,6 +260,15 @@ export default function PatientRegistryTable({
             </tbody>
           </table>
         </div>
+
+        {/* 15 Records Per Page Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={sortedResults.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel={isBM ? 'pesakit' : 'patients'}
+        />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import { usePayrollActions, usePayrollRuns } from '../../hooks/usePayroll';
@@ -15,6 +16,10 @@ export default function PayrollRuns({ role }: { role: 'admin' | 'hr' }) {
   const [workingDays, setWorkingDays] = useState('26');
   const [hours, setHours] = useState('8');
   const [msg, setMsg] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+  const allRuns = runs.data ?? [];
+  const paginatedRuns = allRuns.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   if (selected) return <RunDetail runId={selected} role={role} onBack={() => setSelected(null)} />;
 
@@ -58,7 +63,7 @@ export default function PayrollRuns({ role }: { role: 'admin' | 'hr' }) {
             </tr>
           </thead>
           <tbody>
-            {(runs.data ?? []).map((r) => {
+            {paginatedRuns.map((r) => {
               const st = STATUS_STYLE[r.status];
               return (
                 <tr key={r.id} className="border-b border-line-subtle">
@@ -74,6 +79,13 @@ export default function PayrollRuns({ role }: { role: 'admin' | 'hr' }) {
             {(runs.data ?? []).length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No payroll runs yet.</td></tr>}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={allRuns.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="payroll runs"
+        />
       </div>
     </div>
   );
