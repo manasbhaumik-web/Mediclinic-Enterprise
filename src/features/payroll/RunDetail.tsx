@@ -21,6 +21,8 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
   const pageSize = 15;
   const [exportProblems, setExportProblems] = useState<string[]>([]);
   const [paidOn, setPaidOn] = useState(new Date().toISOString().slice(0, 10));
+  const [confirmAction, setConfirmAction] = useState<{ body: Record<string, unknown>; message: string; title: string } | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const run = runQ.data;
   const slips = slipsQ.data ?? [];
@@ -158,6 +160,34 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
           ))}
         </ul>
       </div>
+
+      {confirmAction && (
+        <Dialog title={confirmAction.title} onClose={() => setConfirmAction(null)}>
+          <p className="text-xs text-muted leading-relaxed">{confirmAction.message}</p>
+          <div className="flex justify-end gap-2 pt-3">
+            <Button size="sm" variant="outline" onClick={() => setConfirmAction(null)}>Cancel</Button>
+            <Button size="sm" disabled={api.call.isPending} onClick={() => {
+              const b = confirmAction.body;
+              setConfirmAction(null);
+              void act(b);
+            }}>Confirm</Button>
+          </div>
+        </Dialog>
+      )}
+      {isCancelling && (
+        <ReasonDialog
+          title="Cancel Payroll Run"
+          message="Reason for cancelling this payroll run? It stays permanently on record in the audit trail."
+          confirmLabel="Cancel Run"
+          reasonLabel="Cancellation rationale"
+          busy={api.call.isPending}
+          onConfirm={(reason) => {
+            setIsCancelling(false);
+            void act({ action: 'cancel', reason });
+          }}
+          onClose={() => setIsCancelling(false)}
+        />
+      )}
 
       {editing && <SlipInputs slip={editing} run={run} onClose={() => setEditing(null)} />}
       {viewing && <SlipView slip={viewing} onClose={() => setViewing(null)} />}
