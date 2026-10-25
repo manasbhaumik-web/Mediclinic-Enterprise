@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, Globe, UserCheck, FolderCheck, Plus, RotateCcw, Activity, ShieldAlert, ArrowRight, ArrowLeft, Search, Loader2, ShieldCheck, CheckCircle2, Clock, Check, Filter, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { Users, Globe, UserCheck, FolderCheck, Plus, UserPlus, Monitor, RotateCcw, Activity, ShieldAlert, ArrowRight, ArrowLeft, Search, Loader2, ShieldCheck, CheckCircle2, Clock, Check, Filter, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { Patient, Visit, Language } from '../../types';
 import MyKadScanner from './MyKadScanner';
 import { useAuth } from '../../context/AuthContext';
@@ -458,53 +458,80 @@ export default function PatientRegistrationModule({
         </div>
       )}
 
-      {/* Sub-Navigation Buttons Toolbar */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-surface border border-line p-1.5 rounded-none shadow-none" role="tablist" aria-label="Patient Registration Sub Navigation">
-        <button
-          role="tab"
-          aria-selected={activeSubTab === 'queue'}
-          id="subtab-queue"
-          aria-controls="subtab-panel-queue"
-          title="Waiting Room Monitor: Live check-in queue, triage status, and doctor room assignments"
-          onClick={() => setActiveSubTab('queue')}
-          className={`px-3 py-1.5 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
-            activeSubTab === 'queue' 
-              ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface text-muted border-line hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          Waiting Room Monitor
-        </button>
-        <button
-          role="tab"
-          aria-selected={activeSubTab === 'form'}
-          id="subtab-form"
-          aria-controls="subtab-panel-form"
-          title="New Registration Form: MyKad biometric intake, patient demographics, and corporate panel selection"
-          onClick={() => setActiveSubTab('form')}
-          className={`px-3 py-1.5 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
-            activeSubTab === 'form' 
-              ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface text-muted border-line hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          Registration Form
-        </button>
-        <button
-          role="tab"
-          aria-selected={activeSubTab === 'registry'}
-          id="subtab-registry"
-          aria-controls="subtab-panel-registry"
-          title="Patient Master Registry: Search existing patient EHR records, contact details, and past visit logs"
-          onClick={() => setActiveSubTab('registry')}
-          className={`px-3 py-1.5 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
-            activeSubTab === 'registry' 
-              ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface text-muted border-line hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          Patient Registry
-        </button>
+      {/* REDESIGNED REGISTRATION & TRIAGE SUB-NAVIGATION TAB BAR */}
+      <div className="bg-surface border border-line rounded-none shadow-2xs p-1.5 flex flex-wrap items-center justify-between gap-2" role="tablist" aria-label="Patient Registration Sub Navigation">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'queue'}
+            id="subtab-queue"
+            aria-controls="subtab-panel-queue"
+            title="Waiting Room Monitor: Live check-in queue, triage status, and doctor room assignments"
+            onClick={() => setActiveSubTab('queue')}
+            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
+              activeSubTab === 'queue' 
+                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
+                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
+            }`}
+          >
+            <Monitor className={`w-4 h-4 ${activeSubTab === 'queue' ? 'text-white' : 'text-muted'}`} />
+            <span>Waiting Room Monitor</span>
+            {triageQueue.length > 0 && (
+              <span className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
+                activeSubTab === 'queue' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900 border border-amber-300'
+              }`}>
+                {triageQueue.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'form'}
+            id="subtab-form"
+            aria-controls="subtab-panel-form"
+            title="New Registration Form: MyKad biometric intake, patient demographics, and corporate panel selection"
+            onClick={() => setActiveSubTab('form')}
+            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
+              activeSubTab === 'form' 
+                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
+                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
+            }`}
+          >
+            <UserPlus className={`w-4 h-4 ${activeSubTab === 'form' ? 'text-white' : 'text-muted'}`} />
+            <span>Registration Form</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'registry'}
+            id="subtab-registry"
+            aria-controls="subtab-panel-registry"
+            title="Patient Master Registry: Search existing patient EHR records, contact details, and past visit logs"
+            onClick={() => setActiveSubTab('registry')}
+            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
+              activeSubTab === 'registry' 
+                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
+                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
+            }`}
+          >
+            <FolderCheck className={`w-4 h-4 ${activeSubTab === 'registry' ? 'text-white' : 'text-muted'}`} />
+            <span>Patient Registry</span>
+            <span className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
+              activeSubTab === 'registry' ? 'bg-white/20 text-white' : 'bg-surface-muted text-muted border border-line-subtle'
+            }`}>
+              {totalPatientCount}
+            </span>
+          </button>
+        </div>
+
+        {/* Quick status pill on right */}
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 font-mono text-2xs text-muted">
+          <span>Active Station: <strong className="text-accent uppercase font-bold">Front Desk 01</strong></span>
+        </div>
       </div>
 
       {/* WAITING ROOM MONITOR */}

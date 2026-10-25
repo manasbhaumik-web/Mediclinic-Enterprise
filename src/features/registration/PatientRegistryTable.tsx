@@ -45,17 +45,23 @@ export default function PatientRegistryTable({
     <div className="bg-surface-muted border border-line rounded-none shadow-xs font-sans">
       <div className="p-3.5 space-y-3">
         
-        {/* Header section with primary action button and total count badge */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-2.5 font-sans">
+              {/* Redesigned Header & Search Bar with Integrated Controls */}
+      <div className="bg-surface border border-line rounded-none p-4 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary/10 dark:bg-teal-900/40 border border-brand/20 flex items-center justify-center rounded-none">
-              <FolderCheck className="w-4 h-4 text-accent" />
+            <div className="w-10 h-10 bg-surface-accent border border-line flex items-center justify-center rounded-none text-accent shrink-0">
+              <FolderCheck className="w-5 h-5 text-accent" />
             </div>
             <div>
-              <h3 className="type-section-title text-ink font-sans">
-                {isBM ? 'Pendaftaran & Rekod Pesakit' : 'Patient Registry'}
-              </h3>
-              <p className="text-xs text-muted font-sans font-medium">
+              <div className="flex items-center gap-2">
+                <h3 className="type-section-title text-ink font-sans font-bold">
+                  {isBM ? 'Pendaftaran & Rekod Pesakit' : 'Patient Master Registry'}
+                </h3>
+                <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 border border-line bg-surface-muted text-muted font-bold">
+                  EHR Live
+                </span>
+              </div>
+              <p className="text-xs text-muted font-sans font-medium mt-0.5">
                 {isAdmin
                   ? (isBM ? 'Pengurusan rekod pesakit, sejarah klinikal, ubat per lawatan dan penjanaan laporan pentadbir.' : 'Manage patient records, longitudinal clinical history, visit prescriptions, and admin reports.')
                   : (isBM ? 'Cari rekod pesakit, semak alahan ubat dan mulakan lawatan klinikal.' : 'Search patient records, review medical allergies, and initiate clinical visits.')}
@@ -63,17 +69,17 @@ export default function PatientRegistryTable({
             </div>
           </div>
     
-          <div className="flex flex-wrap items-center gap-2.5 font-sans">
-            <span className="bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 border border-brand/20 font-bold px-3 py-1.5 rounded-none text-xs font-sans">
-              {totalPatientCount} {isBM ? 'Pesakit Terdaftar' : 'Registered Patients'}
-            </span>
+          <div className="flex flex-wrap items-center gap-2.5 font-sans shrink-0">
+            <div className="px-3 py-1.5 bg-surface-accent border border-line font-mono text-xs text-accent font-bold">
+              <span>Total: <strong className="text-ink">{totalPatientCount}</strong> {isBM ? 'Pesakit' : 'Patients'}</span>
+            </div>
 
             {/* Admin Report Button */}
             {isAdmin && onOpenReports && (
               <button
                 type="button"
                 onClick={() => onOpenReports()}
-                className="btn-outline-primary text-xs px-3.5 py-2 inline-flex items-center gap-2 font-bold uppercase tracking-wider"
+                className="btn-outline-primary text-xs px-3.5 py-2 inline-flex items-center gap-2 font-bold uppercase tracking-wider cursor-pointer"
               >
                 <FileSpreadsheet className="w-4 h-4 text-accent" />
                 <span>{isBM ? 'Jana Laporan' : 'Generate Reports'}</span>
@@ -81,36 +87,49 @@ export default function PatientRegistryTable({
             )}
 
             <button
+              type="button"
               onClick={() => {
                 setActiveSubTab('form');
                 setRegistrationStep('id_check');
               }}
-              className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center justify-center gap-2"
+              className="btn-primary text-xs px-4 py-2 rounded-none font-sans font-bold uppercase tracking-wider inline-flex items-center justify-center gap-2 shadow-none cursor-pointer"
             >
-              <Plus className="w-4 h-4" /> {isBM ? 'Daftar Pesakit Baru' : 'Register New Patient'}
+              <Plus className="w-4 h-4" /> <span>{isBM ? 'Daftar Pesakit Baru' : 'Register New Patient'}</span>
             </button>
           </div>
         </div>
         
-        {/* Integrated Search Input & Guidance */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans">
-          <div className="relative flex-1 max-w-lg w-full">
-            <Search className="w-4 h-4 text-accent absolute left-3 top-1/2 -translate-y-1/2" />
+        {/* Integrated Search Input & Formatting Guide */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-line-subtle">
+          <div className="relative flex-1 max-w-xl w-full">
+            <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="search"
               aria-label="Search patients"
               placeholder={isBM ? 'Cari mengikut Nama, No. IC (cth: 900101-14-5555), atau ID...' : 'Search by Patient Name, NRIC (e.g. 900101-14-5555), or ID...'}
               value={patientRegistrySearch}
-              onChange={(e) => setPatientRegistrySearch(/^[\d-]+$/.test(e.target.value) ? formatNric(e.target.value) : e.target.value)}
-              className="w-full bg-surface border border-line rounded-none pl-9 pr-3 py-2 text-xs font-sans text-ink placeholder-primary/60 dark:placeholder-teal-400/60 focus:border-brand outline-none font-medium"
+              onChange={(e) => setPatientRegistrySearch(/^[d-]+$/.test(e.target.value) ? formatNric(e.target.value) : e.target.value)}
+              className="w-full bg-surface-accent border border-line rounded-none pl-10 pr-8 py-2 text-xs font-sans text-ink placeholder:text-muted/70 focus:border-accent focus:ring-1 focus:ring-accent outline-none font-medium transition-colors"
             />
+            {patientRegistrySearch && (
+              <button
+                type="button"
+                onClick={() => setPatientRegistrySearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-xs font-mono px-1 cursor-pointer"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
           </div>
-          <span className="text-2xs text-muted font-mono">
-            {isBM ? 'Padanan separa disokong • Format IC automatik' : 'Partial matches supported • IC auto-format enabled'}
-          </span>
+          <div className="flex items-center gap-1.5 text-2xs text-muted font-mono self-end sm:self-center">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>{isBM ? 'Padanan separa disokong • Format IC automatik' : 'Partial matches supported • IC auto-format enabled'}</span>
+          </div>
         </div>
-        
-        {/* Scannable Patient Table */}
+      </div>
+      
+      {/* Scannable Patient Table */}
         <div className="overflow-x-auto border border-line rounded-none font-sans">
           <table className="w-full text-xs text-left font-sans">
             <thead className="bg-surface-accent border-b border-line font-sans">
