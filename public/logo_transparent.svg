@@ -1,59 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
   <defs>
-    <!-- Dark Sky Blue medical cross gradient -->
-    <linearGradient id="crossSkyBlue" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0284c7" />
-      <stop offset="50%" stop-color="#0369a1" />
-      <stop offset="100%" stop-color="#075985" />
+    <!-- Dynamic Theme Cross Gradient using currentColor and theme accent variables -->
+    <linearGradient id="themeCrossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="var(--color-primary, #0f766e)" />
+      <stop offset="100%" stop-color="var(--color-chrome-deep, #065f5b)" />
     </linearGradient>
 
-    <!-- Deep oceanic shade for inner architectural contrast -->
-    <linearGradient id="innerSkyFacet" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#0369a1" stop-opacity="0.6" />
-      <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0.85" />
-    </linearGradient>
-
-    <!-- Sky Blue pulse telemetry gradient -->
-    <linearGradient id="pulseGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#38bdf8" />
-      <stop offset="50%" stop-color="#ffffff" />
-      <stop offset="100%" stop-color="#38bdf8" />
+    <!-- Inner Architectural Facet -->
+    <linearGradient id="themeFacetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="var(--color-accent, #0d9488)" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="var(--color-chrome-deep, #065f5b)" stop-opacity="0.75" />
     </linearGradient>
   </defs>
 
-  <!-- 1. Free-Standing Medical Cross (No circular/shield background) in Dark Sky Blue with Bold White Outline -->
-  <!-- Outer Cross Contour with Crisp White Perimeter Outline -->
+  <!-- 1. Free-Standing Medical Cross in Dynamic Theme Primary Color with Crisp White Perimeter -->
   <path d="M 72,16 L 128,16 L 128,72 L 184,72 L 184,128 L 128,128 L 128,184 L 72,184 L 72,128 L 16,128 L 16,72 L 72,72 Z" 
-        fill="url(#crossSkyBlue)" 
+        fill="url(#themeCrossGrad)" 
         stroke="#ffffff" 
         stroke-width="4.5" 
         stroke-linejoin="round"/>
 
-  <!-- Inner Architectural Facet -->
+  <!-- Inner Architectural Inset -->
   <path d="M 78,22 L 122,22 L 122,68 L 178,68 L 178,122 L 122,122 L 122,178 L 78,178 L 78,122 L 22,122 L 22,68 L 78,68 Z" 
-        fill="url(#innerSkyFacet)" 
-        stroke="#7dd3fc" 
+        fill="url(#themeFacetGrad)" 
+        stroke="var(--color-brand, #14b8a6)" 
         stroke-width="1.5" 
         stroke-opacity="0.65"/>
 
   <!-- 2. Dynamic ECG Vital Cardiogram Telemetry Wave Across the Cross -->
-  <!-- Dark navy shadow trace under the wave for maximum legibility -->
+  <!-- Dark underlay shadow for razor-sharp separation on any surface -->
   <polyline points="10,100 56,100 66,90 74,100 82,122 100,32 118,142 130,80 140,100 190,100" 
             fill="none" 
-            stroke="#082f49" 
+            stroke="#04202c" 
             stroke-width="7" 
             stroke-linecap="round" 
             stroke-linejoin="round"/>
 
-  <!-- Bright Sky Blue Vital Wave -->
+  <!-- Theme Brand Accent Pulse Line -->
   <polyline points="10,100 56,100 66,90 74,100 82,122 100,32 118,142 130,80 140,100 190,100" 
             fill="none" 
-            stroke="#38bdf8" 
+            stroke="var(--color-brand, #00e5ff)" 
             stroke-width="3.5" 
             stroke-linecap="round" 
             stroke-linejoin="round"/>
 
-  <!-- Core White Trace Line for Razor-Sharp Crispness -->
+  <!-- Core Pure White Trace for High-Precision Optical Crispness -->
   <polyline points="18,100 56,100 66,90 74,100 82,122 100,32 118,142 130,80 140,100 182,100" 
             fill="none" 
             stroke="#ffffff" 
@@ -63,12 +54,12 @@
 
   <!-- 3. Biometric Telemetry Peak Nodes -->
   <!-- Systolic QRS Apex Node -->
-  <circle cx="100" cy="32" r="5.5" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <circle cx="100" cy="32" r="5.5" fill="#ffffff" stroke="var(--color-primary, #0f766e)" stroke-width="2"/>
   <!-- Ventricular S-wave Node -->
-  <circle cx="118" cy="142" r="4.2" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
+  <circle cx="118" cy="142" r="4.2" fill="var(--color-brand, #00e5ff)" stroke="#ffffff" stroke-width="1.5"/>
   <!-- T-Wave Node -->
-  <circle cx="130" cy="80" r="3.5" fill="#ffffff" stroke="#0369a1" stroke-width="1.2"/>
-  <!-- Terminal Baseline Connection Points -->
+  <circle cx="130" cy="80" r="3.5" fill="#ffffff" stroke="var(--color-accent, #0d9488)" stroke-width="1.2"/>
+  <!-- Terminal Baseline Connection Nodes -->
   <circle cx="18" cy="100" r="3" fill="#ffffff"/>
   <circle cx="182" cy="100" r="3" fill="#ffffff"/>
 </svg>
