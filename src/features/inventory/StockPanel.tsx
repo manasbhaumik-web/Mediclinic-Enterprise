@@ -1,3 +1,4 @@
+import { forecastStockDepletion } from '../../domain/predictiveStock';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Plus, Search, Bell, AlertTriangle, XCircle, PackageCheck, Archive } from 'lucide-react';
 import ActionMenu from '../../components/ui/ActionMenu';
@@ -246,6 +247,24 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                   {open === d.id && (
                     <tr><td colSpan={6} className="p-3 bg-surface-accent">
                       {retired && d.retireReason && <p className="text-xs text-muted mb-2">Retired: {d.retireReason}</p>}
+                      {(() => {
+                        const forecast = forecastStockDepletion({
+                          id: d.id,
+                          name: d.name,
+                          currentStock: d.currentStock,
+                          reorderLevel: d.minThreshold,
+                        });
+                        return (
+                          <div className="mb-2 p-2.5 bg-surface border border-line flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <span className="font-bold text-ink">
+                              💡 AI Inventory Forecast: <span className="font-normal text-muted">{forecast.summary}</span>
+                            </span>
+                            <span className="text-2xs font-mono font-bold bg-surface-accent text-accent px-2 py-0.5 border border-line">
+                              Optimal Reorder: +{forecast.suggestedReorderQty} units
+                            </span>
+                          </div>
+                        );
+                      })()}
                       {(d.batches ?? []).length === 0 ? <p className="text-xs text-subtle">No batches. Use Receive to add stock.</p> : (
                         <table className="w-full text-xs">
                           <thead><tr className="text-left text-2xs uppercase text-subtle"><th className="py-1">Batch</th><th className="py-1">Expiry</th><th className="py-1 text-right">Stock</th><th className="py-1 text-right">Received</th></tr></thead>
