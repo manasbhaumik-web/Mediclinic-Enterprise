@@ -46,7 +46,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
       name: 'Front desk',
       detail: 'Patient registration',
       icon: ClipboardList,
-      username: 'assistant@mediclinic.local'
+      username: 'reception@mediclinic.local'
     },
     {
       id: 'clinic-assistant' as UserRole,
@@ -62,7 +62,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
       name: 'Billing desk',
       detail: 'Payments and receipts',
       icon: Users,
-      username: 'assistant@mediclinic.local'
+      username: 'cashier@mediclinic.local'
     },
     {
       id: 'admin' as UserRole,
