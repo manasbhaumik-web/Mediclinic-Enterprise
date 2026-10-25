@@ -18,6 +18,7 @@ import DoctorsSection from './DoctorsSection';
 import PanelsSection from './PanelsSection';
 import FaqSection from './FaqSection';
 import BookingModal from './BookingModal';
+import Modal from '../../components/ui/Modal';
 import BrandName from '../../components/ui/BrandName';
 import { useSettings } from '../../context/SettingsContext';
 import { DEFAULT_WEBSITE_CONFIG, WebsiteCMSConfig } from '../../domain/websiteCms';
@@ -58,6 +59,7 @@ export default function ClinicLandingPage({
   // Appointment Booking Modal State
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
+  const [activeLegalModal, setActiveLegalModal] = useState<'privacy' | 'terms' | 'pdpa' | null>(null);
 
   // Filter & Search State for Doctors and Panels
   const [panelSearch, setPanelSearch] = useState('');
@@ -210,6 +212,14 @@ export default function ClinicLandingPage({
 
   return (
     <div className="min-h-screen pb-[76px] sm:pb-0 bg-canvas text-ink font-sans selection:bg-primary selection:text-white relative">
+
+      {/* Skip to Main Content Link (WCAG 2.4.1 Level A) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-primary focus:text-white focus:font-bold focus:shadow-2xl rounded-none border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        {isBM ? 'Langkau ke kandungan utama' : 'Skip to main content'}
+      </a>
       
       {/* 0. ANNOUNCEMENT MARQUEE BANNER FROM CMS */}
       {cms.announcement?.enabled && (
@@ -364,12 +374,96 @@ export default function ClinicLandingPage({
         <div className="max-w-6xl mx-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <span>&copy; {new Date().getFullYear()} {clinicName}. All rights reserved.</span>
           <div className="flex gap-4">
-            <a href="#services" className="hover:text-white inline-flex items-center justify-center min-h-[44px]">Privacy Policy</a>
-            <a href="#services" className="hover:text-white inline-flex items-center justify-center min-h-[44px]">Terms of Service</a>
-            <a href="#services" className="hover:text-white inline-flex items-center justify-center min-h-[44px]">PDPA 2010 Compliance</a>
+            <button
+              type="button"
+              onClick={() => setActiveLegalModal('privacy')}
+              className="hover:text-white inline-flex items-center justify-center min-h-[44px] cursor-pointer transition-colors"
+            >
+              Privacy Policy
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveLegalModal('terms')}
+              className="hover:text-white inline-flex items-center justify-center min-h-[44px] cursor-pointer transition-colors"
+            >
+              Terms of Service
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveLegalModal('pdpa')}
+              className="hover:text-white inline-flex items-center justify-center min-h-[44px] cursor-pointer transition-colors"
+            >
+              PDPA 2010 Compliance
+            </button>
           </div>
         </div>
       </footer>
+
+      {/* Legal & Compliance Disclosures Modal */}
+      <Modal
+        isOpen={!!activeLegalModal}
+        onClose={() => setActiveLegalModal(null)}
+        title={
+          activeLegalModal === 'privacy'
+            ? (isBM ? 'Dasar Privasi & Keselamatan Data' : 'Privacy & Data Protection Policy')
+            : activeLegalModal === 'terms'
+            ? (isBM ? 'Terma & Syarat Perkhidmatan' : 'Terms & Conditions of Service')
+            : (isBM ? 'Pematuhan Akta Perlindungan Data Peribadi 2010' : 'PDPA 2010 Statutory Compliance Statement')
+        }
+        subtitle={clinicName}
+        size="lg"
+      >
+        <div className="space-y-4 text-xs text-muted dark:text-slate-200 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+          {activeLegalModal === 'privacy' && (
+            <>
+              <p>
+                {clinicName} is committed to safeguarding patient confidential medical information in compliance with the Malaysian Personal Data Protection Act 2010 (Act 709) and Ministry of Health (KKM) electronic healthcare guidelines.
+              </p>
+              <h4 className="font-bold text-ink dark:text-teal-300 uppercase tracking-wider text-2xs">Data We Collect</h4>
+              <p>
+                We collect demographic identifiers (full name, NRIC/MyKad, contact details), clinical vital signs, consultation SOAP records, diagnostic laboratory readings, and billing/tax data necessary for medical treatment and statutory LHDN e-invoicing.
+              </p>
+              <h4 className="font-bold text-ink dark:text-teal-300 uppercase tracking-wider text-2xs">Security Safeguards</h4>
+              <p>
+                All data is encrypted using AES-256-GCM at rest and TLS 1.3 in transit. Personal MyKad numbers are dynamically masked during queue and administrative display to prevent visual eavesdropping.
+              </p>
+            </>
+          )}
+          {activeLegalModal === 'terms' && (
+            <>
+              <p>
+                By booking an appointment or utilizing clinical services at {clinicName}, you agree to our standard terms of clinical consultation, triage assessment, and panel verification.
+              </p>
+              <h4 className="font-bold text-ink dark:text-teal-300 uppercase tracking-wider text-2xs">Emergency Advisory</h4>
+              <p className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200 font-medium">
+                Online bookings and outpatient services are intended for non-critical care. For medical emergencies (acute chest pain, major physical trauma, severe breathing distress), call 999 or proceed immediately to the nearest Emergency Department.
+              </p>
+              <h4 className="font-bold text-ink dark:text-teal-300 uppercase tracking-wider text-2xs">Cancellations & Walk-Ins</h4>
+              <p>
+                Appointment bookings reserve prioritized consultation slots. Walk-in patients are triaged based on clinical severity under the Malaysian Triage Scale.
+              </p>
+            </>
+          )}
+          {activeLegalModal === 'pdpa' && (
+            <>
+              <p>
+                Pursuant to Section 7 of the Personal Data Protection Act 2010 (PDPA Act 709), this notice informs data subjects of their rights regarding personal and sensitive medical data processed by {clinicName}.
+              </p>
+              <h4 className="font-bold text-ink dark:text-teal-300 uppercase tracking-wider text-2xs">7 Data Protection Principles</h4>
+              <ul className="list-disc pl-5 space-y-1.5">
+                <li><strong>General Principle:</strong> Processing is strictly limited to medical treatment, prescriptions, billing, and statutory tax compliance.</li>
+                <li><strong>Notice & Choice:</strong> Data subjects are notified upon intake of the purpose of demographic and biometric recording.</li>
+                <li><strong>Security Principle:</strong> Enforced by AES-256 database storage encryption and role-based access control.</li>
+                <li><strong>Retention:</strong> Adult clinical records are retained for a minimum of 7 years in accordance with KKM Private Healthcare Facilities and Services Act 1998.</li>
+              </ul>
+              <h4 className="font-bold text-ink dark:text-teal-300 uppercase tracking-wider text-2xs">Data Protection Officer Contact</h4>
+              <p>
+                For data access requests or privacy inquiries, contact the clinic Data Protection Officer via phone at {phone} or at our premises at {address}.
+              </p>
+            </>
+          )}
+        </div>
+      </Modal>
 
       {/* Mobile sticky action bar */}
       <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 grid grid-cols-2 gap-2 p-3 bg-surface/95 backdrop-blur-md border-t border-line shadow-bar-up">

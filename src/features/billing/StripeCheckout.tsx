@@ -3,12 +3,10 @@ import { CreditCard, Lock, ShieldCheck, ArrowLeft, Loader2, AlertTriangle } from
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { supabase } from '../../lib/supabase';
-
 import { palette } from '../../theme/palette';
 // Initialize Stripe with the publishable key from env (if available)
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
-
 interface StripeCheckoutProps {
   amount: number;
   /** Called with the payment reference once the charge has gone through (the Stripe payment intent id). */
@@ -16,7 +14,6 @@ interface StripeCheckoutProps {
   onCancel: () => void;
   invoiceId: string;
 }
-
 // ----------------------------------------------------------------------
 // 1. REAL STRIPE CHECKOUT FORM (Uses Stripe Elements)
 // ----------------------------------------------------------------------
@@ -25,27 +22,22 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
-
     setIsProcessing(true);
     setError(null);
-
     const { error: submitError } = await elements.submit();
     if (submitError) {
       setError(submitError.message || 'An error occurred.');
       setIsProcessing(false);
       return;
     }
-
     const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
       elements,
       clientSecret,
       redirect: 'if_required', // Handle confirmation locally instead of redirecting
     });
-
     if (confirmError) {
       setError(confirmError.message || 'Payment failed.');
       setIsProcessing(false);
@@ -55,15 +47,11 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
       setIsProcessing(false);
     }
   };
-
   return (
     <div className="bg-surface rounded-none shadow-none border border-line overflow-hidden max-w-md w-full mx-auto animate-fadeIn">
       {/* Stripe Header */}
       <div className="bg-stripe p-6 text-white flex flex-col justify-center items-center relative">
-        <button 
-          onClick={onCancel}
-          type="button"
-          className="absolute left-4 top-4 p-1.5 bg-surface/10 hover:bg-surface/20 rounded-none transition-colors cursor-pointer"
+        <button onClick={onCancel} type="button" aria-label="Return to cashier billing desk" className="absolute left-4 top-4 p-2 min-w-[40px] min-h-[40px] flex items-center justify-center bg-surface/10 hover:bg-surface/20 rounded-none transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
@@ -77,7 +65,6 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
           Ref: {invoiceId}
         </div>
       </div>
-
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -90,7 +77,6 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
             Powered by Stripe
           </span>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <PaymentElement />
           
@@ -100,7 +86,6 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
               <span>{error}</span>
             </div>
           )}
-
           <button 
             type="submit" 
             disabled={!stripe || isProcessing}
@@ -113,7 +98,6 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
             )}
           </button>
         </form>
-
         <div className="mt-6 flex items-center justify-center gap-1.5 text-2xs text-slate-400">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Payments are securely encrypted</span>
@@ -122,22 +106,18 @@ function RealStripeForm({ amount, onSuccess, onCancel, invoiceId, clientSecret }
     </div>
   );
 }
-
 // ----------------------------------------------------------------------
 // 2. MOCK FORM (development builds only, when Stripe is not configured)
 // ----------------------------------------------------------------------
 function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeCheckoutProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
   const [name, setName] = useState('');
-
   const handlePay = (e: React.FormEvent) => {
     e.preventDefault();
     if (!cardNumber || !expiry || !cvc || !name) return;
-
     setIsProcessing(true);
     
     // Simulate network delay
@@ -146,7 +126,6 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
       onSuccess(`MOCK-${Date.now()}`);
     }, 1500);
   };
-
   return (
     <div className="bg-surface rounded-none shadow-none border border-line overflow-hidden max-w-md w-full mx-auto animate-fadeIn relative">
       <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-2xs font-bold text-center py-0.5 z-10 uppercase tracking-wider">
@@ -155,10 +134,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
       
       {/* Stripe Header */}
       <div className="bg-stripe p-6 pt-8 text-white flex flex-col justify-center items-center relative">
-        <button 
-          onClick={onCancel}
-          type="button"
-          className="absolute left-4 top-8 p-1.5 bg-surface/10 hover:bg-surface/20 rounded-none transition-colors cursor-pointer"
+        <button onClick={onCancel} type="button" aria-label="Return to cashier billing desk" className="absolute left-4 top-8 p-2 min-w-[40px] min-h-[40px] flex items-center justify-center bg-surface/10 hover:bg-surface/20 rounded-none transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
         >
           <ArrowLeft className="w-4 h-4 text-white" />
         </button>
@@ -172,7 +148,6 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
           Ref: {invoiceId}
         </div>
       </div>
-
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
           <div className="bg-slate-100 p-2 rounded-none">
@@ -180,26 +155,21 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
           </div>
           <span className="text-xs font-bold text-subtle uppercase">Simulated Checkout</span>
         </div>
-
         <form onSubmit={handlePay} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-muted mb-1">Email</label>
-            <input 
-              type="email" 
+            <label htmlFor="sim-email" className="block text-xs font-bold text-muted mb-1">Email</label>
+            <input id="sim-email" type="email" 
               className="w-full border border-slate-300 rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
               placeholder="patient@example.com"
               required
             />
           </div>
-
           <div className="pt-2">
-            <label className="block text-xs font-bold text-muted mb-1">Card Information</label>
+            <label htmlFor="sim-card-num" className="block text-xs font-bold text-muted mb-1">Card Information</label>
             <div className="border border-slate-300 rounded-none overflow-hidden flex flex-col">
               <div className="relative border-b border-line">
                 <CreditCard className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-                <input 
-                  type="text" 
-                  value={cardNumber}
+                <input id="sim-card-num" aria-label="Card number" type="text" value={cardNumber}
                   onChange={(e) => setCardNumber(e.target.value)}
                   className="w-full px-3 py-2 pl-9 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
                   placeholder="1234 5678 9012 3456"
@@ -208,18 +178,14 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
                 />
               </div>
               <div className="flex">
-                <input 
-                  type="text" 
-                  value={expiry}
+                <input id="sim-card-exp" aria-label="Card expiration MM / YY" type="text" value={expiry}
                   onChange={(e) => setExpiry(e.target.value)}
                   className="w-1/2 border-r border-line px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
                   placeholder="MM / YY"
                   maxLength={5}
                   required
                 />
-                <input 
-                  type="text" 
-                  value={cvc}
+                <input id="sim-card-cvc" aria-label="Card verification code CVC" type="text" value={cvc}
                   onChange={(e) => setCvc(e.target.value)}
                   className="w-1/2 px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
                   placeholder="CVC"
@@ -229,11 +195,9 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
               </div>
             </div>
           </div>
-
           <div>
-            <label className="block text-xs font-bold text-muted mb-1 mt-2">Name on card</label>
-            <input 
-              type="text" 
+            <label htmlFor="sim-card-name" className="block text-xs font-bold text-muted mb-1 mt-2">Name on card</label>
+            <input id="sim-card-name" type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full border border-slate-300 rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
@@ -241,7 +205,6 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
               required
             />
           </div>
-
           <button 
             type="submit" 
             disabled={isProcessing}
@@ -254,7 +217,6 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
             )}
           </button>
         </form>
-
         <div className="mt-6 flex items-center justify-center gap-1.5 text-2xs text-slate-400">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Payments are securely encrypted</span>
@@ -263,7 +225,6 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
     </div>
   );
 }
-
 function CardUnavailable({ message, onCancel }: { message: string; onCancel: () => void }) {
   return (
     <div role="alert" className="bg-surface rounded-none shadow-none max-w-md w-full mx-auto p-8 text-center border border-line space-y-3">
@@ -274,14 +235,12 @@ function CardUnavailable({ message, onCancel }: { message: string; onCancel: () 
     </div>
   );
 }
-
 // ----------------------------------------------------------------------
 // 3. MAIN COMPONENT (Handles Client Secret generation & Provider Wrapper)
 // ----------------------------------------------------------------------
 export default function StripeCheckout(props: StripeCheckoutProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
-
   useEffect(() => {
     // Only attempt to fetch if we have a Stripe key configured
     if (stripePromise) {
@@ -291,7 +250,6 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
           const { data, error } = await supabase.functions.invoke('payment-intent', {
             body: { amount: props.amount, currency: 'myr', invoiceId: props.invoiceId },
           });
-
           if (error) throw new Error(error.message || 'Failed to fetch payment intent');
           if (data && data.clientSecret) {
             setClientSecret(data.clientSecret);
@@ -307,14 +265,12 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
       getPaymentIntent();
     }
   }, [props.amount]);
-
   // Without a publishable key, or if the payment function failed, development builds get a simulator.
   // Production never simulates a card payment: it says card payments are unavailable.
   if (!stripePromise || initError) {
     if (import.meta.env.DEV) return <MockFallbackForm {...props} />;
     return <CardUnavailable message={initError ?? 'Card payments are not set up on this system.'} onCancel={props.onCancel} />;
   }
-
   // We are using real Stripe, but waiting for the Edge function to return clientSecret
   if (!clientSecret) {
     return (
@@ -324,7 +280,6 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
       </div>
     );
   }
-
   const options = {
     clientSecret,
     appearance: {
@@ -334,7 +289,6 @@ export default function StripeCheckout(props: StripeCheckoutProps) {
       }
     },
   };
-
   return (
     <Elements stripe={stripePromise} options={options}>
       <RealStripeForm {...props} clientSecret={clientSecret} />

@@ -43,6 +43,7 @@ export default function PatientDetailModal({
   const [newAllergy, setNewAllergy] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [localShowPII, setLocalShowPII] = useState(false);
 
@@ -52,6 +53,7 @@ export default function PatientDetailModal({
       setActiveTab(initialTab);
       setErrors({});
       setSaveSuccess(false);
+      setSaveError(null);
     }
   }, [patient, initialTab, isOpen]);
 
@@ -172,14 +174,16 @@ export default function PatientDetailModal({
     }
 
     setIsSaving(true);
+    setSaveError(null);
     try {
       if (onSavePatient) {
         await onSavePatient(formData);
       }
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save patient', err);
+      setSaveError(err?.message || 'Failed to update patient record. Please check network connectivity.');
     } finally {
       setIsSaving(false);
     }
@@ -356,6 +360,12 @@ export default function PatientDetailModal({
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold animate-in fade-in">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     {isBM ? 'Berjaya disimpan!' : 'Record updated successfully!'}
+                  </span>
+                )}
+                {saveError && (
+                  <span role="alert" className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-100 text-rose-800 border border-rose-300 text-xs font-bold animate-in fade-in">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    {saveError}
                   </span>
                 )}
               </div>

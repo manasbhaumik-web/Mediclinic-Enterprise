@@ -266,7 +266,7 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                         );
                       })()}
                       {(d.batches ?? []).length === 0 ? <p className="text-xs text-subtle">No batches. Use Receive to add stock.</p> : (
-                        <table className="w-full text-xs">
+                        <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-xs min-w-[320px]">
                           <thead><tr className="text-left text-2xs uppercase text-subtle"><th className="py-1">Batch</th><th className="py-1">Expiry</th><th className="py-1 text-right">Stock</th><th className="py-1 text-right">Received</th></tr></thead>
                           <tbody>
                             {[...(d.batches ?? [])].sort((a, b) => (a.expiryDate ?? '9999') < (b.expiryDate ?? '9999') ? -1 : 1).map((b) => (
@@ -278,7 +278,7 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                               </tr>
                             ))}
                           </tbody>
-                        </table>
+                        </table></div>
                       )}
                     </td></tr>
                   )}

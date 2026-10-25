@@ -20,10 +20,13 @@ const SIZE_CLASSES = {
   full: 'max-w-6xl',
 } as const;
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /**
  * Standardized Accessible Enterprise Modal Dialog Component.
- * Enforces design system tokens, focus-trapping, escape key handling,
- * and responsive viewport scaling.
+ * Enforces design system tokens, strict WCAG 2.1 keyboard focus trapping,
+ * escape key handling, accessible touch targets, and responsive viewport scaling.
  */
 export default function Modal({
   isOpen,
@@ -41,16 +44,52 @@ export default function Modal({
   useEffect(() => {
     if (!isOpen) return;
     const previousActive = document.activeElement as HTMLElement | null;
+    const panelNode = panelRef.current;
+
+    // Focus the first interactive element or the modal panel itself upon open
+    const timer = setTimeout(() => {
+      const firstFocusable = panelNode?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+      (firstFocusable ?? panelNode)?.focus();
+    }, 10);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key !== 'Tab' || !panelNode) return;
+
+      const focusableItems = Array.from(
+        panelNode.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      ).filter((el) => el.offsetParent !== null); // only visible items
+
+      if (focusableItems.length === 0) {
+        e.preventDefault();
+        panelNode.focus();
+        return;
+      }
+
+      const firstItem = focusableItems[0];
+      const lastItem = focusableItems[focusableItems.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstItem || document.activeElement === panelNode) {
+          e.preventDefault();
+          lastItem.focus();
+        }
+      } else {
+        if (document.activeElement === lastItem) {
+          e.preventDefault();
+          firstItem.focus();
+        }
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => {
+      clearTimeout(timer);
       document.removeEventListener('keydown', handleKeyDown);
       previousActive?.focus?.();
     };
@@ -90,7 +129,7 @@ export default function Modal({
               type="button"
               onClick={onClose}
               aria-label="Close modal dialog"
-              className="p-1 hover:bg-surface-accent dark:hover:bg-night-800 text-muted hover:text-ink dark:text-teal-200 dark:hover:text-white transition-colors cursor-pointer rounded-none border border-transparent hover:border-line"
+              className="min-w-[40px] min-h-[40px] inline-flex items-center justify-center hover:bg-surface-accent dark:hover:bg-night-800 text-muted hover:text-ink dark:text-teal-200 dark:hover:text-white transition-colors cursor-pointer rounded-none border border-transparent hover:border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent shrink-0"
             >
               <X className="w-4 h-4" />
             </button>

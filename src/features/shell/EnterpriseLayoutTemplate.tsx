@@ -128,6 +128,14 @@ export default function EnterpriseLayoutTemplate({
     <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
       isNightShift ? 'dark bg-night-850 text-slate-100' : 'bg-canvas text-ink'
     }`}>
+
+      {/* Skip to Main Content Link (WCAG 2.4.1 Level A) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-primary focus:text-white focus:font-bold focus:shadow-2xl rounded-none border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        {activeLanguage === 'BM' ? 'Langkau ke kandungan utama' : 'Skip to main content'}
+      </a>
       
       {/* GLOBAL TOP HEADER BAR */}
       <header className="workspace-header">
@@ -622,7 +630,7 @@ export default function EnterpriseLayoutTemplate({
         </div>
 
         {/* MAIN CONTAINER */}
-        <main className="flex-1 p-3 sm:p-5 overflow-y-auto max-h-full font-sans">
+        <main id="main-content" tabIndex={-1} className="flex-1 p-3 sm:p-5 overflow-y-auto max-h-full font-sans focus:outline-none">
           {children}
         </main>
       </div>

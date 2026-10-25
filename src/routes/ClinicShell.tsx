@@ -1,7 +1,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { MessageCircle, X } from 'lucide-react';
+import { AlertTriangle, MessageCircle, X } from 'lucide-react';
 import { Appointment, Language, Patient, SOAPNotes, UserRole, VitalSigns, Visit } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { clearAllDrafts, draftKey, removeDraft } from '../domain/consultationDraft';
@@ -79,6 +79,7 @@ export default function ClinicShell() {
     return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
   }, []);
   const [whatsappToast, setWhatsappToast] = useState<string | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
   const [activeConsultationVisitId, setActiveConsultationVisitId] = useState<string | null>(null);
 
   const activeTab = location.pathname.split('/')[2] ?? 'dashboard';
@@ -148,7 +149,7 @@ export default function ClinicShell() {
       // The consultation stays open until the database has accepted the sign-off, so a refusal loses nothing.
       void data.signOffConsultation(completeConsultation(visit, soap, issueMc), issueMc).then((result) => {
         if ('error' in result) {
-          window.alert(`The consultation was not signed off. ${result.error}`);
+          setErrorToast(`The consultation was not signed off. ${result.error}`);
           return;
         }
         // Queue the external hand-off only once the note is saved; the worker reads it from the database.
@@ -173,6 +174,19 @@ export default function ClinicShell() {
 
   return (
     <>
+      {errorToast && (
+        <div role="alert" aria-live="assertive" className="fixed top-20 right-8 z-[100] bg-rose-600 text-white px-4 py-3 rounded-none shadow-2xl flex items-center justify-center gap-3 border border-rose-400 animate-slideDown font-sans">
+          <AlertTriangle className="w-5 h-5 text-white shrink-0" aria-hidden="true" />
+          <div>
+            <p className="font-bold text-sm">Consultation Sign-Off Alert</p>
+            <p className="text-xs text-rose-100">{errorToast}</p>
+          </div>
+          <button type="button" aria-label="Dismiss error notice" onClick={() => setErrorToast(null)} className="ml-4 hover:text-rose-200 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {whatsappToast && (
         <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-none shadow-2xl flex items-center justify-center gap-3">
           <MessageCircle className="w-5 h-5" />

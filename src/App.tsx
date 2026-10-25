@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import GlobalSpinner from './components/ui/GlobalSpinner';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 import { RequireAuth, RequireRole } from './routes/guards';
 import { ADMIN_ROLES, TAB_ROLES } from './routes/permissions';
 import ClinicShell from './routes/ClinicShell';
@@ -13,47 +14,53 @@ import { TenantProvider } from './context/TenantContext';
 
 /** Wraps a page so only the roles listed for it in TAB_ROLES can open it. */
 const guarded = (tab: keyof typeof TAB_ROLES, page: React.ReactNode) => (
-  <RequireRole roles={TAB_ROLES[tab]}>{page}</RequireRole>
+  <RequireRole roles={TAB_ROLES[tab]}>
+    <ErrorBoundary fallbackTitle={`Workstation Error (${String(tab)})`}>
+      {page}
+    </ErrorBoundary>
+  </RequireRole>
 );
 
 export default function App() {
   return (
-    <Suspense fallback={<GlobalSpinner />}>
-      <TenantProvider>
-        <Routes>
-          {/* Public Patient-Facing Tenant Landing Pages */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/c/:tenantSlug" element={<LandingPage />} />
-          
-          <Route path="/telemetry" element={<TelemetryPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/c/:tenantSlug/login" element={<LoginPage />} />
-          <Route path="/set-password" element={<SetPasswordPage />} />
+    <ErrorBoundary fallbackTitle="Application Service Recovery">
+      <Suspense fallback={<GlobalSpinner />}>
+        <TenantProvider>
+          <Routes>
+            {/* Public Patient-Facing Tenant Landing Pages */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/c/:tenantSlug" element={<LandingPage />} />
+            
+            <Route path="/telemetry" element={<TelemetryPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/c/:tenantSlug/login" element={<LoginPage />} />
+            <Route path="/set-password" element={<SetPasswordPage />} />
 
-          {/* Authenticated Clinical & Admin Workstations */}
-          <Route element={<RequireAuth />}>
-            <Route path="/app" element={<ClinicShell />}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={guarded('dashboard', <DashboardPage />)} />
-              <Route path="queue" element={guarded('queue', <DoctorPage tab="queue" />)} />
-              <Route path="consultation" element={guarded('consultation', <DoctorPage tab="consultation" />)} />
-              <Route path="reports" element={guarded('reports', <DoctorPage tab="reports" />)} />
-              <Route path="registration" element={guarded('registration', <RegistrationPage />)} />
-              <Route path="triage" element={guarded('triage', <TriagePage />)} />
-              <Route path="appointments" element={guarded('appointments', <AppointmentsPage />)} />
-              <Route path="dispensary" element={guarded('dispensary', <DispensaryPage />)} />
-              <Route path="billing" element={guarded('billing', <BillingPage />)} />
-              <Route path="inventory" element={guarded('inventory', <InventoryRoutePage />)} />
-              <Route path="my-leave" element={guarded('my-leave', <MyLeavePage />)} />
-              <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
+            {/* Authenticated Clinical & Admin Workstations */}
+            <Route element={<RequireAuth />}>
+              <Route path="/app" element={<ClinicShell />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={guarded('dashboard', <DashboardPage />)} />
+                <Route path="queue" element={guarded('queue', <DoctorPage tab="queue" />)} />
+                <Route path="consultation" element={guarded('consultation', <DoctorPage tab="consultation" />)} />
+                <Route path="reports" element={guarded('reports', <DoctorPage tab="reports" />)} />
+                <Route path="registration" element={guarded('registration', <RegistrationPage />)} />
+                <Route path="triage" element={guarded('triage', <TriagePage />)} />
+                <Route path="appointments" element={guarded('appointments', <AppointmentsPage />)} />
+                <Route path="dispensary" element={guarded('dispensary', <DispensaryPage />)} />
+                <Route path="billing" element={guarded('billing', <BillingPage />)} />
+                <Route path="inventory" element={guarded('inventory', <InventoryRoutePage />)} />
+                <Route path="my-leave" element={guarded('my-leave', <MyLeavePage />)} />
+                <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
+              </Route>
+              <Route path="/admin" element={<RequireRole roles={ADMIN_ROLES}><ErrorBoundary fallbackTitle="Admin Control Panel Error"><AdminPage /></ErrorBoundary></RequireRole>} />
+              <Route path="/c/:tenantSlug/admin" element={<RequireRole roles={ADMIN_ROLES}><ErrorBoundary fallbackTitle="Admin Control Panel Error"><AdminPage /></ErrorBoundary></RequireRole>} />
             </Route>
-            <Route path="/admin" element={<RequireRole roles={ADMIN_ROLES}><AdminPage /></RequireRole>} />
-            <Route path="/c/:tenantSlug/admin" element={<RequireRole roles={ADMIN_ROLES}><AdminPage /></RequireRole>} />
-          </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </TenantProvider>
-    </Suspense>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </TenantProvider>
+      </Suspense>
+    </ErrorBoundary>
   );
 }

@@ -200,7 +200,7 @@ export default function ReportsAnalyticsModule() {
 
           <Panel icon={Stethoscope} title="Top diagnoses" action={<ExportButtons table={diagnosesTable(r.diagnoses, periodText)} />}>
             {r.diagnoses.length === 0 ? <Empty>No coded diagnoses in this period. A diagnosis code is chosen when a doctor signs off a consultation.</Empty> : (
-              <table className="w-full text-left text-xs">
+              <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-left text-xs min-w-[280px]">
                 <thead className="text-ink uppercase border-b border-line font-bold">
                   <tr><th scope="col" className="py-2 pr-3">Code</th><th scope="col" className="py-2 pr-3">Diagnosis</th><th scope="col" className="py-2 text-right">Visits</th></tr>
                 </thead>
@@ -213,7 +213,7 @@ export default function ReportsAnalyticsModule() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </Panel>
 
@@ -231,7 +231,7 @@ export default function ReportsAnalyticsModule() {
               <Empty>No payments in this period carry an itemised bill yet. Bills are stored with each payment taken from now on, so this fills in as payments are recorded.</Empty>
             ) : (
               <>
-                <table className="w-full text-xs">
+                <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-xs min-w-[280px]">
                   <tbody className="divide-y divide-slate-100">
                     {category.categories.map((c) => (
                       <tr key={c.kind}><th scope="row" className="py-2 pr-3 text-left font-semibold text-ink">{c.label}</th><td className="py-2 text-right font-mono">{formatRM(c.amount)}</td></tr>
@@ -240,7 +240,7 @@ export default function ReportsAnalyticsModule() {
                     <tr><th scope="row" className="py-2 pr-3 text-left text-muted">SST</th><td className="py-2 text-right font-mono">{formatRM(category.tax)}</td></tr>
                     <tr className="font-bold"><th scope="row" className="py-2 pr-3 text-left text-ink">Total billed</th><td className="py-2 text-right font-mono">{formatRM(category.total)}</td></tr>
                   </tbody>
-                </table>
+                </table></div>
                 <p className="mt-3 text-2xs text-subtle">From {category.itemised} of {category.payments} payments in this period; the rest were taken before bills were stored.</p>
               </>
             )}
@@ -279,7 +279,7 @@ export default function ReportsAnalyticsModule() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Panel icon={Package} title="Most prescribed drugs" action={<ExportButtons table={prescribingTable(movers, periodText)} />}>
             {movers.length === 0 ? <Empty>No prescriptions in this period.</Empty> : (
-              <table className="w-full text-left text-xs">
+              <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-left text-xs min-w-[280px]">
                 <thead className="text-ink uppercase border-b border-line font-bold">
                   <tr><th scope="col" className="py-2 pr-3">Drug</th><th scope="col" className="py-2 pr-3 text-right">Prescribed</th><th scope="col" className="py-2 pr-3 text-right">Quantity</th><th scope="col" className="py-2 text-right">In stock</th></tr>
                 </thead>
@@ -293,7 +293,7 @@ export default function ReportsAnalyticsModule() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </Panel>
 
