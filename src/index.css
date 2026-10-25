@@ -280,7 +280,7 @@ strong {
   }
 
   .workspace-banner-bar {
-    @apply w-[97%] mx-auto h-auto min-h-[70px] sm:h-[70px] bg-chrome-deep text-white border-b border-chrome-line px-3 sm:px-6 py-2 sm:py-0 flex items-center justify-between gap-3 sm:gap-4 overflow-visible relative font-sans shadow-none;
+    @apply w-[95%] mx-auto h-auto min-h-[70px] sm:h-[70px] bg-chrome-deep text-white border-b border-chrome-line px-3 sm:px-6 py-2 sm:py-0 flex items-center justify-between gap-3 sm:gap-4 overflow-visible relative font-sans shadow-none;
   }
 
   .workspace-banner-avatar {
