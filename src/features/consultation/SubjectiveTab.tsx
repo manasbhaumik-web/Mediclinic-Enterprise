@@ -1,3 +1,6 @@
+import { Mic, Volume2, CheckCircle2 } from 'lucide-react';
+import { parseClinicalDialogue, StructuredSOAPDraft } from '../../domain/aiScribe';
+import { SAMPLE_CONSULTATION_PRESETS } from '../../services/aiScribeService';
 import React from 'react';
 import { Copy, Sparkles, MessageSquare } from 'lucide-react';
 import { Visit, Language } from '../../types';
@@ -7,14 +10,18 @@ interface SubjectiveTabProps {
   setSubjective: React.Dispatch<React.SetStateAction<string>>;
   patientPastVisits: Visit[];
   activeLanguage: Language;
+  onApplyAIScribe?: (draft: StructuredSOAPDraft) => void;
 }
 
 export default function SubjectiveTab({
   subjective,
   setSubjective,
   patientPastVisits,
-  activeLanguage
+  activeLanguage,
+  onApplyAIScribe
 }: SubjectiveTabProps) {
+  const [isListening, setIsListening] = React.useState(false);
+  const [activePreset, setActivePreset] = React.useState<string | null>(null);
   // Quick complaint suggestions
   const complainTemplateList = [
     activeLanguage === 'EN' ? 'Fever and runny nose for 2 days' : 'Demam dan selesema selama 2 hari',
@@ -55,6 +62,77 @@ export default function SubjectiveTab({
             <Copy className="w-3.5 h-3.5 text-accent" />
             Copy Previous
           </button>
+        </div>
+      </div>
+
+      {/* AI AMBIENT CLINICAL SCRIBE CONTROLS */}
+      <div className="bg-surface border border-line p-3.5 rounded-none space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2">
+          <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-rose-500 animate-ping' : 'bg-accent'}`} />
+            <h4 className="type-label text-ink font-bold flex items-center gap-1.5">
+              <Mic className="w-4 h-4 text-accent" />
+              AI Ambient Clinical Scribe (Voice-to-SOAP)
+            </h4>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const next = !isListening;
+                setIsListening(next);
+                if (next) {
+                  // Simulate live ambient speech synthesis
+                  const sample = SAMPLE_CONSULTATION_PRESETS[0];
+                  const parsed = parseClinicalDialogue(sample.transcript, activeLanguage);
+                  if (onApplyAIScribe) onApplyAIScribe(parsed);
+                  else setSubjective(parsed.subjective);
+                  setTimeout(() => setIsListening(false), 2500);
+                }
+              }}
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-none border transition-all cursor-pointer flex items-center gap-1.5 ${
+                isListening
+                  ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
+                  : 'bg-primary hover:bg-primary-hover text-white border-brand shadow-2xs'
+              }`}
+            >
+              <Mic className="w-3.5 h-3.5" />
+              <span>{isListening ? 'Listening Ambient Audio...' : 'Start Ambient Scribe'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 1-Click Consultation Audio Simulations */}
+        <div className="space-y-1.5">
+          <span className="text-2xs font-mono uppercase font-bold text-subtle block">
+            Simulate Patient Encounter Speech (1-Click AI Synthesis):
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {SAMPLE_CONSULTATION_PRESETS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  setActivePreset(p.id);
+                  const parsed = parseClinicalDialogue(p.transcript, activeLanguage);
+                  if (onApplyAIScribe) {
+                    onApplyAIScribe(parsed);
+                  } else {
+                    setSubjective(parsed.subjective);
+                  }
+                }}
+                className={`text-2xs font-medium px-2.5 py-1 rounded-none border transition-all cursor-pointer flex items-center gap-1 ${
+                  activePreset === p.id
+                    ? 'bg-surface-accent text-accent border-brand font-bold'
+                    : 'bg-surface text-ink border-line hover:bg-surface-accent'
+                }`}
+              >
+                <Volume2 className="w-3 h-3 text-accent" />
+                <span>{activeLanguage === 'BM' ? p.labelBM : p.labelEN}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

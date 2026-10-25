@@ -1,3 +1,4 @@
+import { StructuredSOAPDraft } from '../../domain/aiScribe';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Patient, Visit, ICD10Code, PrescriptionItem, Language, SOAPNotes
@@ -350,6 +351,21 @@ export default function ConsultationRoom({
   const [confirmReturn, setConfirmReturn] = useState(false);
   const hasWork = !!selectedICD || rxList.length > 0 || clinicalNotes.trim().length > 0 || pharmacyMemo.trim().length > 0
     || subjective.trim() !== (activeVisit?.soap?.subjective ?? '').trim();
+  const handleApplyAIScribe = (draft: StructuredSOAPDraft) => {
+    setSubjective(draft.subjective);
+    if (!clinicalNotes) {
+      setClinicalNotes(draft.objectiveObservation);
+    }
+    if (!selectedICD && draft.suggestedICD10.length > 0) {
+      setSelectedICD({
+        code: draft.suggestedICD10[0].code,
+        desc: draft.suggestedICD10[0].description,
+        category: draft.suggestedICD10[0].category,
+      });
+    }
+    setDraftToast(`✨ AI Scribe: Structured SOAP notes & ${draft.suggestedICD10[0]?.code || 'ICD-10'} synthesized from consultation speech.`);
+  };
+
   const handleReturn = () => (hasWork ? setConfirmReturn(true) : onCancel());
 
   // Final Signoff Action
@@ -528,6 +544,7 @@ export default function ConsultationRoom({
                   setSubjective={setSubjective}
                   patientPastVisits={patientPastVisits}
                   activeLanguage={activeLanguage}
+                  onApplyAIScribe={handleApplyAIScribe}
                 />
               )}
 
@@ -548,6 +565,7 @@ export default function ConsultationRoom({
                   setClinicalNotes={setClinicalNotes}
                   activeLanguage={activeLanguage}
                   onProceedToPlan={() => setActiveTab('plan')}
+                  subjectiveSymptoms={subjective}
                 />
               )}
 

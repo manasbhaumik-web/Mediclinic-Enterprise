@@ -1,3 +1,4 @@
+import { getContextualICDSuggestions } from '../../domain/aiScribe';
 import React, { useState, useMemo } from 'react';
 import { AlertTriangle, Stethoscope, Search, CheckCircle2, X, PlusCircle, Sparkles, ChevronRight, Check } from 'lucide-react';
 import Input from '../../components/ui/Input';
@@ -12,6 +13,7 @@ interface AssessmentTabProps {
   setClinicalNotes: React.Dispatch<React.SetStateAction<string>>;
   activeLanguage: Language;
   onProceedToPlan?: () => void;
+  subjectiveSymptoms?: string;
 }
 
 // Layman synonym dictionary: maps common human words to relevant ICD-10 codes
@@ -67,6 +69,7 @@ export default function AssessmentTab({
   setClinicalNotes,
   activeLanguage,
   onProceedToPlan,
+  subjectiveSymptoms,
 }: AssessmentTabProps) {
   const t = TRANSLATIONS[activeLanguage];
   const { icd10Catalog } = useAuxiliary();
@@ -74,6 +77,10 @@ export default function AssessmentTab({
   const catalog = useMemo(() => {
     return icd10Catalog && icd10Catalog.length > 0 ? icd10Catalog : ICD10_CATALOG;
   }, [icd10Catalog]);
+
+  const aiIcdSuggestions = useMemo(() => {
+    return getContextualICDSuggestions(subjectiveSymptoms || '', catalog);
+  }, [subjectiveSymptoms, catalog]);
 
   const [searchICDQuery, setSearchICDQuery] = useState('');
 
