@@ -5,6 +5,7 @@ import {
   ExternalLink, Smartphone, Monitor, Tablet, Megaphone, AlertCircle
 } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
+import BrandName from '../../components/ui/BrandName';
 import { 
   WebsiteCMSConfig, 
   DEFAULT_WEBSITE_CONFIG, 
@@ -755,7 +756,7 @@ export default function WebsiteCMSCard() {
                 {/* Simulated Header */}
                 <div className="p-4 border-b border-line flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-sm text-ink">{cmsState.hero.clinicName}</span>
+                    <BrandName name={cmsState.hero.clinicName} className="font-bold text-sm text-ink block" accentClassName="text-accent" />
                     <span className="block text-2xs text-muted">{cmsState.hero.branchName}</span>
                   </div>
                   <span className="text-2xs font-mono font-bold text-accent bg-teal-50 px-2 py-1 border border-teal-200">

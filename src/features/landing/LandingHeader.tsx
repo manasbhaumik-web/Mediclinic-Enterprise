@@ -1,6 +1,7 @@
 import React from 'react';
 import logoUrl from '../../assets/logo_transparent.svg';
 import ThemeSelector from '../../components/ui/ThemeSelector';
+import BrandName from '../../components/ui/BrandName';
 import { Globe, Calendar, LogIn, X, Menu, ChevronRight } from 'lucide-react';
 import { Language } from '../../types';
 
@@ -37,9 +38,11 @@ export default function LandingHeader({
           <img src={logoUrl} alt={`${displayTitle} Logo`} className="w-full h-full object-contain" />
         </div>
         <div>
-          <span className="text-base font-bold tracking-tight text-ink block leading-none">
-            {displayTitle}
-          </span>
+          <BrandName 
+            name={displayTitle} 
+            className="text-base font-bold tracking-tight text-ink block leading-none" 
+            accentClassName="text-accent" 
+          />
           <span className="hidden sm:block text-xs text-muted font-medium tracking-wide">
             {displayBranch}
           </span>

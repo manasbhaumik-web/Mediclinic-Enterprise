@@ -18,6 +18,7 @@ import DoctorsSection from './DoctorsSection';
 import PanelsSection from './PanelsSection';
 import FaqSection from './FaqSection';
 import BookingModal from './BookingModal';
+import BrandName from '../../components/ui/BrandName';
 import { useSettings } from '../../context/SettingsContext';
 import { DEFAULT_WEBSITE_CONFIG, WebsiteCMSConfig } from '../../domain/websiteCms';
 
@@ -309,7 +310,7 @@ export default function ClinicLandingPage({
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           
           <div className="space-y-3">
-            <span className="text-base font-bold text-white block tracking-tight">{clinicName}</span>
+            <BrandName name={clinicName} className="text-base font-bold text-white block tracking-tight" accentClassName="text-teal-400" />
             <p className="text-slate-400 leading-relaxed text-xs">
               {branchName}. Certified medical facility equipped with biometric MyKad scanner, live EMR integration, and corporate panel coverage.
             </p>

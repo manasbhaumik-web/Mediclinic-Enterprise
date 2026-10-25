@@ -5,6 +5,7 @@ import Modal from '../../components/ui/Modal';
 import NotificationBell from './NotificationBell';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import { brandName } from '../../utils/brandName';
+import BrandName from '../../components/ui/BrandName';
 import { bannerFor, getGreeting } from '../../domain/roleBanner';
 import { canOpenTab } from '../../routes/permissions';
 import { joinRoleLabels } from '../../domain/roles';
@@ -138,7 +139,11 @@ export default function EnterpriseLayoutTemplate({
           </div>
           <div className="flex items-center gap-2 min-w-0">
             <h1 className="workspace-header-title truncate text-[22px]" style={{ fontSize: '22px' }}>
-              {brandName(clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE')}
+              <BrandName 
+                name={clinic.name || t.clinicName || 'MEDICLINIC ENTERPRISE'} 
+                className="font-bold tracking-tight text-ink dark:text-white"
+                accentClassName="text-accent"
+              />
             </h1>
             {clinic.branch && (
               <span className="hidden md:inline-block px-2 py-0.5 bg-surface-accent text-accent border border-line text-2xs font-mono font-semibold rounded-none shrink-0">

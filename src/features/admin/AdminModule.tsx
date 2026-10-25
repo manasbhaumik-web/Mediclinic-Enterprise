@@ -2,6 +2,7 @@ import { getPersonaAvatar } from '../../utils/personaAvatars';
 import React, { useState, useEffect } from 'react';
 import logoUrl from '../../assets/logo_transparent.svg';
 import ThemeSelector from '../../components/ui/ThemeSelector';
+import BrandName from '../../components/ui/BrandName';
 import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
   Building, ShieldAlert, LogOut, Server, Database, Globe2, Globe, TrendingUp,
@@ -155,7 +156,11 @@ export default function AdminModule({
           </div>
           <div>
             <h1 className="type-brand font-sans text-ink flex items-center gap-2 text-[22px]" style={{ fontSize: '22px' }}>
-              <span>Mediclinic Admin Console</span>
+              <BrandName 
+                name={clinic.name ? `${clinic.name} Admin` : 'Mediclinic Admin Console'}
+                className="font-bold tracking-tight text-ink dark:text-white"
+                accentClassName="text-accent"
+              />
             </h1>
             <span className="text-2xs text-muted font-mono tracking-wider font-semibold block mt-0.5">
               {clinic.branch ? `${clinic.branch} • ` : ''}Executive Console
