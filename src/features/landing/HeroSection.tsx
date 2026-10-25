@@ -7,9 +7,32 @@ interface HeroSectionProps {
   isBM: boolean;
   setHeroSlide: React.Dispatch<React.SetStateAction<number>>;
   setIsBookingOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroBadge?: string;
+  ctaText?: string;
 }
 
-export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide, setIsBookingOpen }: HeroSectionProps) {
+export default function HeroSection({ 
+  heroImages, 
+  heroSlide, 
+  isBM, 
+  setHeroSlide, 
+  setIsBookingOpen,
+  heroTitle,
+  heroSubtitle,
+  heroBadge,
+  ctaText
+}: HeroSectionProps) {
+  const displayBadge = heroBadge || (isBM ? 'Diagnosis pintar · Rawatan tepat' : 'Next-gen healthcare · Smart diagnostics');
+  const displayTitle = heroTitle || (isBM 
+    ? 'Klinik Pesakit Luar & Rawatan Segera 24 Jam di Shah Alam'
+    : '24/7 Outpatient & Urgent Care in Shah Alam');
+  const displaySubtitle = heroSubtitle || (isBM
+    ? 'Nikmati rawatan mesra 24/7 tanpa janji temu, pendaftaran pantas MyKad, dan kelulusan panel TPA korporat 100% tanpa tunai.'
+    : 'Experience seamless 24/7 walk-in care, instant MyKad check-in, and 100% cashless corporate TPA panel approval.');
+  const displayCta = ctaText || (isBM ? 'Tempah Janji Temu' : 'Book appointment');
+
   return (
     <section className="relative pt-10 pb-14 px-4 lg:px-8 bg-surface overflow-hidden border-b border-line-subtle">
       
@@ -32,7 +55,7 @@ export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide,
           
           <div className="inline-flex items-center justify-center gap-2 bg-surface-accent border border-line-subtle pl-3.5 pr-1 py-0.5 rounded-full text-xs font-bold text-accent shadow-2xs">
             <Activity className="w-3.5 h-3.5 text-accent" />
-            <span>{isBM ? 'Diagnosis pintar · Rawatan tepat' : 'Next-gen healthcare · Smart diagnostics'}</span>
+            <span>{displayBadge}</span>
             
             {/* Slide Dots Indicator (24px hit area around each dot) */}
             <div className="flex items-center ml-1 border-l border-teal-300/60 pl-1">
@@ -53,19 +76,12 @@ export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide,
     
           {/* Plain-language headline: what the clinic is and where */}
           <h1 className="type-display text-ink">
-            {isBM ? (
-              <>Klinik Pesakit Luar &amp; Rawatan Segera <span className="text-accent">24 Jam di Shah Alam</span></>
-            ) : (
-              <>24/7 Outpatient &amp; Urgent Care <span className="text-accent">in Shah Alam</span></>
-            )}
+            {displayTitle}
           </h1>
     
           {/* Supporting line */}
           <p className="text-muted font-semibold text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
-            {isBM 
-              ? 'Nikmati rawatan mesra 24/7 tanpa janji temu, pendaftaran pantas MyKad, dan kelulusan panel TPA korporat 100% tanpa tunai.'
-              : 'Experience seamless 24/7 walk-in care, instant MyKad check-in, and 100% cashless corporate TPA panel approval.'
-            }
+            {displaySubtitle}
           </p>
     
           {/* Standardized Primary CTAs */}
@@ -76,7 +92,7 @@ export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide,
               className="w-full sm:w-auto px-8 py-4 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-2xl shadow-teal-500/25 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer min-h-[44px]"
             >
               <Calendar className="w-4 h-4" />
-              <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
+              <span>{displayCta}</span>
               <ChevronRight className="w-4 h-4" />
             </button>
     
@@ -85,42 +101,30 @@ export default function HeroSection({ heroImages, heroSlide, isBM, setHeroSlide,
               className="w-full sm:w-auto px-7 py-4 rounded-none bg-surface hover:bg-surface-accent text-ink border border-line-subtle font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs min-h-[44px]"
             >
               <Clock className="w-4 h-4 text-accent" />
-              <span>{isBM ? 'Semak Masa Menunggu' : 'Check live wait time'}</span>
+              <span>{isBM ? 'Jadual Doktor' : 'Doctor schedules'}</span>
             </a>
           </div>
-    
-          {/* Compact Status Strip */}
-          <div className="pt-3 max-w-3xl mx-auto">
-            <div className="bg-surface-accent/90 border border-line rounded-none p-3 flex flex-wrap items-center justify-around gap-4 text-xs text-muted font-bold shadow-xs">
-              <span className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>{isBM ? 'Buka 24/7 (Hari Ini)' : 'Open 24/7'}</span>
-              </span>
-              <span className="text-slate-300 hidden sm:inline">•</span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-accent" />
-                <span>{isBM ? 'Anggaran Masa Menunggu:' : 'Current estimated wait:'} <strong className="font-mono text-accent">11 min</strong></span>
-              </span>
-              <span className="text-slate-300 hidden sm:inline">•</span>
-              <span className="flex items-center gap-1.5">
-                <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{isBM ? '150+ Panel Korporat Cashless' : 'Cashless corporate panels available'}</span>
-              </span>
-            </div>
-          </div>
-    
-          {/* Life-threatening emergency guidance */}
-          <p className="max-w-3xl mx-auto flex items-start sm:items-center justify-center gap-2 text-sm text-rose-800 font-semibold text-left sm:text-center">
-            <AlertTriangle className="w-4 h-4 text-rose-700 shrink-0 mt-0.5 sm:mt-0" />
-            <span>
-              {isBM ? 'Kecemasan yang mengancam nyawa? ' : 'Life-threatening emergency? '}
-              <a href="tel:999" className="underline underline-offset-2 font-bold hover:text-rose-950 inline-block py-3.5 -my-3.5">{isBM ? 'Hubungi 999' : 'Call 999'}</a>
-              {isBM ? ' atau pergi ke Jabatan Kecemasan hospital terdekat.' : ' or go to the nearest hospital A&E.'}
+          
+          {/* Micro Telemetry Indicators */}
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              {isBM ? 'Purata masa menunggu < 10 min' : 'Average wait time < 10 mins'}
             </span>
-          </p>
-    
+            <span className="hidden sm:inline">•</span>
+            <span className="flex items-center gap-1.5">
+              <CreditCard className="w-3.5 h-3.5 text-accent" />
+              {isBM ? '12+ Panel TPA Diterima' : '12+ Panel TPAs Accepted'}
+            </span>
+            <span className="hidden sm:inline">•</span>
+            <span className="flex items-center gap-1.5 text-amber-800">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+              {isBM ? 'Triaj Kecemasan Diutamakan' : 'Emergency Triage Prioritized'}
+            </span>
+          </div>
+          
         </div>
-    
+        
       </div>
     </section>
   );

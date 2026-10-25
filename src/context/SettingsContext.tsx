@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { WebsiteCMSConfig, DEFAULT_WEBSITE_CONFIG } from '../domain/websiteCms';
 
 export interface AISettings {
   enabled: boolean;
@@ -54,6 +55,7 @@ export interface GlobalSettings {
     barcodeScanner: boolean;
   };
   aiConfig: AISettings;
+  websiteConfig: WebsiteCMSConfig;
 }
 
 /** Who this clinic is, as shown in the header. Empty until an administrator fills it in (Settings > Clinic profile). */
@@ -79,6 +81,7 @@ interface SettingsContextType {
   settings: GlobalSettings;
   updateSettings: (newSettings: GlobalSettings) => void;
   updateAISettings: (newAI: AISettings) => void;
+  updateWebsiteConfig: (newCms: WebsiteCMSConfig) => void;
   clinic: ClinicProfile;
   /** Saves the clinic profile only (administrators). Throws the database's message on failure. */
   updateClinic: (profile: ClinicProfile) => Promise<void>;
@@ -96,6 +99,20 @@ const loadStoredAISettings = (): AISettings => {
     console.warn('Failed to parse AI settings from storage', err);
   }
   return DEFAULT_AI_SETTINGS;
+};
+
+const loadStoredWebsiteConfig = (): WebsiteCMSConfig => {
+  try {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('mediclinic_cms_settings');
+      if (stored) {
+        return { ...DEFAULT_WEBSITE_CONFIG, ...JSON.parse(stored) };
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to parse Website CMS settings from storage', err);
+  }
+  return DEFAULT_WEBSITE_CONFIG;
 };
 
 const DEFAULT_SETTINGS: GlobalSettings = {
@@ -116,7 +133,8 @@ const DEFAULT_SETTINGS: GlobalSettings = {
     receiptPrinter: true,
     barcodeScanner: false
   },
-  aiConfig: DEFAULT_AI_SETTINGS
+  aiConfig: DEFAULT_AI_SETTINGS,
+  websiteConfig: DEFAULT_WEBSITE_CONFIG
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -124,7 +142,8 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<GlobalSettings>(() => ({
     ...DEFAULT_SETTINGS,
-    aiConfig: loadStoredAISettings()
+    aiConfig: loadStoredAISettings(),
+    websiteConfig: loadStoredWebsiteConfig()
   }));
   const [clinic, setClinic] = useState<ClinicProfile>(EMPTY_CLINIC);
 
@@ -172,11 +191,20 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const updateSettings = async (newSettings: GlobalSettings) => {
     setSettings(newSettings);
     
-    if (typeof window !== 'undefined' && newSettings.aiConfig) {
-      try {
-        localStorage.setItem('mediclinic_ai_settings', JSON.stringify(newSettings.aiConfig));
-      } catch (e) {
-        console.warn('Failed to persist AI settings to localStorage', e);
+    if (typeof window !== 'undefined') {
+      if (newSettings.aiConfig) {
+        try {
+          localStorage.setItem('mediclinic_ai_settings', JSON.stringify(newSettings.aiConfig));
+        } catch (e) {
+          console.warn('Failed to persist AI settings to localStorage', e);
+        }
+      }
+      if (newSettings.websiteConfig) {
+        try {
+          localStorage.setItem('mediclinic_cms_settings', JSON.stringify(newSettings.websiteConfig));
+        } catch (e) {
+          console.warn('Failed to persist Website CMS settings to localStorage', e);
+        }
       }
     }
 
@@ -201,6 +229,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const updateWebsiteConfig = (newCms: WebsiteCMSConfig) => {
+    updateSettings({
+      ...settings,
+      websiteConfig: newCms
+    });
+  };
+
   const updateClinic = async (profile: ClinicProfile) => {
     const { error } = await supabase.from('clinic_settings').upsert({
       id: 1, clinic_name: profile.name.trim() || null, branch_name: profile.branch.trim() || null, address: profile.address.trim() || null,
@@ -212,7 +247,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, updateSettings, updateAISettings, clinic, updateClinic }}>
+    <SettingsContext.Provider value={{ settings, updateSettings, updateAISettings, updateWebsiteConfig, clinic, updateClinic }}>
       {children}
     </SettingsContext.Provider>
   );

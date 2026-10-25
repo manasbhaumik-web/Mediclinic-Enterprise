@@ -3,7 +3,7 @@ import {
   Settings, Percent, Stethoscope, Smartphone, Printer, ScanLine, 
   LayoutDashboard, Pill, Users, DollarSign, Activity, FileSpreadsheet, 
   CreditCard, CheckCircle2, ShieldCheck, Sliders, Cpu, Save, RotateCcw, Check,
-  Bot, Building, DoorOpen, Search, ArrowLeft, ChevronRight
+  Bot, Building, DoorOpen, Search, ArrowLeft, ChevronRight, Globe
 } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import ClinicProfileCard from './ClinicProfileCard';
@@ -13,11 +13,13 @@ import BillingParametersCard from './BillingParametersCard';
 import ModuleEnablementCard from './ModuleEnablementCard';
 import HardwarePeripheralsCard from './HardwarePeripheralsCard';
 import SettingsOverviewCard from './SettingsOverviewCard';
+import WebsiteCMSCard from './WebsiteCMSCard';
 
 export type SettingsCategory = 
   | 'overview' 
   | 'profile' 
   | 'facilities' 
+  | 'website'
   | 'ai_gateway' 
   | 'billing' 
   | 'modules' 
@@ -71,6 +73,15 @@ export default function SettingsModule() {
       description: 'Consultation rooms, doctor assignments, and booking services',
       badge: 'Rooms 1–4',
       keywords: ['room', 'rooms', 'services', 'doctor', 'allocation', 'booking', 'specialty', 'department']
+    },
+    {
+      id: 'website',
+      label: 'Public Website CMS',
+      shortLabel: 'Public CMS',
+      icon: Globe,
+      description: 'Patient-facing website banner, resident doctors, services & FAQs',
+      badge: 'Live Portal',
+      keywords: ['website', 'cms', 'public', 'landing', 'hero', 'banner', 'portal', 'faqs', 'hours', 'doctors', 'services']
     },
     {
       id: 'ai_gateway',
@@ -148,7 +159,7 @@ export default function SettingsModule() {
             Global Console Configuration
           </h1>
           <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
-            Manage enterprise parameters across distinct operational categories: identity, clinical facilities, generative AI gateway, financial billing, module governance, and peripheral hardware.
+            Manage enterprise parameters across distinct operational categories: identity, clinical facilities, public website CMS, generative AI gateway, financial billing, module governance, and peripheral hardware.
           </p>
         </div>
 
@@ -242,19 +253,19 @@ export default function SettingsModule() {
 
         <button
           type="button"
-          onClick={() => setActiveCategory('hardware')}
+          onClick={() => setActiveCategory('website')}
           className="text-left bg-surface rounded-none border border-line p-4 shadow-2xs relative overflow-hidden hover:border-brand cursor-pointer transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Hardware Devices</span>
+            <span className="text-xs font-semibold text-subtle uppercase tracking-wider">Public Website</span>
             <div className="p-2 bg-teal-50 rounded-none text-accent">
-              <Smartphone className="w-5 h-5" />
+              <Globe className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <h3 className="type-metric text-ink">{activeHardwareCount} / 3</h3>
+            <h3 className="type-metric text-ink">CMS Ready</h3>
             <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium">
-              Ready
+              Live Portal
             </span>
           </div>
         </button>
@@ -303,7 +314,7 @@ export default function SettingsModule() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search parameter, AI, tax, room..."
+                placeholder="Search parameter, AI, tax, room, CMS..."
                 className="w-full pl-8 pr-3 py-1.5 bg-surface-muted border border-line-subtle rounded-none text-xs text-ink focus:ring-1 focus:ring-brand outline-none"
               />
               <Search className="w-3.5 h-3.5 text-subtle absolute left-2.5 top-2.5 pointer-events-none" />
@@ -415,6 +426,10 @@ export default function SettingsModule() {
 
             {activeCategory === 'facilities' && (
               <RoomsAndServicesCard />
+            )}
+
+            {activeCategory === 'website' && (
+              <WebsiteCMSCard />
             )}
 
             {activeCategory === 'ai_gateway' && (

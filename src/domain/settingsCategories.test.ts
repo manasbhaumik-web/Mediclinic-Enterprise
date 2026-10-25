@@ -6,17 +6,19 @@ describe('Console Settings Categorization Architecture', () => {
     'overview',
     'profile',
     'facilities',
+    'website',
     'ai_gateway',
     'billing',
     'modules',
     'hardware',
   ];
 
-  it('declares 7 distinct operational categories avoiding single-screen overload', () => {
-    expect(categories).toHaveLength(7);
+  it('declares 8 distinct operational categories including public website CMS', () => {
+    expect(categories).toHaveLength(8);
     expect(categories).toContain('overview');
     expect(categories).toContain('profile');
     expect(categories).toContain('facilities');
+    expect(categories).toContain('website');
     expect(categories).toContain('ai_gateway');
     expect(categories).toContain('billing');
     expect(categories).toContain('modules');
@@ -28,6 +30,7 @@ describe('Console Settings Categorization Architecture', () => {
       overview: 'Executive Dashboard & System Diagnostics',
       profile: 'Clinic Identity, Branch & MOH KKM Licensing',
       facilities: 'Consultation Rooms 1-4 & Specialty Services',
+      website: 'Public Patient-Facing Website CMS, Doctors & FAQ Builder',
       ai_gateway: 'Multi-modal LLM Gateway & Feature Toggles',
       billing: 'SST Rates, Baseline Consultation & Procedure Tariffs',
       modules: 'Role-based Sidebar Workspace Visibility',

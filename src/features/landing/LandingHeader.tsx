@@ -12,21 +12,36 @@ interface LandingHeaderProps {
   onOpenLogin: () => void;
   setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isMobileMenuOpen: boolean;
+  clinicName?: string;
+  branchName?: string;
 }
 
-export default function LandingHeader({ isBM, onToggleLanguage, activeLanguage, setIsBookingOpen, onOpenLogin, setIsMobileMenuOpen, isMobileMenuOpen }: LandingHeaderProps) {
+export default function LandingHeader({ 
+  isBM, 
+  onToggleLanguage, 
+  activeLanguage, 
+  setIsBookingOpen, 
+  onOpenLogin, 
+  setIsMobileMenuOpen, 
+  isMobileMenuOpen,
+  clinicName,
+  branchName
+}: LandingHeaderProps) {
+  const displayTitle = clinicName || 'MEDICLINIC ENTERPRISE';
+  const displayBranch = branchName || (isBM ? 'Pusat Perubatan Pesakit Luar 24/7' : '24/7 Outpatient Medical Clinic');
+
   return (
     <header className="sticky top-0 z-50 h-[60px] bg-surface-accent/95 backdrop-blur-md border-b border-line px-4 lg:px-8 flex items-center justify-between transition-all shadow-xs">
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-10 h-10 rounded-none shrink-0 flex items-center justify-center">
-          <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
+          <img src={logoUrl} alt={`${displayTitle} Logo`} className="w-full h-full object-contain" />
         </div>
         <div>
           <span className="text-base font-bold tracking-tight text-ink block leading-none">
-            MEDICLINIC <span className="text-accent">ENTERPRISE</span>
+            {displayTitle}
           </span>
           <span className="hidden sm:block text-xs text-muted font-medium tracking-wide">
-            {isBM ? 'Pusat Perubatan Pesakit Luar 24/7 Shah Alam' : '24/7 Outpatient Medical Clinic Shah Alam'}
+            {displayBranch}
           </span>
         </div>
       </div>
@@ -75,87 +90,93 @@ export default function LandingHeader({ isBM, onToggleLanguage, activeLanguage, 
           title="Portal Staff Login"
         >
           <LogIn className="w-3.5 h-3.5 text-accent" />
-          <span>{isBM ? 'Staf' : 'Staff'}</span>
+          <span>{isBM ? 'Portal Staf →' : 'Staff Portal →'}</span>
         </button>
     
-        {/* Mobile Menu Toggle */}
+        {/* Mobile Hamburger Menu Toggle */}
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          className="lg:hidden min-h-[44px] w-[44px] flex items-center justify-center rounded-none bg-surface-accent border border-line-subtle text-ink cursor-pointer hover:bg-surface-strong transition-colors"
+          aria-label={isMobileMenuOpen ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={isMobileMenuOpen}
-          className="lg:hidden w-11 h-11 flex items-center justify-center rounded-none bg-surface border border-line-subtle text-muted hover:text-ink cursor-pointer"
         >
           {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
     
-    {/* Mobile Menu Drawer */}
-    {isMobileMenuOpen && (
-      <div className="lg:hidden absolute inset-x-0 top-full z-40 max-h-[calc(100vh-60px)] overflow-y-auto bg-surface-muted border-b border-line-subtle p-6 space-y-4 shadow-2xl animate-fadeIn">
-        <nav className="flex flex-col space-y-3 font-semibold text-sm text-muted">
-          <a 
-            href="#services" 
-            onClick={() => setIsMobileMenuOpen(false)} 
-            className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
-          >
-            <span>{isBM ? 'Perkhidmatan Perubatan' : 'Medical Services'}</span>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </a>
-          <a 
-            href="#doctors" 
-            onClick={() => setIsMobileMenuOpen(false)} 
-            className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
-          >
-            <span>{isBM ? 'Doktor & Pakar' : 'Resident Doctors'}</span>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </a>
-          <a 
-            href="#panels" 
-            onClick={() => setIsMobileMenuOpen(false)} 
-            className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
-          >
-            <span>{isBM ? 'Panel Insurans Korporat' : 'Corporate Insurance Panels'}</span>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </a>
-          <a 
-            href="#location" 
-            onClick={() => setIsMobileMenuOpen(false)} 
-            className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
-          >
-            <span>{isBM ? 'Lokasi & Peta' : 'Location & Directions'}</span>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </a>
-          <a 
-            href="#faq" 
-            onClick={() => setIsMobileMenuOpen(false)} 
-            className="px-3 py-3 rounded-none hover:bg-surface hover:text-accent flex items-center justify-between min-h-[44px]"
-          >
-            <span>FAQ</span>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </a>
-        </nav>
-        
-        <div className="pt-4 border-t border-line-subtle flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => { setIsMobileMenuOpen(false); setIsBookingOpen(true); }}
-            className="w-full py-3 rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md min-h-[44px]"
-          >
-            <Calendar className="w-4 h-4" />
-            <span>{isBM ? 'Tempah Janji Temu' : 'Book appointment'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => { setIsMobileMenuOpen(false); onOpenLogin(); }}
-            className="w-full py-3 rounded-none bg-surface-accent hover:bg-surface-strong text-ink border border-line font-bold text-xs flex items-center justify-center gap-2 min-h-[44px]"
-          >
-            <LogIn className="w-4 h-4 text-accent" />
-            <span>{isBM ? 'Log Masuk Staf' : 'Staff login'}</span>
-          </button>
+      {/* Mobile Drawer Navigation Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden absolute top-[60px] left-0 right-0 bg-surface/98 backdrop-blur-xl border-b border-line shadow-2xl p-6 space-y-5 animate-fadeIn z-50">
+          <nav className="flex flex-col space-y-3 text-sm font-bold text-ink">
+            <a 
+              href="#services" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2.5 px-3 hover:bg-surface-accent rounded-none flex items-center justify-between"
+            >
+              <span>{isBM ? 'Perkhidmatan & Rawatan' : 'Services & Treatments'}</span>
+              <ChevronRight className="w-4 h-4 text-accent" />
+            </a>
+            <a 
+              href="#doctors" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2.5 px-3 hover:bg-surface-accent rounded-none flex items-center justify-between"
+            >
+              <span>{isBM ? 'Doktor Pakar' : 'Medical Doctors'}</span>
+              <ChevronRight className="w-4 h-4 text-accent" />
+            </a>
+            <a 
+              href="#panels" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2.5 px-3 hover:bg-surface-accent rounded-none flex items-center justify-between"
+            >
+              <span>{isBM ? 'Panel Insurans TPA' : 'Insurance & Corporate Panels'}</span>
+              <ChevronRight className="w-4 h-4 text-accent" />
+            </a>
+            <a 
+              href="#location" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2.5 px-3 hover:bg-surface-accent rounded-none flex items-center justify-between"
+            >
+              <span>{isBM ? 'Lokasi & Waktu Operasi' : 'Location & Hours'}</span>
+              <ChevronRight className="w-4 h-4 text-accent" />
+            </a>
+            <a 
+              href="#faq" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="py-2.5 px-3 hover:bg-surface-accent rounded-none flex items-center justify-between"
+            >
+              <span>FAQ</span>
+              <ChevronRight className="w-4 h-4 text-accent" />
+            </a>
+          </nav>
+    
+          <div className="pt-4 border-t border-line-subtle space-y-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsBookingOpen(true);
+              }}
+              className="w-full py-3.5 bg-primary text-white font-bold text-sm rounded-none shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>{isBM ? 'Tempah Janji Temu Sekarang' : 'Book Appointment Online'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                onOpenLogin();
+              }}
+              className="w-full py-3 bg-surface-accent border border-line text-ink font-bold text-sm rounded-none flex items-center justify-center gap-2 cursor-pointer hover:bg-surface-strong"
+            >
+              <LogIn className="w-4 h-4 text-accent" />
+              <span>{isBM ? 'Log Masuk Portal Staf' : 'Staff Portal Login'}</span>
+            </button>
+          </div>
         </div>
-      </div>
-    )}
+      )}
     </header>
   );
 }
