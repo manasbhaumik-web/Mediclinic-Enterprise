@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { checkDrugSafety } from '../../../domain/drugSafetyEngine';
 import type { DrugItem } from '../../../context/InventoryContext';
 
 /** A stock item, or a built-in formulary entry that is not in stock (which carries these extra fields). */
@@ -36,9 +38,12 @@ interface PrescriptionPanelProps {
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
   pharmacyMemo: string;
   setPharmacyMemo: React.Dispatch<React.SetStateAction<string>>;
+  patientAllergies?: string[];
 }
 
-export default function PrescriptionPanel({ showPediatricCalc, patientAge, patientAgeDisplay, setShowPediatricCalc, isPediatricPatient, patientWeight, setPatientWeight, medConcentration, setMedConcentration, calculatedDose, handleAddPediatricSyrup, searchDrugQuery, setSearchDrugQuery, drugSuggestions, handleAddDrug, rxList, setRxList, pharmacyMemo, setPharmacyMemo }: PrescriptionPanelProps) {
+export default function PrescriptionPanel({ showPediatricCalc, patientAge, patientAgeDisplay, setShowPediatricCalc, isPediatricPatient, patientWeight, setPatientWeight, medConcentration, setMedConcentration, calculatedDose, handleAddPediatricSyrup, searchDrugQuery, setSearchDrugQuery, drugSuggestions, handleAddDrug, rxList, setRxList, pharmacyMemo, setPharmacyMemo, patientAllergies }: PrescriptionPanelProps) {
+  const prescribedNames = useMemo(() => rxList.map(r => r.drugName), [rxList]);
+  const safetyCheck = useMemo(() => checkDrugSafety(prescribedNames, patientAllergies || []), [prescribedNames, patientAllergies]);
   return (
     <div className="space-y-4 animate-fadeIn">
       
@@ -209,6 +214,44 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
         </div>
       </div>
     
+      {/* AI CLINICAL DRUG SAFETY & INTERACTION GUARDIAN */}
+      {safetyCheck.hasAlerts && (
+        <div className="space-y-2 border border-line p-3 bg-surface animate-fadeIn">
+          <div className="flex items-center gap-2 border-b border-line pb-1.5">
+            <span className="type-label text-ink font-bold flex items-center gap-1.5">
+              <span className={`w-2.5 h-2.5 rounded-full ${safetyCheck.hasContraindications ? 'bg-rose-600 animate-pulse' : 'bg-amber-500'}`} />
+              AI Clinical Drug Safety Guardian ({safetyCheck.alerts.length} Alert{safetyCheck.alerts.length > 1 ? 's' : ''})
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {safetyCheck.alerts.map((alert) => (
+              <div
+                key={alert.id}
+                className={`p-2.5 border text-xs ${
+                  alert.severity === 'contraindicated'
+                    ? 'bg-rose-50 border-rose-300 text-rose-950'
+                    : 'bg-amber-50 border-amber-300 text-amber-950'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <strong className="font-bold flex items-center gap-1.5">
+                    {alert.title}
+                  </strong>
+                  <span className={`px-2 py-0.5 text-2xs font-bold uppercase rounded-none border ${
+                    alert.severity === 'contraindicated' ? 'bg-rose-600 text-white border-rose-700' : 'bg-amber-500 text-white border-amber-600'
+                  }`}>
+                    {alert.severity}
+                  </span>
+                </div>
+                <p className="text-2xs leading-relaxed mb-1 font-medium">{alert.description}</p>
+                <p className="text-2xs font-bold text-accent">👉 Recommendation: {alert.recommendation}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* PRESCRIPTION LIST TABLE */}
       <div className="space-y-2">
         <h4 className="type-label text-ink flex items-center justify-between">
@@ -243,6 +286,11 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
                   <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-night-800 transition-colors">
                     <td className="p-2 font-bold text-ink dark:text-white">
                       {item.drugName}
+                      {safetyCheck.alerts.some(a => a.drugA === item.drugName || a.drugB === item.drugName) && (
+                        <span className="ml-2 text-2xs font-bold px-1.5 py-0.5 text-rose-700 bg-rose-100 border border-rose-300">
+                          ⚠ Safety Alert
+                        </span>
+                      )}
                     </td>
                     <td className="p-2 text-muted dark:text-slate-300">
                       {item.dosage}

@@ -3,6 +3,7 @@ import { Patient, Visit, VitalSigns } from '../../types';
 import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
+import { calculateMEWS } from '../../domain/aiTriageScore';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Card, CardHeader, CardContent, CardFooter } from '../../components/ui/Card';
@@ -30,6 +31,14 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
 
   const activeVisit = activeVisitId ? triageQueue.find(v => v.id === activeVisitId) : null;
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
+
+  const mewsResult = calculateMEWS({
+    bpSystolic: vitalsForm.bpSystolic,
+    bpDiastolic: vitalsForm.bpDiastolic,
+    heartRate: vitalsForm.heartRate,
+    respiratoryRate: vitalsForm.respiratoryRate,
+    temperature: vitalsForm.temperature,
+  });
 
   const handleSelectPatient = (visit: Visit) => {
     setActiveVisitId(visit.id);
@@ -183,6 +192,47 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                         placeholder="16"
                       />
                     </div>
+
+                    {/* AI CLINICAL EARLY WARNING (MEWS) TELEMETRY */}
+                    {(vitalsForm.bpSystolic || vitalsForm.heartRate) && (
+                      <div className={`p-3 border rounded-none text-xs transition-all ${
+                        mewsResult.riskLevel === 'High'
+                          ? 'bg-rose-50 border-rose-300 text-rose-900'
+                          : mewsResult.riskLevel === 'Medium'
+                          ? 'bg-amber-50 border-amber-300 text-amber-900'
+                          : 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      }`}>
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold uppercase tracking-wider text-2xs flex items-center gap-1">
+                              <Activity className="w-3.5 h-3.5" />
+                              AI Clinical Early Warning (MEWS)
+                            </span>
+                            <span className={`px-2 py-0.5 text-2xs font-bold uppercase rounded-none border ${
+                              mewsResult.riskLevel === 'High'
+                                ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
+                                : mewsResult.riskLevel === 'Medium'
+                                ? 'bg-amber-500 text-white border-amber-600'
+                                : 'bg-emerald-600 text-white border-emerald-700'
+                            }`}>
+                              {mewsResult.riskLevel} Risk (Score: {mewsResult.score})
+                            </span>
+                          </div>
+                          {mewsResult.flags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {mewsResult.flags.map((f, i) => (
+                                <span key={i} className="text-2xs font-mono font-bold px-1.5 py-0.5 bg-surface border border-current rounded-none">
+                                  {f}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-2xs font-medium leading-relaxed">
+                          {isBM ? mewsResult.actionPromptBM : mewsResult.actionPrompt}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">
