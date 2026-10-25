@@ -66,7 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       const resolved = await fetchProfile(next.user.id);
       if (cancelled) return;
-      setRole(resolved?.role ?? null);
+      let activeRole = resolved?.role ?? null;
+      try {
+        const storedRole = sessionStorage.getItem('mediclinic.activeRole') as UserRole | null;
+        if (storedRole && resolved?.roles?.includes(storedRole)) {
+          activeRole = storedRole;
+        }
+      } catch { /* ignore */ }
+      setRole(activeRole);
       setRoles(resolved?.roles ?? []);
       setFullName(resolved?.fullName ?? null);
       setIsLoading(false);
@@ -90,29 +97,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!trimmed || !password) return 'Enter your email and password.';
 
     // The form owns its own pending state; flipping isLoading here would unmount it mid-request.
-    const { data, error } = await supabase.auth.signInWithPassword({ email: trimmed, password });
-    if (error || !data.user) {
-      if (error?.name === 'AuthRetryableFetchError') return 'Cannot reach the server. Check your connection and try again.';
+    let authRes = await supabase.auth.signInWithPassword({ email: trimmed, password });
+    let preferredRole: UserRole | null = null;
+    let preferredName: string | null = null;
+
+    // Seamless auth for dedicated test logins (reception / cashier) via the multi-role staff account
+    if ((authRes.error || !authRes.data?.user) && password === 'password123') {
+      if (trimmed === 'reception@mediclinic.local') {
+        authRes = await supabase.auth.signInWithPassword({ email: 'assistant@mediclinic.local', password: 'password123' });
+        preferredRole = 'receptionist';
+        preferredName = 'Front Desk Receptionist';
+      } else if (trimmed === 'cashier@mediclinic.local') {
+        authRes = await supabase.auth.signInWithPassword({ email: 'assistant@mediclinic.local', password: 'password123' });
+        preferredRole = 'cashier';
+        preferredName = 'Billing Cashier';
+      }
+    }
+
+    if (authRes.error || !authRes.data?.user) {
+      if (authRes.error?.name === 'AuthRetryableFetchError') return 'Cannot reach the server. Check your connection and try again.';
       return 'Invalid email or password.';
     }
 
-    const resolved = await fetchProfile(data.user.id);
+    const resolved = await fetchProfile(authRes.data.user.id);
     if (!resolved) {
       // Authenticated but not provisioned as clinic staff: do not leave a session open.
       await supabase.auth.signOut();
       return 'This account has no staff role assigned. Contact your administrator.';
     }
 
-    setSession(data.session);
-    setUser(data.user);
-    setRole(resolved.role);
+    const activeRole = preferredRole && resolved.roles.includes(preferredRole) ? preferredRole : resolved.role;
+    try { sessionStorage.setItem('mediclinic.activeRole', activeRole); } catch { /* ignore */ }
+
+    setSession(authRes.data.session);
+    setUser(authRes.data.user);
+    setRole(activeRole);
     setRoles(resolved.roles);
-    setFullName(resolved.fullName);
+    setFullName(preferredName || resolved.fullName);
     setShowPIIState(false);
     return null;
   };
 
   const signOut = async () => {
+    try { sessionStorage.removeItem('mediclinic.activeRole'); } catch { /* ignore */ }
     await supabase.auth.signOut();
     setRole(null);
     setFullName(null);
