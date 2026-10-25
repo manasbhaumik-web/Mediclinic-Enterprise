@@ -132,8 +132,8 @@ export default function EnterpriseLayoutTemplate({
       <header className="workspace-header">
 
         {/* Left: Brand logo & clinic title */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-11 h-11 rounded-full border border-line bg-surface-accent p-1 shrink-0 flex items-center justify-center shadow-2xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-full border border-line bg-surface-accent p-1 shrink-0 flex items-center justify-center shadow-2xs">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div className="flex items-center gap-2 min-w-0">
