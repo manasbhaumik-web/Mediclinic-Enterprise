@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import logoUrl from '../../assets/logo_transparent.svg';
-import { 
+import { ChevronDown, 
   Activity, Lock, User, UserCog, ArrowLeft, ShieldCheck, Stethoscope, 
   Pill, ClipboardList, Users, Building2, Eye, EyeOff, CheckCircle2, Zap
 } from 'lucide-react';
@@ -17,7 +17,7 @@ interface LoginModuleProps {
 export default function LoginModule({ onLogin, onNavigate, notice }: LoginModuleProps) {
   const [role, setRole] = useState<UserRole>('doctor');
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('doctor@mediclinic.local');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -196,54 +196,59 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
             </button>
           </div>
 
-          {/* STEP 1: SELECT PERSONA */}
+          {/* STEP 1: SELECT PERSONA (DROPDOWN) */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-subtle">
-              <span className="flex items-center gap-1.5 text-accent">
+              <label htmlFor="persona-dropdown" className="flex items-center gap-1.5 text-accent cursor-pointer">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-2xs font-bold">1</span>
                 <span>Select Staff Persona</span>
-              </span>
+              </label>
               <span className="text-2xs text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">
                 Auto-Fill Ready
               </span>
             </div>
 
-            {/* Persona Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-              {personas.map((p) => {
-                const IconComponent = p.icon;
-                const isSelected = role === p.id;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => selectPersona(p)}
-                    className={`p-2.5 rounded-none border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-primary text-white border-brand shadow-xs'
-                        : 'bg-white text-muted border-line-subtle hover:bg-surface-accent'
-                    }`}
-                  >
-                    <IconComponent className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-accent'}`} />
-                    <span className="text-xs font-bold block leading-none">{p.title}</span>
-                  </button>
-                );
-              })}
+            {/* Persona Dropdown List */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <currentPersona.icon className="w-4 h-4 text-accent" />
+              </div>
+              <select
+                id="persona-dropdown"
+                value={role}
+                onChange={(e) => {
+                  const targetRole = e.target.value as UserRole;
+                  const selected = personas.find(p => p.id === targetRole);
+                  if (selected) {
+                    selectPersona(selected);
+                  }
+                }}
+                className="w-full pl-10 pr-10 py-2.5 bg-surface border border-line-subtle rounded-none focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all text-xs font-bold text-strong cursor-pointer appearance-none shadow-2xs"
+              >
+                {personas.map((p) => (
+                  <option key={p.id} value={p.id} className="py-2 text-xs">
+                    {p.title} — {p.name} ({p.detail})
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-subtle">
+                <ChevronDown className="w-4 h-4 text-accent" />
+              </div>
             </div>
 
             {/* Active Persona Sub-Banner */}
             <div className="p-3 bg-surface-accent border border-line rounded-none flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-none bg-primary text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-none bg-primary text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
                   {currentPersona.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
                   <span className="font-bold text-strong block leading-tight">{currentPersona.name}</span>
-                  <span className="text-2xs text-accent font-bold block">{currentPersona.detail}</span>
+                  <span className="text-2xs text-accent font-bold block">{currentPersona.title} • {currentPersona.detail}</span>
                 </div>
               </div>
-              <span className="text-2xs font-mono text-emerald-800 font-bold bg-emerald-100 px-2.5 py-1 rounded-none flex items-center justify-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Active Persona
+              <span className="text-2xs font-mono text-emerald-800 font-bold bg-emerald-100 px-2.5 py-1 rounded-none flex items-center justify-center gap-1 shrink-0">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Auto-Filled
               </span>
             </div>
           </div>
