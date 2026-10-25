@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   X, User, Calendar, FileText, Pill, CreditCard, ShieldAlert,
-  CheckCircle2, AlertCircle, Save, Clock, Activity, Printer, Download,
+  CheckCircle2, AlertCircle, AlertTriangle, Save, Clock, Activity, Printer, Download,
   Phone, MapPin, Building, ChevronRight, Plus, Trash2, Heart, HeartPulse,
   DollarSign, FileSpreadsheet, Eye, EyeOff
 } from 'lucide-react';
