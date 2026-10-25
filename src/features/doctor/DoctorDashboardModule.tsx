@@ -144,7 +144,7 @@ export default function DoctorDashboardModule({
         if (inputEl) inputEl.focus();
       } else if (key === 'r') {
         e.preventDefault();
-        if (internalTab === 'consultation' && activeConsultationVisitId) {
+        if (internalTab === 'consultation') {
           setQueueRailMode((prev) => (prev === 'drawer' ? 'hidden' : 'drawer'));
         } else {
           handleManualQueueRefresh();
@@ -561,7 +561,7 @@ export default function DoctorDashboardModule({
           })()}
 
           {/* Slide-over Drawer mode when invoked */}
-          {activeConsultationVisitId && queueRailMode === 'drawer' && (
+          {queueRailMode === 'drawer' && (
             <QueueRail
               room={room}
               roomOptions={roomChoices}
@@ -578,9 +578,9 @@ export default function DoctorDashboardModule({
             />
           )}
 
-          {/* Main workspace layout: Side-by-side if docked or on standby; 100% full width when in consultation */}
+          {/* Main workspace layout: 100% full width by default, or side-by-side ONLY if explicitly docked */}
           <div className="flex flex-col lg:flex-row gap-4 items-start">
-            {(!activeConsultationVisitId || queueRailMode === 'docked') && (
+            {queueRailMode === 'docked' && (
               <QueueRail
                 room={room}
                 roomOptions={roomChoices}
@@ -592,7 +592,7 @@ export default function DoctorDashboardModule({
                 userId={userId}
                 activeVisitId={activeConsultationVisitId}
                 onCall={requestCallPatient}
-                onClose={activeConsultationVisitId ? () => setQueueRailMode('hidden') : undefined}
+                onClose={() => setQueueRailMode('hidden')}
               />
             )}
 
