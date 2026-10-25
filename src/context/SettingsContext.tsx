@@ -1,6 +1,40 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
+export interface AISettings {
+  enabled: boolean;
+  provider: 'gemini' | 'openai' | 'anthropic' | 'on-premise';
+  modelName: string;
+  apiKey: string;
+  endpointUrl: string;
+  temperature: number;
+  maxTokens: number;
+  features: {
+    ambientScribe: boolean;
+    drugSafety: boolean;
+    mewsTriage: boolean;
+    claimsPreAudit: boolean;
+    stockForecasting: boolean;
+  };
+}
+
+export const DEFAULT_AI_SETTINGS: AISettings = {
+  enabled: true,
+  provider: 'gemini',
+  modelName: 'gemini-1.5-flash',
+  apiKey: '',
+  endpointUrl: '',
+  temperature: 0.2,
+  maxTokens: 2048,
+  features: {
+    ambientScribe: true,
+    drugSafety: true,
+    mewsTriage: true,
+    claimsPreAudit: true,
+    stockForecasting: true,
+  },
+};
+
 export interface GlobalSettings {
   billing: {
     taxRate: number;
@@ -19,6 +53,7 @@ export interface GlobalSettings {
     receiptPrinter: boolean;
     barcodeScanner: boolean;
   };
+  aiConfig: AISettings;
 }
 
 /** Who this clinic is, as shown in the header. Empty until an administrator fills it in (Settings > Clinic profile). */
@@ -43,10 +78,25 @@ const clinicFromRow = (d: Record<string, any>): ClinicProfile => ({
 interface SettingsContextType {
   settings: GlobalSettings;
   updateSettings: (newSettings: GlobalSettings) => void;
+  updateAISettings: (newAI: AISettings) => void;
   clinic: ClinicProfile;
   /** Saves the clinic profile only (administrators). Throws the database's message on failure. */
   updateClinic: (profile: ClinicProfile) => Promise<void>;
 }
+
+const loadStoredAISettings = (): AISettings => {
+  try {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('mediclinic_ai_settings');
+      if (stored) {
+        return { ...DEFAULT_AI_SETTINGS, ...JSON.parse(stored) };
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to parse AI settings from storage', err);
+  }
+  return DEFAULT_AI_SETTINGS;
+};
 
 const DEFAULT_SETTINGS: GlobalSettings = {
   billing: {
@@ -65,20 +115,25 @@ const DEFAULT_SETTINGS: GlobalSettings = {
     mykadScanner: true,
     receiptPrinter: true,
     barcodeScanner: false
-  }
+  },
+  aiConfig: DEFAULT_AI_SETTINGS
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<GlobalSettings>(() => ({
+    ...DEFAULT_SETTINGS,
+    aiConfig: loadStoredAISettings()
+  }));
   const [clinic, setClinic] = useState<ClinicProfile>(EMPTY_CLINIC);
 
   useEffect(() => {
     const fetchSettings = async () => {
       const { data, error } = await supabase.from('clinic_settings').select('*').eq('id', 1).single();
       if (data && !error) {
-        setSettings({
+        setSettings(prev => ({
+          ...prev,
           billing: {
             taxRate: Number(data.tax_rate),
             consultationFee: Number(data.consultation_fee),
@@ -86,7 +141,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           },
           modules: data.active_modules,
           hardware: data.hardware_config
-        });
+        }));
         setClinic(clinicFromRow(data));
       }
     };
@@ -95,7 +150,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const channel = supabase.channel('settings_sync_' + Math.random().toString(36).substring(2, 9))
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'clinic_settings' }, (payload: any) => {
         const data = payload.new;
-        setSettings({
+        setSettings(prev => ({
+          ...prev,
           billing: {
             taxRate: Number(data.tax_rate),
             consultationFee: Number(data.consultation_fee),
@@ -103,7 +159,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           },
           modules: data.active_modules,
           hardware: data.hardware_config
-        });
+        }));
         setClinic(clinicFromRow(data));
       })
       .subscribe();
@@ -116,6 +172,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const updateSettings = async (newSettings: GlobalSettings) => {
     setSettings(newSettings);
     
+    if (typeof window !== 'undefined' && newSettings.aiConfig) {
+      try {
+        localStorage.setItem('mediclinic_ai_settings', JSON.stringify(newSettings.aiConfig));
+      } catch (e) {
+        console.warn('Failed to persist AI settings to localStorage', e);
+      }
+    }
+
     try {
       await supabase.from('clinic_settings').upsert({
         id: 1,
@@ -130,6 +194,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateAISettings = (newAI: AISettings) => {
+    updateSettings({
+      ...settings,
+      aiConfig: newAI
+    });
+  };
+
   const updateClinic = async (profile: ClinicProfile) => {
     const { error } = await supabase.from('clinic_settings').upsert({
       id: 1, clinic_name: profile.name.trim() || null, branch_name: profile.branch.trim() || null, address: profile.address.trim() || null,
@@ -141,7 +212,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, updateSettings, clinic, updateClinic }}>
+    <SettingsContext.Provider value={{ settings, updateSettings, updateAISettings, clinic, updateClinic }}>
       {children}
     </SettingsContext.Provider>
   );
