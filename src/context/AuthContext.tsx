@@ -67,15 +67,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const resolved = await fetchProfile(next.user.id);
       if (cancelled) return;
       let activeRole = resolved?.role ?? null;
+      let activeRoles = resolved?.roles ?? [];
+      let activeFullName = resolved?.fullName ?? null;
       try {
         const storedRole = sessionStorage.getItem('mediclinic.activeRole') as UserRole | null;
+        const storedName = sessionStorage.getItem('mediclinic.activeName');
         if (storedRole && resolved?.roles?.includes(storedRole)) {
           activeRole = storedRole;
+          activeRoles = [storedRole];
+        }
+        if (storedName) {
+          activeFullName = storedName;
         }
       } catch { /* ignore */ }
       setRole(activeRole);
-      setRoles(resolved?.roles ?? []);
-      setFullName(resolved?.fullName ?? null);
+      setRoles(activeRoles);
+      setFullName(activeFullName);
       setIsLoading(false);
     };
 
@@ -127,19 +134,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const activeRole = preferredRole && resolved.roles.includes(preferredRole) ? preferredRole : resolved.role;
-    try { sessionStorage.setItem('mediclinic.activeRole', activeRole); } catch { /* ignore */ }
+    const activeRoles = preferredRole && resolved.roles.includes(preferredRole) ? [preferredRole] : resolved.roles;
+    try { 
+      sessionStorage.setItem('mediclinic.activeRole', activeRole);
+      if (preferredName) sessionStorage.setItem('mediclinic.activeName', preferredName);
+      else sessionStorage.removeItem('mediclinic.activeName');
+    } catch { /* ignore */ }
 
     setSession(authRes.data.session);
     setUser(authRes.data.user);
     setRole(activeRole);
-    setRoles(resolved.roles);
+    setRoles(activeRoles);
     setFullName(preferredName || resolved.fullName);
     setShowPIIState(false);
     return null;
   };
 
   const signOut = async () => {
-    try { sessionStorage.removeItem('mediclinic.activeRole'); } catch { /* ignore */ }
+    try { 
+      sessionStorage.removeItem('mediclinic.activeRole');
+      sessionStorage.removeItem('mediclinic.activeName');
+    } catch { /* ignore */ }
     await supabase.auth.signOut();
     setRole(null);
     setFullName(null);
