@@ -9,6 +9,7 @@ import {
 } from '../../domain/payrollExports';
 import { generatePayslipPdf, generateRunPayslipsPdf, payslipFilename } from '../../utils/payslipPdf';
 import SlipInputs from './SlipInputs';
+import { Dialog, ReasonDialog } from '../inventory/shared';
 import { errorMessage, inputClass, myr, toneClass } from './shared';
 
 export default function RunDetail({ runId, role, onBack }: { runId: string; role: 'admin' | 'hr'; onBack: () => void }) {
