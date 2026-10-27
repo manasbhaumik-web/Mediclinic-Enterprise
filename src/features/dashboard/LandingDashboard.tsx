@@ -393,7 +393,7 @@ export default function LandingDashboard({
 
       {/* Right: Telemetry Export Action & Session Status */}
       <div className="flex items-center gap-2.5 shrink-0">
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border border-white/15 text-white rounded-none shadow-none font-mono text-xs">
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border-0 text-white rounded-none shadow-none font-mono text-xs">
           <Clock className="w-3.5 h-3.5 text-teal-200" />
           <span>{isBM ? 'Sesi:' : 'Session:'} <strong className="text-white font-bold">{isBM ? 'Aktif' : 'Active'}</strong></span>
         </div>
@@ -432,7 +432,7 @@ export default function LandingDashboard({
           {headerBanner}
         </section>
       ) : (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface border border-line px-4 py-3 rounded-none shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface border-0 px-4 py-3 rounded-none shadow-2xs">
           <div>
             <h3 className="type-section-title text-ink font-bold">
               {isBM ? 'Pusat Kawalan & Pemantauan Operasi' : 'Clinical Operations & Command Center'}

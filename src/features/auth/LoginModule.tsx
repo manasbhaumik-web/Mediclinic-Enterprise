@@ -126,7 +126,7 @@ export default function LoginModule({ onLogin, onNavigate, notice }: LoginModule
               </div>
               <div>
                 <h1 className="type-page-title text-white block">
-                  MEDICLINIC <span className="text-teal-200">ENTERPRISE</span>
+                  Mediclinic <span className="text-teal-200">Enterprise</span>
                 </h1>
                 <span className="text-2xs text-teal-100/80 font-mono font-bold tracking-wider uppercase block mt-1">Clinical Suite v2.4</span>
               </div>

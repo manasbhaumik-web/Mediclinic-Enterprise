@@ -261,7 +261,7 @@ export default function WebsiteCMSCard() {
                     ...prev,
                     hero: { ...prev.hero, clinicName: e.target.value }
                   }))}
-                  placeholder="e.g. MEDICLINIC ENTERPRISE"
+                  placeholder="e.g. Mediclinic Enterprise"
                   className="w-full px-3 py-2 bg-surface-muted border border-line-subtle rounded-none text-xs text-ink font-bold focus:ring-1 focus:ring-brand outline-none"
                 />
                 <p className="text-2xs text-subtle">Appears in header, browser title bar, and hero banner.</p>

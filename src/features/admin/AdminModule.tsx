@@ -372,7 +372,7 @@ export default function AdminModule({
           </div>
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <div className="flex items-center gap-2 font-mono text-xs">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border border-white/15 text-white rounded-none shadow-none">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border-0 text-white rounded-none shadow-none">
                 <Clock className="w-3.5 h-3.5 text-teal-200" />
                 <span>{activeLanguage === 'BM' ? 'Konsol:' : 'Console:'} <strong className="text-white font-bold">{activeLanguage === 'BM' ? 'Aktif' : 'Active'}</strong></span>
               </div>

@@ -46,7 +46,7 @@ export default function ClinicLandingPage({
   const isBM = activeLanguage === 'BM';
 
   // Dynamic Identity & Contact from CMS
-  const clinicName = cms.hero.clinicName || clinic.name || 'MEDICLINIC ENTERPRISE';
+  const clinicName = cms.hero.clinicName || clinic.name || 'Mediclinic Enterprise';
   const branchName = cms.hero.branchName || clinic.branch || 'Shah Alam Main Branch';
   const phone = cms.contact.phone || clinic.phone || '+60 3-5510 8899';
   const emergencyPhone = cms.contact.emergencyHotline || clinic.emergencyPhone || '+60 3-5510 8899';

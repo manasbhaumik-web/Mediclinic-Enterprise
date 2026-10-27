@@ -8,7 +8,7 @@ import {
 
 describe('Website CMS Domain Logic & Validation', () => {
   it('provides complete Malaysian healthcare defaults', () => {
-    expect(DEFAULT_WEBSITE_CONFIG.hero.clinicName).toBe('MEDICLINIC ENTERPRISE');
+    expect(DEFAULT_WEBSITE_CONFIG.hero.clinicName).toBe('Mediclinic Enterprise');
     expect(DEFAULT_WEBSITE_CONFIG.hero.branchName).toBe('Shah Alam Main Branch');
     expect(DEFAULT_WEBSITE_CONFIG.operatingHours.is24Hours).toBe(true);
     expect(DEFAULT_WEBSITE_CONFIG.doctors.length).toBeGreaterThan(0);

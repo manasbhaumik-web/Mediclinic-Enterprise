@@ -617,11 +617,11 @@ export default function DoctorDashboardModule({
               />
             </div>
           ) : (
-            <div className="border border-line bg-surface p-6 rounded-none space-y-6">
+            <div className="bg-surface p-6 rounded-none space-y-6">
               {/* Standby Header Status Banner */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-line">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-surface-accent border border-primary text-accent flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-surface-accent text-accent flex items-center justify-center shrink-0 border-0">
                     <Stethoscope className="w-5 h-5 text-accent" />
                   </div>
                   <div>
@@ -638,7 +638,7 @@ export default function DoctorDashboardModule({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="bg-surface-accent border border-line text-xs font-mono tabular-nums font-bold text-accent px-3 py-1.5">
+                  <span className="bg-surface-accent text-xs font-mono tabular-nums font-bold text-accent px-3 py-1.5 border-0">
                     Queue: <strong className="text-ink">{sortedQueue.length}</strong> Waiting
                   </span>
                 </div>

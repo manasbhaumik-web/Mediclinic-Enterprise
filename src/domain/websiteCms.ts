@@ -100,7 +100,7 @@ export interface WebsiteCMSConfig {
 export const DEFAULT_WEBSITE_CONFIG: WebsiteCMSConfig = {
   tenantSlug: 'default',
   hero: {
-    clinicName: 'MEDICLINIC ENTERPRISE',
+    clinicName: 'Mediclinic Enterprise',
     branchName: 'Shah Alam Main Branch',
     badgeEn: 'Next-gen healthcare · Smart diagnostics',
     badgeBm: 'Diagnosis pintar · Rawatan tepat',

@@ -152,9 +152,9 @@ export default function DispensaryDashboard({
     <div className="space-y-5 animate-fadeIn font-sans">
 
       {/* TOP CLINICAL PHARMACY COMMAND BANNER */}
-      <div className="bg-surface border border-line rounded-none p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-surface rounded-none p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 border-0">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-none bg-surface-accent border border-line text-accent flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-none bg-surface-accent text-accent flex items-center justify-center shrink-0 border-0">
             <Pill className="w-5 h-5 text-accent" />
           </div>
           <div>
@@ -162,7 +162,7 @@ export default function DispensaryDashboard({
               <h2 className="type-section-title text-ink font-bold">
                 {t.dispensary || 'Pharmacy & Dispensing Workstation'}
               </h2>
-              <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 border border-teal-300/40 bg-surface-accent text-accent font-bold">
+              <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 bg-surface-accent text-accent font-bold border-0">
                 FEFO Live Stock
               </span>
             </div>
@@ -174,7 +174,7 @@ export default function DispensaryDashboard({
 
         {/* Live Station Indicators */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted/60 border border-line font-mono text-xs text-ink">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted/60 font-mono text-xs text-ink border-0">
             <Clock className="w-3.5 h-3.5 text-muted" />
             <span>Active Pharmacist: <strong className="text-ink font-bold">{pharmacistName}</strong></span>
           </div>
@@ -606,7 +606,7 @@ export default function DispensaryDashboard({
                 {/* Clinic details header */}
                 <div className="border-b-2 border-slate-300 pb-1.5 text-center flex items-center justify-between">
                   <div className="text-left font-bold">
-                    <p className="text-xs font-bold">MEDICLINIC ENTERPRISE</p>
+                    <p className="text-xs font-bold">Mediclinic Enterprise</p>
                     <p className="text-2xs text-muted">No. 20 Jln Ampang, KL • Tel: 03-21664000</p>
                   </div>
                   <div className="text-right text-2xs">

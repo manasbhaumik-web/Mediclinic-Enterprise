@@ -28,7 +28,7 @@ export default function LandingHeader({
   clinicName,
   branchName
 }: LandingHeaderProps) {
-  const displayTitle = clinicName || 'MEDICLINIC ENTERPRISE';
+  const displayTitle = clinicName || 'Mediclinic Enterprise';
   const displayBranch = branchName || (isBM ? 'Pusat Perubatan Pesakit Luar 24/7' : '24/7 Outpatient Medical Clinic');
 
   return (

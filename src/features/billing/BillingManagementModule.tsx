@@ -100,13 +100,13 @@ export default function BillingManagementModule() {
     <div className="animate-fadeIn w-full space-y-3.5 pb-6">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-surface text-ink p-3.5 rounded-none shadow-none border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-3.5 rounded-none shadow-none flex flex-col md:flex-row md:items-center justify-between gap-4 border-0">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
+            <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none uppercase tracking-wider border-0">
               Financial Revenue &amp; Claims
             </span>
-            <span className="text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none border border-line font-mono font-bold">
+            <span className="text-2xs text-accent bg-teal-50 px-2 py-0.5 rounded-none font-mono font-bold border-0">
               SST {settings.billing.taxRate}%
             </span>
           </div>
