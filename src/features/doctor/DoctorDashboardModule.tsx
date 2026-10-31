@@ -515,7 +515,7 @@ export default function DoctorDashboardModule({
                         }}
                         className={`px-3 py-1.5 font-mono text-2xs font-bold flex items-center gap-1.5 cursor-pointer rounded-none ${
                           allDone
-                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            ? 'bg-primary hover:bg-primary-hover text-white'
                             : 'btn-primary'
                         }`}
                       >

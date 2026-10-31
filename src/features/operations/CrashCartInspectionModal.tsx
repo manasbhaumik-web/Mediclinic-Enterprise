@@ -215,8 +215,8 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                     </p>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 text-2xs font-mono font-bold uppercase ${
-                  currentEval.isFullyReady ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+                <span className={`px-2 py-0.5 text-2xs font-mono font-bold uppercase rounded-none border ${
+                  currentEval.isFullyReady ? 'chip-ok' : 'chip-danger'
                 }`}>
                   {currentEval.isFullyReady ? 'PASSED' : 'DEFECTS'}
                 </span>

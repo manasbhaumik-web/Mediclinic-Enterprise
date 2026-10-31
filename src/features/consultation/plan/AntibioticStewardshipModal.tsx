@@ -124,7 +124,7 @@ export const AntibioticStewardshipModal: React.FC<AntibioticStewardshipModalProp
                     key={ab}
                     type="button"
                     onClick={() => handleDePrescribe(ab)}
-                    className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-none flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="py-1.5 px-3 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-none flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Cancel {ab} & Switch to Supportive Care

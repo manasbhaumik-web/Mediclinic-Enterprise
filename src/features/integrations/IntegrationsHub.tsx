@@ -223,7 +223,7 @@ export default function IntegrationsHub() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-white px-4 py-2 rounded-none border border-line flex items-center justify-center gap-4 shadow-2xs">
+          <div className="bg-surface px-4 py-2 rounded-none border border-line flex items-center justify-center gap-4 shadow-2xs">
             <div className="text-left">
               <span className="text-2xs uppercase font-bold text-subtle tracking-wider block">Network Status</span>
               <div className="flex items-center gap-2 mt-0.5">

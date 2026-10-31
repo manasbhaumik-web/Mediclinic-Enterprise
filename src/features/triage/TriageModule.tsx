@@ -294,10 +294,10 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
                             </span>
                             <span className={`px-2 py-0.5 text-2xs font-bold uppercase rounded-none border ${
                               mewsResult.riskLevel === 'High'
-                                ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
+                                ? 'chip-danger animate-pulse'
                                 : mewsResult.riskLevel === 'Medium'
-                                ? 'bg-amber-500 text-white border-amber-600'
-                                : 'bg-emerald-600 text-white border-emerald-700'
+                                ? 'chip-warn'
+                                : 'chip-ok'
                             }`}>
                               {mewsResult.riskLevel} Risk (Score: {mewsResult.score})
                             </span>

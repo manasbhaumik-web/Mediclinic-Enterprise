@@ -147,6 +147,16 @@ describe('Centralized Styling & Design Token Consistency Across Workspaces', () 
     }
   });
 
+  it('enforces brand deep-teal tokens and bans raw bg-emerald-600 action buttons across core workspaces', () => {
+    for (const relPath of coreWorkspaceFiles) {
+      const fullPath = path.join(srcRoot, relPath);
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const illegalEmeraldBtnRegex = /\b(bg-emerald-600\s+hover:bg-emerald-700)\b/g;
+      const matches = content.match(illegalEmeraldBtnRegex);
+      expect(matches, `Found raw emerald action buttons in ${relPath}: ${matches?.join(', ')}`).toBeNull();
+    }
+  });
+
   it('verifies all workspaces share the unified EnterpriseLayoutTemplate shell', () => {
     const shellPath = path.join(srcRoot, 'routes/ClinicShell.tsx');
     const shellContent = fs.readFileSync(shellPath, 'utf8');

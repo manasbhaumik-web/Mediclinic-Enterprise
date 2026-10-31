@@ -88,7 +88,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
           type="button"
           onClick={() => { setNow(Date.now()); void queryClient.invalidateQueries(); }}
           disabled={isFetching}
-          className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+          className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
           {isFetching ? 'Refreshing…' : 'Refresh'}
