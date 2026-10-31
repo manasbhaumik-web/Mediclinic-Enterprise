@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Visit, Patient, ClinicalProcedureItem } from '../../types';
-import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck } from 'lucide-react';
+import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { formatTicket } from '../../domain/ticket';
 import { ProceduralConsentModal } from './ProceduralConsentModal';
 import { SignedConsentRecord } from '../../domain/proceduralConsent';
 import { ImmunizationModule } from './ImmunizationModule';
+import { CrashCartInspectionModal } from './CrashCartInspectionModal';
+import { ClinicalWasteModule } from './ClinicalWasteModule';
+import { CrashCartInspectionRecord } from '../../domain/crashCart';
 
 interface ProcedureStationModuleProps {
   visits: Visit[];
@@ -21,7 +24,7 @@ export default function ProcedureStationModule({
   onCompleteProcedure,
   onClearHold
 }: ProcedureStationModuleProps) {
-  const [activeStationTab, setActiveStationTab] = useState<'procedures' | 'immunization'>('procedures');
+  const [activeStationTab, setActiveStationTab] = useState<'procedures' | 'immunization' | 'clinical-waste'>('procedures');
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
   const [selectedProcedureId, setSelectedProcedureId] = useState<string | null>(null);
   const [adminSite, setAdminSite] = useState('Left Deltoid (IM)');
@@ -33,6 +36,10 @@ export default function ProcedureStationModule({
   // Consent Modal State
   const [consentModalProc, setConsentModalProc] = useState<ClinicalProcedureItem | null>(null);
   const [signedConsents, setSignedConsents] = useState<Record<string, SignedConsentRecord>>({});
+
+  // Crash Cart Inspection Modal State
+  const [isCrashCartModalOpen, setIsCrashCartModalOpen] = useState(false);
+  const [lastCrashCartLog, setLastCrashCartLog] = useState<CrashCartInspectionRecord | null>(null);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -90,8 +97,21 @@ export default function ProcedureStationModule({
         </div>
 
         <div className="flex items-center gap-3 font-mono text-xs">
+          <button
+            type="button"
+            onClick={() => setIsCrashCartModalOpen(true)}
+            className={`px-3 py-1.5 border text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors ${
+              lastCrashCartLog?.isFullyReady 
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 border-emerald-300' 
+                : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border-rose-300 animate-pulse'
+            }`}
+          >
+            <Zap className="w-4 h-4 text-amber-500" />
+            <span>Emergency Crash Cart: {lastCrashCartLog ? '✓ Verified Daily' : '⚠ Daily Audit Required'}</span>
+          </button>
+
           <span className="bg-surface-accent px-3 py-1.5 border border-line text-accent font-bold">
-            {procedureQueue.length} Patients in Treatment Queue
+            {procedureQueue.length} Patients in Queue
           </span>
         </div>
       </div>
@@ -123,10 +143,25 @@ export default function ProcedureStationModule({
           <Syringe className="w-4 h-4 shrink-0" />
           <span>Childhood Immunization &amp; Cold Chain (Jadual KKM)</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveStationTab('clinical-waste')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            activeStationTab === 'clinical-waste'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <Trash2 className="w-4 h-4 shrink-0" />
+          <span>Clinical Waste &amp; Sharps (SW 404)</span>
+        </button>
       </div>
 
-      {/* Immunization Sub-Module */}
-      {activeStationTab === 'immunization' ? (
+      {/* Clinical Waste Sub-Module */}
+      {activeStationTab === 'clinical-waste' ? (
+        <ClinicalWasteModule />
+      ) : activeStationTab === 'immunization' ? (
         <ImmunizationModule 
           patient={activePatient}
           onAdministerVaccine={(record) => {
@@ -381,6 +416,18 @@ export default function ProcedureStationModule({
           }}
         />
       )}
+
+      {/* PHFSA 1998 Part V Emergency Crash Cart Inspection Modal */}
+      <CrashCartInspectionModal
+        isOpen={isCrashCartModalOpen}
+        onClose={() => setIsCrashCartModalOpen(false)}
+        onInspectionSaved={(record) => {
+          setLastCrashCartLog(record);
+          setToastMessage(`✓ Crash cart daily inspection recorded: ${record.oxygenPsi} PSI (${record.isFullyReady ? '100% Ready' : 'Defects Flagged'})`);
+          setTimeout(() => setToastMessage(null), 4000);
+          setIsCrashCartModalOpen(false);
+        }}
+      />
     </div>
   );
 }

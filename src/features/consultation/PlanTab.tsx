@@ -24,6 +24,8 @@ import { auditAntimicrobialPrescription, isAntibioticDrug } from '../../domain/a
 import { AntibioticStewardshipModal } from './plan/AntibioticStewardshipModal';
 import { ProceduralConsentModal } from '../operations/ProceduralConsentModal';
 import { SignedConsentRecord } from '../../domain/proceduralConsent';
+import { matchAct342Disease } from '../../domain/act342Notification';
+import { Act342NotificationModal } from './room/Act342NotificationModal';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
@@ -113,6 +115,11 @@ export default function PlanTab({
   // PHFSA 1998 Procedural Consent States
   const [consentModalProc, setConsentModalProc] = useState<ClinicalProcedureItem | null>(null);
   const [signedConsents, setSignedConsents] = useState<Record<string, SignedConsentRecord>>({});
+
+  // Act 342 Communicable Disease Notification State
+  const [act342ModalOpen, setAct342ModalOpen] = useState(false);
+  const [act342Dispatched, setAct342Dispatched] = useState<string | null>(null);
+  const matchedAct342 = selectedICD ? matchAct342Disease(selectedICD.code) : undefined;
 
   // Interruptive Allergy Override State
   const [pendingAllergyDrug, setPendingAllergyDrug] = useState<any | null>(null);
@@ -373,6 +380,31 @@ export default function PlanTab({
             className="px-3 py-1.5 bg-white text-amber-900 text-xs font-bold uppercase tracking-wider hover:bg-amber-100 rounded-none shrink-0 cursor-pointer"
           >
             Review &amp; Justify
+          </button>
+        </div>
+      )}
+
+      {/* ACT 342 STATUTORY NOTIFIABLE DISEASE BANNER */}
+      {matchedAct342 && (
+        <div className="bg-rose-700 text-white p-3 rounded-none flex items-center justify-between gap-3 border border-rose-800 animate-fadeIn">
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert className="w-5 h-5 shrink-0 text-white" />
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider">
+                Act 342 Notifiable Disease Mandate: {matchedAct342.diseaseName}
+              </h4>
+              <p className="text-2xs opacity-95">
+                Statutory requirement: Notify PKD {matchedAct342.urgency.toLowerCase()} under Section 10(2) of Act 342.
+                {act342Dispatched && <span className="ml-2 font-mono font-bold bg-white text-rose-800 px-1.5 py-0.2">✓ Dispatched: {act342Dispatched}</span>}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAct342ModalOpen(true)}
+            className="px-3 py-1.5 bg-white text-rose-900 text-xs font-bold uppercase tracking-wider hover:bg-rose-100 rounded-none shrink-0 cursor-pointer"
+          >
+            {act342Dispatched ? 'View KKM Form' : 'Dispatch e-Notifikasi'}
           </button>
         </div>
       )}
@@ -725,6 +757,21 @@ export default function PlanTab({
           patientIc={currentPatient.icNumber}
           onConsentSigned={(record) => {
             setSignedConsents(prev => ({ ...prev, [consentModalProc.id]: record }));
+          }}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* ACT 342 STATUTORY COMMUNICABLE DISEASE NOTIFICATION MODAL                */}
+      {/* ========================================================================= */}
+      {selectedICD && matchedAct342 && (
+        <Act342NotificationModal
+          isOpen={act342ModalOpen}
+          onClose={() => setAct342ModalOpen(false)}
+          icd10Code={selectedICD.code}
+          patient={currentPatient}
+          onNotificationDispatched={(record) => {
+            setAct342Dispatched(record.id);
           }}
         />
       )}
