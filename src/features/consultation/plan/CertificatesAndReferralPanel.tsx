@@ -66,8 +66,8 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             title={!mcGenerated && mcReason.trim() === '' ? 'Enter the reason first' : undefined}
             className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
               mcGenerated
-                ? 'bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700'
-                : 'bg-primary text-white border-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed'
+                ? 'bg-primary text-white border-primary hover:bg-primary-hover'
+                : 'bg-surface text-ink dark:text-slate-200 border-line hover:bg-surface-accent disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
           >
             {mcGenerated ? '✓ Medical Certificate (MC) Created & Attached' : 'Create medical certificate'}
