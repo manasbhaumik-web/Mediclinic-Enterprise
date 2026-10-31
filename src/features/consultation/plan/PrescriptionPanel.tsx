@@ -56,22 +56,23 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
   return (
     <div className="space-y-4 animate-fadeIn">
       
-      {/* CONTEXT-AWARE PEDIATRIC DOSAGE CALCULATOR ASSIST */}
-      {!showPediatricCalc ? (
-        <div className="bg-surface-muted border border-line p-2.5 rounded-none flex items-center justify-between text-xs text-muted dark:text-slate-300">
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-accent" />
-            <span className="font-bold">Weight-Based Dosing Assist (Hidden for Adult Patient — Age {patientAgeDisplay || `${patientAge} Yrs`})</span>
+      {/* CONTEXT-AWARE PEDIATRIC DOSAGE CALCULATOR ASSIST - ONLY RENDERED FOR PEDIATRIC PATIENTS (<12 YRS) */}
+      {isPediatricPatient && (
+        !showPediatricCalc ? (
+          <div className="bg-surface-muted border border-line p-2.5 rounded-none flex items-center justify-between text-xs text-muted dark:text-slate-300">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-accent" />
+              <span className="font-bold">Pediatric Weight-Based Dosing Assist ({patientAgeDisplay || `${patientAge} Yrs`})</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPediatricCalc(true)}
+              className="text-2xs font-bold text-accent border border-line px-2.5 py-1 hover:bg-surface-accent cursor-pointer"
+            >
+              + Open Dose Calculator
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowPediatricCalc(true)}
-            className="text-2xs font-bold text-accent border border-line px-2.5 py-1 hover:bg-surface-accent cursor-pointer"
-          >
-            + Show Pediatric Dose Assist
-          </button>
-        </div>
-      ) : (
+        ) : (
         <div className="bg-surface p-3.5 rounded-none border border-line space-y-2.5">
           <div className="flex items-center justify-between border-b border-line pb-2">
             <h4 className="type-label text-ink flex items-center gap-1.5">
@@ -179,6 +180,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
             </div>
           </div>
         </div>
+        )
       )}
     
       {/* SEARCH DRUG CATALOG */}
