@@ -21,6 +21,7 @@ import {
 import ProgressBar from '../../components/ui/ProgressBar';
 import { Dialog } from '../inventory/shared';
 import { Pagination } from '../../components/ui/Pagination';
+import { evaluateClinicianPrivileges, ClinicianCredentials } from '../../domain/staffCredentialing';
 export interface StaffMember {
   id: string;
   name: string;
@@ -724,6 +725,20 @@ export default function StaffManagementModule() {
                               }`}></span>
                               {staff.status}
                             </button>
+                          </td>
+                          <td className="px-6 py-4">
+                            {staff.role.includes('Doctor') || staff.role.includes('Physician') || staff.role.includes('Specialist') || staff.role.includes('Nurse') ? (
+                              <div className="space-y-0.5">
+                                <span className="text-2xs font-bold font-mono text-ink block">
+                                  {staff.role.includes('Doctor') || staff.role.includes('Physician') || staff.role.includes('Specialist') ? 'MMC Registered' : 'LJM Registered'}
+                                </span>
+                                <span className="chip chip-ok text-3xs font-mono">
+                                  {staff.role.includes('Doctor') ? 'APC 2026 · MPS Indemnity' : 'ARC 2026 · BLS Active'}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-2xs text-subtle font-mono">Non-Clinical Staff</span>
+                            )}
                           </td>
                           <td className="px-6 py-4 min-w-[220px]">
                             <StaffAccessCell

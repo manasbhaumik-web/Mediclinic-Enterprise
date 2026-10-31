@@ -10,6 +10,8 @@ import { ImmunizationModule } from './ImmunizationModule';
 import { CrashCartInspectionModal } from './CrashCartInspectionModal';
 import { ClinicalWasteModule } from './ClinicalWasteModule';
 import { CrashCartInspectionRecord } from '../../domain/crashCart';
+import AutoclaveSterilizationModal from './AutoclaveSterilizationModal';
+import { SterilePack } from '../../domain/autoclaveSterilization';
 
 interface ProcedureStationModuleProps {
   visits: Visit[];
@@ -40,6 +42,8 @@ export default function ProcedureStationModule({
   // Crash Cart Inspection Modal State
   const [isCrashCartModalOpen, setIsCrashCartModalOpen] = useState(false);
   const [lastCrashCartLog, setLastCrashCartLog] = useState<CrashCartInspectionRecord | null>(null);
+  const [isAutoclaveModalOpen, setIsAutoclaveModalOpen] = useState(false);
+  const [selectedSterilePack, setSelectedSterilePack] = useState<SterilePack | null>(null);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -97,6 +101,15 @@ export default function ProcedureStationModule({
         </div>
 
         <div className="flex items-center gap-3 font-mono text-xs">
+          <button
+            type="button"
+            onClick={() => setIsAutoclaveModalOpen(true)}
+            className="px-3 py-1.5 border border-line bg-surface hover:bg-surface-accent text-accent text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <ShieldCheck className="w-4 h-4 text-accent" />
+            <span>Autoclave Sterilization (PHFSA)</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setIsCrashCartModalOpen(true)}

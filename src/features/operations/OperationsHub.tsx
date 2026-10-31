@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users,
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
+import ClinicalIncidentModal from './ClinicalIncidentModal';
+import ClinicThroughputModal from './ClinicThroughputModal';
 import { useClinicData } from '../../hooks/useClinicData';
 import { useDrugs, useInventorySettings, usePurchaseOrders } from '../../hooks/useInventoryData';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -33,6 +35,8 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
 
   // Re-evaluate waits and "today" once a minute without refetching.
   const [now, setNow] = useState(() => Date.now());
+  const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
+  const [isThroughputModalOpen, setIsThroughputModalOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -101,6 +105,26 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
           Some figures could not be loaded and may be incomplete. Use Refresh to try again.
         </div>
       )}
+
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setIsIncidentModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <ShieldAlert className="w-4 h-4 text-rose-600" />
+          <span>Clinical Incidents &amp; Near-Misses (CKAPS / OSHA)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsThroughputModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-accent border border-line rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <Timer className="w-4 h-4 text-accent" />
+          <span>Outpatient Turnaround Time (TAT) &amp; Bottleneck Monitor</span>
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Kpi icon={Users} label="Patients in clinic" value={String(flow.inClinic)} note={`${flow.waiting} waiting to be seen`} />
@@ -190,6 +214,16 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
           </Panel>
         </div>
       </div>
+
+      <ClinicalIncidentModal
+        isOpen={isIncidentModalOpen}
+        onClose={() => setIsIncidentModalOpen(false)}
+      />
+
+      <ClinicThroughputModal
+        isOpen={isThroughputModalOpen}
+        onClose={() => setIsThroughputModalOpen(false)}
+      />
     </div>
   );
 }
