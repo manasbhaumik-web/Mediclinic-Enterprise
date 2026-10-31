@@ -83,7 +83,8 @@ export default function FlowAndDiagnosisCharts({
             </div>
           )}
           {hasThroughput && (
-            <table className="sr-only">
+            <div className="sr-only">
+            <table>
               <caption>Patients registered per hour today</caption>
               <thead>
                 <tr>
@@ -100,6 +101,7 @@ export default function FlowAndDiagnosisCharts({
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

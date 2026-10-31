@@ -82,7 +82,7 @@ export default function DoctorDashboardModule({
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
   const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
-  const [queueRailMode, setQueueRailMode] = useState<'hidden' | 'drawer' | 'docked'>('hidden');
+  const [queueRailMode, setQueueRailMode] = useState<'hidden' | 'drawer'>('hidden');
 
   // Who has been called is saved on the visit, so it survives a refresh and every screen sees it.
   const calledVisitId = doctorQueue.find((v) => v.status === 'Consulting' && v.calledBy === userId)?.id ?? null;
@@ -494,71 +494,7 @@ export default function DoctorDashboardModule({
       {/* ========================================================================= */}
       {internalTab === 'consultation' && (
         <div className="space-y-3 animate-fadeIn">
-          {/* Top Live Queue Telemetry HUD Bar (Visible during active consultation) */}
-          {activeConsultationVisitId && (() => {
-            const currentActiveVisit = doctorQueue.find((v) => v.id === activeConsultationVisitId);
-            const activeRoom = currentActiveVisit?.consultRoom || room;
-            // Exclude current in-consultation patient from waiting count and next-in-line
-            const waitingInQueue = sortedQueue.filter((v) => v.id !== activeConsultationVisitId);
-            const upcomingNextVisit = waitingInQueue[0];
-            const upcomingNextPatient = upcomingNextVisit ? patientsMap[upcomingNextVisit.patientId] : undefined;
-
-            return (
-              <div className="bg-surface border border-line p-3 flex flex-wrap items-center justify-between gap-3 shadow-none">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2 text-xs font-bold font-mono text-ink">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="uppercase tracking-wider text-2xs text-muted">Consultation Station:</span>
-                    <span className="text-accent">{activeRoom}</span>
-                  </div>
-                  <div className="h-4 w-px bg-line hidden sm:block" />
-                  <div className="flex items-center gap-2 text-xs font-mono">
-                    <span className="text-muted text-2xs uppercase tracking-wider">Queue:</span>
-                    <strong className="text-ink tabular-nums">{waitingInQueue.length}</strong>
-                    <span className="text-muted">waiting</span>
-                    {upcomingNextVisit && upcomingNextPatient ? (
-                      <span className="text-2xs text-muted hidden md:inline">
-                        · Next: <strong className="text-ink">{upcomingNextPatient.fullName}</strong>
-                      </span>
-                    ) : (
-                      <span className="text-2xs text-muted hidden md:inline">
-                        · Next: <strong className="text-slate-400 font-normal">None (Queue Clear)</strong>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setQueueRailMode(queueRailMode === 'drawer' ? 'hidden' : 'drawer')}
-                    className={`min-h-8 px-3 py-1.5 text-xs font-mono uppercase font-bold tracking-wider border rounded-none cursor-pointer flex items-center gap-1.5 transition-colors ${
-                      queueRailMode === 'drawer'
-                        ? 'bg-primary text-white border-primary'
-                        : 'bg-surface hover:bg-surface-accent text-accent hover:text-ink border-line'
-                    }`}
-                    title="Slide out live patient queue roster without squeezing consultation view (Alt+R)"
-                  >
-                    <Users className="w-3.5 h-3.5" />
-                    <span>{queueRailMode === 'drawer' ? 'Close Queue Rail' : `View Queue Rail (${waitingInQueue.length})`}</span>
-                  </button>
-
-                <button
-                  type="button"
-                  onClick={() => setQueueRailMode(queueRailMode === 'docked' ? 'hidden' : 'docked')}
-                  className={`min-h-8 px-2.5 py-1.5 text-2xs font-mono uppercase font-bold tracking-wider border rounded-none cursor-pointer flex items-center gap-1 transition-colors ${
-                    queueRailMode === 'docked'
-                      ? 'bg-surface-accent text-primary border-primary'
-                      : 'bg-surface hover:bg-surface-accent text-muted hover:text-ink border-line'
-                  }`}
-                  title="Toggle docked side-rail beside consultation window"
-                >
-                  <span>{queueRailMode === 'docked' ? 'Undock Side-Rail' : 'Dock Side-Rail'}</span>
-                </button>
-              </div>
-            </div>
-            );
-          })()}
+          {/* Top HUD moved into right-hand ContextPanel under Longitudinal History to maximize consultation visibility */}
 
           {/* Slide-over Drawer mode when invoked */}
           {queueRailMode === 'drawer' && (
@@ -578,43 +514,73 @@ export default function DoctorDashboardModule({
             />
           )}
 
-          {/* Main workspace layout: 100% full width by default, or side-by-side ONLY if explicitly docked */}
-          <div className="flex flex-col lg:flex-row gap-4 items-start">
-            {queueRailMode === 'docked' && (
-              <QueueRail
-                room={room}
-                roomOptions={roomChoices}
-                doctors={doctors}
-                myDoctorId={myDoctorId}
-                onRoomChange={(r) => { setRoom(r); try { localStorage.setItem('mediclinic.consultRoom', r); } catch { /* ignore */ } }}
-                queue={sortedQueue}
-                patientsMap={patientsMap}
-                userId={userId}
-                activeVisitId={activeConsultationVisitId}
-                onCall={requestCallPatient}
-                onClose={() => setQueueRailMode('hidden')}
-              />
-            )}
-
-            <div className="flex-1 min-w-0 w-full space-y-4">
+          {/* Main workspace layout: 100% clean full width without cramped 3-column docking */}
+          <div className="w-full space-y-4">
             {activeConsultationVisitId ? (
             <div className="animate-fade-in-up">
-              <ConsultationRoom
-                currentPatient={patientsMap[doctorQueue.find(v => v.id === activeConsultationVisitId)?.patientId || ''] || null}
-                activeVisit={doctorQueue.find(v => v.id === activeConsultationVisitId) || null}
-                activeLanguage={activeLanguage}
-                onConsultationComplete={handleDoctorSoapComplete}
-                onCancel={() => {
-                  // Leaving without signing off puts the patient back in the queue for everyone.
-                  const id = activeConsultationVisitId;
-                  // Draft preserved so doctor can resume consultation seamlessly
-                  setActiveConsultationVisitId(null);
-                  setInternalTab('queue');
-                  if (id && onReleasePatient) void onReleasePatient(id).then((r) => {
-                    if ('error' in r) { setCallAnnouncementToast(r.error); setTimeout(() => setCallAnnouncementToast(null), 6000); }
-                  });
-                }}
-              />
+              {(() => {
+                const currentActiveVisit = doctorQueue.find((v) => v.id === activeConsultationVisitId);
+                const activeRoom = currentActiveVisit?.consultRoom || room;
+                const waitingInQueue = sortedQueue.filter((v) => v.id !== activeConsultationVisitId);
+                const upcomingNextVisit = waitingInQueue[0];
+                const upcomingNextPatient = upcomingNextVisit ? patientsMap[upcomingNextVisit.patientId] : undefined;
+
+                const stationHud = (
+                  <div className="space-y-3 font-sans">
+                    <div className="flex items-center justify-between border-b border-line pb-2">
+                      <div className="flex items-center gap-1.5 font-bold text-xs font-mono text-ink">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="uppercase tracking-wider text-2xs text-muted font-sans font-bold">Station:</span>
+                        <span className="text-accent font-bold">{activeRoom}</span>
+                      </div>
+                      <span className="text-2xs font-mono font-bold text-muted bg-surface-muted px-2 py-0.5 border border-line">
+                        <strong className="text-ink">{waitingInQueue.length}</strong> waiting
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-2xs font-mono">
+                      <span className="text-muted font-sans font-medium">Next in line:</span>
+                      <strong className={upcomingNextPatient ? "text-ink truncate max-w-[150px]" : "text-slate-400 font-normal"}>
+                        {upcomingNextPatient ? upcomingNextPatient.fullName : 'None (Queue Clear)'}
+                      </strong>
+                    </div>
+
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setQueueRailMode(queueRailMode === 'drawer' ? 'hidden' : 'drawer')}
+                        className={`w-full py-1.5 px-3 text-2xs font-mono uppercase font-bold tracking-wider border rounded-none cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${
+                          queueRailMode === 'drawer'
+                            ? 'bg-primary text-white border-primary'
+                            : 'bg-surface hover:bg-surface-accent text-accent hover:text-ink border-line'
+                        }`}
+                        title="Slide out live patient queue roster without squeezing consultation view (Alt+R)"
+                      >
+                        <Users className="w-3.5 h-3.5" />
+                        <span>{queueRailMode === 'drawer' ? 'Close Queue Rail' : `View Full Queue (${waitingInQueue.length})`}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+
+                return (
+                  <ConsultationRoom
+                    currentPatient={patientsMap[doctorQueue.find(v => v.id === activeConsultationVisitId)?.patientId || ''] || null}
+                    activeVisit={doctorQueue.find(v => v.id === activeConsultationVisitId) || null}
+                    activeLanguage={activeLanguage}
+                    stationHud={stationHud}
+                    onConsultationComplete={handleDoctorSoapComplete}
+                    onCancel={() => {
+                      const id = activeConsultationVisitId;
+                      setActiveConsultationVisitId(null);
+                      setInternalTab('queue');
+                      if (id && onReleasePatient) void onReleasePatient(id).then((r) => {
+                        if ('error' in r) { setCallAnnouncementToast(r.error); setTimeout(() => setCallAnnouncementToast(null), 6000); }
+                      });
+                    }}
+                  />
+                );
+              })()}
             </div>
           ) : (
             <div className="border border-line bg-surface p-6 rounded-none space-y-6">
@@ -734,7 +700,6 @@ export default function DoctorDashboardModule({
           )}
           </div>
         </div>
-      </div>
       )}
 
       {/* MONTHLY REPORT: the signed-in doctor's own consultations */}

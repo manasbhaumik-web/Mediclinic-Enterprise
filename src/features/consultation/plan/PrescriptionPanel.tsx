@@ -13,10 +13,10 @@ export type CatalogDrug = DrugItem & {
   pillColor?: string;
   capsuleStyle?: string;
 };
-import { Activity, X, Pill, Trash2 } from 'lucide-react';
+import { Activity, X, Pill, Trash2, FileText } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 import { buttonProps, focusRing } from '../../../lib/a11y';
-import { PrescriptionItem } from '../../../types';
+import { PrescriptionItem, ICD10Code } from '../../../types';
 
 interface PrescriptionPanelProps {
   showPediatricCalc: boolean;
@@ -39,9 +39,18 @@ interface PrescriptionPanelProps {
   pharmacyMemo: string;
   setPharmacyMemo: React.Dispatch<React.SetStateAction<string>>;
   patientAllergies?: string[];
+  mcGenerated?: boolean;
+  setMcGenerated?: React.Dispatch<React.SetStateAction<boolean>>;
+  mcDays?: number | '';
+  setMcDays?: React.Dispatch<React.SetStateAction<number | ''>>;
+  mcReason?: string;
+  setMcReason?: React.Dispatch<React.SetStateAction<string>>;
+  followUpWeeks?: number;
+  setFollowUpWeeks?: React.Dispatch<React.SetStateAction<number>>;
+  selectedICD?: ICD10Code | null;
 }
 
-export default function PrescriptionPanel({ showPediatricCalc, patientAge, patientAgeDisplay, setShowPediatricCalc, isPediatricPatient, patientWeight, setPatientWeight, medConcentration, setMedConcentration, calculatedDose, handleAddPediatricSyrup, searchDrugQuery, setSearchDrugQuery, drugSuggestions, handleAddDrug, rxList, setRxList, pharmacyMemo, setPharmacyMemo, patientAllergies }: PrescriptionPanelProps) {
+export default function PrescriptionPanel({ showPediatricCalc, patientAge, patientAgeDisplay, setShowPediatricCalc, isPediatricPatient, patientWeight, setPatientWeight, medConcentration, setMedConcentration, calculatedDose, handleAddPediatricSyrup, searchDrugQuery, setSearchDrugQuery, drugSuggestions, handleAddDrug, rxList, setRxList, pharmacyMemo, setPharmacyMemo, patientAllergies, mcGenerated = false, setMcGenerated, mcDays = 1, setMcDays, mcReason = "", setMcReason, followUpWeeks = 0, setFollowUpWeeks, selectedICD }: PrescriptionPanelProps) {
   const prescribedNames = useMemo(() => rxList.map(r => r.drugName), [rxList]);
   const safetyCheck = useMemo(() => checkDrugSafety(prescribedNames, patientAllergies || []), [prescribedNames, patientAllergies]);
   return (
@@ -331,6 +340,69 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
         )}
       </div>
     
+      {/* QUICK MC & FOLLOW-UP CLINICAL STRIP (ELEVATED TO PRIMARY PLAN VIEW) */}
+      <div className="bg-surface border border-line p-3 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-accent" />
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-ink">
+              <input
+                type="checkbox"
+                checked={mcGenerated}
+                onChange={(e) => {
+                  if (setMcGenerated) {
+                    setMcGenerated(e.target.checked);
+                    if (e.target.checked && setMcReason && !mcReason && selectedICD?.desc) {
+                      setMcReason(selectedICD.desc);
+                    }
+                  }
+                }}
+                className="rounded-none border-line text-primary focus:ring-primary h-4 w-4"
+              />
+              <span>Issue Medical Certificate (MC)</span>
+            </label>
+          </div>
+          {mcGenerated && (
+            <div className="flex items-center gap-2 pl-2 border-l border-line">
+              <span className="text-2xs text-muted">Duration:</span>
+              <input
+                type="number"
+                min="1"
+                max="14"
+                value={mcDays}
+                onChange={(e) => setMcDays && setMcDays(parseInt(e.target.value) || 1)}
+                className="w-14 px-2 py-1 text-xs border border-line rounded-none bg-surface text-ink font-bold font-mono text-center"
+              />
+              <span className="text-2xs text-muted">day(s)</span>
+              <input
+                type="text"
+                value={mcReason}
+                onChange={(e) => setMcReason && setMcReason(e.target.value)}
+                placeholder={selectedICD?.desc || "Clinical reason..."}
+                className="w-44 px-2 py-1 text-xs border border-line rounded-none bg-surface text-ink placeholder:text-muted"
+              />
+            </div>
+          )}
+        </div>
+
+        {setFollowUpWeeks && (
+          <div className="flex items-center gap-2 text-2xs">
+            <span className="text-muted font-medium">Follow-Up Review:</span>
+            <select
+              value={followUpWeeks}
+              onChange={(e) => setFollowUpWeeks(Number(e.target.value))}
+              className="px-2.5 py-1 text-xs border border-line rounded-none bg-surface text-ink font-bold"
+            >
+              <option value={0}>PRN (As needed)</option>
+              <option value={1}>1 Week</option>
+              <option value={2}>2 Weeks</option>
+              <option value={4}>1 Month</option>
+              <option value={12}>3 Months</option>
+            </select>
+          </div>
+        )}
+      </div>
+
       {/* DISPENSING PHARMACY MEMO */}
       <div>
         <label className="block text-xs font-bold text-ink uppercase mb-1">

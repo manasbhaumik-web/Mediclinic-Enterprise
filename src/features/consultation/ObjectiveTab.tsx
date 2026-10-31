@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Activity, Copy, Lock } from 'lucide-react';
+import { LineChart, Activity, Copy, Lock, Stethoscope, PlusCircle } from 'lucide-react';
 import { Visit } from '../../types';
 
 type Vitals = { bpSystolic: number; bpDiastolic: number; heartRate: number; temperature: number; respiratoryRate: number };
@@ -10,6 +10,8 @@ interface ObjectiveTabProps {
   /** Vitals recorded at triage. A value of 0 means "not recorded". Recorded values are locked; the rest can be entered here. */
   triageVitals?: Partial<Vitals>;
   patientPastVisits: Visit[];
+  clinicalNotes?: string;
+  setClinicalNotes?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 type Field = { key: keyof Vitals; id: string; label: string; step?: string; note: (v: number) => { text: string; tone: 'ok' | 'warn' | 'danger' } };
@@ -23,7 +25,15 @@ const FIELDS: Field[] = [
 ];
 const CHIP = { ok: 'chip-ok', warn: 'chip-warn', danger: 'chip-danger' } as const;
 
-export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, patientPastVisits }: ObjectiveTabProps) {
+export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, patientPastVisits, clinicalNotes = "", setClinicalNotes }: ObjectiveTabProps) {
+  const examTokens = [
+    { label: "+ Alert & NAD", phrase: "NAD (Patient alert, conscious, no acute distress)" },
+    { label: "+ Lungs Clear", phrase: "Chest clear bilaterally, good equal air entry, no rhonchi/wheeze" },
+    { label: "+ Normal Abdomen", phrase: "Abdomen soft, non-tender, no organomegaly or guarding" },
+    { label: "+ Pharynx Normal", phrase: "Pharynx normal, tonsils not enlarged, no exudates" },
+    { label: "+ Throat Injected", phrase: "Pharynx mildly injected, tonsils grade 1, no purulent exudate" },
+    { label: "+ Heart Sounds Normal", phrase: "Dual rhythm S1 S2 heard, no murmurs" },
+  ];
   const locked = (k: keyof Vitals) => (triageVitals[k] ?? 0) > 0;
   const anyUnrecorded = FIELDS.some((f) => !locked(f.key));
   const anyLocked = FIELDS.some((f) => locked(f.key));
@@ -114,6 +124,51 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
             </div>
           );
         })}
+      </div>
+
+      {/* 2. PHYSICAL EXAMINATION FINDINGS (STANDARD OBJECTIVE CLINICAL EXAM) */}
+      <div className="bg-surface border border-line p-4 rounded-none space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2">
+          <div className="flex items-center gap-2">
+            <Stethoscope className="w-4 h-4 text-accent" />
+            <h4 className="type-label text-ink font-bold">Physical Examination (PE)</h4>
+          </div>
+          <span className="text-2xs font-mono text-muted">Document physical signs, chest, throat, abdomen</span>
+        </div>
+
+        {/* Quick Normal Stamp Tokens */}
+        <div className="flex flex-wrap items-center gap-1.5 p-2 bg-surface-muted border border-line">
+          <span className="text-2xs font-mono uppercase font-bold text-muted mr-1">Normal Stamps:</span>
+          {examTokens.map((token, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                if (!setClinicalNotes) return;
+                setClinicalNotes(prev => {
+                  const trimmed = prev.trim();
+                  if (!trimmed) return token.phrase;
+                  return `${trimmed}\n• ${token.phrase}`;
+                });
+              }}
+              className="text-2xs bg-surface hover:bg-surface-accent text-ink border border-line px-2.5 py-1 rounded-none cursor-pointer font-sans transition-colors flex items-center gap-1"
+              title={`Append "${token.phrase}" to examination findings`}
+            >
+              <PlusCircle className="w-3 h-3 text-accent" />
+              <span>{token.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {setClinicalNotes && (
+          <textarea
+            id="objective-physical-exam-input"
+            className="w-full bg-surface border border-line focus:border-primary focus:ring-1 focus:ring-primary rounded-none px-4 py-3 text-xs text-ink transition-all outline-none resize-y min-h-[110px] leading-relaxed placeholder:text-muted font-sans"
+            value={clinicalNotes}
+            onChange={(e) => setClinicalNotes(e.target.value)}
+            placeholder="Record physical examination findings (e.g., alert/NAD, chest clear, pharynx normal, soft abdomen)..."
+          />
+        )}
       </div>
     </div>
   );

@@ -631,7 +631,9 @@ export default function EnterpriseLayoutTemplate({
 
         {/* MAIN CONTAINER */}
         <main id="main-content" tabIndex={-1} className="flex-1 p-3 sm:p-5 overflow-y-auto max-h-full font-sans focus:outline-none">
-          {children}
+          <div className="w-[95%] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
 

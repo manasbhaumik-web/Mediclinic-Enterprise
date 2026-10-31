@@ -9,11 +9,12 @@ interface ContextPanelProps {
   patientPastVisits: Visit[];
   selectedPastVisit: Visit | null;
   setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit | null>>;
+  stationHud?: React.ReactNode;
 }
 
-export default function ContextPanel({ vitals, t, patientPastVisits, selectedPastVisit, setSelectedPastVisit }: ContextPanelProps) {
+export default function ContextPanel({ vitals, t, patientPastVisits, selectedPastVisit, setSelectedPastVisit, stationHud }: ContextPanelProps) {
   return (
-    <div className="lg:col-span-4 space-y-4">
+    <div className="w-full space-y-4">
       
       {/* Contextual Recent Vitals Card */}
       <div className="bg-surface p-4 rounded-none border border-line space-y-2.5">
@@ -102,6 +103,13 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
           </div>
         )}
       </div>
+
+      {/* Consultation Station & Queue Telemetry Widget (Under Longitudinal History) */}
+      {stationHud && (
+        <div className="bg-surface p-4 rounded-none border border-line shadow-none">
+          {stationHud}
+        </div>
+      )}
     
     </div>
   );

@@ -374,7 +374,37 @@ export default function PlanTab({
       {/* SUB-TAB 1: MEDICATION PRESCRIBING                                         */}
       {/* ========================================================================= */}
       {subTab === 'medication' && (
-        <PrescriptionPanel showPediatricCalc={showPediatricCalc} patientAge={patientAge} patientAgeDisplay={patientAgeDetails.displayAge} setShowPediatricCalc={setShowPediatricCalc} isPediatricPatient={isPediatricPatient} patientWeight={patientWeight} setPatientWeight={setPatientWeight} medConcentration={medConcentration} setMedConcentration={setMedConcentration} calculatedDose={calculatedDose} handleAddPediatricSyrup={handleAddPediatricSyrup} searchDrugQuery={searchDrugQuery} setSearchDrugQuery={setSearchDrugQuery} drugSuggestions={drugSuggestions} handleAddDrug={handleAddDrug} rxList={rxList} setRxList={setRxList} pharmacyMemo={pharmacyMemo} setPharmacyMemo={setPharmacyMemo} patientAllergies={currentPatient.drugAllergies} />
+        <PrescriptionPanel 
+          showPediatricCalc={showPediatricCalc} 
+          patientAge={patientAge} 
+          patientAgeDisplay={patientAgeDetails.displayAge} 
+          setShowPediatricCalc={setShowPediatricCalc} 
+          isPediatricPatient={isPediatricPatient} 
+          patientWeight={patientWeight} 
+          setPatientWeight={setPatientWeight} 
+          medConcentration={medConcentration} 
+          setMedConcentration={setMedConcentration} 
+          calculatedDose={calculatedDose} 
+          handleAddPediatricSyrup={handleAddPediatricSyrup} 
+          searchDrugQuery={searchDrugQuery} 
+          setSearchDrugQuery={setSearchDrugQuery} 
+          drugSuggestions={drugSuggestions} 
+          handleAddDrug={handleAddDrug} 
+          rxList={rxList} 
+          setRxList={setRxList} 
+          pharmacyMemo={pharmacyMemo} 
+          setPharmacyMemo={setPharmacyMemo} 
+          patientAllergies={currentPatient.drugAllergies}
+          mcGenerated={mcGenerated}
+          setMcGenerated={setMcGenerated}
+          mcDays={mcDays}
+          setMcDays={setMcDays}
+          mcReason={mcReason}
+          setMcReason={setMcReason}
+          followUpWeeks={followUpWeeks}
+          setFollowUpWeeks={setFollowUpWeeks}
+          selectedICD={selectedICD}
+        />
       )}
 
       {/* ========================================================================= */}

@@ -36,6 +36,7 @@ interface ConsultationRoomProps {
   activeLanguage: Language;
   onConsultationComplete: (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onCancel: () => void;
+  stationHud?: React.ReactNode;
 }
 
 export default function ConsultationRoom({
@@ -43,7 +44,8 @@ export default function ConsultationRoom({
   activeVisit,
   activeLanguage,
   onConsultationComplete,
-  onCancel
+  onCancel,
+  stationHud
 }: ConsultationRoomProps) {
   // Translate labels
   const t = TRANSLATIONS[activeLanguage];
@@ -478,63 +480,26 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 2 & 3: MAIN ENCOUNTER WORKSPACE + CONTEXTUAL RIGHT PANEL             */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[500px]">
+      <div className="grid grid-cols-1 lg:grid-cols-[30.33%_1fr] gap-5 items-stretch min-h-[500px]">
         
-        {/* AREA 2: MAIN CONSULTATION WORKSPACE (8 COLS / 65%) */}
-        <div className="lg:col-span-8 bg-surface border border-line p-5 rounded-none flex flex-col justify-between space-y-5">
+        {/* CONTEXTUAL LEFT PANEL — VITALS, LONGITUDINAL HISTORY & QUEUE (30.33%) */}
+        <ContextPanel vitals={vitals} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} stationHud={stationHud} />
+        
+        {/* AREA 2: MAIN CONSULTATION WORKSPACE (69.67%) */}
+        <div className="w-full min-w-0 bg-surface border border-line p-5 rounded-none flex flex-col justify-between space-y-5">
           
           <div className="space-y-4">
             
-            {/* EXPLICIT CLINICAL WORKFLOW STATE SEQUENCE BAR */}
-            <div className="bg-surface-muted border border-line p-2 rounded-none flex items-center justify-between text-2xs font-mono tabular-nums font-bold">
-              <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar">
-                <span className="bg-primary text-white px-2 py-0.5 rounded-none flex items-center justify-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-300" />
-                  1. Draft Saved
-                </span>
-                <span className="text-slate-400">➔</span>
-                <span className={`px-2 py-0.5 rounded-none border ${selectedICD ? 'bg-surface text-accent border-brand' : 'bg-surface-accent text-subtle dark:text-slate-400 border-line'}`}>
-                  2. Ready for Review
-                </span>
-                <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent text-subtle dark:text-slate-400 border border-line px-2 py-0.5 rounded-none">
-                  3. Signed Note
-                </span>
-                <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent text-subtle dark:text-slate-400 border border-line px-2 py-0.5 rounded-none">
-                  4. Prescription Routed
-                </span>
-                <span className="text-slate-400">➔</span>
-                <span className="bg-surface-accent text-subtle dark:text-slate-400 border border-line px-2 py-0.5 rounded-none">
-                  5. Encounter Closed
-                </span>
-              </div>
-              <span className="text-2xs text-accent shrink-0 font-sans hidden sm:inline">
-                Autosaved · {lastSavedTime}
-              </span>
-            </div>
-
-            {/* STEPPER HEADER TOOLBAR */}
-            <div className="bg-surface p-3.5 border border-line rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <span className="text-2xs font-bold text-accent uppercase tracking-wider block font-mono">Consultation Draft in Progress</span>
-                <h3 className="type-card-title text-ink flex items-center gap-1.5 mt-0.5">
-                  <Stethoscope className="w-4 h-4 text-accent" />
-                  <span>Encounter Workspace — {activeTab.toUpperCase()}</span>
-                </h3>
-              </div>
-
-              {/* Actionable Requirement Status Text */}
-              <div className="bg-surface px-3 py-1.5 border border-line text-2xs font-bold text-accent rounded-none">
-                {activeTab === 'subjective' && (subjective.trim() ? 'Subjective: Complete ✓' : 'Subjective: Enter Symptoms')}
-                {activeTab === 'objective' && (vitals.temperature > 0 ? 'Objective: Vitals Complete ✓' : 'Objective: Check Vitals')}
-                {activeTab === 'assessment' && (selectedICD ? `Assessment: ${selectedICD.code} Selected ✓` : 'Required Next: Select ICD-10 Diagnosis')}
-                {activeTab === 'plan' && (rxList.length > 0 ? `Plan: ${rxList.length} Rx Items Ready` : 'Plan: Add Prescriptions / Lab Orders')}
-              </div>
-            </div>
-
-            {/* SINGLE UNIFIED STEPPER NAVIGATION TABS */}
-            <ConsultationStepper activeTab={activeTab} setActiveTab={setActiveTab} subjective={subjective} vitals={vitals} selectedICD={selectedICD} rxList={rxList} />
+            {/* SINGLE UNIFIED CLINICAL COMMAND & STEPPER BAR */}
+            <ConsultationStepper 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              subjective={subjective} 
+              vitals={vitals} 
+              selectedICD={selectedICD} 
+              rxList={rxList}
+              lastSavedTime={lastSavedTime}
+            />
 
             {/* TAB CONTENT AREA */}
             <div className="min-h-[360px]">
@@ -554,6 +519,8 @@ export default function ConsultationRoom({
                   vitals={vitals}
                   setVitals={setVitals}
                   patientPastVisits={patientPastVisits}
+                  clinicalNotes={clinicalNotes}
+                  setClinicalNotes={setClinicalNotes}
                 />
               )}
 
@@ -600,8 +567,8 @@ export default function ConsultationRoom({
 
         </div>
 
-        {/* AREA 3: CONTEXTUAL RIGHT PANEL — SUPPORTING DATA & QUICK TOOLS (4 COLS / 35%) */}
-        <ContextPanel vitals={vitals} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} />
+        
+        
 
       </div>
 

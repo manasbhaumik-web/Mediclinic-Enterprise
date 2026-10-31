@@ -173,23 +173,7 @@ export default function AssessmentTab({
     },
   ];
 
-  // Quick normal findings tokens with plain-English button text
-  const clinicalFindingTokens = [
-    { label: '+ Patient Looks Well (NAD)', phrase: 'NAD (Patient alert, conscious, no acute distress)' },
-    { label: '+ Lungs Clear', phrase: 'Chest clear bilaterally, good equal air entry, no rhonchi/wheeze' },
-    { label: '+ Normal Tummy', phrase: 'Abdomen soft, non-tender, no organomegaly or guarding' },
-    { label: '+ Throat Mildly Red', phrase: 'Pharynx mildly injected, tonsils not enlarged, no exudate' },
-    { label: '+ Vitals Stable & Normal', phrase: 'Afebrile, vital signs within normal clinical limits' },
-    { label: '+ Follow-up in 1–2 Weeks', phrase: 'Medication titrated/prescribed; advise follow-up review in 1–2 weeks' },
-  ];
 
-  const handleAppendFinding = (phrase: string) => {
-    setClinicalNotes((prev) => {
-      const trimmed = prev.trim();
-      if (!trimmed) return phrase;
-      return `${trimmed}\n• ${phrase}`;
-    });
-  };
 
   return (
     <div className="space-y-5 animate-fadeIn">
@@ -383,41 +367,24 @@ export default function AssessmentTab({
         </div>
       )}
 
-      {/* 4. Clinician Examination Summary & Diagnostic Reasoning */}
+      {/* 4. Clinician Diagnostic Impression & Clinical Rationale */}
       <div className="space-y-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <label htmlFor="soap-notes-clinical-desc" className="block text-xs font-bold text-ink uppercase tracking-tight flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-accent" />
-            <span>Clinical Examination Summary &amp; Diagnostic Reasoning</span>
+            <span>Diagnostic Impression &amp; Clinical Rationale</span>
           </label>
           <span className="text-2xs font-mono text-muted">
-            {clinicalNotes.length} Characters · Examination Notes
+            {clinicalNotes.length} Characters · Clinical Rationale
           </span>
-        </div>
-
-        {/* Quick Insert Clinical Phrasing Tokens with Plain English Buttons */}
-        <div className="flex flex-wrap items-center gap-1.5 p-2.5 bg-surface-muted/20 border border-line rounded-none">
-          <span className="text-2xs font-mono uppercase font-bold text-muted mr-1">Quick Add:</span>
-          {clinicalFindingTokens.map((token, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handleAppendFinding(token.phrase)}
-              className="text-2xs bg-surface hover:bg-surface-accent text-ink border border-line px-2.5 py-1 rounded-none cursor-pointer font-sans transition-colors flex items-center gap-1"
-              title={`Append "${token.phrase}" to notes`}
-            >
-              <PlusCircle className="w-3 h-3 text-accent" />
-              <span>{token.label}</span>
-            </button>
-          ))}
         </div>
 
         <textarea
           id="soap-notes-clinical-desc"
-          className="w-full bg-surface border border-line focus:border-primary focus:ring-1 focus:ring-primary rounded-none px-4 py-3 text-xs text-ink transition-all outline-none resize-y min-h-[130px] leading-relaxed placeholder:text-muted font-sans"
+          className="w-full bg-surface border border-line focus:border-primary focus:ring-1 focus:ring-primary rounded-none px-4 py-3 text-xs text-ink transition-all outline-none resize-y min-h-[100px] leading-relaxed placeholder:text-muted font-sans"
           value={clinicalNotes}
           onChange={(e) => setClinicalNotes(e.target.value)}
-          placeholder="Enter physical examination findings, diagnostic reasoning, follow-up advice..."
+          placeholder="Enter diagnostic reasoning, differential considerations, disease progression notes..."
         />
       </div>
 
