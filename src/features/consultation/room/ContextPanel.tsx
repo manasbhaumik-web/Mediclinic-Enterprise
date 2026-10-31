@@ -1,5 +1,6 @@
 import React from 'react';
-import { Activity, History, Clock } from 'lucide-react';
+import { Activity, History, Clock, Heart } from 'lucide-react';
+import ChronicDiseaseFlowsheet from './ChronicDiseaseFlowsheet';
 import { buttonProps, focusRing } from '../../../lib/a11y';
 import { Visit } from '../../../types';
 
@@ -13,6 +14,7 @@ interface ContextPanelProps {
 }
 
 export default function ContextPanel({ vitals, t, patientPastVisits, selectedPastVisit, setSelectedPastVisit, stationHud }: ContextPanelProps) {
+  const [panelMode, setPanelMode] = React.useState<'timeline' | 'flowsheet'>('timeline');
   return (
     <div className="w-full space-y-4">
       
@@ -46,8 +48,40 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
         </div>
       </div>
     
-      {/* Longitudinal Clinical History Timeline */}
-      <div className="bg-surface p-4 rounded-none border border-line space-y-3 flex-1 flex flex-col">
+      {/* Longitudinal Clinical History Timeline & Chronic Flowsheet */}
+      <div className="bg-surface p-3.5 rounded-none border border-line space-y-3 flex-1 flex flex-col">
+        {/* Sub-mode Switcher */}
+        <div className="flex border border-line bg-surface-muted/50 p-0.5 rounded-none gap-0.5" role="tablist">
+          <button
+            type="button"
+            onClick={() => setPanelMode('timeline')}
+            className={`flex-1 py-1 px-2 text-2xs font-mono font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer rounded-none ${
+              panelMode === 'timeline'
+                ? 'bg-primary text-white'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Visits ({patientPastVisits.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPanelMode('flowsheet')}
+            className={`flex-1 py-1 px-2 text-2xs font-mono font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer rounded-none ${
+              panelMode === 'flowsheet'
+                ? 'bg-primary text-white'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            <Heart className="w-3.5 h-3.5 text-rose-400" />
+            <span>Chronic Flowsheet</span>
+          </button>
+        </div>
+
+        {panelMode === 'flowsheet' ? (
+          <ChronicDiseaseFlowsheet pastVisits={patientPastVisits} currentVitals={vitals} />
+        ) : (
+        <>
         <div className="flex items-center justify-between border-b border-line pb-2">
           <h3 className="type-label text-ink flex items-center gap-1.5 font-bold">
             <History className="w-4 h-4 text-accent" />
@@ -101,6 +135,8 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
               );
             })}
           </div>
+        )}
+        </>
         )}
       </div>
 

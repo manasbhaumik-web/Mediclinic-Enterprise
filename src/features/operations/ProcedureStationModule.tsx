@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Visit, Patient, ClinicalProcedureItem } from '../../types';
-import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope } from 'lucide-react';
+import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { formatTicket } from '../../domain/ticket';
+import { ProceduralConsentModal } from './ProceduralConsentModal';
+import { SignedConsentRecord } from '../../domain/proceduralConsent';
+import { ImmunizationModule } from './ImmunizationModule';
 
 interface ProcedureStationModuleProps {
   visits: Visit[];
@@ -18,6 +21,7 @@ export default function ProcedureStationModule({
   onCompleteProcedure,
   onClearHold
 }: ProcedureStationModuleProps) {
+  const [activeStationTab, setActiveStationTab] = useState<'procedures' | 'immunization'>('procedures');
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
   const [selectedProcedureId, setSelectedProcedureId] = useState<string | null>(null);
   const [adminSite, setAdminSite] = useState('Left Deltoid (IM)');
@@ -25,6 +29,10 @@ export default function ProcedureStationModule({
   const [resultText, setResultText] = useState('');
   const [nurseNotes, setNurseNotes] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Consent Modal State
+  const [consentModalProc, setConsentModalProc] = useState<ClinicalProcedureItem | null>(null);
+  const [signedConsents, setSignedConsents] = useState<Record<string, SignedConsentRecord>>({});
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -88,7 +96,45 @@ export default function ProcedureStationModule({
         </div>
       </div>
 
-      {procedureQueue.length === 0 ? (
+      {/* Station Sub-Navigation Tabs */}
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setActiveStationTab('procedures')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            activeStationTab === 'procedures'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <Activity className="w-4 h-4 shrink-0" />
+          <span>Procedures &amp; In-Clinic Queue ({procedureQueue.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveStationTab('immunization')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            activeStationTab === 'immunization'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <Syringe className="w-4 h-4 shrink-0" />
+          <span>Childhood Immunization &amp; Cold Chain (Jadual KKM)</span>
+        </button>
+      </div>
+
+      {/* Immunization Sub-Module */}
+      {activeStationTab === 'immunization' ? (
+        <ImmunizationModule 
+          patient={activePatient}
+          onAdministerVaccine={(record) => {
+            setToastMessage(`✓ ${record.vaccineName} recorded for ${activePatient?.fullName || 'Child'}. Lot #${record.batchNo}`);
+            setTimeout(() => setToastMessage(null), 4000);
+          }}
+        />
+      ) : procedureQueue.length === 0 ? (
         <div className="bg-surface border border-line p-12 text-center text-muted">
           <Syringe className="w-12 h-12 text-muted mx-auto mb-3 opacity-40" />
           <h3 className="text-sm font-bold text-ink">No patients currently awaiting procedures</h3>
@@ -272,6 +318,31 @@ export default function ProcedureStationModule({
                             />
                           </div>
 
+                          {/* Statutory PHFSA 1998 Consent Check / Trigger */}
+                          <div className="border border-line bg-surface-muted/30 p-2.5 flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <ShieldAlert className="w-4 h-4 text-primary" />
+                              <span className="font-bold text-ink">Informed Procedural Consent (PHFSA 1998):</span>
+                              {signedConsents[proc.id] ? (
+                                <span className="text-emerald-700 dark:text-emerald-300 font-mono text-2xs font-bold bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 border border-emerald-300">
+                                  ✓ Signed &amp; Legally Executed ({signedConsents[proc.id].id})
+                                </span>
+                              ) : (
+                                <span className="text-amber-800 dark:text-amber-300 text-2xs font-medium">
+                                  Pending electronic patient / guardian statutory signature
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setConsentModalProc(proc)}
+                              className="px-2.5 py-1 bg-surface-accent border border-line text-xs font-bold text-ink hover:bg-surface flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-primary" />
+                              <span>{signedConsents[proc.id] ? 'View / Print Consent' : 'Review & Sign Consent'}</span>
+                            </button>
+                          </div>
+
                           <div className="pt-2 flex justify-end">
                             <button
                               type="button"
@@ -291,6 +362,24 @@ export default function ProcedureStationModule({
             ) : null}
           </div>
         </div>
+      )}
+
+      {/* Statutory PHFSA 1998 Procedural Consent Modal */}
+      {consentModalProc && activePatient && (
+        <ProceduralConsentModal
+          isOpen={!!consentModalProc}
+          onClose={() => setConsentModalProc(null)}
+          procedureName={consentModalProc.name}
+          patientId={activePatient.id}
+          patientName={activePatient.fullName}
+          patientIc={activePatient.icNumber}
+          doctorName={activeVisit?.doctorName || 'Dr. Consult In-Charge'}
+          onConsentSigned={(record) => {
+            setSignedConsents(prev => ({ ...prev, [consentModalProc.id]: record }));
+            setToastMessage(`✓ PHFSA Consent legally executed for ${consentModalProc.name} (ID: ${record.id})`);
+            setTimeout(() => setToastMessage(null), 4000);
+          }}
+        />
       )}
     </div>
   );

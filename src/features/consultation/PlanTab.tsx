@@ -20,6 +20,10 @@ import CertificatesAndReferralPanel from './plan/CertificatesAndReferralPanel';
 import PlanSummaryPanel from './plan/PlanSummaryPanel';
 import ContraindicationModal from './plan/ContraindicationModal';
 import { calculatePatientAge } from '../../domain/patientAge';
+import { auditAntimicrobialPrescription, isAntibioticDrug } from '../../domain/antibioticStewardship';
+import { AntibioticStewardshipModal } from './plan/AntibioticStewardshipModal';
+import { ProceduralConsentModal } from '../operations/ProceduralConsentModal';
+import { SignedConsentRecord } from '../../domain/proceduralConsent';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
@@ -101,6 +105,14 @@ export default function PlanTab({
   // Document Modal States
   const [isMcModalOpen, setIsMcModalOpen] = useState(false);
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+
+  // KKM NAG Antibiotic Stewardship Guard States
+  const [stewardshipModalOpen, setStewardshipModalOpen] = useState(false);
+  const [stewardshipJustifications, setStewardshipJustifications] = useState<Record<string, string>>({});
+
+  // PHFSA 1998 Procedural Consent States
+  const [consentModalProc, setConsentModalProc] = useState<ClinicalProcedureItem | null>(null);
+  const [signedConsents, setSignedConsents] = useState<Record<string, SignedConsentRecord>>({});
 
   // Interruptive Allergy Override State
   const [pendingAllergyDrug, setPendingAllergyDrug] = useState<any | null>(null);
@@ -217,6 +229,20 @@ export default function PlanTab({
     return alerts;
   }, [rxList, currentPatient, mergedCatalog]);
 
+  // KKM NAG Antimicrobial Stewardship Evaluation
+  const stewardshipResult = useMemo(() => {
+    if (!selectedICD) return null;
+    return auditAntimicrobialPrescription(
+      [{ code: selectedICD.code, name: selectedICD.desc }],
+      rxList.map(r => r.drugName)
+    );
+  }, [selectedICD, rxList]);
+
+  const unacknowledgedAntibiotics = useMemo(() => {
+    if (!stewardshipResult || !stewardshipResult.requiresStewardshipReview) return [];
+    return stewardshipResult.prescribedAntibiotics.filter(ab => !stewardshipJustifications[ab]);
+  }, [stewardshipResult, stewardshipJustifications]);
+
   const handleAddDrug = (drug: any) => {
     if (rxList.some(r => r.drugName.toLowerCase() === drug.name.toLowerCase())) {
       setSearchDrugQuery('');
@@ -233,6 +259,18 @@ export default function PlanTab({
     if (isAllergic) {
       setPendingAllergyDrug(drug);
       return;
+    }
+
+    // KKM NAG Stewardship Pre-Check: If antibiotic and viral condition diagnosed
+    if (selectedICD && isAntibioticDrug(drug.name)) {
+      const audit = auditAntimicrobialPrescription(
+        [{ code: selectedICD.code, name: selectedICD.desc }],
+        [drug.name]
+      );
+      if (audit.requiresStewardshipReview && !stewardshipJustifications[drug.name]) {
+        // Trigger stewardship notification
+        setStewardshipModalOpen(true);
+      }
     }
 
     confirmAddDrug(drug, '');
@@ -315,15 +353,40 @@ export default function PlanTab({
         </div>
       ) : null}
 
+      {/* KKM NAG ANTIBIOTIC STEWARDSHIP ALERT BANNER */}
+      {unacknowledgedAntibiotics.length > 0 && (
+        <div className="bg-amber-600 text-white p-3 rounded-none flex items-center justify-between gap-3 border border-amber-700 animate-fadeIn">
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert className="w-5 h-5 shrink-0 text-white" />
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider">
+                KKM NAG Stewardship Alert: Systemic Antibiotic for Viral Condition
+              </h4>
+              <p className="text-2xs opacity-95">
+                <span className="font-bold underline">{unacknowledgedAntibiotics.join(', ')}</span> prescribed with diagnosis <span className="font-mono font-bold">{selectedICD?.code} - {selectedICD?.desc}</span>.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStewardshipModalOpen(true)}
+            className="px-3 py-1.5 bg-white text-amber-900 text-xs font-bold uppercase tracking-wider hover:bg-amber-100 rounded-none shrink-0 cursor-pointer"
+          >
+            Review &amp; Justify
+          </button>
+        </div>
+      )}
+
       {/* ------------------------------------------------------------------------- */}
       {/* 5 STRUCTURED SUB-TABS NAVIGATION BAR (SINGLE-LINE CLINICAL LABELS)        */}
+      {/* SUB-NAVIGATION TABS (Guaranteed Single-Line with min-w-fit & whitespace-nowrap) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto" role="tablist">
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto scrollbar-thin" role="tablist">
         
         <button
           type="button"
           onClick={() => setSubTab('medication')}
-          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'medication'
               ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
@@ -338,7 +401,7 @@ export default function PlanTab({
         <button
           type="button"
           onClick={() => setSubTab('investigations')}
-          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'investigations'
               ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
@@ -353,7 +416,7 @@ export default function PlanTab({
         <button
           type="button"
           onClick={() => setSubTab('procedures')}
-          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'procedures'
               ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
@@ -368,7 +431,7 @@ export default function PlanTab({
         <button
           type="button"
           onClick={() => setSubTab('documents')}
-          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'documents'
               ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
@@ -383,7 +446,7 @@ export default function PlanTab({
         <button
           type="button"
           onClick={() => setSubTab('summary')}
-          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'summary'
               ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
@@ -572,6 +635,23 @@ export default function PlanTab({
                           <strong>Result:</strong> {p.result}
                         </div>
                       )}
+                      {/* PHFSA 1998 Consent Action Line */}
+                      <div className="flex items-center justify-between pt-1 border-t border-line/40 text-2xs">
+                        <span className="text-ink-muted">PHFSA Consent:</span>
+                        {signedConsents[p.id] ? (
+                          <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono">
+                            ✓ Signed ({signedConsents[p.id].id})
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setConsentModalProc(p)}
+                            className="text-primary hover:underline font-bold cursor-pointer"
+                          >
+                            Review &amp; Sign
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                   <div className="pt-2 border-t border-line flex justify-between font-mono text-xs font-bold text-ink">
@@ -606,6 +686,47 @@ export default function PlanTab({
       {/* ========================================================================= */}
       {pendingAllergyDrug && (
         <ContraindicationModal currentPatient={currentPatient} pendingAllergyDrug={pendingAllergyDrug} overrideRationale={overrideRationale} setOverrideRationale={setOverrideRationale} setPendingAllergyDrug={setPendingAllergyDrug} confirmAddDrug={confirmAddDrug} />
+      )}
+
+      {/* ========================================================================= */}
+      {/* KKM NAG ANTIBIOTIC STEWARDSHIP JUSTIFICATION MODAL                        */}
+      {/* ========================================================================= */}
+      {stewardshipResult && (
+        <AntibioticStewardshipModal
+          isOpen={stewardshipModalOpen}
+          onClose={() => setStewardshipModalOpen(false)}
+          stewardshipResult={stewardshipResult}
+          onConfirmOverride={(justification) => {
+            const updated = { ...stewardshipJustifications };
+            stewardshipResult.prescribedAntibiotics.forEach(ab => {
+              updated[ab] = justification;
+            });
+            setStewardshipJustifications(updated);
+            setPharmacyMemo(prev => 
+              prev ? `${prev}\n[NAG Antibiotic Stewardship Justification: ${justification}]` : `[NAG Antibiotic Stewardship Justification: ${justification}]`
+            );
+          }}
+          onRemoveAntibiotic={(drugName) => {
+            setRxList(prev => prev.filter(r => r.drugName !== drugName && !r.drugName.startsWith(drugName)));
+          }}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* STATUTORY PHFSA 1998 PROCEDURAL CONSENT MODAL                            */}
+      {/* ========================================================================= */}
+      {consentModalProc && (
+        <ProceduralConsentModal
+          isOpen={!!consentModalProc}
+          onClose={() => setConsentModalProc(null)}
+          procedureName={consentModalProc.name}
+          patientId={currentPatient.id}
+          patientName={currentPatient.fullName}
+          patientIc={currentPatient.icNumber}
+          onConsentSigned={(record) => {
+            setSignedConsents(prev => ({ ...prev, [consentModalProc.id]: record }));
+          }}
+        />
       )}
 
     </div>
