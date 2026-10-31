@@ -447,7 +447,7 @@ export default function AdminModule({
         {/* MAIN CONTENT AREA                                                         */}
         {/* ========================================================================= */}
         <main className="flex-1 p-5 overflow-y-auto bg-canvas dark:bg-night-900 text-ink dark:text-slate-100">
-          <div className="w-[95%] mx-auto">
+          <div className="w-full">
           <React.Suspense fallback={<GlobalSpinner />}>
 
           {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
