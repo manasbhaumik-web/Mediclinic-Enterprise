@@ -316,77 +316,82 @@ export default function PlanTab({
       ) : null}
 
       {/* ------------------------------------------------------------------------- */}
-      {/* 4 STRUCTURED SUB-TABS NAVIGATION BAR                                      */}
+      {/* 5 STRUCTURED SUB-TABS NAVIGATION BAR (SINGLE-LINE CLINICAL LABELS)        */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex border border-line bg-surface p-1 rounded-none gap-1" role="tablist">
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto" role="tablist">
         
         <button
           type="button"
           onClick={() => setSubTab('medication')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'medication'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Medication Prescribing & In-House Inventory"
         >
-          <Pill className="w-4 h-4" />
-          <span>1. Medication Prescribing</span>
-          {rxList.length > 0 && <span className="bg-surface text-accent px-1 font-mono text-2xs font-bold">{rxList.length}</span>}
+          <Pill className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">1. Medications</span>
+          {rxList.length > 0 && <span className="bg-surface text-accent px-1 font-mono text-2xs font-bold shrink-0">{rxList.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('investigations')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'investigations'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Laboratory & Diagnostic Investigations"
         >
-          <TestTube className="w-4 h-4" />
-          <span>2. Lab &amp; Investigations</span>
-          {selectedLabs.length > 0 && <span className="bg-surface-accent text-accent px-1 font-mono text-2xs font-bold">{selectedLabs.length}</span>}
+          <TestTube className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">2. Lab &amp; Tests</span>
+          {selectedLabs.length > 0 && <span className="bg-surface-accent text-accent px-1 font-mono text-2xs font-bold shrink-0">{selectedLabs.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('procedures')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'procedures'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="In-Clinic Injections, Nebulizer, Wound Care & Rapid Tests"
         >
-          <Activity className="w-4 h-4" />
-          <span>3. In-Clinic Procedures &amp; Injections</span>
-          {procedures.length > 0 && <span className="bg-primary-hover text-white px-1 font-mono text-2xs font-bold">{procedures.length}</span>}
+          <Activity className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">3. Procedures</span>
+          {procedures.length > 0 && <span className="bg-primary-hover text-white px-1.5 py-0.2 font-mono text-2xs font-bold shrink-0">{procedures.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('documents')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'documents'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Medical Certificates (MC), Referral Letters & Pharmacy Memos"
         >
-          <FileText className="w-4 h-4" />
-          <span>4. Documents &amp; Certificates</span>
-          {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
+          <FileText className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">4. Documents / MC</span>
+          {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 shrink-0" />}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('summary')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-0 py-2 px-2.5 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'summary'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Encounter Prescription & Order Summary"
         >
-          <FileCheck className="w-4 h-4" />
-          <span>5. Order Summary</span>
+          <FileCheck className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">5. Order Summary</span>
         </button>
 
       </div>
