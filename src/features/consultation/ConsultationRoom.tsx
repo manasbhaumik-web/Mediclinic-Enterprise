@@ -236,6 +236,7 @@ export default function ConsultationRoom({
       setLabReason(d.labReason ?? '');
       setMcReason(d.mcReason ?? '');
       setFollowUpWeeks(d.followUpWeeks ?? 0);
+      if (d.procedures) setProcedures(d.procedures);
       setLastSavedTime(clock(d.savedAt));
     } else if (activeVisit?.soap) {
       // No saved draft yet: pre-fill from visit record
@@ -300,6 +301,7 @@ export default function ConsultationRoom({
       labReason,
       mcReason,
       followUpWeeks,
+      procedures,
       savedAt
     };
     saveDraft(id, draft);
