@@ -3,8 +3,9 @@ import { Visit, PrescriptionItem, Language } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import { 
   Users, User, CheckCircle, AlertCircle, FileText, Printer, CheckSquare, 
-  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle
+  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle, BookOpen
 } from 'lucide-react';
+import BukuRacunRegister from './BukuRacunRegister';
 import { useInventory } from '../../context/InventoryContext';
 import { useInventoryActions, useVisitRegister } from '../../hooks/useInventoryData';
 import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
@@ -14,6 +15,7 @@ import { conflictsWithAllergy, recordedAllergies } from '../../domain/allergy';
 
 interface DispensaryDashboardProps {
   queue: Visit[];
+  allVisits?: Visit[];
   patientsMap: Record<string, any>;
   activeLanguage: Language;
   onDispenseSubmit: (visitId: string) => void;
@@ -22,11 +24,13 @@ interface DispensaryDashboardProps {
 
 export default function DispensaryDashboard({
   queue,
+  allVisits,
   patientsMap,
   activeLanguage,
   onDispenseSubmit,
   pharmacistName = "Pharm. Ahmad Razak"
 }: DispensaryDashboardProps) {
+  const [activeSubTab, setActiveSubTab] = useState<'dispensing' | 'buku-racun'>('dispensing');
   const t = TRANSLATIONS[activeLanguage];
   const { catalog } = useInventory();
   const inv = useInventoryActions();
@@ -185,6 +189,49 @@ export default function DispensaryDashboard({
         </div>
       </div>
 
+      {/* Sub-Station Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface border border-line p-2.5">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('dispensing')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'dispensing'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Pill className="w-4 h-4" />
+            <span>1. Dispensing Console</span>
+            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
+              {queue.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('buku-racun')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'buku-racun'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>2. Buku Racun (KKM Poison Book)</span>
+            <span className="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-300/40 font-mono text-2xs font-bold">
+              Section 24
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {activeSubTab === 'buku-racun' ? (
+        <BukuRacunRegister
+          visits={allVisits || queue}
+          patientsMap={patientsMap}
+        />
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
       
       {/* 1. DISPENSARY QUEUE LIST PANEL (Left Column - 35%) */}
@@ -577,6 +624,8 @@ export default function DispensaryDashboard({
           </div>
         )}
       </div>
+      </div>
+      )}
 
       {/* DRUG LABEL PRINTING PREVIEW MODAL */}
       {isLabelModalOpen && selectedLabelRx && activePatient && (
@@ -691,8 +740,6 @@ export default function DispensaryDashboard({
           </div>
         </div>
       )}
-
-      </div>
     </div>
   );
 }

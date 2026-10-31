@@ -31,6 +31,7 @@ export interface ClinicShellContext {
   patientsList: Patient[];
   patientsMap: Record<string, Patient>;
   completedVisits: Visit[];
+  visitsQueue: Visit[];
   queues: ReturnType<typeof splitQueues>;
   appointments: Appointment[];
   activeConsultationVisitId: string | null;
@@ -121,6 +122,7 @@ export default function ClinicShell() {
     patientsList,
     patientsMap,
     completedVisits,
+    visitsQueue,
     queues,
     appointments,
     activeConsultationVisitId,

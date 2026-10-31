@@ -6,7 +6,8 @@ import {
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { Patient, PrescriptionItem, ICD10Code } from '../../types';
+import { Patient, PrescriptionItem, ICD10Code, ClinicalProcedureItem } from '../../types';
+import { COMMON_CLINIC_PROCEDURES, createProcedureOrder } from '../../domain/procedures';
 import { useInventory } from '../../context/InventoryContext';
 import { useAuth } from '../../context/AuthContext';
 import { DRUG_DATABASE } from '../../data';
@@ -22,6 +23,8 @@ import { calculatePatientAge } from '../../domain/patientAge';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
+  procedures?: ClinicalProcedureItem[];
+  setProcedures?: React.Dispatch<React.SetStateAction<ClinicalProcedureItem[]>>;
   currentPatient: Patient;
   selectedICD: ICD10Code | null;
   mcDays: number | '';
@@ -47,6 +50,8 @@ interface PlanTabProps {
 export default function PlanTab({
   rxList,
   setRxList,
+  procedures = [],
+  setProcedures,
   currentPatient,
   selectedICD,
   mcDays,
@@ -72,7 +77,9 @@ export default function PlanTab({
   const { inventory } = useInventory();
 
   // Active Sub-Tab State
-  const [subTab, setSubTab] = useState<'medication' | 'investigations' | 'documents' | 'summary'>('medication');
+  const [subTab, setSubTab] = useState<'medication' | 'investigations' | 'procedures' | 'documents' | 'summary'>('medication');
+  const [procCategory, setProcCategory] = useState<string>('All');
+  const [procSearch, setProcSearch] = useState<string>('');
 
   // Patient Age Context with Clinical Precision
   const patientAgeDetails = useMemo(() => {
@@ -343,6 +350,20 @@ export default function PlanTab({
 
         <button
           type="button"
+          onClick={() => setSubTab('procedures')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+            subTab === 'procedures'
+              ? 'bg-primary text-white '
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          <span>3. In-Clinic Procedures &amp; Injections</span>
+          {procedures.length > 0 && <span className="bg-primary-hover text-white px-1 font-mono text-2xs font-bold">{procedures.length}</span>}
+        </button>
+
+        <button
+          type="button"
           onClick={() => setSubTab('documents')}
           className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
             subTab === 'documents'
@@ -351,7 +372,7 @@ export default function PlanTab({
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>3. Documents &amp; Certificates</span>
+          <span>4. Documents &amp; Certificates</span>
           {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
         </button>
 
@@ -365,7 +386,7 @@ export default function PlanTab({
           }`}
         >
           <FileCheck className="w-4 h-4" />
-          <span>4. Order Summary</span>
+          <span>5. Order Summary</span>
         </button>
 
       </div>
@@ -412,6 +433,153 @@ export default function PlanTab({
       {/* ========================================================================= */}
       {subTab === 'investigations' && (
         <LabOrdersPanel selectedLabs={selectedLabs} availableLabTests={availableLabTests} toggleLabSelection={toggleLabSelection} labReason={labReason} setLabReason={setLabReason} />
+      )}
+
+
+      {/* ========================================================================= */}
+      {/* SUB-TAB 3: IN-CLINIC PROCEDURES & RAPID DIAGNOSTICS                       */}
+      {/* ========================================================================= */}
+      {subTab === 'procedures' && (
+        <div className="space-y-4 animate-fadeIn font-sans">
+          <div className="bg-surface-muted/40 border border-line p-3.5 rounded-none flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="type-section-title text-ink font-bold flex items-center gap-2">
+                <Activity className="w-4 h-4 text-accent" />
+                In-Clinic Procedures, Injections &amp; Rapid Diagnostics
+              </h3>
+              <p className="text-xs text-muted mt-0.5">
+                Orders dispatch directly to the Treatment Room &amp; Nursing Station.
+              </p>
+            </div>
+            <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 px-3 py-1.5 text-2xs text-amber-900 dark:text-amber-200">
+              💡 Need rapid test results before sign-off? Order here, then click <strong>Hold: Rapid Test / Lab</strong> in bottom toolbar.
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+            {/* Catalog of Procedures (8 Cols) */}
+            <div className="lg:col-span-8 border border-line p-3 bg-surface space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
+                <div className="flex flex-wrap gap-1">
+                  {['All', 'Injection', 'Nebulizer', 'Wound Care', 'Diagnostic', 'Minor Surgery'].map(cat => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setProcCategory(cat)}
+                      className={`px-2.5 py-1 text-2xs font-mono font-bold rounded-none cursor-pointer transition-colors ${
+                        procCategory === cat ? 'bg-primary text-white' : 'bg-surface-muted text-muted hover:text-ink'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  placeholder="Filter procedures..."
+                  value={procSearch}
+                  onChange={(e) => setProcSearch(e.target.value)}
+                  className="px-2 py-1 text-xs border border-line bg-surface text-ink w-44 rounded-none focus:outline-none focus:border-brand"
+                />
+              </div>
+
+              <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                {COMMON_CLINIC_PROCEDURES.filter(p => {
+                  if (procCategory !== 'All' && p.category !== procCategory) return false;
+                  if (procSearch.trim() && !p.name.toLowerCase().includes(procSearch.toLowerCase())) return false;
+                  return true;
+                }).map(preset => {
+                  const isAlreadyOrdered = procedures.some(p => p.name === preset.name && p.status === 'Pending');
+                  return (
+                    <div key={preset.name} className="flex items-center justify-between p-2.5 border border-line hover:border-brand transition-colors bg-surface-muted/20">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-xs text-ink">{preset.name}</span>
+                          <span className="text-2xs font-mono px-1.5 py-0.2 bg-surface border border-line text-muted">{preset.category}</span>
+                        </div>
+                        <div className="text-2xs text-muted mt-0.5">{preset.dosageOrDetails}</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-xs font-bold text-ink">RM {preset.price.toFixed(2)}</span>
+                        <button
+                          type="button"
+                          disabled={isAlreadyOrdered}
+                          onClick={() => {
+                            if (!setProcedures) return;
+                            const newOrder = createProcedureOrder(preset, 'current-doc', 'Ordered during consultation');
+                            setProcedures(prev => [...prev, newOrder]);
+                          }}
+                          className={`px-3 py-1 font-mono text-2xs font-bold rounded-none cursor-pointer ${
+                            isAlreadyOrdered
+                              ? 'bg-surface-muted text-muted cursor-not-allowed border border-line'
+                              : 'bg-primary hover:bg-primary-hover text-white'
+                          }`}
+                        >
+                          {isAlreadyOrdered ? '✓ Ordered' : '+ Order'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Ordered Procedures in this encounter (4 Cols) */}
+            <div className="lg:col-span-4 border border-line p-3 bg-surface space-y-3">
+              <div className="flex items-center justify-between border-b border-line pb-2">
+                <span className="type-heading-caps text-ink">Active Procedure Orders</span>
+                <span className="font-mono text-xs font-bold text-accent">{procedures.length} Items</span>
+              </div>
+
+              {procedures.length === 0 ? (
+                <div className="py-8 text-center text-muted">
+                  <Activity className="w-6 h-6 mx-auto mb-1.5 opacity-40 text-muted" />
+                  <p className="text-xs font-bold">No in-clinic procedures ordered</p>
+                  <p className="text-2xs text-muted mt-0.5">Select injections, nebulizers, dressings or rapid tests from the left.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {procedures.map((p, idx) => (
+                    <div key={p.id || idx} className="p-2.5 border border-line bg-surface-muted/30 space-y-1">
+                      <div className="flex items-start justify-between gap-1">
+                        <span className="text-xs font-bold text-ink leading-tight">{p.name}</span>
+                        {setProcedures && (
+                          <button
+                            type="button"
+                            onClick={() => setProcedures(prev => prev.filter(item => item.id !== p.id))}
+                            className="text-muted hover:text-rose-600 text-2xs p-0.5 cursor-pointer"
+                            title="Remove procedure order"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-2xs font-mono text-muted">
+                        <span>Fee: RM {p.price.toFixed(2)}</span>
+                        <span className={`px-1.5 py-0.2 font-bold ${
+                          p.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {p.status}
+                        </span>
+                      </div>
+                      {p.result && (
+                        <div className="mt-1 p-1 bg-surface border border-line font-mono text-2xs text-accent">
+                          <strong>Result:</strong> {p.result}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <div className="pt-2 border-t border-line flex justify-between font-mono text-xs font-bold text-ink">
+                    <span>Total Procedure Fees:</span>
+                    <span className="text-primary">
+                      RM {procedures.reduce((sum, item) => sum + (item.price || 0), 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ========================================================================= */}

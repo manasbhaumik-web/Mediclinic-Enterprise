@@ -1,7 +1,7 @@
 import { StructuredSOAPDraft } from '../../domain/aiScribe';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  Patient, Visit, ICD10Code, PrescriptionItem, Language, SOAPNotes
+  Patient, Visit, ICD10Code, PrescriptionItem, Language, SOAPNotes, ClinicalProcedureItem
 } from '../../types';
 import { 
   TRANSLATIONS 
@@ -36,6 +36,7 @@ interface ConsultationRoomProps {
   activeLanguage: Language;
   onConsultationComplete: (soapData: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onCancel: () => void;
+  onHoldForResults?: (visitId: string, currentSoap: SOAPNotes) => void;
   stationHud?: React.ReactNode;
 }
 
@@ -45,8 +46,10 @@ export default function ConsultationRoom({
   activeLanguage,
   onConsultationComplete,
   onCancel,
+  onHoldForResults,
   stationHud
 }: ConsultationRoomProps) {
+  const [procedures, setProcedures] = useState<ClinicalProcedureItem[]>(() => activeVisit?.soap?.plan?.procedures || []);
   // Translate labels
   const t = TRANSLATIONS[activeLanguage];
   const { inventory } = useInventory();
@@ -260,6 +263,7 @@ export default function ConsultationRoom({
       }
       if (activeVisit.soap.plan) {
         if (activeVisit.soap.plan.prescription) setRxList(activeVisit.soap.plan.prescription);
+        if (activeVisit.soap.plan.procedures) setProcedures(activeVisit.soap.plan.procedures);
         if (activeVisit.soap.plan.mcDays) setMcDays(activeVisit.soap.plan.mcDays);
         if (activeVisit.soap.plan.pharmacyMemo) setPharmacyMemo(activeVisit.soap.plan.pharmacyMemo);
         if (activeVisit.soap.plan.referralDetails) {
@@ -382,6 +386,7 @@ export default function ConsultationRoom({
       },
       plan: {
         prescription: rxList,
+        procedures,
         followUpWeeks,
         mcDays: mcGenerated ? (parseInt(mcDays.toString()) || 1) : 0,
         requiresReferral: referralGenerated,
@@ -395,6 +400,35 @@ export default function ConsultationRoom({
 
     setIsReviewModalOpen(false);
     onConsultationComplete(soapData, mcGenerated, parseInt(mcDays.toString()) || 1);
+  };
+
+  const handleHoldForResults = () => {
+    if (!activeVisit) return;
+    saveDraftNow(true);
+    const soapData: SOAPNotes = {
+      subjective,
+      objective: vitals,
+      assessment: {
+        icdCode: selectedICD?.code || 'N/A',
+        description: selectedICD?.desc || 'N/A',
+        clinicalNotes: clinicalNotes || 'N/A'
+      },
+      plan: {
+        prescription: rxList,
+        procedures,
+        followUpWeeks,
+        mcDays: mcGenerated ? (parseInt(mcDays.toString()) || 1) : 0,
+        requiresReferral: referralGenerated,
+        pharmacyMemo,
+        mcReason: mcGenerated ? mcReason.trim() : undefined,
+        labOrders,
+        labReason: labOrders.length > 0 ? labReason.trim() : undefined,
+        referralDetails: referralGenerated ? referralDetails : undefined
+      }
+    };
+    if (onHoldForResults) {
+      onHoldForResults(activeVisit.id, soapData);
+    }
   };
 
   // Keyboard Shortcuts: Alt+1..4 for tabs, Ctrl+Enter opens Review Checklist Modal, Alt+? for Help
@@ -540,6 +574,8 @@ export default function ConsultationRoom({
                 <PlanTab
                   rxList={rxList}
                   setRxList={setRxList}
+                  procedures={procedures}
+                  setProcedures={setProcedures}
                   currentPatient={currentPatient}
                   selectedICD={selectedICD}
                   mcDays={mcDays}
@@ -563,7 +599,7 @@ export default function ConsultationRoom({
           </div>
 
           {/* SINGLE PRIMARY WORKFLOW CTA TOOLBAR */}
-          <WorkflowToolbar onCancel={handleReturn} onSaveDraft={() => saveDraftNow(true)} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
+          <WorkflowToolbar onCancel={handleReturn} onSaveDraft={() => saveDraftNow(true)} onHoldForResults={handleHoldForResults} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
 
         </div>
 

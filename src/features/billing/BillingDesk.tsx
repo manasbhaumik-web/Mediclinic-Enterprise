@@ -16,9 +16,13 @@ import {
   ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer,
 } from 'lucide-react';
 import { buttonProps, focusRing } from '../../lib/a11y';
+import CashDrawerReconciliationModal from './CashDrawerReconciliationModal';
+import { Calculator } from 'lucide-react';
 
 interface BillingDeskProps {
   queue: Visit[];
+  allVisits?: Visit[];
+  cashierName?: string;
   patientsMap: Record<string, any>;
   activeLanguage: Language;
   /** Records the payment and issues its receipt number. */
@@ -44,7 +48,8 @@ interface Attempt {
 
 const rm = (n: number) => `RM${n.toFixed(2)}`;
 
-export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
+export default function BillingDesk({ queue, allVisits, cashierName, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
+  const [isReconModalOpen, setIsReconModalOpen] = useState(false);
   const { settings } = useSettings();
   const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
@@ -234,7 +239,29 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
   const closeDialogs = () => { if (!saving) { setStage(null); setSaveError(null); } };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
+      {/* Top Cashier Operation Toolbar */}
+      <div className="bg-surface border border-line p-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary text-white flex items-center justify-center">
+            <DollarSign className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-ink">Cashier POS Billing Desk</h3>
+            <p className="text-2xs text-muted">Point-of-Sale settlement, receipting &amp; Malaysian shift balancing</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsReconModalOpen(true)}
+          className="btn-primary flex items-center gap-2 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none"
+          title="Audit cash drawer float, count physical denominations, and print Malaysian Daily Z-Report"
+        >
+          <Calculator className="w-4 h-4" />
+          <span>Close Shift / Float Z-Report</span>
+        </button>
+      </div>
       {unrecorded && !saving && stage === null && (
         <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-rose-50 border border-rose-300 text-rose-900 text-xs">
           <div className="flex items-start gap-2">

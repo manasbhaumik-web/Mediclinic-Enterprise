@@ -26,6 +26,7 @@ import { useClinicDoctors, useConsultationRooms } from '../../hooks/useClinicSet
 import { assignmentOf, doctorName as nameOfDoctor, roomOptions } from '../../domain/doctorAssignment';
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
+  holdingQueue?: Visit[];
   patientsMap: Record<string, Patient>;
   activeLanguage: Language;
   activeConsultationVisitId: string | null;
@@ -38,10 +39,12 @@ interface DoctorDashboardModuleProps {
   onReleasePatient?: (visitId: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   doctorTab?: 'queue' | 'consultation' | 'reports';
   onTabChange?: (tab: 'queue' | 'consultation' | 'reports') => void;
+  onHoldForResults?: (visitId: string, currentSoap: SOAPNotes) => void;
 }
 
 export default function DoctorDashboardModule({
   doctorQueue,
+  holdingQueue = [],
   patientsMap,
   activeLanguage,
   activeConsultationVisitId,
@@ -52,7 +55,8 @@ export default function DoctorDashboardModule({
   userId = null,
   onCallPatient,
   onReleasePatient,
-  onTabChange
+  onTabChange,
+  onHoldForResults
 }: DoctorDashboardModuleProps) {
   const [internalTab, setInternalTab] = useState<'queue' | 'consultation' | 'reports'>(doctorTab);
   const [room, setRoom] = useState<string>(() => {
@@ -458,6 +462,73 @@ export default function DoctorDashboardModule({
             );
           })()}
 
+
+          {/* HELD PATIENTS (Awaiting Rapid Test / Lab Diagnostics) */}
+          {holdingQueue && holdingQueue.length > 0 && (
+            <div className="bg-amber-50/80 dark:bg-amber-950/40 border-2 border-amber-400 p-4 rounded-none space-y-3 animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <h3 className="type-heading-caps text-ink font-bold">
+                    Patients on Hold for Rapid Diagnostics / Lab ({holdingQueue.length})
+                  </h3>
+                </div>
+                <span className="font-mono text-2xs uppercase px-2 py-0.5 border border-amber-300 dark:border-amber-700 bg-amber-100 dark:bg-amber-900/60 font-bold text-amber-900 dark:text-amber-200">
+                  Treatment Room Active
+                </span>
+              </div>
+              <p className="text-xs text-muted">
+                These patients have been ordered rapid in-clinic diagnostic tests (e.g. Dengue Combo, Blood Glucose, Nebulizer) and can be immediately recalled into the room once results are ready.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {holdingQueue.map(v => {
+                  const pt = patientsMap[v.patientId];
+                  const procs = v.soap?.plan?.procedures || [];
+                  const testNames = procs.map(p => p.name).join(', ') || 'In-clinic investigation';
+                  const allDone = procs.length > 0 && procs.every(p => p.status === 'Completed');
+                  return (
+                    <div key={v.id} className="p-3 bg-surface border border-line flex items-center justify-between gap-3 shadow-2xs">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-accent bg-surface-muted px-1.5 py-0.5 border border-line">
+                            {formatTicket(v.ticketNo)}
+                          </span>
+                          <span className="font-bold text-xs text-ink">{pt?.fullName}</span>
+                        </div>
+                        <div className="text-2xs text-muted mt-1">
+                          <strong>Order:</strong> {testNames}
+                        </div>
+                        {procs.some(p => p.result) && (
+                          <div className="text-2xs font-mono font-bold text-emerald-700 dark:text-emerald-300 mt-0.5">
+                            ✓ Result: {procs.filter(p => p.result).map(p => `${p.name}: ${p.result}`).join('; ')}
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveConsultationVisitId(v.id);
+                          setInternalTab('consultation');
+                          if (onTabChange) onTabChange('consultation');
+                        }}
+                        className={`px-3 py-1.5 font-mono text-2xs font-bold flex items-center gap-1.5 cursor-pointer rounded-none ${
+                          allDone
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            : 'btn-primary'
+                        }`}
+                      >
+                        <span>Recall to Room</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* 2. PATIENT QUEUE LIST RENDERING */}
           {doctorQueue.length === 0 ? (
             <div className="bg-surface-accent dark:bg-night-850 rounded-none p-12 border border-line dark:border-teal-800 text-center text-subtle dark:text-slate-400">
@@ -565,8 +636,13 @@ export default function DoctorDashboardModule({
 
                 return (
                   <ConsultationRoom
-                    currentPatient={patientsMap[doctorQueue.find(v => v.id === activeConsultationVisitId)?.patientId || ''] || null}
-                    activeVisit={doctorQueue.find(v => v.id === activeConsultationVisitId) || null}
+                    currentPatient={patientsMap[[...doctorQueue, ...holdingQueue].find(v => v.id === activeConsultationVisitId)?.patientId || ''] || null}
+                    activeVisit={[...doctorQueue, ...holdingQueue].find(v => v.id === activeConsultationVisitId) || null}
+                    onHoldForResults={(vid, soap) => {
+                      if (onHoldForResults) onHoldForResults(vid, soap);
+                      setActiveConsultationVisitId(null);
+                      setInternalTab('queue');
+                    }}
                     activeLanguage={activeLanguage}
                     stationHud={stationHud}
                     onConsultationComplete={handleDoctorSoapComplete}
