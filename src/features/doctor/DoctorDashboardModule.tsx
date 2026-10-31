@@ -429,31 +429,31 @@ export default function DoctorDashboardModule({
                   </div>
 
                   <div className="bg-surface p-3.5 border border-line flex items-center justify-between">
-                    <div>
+                    <div className="min-w-0 flex-1 pr-2">
                       <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Station Room</span>
-                      <span className="text-lg font-bold font-mono tabular-nums text-accent">{room ? `Room ${room}` : 'Station 1'}</span>
-                      <span className="text-2xs text-muted block mt-0.5">Live audio paging ready</span>
+                      <select
+                        id="doctor-active-room-select"
+                        value={room}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setRoom(val);
+                          try { localStorage.setItem('mediclinic.consultRoom', val); } catch { /* ignore */ }
+                        }}
+                        className="text-xs font-mono font-bold text-accent bg-transparent border-0 border-b border-line hover:border-brand focus:outline-none cursor-pointer mt-0.5 py-0.5 w-full"
+                      >
+                        {roomChoices.map((r) => (
+                          <option key={r.name} value={r.name} disabled={Boolean(r.busyWith)}>
+                            {r.busyWith ? `${r.name} (in use by ${r.busyWith})` : r.name}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-2xs text-muted block mt-0.5">Audio PA broadcast destination</span>
                     </div>
                     <Volume2 className="w-5 h-5 text-accent opacity-60 shrink-0" />
                   </div>
                 </div>
 
-                {/* Dominant Operational Alert Strip if Breaches or High Acuity Patients Exist */}
-                {(overSlaCount > 0 || highPriorityCount > 0) && (
-                  <div className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 px-3.5 py-2.5 rounded-none flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs font-medium">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span>
-                        <strong>Queue Alert:</strong> {overSlaCount > 0 ? `${overSlaCount} patient(s) exceeding SLA wait time (>20m)` : ''}
-                        {overSlaCount > 0 && highPriorityCount > 0 ? ' & ' : ''}
-                        {highPriorityCount > 0 ? `${highPriorityCount} patient(s) with high acuity / drug allergy flags` : ''}.
-                      </span>
-                    </div>
-                    <span className="text-2xs font-mono uppercase bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 px-2 py-0.5 font-bold shrink-0">
-                      Attention Needed
-                    </span>
-                  </div>
-                )}
+
               </div>
             );
           })()}

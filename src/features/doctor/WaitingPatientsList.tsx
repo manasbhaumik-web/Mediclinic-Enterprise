@@ -70,13 +70,12 @@ export default function WaitingPatientsList({
       </div>
     
       <div className="overflow-x-auto">
-        <div role="table" aria-label="Waiting patients" className="md:min-w-[960px]">
+        <div role="table" aria-label="Waiting patients" className="w-full">
           {/* Header Row */}
-          <div role="row" className="hidden md:grid grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line text-2xs font-bold uppercase tracking-wider text-muted font-mono">
+          <div role="row" className="hidden md:grid grid-cols-[56px_minmax(0,2.5fr)_minmax(0,2fr)_100px_160px] gap-4 items-center px-5 py-2.5 bg-surface-muted border-b border-line text-2xs font-bold uppercase tracking-wider text-muted font-mono">
             <span role="columnheader">{sortRule === 'urgency' ? 'Rank' : 'Order'}</span>
             <span role="columnheader">Patient &amp; Demographics</span>
             <span role="columnheader">Presenting Complaint</span>
-            <span role="columnheader">Triage Rationale</span>
             <span role="columnheader">Wait Time</span>
             <span role="columnheader" className="text-right">Actions</span>
           </div>
@@ -128,7 +127,7 @@ export default function WaitingPatientsList({
                   onClick={() => toggleDetails(visit.id)}
                   aria-expanded={!!isExpanded}
                   onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleDetails(visit.id); } }}
-                  className="grid grid-cols-1 md:grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,2fr)_96px_208px] gap-3 md:gap-4 items-center px-5 py-3.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                  className="grid grid-cols-1 md:grid-cols-[56px_minmax(0,2.5fr)_minmax(0,2fr)_100px_160px] gap-3 md:gap-4 items-center px-5 py-3.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                 >
                   {/* Position Rank */}
                   <span role="cell" className={`w-9 h-9 border text-xs font-bold flex items-center justify-center font-mono tabular-nums ${rankTint}`}>
@@ -142,7 +141,7 @@ export default function WaitingPatientsList({
                         {formatTicket(visit.ticketNo) && <span className="font-mono tabular-nums text-accent mr-1.5">{formatTicket(visit.ticketNo)}</span>}
                         {pt.fullName}
                       </h4>
-                      <span className="text-2xs text-muted font-mono tabular-nums">ID {pt.id}</span>
+                      
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {isPinned && (
@@ -160,10 +159,7 @@ export default function WaitingPatientsList({
                     {getChiefComplaintLabel(visit.soap?.subjective)}
                   </span>
     
-                  {/* Triage Rationale */}
-                  <span role="cell" className="text-xs leading-snug text-muted min-w-0">
-                    {getRankingRationale(pt, visit, globalRankIndex, sortRule)}
-                  </span>
+
     
                   {/* Wait Time */}
                   <div role="cell" className="flex flex-col items-start gap-0.5">
@@ -186,9 +182,9 @@ export default function WaitingPatientsList({
                           onSelect: (e) => togglePinVisit(visit.id, e),
                         },
                         {
-                          label: 'Copy patient ID',
+                          label: 'Copy IC / ID',
                           icon: <Copy className="w-4 h-4" aria-hidden="true" />,
-                          onSelect: (e) => copyToClipboard(pt.id, 'Patient ID', e),
+                          onSelect: (e) => copyToClipboard(pt.icNumber || pt.id, 'Patient IC/ID', e),
                         },
                       ]}
                     />
