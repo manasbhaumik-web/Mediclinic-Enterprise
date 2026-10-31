@@ -480,12 +480,12 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 2 & 3: MAIN ENCOUNTER WORKSPACE + CONTEXTUAL RIGHT PANEL             */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-[30.33%_1fr] gap-5 items-stretch min-h-[500px]">
+      <div className="grid grid-cols-1 lg:grid-cols-[30%_1fr] gap-5 items-stretch min-h-[500px]">
         
-        {/* CONTEXTUAL LEFT PANEL — VITALS, LONGITUDINAL HISTORY & QUEUE (30.33%) */}
+        {/* CONTEXTUAL LEFT PANEL — VITALS, LONGITUDINAL HISTORY & QUEUE (30%) */}
         <ContextPanel vitals={vitals} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} stationHud={stationHud} />
         
-        {/* AREA 2: MAIN CONSULTATION WORKSPACE (69.67%) */}
+        {/* AREA 2: MAIN CONSULTATION WORKSPACE (70%) */}
         <div className="w-full min-w-0 bg-surface border border-line p-5 rounded-none flex flex-col justify-between space-y-5">
           
           <div className="space-y-4">
