@@ -2,6 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { 
   calculateTPAClaimSplit, 
   isItemNonClaimable, 
+  verifyTPAPolicyEligibility,
+  createTPAClaimRecord,
+  reconcileTPARemittance,
+  exportTPAClaimsCSV,
+  exportTPAClaimsJSON,
   KNOWN_TPA_PROVIDERS, 
   BillItem 
 } from './tpaPanelClaims';
@@ -42,11 +47,6 @@ describe('Corporate TPA Panel Claim Split & Outpatient Excess Domain', () => {
       { id: '3', name: 'Vitamin C Complex Lozenges', category: 'Medication', price: 25.00 } // Non-claimable
     ];
 
-    // Total Bill = 110.00 (Claimable: 85, Non-claimable: 25)
-    // MiCare Cap = 65, Copay = 5
-    // Claimable after copay = 80. Cap = 65. Excess over cap = 15.
-    // Panel pays = 65.
-    // Patient pays = 25 (non-claimable) + 5 (copay) + 15 (excess) = 45.00.
     const result = calculateTPAClaimSplit(itemsWithExcessAndNonClaimable, micare);
 
     expect(result.totalBill).toBe(110.00);
@@ -59,14 +59,72 @@ describe('Corporate TPA Panel Claim Split & Outpatient Excess Domain', () => {
     expect(result.panelPayable + result.patientTotalDue).toBe(110.00);
   });
 
-  it('correctly handles percentage copay (HealthMetrics 10%)', () => {
-    // Total Bill = 60.00, Copay = 10% = 6.00, Cap = 75.00
-    // Panel pays = 54.00, Patient pays = 6.00
-    const result = calculateTPAClaimSplit(standardItems, healthmetrics);
+  it('verifies real-time TPA policy eligibility and returns active GL number', () => {
+    const check = verifyTPAPolicyEligibility({
+      patientIc: '920315-14-5521',
+      providerId: 'micare',
+      employerName: 'Petronas Dagangan Bhd'
+    });
 
-    expect(result.totalBill).toBe(60.00);
-    expect(result.patientCopay).toBe(6.00);
-    expect(result.panelPayable).toBe(54.00);
-    expect(result.patientTotalDue).toBe(6.00);
+    expect(check.isEligible).toBe(true);
+    expect(check.glNumber).toMatch(/^GL-MICARE-/);
+    expect(check.remainingAnnualLimitRM).toBeGreaterThan(800);
+    expect(check.perVisitCapRM).toBe(65.00);
+    expect(check.copayValue).toBe(5.00);
+  });
+
+  it('detects expired corporate policy and returns ineligible reason', () => {
+    const check = verifyTPAPolicyEligibility({
+      patientIc: '850101-10-0000',
+      providerId: 'pmcare'
+    });
+
+    expect(check.isEligible).toBe(false);
+    expect(check.ineligibleReason).toContain('Policy expired');
+  });
+
+  it('reconciles TPA remittance and flags short-paid items with line-item variance', () => {
+    const claim = createTPAClaimRecord({
+      visitId: 'VISIT-1',
+      patientId: 'PT-1',
+      patientName: 'Ahmad Razali',
+      patientIc: '900101-14-5511',
+      employerName: 'Petronas',
+      providerId: 'micare',
+      glNumber: 'GL-MICARE-2026-55110',
+      items: standardItems
+    });
+
+    // Panel Billed RM 55. Remitted RM 50 (variance RM 5)
+    const reconciled = reconcileTPARemittance(claim, 50.00, [
+      { itemName: 'Standard GP Consultation', approvedAmount: 30.00, disputeReason: 'Cap consultation at contractual RM 30' }
+    ]);
+
+    expect(reconciled.status).toBe('Short-Paid');
+    expect(reconciled.remittedAmountRM).toBe(50.00);
+    expect(reconciled.varianceAmountRM).toBe(5.00);
+    expect(reconciled.lineItems.find(l => l.name.includes('Consultation'))?.approvedAmountRM).toBe(30.00);
+  });
+
+  it('exports compliant e-Claim batch in CSV and JSON formats', () => {
+    const claim = createTPAClaimRecord({
+      visitId: 'VISIT-2',
+      patientId: 'PT-2',
+      patientName: 'Sarah Lim',
+      patientIc: '950202-10-6622',
+      employerName: 'Maxis',
+      providerId: 'healthmetrics',
+      glNumber: 'GL-HEALTHMETRICS-2026-66220',
+      items: standardItems
+    });
+
+    const csv = exportTPAClaimsCSV([claim]);
+    expect(csv).toContain('Claim_ID,GL_Reference,TPA_Provider');
+    expect(csv).toContain('GL-HEALTHMETRICS');
+    expect(csv).toContain('Sarah Lim');
+
+    const json = exportTPAClaimsJSON([claim]);
+    expect(json).toContain('batchClaims');
+    expect(json).toContain('GL-HEALTHMETRICS');
   });
 });

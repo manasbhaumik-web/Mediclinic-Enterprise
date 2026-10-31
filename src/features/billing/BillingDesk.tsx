@@ -13,11 +13,13 @@ import { useAuxiliary } from '../../context/AuxiliaryContext';
 import StripeCheckout from './StripeCheckout';
 import {
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet, AlertTriangle, Loader2,
-  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer,
+  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer, Building2,
 } from 'lucide-react';
 import { buttonProps, focusRing } from '../../lib/a11y';
 import CashDrawerReconciliationModal from './CashDrawerReconciliationModal';
 import { Calculator } from 'lucide-react';
+import { TPASettlementHub } from './TPASettlementHub';
+import { verifyTPAPolicyEligibility } from '../../domain/tpaPanelClaims';
 
 interface BillingDeskProps {
   queue: Visit[];
@@ -59,9 +61,33 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(queue.length > 0 ? queue[0].id : null);
 
   // Panel claim
+  const [billingTab, setBillingTab] = useState<'pos' | 'tpa-hub'>('pos');
   const [isPanelClaim, setIsPanelClaim] = useState(false);
   const [selectedTPA, setSelectedTPA] = useState<TPAConfig | null>(null);
   const [glReferenceNo, setGlReferenceNo] = useState('');
+  const [tpaVerificationInfo, setTpaVerificationInfo] = useState<string | null>(null);
+
+  const handleAutoVerifyGL = () => {
+    if (!activePatient) return;
+    const providerId = (selectedTPA?.name || 'micare').toLowerCase().includes('pmcare') ? 'pmcare'
+      : (selectedTPA?.name || '').toLowerCase().includes('healthmetrics') ? 'healthmetrics'
+      : (selectedTPA?.name || '').toLowerCase().includes('mediexpress') ? 'mediexpress'
+      : (selectedTPA?.name || '').toLowerCase().includes('aia') ? 'aia'
+      : 'micare';
+
+    const check = verifyTPAPolicyEligibility({
+      patientIc: activePatient.icNumber,
+      providerId,
+      employerName: activePatient.panelEmployer || 'Petronas'
+    });
+
+    if (check.isEligible) {
+      setGlReferenceNo(check.glNumber);
+      setTpaVerificationInfo(`✓ Policy Active: ${check.providerName} • GL #${check.glNumber} • Annual Bal: RM ${check.remainingAnnualLimitRM.toFixed(2)} • Visit Cap: RM ${check.perVisitCapRM.toFixed(2)}`);
+    } else {
+      setTpaVerificationInfo(`⚠ Ineligible: ${check.ineligibleReason}`);
+    }
+  };
 
   // Taking a payment
   const [stage, setStage] = useState<PayStage>(null);
@@ -262,6 +288,40 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
           <span>Close Shift / Float Z-Report</span>
         </button>
       </div>
+
+      {/* Billing Desk Sub-Navigation Tabs */}
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setBillingTab('pos')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            billingTab === 'pos'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <DollarSign className="w-4 h-4 shrink-0" />
+          <span>Cashier Invoicing &amp; POS Queue ({queue.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setBillingTab('tpa-hub')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            billingTab === 'tpa-hub'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <Building2 className="w-4 h-4 shrink-0" />
+          <span>Corporate TPA Settlement Hub (Batch &amp; Remittance)</span>
+        </button>
+      </div>
+
+      {billingTab === 'tpa-hub' ? (
+        <TPASettlementHub />
+      ) : (
+        <>
       {unrecorded && !saving && stage === null && (
         <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-rose-50 border border-rose-300 text-rose-900 text-xs">
           <div className="flex items-start gap-2">
@@ -528,7 +588,16 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
                       </div>
 
                       <div className="space-y-1">
-                        <label htmlFor="gl-ref-input" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Guarantee letter (GL) reference</label>
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="gl-ref-input" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Guarantee letter (GL) reference</label>
+                          <button
+                            type="button"
+                            onClick={handleAutoVerifyGL}
+                            className="text-2xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
+                          >
+                            <span>⚡ Auto-Verify TPA</span>
+                          </button>
+                        </div>
                         <input
                           type="text"
                           id="gl-ref-input"
@@ -538,7 +607,13 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
                           placeholder="e.g. MIC-GL-10292"
                           aria-describedby="gl-note"
                         />
-                        <p id="gl-note" className="text-2xs text-subtle">Copy it from the panel's letter. This system does not check it with the panel.</p>
+                        {tpaVerificationInfo ? (
+                          <div className="text-2xs font-mono font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-1.5 border border-emerald-300">
+                            {tpaVerificationInfo}
+                          </div>
+                        ) : (
+                          <p id="gl-note" className="text-2xs text-subtle">Copy it from panel letter or click Auto-Verify to ping TPA engine.</p>
+                        )}
                       </div>
                     </div>
 
@@ -739,6 +814,8 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
             </div>
           </div>
         </Dialog>
+      )}
+        </>
       )}
     </div>
   );

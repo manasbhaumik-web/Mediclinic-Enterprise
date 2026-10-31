@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   AlertTriangle, CheckCircle2, Activity, Pill, Trash2, FileText, 
   TestTube, Share, TrendingUp, PlusCircle, X, Info, ShieldAlert,
-  FileCheck, Microscope, Sparkles
+  FileCheck, Microscope, Sparkles, Building2
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -495,37 +495,55 @@ export default function PlanTab({
       {/* SUB-TAB 1: MEDICATION PRESCRIBING                                         */}
       {/* ========================================================================= */}
       {subTab === 'medication' && (
-        <PrescriptionPanel 
-          showPediatricCalc={showPediatricCalc} 
-          patientAge={patientAge} 
-          patientAgeDisplay={patientAgeDetails.displayAge} 
-          setShowPediatricCalc={setShowPediatricCalc} 
-          isPediatricPatient={isPediatricPatient} 
-          patientWeight={patientWeight} 
-          setPatientWeight={setPatientWeight} 
-          medConcentration={medConcentration} 
-          setMedConcentration={setMedConcentration} 
-          calculatedDose={calculatedDose} 
-          handleAddPediatricSyrup={handleAddPediatricSyrup} 
-          searchDrugQuery={searchDrugQuery} 
-          setSearchDrugQuery={setSearchDrugQuery} 
-          drugSuggestions={drugSuggestions} 
-          handleAddDrug={handleAddDrug} 
-          rxList={rxList} 
-          setRxList={setRxList} 
-          pharmacyMemo={pharmacyMemo} 
-          setPharmacyMemo={setPharmacyMemo} 
-          patientAllergies={currentPatient.drugAllergies}
-          mcGenerated={mcGenerated}
-          setMcGenerated={setMcGenerated}
-          mcDays={mcDays}
-          setMcDays={setMcDays}
-          mcReason={mcReason}
-          setMcReason={setMcReason}
-          followUpWeeks={followUpWeeks}
-          setFollowUpWeeks={setFollowUpWeeks}
-          selectedICD={selectedICD}
-        />
+        <div className="space-y-3">
+          {currentPatient.panelEmployer && currentPatient.panelEmployer !== 'None (Self-Pay)' && (
+            <div className="bg-primary/5 border border-primary/20 p-2.5 rounded-none flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-primary shrink-0" />
+                <span className="font-bold text-ink">
+                  Corporate Panel Account: {currentPatient.panelEmployer}
+                </span>
+                <span className="text-2xs text-muted font-mono">
+                  (Standard Outpatient Limit: RM 65.00 • Non-covered items like vitamins/supplements split to patient excess)
+                </span>
+              </div>
+              <span className="text-2xs font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 border border-primary/30">
+                GL Active
+              </span>
+            </div>
+          )}
+          <PrescriptionPanel 
+            showPediatricCalc={showPediatricCalc} 
+            patientAge={patientAge} 
+            patientAgeDisplay={patientAgeDetails.displayAge} 
+            setShowPediatricCalc={setShowPediatricCalc} 
+            isPediatricPatient={isPediatricPatient} 
+            patientWeight={patientWeight} 
+            setPatientWeight={setPatientWeight} 
+            medConcentration={medConcentration} 
+            setMedConcentration={setMedConcentration} 
+            calculatedDose={calculatedDose} 
+            handleAddPediatricSyrup={handleAddPediatricSyrup} 
+            searchDrugQuery={searchDrugQuery} 
+            setSearchDrugQuery={setSearchDrugQuery} 
+            drugSuggestions={drugSuggestions} 
+            handleAddDrug={handleAddDrug} 
+            rxList={rxList} 
+            setRxList={setRxList} 
+            pharmacyMemo={pharmacyMemo} 
+            setPharmacyMemo={setPharmacyMemo} 
+            patientAllergies={currentPatient.drugAllergies}
+            mcGenerated={mcGenerated}
+            setMcGenerated={setMcGenerated}
+            mcDays={mcDays}
+            setMcDays={setMcDays}
+            mcReason={mcReason}
+            setMcReason={setMcReason}
+            followUpWeeks={followUpWeeks}
+            setFollowUpWeeks={setFollowUpWeeks}
+            selectedICD={selectedICD}
+          />
+        </div>
       )}
 
       {/* ========================================================================= */}
