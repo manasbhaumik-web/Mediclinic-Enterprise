@@ -37,7 +37,7 @@
 ---
 
 ### [COMPLETED] Phase 03: Point-of-Care Testing (POCT) & Equipment Quality Control
-- **Status**: Completed (Commit pending)
+- **Status**: Completed (Commit `3b26743`)
 - **Key Modules**:
   1. **Diagnostic POCT Instrument Directory** (`src/domain/poctCalibration.ts`):
      - In-clinic diagnostic instruments: Blood Glucometers, HbA1c Analyzers, Urine Chemistry, Rapid Strep/Flu/Dengue reader logs.
@@ -53,16 +53,24 @@
 
 ---
 
-### [ACTIVE / NEXT] Phase 04: Emergency SBAR Transfer & Ambulance Handover Protocol
-- **Target**: Patient Safety & Tertiary Hospital Continuity of Care.
-- **Scope**:
-  - SBAR (Situation, Background, Assessment, Recommendation) structured handover generator.
-  - Vital signs pre-transfer trending chart and emergency medication administration record.
-  - MOH Ambulance Dispatch logging and receiving hospital MO/Emergency Physician acknowledgment.
+### [COMPLETED] Phase 04: Emergency SBAR Transfer & Ambulance Handover Protocol
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **SBAR Clinical Transfer Engine** (`src/domain/emergencyTransferSBAR.ts`):
+     - Structured Situation, Background, Assessment, Recommendation models.
+     - Real-time Shock Index (HR / SBP) calculation with occult shock risk tiering (`>=0.9`).
+     - Verbal radio/phone script formatter for MECC 999 or receiving ED Medical Officer handoffs.
+  2. **Emergency SBAR Modal** (`src/features/operations/EmergencySBARModal.tsx`):
+     - Real-time SBAR editor with emergency medication logging prior to dispatch.
+     - Pre-hospital ambulance dispatch milestones (decision, call, arrival, departure).
+     - Printable inter-facility transfer form and copyable verbal phone script.
+  3. **Station Integration**:
+     - Treatment Room (`ProcedureStationModule.tsx`) fast-access header button.
+     - Operations Hub (`OperationsHub.tsx`) active transfers trigger.
 
 ---
 
-### [BACKLOG] Phase 05: Poison Act 1952 & Dangerous Drugs Act 1952 (DDA) Safe Register
+### [ACTIVE / NEXT] Phase 05: Poison Act 1952 & Dangerous Drugs Act 1952 (DDA) Safe Register
 - **Target**: Pharmacy Regulatory Compliance & Narcotic Substance Accountability.
 - **Scope**:
   - Controlled substance safe register with dual-PIN authorization (Doctor + Pharmacist).

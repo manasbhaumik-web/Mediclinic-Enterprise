@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Visit, Patient, ClinicalProcedureItem } from '../../types';
-import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope } from 'lucide-react';
+import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope, Siren } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { formatTicket } from '../../domain/ticket';
@@ -12,6 +12,7 @@ import { ClinicalWasteModule } from './ClinicalWasteModule';
 import { CrashCartInspectionRecord } from '../../domain/crashCart';
 import AutoclaveSterilizationModal from './AutoclaveSterilizationModal';
 import POCTQualityControlModal from './POCTQualityControlModal';
+import EmergencySBARModal from './EmergencySBARModal';
 import { SterilePack } from '../../domain/autoclaveSterilization';
 
 interface ProcedureStationModuleProps {
@@ -46,6 +47,7 @@ export default function ProcedureStationModule({
   const [isAutoclaveModalOpen, setIsAutoclaveModalOpen] = useState(false);
   const [selectedSterilePack, setSelectedSterilePack] = useState<SterilePack | null>(null);
   const [isPOCTModalOpen, setIsPOCTModalOpen] = useState(false);
+  const [isSBARModalOpen, setIsSBARModalOpen] = useState(false);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -131,6 +133,14 @@ export default function ProcedureStationModule({
           >
             <Zap className="w-4 h-4 text-amber-500" />
             <span>Emergency Crash Cart: {lastCrashCartLog ? '✓ Verified Daily' : '⚠ Daily Audit Required'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSBARModalOpen(true)}
+            className="px-3 py-1.5 border border-rose-300 dark:border-rose-800 bg-surface hover:bg-surface-accent text-rose-800 dark:text-rose-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <Siren className="w-4 h-4 text-rose-600 animate-pulse" />
+            <span>Emergency SBAR Transfer</span>
           </button>
 
           <span className="bg-surface-accent px-3 py-1.5 border border-line text-accent font-bold">
@@ -468,6 +478,12 @@ export default function ProcedureStationModule({
           setTimeout(() => setToastMessage(null), 4000);
           setIsCrashCartModalOpen(false);
         }}
+      />
+      <EmergencySBARModal
+        isOpen={isSBARModalOpen}
+        onClose={() => setIsSBARModalOpen(false)}
+        activePatient={activePatient}
+        activeVisit={activeVisit}
       />
     </div>
   );
