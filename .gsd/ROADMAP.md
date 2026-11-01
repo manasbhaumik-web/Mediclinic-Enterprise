@@ -148,7 +148,7 @@
 ---
 
 ### [COMPLETED] Phase 09: CKAPS Biennial Form B Inspection Dossier Packager (MOH Act 586)
-- **Status**: Completed (Commit pending)
+- **Status**: Completed (Commit `33e3866`)
 - **Key Modules**:
   1. **Statutory Multi-Pillar Aggregator** (`src/domain/ckapsDossier.ts`):
      - Comprehensive evaluation of all 8 regulatory pillars: PIC Credentials, Crash Cart, Autoclave, POCT, Cold Chain, DDA Safe, Radiation Safety, and OSHA/Waste.
@@ -159,3 +159,31 @@
      - Executive Audit Readiness Meter, 8 Pillars Evidence Browser, PIC Signer, and Markdown/Printable Form B Dossier Exporter.
   4. **Station Integration**:
      - Operations Hub (`OperationsHub.tsx`): Quick action trigger.
+
+---
+
+### [COMPLETED] Phase 10: Locum Doctor MMC Session & Indemnity Log (MMC & PHFSA 1998)
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **Locum Credential Governance Engine** (`src/domain/locumDoctorSession.ts`):
+     - Rapid shift sign-in validating MMC registration, active APC year, and Medical Professional Indemnity policy expiry.
+     - Session duration and payout calculator with hourly rate base and patient volume incentives.
+     - CKAPS Locum Attendance & Credential Ledger exporter matching MOH private clinic inspection requirements.
+  2. **Locum Shift Management Workstation UI** (`src/features/operations/LocumDoctorModal.tsx`):
+     - Active consulting locum tracker, quick 60-second onboarding, credentialed vault, and attendance ledger.
+  3. **Station Integration**:
+     - Operations Hub (`OperationsHub.tsx`): Quick action trigger.
+
+---
+
+### [COMPLETED] Phase 11: Red-Code Resuscitation Bay Alarm & Emergency Bypass (Part V)
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **Resuscitation Protocol Engine** (`src/domain/redCodeAlarm.ts`):
+     - Evidence-based resuscitation bundles for Cardiac Arrest (ACLS CPR & Defib), Acute Anaphylaxis (IM Adrenaline), Severe Asthma/Respiratory Arrest, Status Epilepticus, and Massive Hemorrhage.
+  2. **Red-Code Emergency Command Center UI** (`src/features/operations/RedCodeAlarmModal.tsx`):
+     - 1-click Code Red emergency broadcast to Treatment Room Resus Bed.
+     - Live elapsed minutes timer, immediate clinical steps checklist, crash cart verification, and MECC 999 SBAR linkage.
+  3. **Station Integration**:
+     - Operations Hub (`OperationsHub.tsx`): Prominent pulsating header button.
+     - Treatment Room (`ProcedureStationModule.tsx`): Header emergency action button.

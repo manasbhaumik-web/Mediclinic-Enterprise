@@ -16,6 +16,7 @@ import EmergencySBARModal from './EmergencySBARModal';
 import RadiationSafetyModal from './RadiationSafetyModal';
 import ColdChainVaccineModal from './ColdChainVaccineModal';
 import AEFIAndSharpsModal from './AEFIAndSharpsModal';
+import RedCodeAlarmModal from './RedCodeAlarmModal';
 import { SterilePack } from '../../domain/autoclaveSterilization';
 
 interface ProcedureStationModuleProps {
@@ -54,6 +55,7 @@ export default function ProcedureStationModule({
   const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
   const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   const [isAefiModalOpen, setIsAefiModalOpen] = useState(false);
+  const [isRedCodeModalOpen, setIsRedCodeModalOpen] = useState(false);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -171,6 +173,14 @@ export default function ProcedureStationModule({
           >
             <HeartPulse className="w-4 h-4 text-rose-600" />
             <span>AEFI &amp; Sharps Protocol</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsRedCodeModalOpen(true)}
+            className="px-3 py-1.5 border border-rose-600 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-sm animate-pulse"
+          >
+            <Siren className="w-4 h-4 text-white" />
+            <span>🚨 CODE RED ALARM</span>
           </button>
 
           <span className="bg-surface-accent px-3 py-1.5 border border-line text-accent font-bold">
@@ -529,6 +539,11 @@ export default function ProcedureStationModule({
       <AEFIAndSharpsModal
         isOpen={isAefiModalOpen}
         onClose={() => setIsAefiModalOpen(false)}
+      />
+
+      <RedCodeAlarmModal
+        isOpen={isRedCodeModalOpen}
+        onClose={() => setIsRedCodeModalOpen(false)}
       />
     </div>
   );

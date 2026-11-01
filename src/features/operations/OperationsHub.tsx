@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio, Thermometer, HeartPulse, Award
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio, Thermometer, HeartPulse, Award, UserCheck
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import ClinicalIncidentModal from './ClinicalIncidentModal';
@@ -13,6 +13,8 @@ import RadiationSafetyModal from './RadiationSafetyModal';
 import ColdChainVaccineModal from './ColdChainVaccineModal';
 import AEFIAndSharpsModal from './AEFIAndSharpsModal';
 import CKAPSDossierModal from './CKAPSDossierModal';
+import LocumDoctorModal from './LocumDoctorModal';
+import RedCodeAlarmModal from './RedCodeAlarmModal';
 import { useClinicData } from '../../hooks/useClinicData';
 import { useDrugs, useInventorySettings, usePurchaseOrders } from '../../hooks/useInventoryData';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -49,6 +51,8 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
   const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   const [isAefiModalOpen, setIsAefiModalOpen] = useState(false);
   const [isCkapsModalOpen, setIsCkapsModalOpen] = useState(false);
+  const [isLocumModalOpen, setIsLocumModalOpen] = useState(false);
+  const [isRedCodeModalOpen, setIsRedCodeModalOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -119,6 +123,14 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
       )}
 
       <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setIsRedCodeModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-black bg-rose-600 hover:bg-rose-700 text-white border border-rose-700 rounded-none flex items-center gap-2 cursor-pointer shadow-sm animate-pulse"
+        >
+          <Siren className="w-4 h-4 text-white" />
+          <span>🚨 CODE RED RESUS ALARM</span>
+        </button>
         <button
           type="button"
           onClick={() => setIsIncidentModalOpen(true)}
@@ -192,6 +204,14 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
         >
           <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>CKAPS Form B Inspection Dossier (MOH Act 586)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsLocumModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-indigo-800 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <UserCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          <span>Locum Doctor Shifts &amp; Indemnity (MMC)</span>
         </button>
       </div>
 
@@ -322,6 +342,16 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
       <CKAPSDossierModal
         isOpen={isCkapsModalOpen}
         onClose={() => setIsCkapsModalOpen(false)}
+      />
+
+      <LocumDoctorModal
+        isOpen={isLocumModalOpen}
+        onClose={() => setIsLocumModalOpen(false)}
+      />
+
+      <RedCodeAlarmModal
+        isOpen={isRedCodeModalOpen}
+        onClose={() => setIsRedCodeModalOpen(false)}
       />
     </div>
   );

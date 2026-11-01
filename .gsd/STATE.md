@@ -3,9 +3,11 @@
 ## System Health & Test Suite Status
 - **Date**: 2026-11-01
 - **Active Git Branch**: `Main`
-- **Latest Completed Phase**: Phase 09 (CKAPS Biennial Form B Inspection Dossier Packager)
+- **Latest Completed Phases**:
+  - Phase 10: Locum Doctor MMC Session & Indemnity Log (MMC & PHFSA 1998)
+  - Phase 11: Red-Code Resuscitation Bay Alarm & Emergency Bypass (Part V)
 - **TypeScript Static Verification**: `npx tsc --noEmit` -> **0 errors (CLEAN)**
-- **Automated Test Suite**: `vitest run` -> **75 passed / 75 test suites (684 passed / 684 unit tests - 100% GREEN)**
+- **Automated Test Suite**: `vitest run` -> **77 passed / 77 test suites (700 passed / 700 unit tests - 100% GREEN)**
 - **Development Server**: Active on `http://localhost:3000/`
 
 ---
@@ -21,11 +23,13 @@
   - Phase 07: Cold Chain & Vaccine Refrigerator Monitoring Log (PHFSA 1998 & MOH NIP) [COMPLETED]
   - Phase 08: Adverse Event Following Immunization (AEFI) & Staff Sharps PEP Protocol (OSHA 1994 & KKM BPKK) [COMPLETED]
   - Phase 09: CKAPS Biennial Form B Inspection Dossier Packager (MOH Act 586) [COMPLETED]
-- **Roadmap Status**: Full clinical governance and statutory audit accreditation readiness achieved.
+  - Phase 10: Locum Doctor MMC Session & Indemnity Log (MMC & PHFSA 1998) [COMPLETED]
+  - Phase 11: Red-Code Resuscitation Bay Alarm & Emergency Bypass (Part V) [COMPLETED]
+- **Roadmap Status**: Complete statutory clinical governance, emergency preparedness, and operational agility.
 
 ---
 
 ## Architectural & Domain Decisions Log
-1. **Design System**: Strict adherence to flat `rounded-none` geometry with 1px border lines (`var(--color-brand)`, `border-line`). No raw un-themed Tailwind buttons (`bg-emerald-600` or `bg-blue-600` are prohibited; use semantic tokens).
-2. **Role Architecture**: Clinical workflows are executed under existing roles: `clinic-assistant`, `doctor`, `pharmacist`, `billing`, `lab-technician`, `radiographer`, `inventory-manager`, `admin`. No dedicated `nurse` or `medical-assistant` role is introduced per clinic operational policy.
-3. **Statutory Standards**: All clinical documentation strictly complies with Malaysian statutes (PHFSA 1998, Poison Act 1952, Dangerous Drugs Act 1952, Atomic Energy Licensing Act 1984, Act 342, OSHA 1994, LHDN e-Invoice, MMC Guidelines, MOH NIP Cold Chain, KKM BPKK AEFI Surveillance, CKAPS Form B).
+1. **Design System**: Strict adherence to flat `rounded-none` geometry with 1px border lines (`var(--color-brand)`, `border-line`).
+2. **Role Architecture**: Clinical workflows are executed under existing roles (`clinic-assistant`, `doctor`, `pharmacist`, `billing`, `lab-technician`, `radiographer`, `inventory-manager`, `admin`).
+3. **Statutory Standards**: Full compliance with PHFSA 1998 (Act 586), Medical Act 1971, MMC Locum Guidelines, Poison Act 1952, Dangerous Drugs Act 1952, Atomic Energy Act 304, Act 342, OSHA 1994, LHDN e-Invoice, Resuscitation Council of Asia.
