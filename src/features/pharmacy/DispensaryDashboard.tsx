@@ -8,6 +8,7 @@ import {
 import BukuRacunRegister from './BukuRacunRegister';
 import DangerousDrugsSafeRegister from './DangerousDrugsSafeRegister';
 import ColdChainVaccineModal from '../operations/ColdChainVaccineModal';
+import { isAntibioticDrug } from '../../domain/antibioticStewardship';
 import { useInventory } from '../../context/InventoryContext';
 import { useInventoryActions, useVisitRegister } from '../../hooks/useInventoryData';
 import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
@@ -430,11 +431,17 @@ export default function DispensaryDashboard({
                         
                         {/* Drug Name with dual BM/EN dosage translations */}
                         <div className="flex-1 space-y-1.5">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <h6 className="font-bold text-sm text-strong tracking-tight">{rx.drugName}</h6>
                             <span className="bg-surface-strong text-muted text-xs font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider">
                               Qty: {rx.quantity}
                             </span>
+                            {isAntibioticDrug(rx.drugName) && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-2xs font-bold uppercase rounded-none bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-mono">
+                                <ShieldAlert className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+                                <span>MOH NAG Antimicrobial (AWaRe)</span>
+                              </span>
+                            )}
                           </div>
 
                           <div className="text-xs leading-relaxed border-l-2 border-line pl-2">

@@ -1,5 +1,6 @@
-import React from 'react';
-import { LineChart, Activity, Copy, Lock, Stethoscope, PlusCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import POCTQualityControlModal from '../operations/POCTQualityControlModal';
+import { LineChart, Activity, Copy, Lock, Stethoscope, PlusCircle, TestTube2, ShieldCheck } from 'lucide-react';
 import { Visit } from '../../types';
 
 type Vitals = { bpSystolic: number; bpDiastolic: number; heartRate: number; temperature: number; respiratoryRate: number };
@@ -26,6 +27,9 @@ const FIELDS: Field[] = [
 const CHIP = { ok: 'chip-ok', warn: 'chip-warn', danger: 'chip-danger' } as const;
 
 export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, patientPastVisits, clinicalNotes = "", setClinicalNotes }: ObjectiveTabProps) {
+  const [isPoctQcModalOpen, setIsPoctQcModalOpen] = useState(false);
+  const [cbg, setCbg] = useState<string>('');
+  const [urineDip, setUrineDip] = useState<string>('');
   const examTokens = [
     { label: "+ Alert & NAD", phrase: "NAD (Patient alert, conscious, no acute distress)" },
     { label: "+ Lungs Clear", phrase: "Chest clear bilaterally, good equal air entry, no rhonchi/wheeze" },
@@ -126,6 +130,71 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
         })}
       </div>
 
+      {/* BEDSIDE POINT-OF-CARE TESTING (POCT) CARD */}
+      <div className="bg-surface border border-line p-3.5 rounded-none space-y-3 font-sans">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2">
+          <div className="flex items-center gap-2">
+            <TestTube2 className="w-4 h-4 text-accent" />
+            <h4 className="type-label text-ink font-bold">Bedside Point-of-Care Testing (POCT)</h4>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsPoctQcModalOpen(true)}
+            className="text-2xs font-mono font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Verify Glucometer / Strips Daily Calibration QC</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="p-3 bg-surface-muted/60 border border-line">
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="poct-cbg-input" className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                Capillary Blood Glucose (CBG)
+              </label>
+              {cbg && (
+                <span className={`text-2xs font-mono font-bold px-1.5 py-0.2 border ${
+                  parseFloat(cbg) < 4.0
+                    ? 'chip-danger'
+                    : parseFloat(cbg) > 11.1
+                      ? 'chip-warn'
+                      : 'chip-ok'
+                }`}>
+                  {parseFloat(cbg) < 4.0 ? 'Hypoglycemia' : parseFloat(cbg) > 11.1 ? 'Hyperglycemia' : 'Normal'}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="poct-cbg-input"
+                type="number"
+                step="0.1"
+                placeholder="e.g. 5.6"
+                value={cbg}
+                onChange={(e) => setCbg(e.target.value)}
+                className="w-full bg-surface border border-line px-3 py-1.5 text-xs font-mono font-bold text-ink focus:border-brand outline-none"
+              />
+              <span className="text-xs font-mono text-muted font-bold whitespace-nowrap">mmol/L</span>
+            </div>
+          </div>
+
+          <div className="p-3 bg-surface-muted/60 border border-line">
+            <label htmlFor="poct-urine-input" className="block text-2xs font-bold uppercase tracking-wider text-subtle mb-1">
+              Urine Dipstick Summary
+            </label>
+            <input
+              id="poct-urine-input"
+              type="text"
+              placeholder="e.g. NAD or Protein 1+, Glucose 2+, Leukocytes+"
+              value={urineDip}
+              onChange={(e) => setUrineDip(e.target.value)}
+              className="w-full bg-surface border border-line px-3 py-1.5 text-xs font-sans text-ink focus:border-brand outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* 2. PHYSICAL EXAMINATION FINDINGS (STANDARD OBJECTIVE CLINICAL EXAM) */}
       <div className="bg-surface border border-line p-4 rounded-none space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2">
@@ -170,6 +239,10 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
           />
         )}
       </div>
+      <POCTQualityControlModal
+        isOpen={isPoctQcModalOpen}
+        onClose={() => setIsPoctQcModalOpen(false)}
+      />
     </div>
   );
 }
