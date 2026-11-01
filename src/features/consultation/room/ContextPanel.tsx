@@ -1,22 +1,50 @@
 import React from 'react';
-import { Activity, History, Clock, Heart } from 'lucide-react';
+import { Activity, History, Clock, Heart, ChevronLeft, PanelLeftClose } from 'lucide-react';
 import ChronicDiseaseFlowsheet from './ChronicDiseaseFlowsheet';
 import { buttonProps, focusRing } from '../../../lib/a11y';
 import { Visit } from '../../../types';
 
 interface ContextPanelProps {
   vitals: { bpSystolic: number; bpDiastolic: number; heartRate: number; temperature: number; respiratoryRate: number; };
-  t: { dashboard: string; patientRegistration: string; consultation: string; dispensary: string; billing: string; reports: string; networkStatus: string; bmToggle: string; enToggle: string; clinicName: string; online: string; offline: string; scanMyKad: string; registerNew: string; fullName: string; icNumber: string; gender: string; dob: string; address: string; phone: string; panelEmployer: string; drugAllergies: string; saveRegistration: string; male: string; female: string; activeAllergies: string; searchPatient: string; queueNo: string; patientQueue: string; longitudinalHistory: string; pastVisits: string; consultationRoom: string; subjective: string; objective: string; assessment: string; plan: string; vitalsSign: string; systolic: string; diastolic: string; pulse: string; temp: string; respRate: string; icd10Search: string; symptomsNotes: string; generateMc: string; mcDays: string; drugSearch: string; interactionAlert: string; dispensaryQueue: string; prescribedMeds: string; visualVerify: string; dosageInstruction: string; expiryWarnings: string; printLabel: string; totalBilling: string; selfPay: string; panelClaims: string; tpaSelect: string; glRef: string; proceedPayment: string; paymentDone: string; complianceText: string; nationalReporting: string; revenueToday: string; patientsToday: string; pendingClaims: string; lowStock: string; patientByHour: string; icdDistribution: string; } | { dashboard: string; patientRegistration: string; consultation: string; dispensary: string; billing: string; reports: string; networkStatus: string; bmToggle: string; enToggle: string; clinicName: string; online: string; offline: string; scanMyKad: string; registerNew: string; fullName: string; icNumber: string; gender: string; dob: string; address: string; phone: string; panelEmployer: string; drugAllergies: string; saveRegistration: string; male: string; female: string; activeAllergies: string; searchPatient: string; queueNo: string; patientQueue: string; longitudinalHistory: string; pastVisits: string; consultationRoom: string; subjective: string; objective: string; assessment: string; plan: string; vitalsSign: string; systolic: string; diastolic: string; pulse: string; temp: string; respRate: string; icd10Search: string; symptomsNotes: string; generateMc: string; mcDays: string; drugSearch: string; interactionAlert: string; dispensaryQueue: string; prescribedMeds: string; visualVerify: string; dosageInstruction: string; expiryWarnings: string; printLabel: string; totalBilling: string; selfPay: string; panelClaims: string; tpaSelect: string; glRef: string; proceedPayment: string; paymentDone: string; complianceText: string; nationalReporting: string; revenueToday: string; patientsToday: string; pendingClaims: string; lowStock: string; patientByHour: string; icdDistribution: string; };
+  t: { [key: string]: string };
   patientPastVisits: Visit[];
   selectedPastVisit: Visit | null;
   setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit | null>>;
   stationHud?: React.ReactNode;
+  onToggleCollapse?: () => void;
 }
 
-export default function ContextPanel({ vitals, t, patientPastVisits, selectedPastVisit, setSelectedPastVisit, stationHud }: ContextPanelProps) {
+export default function ContextPanel({
+  vitals,
+  t,
+  patientPastVisits,
+  selectedPastVisit,
+  setSelectedPastVisit,
+  stationHud,
+  onToggleCollapse
+}: ContextPanelProps) {
   const [panelMode, setPanelMode] = React.useState<'timeline' | 'flowsheet'>('timeline');
   return (
     <div className="w-full space-y-4">
+      {/* Top Collapse Control Header */}
+      {onToggleCollapse && (
+        <div className="flex items-center justify-between bg-surface-muted/70 border border-line px-3 py-1.5 text-2xs font-mono">
+          <span className="font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-accent" />
+            Patient Context
+          </span>
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="inline-flex items-center gap-1 text-2xs font-mono font-bold text-accent hover:text-ink px-2 py-0.5 border border-line bg-surface hover:bg-surface-muted cursor-pointer transition-colors"
+            title="Collapse history & vitals panel (Alt+H)"
+            aria-label="Collapse patient context panel"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>Collapse</span>
+          </button>
+        </div>
+      )}
       
       {/* Contextual Recent Vitals Card */}
       <div className="bg-surface p-4 rounded-none border border-line space-y-2.5">

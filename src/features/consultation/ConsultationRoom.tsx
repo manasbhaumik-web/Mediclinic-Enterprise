@@ -13,7 +13,7 @@ import {
   History, Stethoscope, Activity, ClipboardList, Pill, Plus, Trash2, 
   AlertTriangle, Check, FileText, Printer, Clock, Heart, Thermometer, Info, ChevronRight, UserMinus,
   Zap, Eye, EyeOff, TrendingUp, CheckCircle2, TestTube, Share, LineChart, Copy,
-  X, Lock, ShieldAlert, Sparkles, ChevronDown, HelpCircle, ArrowRight, Save
+  X, Lock, ShieldAlert, Sparkles, ChevronDown, ChevronLeft, PanelLeftOpen, PanelLeftClose, HelpCircle, ArrowRight, Save
 } from 'lucide-react';
 import SubjectiveTab from './SubjectiveTab';
 import ObjectiveTab from './ObjectiveTab';
@@ -73,7 +73,24 @@ export default function ConsultationRoom({
 
   // Interactive past history view
   const [selectedPastVisit, setSelectedPastVisit] = useState<Visit | null>(null);
-  const [showContextPanel, setShowContextPanel] = useState(true);
+  const [showContextPanel, setShowContextPanel] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('mediclinic_consult_show_context');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleContextPanel = () => {
+    setShowContextPanel(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('mediclinic_consult_show_context', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   // SOAP Inputs
   const [subjective, setSubjective] = useState('');
@@ -442,6 +459,7 @@ export default function ConsultationRoom({
       if (e.altKey && e.key === '2') { e.preventDefault(); setActiveTab('objective'); }
       if (e.altKey && e.key === '3') { e.preventDefault(); setActiveTab('assessment'); }
       if (e.altKey && e.key === '4') { e.preventDefault(); setActiveTab('plan'); }
+      if (e.altKey && (e.key === 'h' || e.key === 'H')) { e.preventDefault(); toggleContextPanel(); }
       if (e.altKey && (e.key === '?' || e.key === '/')) { e.preventDefault(); setShowShortcutsHelp(prev => !prev); }
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
@@ -507,6 +525,7 @@ export default function ConsultationRoom({
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+2</kbd> Objective Vitals</span>
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+3</kbd> ICD-10 Diagnosis</span>
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+4</kbd> Plan &amp; Rx</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+H</kbd> History Panel</span>
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Ctrl+Enter</kbd> Review &amp; Sign Off</span>
           </div>
           <button type="button" onClick={() => setShowShortcutsHelp(false)} className="text-slate-400 hover:text-muted">
@@ -518,15 +537,69 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 2 & 3: MAIN ENCOUNTER WORKSPACE + CONTEXTUAL RIGHT PANEL             */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-[25%_1fr] gap-5 items-stretch min-h-[500px]">
+      <div className={`grid grid-cols-1 ${showContextPanel ? 'lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr]' : 'lg:grid-cols-[44px_1fr]'} gap-4 items-stretch min-h-[500px] transition-all duration-150`}>
         
         {/* CONTEXTUAL LEFT PANEL — VITALS, LONGITUDINAL HISTORY & QUEUE (25%) */}
-        <ContextPanel vitals={vitals} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} stationHud={stationHud} />
+        {showContextPanel ? (
+          <div className="w-full min-w-0">
+            <ContextPanel 
+              vitals={vitals} 
+              t={t} 
+              patientPastVisits={patientPastVisits} 
+              selectedPastVisit={selectedPastVisit} 
+              setSelectedPastVisit={setSelectedPastVisit} 
+              stationHud={stationHud} 
+              onToggleCollapse={toggleContextPanel}
+            />
+          </div>
+        ) : (
+          <div 
+            className="hidden lg:flex flex-col items-center py-4 px-1.5 bg-surface border border-line rounded-none select-none group cursor-pointer hover:border-primary/60 hover:bg-surface-muted/40 transition-colors"
+            onClick={toggleContextPanel}
+            title="Expand Patient Vitals & History (Alt+H)"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleContextPanel(); } }}
+            aria-label="Expand Patient Vitals & Longitudinal History"
+          >
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); toggleContextPanel(); }}
+              className="p-1.5 text-accent group-hover:text-ink hover:bg-surface-muted rounded-none transition-colors cursor-pointer mb-3"
+              title="Expand Patient Vitals & History (Alt+H)"
+              aria-label="Expand Patient Vitals & History"
+            >
+              <PanelLeftOpen className="w-4 h-4 text-accent" />
+            </button>
+            <div className="[writing-mode:vertical-lr] rotate-180 flex items-center gap-2 text-2xs font-mono font-bold tracking-wider text-muted group-hover:text-ink uppercase py-2">
+              <Activity className="w-3.5 h-3.5 text-accent" />
+              <span>Vitals &amp; History ({patientPastVisits.length})</span>
+            </div>
+          </div>
+        )}
         
         {/* AREA 2: MAIN CONSULTATION WORKSPACE (75%) */}
         <div className="w-full min-w-0 bg-surface border border-line p-5 rounded-none flex flex-col justify-between space-y-5">
           
           <div className="space-y-4">
+            
+            {/* Quick un-collapse banner when collapsed on smaller screens or mobile */}
+            {!showContextPanel && (
+              <div className="flex items-center justify-between bg-surface-muted/70 border border-line px-3 py-1.5 text-xs lg:hidden">
+                <span className="font-mono text-2xs text-muted flex items-center gap-1.5 font-bold">
+                  <Activity className="w-3.5 h-3.5 text-accent" />
+                  Context Panel Collapsed ({patientPastVisits.length} visits)
+                </span>
+                <button
+                  type="button"
+                  onClick={toggleContextPanel}
+                  className="inline-flex items-center gap-1.5 text-2xs font-mono font-bold text-accent hover:text-ink px-2.5 py-1 border border-line bg-surface hover:bg-surface-muted cursor-pointer transition-colors"
+                >
+                  <PanelLeftOpen className="w-3.5 h-3.5" />
+                  <span>Show Vitals &amp; History</span>
+                </button>
+              </div>
+            )}
             
             {/* SINGLE UNIFIED CLINICAL COMMAND & STEPPER BAR */}
             <ConsultationStepper 
