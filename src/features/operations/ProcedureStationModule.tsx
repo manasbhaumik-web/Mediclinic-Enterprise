@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Visit, Patient, ClinicalProcedureItem } from '../../types';
-import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope, Siren, Radio } from 'lucide-react';
+import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope, Siren, Radio, Thermometer } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { formatTicket } from '../../domain/ticket';
@@ -14,6 +14,7 @@ import AutoclaveSterilizationModal from './AutoclaveSterilizationModal';
 import POCTQualityControlModal from './POCTQualityControlModal';
 import EmergencySBARModal from './EmergencySBARModal';
 import RadiationSafetyModal from './RadiationSafetyModal';
+import ColdChainVaccineModal from './ColdChainVaccineModal';
 import { SterilePack } from '../../domain/autoclaveSterilization';
 
 interface ProcedureStationModuleProps {
@@ -50,6 +51,7 @@ export default function ProcedureStationModule({
   const [isPOCTModalOpen, setIsPOCTModalOpen] = useState(false);
   const [isSBARModalOpen, setIsSBARModalOpen] = useState(false);
   const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
+  const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -151,6 +153,14 @@ export default function ProcedureStationModule({
           >
             <Radio className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <span>Radiation Safety (Act 304)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsColdChainModalOpen(true)}
+            className="px-3 py-1.5 border border-teal-300 dark:border-teal-800 bg-surface hover:bg-surface-accent text-teal-800 dark:text-teal-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <Thermometer className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <span>Vaccine Fridge Temp Log</span>
           </button>
 
           <span className="bg-surface-accent px-3 py-1.5 border border-line text-accent font-bold">
@@ -499,6 +509,11 @@ export default function ProcedureStationModule({
       <RadiationSafetyModal
         isOpen={isRadiationModalOpen}
         onClose={() => setIsRadiationModalOpen(false)}
+      />
+
+      <ColdChainVaccineModal
+        isOpen={isColdChainModalOpen}
+        onClose={() => setIsColdChainModalOpen(false)}
       />
     </div>
   );

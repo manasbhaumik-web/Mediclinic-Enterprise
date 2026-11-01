@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio, Thermometer
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import ClinicalIncidentModal from './ClinicalIncidentModal';
@@ -10,6 +10,7 @@ import ClinicThroughputModal from './ClinicThroughputModal';
 import POCTQualityControlModal from './POCTQualityControlModal';
 import EmergencySBARModal from './EmergencySBARModal';
 import RadiationSafetyModal from './RadiationSafetyModal';
+import ColdChainVaccineModal from './ColdChainVaccineModal';
 import { useClinicData } from '../../hooks/useClinicData';
 import { useDrugs, useInventorySettings, usePurchaseOrders } from '../../hooks/useInventoryData';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -43,6 +44,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
   const [isPOCTModalOpen, setIsPOCTModalOpen] = useState(false);
   const [isSBARModalOpen, setIsSBARModalOpen] = useState(false);
   const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
+  const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -163,6 +165,14 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
           <Radio className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           <span>Radiation Safety &amp; X-Ray (Act 304)</span>
         </button>
+        <button
+          type="button"
+          onClick={() => setIsColdChainModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-teal-800 dark:text-teal-200 border border-teal-300 dark:border-teal-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <Thermometer className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+          <span>Cold Chain &amp; Vaccine Temp Log (+2°C to +8°C)</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -277,6 +287,11 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
       <RadiationSafetyModal
         isOpen={isRadiationModalOpen}
         onClose={() => setIsRadiationModalOpen(false)}
+      />
+
+      <ColdChainVaccineModal
+        isOpen={isColdChainModalOpen}
+        onClose={() => setIsColdChainModalOpen(false)}
       />
     </div>
   );

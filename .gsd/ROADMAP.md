@@ -89,7 +89,7 @@
 ---
 
 ### [COMPLETED] Phase 06: Radiation Safety & Diagnostic X-Ray Register (Act 304 & PHFSA 1998)
-- **Status**: Completed (Commit pending)
+- **Status**: Completed (Commit `5baf93f`)
 - **Key Modules**:
   1. **Radiological Apparatus & Class C Licence Directory** (`src/domain/radiationSafety.ts`):
      - General Radiography and Dental OPG machines.
@@ -104,3 +104,22 @@
   5. **Station Integration**:
      - Operations Hub (`OperationsHub.tsx`) quick action button.
      - Treatment Room (`ProcedureStationModule.tsx`) radiation safety trigger.
+
+---
+
+### [COMPLETED] Phase 07: Cold Chain & Vaccine Refrigerator Monitoring Log (PHFSA 1998 & MOH NIP)
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **Cold Chain Monitoring Engine** (`src/domain/coldChainVaccines.ts`):
+     - Strict statutory limit evaluation (+2.0°C to +8.0°C).
+     - Priority freeze hazard detection ($<+2.0^\circ\text{C}$) guarding against irreversible aluminum adjuvant precipitation in DTaP, HepB, PCV, and HPV vaccines.
+     - Live heat hazard detection ($>+8.0^\circ\text{C}$) protecting live-attenuated vaccine potency (MMR, Varicella).
+     - Twice-daily shift completion tracker (`isFridgeCheckDueForToday`).
+     - Pejabat Kesihatan Daerah (PKD) monthly CSV report generator (`exportColdChainMonthlyCsv`).
+  2. **WHO / KKM Shake Test Protocol (*Ujian Goncang*)**:
+     - Diagnostic sedimentation evaluation for suspect frozen adsorbed vaccines (`evaluateShakeTestResult`).
+  3. **Cold Chain Vaccine Modal UI** (`src/features/operations/ColdChainVaccineModal.tsx`):
+     - 4-tab clinical workstation: Refrigerator Status, Twice-Daily Log, WHO Shake Test Protocol, and PKD Inspection Ledger.
+  4. **Station Integration**:
+     - Operations Hub (`OperationsHub.tsx`): Quick action button.
+     - Treatment Room (`ProcedureStationModule.tsx`): Header quick action button.
