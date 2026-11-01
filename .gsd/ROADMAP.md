@@ -54,7 +54,7 @@
 ---
 
 ### [COMPLETED] Phase 04: Emergency SBAR Transfer & Ambulance Handover Protocol
-- **Status**: Completed (Commit pending)
+- **Status**: Completed (Commit `93f26ae`)
 - **Key Modules**:
   1. **SBAR Clinical Transfer Engine** (`src/domain/emergencyTransferSBAR.ts`):
      - Structured Situation, Background, Assessment, Recommendation models.
@@ -70,9 +70,18 @@
 
 ---
 
-### [ACTIVE / NEXT] Phase 05: Poison Act 1952 & Dangerous Drugs Act 1952 (DDA) Safe Register
-- **Target**: Pharmacy Regulatory Compliance & Narcotic Substance Accountability.
-- **Scope**:
-  - Controlled substance safe register with dual-PIN authorization (Doctor + Pharmacist).
-  - Perpetual running balance inventory with physical count discrepancy reporting.
-  - Automated MOH Pharmacy Enforcement Division audit trail export.
+### [COMPLETED] Phase 05: Poison Act 1952 & Dangerous Drugs Act 1952 (DDA) Safe Register
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **Dangerous Drugs Safe Inventory & Running Balance Engine** (`src/domain/dangerousDrugsDDA.ts`):
+     - Controlled dangerous drugs (Morphine, Pethidine, Fentanyl, Ketamine, Midazolam).
+     - Mathematical perpetual running balance preventing negative stock.
+     - Mandatory dual-authorization sign-off checks (Doctor MMC No. + Pharmacist/Witness).
+     - Partial dose wastage / destruction audit logging.
+     - Physical count discrepancy detection (Regulation 18 statutory loss alerts).
+  2. **Dangerous Drugs Safe Register UI** (`src/features/pharmacy/DangerousDrugsSafeRegister.tsx`):
+     - Safe inventory cards, dual-auth outward withdrawal form, inward supplier receipt, perpetual transaction ledger, and physical stocktake audit tool.
+     - Export to CSV matching MOH Bahagian Penguatkuasaan Farmasi (BPF) inspection format.
+  3. **Station Integration**:
+     - Dispensary Console (`src/features/pharmacy/DispensaryDashboard.tsx`): Sub-station tab **"3. Dangerous Drugs Safe (DDA 1952)"**.
+     - Operations Hub (`src/features/operations/OperationsHub.tsx`): Quick action button.

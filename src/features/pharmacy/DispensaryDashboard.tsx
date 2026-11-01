@@ -3,9 +3,10 @@ import { Visit, PrescriptionItem, Language } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import { 
   Users, User, CheckCircle, AlertCircle, FileText, Printer, CheckSquare, 
-  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle, BookOpen
+  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle, BookOpen, Lock
 } from 'lucide-react';
 import BukuRacunRegister from './BukuRacunRegister';
+import DangerousDrugsSafeRegister from './DangerousDrugsSafeRegister';
 import { useInventory } from '../../context/InventoryContext';
 import { useInventoryActions, useVisitRegister } from '../../hooks/useInventoryData';
 import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
@@ -30,7 +31,7 @@ export default function DispensaryDashboard({
   onDispenseSubmit,
   pharmacistName = "Pharm. Ahmad Razak"
 }: DispensaryDashboardProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'dispensing' | 'buku-racun'>('dispensing');
+  const [activeSubTab, setActiveSubTab] = useState<'dispensing' | 'buku-racun' | 'dda-safe'>('dispensing');
   const t = TRANSLATIONS[activeLanguage];
   const { catalog } = useInventory();
   const inv = useInventoryActions();
@@ -221,6 +222,21 @@ export default function DispensaryDashboard({
             <span>2. Buku Racun (KKM Poison Book)</span>
             <span className="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-300/40 font-mono text-2xs font-bold">
               Section 24
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('dda-safe')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'dda-safe'
+                ? 'bg-rose-900 text-white border-rose-900 shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Lock className="w-4 h-4 text-rose-400" />
+            <span>3. Dangerous Drugs Safe (DDA 1952)</span>
+            <span className="px-1.5 py-0.2 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300/40 font-mono text-2xs font-bold">
+              Act 234
             </span>
           </button>
         </div>

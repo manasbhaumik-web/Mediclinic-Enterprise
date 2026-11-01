@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import ClinicalIncidentModal from './ClinicalIncidentModal';
@@ -144,6 +144,14 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
         >
           <Siren className="w-4 h-4 text-rose-600 animate-pulse" />
           <span>Emergency Hospital Transfers (SBAR)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => onOpenTab ? onOpenTab('medicine') : undefined}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <Lock className="w-4 h-4 text-rose-600" />
+          <span>Dangerous Drugs Safe (DDA 1952)</span>
         </button>
       </div>
 
