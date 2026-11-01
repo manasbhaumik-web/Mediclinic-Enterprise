@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Patient, Visit, VitalSigns } from '../../types';
-import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight, Syringe } from 'lucide-react';
+import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight, Syringe, Siren } from 'lucide-react';
+import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
 import ProcedureStationModule from '../operations/ProcedureStationModule';
 import { completeVisitProcedure } from '../../domain/procedures';
 import { maskICNumber } from '../../utils/piiMasker';
@@ -35,6 +36,7 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
     chiefComplaint: ''
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isRedCodeModalOpen, setIsRedCodeModalOpen] = useState(false);
   const procedureQueueCount = (allVisits || []).filter(v => {
     if (v.status === 'Awaiting Procedure' || v.status === 'Holding for Results') return true;
     const procs = v.soap?.plan?.procedures || [];
@@ -125,8 +127,18 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
           </button>
         </div>
 
-        <div className="text-2xs font-mono text-muted flex items-center gap-2">
-          <span>Active Station Staff: <strong className="text-ink">{currentStaffName || 'Clinic Nurse'}</strong></span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsRedCodeModalOpen(true)}
+            className="px-3 py-1.5 border border-rose-600 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-sm animate-pulse"
+          >
+            <Siren className="w-4 h-4 text-white" />
+            <span>🚨 CODE RED RESUS ALARM</span>
+          </button>
+          <div className="text-2xs font-mono text-muted flex items-center gap-2">
+            <span>Staff: <strong className="text-ink">{currentStaffName || 'Clinic Nurse'}</strong></span>
+          </div>
         </div>
       </div>
 
@@ -350,6 +362,11 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
       </div>
       </>
       )}
+
+      <RedCodeAlarmModal
+        isOpen={isRedCodeModalOpen}
+        onClose={() => setIsRedCodeModalOpen(false)}
+      />
     </div>
   );
 }

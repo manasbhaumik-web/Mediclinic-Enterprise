@@ -4,7 +4,7 @@ import LeaveStatusList from '../leave/LeaveStatusList';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, Users, X, 
   DollarSign, Calendar, AlertCircle,
-  FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw, CheckCircle2, ArrowRight, Activity
+  FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw, CheckCircle2, ArrowRight, Activity, UserCheck
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../../lib/supabase';
@@ -22,6 +22,7 @@ import ProgressBar from '../../components/ui/ProgressBar';
 import { Dialog } from '../inventory/shared';
 import { Pagination } from '../../components/ui/Pagination';
 import { evaluateClinicianPrivileges, ClinicianCredentials } from '../../domain/staffCredentialing';
+import LocumDoctorModal from '../operations/LocumDoctorModal';
 export interface StaffMember {
   id: string;
   name: string;
@@ -93,6 +94,7 @@ export default function StaffManagementModule() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isLocumModalOpen, setIsLocumModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [accessMap, setAccessMap] = useState<Record<string, { state: AccessState; role: SystemRole | null; roles: SystemRole[] }>>({});
   const [accessBusy, setAccessBusy] = useState<string | null>(null);
@@ -409,6 +411,15 @@ export default function StaffManagementModule() {
         <div className="flex items-center gap-3">
           {activeTab === 'directory' && currentView === 'list' && (
             <>
+              <button 
+                type="button"
+                onClick={() => setIsLocumModalOpen(true)}
+                className="bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-emerald-900 transition-all cursor-pointer shadow-none"
+                title="Manage Locum Doctor Credentialing, MMC/APC Verification, Shifts & Hourly Payouts"
+              >
+                <UserCheck className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Locum Doctor Roster &amp; Indemnity</span>
+              </button>
               <button 
                 type="button"
                 onClick={() => setIsImportModalOpen(true)}
@@ -900,6 +911,10 @@ export default function StaffManagementModule() {
         </div>
       )}
 
+      <LocumDoctorModal
+        isOpen={isLocumModalOpen}
+        onClose={() => setIsLocumModalOpen(false)}
+      />
     </div>
   );
 }

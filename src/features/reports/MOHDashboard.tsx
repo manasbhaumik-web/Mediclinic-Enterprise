@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
-  AlertTriangle, Building, CheckCircle2, ChevronRight, ClipboardCheck, FileText, Info, RefreshCw, ShieldCheck, Stethoscope,
+  AlertTriangle, Building, CheckCircle2, ChevronRight, ClipboardCheck, FileText, Info, RefreshCw, ShieldCheck, Stethoscope, Award,
 } from 'lucide-react';
 import { useCompliance } from '../../hooks/useCompliance';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -10,6 +10,7 @@ import { INVENTORY_KEY } from '../../context/InventoryContext';
 import { dueState } from '../../domain/equipment';
 import { LicenceState, licenceStatus } from '../../domain/compliance';
 import { localDateKey } from '../../domain/operations';
+import CKAPSDossierModal from '../operations/CKAPSDossierModal';
 
 interface MOHDashboardProps {
   /** Opens another Administration section. */
@@ -40,6 +41,7 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
   const { clinic } = useSettings();
 
   const [periodDays, setPeriodDays] = useState<number>(90);
+  const [isCkapsModalOpen, setIsCkapsModalOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 3_600_000);
@@ -97,6 +99,15 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
           >
             {PERIODS.map((p) => <option key={p.days} value={p.days}>{p.label}</option>)}
           </select>
+          <button
+            type="button"
+            onClick={() => setIsCkapsModalOpen(true)}
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all cursor-pointer shadow-xs"
+            title="Compile and package MOH CKAPS Form B Regulatory Inspection Dossier"
+          >
+            <Award className="w-3.5 h-3.5 text-teal-200" aria-hidden="true" />
+            <span>Compile CKAPS Form B Dossier</span>
+          </button>
           <button
             type="button"
             onClick={() => {
@@ -269,6 +280,11 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
           </Panel>
         </div>
       </div>
+
+      <CKAPSDossierModal
+        isOpen={isCkapsModalOpen}
+        onClose={() => setIsCkapsModalOpen(false)}
+      />
     </div>
   );
 }

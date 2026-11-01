@@ -14,6 +14,9 @@ interface RedCodeAlarmModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAlarmTriggered?: (incident: RedCodeIncident) => void;
+  defaultPatientName?: string;
+  defaultLocation?: 'Triage / Entrance' | 'Consultation Room' | 'Waiting Hall';
+  defaultStaff?: string;
 }
 
 const STORAGE_KEY_RED_CODE = 'mediclinic_red_code_incidents_v1';
@@ -22,6 +25,9 @@ export default function RedCodeAlarmModal({
   isOpen,
   onClose,
   onAlarmTriggered,
+  defaultPatientName,
+  defaultLocation,
+  defaultStaff,
 }: RedCodeAlarmModalProps) {
   const [activeTab, setActiveTab] = useState<'alarm_command' | 'protocols' | 'history'>('alarm_command');
 
@@ -35,10 +41,16 @@ export default function RedCodeAlarmModal({
 
   // Trigger form state
   const [selectedCondition, setSelectedCondition] = useState<RedCodeSeverity>('cardiac_arrest');
-  const [patientName, setPatientName] = useState('Unknown Emergency Walk-in');
+  const [patientName, setPatientName] = useState(defaultPatientName || 'Unknown Emergency Walk-in');
   const [patientAge, setPatientAge] = useState('50');
-  const [locationTriggered, setLocationTriggered] = useState<'Triage / Entrance' | 'Consultation Room' | 'Waiting Hall'>('Triage / Entrance');
-  const [staffTriggering, setStaffTriggering] = useState('Triage Staff Nurse');
+  const [locationTriggered, setLocationTriggered] = useState<'Triage / Entrance' | 'Consultation Room' | 'Waiting Hall'>(defaultLocation || 'Triage / Entrance');
+  const [staffTriggering, setStaffTriggering] = useState(defaultStaff || 'Triage Staff Nurse');
+
+  useEffect(() => {
+    if (defaultPatientName) setPatientName(defaultPatientName);
+    if (defaultLocation) setLocationTriggered(defaultLocation);
+    if (defaultStaff) setStaffTriggering(defaultStaff);
+  }, [defaultPatientName, defaultLocation, defaultStaff]);
 
   // Save to localStorage
   useEffect(() => {

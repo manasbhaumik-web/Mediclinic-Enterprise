@@ -1,5 +1,5 @@
 import React from 'react';
-import { EyeOff, Eye, CheckCircle2, Activity, Lock, HelpCircle, AlertTriangle } from 'lucide-react';
+import { EyeOff, Eye, CheckCircle2, Activity, Lock, HelpCircle, AlertTriangle, Siren } from 'lucide-react';
 import { Patient } from '../../../types';
 
 interface PatientSafetyHeaderProps {
@@ -20,6 +20,7 @@ interface PatientSafetyHeaderProps {
   vitalsText?: string;
   roomText?: string;
   ticketText?: string;
+  onTriggerRedCode?: () => void;
 }
 
 export default function PatientSafetyHeader({
@@ -36,7 +37,8 @@ export default function PatientSafetyHeader({
   soapProgressPercent,
   setIsLocked,
   setShowShortcutsHelp,
-  showShortcutsHelp
+  showShortcutsHelp,
+  onTriggerRedCode
 }: PatientSafetyHeaderProps) {
   const hasAllergies = allergies.length > 0;
   const coverage = currentPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : currentPatient.panelEmployer;
@@ -116,6 +118,19 @@ export default function PatientSafetyHeader({
           <Activity className="w-3.5 h-3.5 text-accent" />
           <span>{completedStepsCount}/4 ({soapProgressPercent}%)</span>
         </div>
+
+        {/* Code Red Resuscitation Bay Alarm */}
+        {onTriggerRedCode && (
+          <button
+            type="button"
+            onClick={onTriggerRedCode}
+            className="px-2.5 py-1 bg-rose-700 hover:bg-rose-800 text-white font-mono text-2xs font-bold border border-rose-900 rounded-none flex items-center gap-1.5 shadow-xs transition-colors motion-safe:animate-pulse cursor-pointer"
+            title="Trigger Red-Code Resuscitation Alarm (MOH Part V Emergency Bay 1)"
+          >
+            <Siren className="w-3.5 h-3.5 text-rose-200" />
+            <span className="hidden sm:inline">CODE RED RESUS</span>
+          </button>
+        )}
 
         {/* Quick Lock Screen */}
         <button

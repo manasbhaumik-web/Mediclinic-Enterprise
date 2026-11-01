@@ -25,6 +25,7 @@ import ConsultationStepper from './room/ConsultationStepper';
 import WorkflowToolbar from './room/WorkflowToolbar';
 import ContextPanel from './room/ContextPanel';
 import ReviewSignoffModal from './room/ReviewSignoffModal';
+import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
 import { visitFromRow } from '../../lib/mappers';
 import { formatTicket } from '../../domain/ticket';
 import { calculatePatientAge } from '../../domain/patientAge';
@@ -68,6 +69,7 @@ export default function ConsultationRoom({
 
   // Final Consultation Review Checklist Modal
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isRedCodeModalOpen, setIsRedCodeModalOpen] = useState(false);
 
   // Interactive past history view
   const [selectedPastVisit, setSelectedPastVisit] = useState<Visit | null>(null);
@@ -482,7 +484,7 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
       {/* ========================================================================= */}
-      <PatientSafetyHeader ticketText={formatTicket(activeVisit?.ticketNo)} allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} patientAgeDisplay={patientAgeDetails.displayAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} />
+      <PatientSafetyHeader ticketText={formatTicket(activeVisit?.ticketNo)} allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} patientAgeDisplay={patientAgeDetails.displayAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} onTriggerRedCode={() => setIsRedCodeModalOpen(true)} />
 
       {/* DRAFT SAVED NOTIFICATION TOAST BANNER */}
       {draftToast && (
@@ -629,6 +631,14 @@ export default function ConsultationRoom({
       {isReviewModalOpen && (
       <ReviewSignoffModal setIsReviewModalOpen={setIsReviewModalOpen} currentPatient={currentPatient} maskedIC={maskedIC} selectedICD={selectedICD} rxList={rxList} handleFinalSignoff={handleFinalSignoff} />
       )}
+
+      <RedCodeAlarmModal
+        isOpen={isRedCodeModalOpen}
+        onClose={() => setIsRedCodeModalOpen(false)}
+        defaultPatientName={currentPatient.fullName}
+        defaultLocation="Consultation Room"
+        defaultStaff="Consulting Medical Officer"
+      />
 
     </div>
   );
