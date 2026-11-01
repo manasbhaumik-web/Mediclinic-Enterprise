@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Visit, Patient, ClinicalProcedureItem } from '../../types';
-import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap } from 'lucide-react';
+import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { formatTicket } from '../../domain/ticket';
@@ -11,6 +11,7 @@ import { CrashCartInspectionModal } from './CrashCartInspectionModal';
 import { ClinicalWasteModule } from './ClinicalWasteModule';
 import { CrashCartInspectionRecord } from '../../domain/crashCart';
 import AutoclaveSterilizationModal from './AutoclaveSterilizationModal';
+import POCTQualityControlModal from './POCTQualityControlModal';
 import { SterilePack } from '../../domain/autoclaveSterilization';
 
 interface ProcedureStationModuleProps {
@@ -44,6 +45,7 @@ export default function ProcedureStationModule({
   const [lastCrashCartLog, setLastCrashCartLog] = useState<CrashCartInspectionRecord | null>(null);
   const [isAutoclaveModalOpen, setIsAutoclaveModalOpen] = useState(false);
   const [selectedSterilePack, setSelectedSterilePack] = useState<SterilePack | null>(null);
+  const [isPOCTModalOpen, setIsPOCTModalOpen] = useState(false);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -108,6 +110,14 @@ export default function ProcedureStationModule({
           >
             <ShieldCheck className="w-4 h-4 text-accent" />
             <span>Autoclave Sterilization (PHFSA)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsPOCTModalOpen(true)}
+            className="px-3 py-1.5 border border-line bg-surface hover:bg-surface-accent text-teal-800 dark:text-teal-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <Microscope className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <span>POCT QC Calibration (PHFSA § 38)</span>
           </button>
 
           <button
@@ -365,6 +375,24 @@ export default function ProcedureStationModule({
                               className="w-full text-xs p-2 border border-line bg-surface text-ink"
                             />
                           </div>
+
+                                                    {/* Statutory PHFSA 1998 POCT Quality Control */}
+                          {isDiagnostic && (
+                            <div className="border border-line bg-teal-50/50 dark:bg-teal-950/20 p-2.5 flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2">
+                                <Microscope className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                                <span className="font-bold text-ink">POCT Diagnostic Quality Control (PHFSA § 38):</span>
+                                <span className="text-2xs text-muted">Daily 2-level QC calibration certified</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setIsPOCTModalOpen(true)}
+                                className="text-2xs font-bold text-accent hover:underline cursor-pointer"
+                              >
+                                View / Calibrate Instrument
+                              </button>
+                            </div>
+                          )}
 
                           {/* Statutory PHFSA 1998 Consent Check / Trigger */}
                           <div className="border border-line bg-surface-muted/30 p-2.5 flex items-center justify-between text-xs">

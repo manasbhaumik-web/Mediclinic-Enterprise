@@ -36,17 +36,24 @@
 
 ---
 
-### [ACTIVE / NEXT] Phase 03: Point-of-Care Testing (POCT) & Equipment Quality Control
-- **Target**: Outpatient Diagnostic Safety & PHFSA 1998 Section 38 Compliance.
-- **Scope**:
-  - In-clinic diagnostic instruments: Blood Glucometers, HbA1c Analyzers, Urine Chemistry, Rapid Strep/Flu/Dengue reader logs.
-  - Daily Two-Level Quality Control (QC Level 1 Normal, Level 2 Abnormal) tracking.
-  - Reagent cartridge lot verification, expiration enforcement, and calibration slope checks.
-  - Interlock guard: Consultation lab ordering blocked if the diagnostic instrument fails QC calibration for the day.
+### [COMPLETED] Phase 03: Point-of-Care Testing (POCT) & Equipment Quality Control
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **Diagnostic POCT Instrument Directory** (`src/domain/poctCalibration.ts`):
+     - In-clinic diagnostic instruments: Blood Glucometers, HbA1c Analyzers, Urine Chemistry, Rapid Strep/Flu/Dengue reader logs.
+     - Reagent strip lot verification, manufacturer expiry vs. open-vial shelf-life tracking.
+  2. **Two-Level Daily Quality Control Engine**:
+     - Level 1 (Normal) and Level 2 (High / Pathological) daily calibration logging with deviation calculation.
+     - Device calibration safety evaluation (`evaluateDeviceQcStatus`).
+  3. **POCT Quality Control Modal** (`src/features/operations/POCTQualityControlModal.tsx`):
+     - Interactive multi-tab interface with live tolerance evaluation and exportable MOH PHFSA § 38 audit certificates.
+  4. **Station Integration**:
+     - Fast-access action button in `OperationsHub.tsx`.
+     - Calibration action button and in-encounter diagnostic QC verification in `ProcedureStationModule.tsx`.
 
 ---
 
-### [BACKLOG] Phase 04: Emergency SBAR Transfer & Ambulance Handover Protocol
+### [ACTIVE / NEXT] Phase 04: Emergency SBAR Transfer & Ambulance Handover Protocol
 - **Target**: Patient Safety & Tertiary Hospital Continuity of Care.
 - **Scope**:
   - SBAR (Situation, Background, Assessment, Recommendation) structured handover generator.

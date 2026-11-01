@@ -2,11 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users, ShieldAlert, Timer
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import ClinicalIncidentModal from './ClinicalIncidentModal';
 import ClinicThroughputModal from './ClinicThroughputModal';
+import POCTQualityControlModal from './POCTQualityControlModal';
 import { useClinicData } from '../../hooks/useClinicData';
 import { useDrugs, useInventorySettings, usePurchaseOrders } from '../../hooks/useInventoryData';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -37,6 +38,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
   const [now, setNow] = useState(() => Date.now());
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
   const [isThroughputModalOpen, setIsThroughputModalOpen] = useState(false);
+  const [isPOCTModalOpen, setIsPOCTModalOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -123,6 +125,15 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
         >
           <Timer className="w-4 h-4 text-accent" />
           <span>Outpatient Turnaround Time (TAT) &amp; Bottleneck Monitor</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsPOCTModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-teal-800 dark:text-teal-200 border border-teal-300 dark:border-teal-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <Microscope className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+          <span>POCT Device Quality Control (PHFSA § 38)</span>
         </button>
       </div>
 
@@ -223,6 +234,11 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
       <ClinicThroughputModal
         isOpen={isThroughputModalOpen}
         onClose={() => setIsThroughputModalOpen(false)}
+      />
+
+      <POCTQualityControlModal
+        isOpen={isPOCTModalOpen}
+        onClose={() => setIsPOCTModalOpen(false)}
       />
     </div>
   );
