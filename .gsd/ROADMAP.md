@@ -108,7 +108,7 @@
 ---
 
 ### [COMPLETED] Phase 07: Cold Chain & Vaccine Refrigerator Monitoring Log (PHFSA 1998 & MOH NIP)
-- **Status**: Completed (Commit pending)
+- **Status**: Completed (Commit `9c0ba77`)
 - **Key Modules**:
   1. **Cold Chain Monitoring Engine** (`src/domain/coldChainVaccines.ts`):
      - Strict statutory limit evaluation (+2.0°C to +8.0°C).
@@ -120,6 +120,27 @@
      - Diagnostic sedimentation evaluation for suspect frozen adsorbed vaccines (`evaluateShakeTestResult`).
   3. **Cold Chain Vaccine Modal UI** (`src/features/operations/ColdChainVaccineModal.tsx`):
      - 4-tab clinical workstation: Refrigerator Status, Twice-Daily Log, WHO Shake Test Protocol, and PKD Inspection Ledger.
+  4. **Station Integration**:
+     - Operations Hub (`OperationsHub.tsx`): Quick action button.
+     - Treatment Room (`ProcedureStationModule.tsx`): Header quick action button.
+
+---
+
+### [COMPLETED] Phase 08: Adverse Event Following Immunization (AEFI) & Staff Sharps PEP Protocol (OSHA 1994 & KKM BPKK)
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **AEFI Clinical Surveillance Engine** (`src/domain/aefiAndSharpsProtocol.ts`):
+     - Weight-based IM Adrenaline 1:1000 calculation (0.01 mg/kg, max 0.5 mg) for acute vaccine anaphylaxis.
+     - KKM BPKK / NPRA severity classification (Minor, Moderate, Severe/Anaphylaxis).
+     - Auto-linking to MECC 999 SBAR emergency ambulance transfer.
+     - Direct BPKK / NPRA statutory AEFI export text generator (`exportAefiReportText`).
+  2. **Staff Needle-Stick & Sharps Injury Risk & PEP Engine**:
+     - OSHA 1994 & KKM Bloodborne Pathogen exposure evaluation (deep percutaneous, hollow-bore needles).
+     - Live 72-hour HIV Post-Exposure Prophylaxis countdown tracker.
+     - Hepatitis B Immunoglobulin (HBIG within 24h) and accelerated vaccine booster stratification based on HCW Anti-HBs response status.
+     - Statutory JKKP 6 workplace incident filing tracking.
+  3. **AEFI & Sharps Safety Workstation UI** (`src/features/operations/AEFIAndSharpsModal.tsx`):
+     - 4-tab interactive workstation: AEFI Surveillance & Anaphylaxis Protocol, Log AEFI Case, Sharps / Needle-Stick PEP Protocol, and Statutory Registers & Exports.
   4. **Station Integration**:
      - Operations Hub (`OperationsHub.tsx`): Quick action button.
      - Treatment Room (`ProcedureStationModule.tsx`): Header quick action button.

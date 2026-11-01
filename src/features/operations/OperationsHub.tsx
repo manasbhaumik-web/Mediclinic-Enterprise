@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio, Thermometer
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio, Thermometer, HeartPulse
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import ClinicalIncidentModal from './ClinicalIncidentModal';
@@ -11,6 +11,7 @@ import POCTQualityControlModal from './POCTQualityControlModal';
 import EmergencySBARModal from './EmergencySBARModal';
 import RadiationSafetyModal from './RadiationSafetyModal';
 import ColdChainVaccineModal from './ColdChainVaccineModal';
+import AEFIAndSharpsModal from './AEFIAndSharpsModal';
 import { useClinicData } from '../../hooks/useClinicData';
 import { useDrugs, useInventorySettings, usePurchaseOrders } from '../../hooks/useInventoryData';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -45,6 +46,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
   const [isSBARModalOpen, setIsSBARModalOpen] = useState(false);
   const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
   const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
+  const [isAefiModalOpen, setIsAefiModalOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -173,6 +175,14 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
           <Thermometer className="w-4 h-4 text-teal-600 dark:text-teal-400" />
           <span>Cold Chain &amp; Vaccine Temp Log (+2°C to +8°C)</span>
         </button>
+        <button
+          type="button"
+          onClick={() => setIsAefiModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <HeartPulse className="w-4 h-4 text-rose-600" />
+          <span>AEFI &amp; Sharps PEP (OSHA / BPKK)</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -292,6 +302,11 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
       <ColdChainVaccineModal
         isOpen={isColdChainModalOpen}
         onClose={() => setIsColdChainModalOpen(false)}
+      />
+
+      <AEFIAndSharpsModal
+        isOpen={isAefiModalOpen}
+        onClose={() => setIsAefiModalOpen(false)}
       />
     </div>
   );

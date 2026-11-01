@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Visit, Patient, ClinicalProcedureItem } from '../../types';
-import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope, Siren, Radio, Thermometer } from 'lucide-react';
+import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope, Siren, Radio, Thermometer, HeartPulse } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { formatTicket } from '../../domain/ticket';
@@ -15,6 +15,7 @@ import POCTQualityControlModal from './POCTQualityControlModal';
 import EmergencySBARModal from './EmergencySBARModal';
 import RadiationSafetyModal from './RadiationSafetyModal';
 import ColdChainVaccineModal from './ColdChainVaccineModal';
+import AEFIAndSharpsModal from './AEFIAndSharpsModal';
 import { SterilePack } from '../../domain/autoclaveSterilization';
 
 interface ProcedureStationModuleProps {
@@ -52,6 +53,7 @@ export default function ProcedureStationModule({
   const [isSBARModalOpen, setIsSBARModalOpen] = useState(false);
   const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
   const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
+  const [isAefiModalOpen, setIsAefiModalOpen] = useState(false);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -161,6 +163,14 @@ export default function ProcedureStationModule({
           >
             <Thermometer className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             <span>Vaccine Fridge Temp Log</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsAefiModalOpen(true)}
+            className="px-3 py-1.5 border border-rose-300 dark:border-rose-800 bg-surface hover:bg-surface-accent text-rose-800 dark:text-rose-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <HeartPulse className="w-4 h-4 text-rose-600" />
+            <span>AEFI &amp; Sharps Protocol</span>
           </button>
 
           <span className="bg-surface-accent px-3 py-1.5 border border-line text-accent font-bold">
@@ -514,6 +524,11 @@ export default function ProcedureStationModule({
       <ColdChainVaccineModal
         isOpen={isColdChainModalOpen}
         onClose={() => setIsColdChainModalOpen(false)}
+      />
+
+      <AEFIAndSharpsModal
+        isOpen={isAefiModalOpen}
+        onClose={() => setIsAefiModalOpen(false)}
       />
     </div>
   );
