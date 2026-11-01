@@ -497,7 +497,7 @@ export default function ConsultationRoom({
   const roomText = activeVisit?.consultRoom ? `${activeVisit.consultRoom}${activeVisit.calledAt ? `, called ${new Date(activeVisit.calledAt).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })}` : ''}` : undefined;
 
   return (
-    <div className="-mx-3 sm:-mx-5 -my-3 sm:-my-5 h-[calc(100vh-104px)] min-h-[500px] flex flex-col bg-surface text-ink dark:text-slate-50 overflow-hidden relative animate-fadeIn">
+    <div className="space-y-4 pb-16 relative animate-fadeIn text-ink dark:text-slate-50">
       
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
@@ -564,7 +564,7 @@ export default function ConsultationRoom({
       {/* Section 2 (Center): Main SOAP Consultation Workspace                      */}
       {/* Panel 3 (Right): Collapsible Diagnosis Session Summary                    */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex overflow-hidden min-h-0 w-full relative">
+      <div className="flex border border-line bg-surface min-h-[640px] overflow-hidden rounded-none">
         
         {/* 1. LEFT COLLAPSIBLE PATIENT QUEUE (Outside Content Section) */}
         <CollapsibleQueuePanel
@@ -578,7 +578,7 @@ export default function ConsultationRoom({
         />
 
         {/* 2. CENTRAL SECTION: MAIN CONSULTATION ENCOUNTER WORKSPACE */}
-        <main className="flex-1 min-w-0 h-full overflow-y-auto p-4 sm:p-6 flex flex-col justify-between space-y-5 bg-surface">
+        <div className="flex-1 min-w-0 bg-surface p-4 sm:p-5 flex flex-col justify-between space-y-5 overflow-y-auto">
           
           <div className="space-y-4">
             
@@ -700,7 +700,7 @@ export default function ConsultationRoom({
             savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} 
           />
 
-        </main>
+        </div>
 
         {/* 3. RIGHT COLLAPSIBLE DIAGNOSIS SESSION SUMMARY (Outside Content Section) */}
         <CollapsibleDiagnosisSummaryPanel

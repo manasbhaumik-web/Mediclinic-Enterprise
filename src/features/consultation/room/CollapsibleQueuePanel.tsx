@@ -34,7 +34,7 @@ export default function CollapsibleQueuePanel({
       <aside
         id="leftCollapsedRail"
         onClick={onToggle}
-        className="w-11 h-full bg-surface-muted border-r border-line flex flex-col items-center py-3 justify-between shrink-0 cursor-pointer hover:bg-surface-accent transition-colors select-none"
+        className="w-11 bg-surface-muted border-r border-line flex flex-col items-center py-3 justify-between shrink-0 cursor-pointer hover:bg-surface-accent transition-colors select-none"
         title="Click to expand Patient Queue"
         aria-label="Expand Patient Queue"
       >
@@ -64,7 +64,7 @@ export default function CollapsibleQueuePanel({
   return (
     <aside
       id="leftQueuePanel"
-      className="w-72 lg:w-80 h-full bg-surface-muted/30 border-r border-line flex flex-col shrink-0 select-none transition-all duration-200"
+      className="w-72 lg:w-80 bg-surface-muted/30 border-r border-line flex flex-col shrink-0 select-none transition-all duration-200"
       aria-label="Patient Queue Sidebar"
     >
       {/* Panel Header */}
@@ -94,7 +94,7 @@ export default function CollapsibleQueuePanel({
       </div>
 
       {/* Queue Patient Cards List */}
-      <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-line">
+      <div className="flex-1 overflow-y-auto divide-y divide-line">
         {sortedQueue.length === 0 ? (
           <div className="p-6 text-center text-muted flex flex-col items-center justify-center space-y-2">
             <Users className="w-8 h-8 opacity-40 text-muted" />
