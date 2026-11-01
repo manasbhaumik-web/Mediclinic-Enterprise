@@ -127,7 +127,7 @@
 ---
 
 ### [COMPLETED] Phase 08: Adverse Event Following Immunization (AEFI) & Staff Sharps PEP Protocol (OSHA 1994 & KKM BPKK)
-- **Status**: Completed (Commit pending)
+- **Status**: Completed (Commit `1a61a3a`)
 - **Key Modules**:
   1. **AEFI Clinical Surveillance Engine** (`src/domain/aefiAndSharpsProtocol.ts`):
      - Weight-based IM Adrenaline 1:1000 calculation (0.01 mg/kg, max 0.5 mg) for acute vaccine anaphylaxis.
@@ -144,3 +144,18 @@
   4. **Station Integration**:
      - Operations Hub (`OperationsHub.tsx`): Quick action button.
      - Treatment Room (`ProcedureStationModule.tsx`): Header quick action button.
+
+---
+
+### [COMPLETED] Phase 09: CKAPS Biennial Form B Inspection Dossier Packager (MOH Act 586)
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **Statutory Multi-Pillar Aggregator** (`src/domain/ckapsDossier.ts`):
+     - Comprehensive evaluation of all 8 regulatory pillars: PIC Credentials, Crash Cart, Autoclave, POCT, Cold Chain, DDA Safe, Radiation Safety, and OSHA/Waste.
+     - Weighted Facility Readiness Score (0-100%, Grade A/B/C/F) with zero-tolerance critical defect detection.
+  2. **Official Form B Regulatory Dossier Compiler** (`generateCKAPSDossierMarkdown`):
+     - Compiles Facility Profile, Compliance Scorecard, Detailed Evidence Logs, and Person In-Charge Statutory Declaration with signature and official clinic stamp blocks.
+  3. **CKAPS Dossier Workstation UI** (`src/features/operations/CKAPSDossierModal.tsx`):
+     - Executive Audit Readiness Meter, 8 Pillars Evidence Browser, PIC Signer, and Markdown/Printable Form B Dossier Exporter.
+  4. **Station Integration**:
+     - Operations Hub (`OperationsHub.tsx`): Quick action trigger.

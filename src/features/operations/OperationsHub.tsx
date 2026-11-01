@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio, Thermometer, HeartPulse
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio, Thermometer, HeartPulse, Award
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import ClinicalIncidentModal from './ClinicalIncidentModal';
@@ -12,6 +12,7 @@ import EmergencySBARModal from './EmergencySBARModal';
 import RadiationSafetyModal from './RadiationSafetyModal';
 import ColdChainVaccineModal from './ColdChainVaccineModal';
 import AEFIAndSharpsModal from './AEFIAndSharpsModal';
+import CKAPSDossierModal from './CKAPSDossierModal';
 import { useClinicData } from '../../hooks/useClinicData';
 import { useDrugs, useInventorySettings, usePurchaseOrders } from '../../hooks/useInventoryData';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -47,6 +48,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
   const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
   const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   const [isAefiModalOpen, setIsAefiModalOpen] = useState(false);
+  const [isCkapsModalOpen, setIsCkapsModalOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -183,6 +185,14 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
           <HeartPulse className="w-4 h-4 text-rose-600" />
           <span>AEFI &amp; Sharps PEP (OSHA / BPKK)</span>
         </button>
+        <button
+          type="button"
+          onClick={() => setIsCkapsModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span>CKAPS Form B Inspection Dossier (MOH Act 586)</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -307,6 +317,11 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
       <AEFIAndSharpsModal
         isOpen={isAefiModalOpen}
         onClose={() => setIsAefiModalOpen(false)}
+      />
+
+      <CKAPSDossierModal
+        isOpen={isCkapsModalOpen}
+        onClose={() => setIsCkapsModalOpen(false)}
       />
     </div>
   );
