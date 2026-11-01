@@ -3,10 +3,11 @@ import { Visit, PrescriptionItem, Language } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import { 
   Users, User, CheckCircle, AlertCircle, FileText, Printer, CheckSquare, 
-  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle, BookOpen, Lock
+  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle, BookOpen, Lock, ThermometerSnowflake
 } from 'lucide-react';
 import BukuRacunRegister from './BukuRacunRegister';
 import DangerousDrugsSafeRegister from './DangerousDrugsSafeRegister';
+import ColdChainVaccineModal from '../operations/ColdChainVaccineModal';
 import { useInventory } from '../../context/InventoryContext';
 import { useInventoryActions, useVisitRegister } from '../../hooks/useInventoryData';
 import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
@@ -32,6 +33,7 @@ export default function DispensaryDashboard({
   pharmacistName = "Pharm. Ahmad Razak"
 }: DispensaryDashboardProps) {
   const [activeSubTab, setActiveSubTab] = useState<'dispensing' | 'buku-racun' | 'dda-safe'>('dispensing');
+  const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   const t = TRANSLATIONS[activeLanguage];
   const { catalog } = useInventory();
   const inv = useInventoryActions();
@@ -237,6 +239,18 @@ export default function DispensaryDashboard({
             <span>3. Dangerous Drugs Safe (DDA 1952)</span>
             <span className="px-1.5 py-0.2 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300/40 font-mono text-2xs font-bold">
               Act 234
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsColdChainModalOpen(true)}
+            className="px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border border-sky-400 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all cursor-pointer rounded-none"
+            title="Check and log dispensary medication & vaccine refrigerator temperatures (2°C to 8°C)"
+          >
+            <ThermometerSnowflake className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+            <span>4. Vaccine Cold Chain (2°C–8°C)</span>
+            <span className="px-1.5 py-0.2 bg-sky-200/60 dark:bg-sky-800 text-sky-900 dark:text-sky-100 border border-sky-300 font-mono text-2xs font-bold">
+              GDP Log
             </span>
           </button>
         </div>
@@ -756,6 +770,11 @@ export default function DispensaryDashboard({
           </div>
         </div>
       )}
+
+      <ColdChainVaccineModal
+        isOpen={isColdChainModalOpen}
+        onClose={() => setIsColdChainModalOpen(false)}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   DEFAULT_RED_CODE_INCIDENTS,
   getEmergencyImmediateActionProtocol,
 } from '../../domain/redCodeAlarm';
+import EmergencySBARModal from './EmergencySBARModal';
 
 interface RedCodeAlarmModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ export default function RedCodeAlarmModal({
   });
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isSbarModalOpen, setIsSbarModalOpen] = useState(false);
 
   // Trigger form state
   const [selectedCondition, setSelectedCondition] = useState<RedCodeSeverity>('cardiac_arrest');
@@ -111,6 +113,9 @@ export default function RedCodeAlarmModal({
     setIncidents(updated);
     setToastMessage(`✓ Code Red Alarm resolved: ${newStatus === 'transferred_ed' ? 'Transferred to Hospital ED' : 'Patient Stabilized'}`);
     setTimeout(() => setToastMessage(null), 4000);
+    if (newStatus === 'transferred_ed') {
+      setIsSbarModalOpen(true);
+    }
   };
 
   if (!isOpen) return null;
@@ -498,6 +503,23 @@ export default function RedCodeAlarmModal({
           </button>
         </div>
       </div>
+
+      <EmergencySBARModal
+        isOpen={isSbarModalOpen}
+        onClose={() => setIsSbarModalOpen(false)}
+        activePatient={activeIncident ? {
+          id: activeIncident.id,
+          fullName: activeIncident.patientName,
+          icNumber: '900101-14-1234',
+          gender: 'Male',
+          dob: '1990-01-01',
+          phone: '012-3456789',
+          address: 'Emergency Walk-in',
+          drugAllergies: [],
+          panelEmployer: 'None (Self-Pay)',
+          registeredDate: new Date().toISOString().slice(0, 10),
+        } : null}
+      />
     </div>
   );
 }

@@ -26,6 +26,7 @@ import { ProceduralConsentModal } from '../operations/ProceduralConsentModal';
 import { SignedConsentRecord } from '../../domain/proceduralConsent';
 import { matchAct342Disease } from '../../domain/act342Notification';
 import { Act342NotificationModal } from './room/Act342NotificationModal';
+import EmergencySBARModal from '../operations/EmergencySBARModal';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
@@ -118,6 +119,7 @@ export default function PlanTab({
 
   // Act 342 Communicable Disease Notification State
   const [act342ModalOpen, setAct342ModalOpen] = useState(false);
+  const [isEmergencySbarOpen, setIsEmergencySbarOpen] = useState(false);
   const [act342Dispatched, setAct342Dispatched] = useState<string | null>(null);
   const matchedAct342 = selectedICD ? matchAct342Disease(selectedICD.code) : undefined;
 
@@ -721,7 +723,7 @@ export default function PlanTab({
       {/* SUB-TAB 3: DOCUMENTS & CERTIFICATES (MC & REFERRAL)                       */}
       {/* ========================================================================= */}
       {subTab === 'documents' && (
-        <CertificatesAndReferralPanel mcGenerated={mcGenerated} mcDays={mcDays} setMcDays={setMcDays} mcReason={mcReason} setMcReason={setMcReason} setMcGenerated={setMcGenerated} referralGenerated={referralGenerated} referralDetails={referralDetails} setReferralDetails={setReferralDetails} setReferralGenerated={setReferralGenerated} followUpWeeks={followUpWeeks} setFollowUpWeeks={setFollowUpWeeks} />
+        <CertificatesAndReferralPanel mcGenerated={mcGenerated} mcDays={mcDays} setMcDays={setMcDays} mcReason={mcReason} setMcReason={setMcReason} setMcGenerated={setMcGenerated} referralGenerated={referralGenerated} referralDetails={referralDetails} setReferralDetails={setReferralDetails} setReferralGenerated={setReferralGenerated} followUpWeeks={followUpWeeks} setFollowUpWeeks={setFollowUpWeeks} onOpenEmergencySbar={() => setIsEmergencySbarOpen(true)} />
       )}
 
       {/* ========================================================================= */}
@@ -793,6 +795,23 @@ export default function PlanTab({
           }}
         />
       )}
+
+      {/* ========================================================================= */}
+      {/* MECC 999 SBAR EMERGENCY HOSPITAL TRANSFER MODAL                           */}
+      {/* ========================================================================= */}
+      <EmergencySBARModal
+        isOpen={isEmergencySbarOpen}
+        onClose={() => setIsEmergencySbarOpen(false)}
+        activePatient={currentPatient}
+        onTransferDispatched={(record) => {
+          setReferralGenerated(true);
+          setReferralDetails({
+            hospital: record.recommendation.destinationHospital,
+            department: 'Emergency & Trauma Department',
+            reason: `[MECC 999 SBAR Transfer] ${record.situation.acuteDiagnosis || record.situation.chiefComplaint} (SBAR ID: ${record.id})`,
+          });
+        }}
+      />
 
     </div>
   );

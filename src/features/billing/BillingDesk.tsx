@@ -13,12 +13,13 @@ import { useAuxiliary } from '../../context/AuxiliaryContext';
 import StripeCheckout from './StripeCheckout';
 import {
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet, AlertTriangle, Loader2,
-  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer, Building2,
+  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer, Building2, FileCheck2, X,
 } from 'lucide-react';
 import { buttonProps, focusRing } from '../../lib/a11y';
 import CashDrawerReconciliationModal from './CashDrawerReconciliationModal';
 import { Calculator } from 'lucide-react';
 import { TPASettlementHub } from './TPASettlementHub';
+import EInvoicePage from '../einvoice/EInvoicePage';
 import { verifyTPAPolicyEligibility } from '../../domain/tpaPanelClaims';
 
 interface BillingDeskProps {
@@ -52,6 +53,7 @@ const rm = (n: number) => `RM${n.toFixed(2)}`;
 
 export default function BillingDesk({ queue, allVisits, cashierName, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
   const [isReconModalOpen, setIsReconModalOpen] = useState(false);
+  const [isEInvoiceModalOpen, setIsEInvoiceModalOpen] = useState(false);
   const { settings } = useSettings();
   const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
@@ -278,15 +280,26 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIsReconModalOpen(true)}
-          className="btn-primary flex items-center gap-2 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none"
-          title="Audit cash drawer float, count physical denominations, and print Malaysian Daily Z-Report"
-        >
-          <Calculator className="w-4 h-4" />
-          <span>Close Shift / Float Z-Report</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsEInvoiceModalOpen(true)}
+            className="flex items-center gap-1.5 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none border border-teal-500/40 bg-surface hover:bg-surface-accent text-accent font-bold"
+            title="View LHDN MyInvois Submission Status & e-Invoice Verification"
+          >
+            <FileCheck2 className="w-4 h-4 text-accent" />
+            <span>LHDN MyInvois Console</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsReconModalOpen(true)}
+            className="btn-primary flex items-center gap-2 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none"
+            title="Audit cash drawer float, count physical denominations, and print Malaysian Daily Z-Report"
+          >
+            <Calculator className="w-4 h-4" />
+            <span>Close Shift / Float Z-Report</span>
+          </button>
+        </div>
       </div>
 
       {/* Billing Desk Sub-Navigation Tabs */}
@@ -816,6 +829,29 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
         </Dialog>
       )}
         </>
+      )}
+
+      {isEInvoiceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-canvas border-2 border-line shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+            <div className="p-3 bg-surface border-b border-line flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileCheck2 className="w-5 h-5 text-accent" />
+                <h3 className="text-sm font-bold text-ink uppercase tracking-wider">LHDN MyInvois e-Invoice Real-Time Console</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEInvoiceModalOpen(false)}
+                className="p-1 hover:bg-surface-accent text-ink cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              <EInvoicePage />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

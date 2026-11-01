@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
 import { formatTicket } from '../../domain/ticket';
-import { Clock, Users, Plus, Activity, CheckCircle2 } from 'lucide-react';
+import { Clock, Users, Plus, Activity, CheckCircle2, Siren } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { Visit, Patient } from '../../types';
 import { ClinicDoctor } from '../../domain/doctorAssignment';
@@ -26,6 +27,7 @@ export default function WaitingRoomMonitor({
   doctors,
   assignDoctor
 }: WaitingRoomMonitorProps) {
+  const [isRedCodeModalOpen, setIsRedCodeModalOpen] = useState(false);
   const handleAssign = async (visit: Visit, doctorId: string) => {
     const r = await assignDoctor(visit.id, doctorId || null);
     if ('error' in r) showToast(r.error);
@@ -48,9 +50,20 @@ export default function WaitingRoomMonitor({
             </div>
           </div>
           
-          <span className="bg-surface-accent text-accent border border-line font-bold px-3 py-1 rounded-none text-xs font-mono tabular-nums">
-            {triageQueue.length} Patient(s) Waiting
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsRedCodeModalOpen(true)}
+              className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black uppercase flex items-center gap-1.5 rounded-none cursor-pointer motion-safe:animate-pulse shadow-xs border border-rose-700"
+              title="Trigger Emergency Code Red Alarm for Waiting Hall Patient Collapse"
+            >
+              <Siren className="w-3.5 h-3.5 text-rose-100" />
+              <span>🚨 CODE RED ALARM</span>
+            </button>
+            <span className="bg-surface-accent text-accent border border-line font-bold px-3 py-1 rounded-none text-xs font-mono tabular-nums">
+              {triageQueue.length} Patient(s) Waiting
+            </span>
+          </div>
         </div>
         
         {triageQueue.length === 0 ? (
@@ -152,6 +165,12 @@ export default function WaitingRoomMonitor({
           </div>
         )}
       </div>
+      <RedCodeAlarmModal
+        isOpen={isRedCodeModalOpen}
+        onClose={() => setIsRedCodeModalOpen(false)}
+        defaultLocation="Waiting Hall"
+        defaultStaff="Front Desk Receptionist"
+      />
     </div>
   );
 }
