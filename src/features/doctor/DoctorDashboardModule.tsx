@@ -564,9 +564,7 @@ export default function DoctorDashboardModule({
       {/* 2. SEPARATE PAGE: DEDICATED CONSULTATION SUITE PAGE                       */}
       {/* ========================================================================= */}
       {internalTab === 'consultation' && (
-        <div className="space-y-3 animate-fadeIn">
-          {/* Top HUD moved into right-hand ContextPanel under Longitudinal History to maximize consultation visibility */}
-
+        <div className="animate-fadeIn">
           {/* Slide-over Drawer mode when invoked */}
           {queueRailMode === 'drawer' && (
             <QueueRail
@@ -585,8 +583,8 @@ export default function DoctorDashboardModule({
             />
           )}
 
-          {/* Main workspace layout: 100% clean full width without cramped 3-column docking */}
-          <div className="w-full space-y-4">
+          {/* Main workspace layout: full-bleed screen edge docking */}
+          <div className="w-full">
             {activeConsultationVisitId ? (
             <div className="animate-fade-in-up">
               {(() => {

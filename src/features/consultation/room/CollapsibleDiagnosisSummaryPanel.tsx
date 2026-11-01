@@ -70,7 +70,7 @@ export default function CollapsibleDiagnosisSummaryPanel({
       <aside
         id="rightCollapsedRail"
         onClick={onToggle}
-        className="w-11 bg-surface-muted border-l border-line flex flex-col items-center py-3 justify-between shrink-0 cursor-pointer hover:bg-surface-accent transition-colors select-none"
+        className="w-11 h-full bg-surface-muted border-l border-line flex flex-col items-center py-3 justify-between shrink-0 cursor-pointer hover:bg-surface-accent transition-colors select-none"
         title="Click to expand Current Diagnosis Summary"
         aria-label="Expand Diagnosis Summary"
       >
@@ -100,7 +100,7 @@ export default function CollapsibleDiagnosisSummaryPanel({
   return (
     <aside
       id="rightSummaryPanel"
-      className="w-80 bg-surface-muted/30 border-l border-line flex flex-col shrink-0 select-none transition-all duration-200"
+      className="w-80 h-full bg-surface-muted/30 border-l border-line flex flex-col shrink-0 select-none transition-all duration-200"
       aria-label="Current Session Summary Sidebar"
     >
       {/* Panel Header */}
@@ -130,7 +130,7 @@ export default function CollapsibleDiagnosisSummaryPanel({
       </div>
 
       {/* Scrollable Summary Cards */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3 text-xs">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 text-xs">
         
         {/* S Summary */}
         <div className="bg-surface border border-line p-2.5 space-y-1">
