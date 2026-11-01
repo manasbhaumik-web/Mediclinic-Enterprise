@@ -645,11 +645,6 @@ export default function DoctorDashboardModule({
                     }}
                     activeLanguage={activeLanguage}
                     stationHud={stationHud}
-                    doctorQueue={doctorQueue}
-                    holdingQueue={holdingQueue}
-                    patientsMap={patientsMap}
-                    onSelectPatient={(vid) => setActiveConsultationVisitId(vid)}
-                    doctorName={doctorName}
                     onConsultationComplete={handleDoctorSoapComplete}
                     onCancel={() => {
                       const id = activeConsultationVisitId;
