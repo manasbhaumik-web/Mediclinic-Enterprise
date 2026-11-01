@@ -1,5 +1,5 @@
 import React from 'react';
-import { EyeOff, Eye, CheckCircle2, Activity, Lock, HelpCircle, AlertTriangle, Siren } from 'lucide-react';
+import { EyeOff, Eye, CheckCircle2, Activity, Lock, HelpCircle, AlertTriangle, Siren, Users, ClipboardList } from 'lucide-react';
 import { Patient } from '../../../types';
 
 interface PatientSafetyHeaderProps {
@@ -21,6 +21,10 @@ interface PatientSafetyHeaderProps {
   roomText?: string;
   ticketText?: string;
   onTriggerRedCode?: () => void;
+  isLeftQueueOpen?: boolean;
+  onToggleLeftQueue?: () => void;
+  isRightSummaryOpen?: boolean;
+  onToggleRightSummary?: () => void;
 }
 
 export default function PatientSafetyHeader({
@@ -38,7 +42,11 @@ export default function PatientSafetyHeader({
   setIsLocked,
   setShowShortcutsHelp,
   showShortcutsHelp,
-  onTriggerRedCode
+  onTriggerRedCode,
+  isLeftQueueOpen,
+  onToggleLeftQueue,
+  isRightSummaryOpen,
+  onToggleRightSummary
 }: PatientSafetyHeaderProps) {
   const hasAllergies = allergies.length > 0;
   const coverage = currentPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : currentPatient.panelEmployer;
@@ -107,6 +115,42 @@ export default function PatientSafetyHeader({
 
       {/* Right Toolbar: Auto-save + Progress + Lock */}
       <div className="flex items-center gap-2 shrink-0">
+        {/* Left Queue Panel Toggle */}
+        {onToggleLeftQueue && (
+          <button
+            type="button"
+            onClick={onToggleLeftQueue}
+            className={`px-2 py-1 text-2xs font-mono font-bold border rounded-none transition-colors flex items-center gap-1 cursor-pointer ${
+              isLeftQueueOpen
+                ? 'bg-surface-accent text-accent border-line hover:bg-surface-muted'
+                : 'bg-primary text-white border-primary hover:bg-primary-hover'
+            }`}
+            title={isLeftQueueOpen ? 'Collapse Queue Panel (Alt+Q)' : 'Expand Queue Panel (Alt+Q)'}
+            aria-label="Toggle patient queue panel"
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">{isLeftQueueOpen ? '◀ Queue' : 'Queue ▶'}</span>
+          </button>
+        )}
+
+        {/* Right Summary Panel Toggle */}
+        {onToggleRightSummary && (
+          <button
+            type="button"
+            onClick={onToggleRightSummary}
+            className={`px-2 py-1 text-2xs font-mono font-bold border rounded-none transition-colors flex items-center gap-1 cursor-pointer ${
+              isRightSummaryOpen
+                ? 'bg-surface-accent text-accent border-line hover:bg-surface-muted'
+                : 'bg-primary text-white border-primary hover:bg-primary-hover'
+            }`}
+            title={isRightSummaryOpen ? 'Collapse Summary Panel (Alt+S)' : 'Expand Summary Panel (Alt+S)'}
+            aria-label="Toggle session summary panel"
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">{isRightSummaryOpen ? 'Summary ▶' : '◀ Summary'}</span>
+          </button>
+        )}
+
         {/* Auto-Save Indicator */}
         <div className="flex items-center gap-1.5 text-2xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-1 rounded-none font-bold font-mono tabular-nums">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />

@@ -24,6 +24,8 @@ import PatientSafetyHeader from './room/PatientSafetyHeader';
 import ConsultationStepper from './room/ConsultationStepper';
 import WorkflowToolbar from './room/WorkflowToolbar';
 import ContextPanel from './room/ContextPanel';
+import CollapsibleQueuePanel from './room/CollapsibleQueuePanel';
+import CollapsibleDiagnosisSummaryPanel from './room/CollapsibleDiagnosisSummaryPanel';
 import ReviewSignoffModal from './room/ReviewSignoffModal';
 import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
 import { visitFromRow } from '../../lib/mappers';
@@ -39,6 +41,11 @@ interface ConsultationRoomProps {
   onCancel: () => void;
   onHoldForResults?: (visitId: string, currentSoap: SOAPNotes) => void;
   stationHud?: React.ReactNode;
+  doctorQueue?: Visit[];
+  holdingQueue?: Visit[];
+  patientsMap?: Record<string, Patient>;
+  onSelectPatient?: (visitId: string) => void;
+  doctorName?: string;
 }
 
 export default function ConsultationRoom({
@@ -48,7 +55,12 @@ export default function ConsultationRoom({
   onConsultationComplete,
   onCancel,
   onHoldForResults,
-  stationHud
+  stationHud,
+  doctorQueue = [],
+  holdingQueue = [],
+  patientsMap = {},
+  onSelectPatient,
+  doctorName = 'Consulting Medical Officer'
 }: ConsultationRoomProps) {
   const [procedures, setProcedures] = useState<ClinicalProcedureItem[]>(() => activeVisit?.soap?.plan?.procedures || []);
   // Translate labels
@@ -73,7 +85,11 @@ export default function ConsultationRoom({
 
   // Interactive past history view
   const [selectedPastVisit, setSelectedPastVisit] = useState<Visit | null>(null);
-  const [showContextPanel, setShowContextPanel] = useState(true);
+  const [showContextPanel, setShowContextPanel] = useState(false);
+
+  // Collapsible 3-Panel State
+  const [isLeftQueueOpen, setIsLeftQueueOpen] = useState(true);
+  const [isRightSummaryOpen, setIsRightSummaryOpen] = useState(true);
 
   // SOAP Inputs
   const [subjective, setSubjective] = useState('');
@@ -442,6 +458,8 @@ export default function ConsultationRoom({
       if (e.altKey && e.key === '2') { e.preventDefault(); setActiveTab('objective'); }
       if (e.altKey && e.key === '3') { e.preventDefault(); setActiveTab('assessment'); }
       if (e.altKey && e.key === '4') { e.preventDefault(); setActiveTab('plan'); }
+      if (e.altKey && (e.key === 'q' || e.key === 'Q')) { e.preventDefault(); setIsLeftQueueOpen(prev => !prev); }
+      if (e.altKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); setIsRightSummaryOpen(prev => !prev); }
       if (e.altKey && (e.key === '?' || e.key === '/')) { e.preventDefault(); setShowShortcutsHelp(prev => !prev); }
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
@@ -484,7 +502,30 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
       {/* ========================================================================= */}
-      <PatientSafetyHeader ticketText={formatTicket(activeVisit?.ticketNo)} allergies={currentPatient.drugAllergies} vitalsText={triageVitals} roomText={roomText} currentPatient={currentPatient} patientAge={patientAge} patientAgeDisplay={patientAgeDetails.displayAge} maskedIC={maskedIC} setIsPiiRevealed={setIsPiiRevealed} isPiiRevealed={isPiiRevealed} maskedPhone={maskedPhone} lastSavedTime={lastSavedTime} completedStepsCount={completedStepsCount} soapProgressPercent={soapProgressPercent} setIsLocked={setIsLocked} setShowShortcutsHelp={setShowShortcutsHelp} showShortcutsHelp={showShortcutsHelp} onTriggerRedCode={() => setIsRedCodeModalOpen(true)} />
+      <PatientSafetyHeader 
+        ticketText={formatTicket(activeVisit?.ticketNo)} 
+        allergies={currentPatient.drugAllergies} 
+        vitalsText={triageVitals} 
+        roomText={roomText} 
+        currentPatient={currentPatient} 
+        patientAge={patientAge} 
+        patientAgeDisplay={patientAgeDetails.displayAge} 
+        maskedIC={maskedIC} 
+        setIsPiiRevealed={setIsPiiRevealed} 
+        isPiiRevealed={isPiiRevealed} 
+        maskedPhone={maskedPhone} 
+        lastSavedTime={lastSavedTime} 
+        completedStepsCount={completedStepsCount} 
+        soapProgressPercent={soapProgressPercent} 
+        setIsLocked={setIsLocked} 
+        setShowShortcutsHelp={setShowShortcutsHelp} 
+        showShortcutsHelp={showShortcutsHelp} 
+        onTriggerRedCode={() => setIsRedCodeModalOpen(true)}
+        isLeftQueueOpen={isLeftQueueOpen}
+        onToggleLeftQueue={() => setIsLeftQueueOpen(prev => !prev)}
+        isRightSummaryOpen={isRightSummaryOpen}
+        onToggleRightSummary={() => setIsRightSummaryOpen(prev => !prev)}
+      />
 
       {/* DRAFT SAVED NOTIFICATION TOAST BANNER */}
       {draftToast && (
@@ -507,6 +548,8 @@ export default function ConsultationRoom({
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+2</kbd> Objective Vitals</span>
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+3</kbd> ICD-10 Diagnosis</span>
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+4</kbd> Plan &amp; Rx</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+Q</kbd> Queue Panel</span>
+            <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+S</kbd> Summary Panel</span>
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Ctrl+Enter</kbd> Review &amp; Sign Off</span>
           </div>
           <button type="button" onClick={() => setShowShortcutsHelp(false)} className="text-slate-400 hover:text-muted">
@@ -516,18 +559,61 @@ export default function ConsultationRoom({
       )}
 
       {/* ========================================================================= */}
-      {/* AREA 2 & 3: MAIN ENCOUNTER WORKSPACE + CONTEXTUAL RIGHT PANEL             */}
+      {/* 3-PANEL FLEXIBLE CONSULTATION ARCHITECTURE                                */}
+      {/* Panel 1 (Left): Collapsible Patient Queue (Sorted by Serial No)           */}
+      {/* Section 2 (Center): Main SOAP Consultation Workspace                      */}
+      {/* Panel 3 (Right): Collapsible Diagnosis Session Summary                    */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-[25%_1fr] gap-5 items-stretch min-h-[500px]">
+      <div className="flex border border-line bg-surface min-h-[640px] overflow-hidden rounded-none">
         
-        {/* CONTEXTUAL LEFT PANEL — VITALS, LONGITUDINAL HISTORY & QUEUE (25%) */}
-        <ContextPanel vitals={vitals} t={t} patientPastVisits={patientPastVisits} selectedPastVisit={selectedPastVisit} setSelectedPastVisit={setSelectedPastVisit} stationHud={stationHud} />
-        
-        {/* AREA 2: MAIN CONSULTATION WORKSPACE (75%) */}
-        <div className="w-full min-w-0 bg-surface border border-line p-5 rounded-none flex flex-col justify-between space-y-5">
+        {/* 1. LEFT COLLAPSIBLE PATIENT QUEUE (Outside Content Section) */}
+        <CollapsibleQueuePanel
+          isOpen={isLeftQueueOpen}
+          onToggle={() => setIsLeftQueueOpen(prev => !prev)}
+          queue={doctorQueue}
+          patientsMap={patientsMap}
+          activeVisitId={activeVisit?.id}
+          onSelectVisit={onSelectPatient}
+          doctorName={doctorName}
+        />
+
+        {/* 2. CENTRAL SECTION: MAIN CONSULTATION ENCOUNTER WORKSPACE */}
+        <div className="flex-1 min-w-0 bg-surface p-4 sm:p-5 flex flex-col justify-between space-y-5 overflow-y-auto">
           
           <div className="space-y-4">
             
+            {/* Quick Toggle for Patient Longitudinal History / Chronic Flowsheet */}
+            <div className="flex items-center justify-between border-b border-line pb-2">
+              <button
+                type="button"
+                onClick={() => setShowContextPanel(prev => !prev)}
+                className={`px-2.5 py-1 text-2xs font-mono font-bold border rounded-none flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  showContextPanel 
+                    ? 'bg-primary text-white border-primary' 
+                    : 'bg-surface text-muted hover:text-ink border-line'
+                }`}
+                title="Toggle Patient Longitudinal History & Chronic Flowsheet"
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>{showContextPanel ? 'Hide Past History & Flowsheet' : `View Past History (${patientPastVisits.length} Visits)`}</span>
+              </button>
+
+              {stationHud && <div className="shrink-0">{stationHud}</div>}
+            </div>
+
+            {/* Embedded Expandable Context Panel (History & Flowsheet) */}
+            {showContextPanel && (
+              <div className="border border-line bg-surface-muted/30 p-3 rounded-none animate-fadeIn">
+                <ContextPanel 
+                  vitals={vitals} 
+                  t={t} 
+                  patientPastVisits={patientPastVisits} 
+                  selectedPastVisit={selectedPastVisit} 
+                  setSelectedPastVisit={setSelectedPastVisit} 
+                />
+              </div>
+            )}
+
             {/* SINGLE UNIFIED CLINICAL COMMAND & STEPPER BAR */}
             <ConsultationStepper 
               activeTab={activeTab} 
@@ -603,12 +689,37 @@ export default function ConsultationRoom({
           </div>
 
           {/* SINGLE PRIMARY WORKFLOW CTA TOOLBAR */}
-          <WorkflowToolbar onCancel={handleReturn} onSaveDraft={() => saveDraftNow(true)} onHoldForResults={handleHoldForResults} activeTab={activeTab} setActiveTab={setActiveTab} handleOpenReviewModal={handleOpenReviewModal} hint={getActionableStatusText()} savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} />
+          <WorkflowToolbar 
+            onCancel={handleReturn} 
+            onSaveDraft={() => saveDraftNow(true)} 
+            onHoldForResults={handleHoldForResults} 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            handleOpenReviewModal={handleOpenReviewModal} 
+            hint={getActionableStatusText()} 
+            savedLabel={lastSavedTime ? `Draft kept on this device at ${lastSavedTime}` : 'Draft not saved yet'} 
+          />
 
         </div>
 
-        
-        
+        {/* 3. RIGHT COLLAPSIBLE DIAGNOSIS SESSION SUMMARY (Outside Content Section) */}
+        <CollapsibleDiagnosisSummaryPanel
+          isOpen={isRightSummaryOpen}
+          onToggle={() => setIsRightSummaryOpen(prev => !prev)}
+          subjective={subjective}
+          vitals={vitals}
+          selectedICD={selectedICD}
+          clinicalNotes={clinicalNotes}
+          rxList={rxList}
+          procedures={procedures}
+          mcDays={mcDays}
+          mcReason={mcReason}
+          mcGenerated={mcGenerated}
+          referralGenerated={referralGenerated}
+          referralDetails={referralDetails}
+          labOrders={labOrders}
+          onReviewSignoff={handleOpenReviewModal}
+        />
 
       </div>
 
