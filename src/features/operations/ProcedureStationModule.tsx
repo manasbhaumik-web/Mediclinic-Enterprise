@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Visit, Patient, ClinicalProcedureItem } from '../../types';
-import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope, Siren } from 'lucide-react';
+import { Syringe, CheckCircle2, AlertTriangle, Clock, Activity, FileText, ArrowRight, ShieldAlert, Sparkles, Stethoscope, ShieldCheck, Trash2, Zap, Microscope, Siren, Radio } from 'lucide-react';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { formatTicket } from '../../domain/ticket';
@@ -13,6 +13,7 @@ import { CrashCartInspectionRecord } from '../../domain/crashCart';
 import AutoclaveSterilizationModal from './AutoclaveSterilizationModal';
 import POCTQualityControlModal from './POCTQualityControlModal';
 import EmergencySBARModal from './EmergencySBARModal';
+import RadiationSafetyModal from './RadiationSafetyModal';
 import { SterilePack } from '../../domain/autoclaveSterilization';
 
 interface ProcedureStationModuleProps {
@@ -48,6 +49,7 @@ export default function ProcedureStationModule({
   const [selectedSterilePack, setSelectedSterilePack] = useState<SterilePack | null>(null);
   const [isPOCTModalOpen, setIsPOCTModalOpen] = useState(false);
   const [isSBARModalOpen, setIsSBARModalOpen] = useState(false);
+  const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
 
   // Filter visits that either have status 'Awaiting Procedure', 'Holding for Results', or have pending procedures
   const procedureQueue = visits.filter(v => {
@@ -141,6 +143,14 @@ export default function ProcedureStationModule({
           >
             <Siren className="w-4 h-4 text-rose-600 animate-pulse" />
             <span>Emergency SBAR Transfer</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsRadiationModalOpen(true)}
+            className="px-3 py-1.5 border border-amber-300 dark:border-amber-800 bg-surface hover:bg-surface-accent text-amber-800 dark:text-amber-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <Radio className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <span>Radiation Safety (Act 304)</span>
           </button>
 
           <span className="bg-surface-accent px-3 py-1.5 border border-line text-accent font-bold">
@@ -484,6 +494,11 @@ export default function ProcedureStationModule({
         onClose={() => setIsSBARModalOpen(false)}
         activePatient={activePatient}
         activeVisit={activeVisit}
+      />
+
+      <RadiationSafetyModal
+        isOpen={isRadiationModalOpen}
+        onClose={() => setIsRadiationModalOpen(false)}
       />
     </div>
   );

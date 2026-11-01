@@ -71,7 +71,7 @@
 ---
 
 ### [COMPLETED] Phase 05: Poison Act 1952 & Dangerous Drugs Act 1952 (DDA) Safe Register
-- **Status**: Completed (Commit pending)
+- **Status**: Completed (Commit `42950b5`)
 - **Key Modules**:
   1. **Dangerous Drugs Safe Inventory & Running Balance Engine** (`src/domain/dangerousDrugsDDA.ts`):
      - Controlled dangerous drugs (Morphine, Pethidine, Fentanyl, Ketamine, Midazolam).
@@ -85,3 +85,22 @@
   3. **Station Integration**:
      - Dispensary Console (`src/features/pharmacy/DispensaryDashboard.tsx`): Sub-station tab **"3. Dangerous Drugs Safe (DDA 1952)"**.
      - Operations Hub (`src/features/operations/OperationsHub.tsx`): Quick action button.
+
+---
+
+### [COMPLETED] Phase 06: Radiation Safety & Diagnostic X-Ray Register (Act 304 & PHFSA 1998)
+- **Status**: Completed (Commit pending)
+- **Key Modules**:
+  1. **Radiological Apparatus & Class C Licence Directory** (`src/domain/radiationSafety.ts`):
+     - General Radiography and Dental OPG machines.
+     - MOH Class C Licence tracking, 60-day renewal warnings, RPO (PPS) certification, and annual medical physicist QA.
+  2. **Staff Personal Radiation Dosimetry (TLD Badges)**:
+     - Quarterly badge readings from Agensi Nuklear Malaysia with deep/shallow dose monitoring.
+     - Statutory investigation threshold alerts (>1.0 mSv/quarter) and legal occupational limit tracking (20 mSv/year).
+  3. **Lead Rubber PPE 6-Monthly Crack Inspection**:
+     - Inspection log for lead aprons, thyroid collars, and gonad shields with overdue alarms.
+  4. **X-Ray Exposure Log & Reject Analysis**:
+     - Patient exposure tracking (kVp, mAs), reject retake reason logging, and automated reject rate KPI monitoring (<5.0% target).
+  5. **Station Integration**:
+     - Operations Hub (`OperationsHub.tsx`) quick action button.
+     - Treatment Room (`ProcedureStationModule.tsx`) radiation safety trigger.

@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
   Activity, AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Clock, PackageSearch,
-  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock
+  RefreshCw, Stethoscope, Users, ShieldAlert, Timer, Microscope, Siren, Lock, Radio
 } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import ClinicalIncidentModal from './ClinicalIncidentModal';
 import ClinicThroughputModal from './ClinicThroughputModal';
 import POCTQualityControlModal from './POCTQualityControlModal';
 import EmergencySBARModal from './EmergencySBARModal';
+import RadiationSafetyModal from './RadiationSafetyModal';
 import { useClinicData } from '../../hooks/useClinicData';
 import { useDrugs, useInventorySettings, usePurchaseOrders } from '../../hooks/useInventoryData';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -41,6 +42,7 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
   const [isThroughputModalOpen, setIsThroughputModalOpen] = useState(false);
   const [isPOCTModalOpen, setIsPOCTModalOpen] = useState(false);
   const [isSBARModalOpen, setIsSBARModalOpen] = useState(false);
+  const [isRadiationModalOpen, setIsRadiationModalOpen] = useState(false);
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -153,6 +155,14 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
           <Lock className="w-4 h-4 text-rose-600" />
           <span>Dangerous Drugs Safe (DDA 1952)</span>
         </button>
+        <button
+          type="button"
+          onClick={() => setIsRadiationModalOpen(true)}
+          className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800 rounded-none flex items-center gap-2 cursor-pointer shadow-2xs"
+        >
+          <Radio className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          <span>Radiation Safety &amp; X-Ray (Act 304)</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -262,6 +272,11 @@ export default function OperationsHub({ onOpenTab }: OperationsHubProps) {
       <EmergencySBARModal
         isOpen={isSBARModalOpen}
         onClose={() => setIsSBARModalOpen(false)}
+      />
+
+      <RadiationSafetyModal
+        isOpen={isRadiationModalOpen}
+        onClose={() => setIsRadiationModalOpen(false)}
       />
     </div>
   );
