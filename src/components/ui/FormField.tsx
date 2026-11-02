@@ -16,10 +16,13 @@ interface FormFieldProps {
   error?: string;
   hint?: string;
   className?: string;
+  /** Sentence-case label in the ink colour, for the station pages. */
+  plain?: boolean;
   /** Render the control, spreading the supplied props onto it so the label and messages are linked. */
   children: (props: FieldControlProps) => React.ReactNode;
 }
 
+const plainLabelClass = 'block text-xs font-semibold text-ink mb-1.5 font-sans';
 const labelClass =
   'block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans';
 
@@ -27,14 +30,14 @@ const labelClass =
  * A labelled form control: the label is tied to the input, required fields are marked the same
  * way everywhere, and any error or hint is announced with the control.
  */
-export default function FormField({ id, label, required, error, hint, className, children }: FormFieldProps) {
+export default function FormField({ id, label, required, error, hint, className, plain, children }: FormFieldProps) {
   const errorId = `${id}-error`;
   const hintId = `${id}-hint`;
   const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className={className}>
-      <label htmlFor={id} className={labelClass}>
+      <label htmlFor={id} className={plain ? plainLabelClass : labelClass}>
         {label}
         {required && (
           <>

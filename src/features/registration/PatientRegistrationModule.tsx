@@ -121,7 +121,7 @@ export default function PatientRegistrationModule({
       return rest;
     });
   const focusField = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.focus());
-  const inputBase = 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none focus:border-brand focus:ring-1 focus:ring-brand';
+  const inputBase = 'w-full min-h-11 bg-surface border border-line rounded-none px-3 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-accent';
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -203,7 +203,7 @@ export default function PatientRegistrationModule({
         <button
           type="button"
           onClick={() => toggleSort(key)}
-          className={`inline-flex items-center gap-1.5 uppercase tracking-wider font-bold hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${align === 'right' ? 'flex-row-reverse' : ''}`}
+          className={`inline-flex items-center gap-1.5 font-semibold hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${align === 'right' ? 'flex-row-reverse' : ''}`}
         >
           {label}
           <Icon className={`w-3.5 h-3.5 ${active ? 'text-ink' : 'opacity-50'}`} aria-hidden="true" />
@@ -449,6 +449,64 @@ export default function PatientRegistrationModule({
     setActiveSubTab('queue');
   };
 
+  const waitingRoomAside = (
+      <aside className="flex-[1_1_20rem] min-w-0 border-t lg:border-t-0 lg:border-l border-line flex flex-col" aria-labelledby="reg-waiting-title">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+          <h2 id="reg-waiting-title" className="text-base font-bold text-ink">Waiting room</h2>
+          <span className="px-2.5 py-1 bg-surface-muted text-muted text-xs font-semibold">{triageQueue.length} waiting</span>
+        </div>
+        {triageQueue.length === 0 ? (
+          <p className="px-5 py-6 text-sm text-muted">No one is waiting for triage.</p>
+        ) : (
+          <ol className="flex flex-col">
+            {triageQueue.slice(0, 8).map((v) => {
+              const pt = patientsMap[v.patientId];
+              const pname = pt?.fullName ?? `Visit ${v.id}`;
+              const mins = v.registeredTime ? Math.max(0, Math.floor((Date.now() - v.registeredTime) / 60000)) : null;
+              const long = mins !== null && mins >= 20;
+              const words = pname.split(/\s+/).filter(Boolean);
+              const initials = (words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0]?.[0] ?? '').toUpperCase();
+              return (
+                <li key={v.id} className={`flex items-center gap-3 px-5 py-3 border-b border-line-subtle ${long ? 'bg-amber-50/70 dark:bg-amber-950/30' : ''}`}>
+                  <span className="shrink-0 w-9 h-9 bg-surface-strong text-accent flex items-center justify-center text-xs font-bold" aria-hidden="true">{initials}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-ink truncate">{pname}</span>
+                    <span className="block text-xs text-muted truncate">Awaiting triage</span>
+                  </span>
+                  <span className={`shrink-0 px-2.5 py-1 text-xs font-bold tabular-nums ${long ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'bg-surface-strong text-accent'}`}>
+                    {mins !== null ? formatWait(mins) : 'Just in'}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+        <button type="button" onClick={() => setActiveSubTab('queue')} className="mt-auto min-h-12 border-t border-line text-sm font-semibold text-accent hover:bg-surface-accent transition-colors cursor-pointer">
+          Open waiting room monitor
+        </button>
+      </aside>
+  );
+
+  const REGISTRATION_STEPS = ['Identify patient', 'Demographics', 'Billing and alerts'];
+  /** The three-step stepper. `current` is 1 to 3; earlier steps show a tick. */
+  const registrationStepper = (current: number) => (
+    <ol className="flex flex-wrap border-b border-line">
+      {REGISTRATION_STEPS.map((label, i) => {
+        const n = i + 1;
+        const on = n === current;
+        const done = n < current;
+        return (
+          <li key={label} aria-current={on ? 'step' : undefined} className={`flex-[1_1_11rem] flex items-center gap-3 px-6 py-4 ${i > 0 ? 'border-l border-line' : ''} ${on ? 'bg-surface-accent' : ''}`}>
+            <span className={`shrink-0 w-7 h-7 flex items-center justify-center text-xs font-bold ${on || done ? 'bg-primary text-white' : 'bg-surface text-muted border border-line'}`} aria-hidden="true">
+              {done ? <Check className="w-4 h-4" /> : n}
+            </span>
+            <span className={`text-sm ${on ? 'font-bold text-ink' : 'font-semibold text-muted'}`}>{label}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+
   const today = new Date().toISOString().split('T')[0];
   const registeredToday = [...completedVisits, ...triageQueue].filter((v) => v.date === today).length;
   const waits = triageQueue.map((v) => (v.registeredTime ? Math.max(0, Math.floor((Date.now() - v.registeredTime) / 60000)) : 0));
@@ -499,19 +557,17 @@ export default function PatientRegistrationModule({
       {activeSubTab === 'form' && (
         <div className="animate-fadeIn font-sans">
           {registrationStep === 'id_check' ? (
-            <div className="max-w-md mx-auto mt-4 bg-surface border border-line rounded-none shadow-none p-5 font-sans">
-              <div className="text-center space-y-6">
-                <div className="mx-auto w-10 h-10 bg-primary/10 rounded-none flex items-center justify-center border border-brand/20">
-                  <Search className="w-5 h-5 text-accent" />
-                </div>
-                <div>
-                  <h3 className="type-heading-caps text-ink font-sans">Identify Patient</h3>
-                  <p className="text-xs text-muted font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
-                </div>
-                
-                <form onSubmit={handleIdCheckSubmit} noValidate className="space-y-4 text-left font-sans">
+            <section className="flex flex-wrap bg-surface border border-line font-sans">
+              <article className="flex-[999_1_30rem] min-w-0 flex flex-col" aria-labelledby="reg-idcheck-title">
+                {registrationStepper(1)}
+                <div className="p-5 sm:p-7 flex flex-col gap-6">
                   <div>
-                    <FormField id="reg-idcheck" label="NRIC / Passport Number" required error={idCheckError} hint="Dashes are added for you. For a passport, enter the number as printed.">
+                    <h2 id="reg-idcheck-title" className="text-2xl font-bold tracking-tight leading-tight text-ink">Identify the patient</h2>
+                    <p className="mt-1 text-sm text-muted">Enter an NRIC or passport number, or scan the MyKad. Returning patients are filled in for you.</p>
+                  </div>
+
+                  <form onSubmit={handleIdCheckSubmit} noValidate className="max-w-md flex flex-col gap-3">
+                    <FormField id="reg-idcheck" plain label="NRIC / passport number" required error={idCheckError} hint="Dashes are added for you. For a passport, enter the number as printed.">
                       {(f) => (
                         <input
                           {...f}
@@ -521,54 +577,41 @@ export default function PatientRegistrationModule({
                           placeholder="e.g. 900101-14-5555"
                           autoComplete="off"
                           inputMode="text"
-                          className={`${inputBase} px-3.5 font-mono ${fieldBorder(idCheckError)}`}
+                          className={`${inputBase} min-h-12 text-base font-semibold tabular-nums ${fieldBorder(idCheckError)}`}
                         />
                       )}
                     </FormField>
+                    <button type="submit" className="btn-primary min-h-12 px-6 text-sm self-start">
+                      Check registry <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    </button>
+                  </form>
+
+                  <div className="flex items-center gap-4 max-w-md" aria-hidden="true">
+                    <span className="flex-1 h-px bg-line" />
+                    <span className="text-xs font-semibold text-muted">or</span>
+                    <span className="flex-1 h-px bg-line" />
                   </div>
-                  <button 
-                    type="submit" 
-                    className="w-full bg-primary hover:bg-primary-hover text-white font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
-                  >
-                    Check Database <ArrowRight className="w-4 h-4" />
-                  </button>
-                </form>
-                
-                <div className="relative flex py-2 items-center">
-                  <div className="flex-grow border-t border-line"></div>
-                  <span className="flex-shrink-0 mx-4 text-muted text-xs uppercase font-sans font-bold">Or</span>
-                  <div className="flex-grow border-t border-line"></div>
+
+                  <div className="max-w-md flex items-center gap-4 p-4 bg-surface-muted border border-line">
+                    <div className="shrink-0 w-11 h-11 bg-surface-strong text-accent flex items-center justify-center" aria-hidden="true">
+                      <Globe className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-ink">Scan MyKad</p>
+                      <p className="text-xs text-muted">Reads the card with the camera and fills in the form.</p>
+                    </div>
+                    <button type="button" onClick={() => setIsMyKadOpen(true)} className="btn-secondary shrink-0 min-h-11 px-4 text-sm">
+                      Open scanner
+                    </button>
+                  </div>
                 </div>
-                
-                <button 
-                  type="button" 
-                  onClick={() => setIsMyKadOpen(true)}
-                  className="w-full btn-secondary font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
-                >
-                  <Globe className="w-4 h-4 text-accent" /> Scan PWA MyKad
-                </button>
-              </div>
-            </div>
+              </article>
+              {waitingRoomAside}
+            </section>
           ) : (
             <section className="flex flex-wrap bg-surface border border-line font-sans">
               <article className="flex-[999_1_36rem] min-w-0 flex flex-col" aria-label="Registration form">
-                {/* Stepper */}
-                <ol className="flex flex-wrap border-b border-line">
-                  {[1, 2].map((stepNum) => {
-                    const current = formStep === stepNum;
-                    const done = formStep > stepNum;
-                    return (
-                      <li key={stepNum} aria-current={current ? 'step' : undefined} className={`flex-[1_1_14rem] flex items-center gap-3 px-7 py-4 ${stepNum > 1 ? 'border-l border-line' : ''} ${current ? 'bg-surface-accent' : ''}`}>
-                        <span className={`shrink-0 w-7 h-7 flex items-center justify-center text-xs font-bold ${current || done ? 'bg-primary text-white' : 'bg-surface text-muted border border-line'}`} aria-hidden="true">
-                          {done ? <Check className="w-4 h-4" /> : stepNum}
-                        </span>
-                        <span className={`text-sm ${current ? 'font-bold text-ink' : 'font-semibold text-muted'}`}>
-                          {stepNum === 1 ? 'Patient demographics' : 'Billing and medical alerts'}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ol>
+                {registrationStepper(formStep + 1)}
 
                 <div className="p-5 sm:p-7 flex flex-col gap-6 flex-1">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -578,9 +621,16 @@ export default function PatientRegistrationModule({
                         {existingPatientId ? 'Found in the registry. Check the details are still current.' : `No match found for ${idCheckValue || 'this ID'}.`}
                       </p>
                     </div>
-                    <button type="button" onClick={handleClearForm} className="btn-secondary min-h-11 px-4 text-xs">
-                      <RotateCcw className="w-3.5 h-3.5 text-accent" aria-hidden="true" /> Restart
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {existingPatientId && (
+                        <span className="chip-ok px-3 py-1.5 text-xs font-bold">
+                          <UserCheck className="w-3.5 h-3.5" aria-hidden="true" /> Existing record, auto-filled
+                        </span>
+                      )}
+                      <button type="button" onClick={handleClearForm} className="btn-secondary min-h-11 px-4 text-xs">
+                        <RotateCcw className="w-3.5 h-3.5 text-accent" aria-hidden="true" /> Restart
+                      </button>
+                    </div>
                   </div>
 
                   {/* Step 1: Demographics */}
@@ -616,42 +666,7 @@ export default function PatientRegistrationModule({
                 </div>
               </article>
 
-              {/* Waiting room, beside the form */}
-              <aside className="flex-[1_1_20rem] min-w-0 border-t lg:border-t-0 lg:border-l border-line flex flex-col" aria-labelledby="reg-waiting-title">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-line">
-                  <h2 id="reg-waiting-title" className="text-base font-bold text-ink">Waiting room</h2>
-                  <span className="px-2.5 py-1 bg-surface-muted text-muted text-xs font-semibold">{triageQueue.length} waiting</span>
-                </div>
-                {triageQueue.length === 0 ? (
-                  <p className="px-5 py-6 text-sm text-muted">No one is waiting for triage.</p>
-                ) : (
-                  <ol className="flex flex-col">
-                    {triageQueue.slice(0, 8).map((v) => {
-                      const pt = patientsMap[v.patientId];
-                      const pname = pt?.fullName ?? `Visit ${v.id}`;
-                      const mins = v.registeredTime ? Math.max(0, Math.floor((Date.now() - v.registeredTime) / 60000)) : null;
-                      const long = mins !== null && mins >= 20;
-                      const words = pname.split(/\s+/).filter(Boolean);
-                      const initials = (words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0]?.[0] ?? '').toUpperCase();
-                      return (
-                        <li key={v.id} className={`flex items-center gap-3 px-5 py-3 border-b border-line-subtle ${long ? 'bg-amber-50/70 dark:bg-amber-950/30' : ''}`}>
-                          <span className="shrink-0 w-9 h-9 bg-surface-strong text-accent flex items-center justify-center text-xs font-bold" aria-hidden="true">{initials}</span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-semibold text-ink truncate">{pname}</span>
-                            <span className="block text-xs text-muted truncate">Awaiting triage</span>
-                          </span>
-                          <span className={`shrink-0 px-2.5 py-1 text-xs font-bold tabular-nums ${long ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'bg-surface-strong text-accent'}`}>
-                            {mins !== null ? formatWait(mins) : 'Just in'}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ol>
-                )}
-                <button type="button" onClick={() => setActiveSubTab('queue')} className="mt-auto min-h-12 border-t border-line text-sm font-semibold text-accent hover:bg-surface-accent transition-colors cursor-pointer">
-                  Open waiting room monitor
-                </button>
-              </aside>
+              {waitingRoomAside}
             </section>
           )}
         </div>

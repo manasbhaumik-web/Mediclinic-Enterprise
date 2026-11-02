@@ -1,4 +1,3 @@
-import { UserCheck } from 'lucide-react';
 import FormField, { fieldBorder } from '../../components/ui/FormField';
 import { parseNric, formatNric } from '../../utils/nric';
 
@@ -11,38 +10,31 @@ interface DemographicsStepProps {
   inputBase: string;
 }
 
-export default function DemographicsStep({ existingPatientId, fieldErrors, manualForm, setManualForm, clearError, inputBase }: DemographicsStepProps) {
+const legend = 'pb-3 text-xs font-bold text-accent tracking-wide';
+const grid = 'grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-4';
+
+export default function DemographicsStep({ fieldErrors, manualForm, setManualForm, clearError, inputBase }: DemographicsStepProps) {
   return (
-    <div className="space-y-3 font-sans">
-      <div>
-        <h3 className="type-heading-caps text-ink font-sans">
-          Patient Demographics
-        </h3>
-        {existingPatientId && (
-          <div className="mt-2 inline-flex items-center justify-center gap-1.5 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 px-3 py-1 rounded-none text-xs font-sans font-bold border border-emerald-300 dark:border-emerald-800">
-            <UserCheck className="w-4 h-4" /> Existing Record Found - Auto-populated
+    <div className="flex flex-col gap-6 font-sans">
+      <fieldset className="min-w-0">
+        <legend className={legend}>Identity</legend>
+        <div className={grid}>
+          <div className="col-span-full">
+            <FormField id="reg-fullName" plain label="Full name" required error={fieldErrors.fullName}>
+              {(f) => (
+                <input
+                  {...f}
+                  type="text"
+                  value={manualForm.fullName}
+                  onChange={(e) => { setManualForm({ ...manualForm, fullName: e.target.value }); clearError('fullName'); }}
+                  placeholder="e.g. MOHD HAFIZ BIN RAZALI"
+                  autoComplete="name"
+                  className={`${inputBase} font-bold ${fieldBorder(fieldErrors.fullName)}`}
+                />
+              )}
+            </FormField>
           </div>
-        )}
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <FormField id="reg-fullName" label="Full Name" required error={fieldErrors.fullName}>
-            {(f) => (
-              <input
-                {...f}
-                type="text"
-                value={manualForm.fullName}
-                onChange={(e) => { setManualForm({ ...manualForm, fullName: e.target.value }); clearError('fullName'); }}
-                placeholder="e.g. MOHD HAFIZ BIN RAZALI"
-                autoComplete="name"
-                className={`${inputBase} font-bold font-sans ${fieldBorder(fieldErrors.fullName)}`}
-              />
-            )}
-          </FormField>
-        </div>
-        <div>
-          <FormField id="reg-icNumber" label="IC / Passport Number" required error={fieldErrors.icNumber} hint={parseNric(manualForm.icNumber) ? 'Date of birth and gender are filled from the NRIC.' : undefined}>
+          <FormField id="reg-icNumber" plain label="IC / passport number" required error={fieldErrors.icNumber} hint={parseNric(manualForm.icNumber) ? 'Date of birth and gender are filled from the NRIC.' : undefined}>
             {(f) => (
               <input
                 {...f}
@@ -56,22 +48,28 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
                 }}
                 placeholder="YYMMDD-XX-XXXX"
                 autoComplete="off"
-                className={`${inputBase} font-mono ${fieldBorder(fieldErrors.icNumber)}`}
+                className={`${inputBase} tabular-nums ${fieldBorder(fieldErrors.icNumber)}`}
               />
             )}
           </FormField>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <FormField id="reg-gender" label="Gender">
+          <FormField id="reg-dob" plain label="Date of birth">
+            {(f) => (
+              <input
+                {...f}
+                type="date"
+                value={manualForm.dob}
+                onChange={(e) => setManualForm({ ...manualForm, dob: e.target.value })}
+                className={`${inputBase} tabular-nums ${fieldBorder()}`}
+              />
+            )}
+          </FormField>
+          <FormField id="reg-gender" plain label="Gender">
             {(f) => (
               <select
                 {...f}
                 value={manualForm.gender}
                 onChange={(e) => setManualForm({ ...manualForm, gender: e.target.value as 'Male' | 'Female' })}
-                className={`${inputBase} font-sans ${fieldBorder()}`}
+                className={`${inputBase} ${fieldBorder()}`}
               >
                 <option value="Male">Male / Lelaki</option>
                 <option value="Female">Female / Perempuan</option>
@@ -79,21 +77,12 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
             )}
           </FormField>
         </div>
-        <div>
-          <FormField id="reg-dob" label="Date of Birth">
-            {(f) => (
-              <input
-                {...f}
-                type="date"
-                value={manualForm.dob}
-                onChange={(e) => setManualForm({ ...manualForm, dob: e.target.value })}
-                className={`${inputBase} font-mono ${fieldBorder()}`}
-              />
-            )}
-          </FormField>
-        </div>
-        <div>
-          <FormField id="reg-phone" label="Phone Number" required error={fieldErrors.phone}>
+      </fieldset>
+
+      <fieldset className="min-w-0">
+        <legend className={legend}>Contact</legend>
+        <div className={grid}>
+          <FormField id="reg-phone" plain label="Phone number" required error={fieldErrors.phone}>
             {(f) => (
               <input
                 {...f}
@@ -102,28 +91,27 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
                 onChange={(e) => { setManualForm({ ...manualForm, phone: e.target.value }); clearError('phone'); }}
                 placeholder="e.g. 012-3456789"
                 autoComplete="tel"
-                className={`${inputBase} font-mono ${fieldBorder(fieldErrors.phone)}`}
+                className={`${inputBase} tabular-nums ${fieldBorder(fieldErrors.phone)}`}
               />
             )}
           </FormField>
+          <div className="col-span-full">
+            <FormField id="reg-address" plain label="Residential address">
+              {(f) => (
+                <input
+                  {...f}
+                  type="text"
+                  value={manualForm.address}
+                  onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
+                  placeholder="Street, area, postcode"
+                  autoComplete="street-address"
+                  className={`${inputBase} ${fieldBorder()}`}
+                />
+              )}
+            </FormField>
+          </div>
         </div>
-      </div>
-    
-      <div>
-        <FormField id="reg-address" label="Residential Address">
-          {(f) => (
-            <input
-              {...f}
-              type="text"
-              value={manualForm.address}
-              onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
-              placeholder="Enter full residential address..."
-              autoComplete="street-address"
-              className={`${inputBase} font-sans ${fieldBorder()}`}
-            />
-          )}
-        </FormField>
-      </div>
+      </fieldset>
     </div>
   );
 }
