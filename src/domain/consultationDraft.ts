@@ -27,6 +27,7 @@ export interface ConsultationDraft {
   labReason?: string;
   mcReason?: string;
   followUpWeeks?: number;
+  procedures?: any[];
   savedAt: number;
 }
 
@@ -49,6 +50,7 @@ export function parseDraft(raw: string | null): ConsultationDraft | null {
   if (d.labReason !== undefined && typeof d.labReason !== 'string') return null;
   if (d.mcReason !== undefined && typeof d.mcReason !== 'string') return null;
   if (d.followUpWeeks !== undefined && !isNum(d.followUpWeeks)) return null;
+  if (d.procedures !== undefined && !Array.isArray(d.procedures)) return null;
   if (d.activeTab !== undefined && !['subjective', 'objective', 'assessment', 'plan'].includes(d.activeTab)) return null;
   return d as ConsultationDraft;
 }

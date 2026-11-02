@@ -93,8 +93,8 @@ export default function AIGatewayCard() {
         <div className="flex items-center gap-2.5">
           <span className={`text-2xs font-mono font-bold px-2.5 py-1 rounded-none border ${
             localConfig.enabled 
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-300' 
-              : 'bg-slate-100 text-slate-500 border-slate-300'
+              ? 'chip-ok' 
+              : 'chip-neutral'
           }`}>
             {localConfig.enabled ? 'GATEWAY ACTIVE' : 'GATEWAY DISABLED'}
           </span>
@@ -105,7 +105,7 @@ export default function AIGatewayCard() {
               onChange={() => setLocalConfig(prev => ({ ...prev, enabled: !prev.enabled }))} 
               className="sr-only peer" 
             />
-            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+            <div className="w-9 h-5 bg-surface-strong dark:bg-night-700 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-line after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
           </label>
         </div>
       </div>
@@ -313,7 +313,7 @@ export default function AIGatewayCard() {
                     onChange={() => handleFeatureToggle(f.id)}
                     className="sr-only peer"
                   />
-                  <div className="w-8 h-4.5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
+                  <div className="w-8 h-4.5 bg-surface-strong dark:bg-night-700 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-line after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary"></div>
                 </label>
               </div>
             ))}
@@ -323,9 +323,9 @@ export default function AIGatewayCard() {
         {/* 5. CONNECTION TEST & FEEDBACK BANNER */}
         {testStatus !== 'idle' && (
           <div className={`p-3 rounded-none border flex items-center justify-between gap-3 text-xs ${
-            testStatus === 'testing' ? 'bg-slate-50 text-slate-700 border-slate-300' :
-            testStatus === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' :
-            'bg-rose-50 text-rose-800 border-rose-300'
+            testStatus === 'testing' ? 'bg-surface-accent text-ink border-line' :
+            testStatus === 'success' ? 'chip-ok' :
+            'chip-danger'
           }`}>
             <div className="flex items-center gap-2">
               {testStatus === 'testing' && <Zap className="w-4 h-4 animate-spin text-accent" />}

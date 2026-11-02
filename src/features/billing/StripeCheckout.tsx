@@ -159,14 +159,14 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
           <div>
             <label htmlFor="sim-email" className="block text-xs font-bold text-muted mb-1">Email</label>
             <input id="sim-email" type="email" 
-              className="w-full border border-slate-300 rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
+              className="w-full border border-line rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none bg-surface text-ink"
               placeholder="patient@example.com"
               required
             />
           </div>
           <div className="pt-2">
             <label htmlFor="sim-card-num" className="block text-xs font-bold text-muted mb-1">Card Information</label>
-            <div className="border border-slate-300 rounded-none overflow-hidden flex flex-col">
+            <div className="border border-line rounded-none overflow-hidden flex flex-col bg-surface text-ink">
               <div className="relative border-b border-line">
                 <CreditCard className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                 <input id="sim-card-num" aria-label="Card number" type="text" value={cardNumber}
@@ -200,7 +200,7 @@ function MockFallbackForm({ amount, onSuccess, onCancel, invoiceId }: StripeChec
             <input id="sim-card-name" type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-slate-300 rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none"
+              className="w-full border border-line rounded-none px-3 py-2 text-sm focus:border-stripe focus:ring-1 focus:ring-stripe outline-none bg-surface text-ink"
               placeholder="Full Name"
               required
             />

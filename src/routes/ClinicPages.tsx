@@ -35,11 +35,24 @@ export function DoctorPage({ tab }: { tab: DoctorTab }) {
       doctorTab={tab}
       onTabChange={(t) => s.navigateTab(t)}
       doctorQueue={s.queues.doctor}
+      holdingQueue={s.queues.holding}
       patientsMap={s.patientsMap}
       activeLanguage={s.activeLanguage}
       activeConsultationVisitId={s.activeConsultationVisitId}
       setActiveConsultationVisitId={s.setActiveConsultationVisitId}
       onConsultationComplete={s.onConsultationComplete}
+      onHoldForResults={(visitId, currentSoap) => {
+        const visit = s.visitsQueue.find((v) => v.id === visitId);
+        if (visit) {
+          s.updateVisitInDb({
+            ...visit,
+            soap: currentSoap,
+            status: 'Holding for Results'
+          });
+          s.setActiveConsultationVisitId(null);
+          s.navigateTab('dashboard');
+        }
+      }}
       doctorName={s.userName}
       userId={s.userId}
       onCallPatient={s.onCallPatient}
@@ -95,8 +108,12 @@ export function TriagePage() {
   return (
     <TriageModule
       triageQueue={s.queues.triage}
+      allVisits={s.visitsQueue}
       patientsMap={s.patientsMap}
       onTriageComplete={s.onTriageComplete}
+      onUpdateVisit={s.updateVisitInDb}
+      currentStaffId={s.userId ?? 'staff-nurse'}
+      currentStaffName={s.userName}
     />
   );
 }
@@ -120,6 +137,7 @@ export function DispensaryPage() {
   return (
     <DispensaryDashboard
       queue={s.queues.pharmacy}
+      allVisits={s.completedVisits ? [...s.completedVisits, ...s.visitsQueue] : s.visitsQueue}
       patientsMap={s.patientsMap}
       activeLanguage={s.activeLanguage}
       onDispenseSubmit={s.onDispenseVerified}
@@ -133,9 +151,11 @@ export function BillingPage() {
   return (
     <BillingDesk
       queue={s.queues.cashier}
+      allVisits={s.completedVisits ? [...s.completedVisits, ...s.visitsQueue] : s.visitsQueue}
       patientsMap={s.patientsMap}
       activeLanguage={s.activeLanguage}
       onPaymentComplete={s.onBillingSettled}
+      cashierName={s.userName}
     />
   );
 }

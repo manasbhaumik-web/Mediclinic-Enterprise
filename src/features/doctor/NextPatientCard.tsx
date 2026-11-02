@@ -70,26 +70,22 @@ export default function NextPatientCard({
               <span>Pinned priority</span>
             </span>
           )}
-          {calledTimestampMap[nextVisit.id] && (
-            <span className="bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold px-2.5 py-1 font-mono tabular-nums">
-              Called at {calledTimestampMap[nextVisit.id]}
+
+        </div>
+    
+        <div>
+          {calledTimestampMap[nextVisit.id] ? (
+            <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 text-xs font-bold px-3 py-1 font-mono tabular-nums inline-flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+              <span>Paged at {calledTimestampMap[nextVisit.id]}</span>
+            </span>
+          ) : (
+            <span className="bg-surface text-muted border border-line text-xs font-medium px-3 py-1 font-mono inline-flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-slate-400" />
+              <span>Waiting in Lobby</span>
             </span>
           )}
         </div>
-    
-        <ol className="flex items-center gap-2.5 text-xs font-semibold">
-          {['Ready', 'Called', 'In consultation'].map((label, i) => (
-            <React.Fragment key={label}>
-              {i > 0 && <li aria-hidden="true" className="w-6 h-0.5 bg-line" />}
-              <li className={`flex items-center gap-1.5 ${i === stepIndex ? 'text-accent font-bold' : 'text-muted'}`} aria-current={i === stepIndex ? 'step' : undefined}>
-                <span className={`w-5 h-5 rounded-none text-2xs font-bold flex items-center justify-center font-mono tabular-nums ${
-                  i === stepIndex ? 'bg-primary text-white' : i < stepIndex ? 'bg-surface-strong text-accent border border-primary' : 'border border-line text-muted'
-                }`}>{i + 1}</span>
-                <span>{label}</span>
-              </li>
-            </React.Fragment>
-          ))}
-        </ol>
       </div>
     
       <div className="p-6 space-y-5">
@@ -104,7 +100,10 @@ export default function NextPatientCard({
                 <span>{nextPatient.fullName}</span>
               </h3>
               <p className="text-xs text-muted font-mono tabular-nums">
-                ID {nextPatient.id} · <span className="font-sans">{nextPatient.gender}</span> · Born {nextPatient.dob}
+                <span className="font-sans font-medium text-ink">{nextPatient.gender}</span> · Born {nextPatient.dob}
+                {nextPatient.icNumber && (
+                  <span> · IC: <span className="font-mono text-ink">{nextPatient.icNumber.substring(0, 6)}-{nextPatient.icNumber.substring(6, 8)}-****</span></span>
+                )}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -164,16 +163,7 @@ export default function NextPatientCard({
               <Pin className="w-3.5 h-3.5" />
               <span>{pinnedVisitIds[nextVisit.id] ? 'Pinned' : 'Pin'}</span>
             </button>
-            <button
-              type="button"
-              onClick={(e) => copyToClipboard(nextPatient.id, 'Patient ID', e)}
-              aria-label={`Copy patient ID for ${nextPatient.fullName}`}
-              title="Copy patient ID"
-              className="h-10 px-3.5 bg-surface text-ink border border-line text-xs font-bold flex items-center justify-center gap-1.5 whitespace-nowrap hover:bg-surface-accent transition-colors cursor-pointer"
-            >
-              <Copy className="w-3.5 h-3.5" />
-              <span>Copy ID</span>
-            </button>
+
           </div>
         </div>
     

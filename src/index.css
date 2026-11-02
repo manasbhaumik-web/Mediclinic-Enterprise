@@ -560,7 +560,7 @@ strong {
   color: #94a3b8 !important;
 }
 
-/* Inputs */
+/* Inputs: clean, uniform 1px standard border on all sides without subpixel box-shadow distortion */
 input:focus,
 input:focus-visible,
 select:focus,
@@ -568,8 +568,10 @@ select:focus-visible,
 textarea:focus,
 textarea:focus-visible {
   outline: none !important;
-  border-color: var(--color-brand, #087873) !important;
-  box-shadow: 0 0 0 1px var(--color-brand, #087873) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--color-brand, #0d9488) !important;
+  box-shadow: none !important;
 }
 
 .dark input,
@@ -587,8 +589,10 @@ textarea:focus-visible {
 .dark textarea:focus,
 .dark textarea:focus-visible {
   outline: none !important;
+  border-width: 1px !important;
+  border-style: solid !important;
   border-color: #2dd4bf !important;
-  box-shadow: 0 0 0 1px #2dd4bf !important;
+  box-shadow: none !important;
 }
 
 .dark input::placeholder,

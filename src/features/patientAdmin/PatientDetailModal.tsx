@@ -3,13 +3,14 @@ import {
   X, User, Calendar, FileText, Pill, CreditCard, ShieldAlert,
   CheckCircle2, AlertCircle, AlertTriangle, Save, Clock, Activity, Printer, Download,
   Phone, MapPin, Building, ChevronRight, Plus, Trash2, Heart, HeartPulse,
-  DollarSign, FileSpreadsheet, Eye, EyeOff
+  DollarSign, FileSpreadsheet, Eye, EyeOff, Syringe, Ambulance, ShieldCheck
 } from 'lucide-react';
 import { Patient, Visit, Language, PrescriptionItem } from '../../types';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { maskICNumber } from '../../utils/piiMasker';
 import { formatNric, nricError, parseNric } from '../../utils/nric';
 import { useAuth } from '../../context/AuthContext';
+import { evaluateImmunizationStatus } from '../../domain/immunization';
 
 interface PatientDetailModalProps {
   patient: Patient | null;
@@ -19,7 +20,7 @@ interface PatientDetailModalProps {
   visits: Visit[];
   activeLanguage?: Language;
   canEdit?: boolean;
-  initialTab?: 'profile' | 'visits' | 'medications' | 'billing' | 'dossier';
+  initialTab?: 'profile' | 'visits' | 'medications' | 'clinical' | 'billing' | 'dossier';
   onGenerateReport?: (patientId: string) => void;
 }
 
@@ -36,7 +37,7 @@ export default function PatientDetailModal({
 }: PatientDetailModalProps) {
   const isBM = activeLanguage === 'BM';
   const { showPII } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'visits' | 'medications' | 'billing' | 'dossier'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'profile' | 'visits' | 'medications' | 'clinical' | 'billing' | 'dossier'>(initialTab);
 
   // Edit state
   const [formData, setFormData] = useState<Patient | null>(null);
@@ -295,6 +296,18 @@ export default function PatientDetailModal({
             <span className="ml-1 px-1.5 py-0.2 bg-primary/10 text-accent border border-brand/20 text-2xs">
               {stats.totalEncounters}
             </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('clinical')}
+            className={`py-3 px-3.5 border-b-2 font-bold inline-flex items-center gap-2 whitespace-nowrap transition-colors ${
+              activeTab === 'clinical'
+                ? 'border-brand text-accent bg-surface-accent/40'
+                : 'border-transparent text-muted hover:text-ink hover:border-line'
+            }`}
+          >
+            <Syringe className="w-4 h-4" />
+            <span>{isBM ? 'Vaksin & Prosedur' : 'Vaccines & Consents'}</span>
           </button>
           <button
             type="button"
@@ -823,6 +836,112 @@ export default function PatientDetailModal({
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAB: VACCINES, CONSENTS & EMERGENCY SBAR TRANSFERS */}
+          {activeTab === 'clinical' && (
+            <div className="space-y-6 max-w-4xl mx-auto font-sans">
+              <div className="border-b border-line pb-3">
+                <h3 className="type-section-title text-ink font-bold flex items-center gap-2">
+                  <Syringe className="w-5 h-5 text-accent" />
+                  <span>{isBM ? 'Rekod Klinikal: Imunisasi Kebangsaan & Persetujuan Prosedur' : 'Clinical Dossier: National Immunisation & Procedural Consents'}</span>
+                </h3>
+                <p className="text-xs text-muted">
+                  {isBM
+                    ? 'Jadual Imunisasi KKM, sejarah suntikan vaksin, borang keizinan prosedur bermaklum dan rujukan kecemasan SBAR.'
+                    : 'MOH National Immunisation Programme compliance, informed procedural consents, and emergency SBAR hospital transfers.'}
+                </p>
+              </div>
+
+              {/* SECTION 1: KKM National Immunisation Programme (NIP) */}
+              <div className="bg-surface border border-line p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-line pb-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-ink">
+                      {isBM ? 'Status Imunisasi KKM (Jadual Kanak-Kanak & Dewasa)' : 'KKM Immunisation Milestone Status (NIP)'}
+                    </h4>
+                  </div>
+                  <span className="text-2xs font-mono font-bold px-2 py-0.5 bg-surface-accent border border-line text-accent">
+                    DOB: {patient?.dob || 'Not recorded'}
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-surface-accent border-b border-line uppercase font-bold text-muted">
+                      <tr>
+                        <th className="px-3 py-2">Vaccine Code</th>
+                        <th className="px-3 py-2">Vaccine Name</th>
+                        <th className="px-3 py-2">Target Age</th>
+                        <th className="px-3 py-2 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line bg-surface font-mono">
+                      {patient?.dob ? (
+                        evaluateImmunizationStatus(patient.dob).slice(0, 8).map((vac) => (
+                          <tr key={vac.vaccineCode} className="hover:bg-surface-accent/40">
+                            <td className="px-3 py-2 font-bold text-ink">{vac.vaccineCode}</td>
+                            <td className="px-3 py-2 font-sans text-muted">{vac.vaccineName}</td>
+                            <td className="px-3 py-2 text-subtle">{vac.recommendedAgeLabel}</td>
+                            <td className="px-3 py-2 text-center">
+                              <span className={`inline-block px-2 py-0.5 text-2xs font-bold uppercase rounded-none border ${
+                                vac.status === 'Administered'
+                                  ? 'chip-ok'
+                                  : vac.status === 'Overdue'
+                                    ? 'chip-danger'
+                                    : vac.status === 'Due'
+                                      ? 'chip-warn'
+                                      : 'chip-neutral'
+                              }`}>
+                                {vac.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="px-3 py-4 text-center text-muted font-sans">
+                            Record patient date of birth to evaluate pediatric and adult immunization milestones.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* SECTION 2: Procedural Informed Consent & SBAR Transfers */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-surface border border-line p-4 space-y-3">
+                  <div className="flex items-center gap-2 border-b border-line pb-2">
+                    <FileText className="w-4 h-4 text-accent" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Informed Procedural Consents</h4>
+                  </div>
+                  <p className="text-2xs text-muted">
+                    Bilingual (English/BM) consents signed under MMC guidelines for minor surgery, wound debridement, and injections.
+                  </p>
+                  <div className="p-3 bg-surface-accent border border-line text-xs font-mono text-muted space-y-1">
+                    <p className="font-bold text-ink">Verified Digital Signatures: 0 On-file</p>
+                    <p className="text-2xs text-subtle">Consents executed in Procedure Room automatically archive to this dossier.</p>
+                  </div>
+                </div>
+
+                <div className="bg-surface border border-line p-4 space-y-3">
+                  <div className="flex items-center gap-2 border-b border-line pb-2">
+                    <Ambulance className="w-4 h-4 text-rose-600" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Emergency SBAR Handover Notes</h4>
+                  </div>
+                  <p className="text-2xs text-muted">
+                    MECC 999 ambulance transfers and tertiary emergency department handovers.
+                  </p>
+                  <div className="p-3 bg-surface-accent border border-line text-xs font-mono text-muted space-y-1">
+                    <p className="font-bold text-ink">Tertiary Transfers: None Recorded</p>
+                    <p className="text-2xs text-subtle">Hospital handover notes dispatched via Code Red or Consultation sync here.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

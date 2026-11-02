@@ -604,7 +604,7 @@ export default function PatientRegistrationModule({
                       formStep === stepNum 
                         ? 'bg-primary text-white' 
                         : formStep > stepNum 
-                        ? 'bg-emerald-600 text-white' 
+                        ? 'bg-primary text-white' 
                         : 'bg-surface text-muted border border-line-subtle'
                     }`}>
                       {formStep > stepNum ? <Check className="w-4 h-4" /> : stepNum}
@@ -661,7 +661,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={handleRegisterSubmit} 
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
+                      className="bg-primary hover:bg-primary-hover text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       <UserCheck className="w-4 h-4" /> Route to Triage Queue
                     </button>

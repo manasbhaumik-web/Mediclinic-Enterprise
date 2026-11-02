@@ -13,12 +13,19 @@ import { useAuxiliary } from '../../context/AuxiliaryContext';
 import StripeCheckout from './StripeCheckout';
 import {
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet, AlertTriangle, Loader2,
-  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer,
+  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer, Building2, FileCheck2, X,
 } from 'lucide-react';
 import { buttonProps, focusRing } from '../../lib/a11y';
+import CashDrawerReconciliationModal from './CashDrawerReconciliationModal';
+import { Calculator } from 'lucide-react';
+import { TPASettlementHub } from './TPASettlementHub';
+import EInvoicePage from '../einvoice/EInvoicePage';
+import { verifyTPAPolicyEligibility } from '../../domain/tpaPanelClaims';
 
 interface BillingDeskProps {
   queue: Visit[];
+  allVisits?: Visit[];
+  cashierName?: string;
   patientsMap: Record<string, any>;
   activeLanguage: Language;
   /** Records the payment and issues its receipt number. */
@@ -44,7 +51,9 @@ interface Attempt {
 
 const rm = (n: number) => `RM${n.toFixed(2)}`;
 
-export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
+export default function BillingDesk({ queue, allVisits, cashierName, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
+  const [isReconModalOpen, setIsReconModalOpen] = useState(false);
+  const [isEInvoiceModalOpen, setIsEInvoiceModalOpen] = useState(false);
   const { settings } = useSettings();
   const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
@@ -54,9 +63,33 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(queue.length > 0 ? queue[0].id : null);
 
   // Panel claim
+  const [billingTab, setBillingTab] = useState<'pos' | 'tpa-hub'>('pos');
   const [isPanelClaim, setIsPanelClaim] = useState(false);
   const [selectedTPA, setSelectedTPA] = useState<TPAConfig | null>(null);
   const [glReferenceNo, setGlReferenceNo] = useState('');
+  const [tpaVerificationInfo, setTpaVerificationInfo] = useState<string | null>(null);
+
+  const handleAutoVerifyGL = () => {
+    if (!activePatient) return;
+    const providerId = (selectedTPA?.name || 'micare').toLowerCase().includes('pmcare') ? 'pmcare'
+      : (selectedTPA?.name || '').toLowerCase().includes('healthmetrics') ? 'healthmetrics'
+      : (selectedTPA?.name || '').toLowerCase().includes('mediexpress') ? 'mediexpress'
+      : (selectedTPA?.name || '').toLowerCase().includes('aia') ? 'aia'
+      : 'micare';
+
+    const check = verifyTPAPolicyEligibility({
+      patientIc: activePatient.icNumber,
+      providerId,
+      employerName: activePatient.panelEmployer || 'Petronas'
+    });
+
+    if (check.isEligible) {
+      setGlReferenceNo(check.glNumber);
+      setTpaVerificationInfo(`✓ Policy Active: ${check.providerName} • GL #${check.glNumber} • Annual Bal: RM ${check.remainingAnnualLimitRM.toFixed(2)} • Visit Cap: RM ${check.perVisitCapRM.toFixed(2)}`);
+    } else {
+      setTpaVerificationInfo(`⚠ Ineligible: ${check.ineligibleReason}`);
+    }
+  };
 
   // Taking a payment
   const [stage, setStage] = useState<PayStage>(null);
@@ -234,7 +267,74 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
   const closeDialogs = () => { if (!saving) { setStage(null); setSaveError(null); } };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
+      {/* Top Cashier Operation Toolbar */}
+      <div className="bg-surface border border-line p-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary text-white flex items-center justify-center">
+            <DollarSign className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-ink">Cashier POS Billing Desk</h3>
+            <p className="text-2xs text-muted">Point-of-Sale settlement, receipting &amp; Malaysian shift balancing</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsEInvoiceModalOpen(true)}
+            className="flex items-center gap-1.5 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none border border-teal-500/40 bg-surface hover:bg-surface-accent text-accent font-bold"
+            title="View LHDN MyInvois Submission Status & e-Invoice Verification"
+          >
+            <FileCheck2 className="w-4 h-4 text-accent" />
+            <span>LHDN MyInvois Console</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsReconModalOpen(true)}
+            className="btn-primary flex items-center gap-2 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none"
+            title="Audit cash drawer float, count physical denominations, and print Malaysian Daily Z-Report"
+          >
+            <Calculator className="w-4 h-4" />
+            <span>Close Shift / Float Z-Report</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Billing Desk Sub-Navigation Tabs */}
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setBillingTab('pos')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            billingTab === 'pos'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <DollarSign className="w-4 h-4 shrink-0" />
+          <span>Cashier Invoicing &amp; POS Queue ({queue.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setBillingTab('tpa-hub')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            billingTab === 'tpa-hub'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <Building2 className="w-4 h-4 shrink-0" />
+          <span>Corporate TPA Settlement Hub (Batch &amp; Remittance)</span>
+        </button>
+      </div>
+
+      {billingTab === 'tpa-hub' ? (
+        <TPASettlementHub />
+      ) : (
+        <>
       {unrecorded && !saving && stage === null && (
         <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-rose-50 border border-rose-300 text-rose-900 text-xs">
           <div className="flex items-start gap-2">
@@ -501,7 +601,16 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                       </div>
 
                       <div className="space-y-1">
-                        <label htmlFor="gl-ref-input" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Guarantee letter (GL) reference</label>
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="gl-ref-input" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Guarantee letter (GL) reference</label>
+                          <button
+                            type="button"
+                            onClick={handleAutoVerifyGL}
+                            className="text-2xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
+                          >
+                            <span>⚡ Auto-Verify TPA</span>
+                          </button>
+                        </div>
                         <input
                           type="text"
                           id="gl-ref-input"
@@ -511,7 +620,13 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                           placeholder="e.g. MIC-GL-10292"
                           aria-describedby="gl-note"
                         />
-                        <p id="gl-note" className="text-2xs text-subtle">Copy it from the panel's letter. This system does not check it with the panel.</p>
+                        {tpaVerificationInfo ? (
+                          <div className="text-2xs font-mono font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-1.5 border border-emerald-300">
+                            {tpaVerificationInfo}
+                          </div>
+                        ) : (
+                          <p id="gl-note" className="text-2xs text-subtle">Copy it from panel letter or click Auto-Verify to ping TPA engine.</p>
+                        )}
                       </div>
                     </div>
 
@@ -712,6 +827,31 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
             </div>
           </div>
         </Dialog>
+      )}
+        </>
+      )}
+
+      {isEInvoiceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-canvas border-2 border-line shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+            <div className="p-3 bg-surface border-b border-line flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileCheck2 className="w-5 h-5 text-accent" />
+                <h3 className="text-sm font-bold text-ink uppercase tracking-wider">LHDN MyInvois e-Invoice Real-Time Console</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEInvoiceModalOpen(false)}
+                className="p-1 hover:bg-surface-accent text-ink cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              <EInvoicePage />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

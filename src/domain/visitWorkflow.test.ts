@@ -24,12 +24,16 @@ describe('splitQueues', () => {
       visit({ id: 'c', status: 'Consulting' }),
       visit({ id: 'd', status: 'Awaiting Dispensation' }),
       visit({ id: 'e', status: 'Awaiting Billing' }),
+      visit({ id: 'f', status: 'Awaiting Procedure' }),
+      visit({ id: 'g', status: 'Holding for Results' }),
     ];
     const q = splitQueues(visits);
     expect(q.triage.map((v) => v.id)).toEqual(['a']);
     expect(q.doctor.map((v) => v.id)).toEqual(['b', 'c']);
     expect(q.pharmacy.map((v) => v.id)).toEqual(['d']);
     expect(q.cashier.map((v) => v.id)).toEqual(['e']);
+    expect(q.procedure.map((v) => v.id)).toEqual(['f']);
+    expect(q.holding.map((v) => v.id)).toEqual(['g']);
   });
 
   it('ignores visits that are closed or in transient states', () => {
@@ -51,6 +55,27 @@ describe('transitions', () => {
     const next = completeConsultation(visit({ status: 'Consulting' }), soap(), true);
     expect(next.status).toBe('Awaiting Dispensation');
     expect(next.mcIssued).toBe(true);
+  });
+
+  it('consultation sends the visit to procedure station when pending procedures exist', () => {
+    const soapWithProc = {
+      ...soap(),
+      plan: {
+        ...soap().plan,
+        procedures: [{
+          id: 'p1',
+          name: 'IM Voltaren',
+          category: 'Injection' as const,
+          dosageOrDetails: '75mg',
+          price: 35,
+          status: 'Pending' as const,
+          orderedByDoctorId: 'doc1',
+          orderedAt: '2026-01-01',
+        }],
+      },
+    };
+    const next = completeConsultation(visit({ status: 'Consulting' }), soapWithProc, false);
+    expect(next.status).toBe('Awaiting Procedure');
   });
 
   it('dispensing sends the visit to the cashier', () => {

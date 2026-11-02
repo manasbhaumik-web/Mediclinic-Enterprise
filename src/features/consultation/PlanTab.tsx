@@ -2,11 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { 
   AlertTriangle, CheckCircle2, Activity, Pill, Trash2, FileText, 
   TestTube, Share, TrendingUp, PlusCircle, X, Info, ShieldAlert,
-  FileCheck, Microscope, Sparkles
+  FileCheck, Microscope, Sparkles, Building2
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { Patient, PrescriptionItem, ICD10Code } from '../../types';
+import { Patient, PrescriptionItem, ICD10Code, ClinicalProcedureItem } from '../../types';
+import { COMMON_CLINIC_PROCEDURES, createProcedureOrder } from '../../domain/procedures';
 import { useInventory } from '../../context/InventoryContext';
 import { useAuth } from '../../context/AuthContext';
 import { DRUG_DATABASE } from '../../data';
@@ -19,9 +20,18 @@ import CertificatesAndReferralPanel from './plan/CertificatesAndReferralPanel';
 import PlanSummaryPanel from './plan/PlanSummaryPanel';
 import ContraindicationModal from './plan/ContraindicationModal';
 import { calculatePatientAge } from '../../domain/patientAge';
+import { auditAntimicrobialPrescription, isAntibioticDrug } from '../../domain/antibioticStewardship';
+import { AntibioticStewardshipModal } from './plan/AntibioticStewardshipModal';
+import { ProceduralConsentModal } from '../operations/ProceduralConsentModal';
+import { SignedConsentRecord } from '../../domain/proceduralConsent';
+import { matchAct342Disease } from '../../domain/act342Notification';
+import { Act342NotificationModal } from './room/Act342NotificationModal';
+import EmergencySBARModal from '../operations/EmergencySBARModal';
 interface PlanTabProps {
   rxList: PrescriptionItem[];
   setRxList: React.Dispatch<React.SetStateAction<PrescriptionItem[]>>;
+  procedures?: ClinicalProcedureItem[];
+  setProcedures?: React.Dispatch<React.SetStateAction<ClinicalProcedureItem[]>>;
   currentPatient: Patient;
   selectedICD: ICD10Code | null;
   mcDays: number | '';
@@ -47,6 +57,8 @@ interface PlanTabProps {
 export default function PlanTab({
   rxList,
   setRxList,
+  procedures = [],
+  setProcedures,
   currentPatient,
   selectedICD,
   mcDays,
@@ -72,7 +84,9 @@ export default function PlanTab({
   const { inventory } = useInventory();
 
   // Active Sub-Tab State
-  const [subTab, setSubTab] = useState<'medication' | 'investigations' | 'documents' | 'summary'>('medication');
+  const [subTab, setSubTab] = useState<'medication' | 'investigations' | 'procedures' | 'documents' | 'summary'>('medication');
+  const [procCategory, setProcCategory] = useState<string>('All');
+  const [procSearch, setProcSearch] = useState<string>('');
 
   // Patient Age Context with Clinical Precision
   const patientAgeDetails = useMemo(() => {
@@ -94,6 +108,20 @@ export default function PlanTab({
   // Document Modal States
   const [isMcModalOpen, setIsMcModalOpen] = useState(false);
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+
+  // KKM NAG Antibiotic Stewardship Guard States
+  const [stewardshipModalOpen, setStewardshipModalOpen] = useState(false);
+  const [stewardshipJustifications, setStewardshipJustifications] = useState<Record<string, string>>({});
+
+  // PHFSA 1998 Procedural Consent States
+  const [consentModalProc, setConsentModalProc] = useState<ClinicalProcedureItem | null>(null);
+  const [signedConsents, setSignedConsents] = useState<Record<string, SignedConsentRecord>>({});
+
+  // Act 342 Communicable Disease Notification State
+  const [act342ModalOpen, setAct342ModalOpen] = useState(false);
+  const [isEmergencySbarOpen, setIsEmergencySbarOpen] = useState(false);
+  const [act342Dispatched, setAct342Dispatched] = useState<string | null>(null);
+  const matchedAct342 = selectedICD ? matchAct342Disease(selectedICD.code) : undefined;
 
   // Interruptive Allergy Override State
   const [pendingAllergyDrug, setPendingAllergyDrug] = useState<any | null>(null);
@@ -210,6 +238,20 @@ export default function PlanTab({
     return alerts;
   }, [rxList, currentPatient, mergedCatalog]);
 
+  // KKM NAG Antimicrobial Stewardship Evaluation
+  const stewardshipResult = useMemo(() => {
+    if (!selectedICD) return null;
+    return auditAntimicrobialPrescription(
+      [{ code: selectedICD.code, name: selectedICD.desc }],
+      rxList.map(r => r.drugName)
+    );
+  }, [selectedICD, rxList]);
+
+  const unacknowledgedAntibiotics = useMemo(() => {
+    if (!stewardshipResult || !stewardshipResult.requiresStewardshipReview) return [];
+    return stewardshipResult.prescribedAntibiotics.filter(ab => !stewardshipJustifications[ab]);
+  }, [stewardshipResult, stewardshipJustifications]);
+
   const handleAddDrug = (drug: any) => {
     if (rxList.some(r => r.drugName.toLowerCase() === drug.name.toLowerCase())) {
       setSearchDrugQuery('');
@@ -226,6 +268,18 @@ export default function PlanTab({
     if (isAllergic) {
       setPendingAllergyDrug(drug);
       return;
+    }
+
+    // KKM NAG Stewardship Pre-Check: If antibiotic and viral condition diagnosed
+    if (selectedICD && isAntibioticDrug(drug.name)) {
+      const audit = auditAntimicrobialPrescription(
+        [{ code: selectedICD.code, name: selectedICD.desc }],
+        [drug.name]
+      );
+      if (audit.requiresStewardshipReview && !stewardshipJustifications[drug.name]) {
+        // Trigger stewardship notification
+        setStewardshipModalOpen(true);
+      }
     }
 
     confirmAddDrug(drug, '');
@@ -308,64 +362,133 @@ export default function PlanTab({
         </div>
       ) : null}
 
+      {/* KKM NAG ANTIBIOTIC STEWARDSHIP ALERT BANNER */}
+      {unacknowledgedAntibiotics.length > 0 && (
+        <div className="bg-amber-600 text-white p-3 rounded-none flex items-center justify-between gap-3 border border-amber-700 animate-fadeIn">
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert className="w-5 h-5 shrink-0 text-white" />
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider">
+                KKM NAG Stewardship Alert: Systemic Antibiotic for Viral Condition
+              </h4>
+              <p className="text-2xs opacity-95">
+                <span className="font-bold underline">{unacknowledgedAntibiotics.join(', ')}</span> prescribed with diagnosis <span className="font-mono font-bold">{selectedICD?.code} - {selectedICD?.desc}</span>.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStewardshipModalOpen(true)}
+            className="px-3 py-1.5 bg-white text-amber-900 text-xs font-bold uppercase tracking-wider hover:bg-amber-100 rounded-none shrink-0 cursor-pointer"
+          >
+            Review &amp; Justify
+          </button>
+        </div>
+      )}
+
+      {/* ACT 342 STATUTORY NOTIFIABLE DISEASE BANNER */}
+      {matchedAct342 && (
+        <div className="bg-rose-700 text-white p-3 rounded-none flex items-center justify-between gap-3 border border-rose-800 animate-fadeIn">
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert className="w-5 h-5 shrink-0 text-white" />
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider">
+                Act 342 Notifiable Disease Mandate: {matchedAct342.diseaseName}
+              </h4>
+              <p className="text-2xs opacity-95">
+                Statutory requirement: Notify PKD {matchedAct342.urgency.toLowerCase()} under Section 10(2) of Act 342.
+                {act342Dispatched && <span className="ml-2 font-mono font-bold bg-white text-rose-800 px-1.5 py-0.2">✓ Dispatched: {act342Dispatched}</span>}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAct342ModalOpen(true)}
+            className="px-3 py-1.5 bg-white text-rose-900 text-xs font-bold uppercase tracking-wider hover:bg-rose-100 rounded-none shrink-0 cursor-pointer"
+          >
+            {act342Dispatched ? 'View KKM Form' : 'Dispatch e-Notifikasi'}
+          </button>
+        </div>
+      )}
+
       {/* ------------------------------------------------------------------------- */}
-      {/* 4 STRUCTURED SUB-TABS NAVIGATION BAR                                      */}
+      {/* 5 STRUCTURED SUB-TABS NAVIGATION BAR (SINGLE-LINE CLINICAL LABELS)        */}
+      {/* SUB-NAVIGATION TABS (Guaranteed Single-Line with min-w-fit & whitespace-nowrap) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex border border-line bg-surface p-1 rounded-none gap-1" role="tablist">
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto scrollbar-thin" role="tablist">
         
         <button
           type="button"
           onClick={() => setSubTab('medication')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'medication'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Medication Prescribing & In-House Inventory"
         >
-          <Pill className="w-4 h-4" />
-          <span>1. Medication Prescribing</span>
-          {rxList.length > 0 && <span className="bg-surface text-accent px-1 font-mono text-2xs font-bold">{rxList.length}</span>}
+          <Pill className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">1. Medications</span>
+          {rxList.length > 0 && <span className="bg-surface text-accent px-1 font-mono text-2xs font-bold shrink-0">{rxList.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('investigations')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'investigations'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Laboratory & Diagnostic Investigations"
         >
-          <TestTube className="w-4 h-4" />
-          <span>2. Lab &amp; Investigations</span>
-          {selectedLabs.length > 0 && <span className="bg-surface-accent text-accent px-1 font-mono text-2xs font-bold">{selectedLabs.length}</span>}
+          <TestTube className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">2. Lab &amp; Tests</span>
+          {selectedLabs.length > 0 && <span className="bg-surface-accent text-accent px-1 font-mono text-2xs font-bold shrink-0">{selectedLabs.length}</span>}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSubTab('procedures')}
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            subTab === 'procedures'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+          title="In-Clinic Injections, Nebulizer, Wound Care & Rapid Tests"
+        >
+          <Activity className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">3. Procedures</span>
+          {procedures.length > 0 && <span className="bg-primary-hover text-white px-1.5 py-0.2 font-mono text-2xs font-bold shrink-0">{procedures.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('documents')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'documents'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Medical Certificates (MC), Referral Letters & Pharmacy Memos"
         >
-          <FileText className="w-4 h-4" />
-          <span>3. Documents &amp; Certificates</span>
-          {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
+          <FileText className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">4. Documents / MC</span>
+          {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 shrink-0" />}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('summary')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer ${
+          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'summary'
-              ? 'bg-primary text-white '
+              ? 'bg-primary text-white'
               : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
           }`}
+          title="Encounter Prescription & Order Summary"
         >
-          <FileCheck className="w-4 h-4" />
-          <span>4. Order Summary</span>
+          <FileCheck className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">5. Order Summary</span>
         </button>
 
       </div>
@@ -374,7 +497,55 @@ export default function PlanTab({
       {/* SUB-TAB 1: MEDICATION PRESCRIBING                                         */}
       {/* ========================================================================= */}
       {subTab === 'medication' && (
-        <PrescriptionPanel showPediatricCalc={showPediatricCalc} patientAge={patientAge} patientAgeDisplay={patientAgeDetails.displayAge} setShowPediatricCalc={setShowPediatricCalc} isPediatricPatient={isPediatricPatient} patientWeight={patientWeight} setPatientWeight={setPatientWeight} medConcentration={medConcentration} setMedConcentration={setMedConcentration} calculatedDose={calculatedDose} handleAddPediatricSyrup={handleAddPediatricSyrup} searchDrugQuery={searchDrugQuery} setSearchDrugQuery={setSearchDrugQuery} drugSuggestions={drugSuggestions} handleAddDrug={handleAddDrug} rxList={rxList} setRxList={setRxList} pharmacyMemo={pharmacyMemo} setPharmacyMemo={setPharmacyMemo} patientAllergies={currentPatient.drugAllergies} />
+        <div className="space-y-3">
+          {currentPatient.panelEmployer && currentPatient.panelEmployer !== 'None (Self-Pay)' && (
+            <div className="bg-primary/5 border border-primary/20 p-2.5 rounded-none flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-primary shrink-0" />
+                <span className="font-bold text-ink">
+                  Corporate Panel Account: {currentPatient.panelEmployer}
+                </span>
+                <span className="text-2xs text-muted font-mono">
+                  (Standard Outpatient Limit: RM 65.00 • Non-covered items like vitamins/supplements split to patient excess)
+                </span>
+              </div>
+              <span className="text-2xs font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 border border-primary/30">
+                GL Active
+              </span>
+            </div>
+          )}
+          <PrescriptionPanel 
+            showPediatricCalc={showPediatricCalc} 
+            patientAge={patientAge} 
+            patientAgeDisplay={patientAgeDetails.displayAge} 
+            setShowPediatricCalc={setShowPediatricCalc} 
+            isPediatricPatient={isPediatricPatient} 
+            patientWeight={patientWeight} 
+            setPatientWeight={setPatientWeight} 
+            medConcentration={medConcentration} 
+            setMedConcentration={setMedConcentration} 
+            calculatedDose={calculatedDose} 
+            handleAddPediatricSyrup={handleAddPediatricSyrup} 
+            searchDrugQuery={searchDrugQuery} 
+            setSearchDrugQuery={setSearchDrugQuery} 
+            drugSuggestions={drugSuggestions} 
+            handleAddDrug={handleAddDrug} 
+            rxList={rxList} 
+            setRxList={setRxList} 
+            pharmacyMemo={pharmacyMemo} 
+            setPharmacyMemo={setPharmacyMemo} 
+            patientAllergies={currentPatient.drugAllergies}
+            mcGenerated={mcGenerated}
+            setMcGenerated={setMcGenerated}
+            mcDays={mcDays}
+            setMcDays={setMcDays}
+            mcReason={mcReason}
+            setMcReason={setMcReason}
+            followUpWeeks={followUpWeeks}
+            setFollowUpWeeks={setFollowUpWeeks}
+            selectedICD={selectedICD}
+          />
+        </div>
       )}
 
       {/* ========================================================================= */}
@@ -384,11 +555,175 @@ export default function PlanTab({
         <LabOrdersPanel selectedLabs={selectedLabs} availableLabTests={availableLabTests} toggleLabSelection={toggleLabSelection} labReason={labReason} setLabReason={setLabReason} />
       )}
 
+
+      {/* ========================================================================= */}
+      {/* SUB-TAB 3: IN-CLINIC PROCEDURES & RAPID DIAGNOSTICS                       */}
+      {/* ========================================================================= */}
+      {subTab === 'procedures' && (
+        <div className="space-y-4 animate-fadeIn font-sans">
+          <div className="bg-surface-muted/40 border border-line p-3.5 rounded-none flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="type-section-title text-ink font-bold flex items-center gap-2">
+                <Activity className="w-4 h-4 text-accent" />
+                In-Clinic Procedures, Injections &amp; Rapid Diagnostics
+              </h3>
+              <p className="text-xs text-muted mt-0.5">
+                Orders dispatch directly to the Treatment Room &amp; Nursing Station.
+              </p>
+            </div>
+            <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 px-3 py-1.5 text-2xs text-amber-900 dark:text-amber-200">
+              💡 Need rapid test results before sign-off? Order here, then click <strong>Hold: Rapid Test / Lab</strong> in bottom toolbar.
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+            {/* Catalog of Procedures (8 Cols) */}
+            <div className="lg:col-span-8 border border-line p-3 bg-surface space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
+                <div className="flex flex-wrap gap-1">
+                  {['All', 'Injection', 'Nebulizer', 'Wound Care', 'Diagnostic', 'Minor Surgery'].map(cat => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setProcCategory(cat)}
+                      className={`px-2.5 py-1 text-2xs font-mono font-bold rounded-none cursor-pointer transition-colors ${
+                        procCategory === cat ? 'bg-primary text-white' : 'bg-surface-muted text-muted hover:text-ink'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  placeholder="Filter procedures..."
+                  value={procSearch}
+                  onChange={(e) => setProcSearch(e.target.value)}
+                  className="px-2 py-1 text-xs border border-line bg-surface text-ink w-44 rounded-none focus:outline-none focus:border-brand"
+                />
+              </div>
+
+              <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                {COMMON_CLINIC_PROCEDURES.filter(p => {
+                  if (procCategory !== 'All' && p.category !== procCategory) return false;
+                  if (procSearch.trim() && !p.name.toLowerCase().includes(procSearch.toLowerCase())) return false;
+                  return true;
+                }).map(preset => {
+                  const isAlreadyOrdered = procedures.some(p => p.name === preset.name && p.status === 'Pending');
+                  return (
+                    <div key={preset.name} className="flex items-center justify-between p-2.5 border border-line hover:border-brand transition-colors bg-surface-muted/20">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-xs text-ink">{preset.name}</span>
+                          <span className="text-2xs font-mono px-1.5 py-0.2 bg-surface border border-line text-muted">{preset.category}</span>
+                        </div>
+                        <div className="text-2xs text-muted mt-0.5">{preset.dosageOrDetails}</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-xs font-bold text-ink">RM {preset.price.toFixed(2)}</span>
+                        <button
+                          type="button"
+                          disabled={isAlreadyOrdered}
+                          onClick={() => {
+                            if (!setProcedures) return;
+                            const newOrder = createProcedureOrder(preset, 'current-doc', 'Ordered during consultation');
+                            setProcedures(prev => [...prev, newOrder]);
+                          }}
+                          className={`px-3 py-1 font-mono text-2xs font-bold rounded-none cursor-pointer ${
+                            isAlreadyOrdered
+                              ? 'bg-surface-muted text-muted cursor-not-allowed border border-line'
+                              : 'bg-primary hover:bg-primary-hover text-white'
+                          }`}
+                        >
+                          {isAlreadyOrdered ? '✓ Ordered' : '+ Order'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Ordered Procedures in this encounter (4 Cols) */}
+            <div className="lg:col-span-4 border border-line p-3 bg-surface space-y-3">
+              <div className="flex items-center justify-between border-b border-line pb-2">
+                <span className="type-heading-caps text-ink">Active Procedure Orders</span>
+                <span className="font-mono text-xs font-bold text-accent">{procedures.length} Items</span>
+              </div>
+
+              {procedures.length === 0 ? (
+                <div className="py-8 text-center text-muted">
+                  <Activity className="w-6 h-6 mx-auto mb-1.5 opacity-40 text-muted" />
+                  <p className="text-xs font-bold">No in-clinic procedures ordered</p>
+                  <p className="text-2xs text-muted mt-0.5">Select injections, nebulizers, dressings or rapid tests from the left.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {procedures.map((p, idx) => (
+                    <div key={p.id || idx} className="p-2.5 border border-line bg-surface-muted/30 space-y-1">
+                      <div className="flex items-start justify-between gap-1">
+                        <span className="text-xs font-bold text-ink leading-tight">{p.name}</span>
+                        {setProcedures && (
+                          <button
+                            type="button"
+                            onClick={() => setProcedures(prev => prev.filter(item => item.id !== p.id))}
+                            className="text-muted hover:text-rose-600 text-2xs p-0.5 cursor-pointer"
+                            title="Remove procedure order"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-2xs font-mono text-muted">
+                        <span>Fee: RM {p.price.toFixed(2)}</span>
+                        <span className={`px-1.5 py-0.2 font-bold ${
+                          p.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {p.status}
+                        </span>
+                      </div>
+                      {p.result && (
+                        <div className="mt-1 p-1 bg-surface border border-line font-mono text-2xs text-accent">
+                          <strong>Result:</strong> {p.result}
+                        </div>
+                      )}
+                      {/* PHFSA 1998 Consent Action Line */}
+                      <div className="flex items-center justify-between pt-1 border-t border-line/40 text-2xs">
+                        <span className="text-ink-muted">PHFSA Consent:</span>
+                        {signedConsents[p.id] ? (
+                          <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono">
+                            ✓ Signed ({signedConsents[p.id].id})
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setConsentModalProc(p)}
+                            className="text-primary hover:underline font-bold cursor-pointer"
+                          >
+                            Review &amp; Sign
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="pt-2 border-t border-line flex justify-between font-mono text-xs font-bold text-ink">
+                    <span>Total Procedure Fees:</span>
+                    <span className="text-primary">
+                      RM {procedures.reduce((sum, item) => sum + (item.price || 0), 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* SUB-TAB 3: DOCUMENTS & CERTIFICATES (MC & REFERRAL)                       */}
       {/* ========================================================================= */}
       {subTab === 'documents' && (
-        <CertificatesAndReferralPanel mcGenerated={mcGenerated} mcDays={mcDays} setMcDays={setMcDays} mcReason={mcReason} setMcReason={setMcReason} setMcGenerated={setMcGenerated} referralGenerated={referralGenerated} referralDetails={referralDetails} setReferralDetails={setReferralDetails} setReferralGenerated={setReferralGenerated} followUpWeeks={followUpWeeks} setFollowUpWeeks={setFollowUpWeeks} />
+        <CertificatesAndReferralPanel mcGenerated={mcGenerated} mcDays={mcDays} setMcDays={setMcDays} mcReason={mcReason} setMcReason={setMcReason} setMcGenerated={setMcGenerated} referralGenerated={referralGenerated} referralDetails={referralDetails} setReferralDetails={setReferralDetails} setReferralGenerated={setReferralGenerated} followUpWeeks={followUpWeeks} setFollowUpWeeks={setFollowUpWeeks} onOpenEmergencySbar={() => setIsEmergencySbarOpen(true)} />
       )}
 
       {/* ========================================================================= */}
@@ -404,6 +739,79 @@ export default function PlanTab({
       {pendingAllergyDrug && (
         <ContraindicationModal currentPatient={currentPatient} pendingAllergyDrug={pendingAllergyDrug} overrideRationale={overrideRationale} setOverrideRationale={setOverrideRationale} setPendingAllergyDrug={setPendingAllergyDrug} confirmAddDrug={confirmAddDrug} />
       )}
+
+      {/* ========================================================================= */}
+      {/* KKM NAG ANTIBIOTIC STEWARDSHIP JUSTIFICATION MODAL                        */}
+      {/* ========================================================================= */}
+      {stewardshipResult && (
+        <AntibioticStewardshipModal
+          isOpen={stewardshipModalOpen}
+          onClose={() => setStewardshipModalOpen(false)}
+          stewardshipResult={stewardshipResult}
+          onConfirmOverride={(justification) => {
+            const updated = { ...stewardshipJustifications };
+            stewardshipResult.prescribedAntibiotics.forEach(ab => {
+              updated[ab] = justification;
+            });
+            setStewardshipJustifications(updated);
+            setPharmacyMemo(prev => 
+              prev ? `${prev}\n[NAG Antibiotic Stewardship Justification: ${justification}]` : `[NAG Antibiotic Stewardship Justification: ${justification}]`
+            );
+          }}
+          onRemoveAntibiotic={(drugName) => {
+            setRxList(prev => prev.filter(r => r.drugName !== drugName && !r.drugName.startsWith(drugName)));
+          }}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* STATUTORY PHFSA 1998 PROCEDURAL CONSENT MODAL                            */}
+      {/* ========================================================================= */}
+      {consentModalProc && (
+        <ProceduralConsentModal
+          isOpen={!!consentModalProc}
+          onClose={() => setConsentModalProc(null)}
+          procedureName={consentModalProc.name}
+          patientId={currentPatient.id}
+          patientName={currentPatient.fullName}
+          patientIc={currentPatient.icNumber}
+          onConsentSigned={(record) => {
+            setSignedConsents(prev => ({ ...prev, [consentModalProc.id]: record }));
+          }}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* ACT 342 STATUTORY COMMUNICABLE DISEASE NOTIFICATION MODAL                */}
+      {/* ========================================================================= */}
+      {selectedICD && matchedAct342 && (
+        <Act342NotificationModal
+          isOpen={act342ModalOpen}
+          onClose={() => setAct342ModalOpen(false)}
+          icd10Code={selectedICD.code}
+          patient={currentPatient}
+          onNotificationDispatched={(record) => {
+            setAct342Dispatched(record.id);
+          }}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* MECC 999 SBAR EMERGENCY HOSPITAL TRANSFER MODAL                           */}
+      {/* ========================================================================= */}
+      <EmergencySBARModal
+        isOpen={isEmergencySbarOpen}
+        onClose={() => setIsEmergencySbarOpen(false)}
+        activePatient={currentPatient}
+        onTransferDispatched={(record) => {
+          setReferralGenerated(true);
+          setReferralDetails({
+            hospital: record.recommendation.destinationHospital,
+            department: 'Emergency & Trauma Department',
+            reason: `[MECC 999 SBAR Transfer] ${record.situation.acuteDiagnosis || record.situation.chiefComplaint} (SBAR ID: ${record.id})`,
+          });
+        }}
+      />
 
     </div>
   );

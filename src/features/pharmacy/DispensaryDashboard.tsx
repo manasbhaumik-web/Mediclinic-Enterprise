@@ -3,8 +3,12 @@ import { Visit, PrescriptionItem, Language } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import { 
   Users, User, CheckCircle, AlertCircle, FileText, Printer, CheckSquare, 
-  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle
+  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle, BookOpen, Lock, ThermometerSnowflake
 } from 'lucide-react';
+import BukuRacunRegister from './BukuRacunRegister';
+import DangerousDrugsSafeRegister from './DangerousDrugsSafeRegister';
+import ColdChainVaccineModal from '../operations/ColdChainVaccineModal';
+import { isAntibioticDrug } from '../../domain/antibioticStewardship';
 import { useInventory } from '../../context/InventoryContext';
 import { useInventoryActions, useVisitRegister } from '../../hooks/useInventoryData';
 import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
@@ -14,6 +18,7 @@ import { conflictsWithAllergy, recordedAllergies } from '../../domain/allergy';
 
 interface DispensaryDashboardProps {
   queue: Visit[];
+  allVisits?: Visit[];
   patientsMap: Record<string, any>;
   activeLanguage: Language;
   onDispenseSubmit: (visitId: string) => void;
@@ -22,11 +27,14 @@ interface DispensaryDashboardProps {
 
 export default function DispensaryDashboard({
   queue,
+  allVisits,
   patientsMap,
   activeLanguage,
   onDispenseSubmit,
   pharmacistName = "Pharm. Ahmad Razak"
 }: DispensaryDashboardProps) {
+  const [activeSubTab, setActiveSubTab] = useState<'dispensing' | 'buku-racun' | 'dda-safe'>('dispensing');
+  const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   const t = TRANSLATIONS[activeLanguage];
   const { catalog } = useInventory();
   const inv = useInventoryActions();
@@ -185,6 +193,76 @@ export default function DispensaryDashboard({
         </div>
       </div>
 
+      {/* Sub-Station Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface border border-line p-2.5">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('dispensing')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'dispensing'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Pill className="w-4 h-4" />
+            <span>1. Dispensing Console</span>
+            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
+              {queue.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('buku-racun')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'buku-racun'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>2. Buku Racun (KKM Poison Book)</span>
+            <span className="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-300/40 font-mono text-2xs font-bold">
+              Section 24
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('dda-safe')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'dda-safe'
+                ? 'bg-rose-900 text-white border-rose-900 shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Lock className="w-4 h-4 text-rose-400" />
+            <span>3. Dangerous Drugs Safe (DDA 1952)</span>
+            <span className="px-1.5 py-0.2 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300/40 font-mono text-2xs font-bold">
+              Act 234
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsColdChainModalOpen(true)}
+            className="px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border border-sky-400 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all cursor-pointer rounded-none"
+            title="Check and log dispensary medication & vaccine refrigerator temperatures (2°C to 8°C)"
+          >
+            <ThermometerSnowflake className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+            <span>4. Vaccine Cold Chain (2°C–8°C)</span>
+            <span className="px-1.5 py-0.2 bg-sky-200/60 dark:bg-sky-800 text-sky-900 dark:text-sky-100 border border-sky-300 font-mono text-2xs font-bold">
+              GDP Log
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {activeSubTab === 'buku-racun' ? (
+        <BukuRacunRegister
+          visits={allVisits || queue}
+          patientsMap={patientsMap}
+        />
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
       
       {/* 1. DISPENSARY QUEUE LIST PANEL (Left Column - 35%) */}
@@ -353,11 +431,17 @@ export default function DispensaryDashboard({
                         
                         {/* Drug Name with dual BM/EN dosage translations */}
                         <div className="flex-1 space-y-1.5">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <h6 className="font-bold text-sm text-strong tracking-tight">{rx.drugName}</h6>
                             <span className="bg-surface-strong text-muted text-xs font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider">
                               Qty: {rx.quantity}
                             </span>
+                            {isAntibioticDrug(rx.drugName) && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-2xs font-bold uppercase rounded-none bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-mono">
+                                <ShieldAlert className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+                                <span>MOH NAG Antimicrobial (AWaRe)</span>
+                              </span>
+                            )}
                           </div>
 
                           <div className="text-xs leading-relaxed border-l-2 border-line pl-2">
@@ -577,6 +661,8 @@ export default function DispensaryDashboard({
           </div>
         )}
       </div>
+      </div>
+      )}
 
       {/* DRUG LABEL PRINTING PREVIEW MODAL */}
       {isLabelModalOpen && selectedLabelRx && activePatient && (
@@ -692,7 +778,10 @@ export default function DispensaryDashboard({
         </div>
       )}
 
-      </div>
+      <ColdChainVaccineModal
+        isOpen={isColdChainModalOpen}
+        onClose={() => setIsColdChainModalOpen(false)}
+      />
     </div>
   );
 }

@@ -62,7 +62,8 @@ export default function PayerAndPharmacyCharts({
             </div>
           )}
           {payerMixData.length > 0 && (
-            <table className="sr-only">
+            <div className="sr-only">
+            <table>
               <caption>Revenue by payer today, in Malaysian ringgit</caption>
               <thead>
                 <tr>
@@ -79,6 +80,7 @@ export default function PayerAndPharmacyCharts({
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

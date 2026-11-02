@@ -102,8 +102,8 @@ export default function ModuleEnablementCard() {
                 <div className="flex items-start gap-3">
                   <div className={`p-2.5 rounded-none border ${
                     isEnabled 
-                      ? 'bg-teal-50 text-accent border-line-subtle' 
-                      : 'bg-slate-200 text-slate-400 border-slate-300'
+                      ? 'bg-surface-accent text-accent border-line' 
+                      : 'bg-surface-muted text-muted border-line'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -125,7 +125,7 @@ export default function ModuleEnablementCard() {
                     onChange={() => handleModuleToggle(mod.id)} 
                     className="sr-only peer" 
                   />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                  <div className="w-9 h-5 bg-surface-strong dark:bg-night-700 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-line after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                 </label>
               </div>
             );

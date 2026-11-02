@@ -1,4 +1,4 @@
-import { FileText, Share } from 'lucide-react';
+import { FileText, Share, Ambulance, PhoneCall } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 
 interface CertificatesAndReferralPanelProps {
@@ -14,13 +14,14 @@ interface CertificatesAndReferralPanelProps {
   setReferralGenerated: React.Dispatch<React.SetStateAction<boolean>>;
   followUpWeeks: number;
   setFollowUpWeeks: React.Dispatch<React.SetStateAction<number>>;
+  onOpenEmergencySbar?: () => void;
 }
 
-export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setMcDays, mcReason, setMcReason, setMcGenerated, referralGenerated, referralDetails, setReferralDetails, setReferralGenerated, followUpWeeks, setFollowUpWeeks }: CertificatesAndReferralPanelProps) {
+export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setMcDays, mcReason, setMcReason, setMcGenerated, referralGenerated, referralDetails, setReferralDetails, setReferralGenerated, followUpWeeks, setFollowUpWeeks, onOpenEmergencySbar }: CertificatesAndReferralPanelProps) {
   return (
     <div className="space-y-4 animate-fadeIn">
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         
         {/* MEDICAL CERTIFICATE ISSUANCE CARD */}
         <div className="border border-line bg-surface p-4 rounded-none flex flex-col justify-between space-y-3">
@@ -66,8 +67,8 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             title={!mcGenerated && mcReason.trim() === '' ? 'Enter the reason first' : undefined}
             className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
               mcGenerated
-                ? 'bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700'
-                : 'bg-primary text-white border-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed'
+                ? 'bg-primary text-white border-primary hover:bg-primary-hover'
+                : 'bg-surface text-ink dark:text-slate-200 border-line hover:bg-surface-accent disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
           >
             {mcGenerated ? '✓ Medical Certificate (MC) Created & Attached' : 'Create medical certificate'}
@@ -136,7 +137,35 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             {referralGenerated ? '✓ Specialist Referral Created & Attached' : 'Create referral draft'}
           </button>
         </div>
-    
+
+        {/* EMERGENCY HOSPITAL TRANSFER CARD (MECC 999 SBAR) */}
+        <div className="border border-rose-300 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/20 p-4 rounded-none flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between border-b border-rose-200 dark:border-rose-800 pb-2">
+            <h4 className="type-label text-rose-900 dark:text-rose-200 flex items-center gap-2 font-bold">
+              <Ambulance className="w-4 h-4 text-rose-700 dark:text-rose-400" />
+              <span>MECC 999 SBAR Transfer</span>
+            </h4>
+            <span className="text-2xs font-bold px-2 py-0.5 rounded-none border border-rose-400 bg-rose-100 text-rose-900 dark:bg-rose-900/60 dark:text-rose-200 uppercase">
+              Emergency
+            </span>
+          </div>
+
+          <div className="space-y-2 text-xs text-rose-950 dark:text-rose-200 font-sans">
+            <p className="font-semibold text-2xs uppercase tracking-wider text-rose-700 dark:text-rose-400">Statutory Ambulance Handover Note</p>
+            <p className="text-2xs text-rose-800 dark:text-rose-300 leading-relaxed">
+              For acute coronary syndrome, stroke, acute stridor, or shock requiring tertiary emergency department ambulance dispatch.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenEmergencySbar}
+            className="w-full py-2 text-xs font-bold uppercase rounded-none border border-rose-700 bg-rose-700 hover:bg-rose-800 text-white transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+          >
+            <PhoneCall className="w-3.5 h-3.5" />
+            <span>Open MECC 999 SBAR Form</span>
+          </button>
+        </div>
       </div>
     
       <div className="border border-line bg-surface p-4 rounded-none flex flex-wrap items-center gap-3">

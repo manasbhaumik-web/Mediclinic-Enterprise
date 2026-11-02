@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Patient, Visit, VitalSigns } from '../../types';
-import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight } from 'lucide-react';
+import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight, Syringe, Siren } from 'lucide-react';
+import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
+import ProcedureStationModule from '../operations/ProcedureStationModule';
+import { completeVisitProcedure } from '../../domain/procedures';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { calculateMEWS } from '../../domain/aiTriageScore';
@@ -11,11 +14,16 @@ import { useLanguage } from '../../context/LanguageContext';
 
 interface TriageModuleProps {
   triageQueue: Visit[];
+  allVisits?: Visit[];
   patientsMap: Record<string, Patient>;
   onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
+  onUpdateVisit?: (visit: Visit) => void;
+  currentStaffId?: string;
+  currentStaffName?: string;
 }
 
-export default function TriageModule({ triageQueue, patientsMap, onTriageComplete }: TriageModuleProps) {
+export default function TriageModule({ triageQueue, allVisits = [], patientsMap, onTriageComplete, onUpdateVisit, currentStaffId, currentStaffName }: TriageModuleProps) {
+  const [activeStationTab, setActiveStationTab] = useState<'vitals' | 'procedures'>('vitals');
   const { activeLanguage, t } = useLanguage();
   const isBM = activeLanguage === 'BM';
   const [activeVisitId, setActiveVisitId] = useState<string | null>(null);
@@ -28,6 +36,12 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
     chiefComplaint: ''
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isRedCodeModalOpen, setIsRedCodeModalOpen] = useState(false);
+  const procedureQueueCount = (allVisits || []).filter(v => {
+    if (v.status === 'Awaiting Procedure' || v.status === 'Holding for Results') return true;
+    const procs = v.soap?.plan?.procedures || [];
+    return procs.some(p => p.status === 'Pending' || p.status === 'In Progress');
+  }).length;
 
   const activeVisit = activeVisitId ? triageQueue.find(v => v.id === activeVisitId) : null;
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
@@ -77,6 +91,85 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
 
   return (
     <div className="space-y-3.5 animate-fadeIn relative font-sans text-strong">
+      {/* Sub-Station Navigation Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface border border-line p-2.5">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveStationTab('vitals')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeStationTab === 'vitals'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            <span>1. Vitals Triage Station</span>
+            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
+              {triageQueue.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveStationTab('procedures')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeStationTab === 'procedures'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Syringe className="w-4 h-4" />
+            <span>2. Treatment Room &amp; Procedures</span>
+            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
+              {procedureQueueCount}
+            </span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsRedCodeModalOpen(true)}
+            className="px-3 py-1.5 border border-rose-600 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-sm animate-pulse"
+          >
+            <Siren className="w-4 h-4 text-white" />
+            <span>🚨 CODE RED RESUS ALARM</span>
+          </button>
+          <div className="text-2xs font-mono text-muted flex items-center gap-2">
+            <span>Staff: <strong className="text-ink">{currentStaffName || 'Clinic Nurse'}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      {activeStationTab === 'procedures' ? (
+        <ProcedureStationModule
+          visits={allVisits}
+          patientsMap={patientsMap}
+          onCompleteProcedure={(visitId, procedureId, details) => {
+            const visit = allVisits.find((v) => v.id === visitId);
+            if (!visit || !onUpdateVisit) return;
+            const updated = completeVisitProcedure(visit, procedureId, currentStaffId || 'nurse-1', details);
+            onUpdateVisit(updated);
+          }}
+          onClearHold={(visitId, resultSummary) => {
+            const visit = allVisits.find((v) => v.id === visitId);
+            if (!visit || !onUpdateVisit) return;
+            onUpdateVisit({
+              ...visit,
+              status: 'Awaiting Consult',
+              soap: {
+                ...visit.soap,
+                assessment: {
+                  ...visit.soap?.assessment,
+                  clinicalNotes: `${visit.soap?.assessment?.clinicalNotes || ''} [Rapid Diagnostic Result: ${resultSummary}]`.trim()
+                }
+              } as any
+            });
+          }}
+        />
+      ) : (
+      <>
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center justify-center gap-3 z-50 animate-slideUp border border-line">
@@ -213,10 +306,10 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                             </span>
                             <span className={`px-2 py-0.5 text-2xs font-bold uppercase rounded-none border ${
                               mewsResult.riskLevel === 'High'
-                                ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
+                                ? 'chip-danger animate-pulse'
                                 : mewsResult.riskLevel === 'Medium'
-                                ? 'bg-amber-500 text-white border-amber-600'
-                                : 'bg-emerald-600 text-white border-emerald-700'
+                                ? 'chip-warn'
+                                : 'chip-ok'
                             }`}>
                               {mewsResult.riskLevel} Risk (Score: {mewsResult.score})
                             </span>
@@ -266,8 +359,14 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
             </div>
           )}
         </div>
-
       </div>
+      </>
+      )}
+
+      <RedCodeAlarmModal
+        isOpen={isRedCodeModalOpen}
+        onClose={() => setIsRedCodeModalOpen(false)}
+      />
     </div>
   );
 }

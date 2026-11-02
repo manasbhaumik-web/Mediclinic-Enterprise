@@ -42,6 +42,36 @@ export interface PrescriptionItem {
   skipReason?: string | null;
 }
 
+export interface ClinicalProcedureItem {
+  id: string;
+  name: string;
+  category: 'Injection' | 'Nebulizer' | 'Wound Care' | 'Diagnostic' | 'Minor Surgery';
+  dosageOrDetails?: string;
+  adminSite?: string;
+  batchNo?: string;
+  orderedByDoctorId?: string;
+  orderedAt?: string;
+  administeredByNurseId?: string;
+  administeredAt?: string;
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+  price: number;
+  clinicalNotes?: string;
+  result?: string;
+}
+
+export type VisitStatus =
+  | 'Awaiting Triage'
+  | 'Triaging'
+  | 'Awaiting Consult'
+  | 'Consulting'
+  | 'Awaiting Procedure'
+  | 'Holding for Results'
+  | 'Awaiting Dispensation'
+  | 'Dispensing'
+  | 'Awaiting Billing'
+  | 'Paid'
+  | 'Cancelled';
+
 export interface SOAPNotes {
   subjective: string;
   objective: VitalSigns;
@@ -64,6 +94,7 @@ export interface SOAPNotes {
       department: string;
       reason: string;
     };
+    procedures?: ClinicalProcedureItem[];
   };
 }
 
@@ -72,7 +103,7 @@ export interface Visit {
   patientId: string;
   date: string;
   soap: SOAPNotes;
-  status: 'Awaiting Triage' | 'Triaging' | 'Awaiting Consult' | 'Consulting' | 'Awaiting Dispensation' | 'Dispensing' | 'Awaiting Billing' | 'Paid' | 'Cancelled';
+  status: VisitStatus;
   totalBill: number;
   panelClaimed: number;
   paidAmount: number;
