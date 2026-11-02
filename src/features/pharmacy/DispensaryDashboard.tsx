@@ -15,6 +15,8 @@ import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
 import { errorMessage } from '../payroll/shared';
 import { buttonProps, focusRing } from '../../lib/a11y';
 import { conflictsWithAllergy, recordedAllergies } from '../../domain/allergy';
+import { PageHeading, StationTabs, StatStrip } from '../../components/ui/StationChrome';
+import { formatWait } from '../../utils/waitTime';
 
 interface DispensaryDashboardProps {
   queue: Visit[];
@@ -36,7 +38,7 @@ export default function DispensaryDashboard({
   const [activeSubTab, setActiveSubTab] = useState<'dispensing' | 'buku-racun' | 'dda-safe'>('dispensing');
   const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   const t = TRANSLATIONS[activeLanguage];
-  const { catalog } = useInventory();
+  const { catalog, inventory } = useInventory();
   const inv = useInventoryActions();
   const today = new Date().toISOString().slice(0, 10);
   // For a prescription line that is not yet linked to a stock item, the pharmacist picks one.
@@ -156,106 +158,42 @@ export default function DispensaryDashboard({
     setSelectedVisitId(null);
   };
 
+  const waits = queue.map((v) => (v.registeredTime ? Math.max(0, Math.floor((Date.now() - v.registeredTime) / 60000)) : 0));
+  const avgWait = waits.length ? Math.round(waits.reduce((a, b) => a + b, 0) / waits.length) : 0;
+  const maxWait = waits.length ? Math.max(...waits) : 0;
+  const overSla = waits.filter((m) => m >= 20).length;
+  const lowStockCount = inventory.filter((d) => d.currentStock <= d.minThreshold).length;
+  const initialsOf = (name: string) => {
+    const words = name.split(/\s+/).filter(Boolean);
+    return (words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0]?.[0] ?? '').toUpperCase();
+  };
+
   return (
-    <div className="space-y-5 animate-fadeIn font-sans">
+    <div className="space-y-4 animate-fadeIn font-sans">
 
-      {/* TOP CLINICAL PHARMACY COMMAND BANNER */}
-      <div className="bg-surface rounded-none p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 border-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-none bg-surface-accent text-accent flex items-center justify-center shrink-0 border-0">
-            <Pill className="w-5 h-5 text-accent" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="type-section-title text-ink font-bold">
-                {t.dispensary || 'Pharmacy & Dispensing Workstation'}
-              </h2>
-              <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 bg-surface-accent text-accent font-bold border-0">
-                FEFO Live Stock
-              </span>
-            </div>
-            <p className="text-xs text-muted font-medium mt-0.5">
-              Verify patient identities, double-check allergen cross-reactivities, and print compliant bilingual drug labels.
-            </p>
-          </div>
-        </div>
+      <PageHeading eyebrow={pharmacistName} title={t.dispensary || 'Dispensary'} />
 
-        {/* Live Station Indicators */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted/60 font-mono text-xs text-ink border-0">
-            <Clock className="w-3.5 h-3.5 text-muted" />
-            <span>Active Pharmacist: <strong className="text-ink font-bold">{pharmacistName}</strong></span>
-          </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-accent border border-line font-mono text-xs text-accent font-bold">
-            <Activity className="w-3.5 h-3.5 text-accent" />
-            <span>Pending Rx: <strong className="text-ink">{queue.length}</strong></span>
-          </div>
-        </div>
-      </div>
+      <StationTabs<'dispensing' | 'buku-racun' | 'dda-safe' | 'cold-chain'>
+        label="Dispensary sections"
+        active={activeSubTab}
+        onChange={(id) => (id === 'cold-chain' ? setIsColdChainModalOpen(true) : setActiveSubTab(id))}
+        tabs={[
+          { id: 'dispensing', label: 'Dispensing console', count: queue.length, alert: true },
+          { id: 'buku-racun', label: 'Buku Racun', title: 'KKM Poison Book, Section 24' },
+          { id: 'dda-safe', label: 'Dangerous drugs safe', title: 'Dangerous Drugs Act 1952 (Act 234)' },
+          { id: 'cold-chain', label: 'Vaccine cold chain', title: 'Check and log dispensary medication and vaccine refrigerator temperatures (2°C to 8°C)' },
+        ]}
+      />
 
-      {/* Sub-Station Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface border border-line p-2.5">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveSubTab('dispensing')}
-            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-              activeSubTab === 'dispensing'
-                ? 'bg-primary text-white border-primary shadow-xs'
-                : 'bg-surface text-muted border-line hover:text-ink'
-            }`}
-          >
-            <Pill className="w-4 h-4" />
-            <span>1. Dispensing Console</span>
-            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
-              {queue.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveSubTab('buku-racun')}
-            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-              activeSubTab === 'buku-racun'
-                ? 'bg-primary text-white border-primary shadow-xs'
-                : 'bg-surface text-muted border-line hover:text-ink'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>2. Buku Racun (KKM Poison Book)</span>
-            <span className="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-300/40 font-mono text-2xs font-bold">
-              Section 24
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveSubTab('dda-safe')}
-            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-              activeSubTab === 'dda-safe'
-                ? 'bg-rose-900 text-white border-rose-900 shadow-xs'
-                : 'bg-surface text-muted border-line hover:text-ink'
-            }`}
-          >
-            <Lock className="w-4 h-4 text-rose-400" />
-            <span>3. Dangerous Drugs Safe (DDA 1952)</span>
-            <span className="px-1.5 py-0.2 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300/40 font-mono text-2xs font-bold">
-              Act 234
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsColdChainModalOpen(true)}
-            className="px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border border-sky-400 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all cursor-pointer rounded-none"
-            title="Check and log dispensary medication & vaccine refrigerator temperatures (2°C to 8°C)"
-          >
-            <ThermometerSnowflake className="w-4 h-4 text-sky-600 dark:text-sky-300" />
-            <span>4. Vaccine Cold Chain (2°C–8°C)</span>
-            <span className="px-1.5 py-0.2 bg-sky-200/60 dark:bg-sky-800 text-sky-900 dark:text-sky-100 border border-sky-300 font-mono text-2xs font-bold">
-              GDP Log
-            </span>
-          </button>
-        </div>
-      </div>
+      <StatStrip
+        label="Dispensary figures"
+        stats={[
+          { label: 'To dispense', value: queue.length, note: 'Signed off by the doctor' },
+          { label: 'Wait time (avg / max)', value: `${formatWait(avgWait)} / ${formatWait(maxWait)}`, note: overSla > 0 ? `${overSla} over the 20 min target` : 'Within target' },
+          { label: 'Awaiting signature', value: unsignedEntries.length, note: 'Controlled-drug entries for this patient' },
+          { label: 'Low stock lines', value: lowStockCount, tone: lowStockCount > 0 ? 'danger' : 'default', note: 'At or below reorder level' },
+        ]}
+      />
 
       {activeSubTab === 'buku-racun' ? (
         <BukuRacunRegister
@@ -263,211 +201,100 @@ export default function DispensaryDashboard({
           patientsMap={patientsMap}
         />
       ) : (
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-      
-      {/* 1. DISPENSARY QUEUE LIST PANEL (Left Column - 35%) */}
-      <div className="lg:col-span-4 bg-surface border border-line rounded-none shadow-2xs overflow-hidden flex flex-col">
-        
-        {/* Panel Header */}
-        <div className="p-3.5 bg-surface-muted/40 border-b border-line flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-accent" />
-            <span id="dispensary-queue-title" className="text-xs font-bold text-ink uppercase tracking-wider">
-              {t.dispensaryQueue || 'Dispensation Queue'}
-            </span>
-          </div>
-          <span className={`font-mono text-2xs font-bold px-2 py-0.5 rounded-none border ${
-            queue.length > 0 
-              ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800' 
-              : 'bg-surface text-muted border-line-subtle'
-          }`}>
-            {queue.length} {queue.length === 1 ? 'Patient' : 'Patients'}
-          </span>
-        </div>
+      <section className="flex flex-wrap bg-surface border border-line">
 
-        {queue.length === 0 ? (
-          <div className="p-8 text-center bg-surface text-subtle flex flex-col items-center justify-center min-h-[300px]">
-            <div className="w-12 h-12 rounded-none bg-surface-muted border border-line-subtle flex items-center justify-center mb-3">
-              <PackageOpen className="w-6 h-6 text-muted" />
-            </div>
-            <p className="text-xs font-bold uppercase tracking-wider text-ink">Dispensation Queue Empty</p>
-            <p className="text-xs text-muted max-w-xs mt-1 leading-relaxed">
-              Prescriptions validated and signed off in doctor consultation rooms flow into this queue automatically.
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-line max-h-[500px] overflow-y-auto">
-            {queue.map((visit, index) => {
-              const pt = patientsMap[visit.patientId];
-              const isSelected = selectedVisitId === visit.id || (!selectedVisitId && index === 0);
-              if (!pt) return null;
-
-              const medCount = visit.soap?.plan?.prescription?.length || 0;
-              const hasAllergyAlert = pt.drugAllergies && pt.drugAllergies.length > 0;
-
-              return (
-                <div
-                  key={visit.id}
-                  {...buttonProps(() => handleSelectVisit(visit.id), isSelected)}
-                  className={`p-3.5 transition-all text-left cursor-pointer ${focusRing} ${
-                    isSelected 
-                      ? 'bg-surface-accent border-l-4 border-l-accent border-r-0 border-y-0' 
-                      : 'bg-surface hover:bg-surface-muted/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="font-mono text-2xs font-bold text-accent px-1.5 py-0.5 bg-surface border border-line">
-                      RX-QUEUE #{index + 101}
-                    </span>
-                    <span className="text-2xs font-mono text-muted">{visit.date}</span>
-                  </div>
-
-                  <h5 className="text-xs font-bold text-ink truncate mt-1">
-                    {pt.fullName}
-                  </h5>
-
-                  <p className="text-2xs font-mono text-muted mt-0.5">
-                    NRIC: {pt.icNumber || 'Walk-in'}
-                  </p>
-
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-line-subtle text-2xs">
-                    <span className="font-mono text-muted">
-                      Items: <strong className="text-ink font-bold">{medCount} MEDS</strong>
-                    </span>
-                    {hasAllergyAlert ? (
-                      <span className="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1 font-mono">
-                        <AlertTriangle className="w-3 h-3" /> Allergy Alert
-                      </span>
-                    ) : (
-                      <span className="text-accent font-semibold flex items-center gap-1">
-                        Awaiting dispense <ChevronRight className="w-3 h-3" />
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-      </div>
-
-      {/* 2. DISPENSING DETAIL DETAILS (Right Column - 65%) */}
-      <div className="lg:col-span-8 bg-surface border border-line rounded-none shadow-2xs p-4 sm:p-5 flex flex-col justify-between min-h-[480px]">
-        {activePatient && activeVisit ? (
-          <div className="space-y-4">
-            
-            {/* Header info bar */}
-            <div className="border-b border-line-subtle pb-3 flex items-center justify-between">
-              <div>
-                <h4 id="dispenser-patient-banner" className="type-heading-caps text-strong">
-                  {activePatient.fullName}
-                </h4>
-                <p className="text-xs text-subtle mt-0.5">
-                  MyKad IC: <strong className="font-mono text-muted">{activePatient.icNumber}</strong> | Gender: {activePatient.gender}
-                </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2" aria-label="Drug allergies">
-                  {patientAllergies.length > 0 ? (
-                    <>
-                      <span className="chip-danger px-2 py-1 text-xs font-bold"><ShieldAlert className="w-4 h-4" aria-hidden="true" />Allergies</span>
-                      {patientAllergies.map((al) => <span key={al} className="chip-danger px-2 py-1 text-xs font-bold">{al}</span>)}
-                    </>
-                  ) : (
-                    <span className="chip-neutral px-2 py-1 text-xs font-bold">No known drug allergies</span>
-                  )}
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="bg-primary/10 text-accent px-2.5 py-0.5 rounded-none text-2xs uppercase font-bold tracking-wider">
-                  Pharmacopoeia Audit
+        {/* DISPENSING DETAIL: the patient in focus */}
+        <article className="flex-[999_1_38rem] min-w-0 p-5 sm:p-7 flex flex-col gap-6" aria-label="Dispensing">
+          {activePatient && activeVisit ? (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  <span className="w-2 h-2 bg-emerald-600" aria-hidden="true" />
+                  Dispensing now
                 </span>
-                <span className="text-xs text-subtle block mt-0.5">Doctor Case: {activeVisit.soap?.assessment?.icdCode}</span>
+                <span className="px-3 py-1 bg-surface-strong text-accent text-xs font-semibold">
+                  RX #{queue.findIndex((v) => v.id === activeVisit.id) + 101}{activeVisit.soap?.assessment?.icdCode ? ` · Diagnosis ${activeVisit.soap.assessment.icdCode}` : ''}
+                </span>
               </div>
-            </div>
 
-            {/* PHARMACY MEMO DISPLAY */}
-            {activeVisit.soap?.plan?.pharmacyMemo && (
-              <div className="chip-warn block p-3">
-                <h5 className="type-label flex items-center gap-1.5 mb-1">
-                  <AlertCircle className="w-4 h-4" /> Doctor's Instructions
-                </h5>
-                <p className="text-sm leading-relaxed font-medium">
-                  "{activeVisit.soap.plan.pharmacyMemo}"
-                </p>
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="shrink-0 w-14 h-14 bg-surface-strong text-accent flex items-center justify-center text-xl font-bold" aria-hidden="true">
+                  {initialsOf(activePatient.fullName)}
+                </div>
+                <div className="min-w-0">
+                  <h2 id="dispenser-patient-banner" className="text-2xl font-bold tracking-tight leading-tight text-ink break-words">{activePatient.fullName}</h2>
+                  <p className="mt-1 text-sm text-muted">{activePatient.gender} · IC {activePatient.icNumber || 'Walk-in'}</p>
+                </div>
               </div>
-            )}
 
-            {/* Grid display for active prescriptions */}
-            <div>
-              <h5 className="type-label text-accent mb-2 font-sans flex items-center gap-1">
-                <FileText className="w-3.5 h-3.5" />
-                {t.prescribedMeds}
-              </h5>
-
-              <div id="prescription-itemized-stack" className="space-y-3">
-                {activeVisit.soap?.plan?.prescription?.length === 0 ? (
-                  <div className="p-4 bg-surface text-subtle text-xs italic text-center rounded-none border">
-                    No drugs compiled associated with this consultation visit.
+              <div aria-label="Drug allergies">
+                {patientAllergies.length > 0 ? (
+                  <div role="alert" className="flex items-start gap-3 px-4 py-3 bg-rose-50 border border-rose-200 text-rose-900 dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-100">
+                    <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
+                    <p className="text-sm leading-snug">
+                      <strong>Drug allergy:</strong> {patientAllergies.join(', ')}.{hasUnskippedAllergies ? ' A prescribed line conflicts with this allergy and is locked below.' : ''}
+                    </p>
                   </div>
                 ) : (
-                  activeVisit.soap.plan.prescription.map((rx: PrescriptionItem) => {
-                    const decided = isDecided(rx);
-                    const item = stockFor(rx);
-                    const problem = decided ? null : lineProblem(rx);
-                    const hasAllergy = checkAllergyConflict(rx.drugName);
-                    const isSkipped = skippedDrugs.has(rx.id) || !!rx.skipped;
-                    
-                    return (
-                      <div 
-                        key={rx.id} 
-                        className={`relative overflow-hidden p-3 rounded-none border flex flex-col md:flex-row items-stretch justify-between gap-3 text-xs transition-all ${
-                          isSkipped 
-                            ? 'bg-surface-strong border-line opacity-60 grayscale'
-                            : hasAllergy 
-                              ? 'bg-red-50 border-red-300 shadow-glow-danger ring-1 ring-red-300'
-                              : 'bg-surface border-line-subtle'
-                        }`}
-                      >
-                        
-                        {/* Drug Name with dual BM/EN dosage translations */}
-                        <div className="flex-1 space-y-1.5">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h6 className="font-bold text-sm text-strong tracking-tight">{rx.drugName}</h6>
-                            <span className="bg-surface-strong text-muted text-xs font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider">
-                              Qty: {rx.quantity}
-                            </span>
-                            {isAntibioticDrug(rx.drugName) && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-2xs font-bold uppercase rounded-none bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-mono">
-                                <ShieldAlert className="w-3 h-3 text-amber-700 dark:text-amber-400" />
-                                <span>MOH NAG Antimicrobial (AWaRe)</span>
-                              </span>
-                            )}
-                          </div>
+                  <p className="inline-flex items-center gap-2 text-sm text-muted">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+                    No known drug allergies
+                  </p>
+                )}
+              </div>
 
-                          <div className="text-xs leading-relaxed border-l-2 border-line pl-2">
-                            <p className="text-muted font-mono">
-                              <strong>EN:</strong> {rx.dosage}
+              {activeVisit.soap?.plan?.pharmacyMemo && (
+                <div className="px-4 py-3 bg-amber-50 border border-amber-300 text-amber-900 dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-100">
+                  <p className="text-xs font-bold">Doctor's instructions</p>
+                  <p className="mt-1 text-sm leading-relaxed">{activeVisit.soap.plan.pharmacyMemo}</p>
+                </div>
+              )}
+
+              {/* Prescribed medicines */}
+              <div>
+                <div className="flex items-center justify-between gap-2 pb-3">
+                  <h3 className="text-xs font-bold text-accent tracking-wide">{t.prescribedMeds}</h3>
+                  <span className="text-xs text-muted">{rxLines.length} {rxLines.length === 1 ? 'line' : 'lines'}</span>
+                </div>
+
+                <ul id="prescription-itemized-stack" className="border border-line flex flex-col">
+                  {rxLines.length === 0 ? (
+                    <li className="p-6 text-sm text-muted text-center">No drugs were prescribed in this consultation.</li>
+                  ) : (
+                    rxLines.map((rx: PrescriptionItem) => {
+                      const decided = isDecided(rx);
+                      const item = stockFor(rx);
+                      const problem = decided ? null : lineProblem(rx);
+                      const hasAllergy = checkAllergyConflict(rx.drugName);
+                      const isSkipped = skippedDrugs.has(rx.id) || !!rx.skipped;
+                      const locked = hasAllergy && !isSkipped;
+
+                      return (
+                        <li key={rx.id} className={`flex flex-wrap gap-4 p-4 border-b border-line-subtle last:border-b-0 ${isSkipped ? 'bg-surface-muted opacity-70' : locked ? 'bg-rose-50 dark:bg-rose-950/40' : 'bg-surface'}`}>
+                          <div className="flex-[1_1_20rem] min-w-0 flex flex-col gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-base font-bold text-ink">{rx.drugName}</span>
+                              <span className="px-2 py-0.5 bg-surface-strong text-accent text-xs font-bold">Qty {rx.quantity}</span>
+                              {locked && <span className="chip-danger px-2 py-0.5 text-xs font-bold">Allergy conflict</span>}
+                              {isAntibioticDrug(rx.drugName) && <span className="chip-warn px-2 py-0.5 text-xs font-bold">MOH NAG antimicrobial (AWaRe)</span>}
+                              {item?.registerRequired && !isSkipped && <span className="chip-brand px-2 py-0.5 text-xs font-bold">Controlled: needs a second signature</span>}
+                            </div>
+
+                            <p className="text-sm text-muted leading-relaxed">
+                              <strong className="text-ink">EN</strong> {rx.dosage}<br />
+                              <strong className="text-ink">BM</strong> {rx.dosageBM}
                             </p>
-                            <p className="text-emerald-800 italic font-mono mt-0.5">
-                              <strong>BM:</strong> {rx.dosageBM}
-                            </p>
-                          </div>
-                          
-                          <div className="pt-1 space-y-1.5">
+
                             {rx.dispensedAt ? (
-                              <span className="chip-ok px-1.5 py-0.5 text-2xs uppercase">
-                                Dispensed ({rx.dispensedQuantity ?? rx.quantity})
-                              </span>
+                              <span className="chip-ok self-start px-2 py-0.5 text-xs">Dispensed ({rx.dispensedQuantity ?? rx.quantity})</span>
                             ) : rx.skipped ? (
-                              <span className="chip-neutral px-1.5 py-0.5 text-2xs uppercase">
-                                Skipped{rx.skipReason ? `: ${rx.skipReason}` : ''}
-                              </span>
+                              <span className="chip-neutral self-start px-2 py-0.5 text-xs">Skipped{rx.skipReason ? `: ${rx.skipReason}` : ''}</span>
                             ) : (
                               <>
                                 {!rx.inventoryId && (
                                   <select
                                     aria-label={`Stock item for ${rx.drugName}`}
-                                    className="w-full min-h-11 px-2 text-xs border border-line-strong bg-surface text-ink"
+                                    className="w-full min-h-11 px-2 text-sm border border-line-strong bg-surface text-ink"
                                     value={item?.id ?? ''}
                                     onChange={(e) => setStockChoice({ ...stockChoice, [rx.id]: e.target.value })}
                                   >
@@ -478,190 +305,171 @@ export default function DispensaryDashboard({
                                 {item && !isSkipped && (() => {
                                   const plan = allocateFefo(item.batches ?? [], rx.quantity, today);
                                   return (
-                                    <div className={`text-xs px-2 py-1 block ${plan.shortfall > 0 ? 'chip-danger' : 'chip-ok'}`}>
+                                    <p className={`text-xs font-semibold ${plan.shortfall > 0 ? 'text-rose-700 dark:text-rose-300' : 'text-emerald-800 dark:text-emerald-300'}`}>
                                       {plan.shortfall > 0
                                         ? `Short by ${plan.shortfall}: ${usableStock(item, today)} in date.`
                                         : `From ${plan.allocations.map((a) => `batch ${a.batchNumber} (${a.quantity}, exp ${a.expiryDate ?? 'unknown'})`).join(' + ')}`}
-                                    </div>
+                                    </p>
                                   );
                                 })()}
-                                {item?.registerRequired && !isSkipped && (
-                                  <span className="chip-brand px-1.5 py-0.5 text-2xs uppercase">
-                                    Controlled: needs a second signature
-                                  </span>
-                                )}
-                                {problem && !isSkipped && <div className="text-xs text-rose-700 dark:text-rose-300 font-semibold">{problem}</div>}
+                                {problem && !isSkipped && <p className="text-xs text-rose-700 dark:text-rose-300 font-semibold">{problem}</p>}
+                                {locked && <p className="text-xs font-semibold text-rose-700 dark:text-rose-300">Locked. Skip this line or ask the doctor for an alternative.</p>}
                               </>
                             )}
                           </div>
-                        </div>
 
-                        {/* Prints Sticker and controls */}
-                        <div className="flex flex-col justify-center items-stretch shrink-0 pl-3 border-l border-line-subtle gap-2 w-44">
-                          <button
-                            type="button"
-                            onClick={() => handlePrintLabelClick(rx)}
-                            disabled={isSkipped}
-                            className="btn-secondary"
-                          >
-                            <Printer className="w-4 h-4" aria-hidden="true" />
-                            {t.printLabel}
-                          </button>
-
-                          <button
-                            type="button"
-                            disabled={decided}
-                            onClick={() => {
-                              const newSet = new Set(skippedDrugs);
-                              if (isSkipped) newSet.delete(rx.id);
-                              else newSet.add(rx.id);
-                              setSkippedDrugs(newSet);
-                            }}
-                            className={isSkipped ? 'btn-secondary' : 'btn-secondary'}
-                          >
-                            {isSkipped ? 'Restore line' : 'Out of stock: skip'}
-                          </button>
-                        </div>
-
-                        {/* ALLERGY HARD STOP OVERLAY */}
-                        {hasAllergy && !isSkipped && (
-                          <div className="absolute inset-0 bg-red-50/95 rounded-none flex flex-col items-center justify-center text-center p-4 backdrop-blur-[2px] z-10 animate-fadeIn border-2 border-red-200">
-                            <ShieldAlert className="w-8 h-8 text-red-500 mb-2 animate-pulse" />
-                            <h4 className="type-heading-caps text-red-700 mb-1">Critical Allergy Conflict</h4>
-                            <p className="text-red-600 text-xs max-w-[80%] leading-relaxed mb-3">
-                              Patient has a registered allergy to components in <strong className="text-red-800">{rx.drugName}</strong>. Dispensing is locked.
-                            </p>
+                          <div className="flex-[0_0_11rem] flex flex-col gap-2 justify-center max-sm:flex-[1_1_100%]">
+                            <button type="button" onClick={() => handlePrintLabelClick(rx)} disabled={isSkipped} className="btn-secondary">
+                              <Printer className="w-4 h-4" aria-hidden="true" />
+                              {t.printLabel}
+                            </button>
                             <button
                               type="button"
+                              disabled={decided}
                               onClick={() => {
                                 const newSet = new Set(skippedDrugs);
-                                newSet.add(rx.id);
+                                if (isSkipped) newSet.delete(rx.id);
+                                else newSet.add(rx.id);
                                 setSkippedDrugs(newSet);
                               }}
-                              className="btn-danger"
+                              className="btn-secondary"
                             >
-                              Skip This Medication
+                              {isSkipped ? 'Restore line' : locked ? 'Skip this line' : 'Out of stock: skip'}
                             </button>
                           </div>
-                        )}
-
-                      </div>
-                    );
-                  })
-                )}
+                        </li>
+                      );
+                    })
+                  )}
+                </ul>
               </div>
-            </div>
 
-            {/* Pharmacist Safety validation inputs checklist */}
-            <div className="bg-surface p-3.5 rounded-none border border-line space-y-2">
-              <span className="text-2xs font-bold text-accent uppercase tracking-wider flex items-center gap-1 mb-1">
-                <ShieldCheck className="w-4 h-4 text-accent" />
-                Dual-Verification Clinical Pharmacy Checks
-              </span>
+              {/* Dual-verification checks */}
+              <fieldset className="min-w-0">
+                <legend className="pb-3 text-xs font-bold text-accent tracking-wide">Dual-verification pharmacy checks</legend>
+                <div id="pharmacy-safety-checker" className="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-px bg-line border border-line">
+                  {([
+                    { key: 'patientVerified', title: 'Identify patient ID', note: 'Match IC and profile details' },
+                    { key: 'allergyCleared', title: 'Check allergen', note: 'Zero drug conflicts' },
+                    { key: 'dosageExplained', title: 'Dosage advice EN/BM', note: 'Explained in the patient language' },
+                  ] as const).map((c) => (
+                    <label key={c.key} className="flex items-start gap-3 min-h-11 px-4 py-3 bg-surface-muted cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-0.5 w-5 h-5 rounded-none accent-primary"
+                        checked={checklist[c.key]}
+                        onChange={(e) => setChecklist({ ...checklist, [c.key]: e.target.checked })}
+                      />
+                      <span>
+                        <strong className="block text-sm font-bold text-ink">{c.title}</strong>
+                        <span className="block text-xs text-muted mt-0.5">{c.note}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
 
-              <div id="pharmacy-safety-checker" className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs text-muted">
-                <label className="flex items-start gap-2 min-h-11 bg-surface p-2.5 rounded-none border border-line-subtle cursor-pointer shadow-2xs">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 w-5 h-5 rounded-none border-line-strong accent-primary focus:ring-brand focus:ring-1"
-                    checked={checklist.patientVerified}
-                    onChange={(e) => setChecklist({ ...checklist, patientVerified: e.target.checked })}
-                  />
-                  <div>
-                    <strong className="block text-xs font-bold text-strong">Identify Patient ID</strong>
-                    <span className="text-xs text-subtle">Match IC and Profile details</span>
-                  </div>
-                </label>
+              {dispenseError && (
+                <p role="alert" className="chip-danger block px-4 py-3 text-sm font-semibold whitespace-pre-line">{dispenseError}</p>
+              )}
 
-                <label className="flex items-start gap-2 min-h-11 bg-surface p-2.5 rounded-none border border-line-subtle cursor-pointer shadow-2xs">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 w-5 h-5 rounded-none border-line-strong accent-primary focus:ring-brand focus:ring-1"
-                    checked={checklist.allergyCleared}
-                    onChange={(e) => setChecklist({ ...checklist, allergyCleared: e.target.checked })}
-                  />
-                  <div>
-                    <strong className="block text-xs font-bold text-strong">Check Allergen</strong>
-                    <span className="text-xs text-subtle">Ensure absolutely zero drug conflicts</span>
-                  </div>
-                </label>
-
-                <label className="flex items-start gap-2 min-h-11 bg-surface p-2.5 rounded-none border border-line-subtle cursor-pointer shadow-2xs">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 w-5 h-5 rounded-none border-line-strong accent-primary focus:ring-brand focus:ring-1"
-                    checked={checklist.dosageExplained}
-                    onChange={(e) => setChecklist({ ...checklist, dosageExplained: e.target.checked })}
-                  />
-                  <div>
-                    <strong className="block text-xs font-bold text-strong">Dosage Advice EN/BM</strong>
-                    <span className="text-xs text-subtle">Instructions explained in patient language</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Action Bar */}
-            {dispenseError && (
-              <p role="alert" className="chip-danger block px-3 py-2 text-xs font-bold whitespace-pre-line">{dispenseError}</p>
-            )}
-
-            {allDecided && unsignedEntries.length > 0 && (
-              <div role="status" className="chip-brand block px-3 py-2 text-xs space-y-1">
-                <div className="font-bold">Waiting for a second signature</div>
-                <p>
+              {allDecided && unsignedEntries.length > 0 && (
+                <div role="status" className="px-4 py-3 bg-surface-accent border border-line text-sm leading-relaxed text-ink">
+                  <strong>Waiting for a second signature.</strong>{' '}
                   {unsignedEntries.length} controlled-drug entr{unsignedEntries.length === 1 ? 'y needs' : 'ies need'} a signature from a different pharmacist or administrator before this patient can leave the pharmacy.
                   They can sign under Inventory &amp; Pharmacy &gt; Controlled register. This screen updates by itself.
-                </p>
-              </div>
-            )}
-
-            <div className="sticky bottom-0 z-10 -mx-4 -mb-4 px-4 py-3 bg-surface border-t border-line shadow-bar-up flex flex-wrap items-center justify-between gap-3">
-              <span id="dispense-hint" role="status" className={`text-xs max-w-xl ${!allDecided && dispenseHint ? 'font-bold text-ink' : 'text-muted italic'}`}>
-                {allDecided
-                  ? 'Stock has been taken and recorded.'
-                  : dispenseHint || 'Confirming checks stock, takes it from the soonest-expiring batches and records it in one step.'}
-              </span>
-              {allDecided || rxLines.length === 0 ? (
-                <button
-                  type="button"
-                  id="pharmacy-dispense-confirm-btn"
-                  onClick={completeHandover}
-                  disabled={unsignedEntries.length > 0}
-                  className="btn-primary px-6"
-                >
-                  <CheckCircle className="w-4 h-4" aria-hidden="true" />
-                  {unsignedEntries.length > 0 ? 'Waiting for signature' : 'Hand over & route to billing'}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  id="pharmacy-dispense-confirm-btn"
-                  aria-describedby="dispense-hint"
-                  onClick={triggerDispensingSignoff}
-                  disabled={!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained || hasUnskippedAllergies || blocked.length > 0 || inv.dispenseVisit.isPending}
-                  className={`${hasUnskippedAllergies ? 'btn-danger' : 'btn-primary'} px-6`}
-                >
-                  {hasUnskippedAllergies ? <ShieldAlert className="w-4 h-4" aria-hidden="true" /> : <CheckCircle className="w-4 h-4" aria-hidden="true" />}
-                  {hasUnskippedAllergies ? 'Resolve conflicts' : blocked.length > 0 ? 'Resolve stock issues' : 'Dispense & route to billing'}
-                </button>
+                </div>
               )}
-            </div>
 
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-12 min-h-[380px]">
-            <div className="w-16 h-16 rounded-none bg-surface-accent border border-line flex items-center justify-center mb-4">
-              <Pill className="w-8 h-8 text-accent" />
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-5 border-t border-line">
+                <span id="dispense-hint" role="status" className={`text-xs max-w-xl leading-relaxed ${!allDecided && dispenseHint ? 'font-bold text-ink' : 'text-muted'}`}>
+                  {allDecided
+                    ? 'Stock has been taken and recorded.'
+                    : dispenseHint || 'Confirming checks stock, takes it from the soonest-expiring batches and records it in one step.'}
+                </span>
+                {allDecided || rxLines.length === 0 ? (
+                  <button
+                    type="button"
+                    id="pharmacy-dispense-confirm-btn"
+                    onClick={completeHandover}
+                    disabled={unsignedEntries.length > 0}
+                    className="btn-primary min-h-12 px-6 text-sm"
+                  >
+                    <CheckCircle className="w-4 h-4" aria-hidden="true" />
+                    {unsignedEntries.length > 0 ? 'Waiting for signature' : 'Hand over & route to billing'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    id="pharmacy-dispense-confirm-btn"
+                    aria-describedby="dispense-hint"
+                    onClick={triggerDispensingSignoff}
+                    disabled={!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained || hasUnskippedAllergies || blocked.length > 0 || inv.dispenseVisit.isPending}
+                    className={`${hasUnskippedAllergies ? 'btn-danger' : 'btn-primary'} min-h-12 px-6 text-sm`}
+                  >
+                    {hasUnskippedAllergies ? <ShieldAlert className="w-4 h-4" aria-hidden="true" /> : <CheckCircle className="w-4 h-4" aria-hidden="true" />}
+                    {hasUnskippedAllergies ? 'Resolve conflicts' : blocked.length > 0 ? 'Resolve stock issues' : 'Dispense & route to billing'}
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 min-h-[24rem] flex flex-col items-center justify-center text-center">
+              <Pill className="w-10 h-10 text-accent opacity-40 mb-3" aria-hidden="true" />
+              <p className="text-sm font-semibold text-ink">No active prescription selected</p>
+              <p className="text-xs text-muted max-w-sm mt-1 leading-relaxed">
+                Prescriptions signed off in the consultation rooms appear in the queue. Select one to review dosage, allocate batches, verify allergies and print labels.
+              </p>
             </div>
-            <h4 className="type-card-title text-ink font-bold">No Active Prescription Selected</h4>
-            <p className="text-xs text-muted max-w-sm mt-1 leading-relaxed">
-              Select an encounter from the left dispensation queue to review dosage formulas, allocate FEFO batches, verify allergen clearances, and print pharmacy stickers.
-            </p>
+          )}
+        </article>
+
+        {/* DISPENSATION QUEUE */}
+        <aside className="flex-[1_1_20rem] min-w-0 border-t lg:border-t-0 lg:border-l border-line flex flex-col" aria-labelledby="dispensary-queue-title">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+            <h2 id="dispensary-queue-title" className="text-base font-bold text-ink">{t.dispensaryQueue || 'Dispensation queue'}</h2>
+            <span className="px-2.5 py-1 bg-surface-muted text-muted text-xs font-semibold">{queue.length} waiting</span>
           </div>
-        )}
-      </div>
-      </div>
+          {queue.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-muted">Dispensation queue empty. Prescriptions signed off in the consultation rooms flow in here automatically.</p>
+          ) : (
+            <ol className="flex flex-col">
+              {queue.map((visit, index) => {
+                const pt = patientsMap[visit.patientId];
+                if (!pt) return null;
+                const isSelected = selectedVisitId === visit.id || (!selectedVisitId && index === 0);
+                const medCount = visit.soap?.plan?.prescription?.length || 0;
+                const hasAllergyAlert = recordedAllergies(pt.drugAllergies).length > 0;
+                const mins = visit.registeredTime ? Math.max(0, Math.floor((Date.now() - visit.registeredTime) / 60000)) : null;
+                const long = mins !== null && mins >= 20;
+                return (
+                  <li key={visit.id} className="border-b border-line-subtle">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectVisit(visit.id)}
+                      aria-current={isSelected ? 'true' : undefined}
+                      className={`w-full flex items-center gap-3 px-5 py-3 text-left cursor-pointer transition-colors hover:bg-surface-accent ${focusRing} ${
+                        isSelected ? 'bg-surface-accent shadow-[inset_3px_0_0_var(--color-primary)]' : long ? 'bg-amber-50/70 dark:bg-amber-950/30' : ''
+                      }`}
+                    >
+                      <span className="shrink-0 w-9 h-9 bg-surface-strong text-accent flex items-center justify-center text-xs font-bold" aria-hidden="true">{initialsOf(pt.fullName)}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-ink truncate">{pt.fullName}</span>
+                        <span className={`block text-xs truncate ${hasAllergyAlert ? 'text-rose-700 dark:text-rose-300 font-semibold' : 'text-muted'}`}>
+                          {medCount} {medCount === 1 ? 'item' : 'items'} · {hasAllergyAlert ? 'Allergy alert' : 'Awaiting dispense'}
+                        </span>
+                      </span>
+                      <span className={`shrink-0 px-2.5 py-1 text-xs font-bold tabular-nums ${long ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'bg-surface-strong text-accent'}`}>
+                        {mins !== null ? formatWait(mins) : 'Just in'}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </aside>
+      </section>
       )}
 
       {/* DRUG LABEL PRINTING PREVIEW MODAL */}
