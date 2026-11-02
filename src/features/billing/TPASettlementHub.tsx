@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { StatStrip } from '../../components/ui/StationChrome';
 import { 
   Building2, CheckCircle2, AlertTriangle, FileSpreadsheet, 
   FileCode, RefreshCw, Send, DollarSign, Search, Filter, 
@@ -172,240 +173,171 @@ export const TPASettlementHub: React.FC = () => {
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="bg-surface border border-line p-4 rounded-none flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-primary text-white rounded-none">
-            <Building2 className="w-6 h-6" />
-          </div>
+      <StatStrip
+        label="Claim figures"
+        stats={[
+          { label: 'Total panel billed', value: `RM ${totalBilled.toFixed(2)}`, note: `${filteredClaims.length} active claims` },
+          { label: 'Pending submission', value: pendingCount, note: 'Ready for the daily portal batch' },
+          { label: 'Disputed or short-paid', value: shortPaidCount, tone: shortPaidCount > 0 ? 'danger' : 'default', note: 'Needs reconciliation or write-off' },
+          { label: 'Supported panels', value: KNOWN_TPA_PROVIDERS.length, note: 'Insurers and TPAs, GL ready' },
+        ]}
+      />
+
+      <section aria-labelledby="tpa-hub-title" className="bg-surface border border-line">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-line">
           <div>
-            <h2 className="text-base font-bold text-ink">
-              Corporate Panel &amp; TPA Direct Settlement Hub
-            </h2>
-            <p className="text-xs text-muted">
-              MiCare, PMCare, HealthMetrics, MediExpress, AIA Guarantee Letter (GL) Batch Reconciliation
-            </p>
+            <h2 id="tpa-hub-title" className="text-base font-bold text-ink">Corporate TPA settlement</h2>
+            <p className="mt-0.5 text-xs text-muted">Batch guarantee letter claims, match remittances and chase short payments</p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleExportCSV}
-            className="py-2 px-3 bg-surface hover:bg-surface-accent border border-line text-xs font-bold text-ink flex items-center gap-1.5 rounded-none cursor-pointer"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Export CSV</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleExportJSON}
-            className="py-2 px-3 bg-surface hover:bg-surface-accent border border-line text-xs font-bold text-ink flex items-center gap-1.5 rounded-none cursor-pointer"
-          >
-            <FileCode className="w-4 h-4 text-accent" />
-            <span>Export e-Claim JSON</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleBatchSubmit}
-            disabled={pendingCount === 0}
-            className="py-2 px-4 bg-primary hover:bg-primary-hover disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 rounded-none cursor-pointer"
-          >
-            <Send className="w-4 h-4" />
-            <span>Batch Submit Pending ({pendingCount})</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div className="p-3.5 bg-surface border border-line">
-          <span className="text-2xs font-mono uppercase text-muted">Total Panel Billed</span>
-          <p className="text-xl font-bold font-mono text-ink mt-1">RM {totalBilled.toFixed(2)}</p>
-          <span className="text-3xs text-muted font-mono">{filteredClaims.length} active claims</span>
-        </div>
-        <div className="p-3.5 bg-surface border border-line">
-          <span className="text-2xs font-mono uppercase text-muted">Pending Submission</span>
-          <p className="text-xl font-bold font-mono text-amber-600 mt-1">{pendingCount}</p>
-          <span className="text-3xs text-muted font-mono">Ready for daily portal batch</span>
-        </div>
-        <div className="p-3.5 bg-surface border border-line">
-          <span className="text-2xs font-mono uppercase text-muted">Disputed / Short-Paid</span>
-          <p className="text-xl font-bold font-mono text-rose-600 mt-1">{shortPaidCount}</p>
-          <span className="text-3xs text-muted font-mono">Requires reconciliation / write-off</span>
-        </div>
-        <div className="p-3.5 bg-surface border border-line">
-          <span className="text-2xs font-mono uppercase text-muted">Supported Insurers / TPAs</span>
-          <p className="text-xl font-bold font-mono text-primary mt-1">{KNOWN_TPA_PROVIDERS.length}</p>
-          <span className="text-3xs text-muted font-mono">Direct API / GL ready</span>
-        </div>
-      </div>
-
-      {/* Filter Toolbar */}
-      <div className="bg-surface border border-line p-3 rounded-none flex flex-wrap items-center justify-between gap-3 text-xs">
-        {/* TPA Providers Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setSelectedProvider('All')}
-            className={`py-1.5 px-3 font-bold border transition-colors cursor-pointer ${
-              selectedProvider === 'All' ? 'bg-primary text-white border-primary' : 'bg-surface border-line text-ink hover:bg-surface-accent'
-            }`}
-          >
-            All TPAs ({claims.length})
-          </button>
-          {KNOWN_TPA_PROVIDERS.map(p => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => setSelectedProvider(p.id)}
-              className={`py-1.5 px-3 font-bold border transition-colors cursor-pointer whitespace-nowrap ${
-                selectedProvider === p.id ? 'bg-primary text-white border-primary' : 'bg-surface border-line text-ink hover:bg-surface-accent'
-              }`}
-            >
-              {p.name}
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={handleExportCSV} className="btn-secondary px-4 text-sm">
+              <FileSpreadsheet className="w-4 h-4 text-accent" aria-hidden="true" />
+              Export CSV
             </button>
-          ))}
+            <button type="button" onClick={handleExportJSON} className="btn-secondary px-4 text-sm">
+              <FileCode className="w-4 h-4 text-accent" aria-hidden="true" />
+              Export e-Claim JSON
+            </button>
+            <button type="button" onClick={handleBatchSubmit} disabled={pendingCount === 0} className="btn-primary px-5 text-sm">
+              <Send className="w-4 h-4" aria-hidden="true" />
+              Submit pending batch ({pendingCount})
+            </button>
+          </div>
         </div>
 
-        {/* Search & Status Filters */}
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search patient, IC, or GL #"
-              className="pl-8 pr-3 py-1.5 border border-line bg-surface text-ink text-xs rounded-none w-52"
-            />
+        {/* Filters */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-line">
+          <div role="group" aria-label="Filter by panel" className="flex flex-wrap border border-line bg-surface">
+            {[{ id: 'All', name: `All panels (${claims.length})` }, ...KNOWN_TPA_PROVIDERS.map((p) => ({ id: p.id, name: p.name }))].map((p, i) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-pressed={selectedProvider === p.id}
+                onClick={() => setSelectedProvider(p.id)}
+                className={`min-h-11 px-4 text-sm whitespace-nowrap cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${i > 0 ? 'border-l border-line' : ''} ${
+                  selectedProvider === p.id ? 'bg-primary text-white font-bold' : 'text-muted font-semibold hover:bg-surface-strong hover:text-ink'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-1.5 border border-line bg-surface text-ink text-xs font-medium"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Pending Submission">Pending Submission</option>
-            <option value="Submitted">Submitted</option>
-            <option value="Approved">Approved</option>
-            <option value="Short-Paid">Short-Paid</option>
-            <option value="Written-Off">Written-Off</option>
-          </select>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <label htmlFor="tpa-search" className="sr-only">Search claims</label>
+              <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
+              <input
+                id="tpa-search"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search patient, IC or GL number"
+                autoComplete="off"
+                className="w-64 min-h-11 pl-10 pr-3 bg-surface border border-line text-sm text-ink placeholder:text-muted rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
+              />
+            </div>
+            <label htmlFor="tpa-status" className="sr-only">Claim status</label>
+            <select
+              id="tpa-status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="min-h-11 px-3 bg-surface border border-line text-sm text-ink rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
+            >
+              <option value="All">All statuses</option>
+              <option value="Pending Submission">Pending submission</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Approved">Approved</option>
+              <option value="Short-Paid">Short-paid</option>
+              <option value="Written-Off">Written off</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      {/* Claims Master Table */}
-      <div className="bg-surface border border-line rounded-none overflow-x-auto">
-        <table className="w-full text-xs text-left">
-          <thead>
-            <tr className="border-b border-line bg-surface-muted/40 text-2xs uppercase text-ink-muted font-mono">
-              <th className="p-3">Claim Ref &amp; GL #</th>
-              <th className="p-3">TPA &amp; Corporate Employer</th>
-              <th className="p-3">Patient Particulars</th>
-              <th className="p-3 text-right">Total Bill</th>
-              <th className="p-3 text-right">Panel Billed</th>
-              <th className="p-3 text-right">Remitted</th>
-              <th className="p-3 text-right">Variance</th>
-              <th className="p-3 text-center">Status</th>
-              <th className="p-3 text-right">Reconciliation Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredClaims.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="p-8 text-center text-muted">
-                  No corporate claims match the active filters.
-                </td>
+        {/* Claims table */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[64rem] text-sm text-left border-separate border-spacing-0">
+            <thead>
+              <tr className="text-xs font-semibold text-muted [&>th]:px-4 [&>th]:py-3 [&>th]:bg-surface-muted [&>th]:border-b [&>th]:border-line [&>th]:whitespace-nowrap">
+                <th scope="col">Claim and GL no.</th>
+                <th scope="col">TPA and employer</th>
+                <th scope="col">Patient</th>
+                <th scope="col" className="text-right">Total bill</th>
+                <th scope="col" className="text-right">Panel billed</th>
+                <th scope="col" className="text-right">Remitted</th>
+                <th scope="col" className="text-right">Variance</th>
+                <th scope="col">Status</th>
+                <th scope="col" className="text-right sticky right-0 !bg-surface-muted">Action</th>
               </tr>
-            ) : (
-              filteredClaims.map(claim => {
-                const isShort = claim.status === 'Short-Paid';
-                const isPending = claim.status === 'Pending Submission';
-                const isApproved = claim.status === 'Approved';
+            </thead>
+            <tbody className="[&>tr>td]:px-4 [&>tr>td]:py-3.5 [&>tr>td]:bg-surface [&>tr>td]:border-b [&>tr>td]:border-line-subtle [&>tr>td]:align-top [&>tr:hover>td]:bg-surface-accent">
+              {filteredClaims.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="!py-12 text-center text-sm text-muted">
+                    No corporate claims match the active filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredClaims.map((claim) => {
+                  const isShort = claim.status === 'Short-Paid';
+                  const isPending = claim.status === 'Pending Submission';
+                  const isApproved = claim.status === 'Approved';
+                  const chip = isApproved ? 'chip-ok' : isShort ? 'chip-danger' : isPending ? 'chip-warn' : 'chip-info';
+                  const open = () => {
+                    setReconcileClaim(claim);
+                    setRemittedSumInput(claim.remittedAmountRM || claim.panelBilledRM);
+                  };
 
-                return (
-                  <tr key={claim.id} className="border-b border-line/60 hover:bg-surface-accent">
-                    <td className="p-3 font-mono">
-                      <div className="font-bold text-primary">{claim.id}</div>
-                      <div className="text-2xs text-muted">{claim.glNumber}</div>
-                    </td>
-                    <td className="p-3">
-                      <div className="font-bold text-ink">{claim.providerName}</div>
-                      <div className="text-2xs text-muted">{claim.employerName}</div>
-                    </td>
-                    <td className="p-3">
-                      <div className="font-bold text-ink">{claim.patientName}</div>
-                      <div className="text-2xs text-muted font-mono">{claim.patientIc}</div>
-                    </td>
-                    <td className="p-3 text-right font-mono font-medium text-ink">
-                      RM {claim.totalBillRM.toFixed(2)}
-                    </td>
-                    <td className="p-3 text-right font-mono font-bold text-primary">
-                      RM {claim.panelBilledRM.toFixed(2)}
-                    </td>
-                    <td className="p-3 text-right font-mono text-ink">
-                      {claim.remittedAmountRM !== undefined ? `RM ${claim.remittedAmountRM.toFixed(2)}` : '—'}
-                    </td>
-                    <td className="p-3 text-right font-mono">
-                      {claim.varianceAmountRM ? (
-                        <span className="font-bold text-rose-600">-RM {claim.varianceAmountRM.toFixed(2)}</span>
-                      ) : (
-                        <span className="text-muted">RM 0.00</span>
-                      )}
-                    </td>
-                    <td className="p-3 text-center">
-                      <span className={`text-2xs font-mono font-bold px-2 py-0.5 rounded-none ${
-                        isApproved ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
-                        isShort ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' :
-                        isPending ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
-                        'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
-                      }`}>
-                        {claim.status}
-                      </span>
-                    </td>
-                    <td className="p-3 text-right">
-                      {isShort ? (
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setReconcileClaim(claim);
-                              setRemittedSumInput(claim.remittedAmountRM || claim.panelBilledRM);
-                            }}
-                            className="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white text-2xs font-bold rounded-none cursor-pointer"
-                          >
-                            Dispute Rationale
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMarkWrittenOff(claim.id)}
-                            className="px-2 py-1 border border-line hover:bg-surface text-2xs text-ink rounded-none cursor-pointer"
-                          >
-                            Write Off
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setReconcileClaim(claim);
-                            setRemittedSumInput(claim.remittedAmountRM || claim.panelBilledRM);
-                          }}
-                          className="px-2 py-1 border border-line bg-surface hover:bg-surface-accent text-2xs font-bold text-ink rounded-none cursor-pointer"
-                        >
-                          Match Remittance
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                  return (
+                    <tr key={claim.id}>
+                      <td>
+                        <div className="font-bold text-accent tabular-nums">{claim.id}</div>
+                        <div className="mt-0.5 text-xs text-muted tabular-nums">{claim.glNumber}</div>
+                      </td>
+                      <td>
+                        <div className="font-semibold text-ink">{claim.providerName}</div>
+                        <div className="mt-0.5 text-xs text-muted">{claim.employerName}</div>
+                      </td>
+                      <td>
+                        <div className="font-semibold text-ink">{claim.patientName}</div>
+                        <div className="mt-0.5 text-xs text-muted tabular-nums">{claim.patientIc}</div>
+                      </td>
+                      <td className="text-right tabular-nums text-ink">RM {claim.totalBillRM.toFixed(2)}</td>
+                      <td className="text-right tabular-nums font-bold text-accent">RM {claim.panelBilledRM.toFixed(2)}</td>
+                      <td className="text-right tabular-nums text-ink">
+                        {claim.remittedAmountRM !== undefined ? `RM ${claim.remittedAmountRM.toFixed(2)}` : '—'}
+                      </td>
+                      <td className="text-right tabular-nums">
+                        {claim.varianceAmountRM ? (
+                          <span className="font-bold text-rose-700 dark:text-rose-300">-RM {claim.varianceAmountRM.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-muted">RM 0.00</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`${chip} px-2.5 py-1 text-xs font-bold`}>{claim.status}</span>
+                      </td>
+                      <td className="text-right sticky right-0 whitespace-nowrap shadow-[-8px_0_8px_-8px_rgba(15,60,76,0.15)]">
+                        {isShort ? (
+                          <div className="inline-flex items-center gap-2">
+                            <button type="button" onClick={open} className="btn-danger px-3 text-xs">Dispute rationale</button>
+                            <button type="button" onClick={() => handleMarkWrittenOff(claim.id)} className="btn-secondary px-3 text-xs">Write off</button>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={open} className="btn-secondary px-3 text-xs">Match remittance</button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="px-5 py-3.5 border-t border-line text-xs text-muted">
+          Showing {filteredClaims.length} of {claims.length} claims
+        </div>
+      </section>
 
       {/* Remittance & Line-Item Variance Modal */}
       {reconcileClaim && (

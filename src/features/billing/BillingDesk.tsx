@@ -21,6 +21,7 @@ import { Calculator } from 'lucide-react';
 import { TPASettlementHub } from './TPASettlementHub';
 import EInvoicePage from '../einvoice/EInvoicePage';
 import { verifyTPAPolicyEligibility } from '../../domain/tpaPanelClaims';
+import { PageHeading, StationTabs, StatStrip } from '../../components/ui/StationChrome';
 
 interface BillingDeskProps {
   queue: Visit[];
@@ -50,6 +51,10 @@ interface Attempt {
 }
 
 const rm = (n: number) => `RM${n.toFixed(2)}`;
+const initialsOf = (name: string) => {
+  const words = name.split(/\s+/).filter(Boolean);
+  return (words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0]?.[0] ?? '').toUpperCase();
+};
 
 export default function BillingDesk({ queue, allVisits, cashierName, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
   const [isReconModalOpen, setIsReconModalOpen] = useState(false);
@@ -266,77 +271,67 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
 
   const closeDialogs = () => { if (!saving) { setStage(null); setSaveError(null); } };
 
+  // Standard charges only; adjustments and panel cover apply once the visit is open.
+  const estimateFor = (visit: Visit) => calculateBill({
+    consultationFee: CONSULTATION_FEE,
+    procedureFee: procedureFeeFor(settings.billing.procedureFee, visit.soap?.plan?.requiresReferral),
+    prescription: visit.soap?.plan?.prescription ?? [],
+    customItems: [],
+    discount: { type: 'fixed', value: 0 },
+    taxRate: TAX_RATE,
+  }).grandTotal;
+  const queueEstimate = queue.reduce((sum, v) => sum + estimateFor(v), 0);
+
   return (
     <div className="space-y-4 font-sans">
-      {/* Top Cashier Operation Toolbar */}
-      <div className="bg-surface border border-line p-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary text-white flex items-center justify-center">
-            <DollarSign className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-ink">Cashier POS Billing Desk</h3>
-            <p className="text-2xs text-muted">Point-of-Sale settlement, receipting &amp; Malaysian shift balancing</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
+      <PageHeading eyebrow={cashierName ?? 'Cashier counter'} title="Billing and panel claims">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => setIsEInvoiceModalOpen(true)}
-            className="flex items-center gap-1.5 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none border border-teal-500/40 bg-surface hover:bg-surface-accent text-accent font-bold"
+            className="btn-secondary min-h-11 px-4 text-sm"
             title="View LHDN MyInvois Submission Status & e-Invoice Verification"
           >
-            <FileCheck2 className="w-4 h-4 text-accent" />
-            <span>LHDN MyInvois Console</span>
+            <FileCheck2 className="w-4 h-4 text-accent" aria-hidden="true" />
+            LHDN MyInvois console
           </button>
           <button
             type="button"
             onClick={() => setIsReconModalOpen(true)}
-            className="btn-primary flex items-center gap-2 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none"
+            className="btn-primary min-h-11 px-4 text-sm"
             title="Audit cash drawer float, count physical denominations, and print Malaysian Daily Z-Report"
           >
-            <Calculator className="w-4 h-4" />
-            <span>Close Shift / Float Z-Report</span>
+            <Calculator className="w-4 h-4" aria-hidden="true" />
+            Close shift and Z-report
           </button>
         </div>
-      </div>
+      </PageHeading>
 
-      {/* Billing Desk Sub-Navigation Tabs */}
-      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => setBillingTab('pos')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
-            billingTab === 'pos'
-              ? 'bg-primary text-white'
-              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          <DollarSign className="w-4 h-4 shrink-0" />
-          <span>Cashier Invoicing &amp; POS Queue ({queue.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setBillingTab('tpa-hub')}
-          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
-            billingTab === 'tpa-hub'
-              ? 'bg-primary text-white'
-              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          <Building2 className="w-4 h-4 shrink-0" />
-          <span>Corporate TPA Settlement Hub (Batch &amp; Remittance)</span>
-        </button>
-      </div>
+      <StationTabs<'pos' | 'tpa-hub'>
+        label="Billing sections"
+        active={billingTab}
+        onChange={setBillingTab}
+        tabs={[
+          { id: 'pos', label: 'Cashier invoicing', count: queue.length, alert: true },
+          { id: 'tpa-hub', label: 'Panel claims and remittance' },
+        ]}
+      />
 
       {billingTab === 'tpa-hub' ? (
         <TPASettlementHub />
       ) : (
         <>
+      <StatStrip
+        label="Billing figures"
+        stats={[
+          { label: 'Awaiting payment', value: queue.length, note: 'Dispensed visits ready to bill' },
+          { label: 'Estimated to collect', value: rm(queueEstimate), note: 'Standard charges, before panel cover' },
+          { label: 'Receipts on file', value: transactions.length, note: 'Recent payments, for reprinting' },
+        ]}
+      />
+
       {unrecorded && !saving && stage === null && (
-        <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-rose-50 border border-rose-300 text-rose-900 text-xs">
+        <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 bg-rose-50 border border-rose-300 text-rose-900 text-sm dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-100">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
             <p>
@@ -345,197 +340,120 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
               {saveError ? ` ${saveError}` : ''}
             </p>
           </div>
-          <button type="button" onClick={() => void record(unrecorded)} className="shrink-0 bg-rose-700 hover:bg-rose-800 text-white font-bold px-3 py-1.5 rounded-none cursor-pointer">Record it now</button>
+          <button type="button" onClick={() => void record(unrecorded)} className="btn-danger shrink-0 px-4 text-sm">Record it now</button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch min-h-[420px]">
+      <section className="flex flex-wrap bg-surface border border-line">
 
-        {/* 1. QUEUE */}
-        <div className="lg:col-span-4 bg-surface-accent border border-line rounded-none p-3 space-y-2.5">
-          <div className="flex items-center gap-1.5 text-accent font-semibold text-xs border-b border-line pb-2 mb-1.5">
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" aria-hidden="true" />
-            <span>{t.totalBilling}</span>
-            <span className="bg-emerald-100 text-accent px-2 py-0.5 rounded-full text-2xs font-mono tabular-nums font-bold">{queue.length} Pending</span>
-            <div role="status" aria-live="polite" className="sr-only">
-              {queue.length} patient{queue.length === 1 ? '' : 's'} in cashier billing queue
-            </div>
-          </div>
-
-          {queue.length === 0 ? (
-            <div className="bg-surface rounded-none border border-line p-8 text-center text-slate-400">
-              <CheckCircle2 className="w-10 h-10 text-slate-300 mx-auto mb-2" aria-hidden="true" />
-              <p className="text-xs font-semibold text-muted">All Accounts Balanced</p>
-              <p className="text-2xs text-slate-400 mt-0.5">Dispensed pharmacy tickets will queue here for billing.</p>
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-              {queue.map((visit) => {
-                const pt = patientsMap[visit.patientId];
-                const isSelected = activeVisit?.id === visit.id;
-                if (!pt) return null;
-
-                // Standard charges only; adjustments and panel cover apply once the visit is open.
-                const estimate = calculateBill({
-                  consultationFee: CONSULTATION_FEE,
-                  procedureFee: procedureFeeFor(settings.billing.procedureFee, visit.soap?.plan?.requiresReferral),
-                  prescription: visit.soap?.plan?.prescription ?? [],
-                  customItems: [],
-                  discount: { type: 'fixed', value: 0 },
-                  taxRate: TAX_RATE,
-                }).grandTotal;
-
-                return (
-                  <div
-                    key={visit.id}
-                    {...buttonProps(() => handleSelectVisit(visit.id), isSelected)}
-                    className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer ${focusRing} hover:bg-surface-strong bg-surface ${isSelected ? 'border-brand bg-surface-strong shadow-none' : 'border-line'}`}
-                  >
-                    <div className="flex items-center justify-between text-2xs font-mono tabular-nums">
-                      <span className="text-slate-400">ID: {visit.id}</span>
-                      <span className="text-subtle font-bold">Est. {rm(estimate)}</span>
-                    </div>
-                    <h5 className="type-label text-strong mt-1">{pt.fullName}</h5>
-                    <div className="flex items-center justify-between mt-2 pt-1 border-t border-line-subtle text-2xs text-slate-400">
-                      <span>Panel: {pt.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : pt.panelEmployer}</span>
-                      <span className="text-accent font-semibold">Ready to bill</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Recent receipts, for reprinting */}
-          <div className="pt-3 border-t border-line">
-            <h5 className="type-label text-muted mb-2 flex items-center gap-1"><Printer className="w-3 h-3" aria-hidden="true" /> Recent receipts</h5>
-            {transactions.length === 0 ? (
-              <p className="text-2xs text-slate-400">No payments recorded yet.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {transactions.slice(0, 6).map((trx) => (
-                  <li key={trx.id} className="flex items-center justify-between gap-2 bg-surface border border-line px-2.5 py-1.5 text-2xs">
-                    <div className="min-w-0">
-                      <p className="font-bold text-muted truncate">{trx.patientName ?? 'Patient'}</p>
-                      <p className="font-mono text-slate-400">{trx.receiptNo ?? 'Older payment'} · {rm(trx.paidAmount + trx.panelClaimed)}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => printReceipt({ ...trx, visitId: trx.visitId, paymentReference: trx.paymentReference })}
-                      className="shrink-0 font-bold text-accent hover:underline cursor-pointer"
-                      aria-label={`Reprint receipt for ${trx.patientName ?? 'patient'}`}
-                    >
-                      Reprint
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-
-        {/* 2. BILL */}
-        <div className="lg:col-span-8 bg-surface border border-line rounded-none p-3.5 flex flex-col justify-between">
+        {/* BILL: the visit in focus */}
+        <article className="flex-[999_1_38rem] min-w-0 p-5 sm:p-7 flex flex-col gap-6" aria-label="Invoice">
           {activePatient && activeVisit ? (
-            <div className="space-y-4">
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  <span className="w-2 h-2 bg-emerald-600" aria-hidden="true" />
+                  Billing now
+                </span>
+                <span className="px-3 py-1 bg-surface-strong text-accent text-xs font-semibold">Visit {activeVisit.id}</span>
+              </div>
 
-              <div className="border-b border-line-subtle pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <span className="text-2xs font-bold text-accent uppercase tracking-wider block font-sans">Cashier desk (outpatient)</span>
-                  <h4 className="type-heading-caps text-strong font-sans">{activePatient.fullName}</h4>
-                  <p className="text-2xs font-mono text-slate-400">IC Registration: {activePatient.icNumber}</p>
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="shrink-0 w-14 h-14 bg-surface-strong text-accent flex items-center justify-center text-xl font-bold" aria-hidden="true">
+                  {initialsOf(activePatient.fullName)}
                 </div>
-                <div className="text-right">
-                  <span className="text-subtle font-mono tabular-nums text-xs">VISIT TICKET ID: {activeVisit.id}</span>
+                <div className="min-w-0">
+                  <h2 className="text-2xl font-bold tracking-tight leading-tight text-ink break-words">{activePatient.fullName}</h2>
+                  <p className="mt-1 text-sm text-muted">
+                    IC {activePatient.icNumber} · {activePatient.panelEmployer === 'None (Self-Pay)' ? 'Self-pay' : activePatient.panelEmployer}
+                    {activeVisit.soap?.assessment?.icdCode ? ` · Diagnosis ${activeVisit.soap.assessment.icdCode}` : ''}
+                  </p>
                 </div>
               </div>
 
-              <div className="border border-line rounded-none overflow-hidden">
-                <table className="w-full text-left text-xs border-collapse" id="active-invoice-breakdown-table">
+              {/* Invoice */}
+              <div className="border border-line overflow-x-auto">
+                <table className="w-full min-w-[28rem] text-left text-sm border-collapse" id="active-invoice-breakdown-table">
                   <thead>
-                    <tr className="bg-surface-accent border-b border-line text-2xs text-subtle uppercase tracking-wider font-semibold">
-                      <th className="px-3 py-1.5 font-bold">Billing Item Description</th>
-                      <th className="px-3 py-1.5 text-right font-bold w-32">Total Price (MYR)</th>
+                    <tr className="bg-surface-muted border-b border-line text-xs font-semibold text-muted">
+                      <th className="px-4 py-3">Item</th>
+                      <th className="px-4 py-3 text-right w-36">Amount (MYR)</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr className="border-b border-line-subtle text-muted">
-                      <td className="px-2.5 py-1.5">Consultation fee</td>
-                      <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(CONSULTATION_FEE)}</td>
+                  <tbody className="[&>tr>td]:border-b [&>tr>td]:border-line-subtle [&>tr>td]:align-top">
+                    <tr>
+                      <td className="px-4 py-3 font-semibold text-ink">Consultation fee</td>
+                      <td className="px-4 py-3 text-right tabular-nums font-semibold">{rm(CONSULTATION_FEE)}</td>
                     </tr>
-                    <tr className="border-b border-line-subtle text-muted">
-                      <td className="px-2.5 py-1.5">Clinical procedures / nursing</td>
-                      <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(PROCEDURE_FEE)}</td>
+                    <tr>
+                      <td className="px-4 py-3 font-semibold text-ink">Clinical procedures and nursing</td>
+                      <td className="px-4 py-3 text-right tabular-nums font-semibold">{rm(PROCEDURE_FEE)}</td>
                     </tr>
-
                     {prescription.length > 0 && (
-                      <tr className="border-b border-line-subtle text-muted">
-                        <td className="px-2.5 py-1.5">
-                          <span>Dispensed medications</span>
-                          <div className="text-2xs text-slate-400 pl-2.5 mt-0.5">
+                      <tr>
+                        <td className="px-4 py-3">
+                          <span className="font-semibold text-ink">Dispensed medications</span>
+                          <ul className="mt-1 text-xs text-muted space-y-0.5">
                             {prescription.map((rx, i) => (
-                              <div key={i}>• {rx.drugName} (Qty: {rx.quantity} @ {rm(rx.pricePerUnit)})</div>
+                              <li key={i}>{rx.drugName} (qty {rx.quantity} at {rm(rx.pricePerUnit)})</li>
                             ))}
-                          </div>
+                          </ul>
                         </td>
-                        <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(billingBreakdown.medicationCost)}</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-semibold">{rm(billingBreakdown.medicationCost)}</td>
                       </tr>
                     )}
-
                     {customLineItems.length > 0 && (
-                      <tr className="border-b border-line-subtle text-muted">
-                        <td className="px-2.5 py-1.5">
-                          <span>Additional charges</span>
-                          <div className="text-2xs text-slate-400 pl-2.5 mt-0.5 space-y-1">
+                      <tr>
+                        <td className="px-4 py-3">
+                          <span className="font-semibold text-ink">Additional charges</span>
+                          <ul className="mt-1 text-xs text-muted space-y-1">
                             {customLineItems.map((item, i) => (
-                              <div key={i} className="flex items-center gap-2">
-                                <span>• {item.description} ({rm(item.amount)})</span>
+                              <li key={i} className="flex items-center gap-2">
+                                <span>{item.description} ({rm(item.amount)})</span>
                                 <button
                                   type="button"
                                   onClick={() => setCustomLineItems(customLineItems.filter((_, idx) => idx !== i))}
-                                  className="text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+                                  className="w-9 h-9 -my-2 flex items-center justify-center text-rose-700 hover:bg-rose-50 cursor-pointer"
                                   aria-label={`Remove charge: ${item.description}`}
                                 >
-                                  <Trash2 className="w-3 h-3" aria-hidden="true" />
+                                  <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                                 </button>
-                              </div>
+                              </li>
                             ))}
-                          </div>
+                          </ul>
                         </td>
-                        <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(billingBreakdown.customItemsTotal)}</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-semibold">{rm(billingBreakdown.customItemsTotal)}</td>
                       </tr>
                     )}
-
                     {billingBreakdown.discountAmount > 0 && (
-                      <tr className="border-b border-line-subtle text-red-600 bg-red-50/50">
-                        <td className="px-3 py-2 font-semibold">Discount ({discount.type === 'percentage' ? `${discount.value}%` : 'fixed amount'})</td>
-                        <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-bold">-{rm(billingBreakdown.discountAmount)}</td>
+                      <tr className="text-rose-700 bg-rose-50 dark:bg-rose-950/40 dark:text-rose-200">
+                        <td className="px-4 py-3 font-semibold">Discount ({discount.type === 'percentage' ? `${discount.value}%` : 'fixed amount'})</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-bold">-{rm(billingBreakdown.discountAmount)}</td>
                       </tr>
                     )}
-
-                    <tr className="border-b border-line bg-surface-accent font-medium text-muted font-mono tabular-nums text-2xs">
-                      <td className="px-3 py-1.5 text-right font-semibold">Subtotal:</td>
-                      <td className="px-3 py-1.5 text-right font-bold">{rm(billingBreakdown.subtotal)}</td>
+                    <tr className="bg-surface-muted text-muted">
+                      <td className="px-4 py-2.5 text-right">Subtotal</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">{rm(billingBreakdown.subtotal)}</td>
                     </tr>
-                    <tr className="border-b border-line bg-surface-accent text-muted font-mono tabular-nums text-2xs">
-                      <td className="px-3 py-1.5 text-right font-semibold">SST ({settings.billing.taxRate}%):</td>
-                      <td className="px-3 py-1.5 text-right font-semibold">{rm(billingBreakdown.sstTax)}</td>
+                    <tr className="bg-surface-muted text-muted">
+                      <td className="px-4 py-2.5 text-right">SST ({settings.billing.taxRate}%)</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">{rm(billingBreakdown.sstTax)}</td>
                     </tr>
-                    <tr className="bg-surface-strong font-bold text-strong font-mono tabular-nums text-xs">
-                      <td className="px-3 py-2 text-right text-accent font-bold">Invoice Grand Total:</td>
-                      <td className="px-3 py-2 text-right text-accent font-bold">{rm(billingBreakdown.grandTotal)}</td>
+                    <tr className="bg-surface-strong text-accent font-bold">
+                      <td className="px-4 py-3 text-right !border-b-0">Invoice grand total</td>
+                      <td className="px-4 py-3 text-right tabular-nums !border-b-0">{rm(billingBreakdown.grandTotal)}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Adjustments */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-2">
-                <div className="bg-surface-accent p-2.5 rounded-none border border-line">
-                  <h5 className="type-label text-muted mb-2 flex items-center gap-1"><Plus className="w-3 h-3" aria-hidden="true" /> Add charge</h5>
-                  <div className="flex gap-2">
-                    <input type="text" aria-label="Charge description" placeholder="Description" value={customDesc} onChange={(e) => setCustomDesc(e.target.value)} className="flex-1 text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none" />
-                    <input type="number" min="0" step="0.01" aria-label="Charge amount in RM" placeholder="RM" value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} className="w-20 text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none font-mono" />
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4">
+                <fieldset className="min-w-0 p-4 border border-line bg-surface-muted">
+                  <legend className="px-1.5 text-xs font-bold text-accent">Add charge</legend>
+                  <div className="flex flex-wrap gap-2">
+                    <input type="text" aria-label="Charge description" placeholder="Description" value={customDesc} onChange={(e) => setCustomDesc(e.target.value)} className="flex-[1_1_8rem] min-h-11 px-3 text-sm bg-surface border border-line rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent" />
+                    <input type="number" min="0" step="0.01" aria-label="Charge amount in RM" placeholder="RM" value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} className="flex-[0_0_5.5rem] min-h-11 px-3 text-sm tabular-nums bg-surface border border-line rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent" />
                     <button type="button" onClick={() => {
                       const amt = parseFloat(customAmount);
                       if (customDesc.trim() && !isNaN(amt) && amt > 0) {
@@ -543,33 +461,37 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
                         setCustomDesc('');
                         setCustomAmount('');
                       }
-                    }} className="bg-primary text-white px-2 py-1.5 rounded-none text-xs font-bold hover:bg-primary-hover cursor-pointer">Add</button>
+                    }} className="btn-secondary px-4 text-sm">Add</button>
                   </div>
-                </div>
+                </fieldset>
 
-                <div className="bg-surface-accent p-2.5 rounded-none border border-line">
-                  <h5 className="type-label text-muted mb-2 flex items-center gap-1"><Percent className="w-3 h-3" aria-hidden="true" /> Discount</h5>
-                  <div className="flex gap-2">
-                    <select aria-label="Discount type" value={discountType} onChange={(e) => setDiscountType(e.target.value as 'fixed' | 'percentage')} className="text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none bg-surface">
+                <fieldset className="min-w-0 p-4 border border-line bg-surface-muted">
+                  <legend className="px-1.5 text-xs font-bold text-accent">Discount</legend>
+                  <div className="flex flex-wrap gap-2">
+                    <select aria-label="Discount type" value={discountType} onChange={(e) => setDiscountType(e.target.value as 'fixed' | 'percentage')} className="flex-[0_0_7rem] min-h-11 px-2 text-sm bg-surface border border-line rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent">
                       <option value="fixed">Fixed RM</option>
-                      <option value="percentage">%</option>
+                      <option value="percentage">Percent</option>
                     </select>
-                    <input type="number" min="0" step="0.01" aria-label="Discount value" placeholder="Value" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="flex-1 text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none font-mono" />
+                    <input type="number" min="0" step="0.01" aria-label="Discount value" placeholder="Value" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="flex-[1_1_6rem] min-h-11 px-3 text-sm tabular-nums bg-surface border border-line rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent" />
                     <button type="button" onClick={() => {
                       const val = parseFloat(discountInput);
                       if (!isNaN(val) && val >= 0) setDiscount({ type: discountType, value: val });
-                    }} className="bg-slate-600 text-white px-2 py-1.5 rounded-none text-xs font-bold hover:bg-slate-700 cursor-pointer">Apply</button>
+                    }} className="btn-secondary px-4 text-sm">Apply</button>
                   </div>
-                </div>
+                </fieldset>
               </div>
 
               {/* Panel claim */}
-              <div className="bg-surface-accent p-3.5 rounded-none border border-line space-y-3.5">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold text-muted uppercase tracking-tight flex items-center gap-1.5">
-                    <ClipboardCheck className="w-4 h-4 text-accent" aria-hidden="true" />
-                    Panel / TPA claim
-                  </span>
+              <div className="border border-line">
+                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 bg-surface-muted border-b border-line">
+                  <div>
+                    <p className="text-sm font-bold text-ink">Panel / TPA claim</p>
+                    <p className="text-xs text-muted">
+                      {isPanelClaim && selectedTPA
+                        ? `${selectedTPA.name} covers up to ${rm(selectedTPA.coverageLimit)}${selectedTPA.coPayRequired ? ` with a ${selectedTPA.coPayPercentage ?? 0}% co-pay` : ''}.`
+                        : 'Claim part of this bill from a corporate panel or insurer.'}
+                    </p>
+                  </div>
                   <button
                     type="button"
                     id="panel-claims-toggle"
@@ -577,7 +499,7 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
                     disabled={tpaList.length === 0}
                     title={tpaList.length === 0 ? 'No panels are set up' : undefined}
                     aria-pressed={isPanelClaim}
-                    className={`px-3 py-1.5 rounded-none text-xs font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isPanelClaim ? 'bg-primary text-white' : 'bg-surface border border-line text-muted hover:bg-surface-strong'}`}
+                    className={`min-h-11 px-4 text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isPanelClaim ? 'bg-primary text-white' : 'btn-secondary'}`}
                   >
                     {isPanelClaim ? 'Panel claim on' : 'Claim from a panel'}
                   </button>
@@ -585,12 +507,12 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
 
                 {isPanelClaim && (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-2 border-t border-line/60 text-xs">
-                      <div className="space-y-1">
-                        <label htmlFor="tpa-select" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Panel</label>
+                    <div className="p-4 grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4">
+                      <div>
+                        <label htmlFor="tpa-select" className="block text-xs font-semibold text-ink mb-1.5">Panel</label>
                         <select
                           id="tpa-select"
-                          className="w-full text-xs px-2 py-1.5 bg-surface border border-line rounded-none focus:ring-1 focus:ring-teal-600 focus:outline-none font-medium text-strong"
+                          className="w-full min-h-11 px-3 text-sm bg-surface border border-line rounded-none text-ink outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                           value={selectedTPA?.name || ''}
                           onChange={(e) => setSelectedTPA(tpaList.find((x) => x.name === e.target.value) ?? null)}
                         >
@@ -600,57 +522,47 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
                         </select>
                       </div>
 
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <label htmlFor="gl-ref-input" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Guarantee letter (GL) reference</label>
-                          <button
-                            type="button"
-                            onClick={handleAutoVerifyGL}
-                            className="text-2xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
-                          >
-                            <span>⚡ Auto-Verify TPA</span>
-                          </button>
+                      <div>
+                        <label htmlFor="gl-ref-input" className="block text-xs font-semibold text-ink mb-1.5">Guarantee letter (GL) reference</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            id="gl-ref-input"
+                            className="flex-1 min-w-0 min-h-11 px-3 text-sm tabular-nums uppercase bg-surface border border-line rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
+                            value={glReferenceNo}
+                            onChange={(e) => setGlReferenceNo(e.target.value)}
+                            placeholder="e.g. MIC-GL-10292"
+                            aria-describedby="gl-note"
+                          />
+                          <button type="button" onClick={handleAutoVerifyGL} className="btn-secondary shrink-0 px-4 text-sm">Verify</button>
                         </div>
-                        <input
-                          type="text"
-                          id="gl-ref-input"
-                          className="w-full text-xs border border-line rounded-none px-2 py-1.5 font-mono uppercase"
-                          value={glReferenceNo}
-                          onChange={(e) => setGlReferenceNo(e.target.value)}
-                          placeholder="e.g. MIC-GL-10292"
-                          aria-describedby="gl-note"
-                        />
                         {tpaVerificationInfo ? (
-                          <div className="text-2xs font-mono font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-1.5 border border-emerald-300">
-                            {tpaVerificationInfo}
-                          </div>
+                          <p className="mt-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">{tpaVerificationInfo}</p>
                         ) : (
-                          <p id="gl-note" className="text-2xs text-subtle">Copy it from panel letter or click Auto-Verify to ping TPA engine.</p>
+                          <p id="gl-note" className="mt-1 text-xs text-muted">Copy it from the panel letter, or choose Verify to check with the panel.</p>
                         )}
                       </div>
                     </div>
 
-                    <div id="panel-split-breakdown" className="bg-surface-strong p-3 rounded-none border border-brand/10 text-xs flex flex-row flex-wrap gap-3 items-center justify-between text-accent font-medium leading-relaxed">
-                      <div>
-                        <span className="text-2xs uppercase text-subtle block font-mono">To claim from panel:</span>
-                        <strong>{rm(claimAmount)}</strong>
+                    <dl id="panel-split-breakdown" className="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-px bg-line border-t border-line">
+                      <div className="bg-surface-strong px-4 py-3">
+                        <dt className="text-xs text-muted">To claim from panel</dt>
+                        <dd className="mt-0.5 text-lg font-bold tabular-nums text-accent">{rm(claimAmount)}</dd>
                       </div>
-                      <div>
-                        <span className="text-2xs uppercase text-subtle block font-mono">Patient pays now:</span>
-                        <strong>{rm(dueNow)}</strong>
+                      <div className="bg-surface-strong px-4 py-3">
+                        <dt className="text-xs text-muted">Patient pays now</dt>
+                        <dd className="mt-0.5 text-lg font-bold tabular-nums text-accent">{rm(dueNow)}</dd>
                       </div>
-                      <div className="text-right">
-                        <span className="text-2xs uppercase text-subtle block font-mono">Co-pay:</span>
-                        <span className="text-2xs font-bold uppercase">
-                          {selectedTPA?.coPayRequired ? `${selectedTPA.coPayPercentage ?? 0}% applied` : 'None'}
-                        </span>
+                      <div className="bg-surface-strong px-4 py-3">
+                        <dt className="text-xs text-muted">Co-pay</dt>
+                        <dd className="mt-0.5 text-lg font-bold text-accent">{selectedTPA?.coPayRequired ? `${selectedTPA.coPayPercentage ?? 0}% applied` : 'None'}</dd>
                       </div>
-                    </div>
+                    </dl>
 
-                    <ul className="text-xs space-y-1" aria-label="Panel claim checklist">
-                      <li className={glMissing ? 'text-amber-800 font-bold' : 'text-emerald-700'}>{glMissing ? '• Enter the GL reference to continue.' : '✓ GL reference entered.'}</li>
-                      <li className={activeVisit.soap?.assessment?.icdCode ? 'text-emerald-700' : 'text-amber-800 font-bold'}>
-                        {activeVisit.soap?.assessment?.icdCode ? `✓ Diagnosis recorded (${activeVisit.soap.assessment.icdCode}).` : '• No diagnosis code on this visit; panels usually require one.'}
+                    <ul className="px-4 py-3 text-sm space-y-1 border-t border-line" aria-label="Panel claim checklist">
+                      <li className={glMissing ? 'text-amber-800 dark:text-amber-300 font-bold' : 'text-emerald-800 dark:text-emerald-300'}>{glMissing ? 'Enter the GL reference to continue.' : 'GL reference entered.'}</li>
+                      <li className={activeVisit.soap?.assessment?.icdCode ? 'text-emerald-800 dark:text-emerald-300' : 'text-amber-800 dark:text-amber-300 font-bold'}>
+                        {activeVisit.soap?.assessment?.icdCode ? `Diagnosis recorded (${activeVisit.soap.assessment.icdCode}).` : 'No diagnosis code on this visit; panels usually require one.'}
                       </li>
                     </ul>
                   </>
@@ -658,77 +570,145 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
               </div>
 
               {/* Take payment */}
-              <div className="space-y-2">
+              <div>
                 {panelOnly ? (
                   <button
                     type="button"
                     onClick={confirmPanelOnly}
                     disabled={payBlocked}
-                    className="w-full bg-primary hover:bg-primary-hover text-white font-semibold rounded-none p-3 text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-primary w-full min-h-14 px-4 text-sm"
                   >
                     <ClipboardCheck className="w-5 h-5" aria-hidden="true" />
-                    <span>Record panel claim (nothing to collect from the patient)</span>
+                    Record panel claim (nothing to collect from the patient)
                   </button>
                 ) : (
                   <>
-                    <p className="block text-2xs font-bold text-subtle uppercase tracking-wider">Take payment of {rm(dueNow)}</p>
-                    <div id="payment-method-selector" className="grid grid-cols-3 gap-2.5">
+                    <p className="pb-3 text-xs font-bold text-accent tracking-wide">Take payment of {rm(dueNow)}</p>
+                    <div id="payment-method-selector" className="grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-3">
                       <button
                         type="button"
                         id="checkout-cash-btn"
                         onClick={() => { setSaveError(null); setCashReceived(''); setStage('cash'); }}
                         disabled={payBlocked}
-                        className="bg-primary/90 hover:bg-primary border border-line text-white font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="min-h-[4.5rem] bg-primary hover:bg-primary-hover text-white text-sm font-bold flex flex-col items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                       >
-                        <DollarSign className="w-5 h-5 text-white" aria-hidden="true" />
-                        <span>Cash</span>
+                        <DollarSign className="w-5 h-5" aria-hidden="true" />
+                        Cash
                       </button>
-
                       <button
                         type="button"
                         id="checkout-card-btn"
                         onClick={() => { setSaveError(null); setStage('card'); }}
                         disabled={payBlocked || dueNow < 2}
                         title={dueNow < 2 ? 'Card payments start at RM2.00' : undefined}
-                        className="bg-surface hover:bg-surface-accent border border-line text-muted font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="min-h-[4.5rem] bg-surface hover:bg-surface-strong border border-line text-ink text-sm font-bold flex flex-col items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
-                        <CreditCard className="w-5 h-5 text-teal-600" aria-hidden="true" />
-                        <span>Debit / Credit card</span>
+                        <CreditCard className="w-5 h-5 text-accent" aria-hidden="true" />
+                        Debit / credit card
                       </button>
-
                       <button
                         type="button"
                         id="checkout-ewallet-btn"
                         onClick={() => { setSaveError(null); setWalletRef(''); setStage('ewallet'); }}
                         disabled={payBlocked}
-                        className="bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-800 font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="min-h-[4.5rem] bg-surface hover:bg-surface-strong border border-line text-ink text-sm font-bold flex flex-col items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
-                        <Wallet className="w-5 h-5 text-sky-500" aria-hidden="true" />
-                        <span>e-Wallet / bank transfer</span>
+                        <Wallet className="w-5 h-5 text-accent" aria-hidden="true" />
+                        e-Wallet / bank transfer
                       </button>
                     </div>
                   </>
                 )}
                 {saveError && stage === null && !unrecorded && (
-                  <p role="alert" className="text-xs text-rose-700 font-medium">{saveError}</p>
+                  <p role="alert" className="mt-3 text-sm text-rose-700 dark:text-rose-300 font-medium">{saveError}</p>
                 )}
               </div>
-
-            </div>
+            </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-400 p-8">
-              <ClipboardCheck className="w-12 h-12 text-slate-200 mb-2" aria-hidden="true" />
-              <p className="text-sm font-semibold">Select a patient in the billing queue</p>
-              <p className="text-xs text-slate-400 mt-1">Dispensed visits appear here to be billed.</p>
+            <div className="flex-1 min-h-[20rem] flex flex-col items-center justify-center text-center">
+              <ClipboardCheck className="w-10 h-10 text-accent opacity-40 mb-3" aria-hidden="true" />
+              <p className="text-sm font-semibold text-ink">Select a patient in the billing queue</p>
+              <p className="text-xs text-muted mt-1">Dispensed visits appear here to be billed.</p>
             </div>
           )}
 
-          <div className="border-t border-line-subtle pt-3.5 mt-5 text-2xs text-slate-400 leading-relaxed text-center flex items-center justify-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
-            <p id="compliance-note-footer">{t.complianceText}</p>
+          <p id="compliance-note-footer" className="mt-auto pt-4 border-t border-line text-xs text-muted leading-relaxed flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
+            {t.complianceText}
+          </p>
+        </article>
+
+        {/* QUEUE and recent receipts */}
+        <aside className="flex-[1_1_20rem] min-w-0 border-t lg:border-t-0 lg:border-l border-line flex flex-col" aria-labelledby="billing-queue-title">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+            <h2 id="billing-queue-title" className="text-base font-bold text-ink">{t.totalBilling || 'Awaiting payment'}</h2>
+            <span className="px-2.5 py-1 bg-surface-muted text-muted text-xs font-semibold">{queue.length} pending</span>
+            <div role="status" aria-live="polite" className="sr-only">
+              {queue.length} patient{queue.length === 1 ? '' : 's'} in cashier billing queue
+            </div>
           </div>
-        </div>
-      </div>
+
+          {queue.length === 0 ? (
+            <div className="px-5 py-8 text-center">
+              <CheckCircle2 className="w-8 h-8 text-accent mx-auto mb-2" aria-hidden="true" />
+              <p className="text-sm font-semibold text-ink">All accounts balanced</p>
+              <p className="text-xs text-muted mt-1">Dispensed pharmacy tickets will queue here for billing.</p>
+            </div>
+          ) : (
+            <ol className="max-h-[26rem] overflow-y-auto">
+              {queue.map((visit) => {
+                const pt = patientsMap[visit.patientId];
+                const isSelected = activeVisit?.id === visit.id;
+                if (!pt) return null;
+                return (
+                  <li key={visit.id} className="border-b border-line-subtle">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectVisit(visit.id)}
+                      aria-current={isSelected ? 'true' : undefined}
+                      className={`w-full flex items-center gap-3 px-5 py-3 text-left cursor-pointer transition-colors hover:bg-surface-accent ${focusRing} ${isSelected ? 'bg-surface-accent shadow-[inset_3px_0_0_var(--color-primary)]' : ''}`}
+                    >
+                      <span className="shrink-0 w-9 h-9 bg-surface-strong text-accent flex items-center justify-center text-xs font-bold" aria-hidden="true">{initialsOf(pt.fullName)}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-ink truncate">{pt.fullName}</span>
+                        <span className="block text-xs text-muted truncate">{pt.panelEmployer === 'None (Self-Pay)' ? 'Self-pay' : pt.panelEmployer}</span>
+                      </span>
+                      <span className="shrink-0 text-sm font-bold tabular-nums text-accent">Est. {rm(estimateFor(visit))}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+
+          <div className="mt-auto">
+            <h3 className="px-5 pt-4 pb-2 text-sm font-bold text-ink border-t border-line">Recent receipts</h3>
+            {transactions.length === 0 ? (
+              <p className="px-5 pb-4 text-xs text-muted">No payments recorded yet.</p>
+            ) : (
+              <ul>
+                {transactions.slice(0, 6).map((trx) => (
+                  <li key={trx.id} className="flex items-center justify-between gap-3 px-5 py-2.5 border-t border-line-subtle">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-ink truncate">{trx.patientName ?? 'Patient'}</p>
+                      <p className="text-xs text-muted tabular-nums">{trx.receiptNo ?? 'Older payment'} · {rm(trx.paidAmount + trx.panelClaimed)}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => printReceipt({ ...trx, visitId: trx.visitId, paymentReference: trx.paymentReference })}
+                      className="btn-secondary shrink-0 px-3 text-xs"
+                      aria-label={`Reprint receipt for ${trx.patientName ?? 'patient'}`}
+                    >
+                      <Printer className="w-3.5 h-3.5" aria-hidden="true" />
+                      Reprint
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </aside>
+      </section>
 
       {/* CARD */}
       {stage === 'card' && activePatient && activeVisit && !saving && (
