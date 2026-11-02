@@ -4,13 +4,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { doctorName as nameOfDoctor } from '../../domain/doctorAssignment';
 import { formatNric } from '../../utils/nric';
 import { Appointment, Patient, UserRole } from '../../types';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import { 
-  Calendar, Clock, Plus, Search, User, Phone, CheckCircle2, 
-  XCircle, AlertCircle, ChevronLeft, ChevronRight, Check, Activity, Filter, Globe, LogIn, ShieldAlert
-} from 'lucide-react';
+import { PageHeading, StatStrip } from '../../components/ui/StationChrome';
+import { Clock, Plus, Phone, XCircle, ChevronLeft, ChevronRight, Globe, LogIn, ShieldAlert } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay, parseISO, setHours, setMinutes } from 'date-fns';
 
 interface AppointmentCalendarProps {
@@ -139,428 +134,258 @@ export default function AppointmentCalendarModule({
     await updateAppointment(id, { status });
   };
 
-  return (
-    <div className="space-y-3.5 animate-fadeIn">
-      {/* Top Header Controls Toolbar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-surface p-3 rounded-none shadow-none border border-line">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary/10 border border-brand/20 flex items-center justify-center rounded-none">
-            <Calendar className="w-5 h-5 text-accent dark:text-teal-300" />
-          </div>
-          <div>
-            <h2 className="type-section-title text-ink dark:text-teal-300">{isBM ? 'Penjadual Temu Janji' : 'Appointment Scheduler'}</h2>
-            <p className="text-xs text-accent dark:text-teal-300 font-mono font-medium">{isBM ? 'Urus slot klinikal, tempahan perundingan dan status giliran' : 'Manage clinical slots, consultation bookings, and queue statuses'}</p>
-          </div>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button 
-            onClick={() => setCurrentDate(new Date())}
-            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-2 rounded-none transition-colors shadow-xs uppercase tracking-wider font-mono flex items-center justify-center gap-1.5"
-          >
-            <Clock className="w-3.5 h-3.5" />
-            {isBM ? 'Hari Ini' : 'Today'}
-          </button>
-          
-          <div className="flex items-center bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/50 rounded-none p-0.5">
-            <button 
-              onClick={() => setCurrentDate(addDays(currentDate, -7))}
-              className="p-1.5 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 rounded-none transition-colors"
-              title="Previous Week"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="text-xs font-bold font-mono text-ink dark:text-teal-300 px-3 min-w-[120px] text-center uppercase tracking-wider">
-              {format(currentDate, 'MMM yyyy')}
-            </span>
-            <button 
-              onClick={() => setCurrentDate(addDays(currentDate, 7))}
-              className="p-1.5 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 rounded-none transition-colors"
-              title="Next Week"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+  const onlineCount = todayAppointments.filter((a) => a.source === 'online').length;
+  const openSlots = Math.max(0, timeSlots.length - totalBooked);
+  const bookingsOn = (day: Date) => appointments.filter((a) => isSameDay(parseISO(a.appointmentTime), day)).length;
+  const controlField = 'w-full min-h-11 px-3 bg-surface border border-line text-sm text-ink rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent';
+  const labelClass = 'block text-xs font-semibold text-ink mb-1.5';
 
-          <div className="flex items-center justify-center gap-1.5 bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/50 px-2 py-1">
-            <Filter className="w-3.5 h-3.5 text-accent dark:text-teal-300" />
-            <select 
-              value={slotDuration} 
-              onChange={(e) => setSlotDuration(Number(e.target.value))}
-              className="border-none bg-transparent text-xs font-bold font-mono text-ink dark:text-teal-300 outline-none cursor-pointer pr-1"
-            >
-              <option value={15} className="dark:bg-night-900">15 Min Slots</option>
-              <option value={30} className="dark:bg-night-900">30 Min Slots</option>
-              <option value={60} className="dark:bg-night-900">1 Hour Slots</option>
-            </select>
+  return (
+    <div className="space-y-4 animate-fadeIn">
+      <PageHeading eyebrow={isBM ? 'Meja hadapan' : 'Front desk'} title={isBM ? 'Temu janji' : 'Appointments'}>
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => setCurrentDate(new Date())} className="btn-secondary min-h-11 px-4 text-sm">
+            {isBM ? 'Hari ini' : 'Today'}
+          </button>
+          <div className="flex items-center border border-line bg-surface">
+            <button type="button" onClick={() => setCurrentDate(addDays(currentDate, -7))} className="w-11 h-11 flex items-center justify-center text-accent hover:bg-surface-strong cursor-pointer" aria-label={isBM ? 'Minggu sebelumnya' : 'Previous week'}>
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+            </button>
+            <span className="min-w-[7rem] text-center text-sm font-bold text-ink px-2">{format(currentDate, 'MMM yyyy')}</span>
+            <button type="button" onClick={() => setCurrentDate(addDays(currentDate, 7))} className="w-11 h-11 flex items-center justify-center text-accent hover:bg-surface-strong cursor-pointer" aria-label={isBM ? 'Minggu seterusnya' : 'Next week'}>
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
+            </button>
+          </div>
+          <div role="group" aria-label={isBM ? 'Tempoh slot' : 'Slot length'} className="flex border border-line bg-surface">
+            {([[15, '15 min'], [30, '30 min'], [60, isBM ? '1 jam' : '1 hour']] as [number, string][]).map(([mins, label], i) => (
+              <button
+                key={mins}
+                type="button"
+                aria-pressed={slotDuration === mins}
+                onClick={() => setSlotDuration(mins)}
+                className={`min-h-11 px-3.5 text-sm cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${i > 0 ? 'border-l border-line' : ''} ${slotDuration === mins ? 'bg-primary text-white font-bold' : 'text-muted font-semibold hover:bg-surface-strong hover:text-ink'}`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
+      </PageHeading>
 
       {isAdmin && (
-        <div className="flex items-center gap-2 p-3 text-xs bg-primary/10 border border-brand/20 text-accent font-medium">
-          <ShieldAlert className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3 text-sm bg-surface-accent border border-line text-ink">
+          <ShieldAlert className="w-4 h-4 shrink-0 text-accent" aria-hidden="true" />
           <span>
             {isBM
               ? 'Paparan Pentadbir: Jadual temu janji adalah untuk bacaan sahaja. Tempahan temu janji pesakit dikhaskan untuk kakitangan kaunter penyambut tetamu.'
-              : 'Administrator Notice: Appointment scheduling is read-only. Clinical appointment bookings are reserved for front desk receptionists.'}
+              : 'Administrator notice: appointment scheduling is read-only. Clinical appointment bookings are reserved for front desk receptionists.'}
           </span>
         </div>
       )}
 
       {notice && (
-        <div role={notice.tone === 'error' ? 'alert' : 'status'} className={`flex items-start justify-between gap-3 p-3 text-xs font-medium border ${notice.tone === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
+        <div role={notice.tone === 'error' ? 'alert' : 'status'} className={`flex items-start justify-between gap-3 px-4 py-3 text-sm font-medium border ${notice.tone === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-100' : 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-100'}`}>
           <span>{notice.text}</span>
-          <button type="button" onClick={() => setNotice(null)} className="font-bold underline cursor-pointer">Dismiss</button>
+          <button type="button" onClick={() => setNotice(null)} className="font-bold underline cursor-pointer">{isBM ? 'Tutup' : 'Dismiss'}</button>
         </div>
       )}
 
-      {/* Main Calendar Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3.5">
-        
-        {/* Left Sidebar: Week Day Picker & Daily Summary */}
-        <div className="lg:col-span-1 space-y-3">
-          <div className="bg-surface border border-line rounded-none p-3 space-y-2.5 shadow-none">
-            <div className="flex items-center justify-between border-b border-line-subtle dark:border-teal-800/40 pb-2">
-              <h3 className="type-label text-accent dark:text-teal-300 font-mono">{isBM ? 'Minggu Ini' : 'This Week'}</h3>
-              <span className="text-2xs font-mono font-bold text-accent bg-primary/10 dark:bg-teal-900/40 px-1.5 py-0.5 rounded-none">
-                {format(startOfCurrentWeek, 'MMM d')} - {format(addDays(startOfCurrentWeek, 6), 'MMM d')}
-              </span>
-            </div>
+      <StatStrip
+        label={isBM ? 'Ringkasan harian' : 'Day summary'}
+        stats={[
+          { label: isBM ? 'Ditempah' : 'Booked', value: totalBooked, note: isBM ? 'Temu janji hari ini' : 'Appointments today' },
+          { label: isBM ? 'Selesai' : 'Completed', value: completedCount, note: isBM ? 'Sudah dilihat' : 'Seen and closed' },
+          { label: isBM ? 'Slot kosong' : 'Open slots', value: openSlots, note: isBM ? 'Masih tersedia' : 'Still available' },
+          { label: isBM ? 'Tempahan dalam talian' : 'Booked online', value: onlineCount, note: isBM ? 'Dari laman web klinik' : 'From the clinic website' },
+        ]}
+      />
 
-            <div className="space-y-1.5">
-              {weekDays.map(day => {
-                const isSelected = isSameDay(day, currentDate);
-                const isToday = isSameDay(day, new Date());
-                return (
-                  <button
-                    key={day.toISOString()}
-                    onClick={() => setCurrentDate(day)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-bold transition-all border ${
-                      isSelected 
-                        ? 'bg-primary text-white border-brand shadow-xs' 
-                        : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-none ${isToday ? (isSelected ? 'bg-white' : 'bg-primary dark:bg-teal-300') : 'bg-transparent'}`} />
-                      <span>{format(day, 'EEEE')}</span>
-                    </span>
-                    <span className={`font-mono text-2xs ${isSelected ? 'text-teal-100' : 'text-accent dark:text-teal-400'}`}>
-                      {format(day, 'MMM d')}
-                    </span>
-                  </button>
-                );
-              })}
+      <section className="flex flex-wrap bg-surface border border-line">
+        {/* DAY SCHEDULE */}
+        <article className="flex-[999_1_36rem] min-w-0 flex flex-col" aria-labelledby="appointments-day">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 border-b border-line">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 id="appointments-day" className="text-xl font-bold tracking-tight text-ink">{format(currentDate, 'EEEE, d MMMM yyyy')}</h2>
+              {isSameDay(currentDate, new Date()) && <span className="px-2.5 py-0.5 bg-surface-strong text-accent text-xs font-bold">{isBM ? 'Hari ini' : 'Today'}</span>}
             </div>
+            <span className="text-xs text-muted">{timeSlots.length} {isBM ? 'slot' : 'slots'} · {slotDuration} {isBM ? 'minit sela' : 'minute interval'}</span>
           </div>
 
-          {/* Daily Quick Stats Card */}
-          <div className="bg-surface border border-line rounded-none p-3 space-y-2 shadow-none">
-            <h4 className="type-label text-accent dark:text-teal-300 font-mono border-b border-line-subtle dark:border-teal-800/40 pb-2">{isBM ? 'Ringkasan Harian' : 'Day Summary'}</h4>
-            <div className="grid grid-cols-2 gap-2 text-center">
-              <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2.5 rounded-none">
-                <span className="block text-xl font-bold font-mono text-ink dark:text-teal-300">{totalBooked}</span>
-                <span className="text-2xs font-bold uppercase tracking-wider text-accent dark:text-teal-300 font-mono">{isBM ? 'Ditempah' : 'Booked'}</span>
-              </div>
-              <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2.5 rounded-none">
-                <span className="block text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{completedCount}</span>
-                <span className="text-2xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 font-mono">{isBM ? 'Selesai' : 'Completed'}</span>
-              </div>
-            </div>
-            <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/30 p-2 rounded-none flex justify-between items-center px-3">
-              <span className="text-xs font-bold text-accent dark:text-teal-300">{isBM ? 'Slot Kosong:' : 'Pending Slots:'}</span>
-              <span className="font-mono font-bold text-xs text-accent dark:text-teal-300">{timeSlots.length - totalBooked} {isBM ? 'Tersedia' : 'Available'}</span>
-            </div>
-          </div>
-        </div>
+          <div className="px-6 pt-4 pb-6 flex flex-col gap-3">
+            {timeSlots.map((time) => {
+              // Every booking that starts in this slot (different doctors can share a time)
+              const slotAppointments = todayAppointments.filter((a) => {
+                const aTime = parseISO(a.appointmentTime);
+                return aTime.getTime() >= time.getTime() && aTime.getTime() < time.getTime() + slotDuration * 60000;
+              });
+              const hasBooking = slotAppointments.length > 0;
 
-        {/* Right Main Area: Time Slots for Selected Day */}
-        <div className="lg:col-span-3">
-          <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs min-h-[600px] flex flex-col">
-            
-            {/* Header bar */}
-            <div className="bg-surface-accent border-b border-line px-3.5 py-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div className="flex items-center gap-2.5">
-                <h3 className="type-heading-caps text-ink dark:text-teal-300 font-mono">
-                  {format(currentDate, 'EEEE, MMMM d, yyyy')}
-                </h3>
-                {isSameDay(currentDate, new Date()) && (
-                  <span className="bg-primary text-white text-2xs font-bold uppercase px-2 py-0.5 rounded-none font-mono tracking-wider">
-                    Today
+              return (
+                <div key={time.toISOString()} className="flex gap-4 items-start">
+                  <span className={`shrink-0 w-[4.5rem] pt-3.5 text-right text-sm font-bold tabular-nums ${hasBooking ? 'text-accent' : 'text-muted'}`}>
+                    {format(time, 'hh:mm a')}
                   </span>
-                )}
-              </div>
-              <div className="text-xs font-mono font-bold text-accent dark:text-teal-300 flex items-center gap-2">
-                <Activity className="w-3.5 h-3.5 text-accent dark:text-teal-300" />
-                <span>{timeSlots.length} Slots ({slotDuration}m interval)</span>
-              </div>
-            </div>
-
-            {/* Time Slot List */}
-            <div className="p-3 space-y-2 flex-1">
-              {timeSlots.map(time => {
-                // Every booking that starts in this slot (different doctors can share a time)
-                const slotAppointments = todayAppointments.filter(a => {
-                  const aTime = parseISO(a.appointmentTime);
-                  return aTime.getTime() >= time.getTime() && aTime.getTime() < time.getTime() + slotDuration * 60000;
-                });
-
-                if (slotAppointments.length > 0) {
-                  return (
-                    <div key={time.toISOString()} className="flex items-stretch gap-3 group">
-                      <div className="w-20 sm:w-24 text-right pr-2 pt-3 shrink-0">
-                        <span className="font-mono text-xs font-bold text-accent dark:text-teal-300 block">
-                          {format(time, 'hh:mm a')}
-                        </span>
-                      </div>
-                      
-                      <div className="flex-1 space-y-2">
-                      {slotAppointments.map((appointment) => (
-                      <div key={appointment.id} className="rounded-none p-3 border border-line bg-surface hover:bg-surface-accent/40 transition-colors relative shadow-none">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="type-card-title text-ink dark:text-teal-300">
-                                {appointment.patientName}
-                              </h4>
+                  <div className="flex-1 min-w-0 flex flex-col gap-3">
+                    {hasBooking ? slotAppointments.map((appointment) => (
+                      <div key={appointment.id} className="border border-line bg-surface">
+                        <div className="flex flex-wrap items-start justify-between gap-3 px-4 py-3.5">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-base font-bold text-ink">{appointment.patientName}</span>
+                              {doctorName(appointment.doctorId) && <span className="px-2 py-0.5 bg-surface-strong text-accent text-xs font-bold">{doctorName(appointment.doctorId)}</span>}
                               {appointment.source === 'online' && (
-                                <span className="chip-info px-1.5 py-0.5 text-2xs font-bold inline-flex items-center gap-1" title="Booked on the clinic website">
+                                <span className="chip-info px-2 py-0.5 text-xs font-bold" title="Booked on the clinic website">
                                   <Globe className="w-3 h-3" aria-hidden="true" />Online{appointment.bookingRef ? ` · ${appointment.bookingRef}` : ''}
                                 </span>
                               )}
-                              {doctorName(appointment.doctorId) && (
-                                <span className="chip-neutral px-1.5 py-0.5 text-2xs font-bold">{doctorName(appointment.doctorId)}</span>
-                              )}
-                              {appointment.patientId && (
-                                <span className="bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 text-2xs font-bold px-1.5 py-0.5 rounded-none uppercase font-mono border border-brand/20">
-                                  Reg # {appointment.patientId}
-                                </span>
-                              )}
+                              {appointment.patientId && <span className="chip-brand px-2 py-0.5 text-xs font-bold">Reg # {appointment.patientId}</span>}
                             </div>
-                            <div className="text-xs text-accent dark:text-teal-300 flex items-center gap-4 mt-1 font-mono">
-                              <span className="flex items-center gap-1"><Phone className="w-3 h-3 text-accent dark:text-teal-300" /> {appointment.patientPhone}</span>
-                              <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-accent dark:text-teal-300" /> {appointment.durationMinutes} min</span>
-                            </div>
+                            <p className="mt-1.5 text-sm text-muted flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums">
+                              <span className="inline-flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" aria-hidden="true" />{appointment.patientPhone}</span>
+                              <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" aria-hidden="true" />{appointment.durationMinutes} min</span>
+                            </p>
+                            {appointment.purpose && (
+                              <p className="mt-2 text-sm leading-relaxed text-ink">
+                                <strong className="text-accent">{isBM ? 'Tujuan' : 'Purpose'}</strong> {appointment.purpose}
+                              </p>
+                            )}
                           </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <span className={`text-2xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-none font-mono border ${
-                              appointment.status === 'Completed' ? 'chip-ok' :
-                              appointment.status === 'Cancelled' ? 'chip-danger' :
-                              appointment.status === 'No-Show' ? 'chip-warn' :
-                              'chip-brand'
-                            }`}>
-                              {appointment.status}
-                            </span>
-                          </div>
+                          <span className={`px-2.5 py-1 text-xs font-bold border ${
+                            appointment.status === 'Completed' ? 'chip-ok' :
+                            appointment.status === 'Cancelled' ? 'chip-danger' :
+                            appointment.status === 'No-Show' ? 'chip-warn' :
+                            'chip-brand'
+                          }`}>
+                            {appointment.status}
+                          </span>
                         </div>
 
-                        {appointment.purpose && (
-                          <p className="text-xs text-ink dark:text-slate-200 font-medium bg-surface-muted/60 dark:bg-night-850/60 p-2 border border-line-subtle/50 dark:border-teal-800/30 rounded-none mt-2">
-                            <span className="font-bold text-accent dark:text-teal-300 uppercase text-2xs font-mono mr-1">Purpose:</span>
-                            {appointment.purpose}
-                          </p>
-                        )}
-                        
-                        {/* Action Status Controls for Scheduled */}
                         {appointment.status === 'Scheduled' && (
-                          <div className="mt-3 pt-2.5 border-t border-line-subtle dark:border-teal-800/30 flex flex-wrap gap-2">
-                            <button 
-                              onClick={() => void handleCheckIn(appointment)}
-                              disabled={checkingIn === appointment.id}
-                              className="disabled:opacity-60 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
-                            >
-                              <LogIn className="w-3.5 h-3.5" /> {checkingIn === appointment.id ? 'Checking in…' : 'Check in'}
+                          <div className="flex flex-wrap gap-2 px-4 py-3 border-t border-line-subtle bg-surface-muted">
+                            <button type="button" onClick={() => void handleCheckIn(appointment)} disabled={checkingIn === appointment.id} className="btn-primary px-4 text-sm">
+                              <LogIn className="w-4 h-4" aria-hidden="true" /> {checkingIn === appointment.id ? 'Checking in…' : 'Check in'}
                             </button>
-                            <button 
-                              onClick={() => handleStatusChange(appointment.id, 'No-Show')} 
-                              className="bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/30 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
-                            >
-                              <AlertCircle className="w-3.5 h-3.5" /> No-Show
+                            <button type="button" onClick={() => handleStatusChange(appointment.id, 'No-Show')} className="btn-secondary px-4 text-sm">
+                              {isBM ? 'Tandakan tidak hadir' : 'Mark no-show'}
                             </button>
-                            <button 
-                              onClick={() => handleStatusChange(appointment.id, 'Cancelled')} 
-                              className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800/60 text-xs font-bold px-3 py-1.5 rounded-none flex items-center justify-center gap-1 transition-colors font-mono"
-                            >
-                              <XCircle className="w-3.5 h-3.5" /> Cancel Slot
+                            <button type="button" onClick={() => handleStatusChange(appointment.id, 'Cancelled')} className="btn-secondary px-4 text-sm !text-rose-800 !border-rose-200">
+                              {isBM ? 'Batal' : 'Cancel'}
                             </button>
                           </div>
                         )}
                       </div>
-                      ))}
-                      </div>
-                    </div>
-                  );
-                }
-
-                // Empty Slot
-                if (isAdmin) {
-                  return (
-                    <div key={time.toISOString()} className="flex items-center gap-3 opacity-60">
-                      <div className="w-20 sm:w-24 text-right pr-2 shrink-0">
-                        <span className="font-mono text-xs font-bold text-muted">
-                          {format(time, 'hh:mm a')}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="w-full h-7 text-2xs border border-line-subtle bg-surface-muted/30 rounded-none flex items-center justify-center text-muted font-mono italic">
-                          {isBM ? 'Slot Tersedia' : 'Available Slot'}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div key={time.toISOString()} className="flex items-center gap-3 group">
-                    <div className="w-20 sm:w-24 text-right pr-2 shrink-0">
-                      <span className="font-mono text-xs font-bold text-accent/70 dark:text-teal-400/60 group-hover:text-accent transition-colors">
-                        {format(time, 'hh:mm a')}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <button 
+                    )) : isAdmin ? (
+                      <div className="min-h-11 flex items-center px-4 text-sm text-muted border border-line-subtle bg-surface-muted">{isBM ? 'Slot tersedia' : 'Available slot'}</div>
+                    ) : (
+                      <button
+                        type="button"
                         onClick={() => handleOpenModal(time)}
-                        className="w-full h-8 text-xs border border-dashed border-line dark:border-teal-800/50 bg-surface/60 dark:bg-night-900/40 rounded-none flex items-center justify-center text-accent dark:text-teal-300 hover:bg-surface-accent dark:hover:bg-night-800 hover:border-brand hover:text-accent transition-all group/btn"
+                        className="w-full min-h-11 border border-dashed border-line-strong bg-surface text-accent text-sm font-bold flex items-center justify-center gap-2 cursor-pointer hover:bg-surface-accent hover:border-brand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
-                        <Plus className="w-4 h-4 mr-1.5 text-accent dark:text-teal-300 transition-transform group-hover/btn:scale-110" />
-                        <span className="text-xs font-bold uppercase tracking-wider font-mono">Book Slot</span>
+                        <Plus className="w-4 h-4" aria-hidden="true" />
+                        {isBM ? 'Tempah slot ini' : 'Book this slot'}
                       </button>
-                    </div>
+                    )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      </div>
+        </article>
+
+        {/* THIS WEEK */}
+        <aside className="flex-[1_1_18rem] min-w-0 border-t lg:border-t-0 lg:border-l border-line flex flex-col" aria-labelledby="appointments-week-title">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+            <h2 id="appointments-week-title" className="text-base font-bold text-ink">{isBM ? 'Minggu ini' : 'This week'}</h2>
+            <span className="px-2.5 py-1 bg-surface-muted text-muted text-xs font-semibold">
+              {format(startOfCurrentWeek, 'd')} to {format(addDays(startOfCurrentWeek, 6), 'd MMM')}
+            </span>
+          </div>
+          <ol>
+            {weekDays.map((day) => {
+              const isSelected = isSameDay(day, currentDate);
+              return (
+                <li key={day.toISOString()}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentDate(day)}
+                    aria-current={isSelected ? 'date' : undefined}
+                    className={`w-full min-h-11 px-5 flex items-center justify-between gap-2 text-left border-b border-line-subtle cursor-pointer transition-colors hover:bg-surface-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${isSelected ? 'bg-surface-accent shadow-[inset_3px_0_0_var(--color-primary)]' : ''}`}
+                  >
+                    <span className={`text-sm text-ink ${isSelected ? 'font-bold' : 'font-semibold'}`}>{format(day, 'EEEE')}</span>
+                    <span className="flex items-center gap-2.5 text-xs text-muted tabular-nums">
+                      {format(day, 'd MMM')}
+                      <span className="min-w-7 px-1.5 py-0.5 text-center bg-surface-strong text-accent font-bold">{bookingsOn(day)}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="mt-auto px-5 py-4 border-t border-line text-xs text-muted leading-relaxed">
+            {isBM ? 'Nombor ialah jumlah tempahan setiap hari.' : 'The number is how many bookings each day has.'}
+          </p>
+        </aside>
+      </section>
 
       {/* New Appointment Modal */}
       {isModalOpen && selectedSlotTime && (
-        <div role="dialog" aria-modal="true" aria-labelledby="new-appt-title" onKeyDown={(e) => { if (e.key === 'Escape') setIsModalOpen(false); }} className="fixed inset-0 bg-night-950/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/60 rounded-none shadow-2xl max-w-md w-full overflow-hidden animate-slideUp">
-            <div className="p-5 border-b border-line-subtle dark:border-teal-800/40 bg-surface-muted dark:bg-night-850 flex justify-between items-center">
+        <div role="dialog" aria-modal="true" aria-labelledby="new-appt-title" onKeyDown={(e) => { if (e.key === 'Escape') setIsModalOpen(false); }} className="fixed inset-0 bg-night-950/60 backdrop-blur-xs flex items-start sm:items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-surface border border-line max-w-xl w-full">
+            <div className="flex items-start justify-between gap-3 px-6 py-5 border-b border-line">
               <div>
-                <h3 id="new-appt-title" className="type-section-title text-ink dark:text-teal-300">Book New Appointment</h3>
-                <p className="text-xs text-accent dark:text-teal-300 font-bold font-mono mt-0.5">
-                  {format(selectedSlotTime, 'EEEE, MMMM d, yyyy • hh:mm a')}
-                </p>
+                <h2 id="new-appt-title" className="text-xl font-bold tracking-tight text-ink">{isBM ? 'Tempah temu janji' : 'Book an appointment'}</h2>
+                <p className="mt-1 text-sm text-muted">{format(selectedSlotTime, 'EEEE, d MMMM yyyy')} · {format(selectedSlotTime, 'hh:mm a')}</p>
               </div>
-              <button 
-                type="button"
-                onClick={() => setIsModalOpen(false)} 
-                className="text-accent dark:text-teal-400 hover:text-accent dark:hover:text-teal-300 transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
-                aria-label="Close booking dialog"
-              >
-                <XCircle className="w-5 h-5" />
+              <button type="button" onClick={() => setIsModalOpen(false)} className="shrink-0 w-11 h-11 flex items-center justify-center text-muted hover:text-ink hover:bg-surface-strong cursor-pointer" aria-label="Close booking dialog">
+                <XCircle className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
-            
-            <form onSubmit={handleSaveAppointment} className="p-6 space-y-4">
-              <div>
-                <label htmlFor="appt-patient-name" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
-                  Patient Name <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  id="appt-patient-name"
-                  type="text"
-                  required
-                  value={modalForm.patientName}
-                  onChange={e => setModalForm({...modalForm, patientName: e.target.value})}
-                  placeholder="e.g. John Doe"
-                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-medium focus:border-brand focus:outline-none"
-                />
-              </div>
 
-              <div>
-                <label htmlFor="appt-patient-phone" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
-                  Phone Number <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  id="appt-patient-phone"
-                  type="text"
-                  required
-                  value={modalForm.patientPhone}
-                  onChange={e => setModalForm({...modalForm, patientPhone: e.target.value})}
-                  placeholder="e.g. +60123456789"
-                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-mono focus:border-brand focus:outline-none"
-                />
-              </div>
+            <form onSubmit={handleSaveAppointment} className="p-6 flex flex-col gap-5">
+              <fieldset className="min-w-0">
+                <legend className="pb-3 text-xs font-bold text-accent tracking-wide">{isBM ? 'Pesakit' : 'Patient'}</legend>
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4">
+                  <div className="col-span-full">
+                    <label htmlFor="appt-patient-name" className={labelClass}>{isBM ? 'Nama pesakit' : 'Patient name'} <span className="text-rose-600">*</span></label>
+                    <input id="appt-patient-name" type="text" required value={modalForm.patientName} onChange={(e) => setModalForm({ ...modalForm, patientName: e.target.value })} placeholder="e.g. John Doe" autoComplete="off" className={controlField} />
+                  </div>
+                  <div>
+                    <label htmlFor="appt-patient-phone" className={labelClass}>{isBM ? 'No. telefon' : 'Phone number'} <span className="text-rose-600">*</span></label>
+                    <input id="appt-patient-phone" type="text" required value={modalForm.patientPhone} onChange={(e) => setModalForm({ ...modalForm, patientPhone: e.target.value })} placeholder="e.g. +60123456789" autoComplete="off" className={`${controlField} tabular-nums`} />
+                  </div>
+                  <div>
+                    <label htmlFor="appt-ic" className={labelClass}>{isBM ? 'No. MyKad' : 'MyKad number'}</label>
+                    <input id="appt-ic" type="text" inputMode="numeric" value={modalForm.patientIc} onChange={(e) => setModalForm({ ...modalForm, patientIc: formatNric(e.target.value) })} placeholder="900101-14-5555" autoComplete="off" className={`${controlField} tabular-nums`} />
+                    <p className="mt-1 text-xs text-muted">{isBM ? 'Diperlukan untuk mendaftar masuk pesakit.' : 'Needed to check the patient in.'}</p>
+                  </div>
+                </div>
+              </fieldset>
 
-              <div>
-                <label htmlFor="appt-ic" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
-                  MyKad Number <span className="text-subtle normal-case">(needed to check the patient in)</span>
-                </label>
-                <input
-                  id="appt-ic"
-                  type="text"
-                  inputMode="numeric"
-                  value={modalForm.patientIc}
-                  onChange={e => setModalForm({...modalForm, patientIc: formatNric(e.target.value)})}
-                  placeholder="900101-14-5555"
-                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-mono focus:border-brand focus:outline-none"
-                />
-              </div>
+              <fieldset className="min-w-0">
+                <legend className="pb-3 text-xs font-bold text-accent tracking-wide">{isBM ? 'Lawatan' : 'Visit'}</legend>
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label htmlFor="appt-doctor" className={labelClass}>{isBM ? 'Doktor' : 'Doctor'}</label>
+                    <select id="appt-doctor" value={modalForm.doctorId} onChange={(e) => setModalForm({ ...modalForm, doctorId: e.target.value })} className={controlField}>
+                      <option value="">{isBM ? 'Mana-mana doktor yang ada' : 'Any available doctor'}</option>
+                      {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}{d.department ? ` (${d.department})` : ''}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="appt-purpose" className={labelClass}>{isBM ? 'Tujuan lawatan' : 'Purpose of visit'} <span className="text-rose-600">*</span></label>
+                    <input id="appt-purpose" type="text" required value={modalForm.purpose} onChange={(e) => setModalForm({ ...modalForm, purpose: e.target.value })} placeholder="e.g. Regular check-up, fever, follow-up" autoComplete="off" className={controlField} />
+                  </div>
+                  <div>
+                    <label htmlFor="appt-notes" className={labelClass}>{isBM ? 'Nota tambahan' : 'Additional notes'}</label>
+                    <textarea id="appt-notes" rows={3} value={modalForm.notes} onChange={(e) => setModalForm({ ...modalForm, notes: e.target.value })} placeholder="Optional clinical notes or symptoms" className="w-full px-3 py-2.5 bg-surface border border-line text-sm leading-normal text-ink rounded-none outline-none resize-y focus:border-brand focus:ring-2 focus:ring-accent" />
+                  </div>
+                </div>
+              </fieldset>
 
-              <div>
-                <label htmlFor="appt-doctor" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
-                  Doctor
-                </label>
-                <select
-                  id="appt-doctor"
-                  value={modalForm.doctorId}
-                  onChange={e => setModalForm({...modalForm, doctorId: e.target.value})}
-                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-medium focus:border-brand focus:outline-none"
-                >
-                  <option value="">Any available doctor</option>
-                  {doctors.map((d) => <option key={d.id} value={d.id}>{d.name}{d.department ? ` (${d.department})` : ''}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="appt-purpose" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
-                  Purpose of Visit <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  id="appt-purpose"
-                  type="text"
-                  required
-                  value={modalForm.purpose}
-                  onChange={e => setModalForm({...modalForm, purpose: e.target.value})}
-                  placeholder="e.g. Regular Checkup, Fever, Follow-up"
-                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-medium focus:border-brand focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="appt-notes" className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-mono">
-                  Additional Notes
-                </label>
-                <textarea
-                  id="appt-notes"
-                  rows={3}
-                  className="w-full bg-surface-muted dark:bg-night-850 border border-line dark:border-teal-800/60 rounded-none px-3.5 py-2.5 text-xs text-ink dark:text-slate-100 font-medium focus:border-brand focus:outline-none resize-none"
-                  value={modalForm.notes}
-                  onChange={e => setModalForm({...modalForm, notes: e.target.value})}
-                  placeholder="Optional clinical notes or symptoms..."
-                />
-              </div>
-
-              <div className="pt-4 flex gap-2.5 justify-end border-t border-line-subtle dark:border-teal-800/40">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="bg-surface-muted dark:bg-night-850 hover:bg-surface-accent text-accent dark:text-teal-300 border border-line dark:border-teal-800/50 font-bold text-xs px-4 py-2 rounded-none transition-colors uppercase font-mono"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none transition-colors shadow-xs uppercase font-mono"
-                >
-                  Confirm Booking
-                </button>
+              <div className="flex flex-wrap justify-end gap-3 pt-5 border-t border-line">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary min-h-12 px-5 text-sm">{isBM ? 'Batal' : 'Cancel'}</button>
+                <button type="submit" className="btn-primary min-h-12 px-6 text-sm">{isBM ? 'Sahkan tempahan' : 'Confirm booking'}</button>
               </div>
             </form>
           </div>
@@ -569,4 +394,3 @@ export default function AppointmentCalendarModule({
     </div>
   );
 }
-
