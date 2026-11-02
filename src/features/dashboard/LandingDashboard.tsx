@@ -24,6 +24,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { useTelemetry } from '../../context/TelemetryContext';
 import DoctorFocusSheet from './DoctorFocusSheet';
 import AssistantTriageSheet from './AssistantTriageSheet';
+import PharmacistDispenseSheet from './PharmacistDispenseSheet';
 import type { KpiId, PanelId } from './types';
 import KpiCards from './KpiCards';
 import FlowAndDiagnosisCharts from './FlowAndDiagnosisCharts';
@@ -462,8 +463,11 @@ export default function LandingDashboard({
         if (kind === 'triage') {
           return <AssistantTriageSheet key={kind} visits={visits} patients={patientsList} activeLanguage={activeLanguage} onNavigateTab={onNavigateTab} />;
         }
+        if (kind === 'dispense') {
+          return <PharmacistDispenseSheet key={kind} visits={visits} patients={patientsList} activeLanguage={activeLanguage} onNavigateTab={onNavigateTab} />;
+        }
         const cfg = WORK_SECTIONS[kind];
-        const KindIcon = kind === 'dispense' ? Pill : kind === 'billing' ? CreditCard : Stethoscope;
+        const KindIcon = kind === 'billing' ? CreditCard : Stethoscope;
         return (
           <div key={kind} className="bg-surface border border-line rounded-none shadow-none">
             <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2.5 border-b border-line bg-surface-muted/20">
@@ -507,8 +511,7 @@ export default function LandingDashboard({
                   const outstanding = Math.max(0, (v.totalBill || 0) - (v.paidAmount || 0) - (v.panelClaimed || 0));
                   const itemLabel = items.length === 1 ? (t.item || 'item') : (t.items || 'items');
                   const detail =
-                    kind === 'dispense' ? `${items.length} ${itemLabel}${v.soap?.plan?.pharmacyMemo ? ` · Memo: ${v.soap.plan.pharmacyMemo}` : ''}`
-                    : kind === 'billing' ? `${t.outstanding || 'Outstanding'} RM ${outstanding.toFixed(2)}${patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? ` · ${t.panelText || 'Panel'}: ${patient.panelEmployer}` : ` · ${t.selfPayText || 'Self-pay'}`}`
+                    kind === 'billing' ? `${t.outstanding || 'Outstanding'} RM ${outstanding.toFixed(2)}${patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? ` · ${t.panelText || 'Panel'}: ${patient.panelEmployer}` : ` · ${t.selfPayText || 'Self-pay'}`}`
                     : (v.soap?.subjective || (isBM ? 'Tiada aduan dicatat' : 'No complaint recorded'));
                   return { patient, mins, flag, allergies, detail };
                 };
@@ -608,16 +611,6 @@ export default function LandingDashboard({
                   </>
                 );
               })()
-            )}
-
-            {kind === 'dispense' && lowStockDrugs.length > 0 && (
-              <div className="px-4 py-3 border-t border-line-subtle bg-amber-50 dark:bg-amber-950/40 text-xs text-amber-900 dark:text-amber-100 flex flex-wrap items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <strong>{t.lowStock || 'Low stock'}:</strong>
-                {lowStockDrugs.slice(0, 6).map((d) => (
-                  <span key={d.id} className="chip chip-warn">{d.name} ({d.currentStock})</span>
-                ))}
-              </div>
             )}
           </div>
         );
