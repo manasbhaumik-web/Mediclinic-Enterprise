@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Pagination from '../../components/ui/Pagination';
 import type { SortKey } from './types';
-import { FolderCheck, Plus, Search, ShieldAlert, Clock, UserCheck, Edit3, FileSpreadsheet, Eye } from 'lucide-react';
+import { Plus, Search, ShieldAlert, Clock, UserCheck, Edit3, FileSpreadsheet, X } from 'lucide-react';
 import { formatNric } from '../../utils/nric';
 import { maskICNumber } from '../../utils/piiMasker';
 import { Patient, Visit, UserRole, Language } from '../../types';
@@ -52,216 +52,163 @@ export default function PatientRegistryTable({
   const startIndex = (currentPage - 1) * pageSize;
   const paginatedResults = sortedResults.slice(startIndex, startIndex + pageSize);
   return (
-    <div className="bg-surface-muted border border-line rounded-none shadow-xs font-sans">
-      <div className="p-3.5 space-y-3">
-        
-              {/* Redesigned Header & Search Bar with Integrated Controls */}
-      <div className="bg-surface border border-line rounded-none p-4 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-surface-accent border border-line flex items-center justify-center rounded-none text-accent shrink-0">
-              <FolderCheck className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="type-section-title text-ink font-sans font-bold">
-                  {isBM ? 'Pendaftaran & Rekod Pesakit' : 'Patient Master Registry'}
-                </h3>
-                <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 border border-line bg-surface-muted text-muted font-bold">
-                  EHR Live
-                </span>
-              </div>
-              <p className="text-xs text-muted font-sans font-medium mt-0.5">
-                {isAdmin
-                  ? (isBM ? 'Pengurusan rekod pesakit, sejarah klinikal, ubat per lawatan dan penjanaan laporan pentadbir.' : 'Manage patient records, longitudinal clinical history, visit prescriptions, and admin reports.')
-                  : (isBM ? 'Cari rekod pesakit, semak alahan ubat dan mulakan lawatan klinikal.' : 'Search patient records, review medical allergies, and initiate clinical visits.')}
-              </p>
-            </div>
-          </div>
-    
-          <div className="flex flex-wrap items-center gap-2.5 font-sans shrink-0">
-            <div className="px-3 py-1.5 bg-surface-accent border border-line font-mono text-xs text-accent font-bold">
-              <span>Total: <strong className="text-ink">{totalPatientCount}</strong> {isBM ? 'Pesakit' : 'Patients'}</span>
-            </div>
-
-            {/* Admin Report Button */}
-            {isAdmin && onOpenReports && (
-              <button
-                type="button"
-                onClick={() => onOpenReports()}
-                className="btn-outline-primary text-xs px-3.5 py-2 inline-flex items-center gap-2 font-bold uppercase tracking-wider cursor-pointer"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-accent" />
-                <span>{isBM ? 'Jana Laporan' : 'Generate Reports'}</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveSubTab('form');
-                setRegistrationStep('id_check');
-              }}
-              className="btn-primary text-xs px-4 py-2 rounded-none font-sans font-bold uppercase tracking-wider inline-flex items-center justify-center gap-2 shadow-none cursor-pointer"
-            >
-              <Plus className="w-4 h-4" /> <span>{isBM ? 'Daftar Pesakit Baru' : 'Register New Patient'}</span>
-            </button>
-          </div>
+    <div className="space-y-4 font-sans">
+      {/* Title block with the primary action */}
+      <section aria-labelledby="registry-title" className="bg-surface border border-line px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0 flex-[1_1_26rem]">
+          <h2 id="registry-title" className="text-xl font-bold tracking-tight text-ink">
+            {isBM ? 'Rekod induk pesakit' : 'Patient master registry'}
+          </h2>
+          <p className="mt-1.5 text-sm text-muted leading-relaxed max-w-2xl">
+            {isAdmin
+              ? (isBM ? 'Urus rekod pesakit, sejarah klinikal, ubat setiap lawatan dan laporan pentadbir.' : 'Manage patient records, clinical history, visit prescriptions and admin reports.')
+              : (isBM ? 'Cari rekod pesakit, semak alahan ubat dan mulakan lawatan klinikal.' : 'Search patient records, review drug allergies and start a clinical visit.')}
+          </p>
         </div>
-        
-        {/* Integrated Search Input & Formatting Guide */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-line-subtle">
-          <div className="relative flex-1 max-w-xl w-full">
-            <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="flex flex-wrap gap-3">
+          {isAdmin && onOpenReports && (
+            <button type="button" onClick={() => onOpenReports()} className="btn-secondary min-h-12 px-5 text-sm">
+              <FileSpreadsheet className="w-4 h-4 text-accent" aria-hidden="true" />
+              {isBM ? 'Jana laporan' : 'Generate reports'}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubTab('form');
+              setRegistrationStep('id_check');
+            }}
+            className="btn-primary min-h-12 px-6 text-sm"
+          >
+            <Plus className="w-4 h-4" aria-hidden="true" />
+            {isBM ? 'Daftar pesakit baharu' : 'Register new patient'}
+          </button>
+        </div>
+      </section>
+
+      <section aria-label={isBM ? 'Rekod pesakit' : 'Patient records'} className="bg-surface border border-line">
+        {/* Search */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-line">
+          <div className="relative flex-[1_1_22rem] max-w-xl">
+            <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
             <input
               type="search"
               aria-label="Search patients"
-              placeholder={isBM ? 'Cari mengikut Nama, No. IC (cth: 900101-14-5555), atau ID...' : 'Search by Patient Name, NRIC (e.g. 900101-14-5555), or ID...'}
+              placeholder={isBM ? 'Cari mengikut nama, No. IC (cth: 900101-14-5555) atau ID' : 'Search by name, NRIC (e.g. 900101-14-5555) or ID'}
               value={patientRegistrySearch}
               onChange={(e) => setPatientRegistrySearch(/^[d-]+$/.test(e.target.value) ? formatNric(e.target.value) : e.target.value)}
-              className="w-full bg-surface-accent border border-line rounded-none pl-10 pr-8 py-2 text-xs font-sans text-ink placeholder:text-muted/70 focus:border-accent focus:ring-1 focus:ring-accent outline-none font-medium transition-colors"
+              autoComplete="off"
+              className="w-full min-h-11 pl-10 pr-10 bg-surface border border-line rounded-none text-sm text-ink placeholder:text-muted outline-none focus:border-brand focus:ring-2 focus:ring-accent"
             />
             {patientRegistrySearch && (
               <button
                 type="button"
                 onClick={() => setPatientRegistrySearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-xs font-mono px-1 cursor-pointer"
-                title="Clear search"
+                className="absolute right-0 top-0 w-11 h-11 flex items-center justify-center text-muted hover:text-ink cursor-pointer"
+                aria-label={isBM ? 'Kosongkan carian' : 'Clear search'}
               >
-                ✕
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             )}
           </div>
-          <div className="flex items-center gap-1.5 text-2xs text-muted font-mono self-end sm:self-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span>{isBM ? 'Padanan separa disokong • Format IC automatik' : 'Partial matches supported • IC auto-format enabled'}</span>
-          </div>
+          <span className="text-xs text-muted">{isBM ? 'Padanan separa disokong. Sengkang IC ditambah semasa menaip.' : 'Partial matches work. NRIC dashes are added as you type.'}</span>
         </div>
-      </div>
-      
-      {/* Scannable Patient Table */}
-        <div className="overflow-x-auto border border-line rounded-none font-sans">
-          <table className="w-full text-xs text-left font-sans">
-            <thead className="bg-surface-accent border-b border-line font-sans">
-              <tr className="text-muted font-sans text-xs uppercase tracking-wider font-bold">
+
+        {/* Patient table */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[62rem] text-sm text-left border-separate border-spacing-0">
+            <thead>
+              <tr className="text-xs font-semibold text-muted [&>th]:bg-surface-muted [&>th]:border-b [&>th]:border-line [&>th]:whitespace-nowrap">
                 {sortHeader('id', 'ID')}
-                {sortHeader('name', isBM ? 'Nama Pesakit' : 'Patient Name')}
-                <th scope="col" className="px-3 py-2">{isBM ? 'No. IC / Pasport' : 'IC / Passport Number'}</th>
-                {sortHeader('sponsor', isBM ? 'Penaja Panel' : 'Panel Sponsor')}
-                <th scope="col" className="px-3 py-2">{isBM ? 'Alahan Ubat' : 'Drug Allergies'}</th>
-                {sortHeader('registered', isBM ? 'Tarikh Daftar' : 'Date Registered', 'right')}
-                <th scope="col" className="px-3 py-2 text-center sticky right-0 bg-surface-accent shadow-[-6px_0_6px_-6px_rgba(0,0,0,0.15)]">
-                  {isAdmin ? (isBM ? 'Tindakan Pentadbir' : 'Administrative Actions') : (isBM ? 'Tindakan' : 'Action')}
+                {sortHeader('name', isBM ? 'Nama pesakit' : 'Patient name')}
+                <th scope="col" className="px-4 py-3.5">{isBM ? 'No. IC / pasport' : 'IC / passport'}</th>
+                {sortHeader('sponsor', isBM ? 'Penaja panel' : 'Panel sponsor')}
+                <th scope="col" className="px-4 py-3.5">{isBM ? 'Alahan ubat' : 'Drug allergies'}</th>
+                {sortHeader('registered', isBM ? 'Tarikh daftar' : 'Registered')}
+                <th scope="col" className="px-4 py-3.5 text-right sticky right-0 !bg-surface-muted">
+                  {isAdmin ? (isBM ? 'Tindakan pentadbir' : 'Admin actions') : (isBM ? 'Tindakan' : 'Action')}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line-subtle/50 dark:divide-teal-800/30 bg-surface font-sans">
+            <tbody className="[&>tr>td]:border-b [&>tr>td]:border-line-subtle [&>tr:hover>td]:bg-surface-accent">
               {paginatedResults.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-6 text-center text-muted font-sans font-medium">
+                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted">
                     {isBM ? 'Tiada rekod pesakit yang sepadan dengan carian anda.' : 'No patient records found matching your search term.'}
                   </td>
                 </tr>
               ) : (
-                paginatedResults.map(p => (
-                  <tr key={p.id} className="hover:bg-surface-accent/40 dark:hover:bg-night-800/40 transition-colors">
-                    <td className="px-3 py-2 font-mono text-accent text-xs font-bold">
-                      {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
-                    </td>
-                    <td className="px-3 py-2">
-                      <button
-                        type="button"
-                        onClick={() => onOpenPatientDetail?.(p, 'profile')}
-                        className="font-bold text-xs capitalize text-ink block font-sans text-left hover:text-accent hover:underline"
-                      >
-                        {p.fullName.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
-                      </button>
-                    </td>
-                    <td className="px-3 py-2 font-mono text-xs text-ink">
-                      {maskICNumber(p.icNumber, showPII)}
-                    </td>
-                    <td className="px-3 py-2">
-                      <span className={`inline-block px-2.5 py-1 rounded-none text-2xs font-sans font-bold uppercase tracking-wider border ${
-                        p.panelEmployer === 'None (Self-Pay)' 
-                          ? 'chip-neutral' 
-                          : 'bg-primary/10 text-accent dark:bg-teal-900/40 dark:text-teal-200 border-brand/20 border-line'
-                      }`}>
-                        {p.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : p.panelEmployer}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2">
-                      {p.drugAllergies.length === 0
-                        ? <span className="text-muted dark:text-slate-400 text-xs italic font-sans">{isBM ? 'Tiada alahan diketahui' : 'No known allergies'}</span>
-                        : <div className="flex flex-wrap gap-1.5">
+                paginatedResults.map((p) => {
+                  const inQueue = triageQueue.some((v) => v.patientId === p.id);
+                  const selfPay = p.panelEmployer === 'None (Self-Pay)';
+                  return (
+                    <tr key={p.id}>
+                      <td className="px-4 py-3.5 bg-surface tabular-nums font-bold text-accent">
+                        {p.id.includes('-') ? p.id.slice(0, 8).toUpperCase() : p.id}
+                      </td>
+                      <td className="px-4 py-3.5 bg-surface">
+                        <button
+                          type="button"
+                          onClick={() => onOpenPatientDetail?.(p, 'profile')}
+                          className="text-sm font-semibold text-ink text-left hover:text-accent hover:underline cursor-pointer"
+                        >
+                          {p.fullName.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}
+                        </button>
+                      </td>
+                      <td className="px-4 py-3.5 bg-surface tabular-nums text-ink">{maskICNumber(p.icNumber, showPII)}</td>
+                      <td className="px-4 py-3.5 bg-surface">
+                        <span className={`inline-block px-2.5 py-1 text-xs font-bold ${selfPay ? 'bg-surface-strong text-muted' : 'bg-surface-strong text-accent'}`}>
+                          {selfPay ? (isBM ? 'Bayar sendiri' : 'Self-pay') : p.panelEmployer}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 bg-surface">
+                        {p.drugAllergies.length === 0 ? (
+                          <span className="text-xs text-muted">{isBM ? 'Tiada alahan diketahui' : 'No known allergies'}</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5">
                             {p.drugAllergies.map((a, i) => (
-                              <span key={i} className="inline-flex items-center justify-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-2xs font-sans font-bold px-2 py-0.5 rounded-none shadow-2xs">
-                                <ShieldAlert className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />
-                                <span>{a}</span>
+                              <span key={i} className="chip-danger px-2 py-0.5 text-xs font-bold">
+                                <ShieldAlert className="w-3 h-3 shrink-0" aria-hidden="true" />
+                                {a}
                               </span>
                             ))}
                           </div>
-                      }
-                    </td>
-                    <td className="px-3 py-2 text-muted font-mono text-xs text-right">
-                      {p.registeredDate}
-                    </td>
-                    <td className="px-3 py-2 text-center sticky right-0 bg-surface shadow-[-6px_0_6px_-6px_rgba(0,0,0,0.15)] whitespace-nowrap">
-                      {isAdmin ? (
-                        /* Admin Role Action Buttons: View/Edit Records, Clinical History, and Report (NO "Start Visit" button) */
-                        <div className="inline-flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => onOpenPatientDetail?.(p, 'profile')}
-                            className="bg-surface border border-line hover:border-brand text-ink hover:text-accent font-bold text-xs px-2.5 py-1.5 inline-flex items-center gap-1 transition-colors uppercase tracking-wider font-sans"
-                            title={isBM ? 'Pinda Profil & Maklumat' : 'View / Edit Record'}
-                          >
-                            <Edit3 className="w-3.5 h-3.5 text-accent" />
-                            <span>{isBM ? 'Pinda' : 'View / Edit'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onOpenPatientDetail?.(p, 'visits')}
-                            className="bg-primary/10 hover:bg-primary/20 text-accent border border-brand/20 font-bold text-xs px-2.5 py-1.5 inline-flex items-center gap-1 transition-colors uppercase tracking-wider font-sans"
-                            title={isBM ? 'Sejarah Lawatan & Ubat' : 'Clinical History & Prescriptions'}
-                          >
-                            <Clock className="w-3.5 h-3.5 text-accent" />
-                            <span>{isBM ? 'Sejarah' : 'Clinical History'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onOpenReports?.(p.id)}
-                            className="bg-surface border border-line hover:border-brand text-muted hover:text-ink font-bold text-xs p-1.5 inline-flex items-center transition-colors"
-                            title={isBM ? 'Jana Laporan Pesakit' : 'Generate Patient Report'}
-                          >
-                            <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
-                          </button>
-                        </div>
-                      ) : (
-                        /* Non-Admin (Receptionist / Front Desk): In triage queue indicator or Start Visit button */
-                        triageQueue.some((v) => v.patientId === p.id) ? (
-                          <span className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-accent bg-surface-accent border border-line">
-                            <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {isBM ? 'Dalam Giliran Triage' : 'In triage queue'}
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5 bg-surface tabular-nums text-muted whitespace-nowrap">{p.registeredDate}</td>
+                      <td className="px-4 py-3.5 bg-surface text-right sticky right-0 whitespace-nowrap shadow-[-8px_0_8px_-8px_rgba(15,60,76,0.15)]">
+                        {isAdmin ? (
+                          <div className="inline-flex items-center gap-2">
+                            <button type="button" onClick={() => onOpenPatientDetail?.(p, 'profile')} className="btn-secondary px-3 text-xs" title={isBM ? 'Pinda profil & maklumat' : 'View / edit record'}>
+                              <Edit3 className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
+                              {isBM ? 'Pinda' : 'View / edit'}
+                            </button>
+                            <button type="button" onClick={() => onOpenPatientDetail?.(p, 'visits')} className="btn-secondary px-3 text-xs" title={isBM ? 'Sejarah lawatan & ubat' : 'Clinical history & prescriptions'}>
+                              <Clock className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
+                              {isBM ? 'Sejarah' : 'Clinical history'}
+                            </button>
+                            <button type="button" onClick={() => onOpenReports?.(p.id)} className="btn-secondary w-11 !px-0" aria-label={isBM ? 'Jana laporan pesakit' : 'Generate patient report'} title={isBM ? 'Jana laporan pesakit' : 'Generate patient report'}>
+                              <FileSpreadsheet className="w-4 h-4 text-accent" aria-hidden="true" />
+                            </button>
+                          </div>
+                        ) : inQueue ? (
+                          <span className="inline-flex items-center gap-1.5 min-h-11 px-4 text-xs font-bold text-accent bg-surface-accent border border-line">
+                            <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {isBM ? 'Dalam giliran triaj' : 'In triage queue'}
                           </span>
                         ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleCreateTicket(p)}
-                            className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-3.5 py-1.5 rounded-none font-sans transition-colors shadow-xs uppercase tracking-wider inline-flex items-center justify-center gap-1.5 whitespace-nowrap"
-                            aria-label={`Start visit for ${p.fullName}`}
-                          >
-                            <UserCheck className="w-3.5 h-3.5" aria-hidden="true" /> {isBM ? 'Mula Lawatan' : 'Start Visit'}
+                          <button type="button" onClick={() => handleCreateTicket(p)} className="btn-primary px-4 text-xs" aria-label={`Start visit for ${p.fullName}`}>
+                            <UserCheck className="w-3.5 h-3.5" aria-hidden="true" /> {isBM ? 'Mula lawatan' : 'Start visit'}
                           </button>
-                        )
-                      )}
-                    </td>
-                  </tr>
-                ))
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
 
-        {/* 15 Records Per Page Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={sortedResults.length}
@@ -269,7 +216,7 @@ export default function PatientRegistryTable({
           onPageChange={setCurrentPage}
           itemLabel={isBM ? 'pesakit' : 'patients'}
         />
-      </div>
+      </section>
     </div>
   );
 }
