@@ -15,6 +15,8 @@ import PatientDetailModal from '../patientAdmin/PatientDetailModal';
 import PatientReportModal from '../patientAdmin/PatientReportModal';
 import { UserRole } from '../../types';
 import { useClinicDoctors } from '../../hooks/useClinicSetup';
+import { PageHeading, StationTabs, StatStrip } from '../../components/ui/StationChrome';
+import { formatWait } from '../../utils/waitTime';
 
 interface PatientRegistrationModuleProps {
   t: any;
@@ -447,8 +449,15 @@ export default function PatientRegistrationModule({
     setActiveSubTab('queue');
   };
 
+  const today = new Date().toISOString().split('T')[0];
+  const registeredToday = [...completedVisits, ...triageQueue].filter((v) => v.date === today).length;
+  const waits = triageQueue.map((v) => (v.registeredTime ? Math.max(0, Math.floor((Date.now() - v.registeredTime) / 60000)) : 0));
+  const avgWait = waits.length ? Math.round(waits.reduce((a, b) => a + b, 0) / waits.length) : 0;
+  const maxWait = waits.length ? Math.max(...waits) : 0;
+  const overSla = waits.filter((m) => m >= 20).length;
+
   return (
-    <div className="space-y-3.5 animate-fadeIn relative font-sans">
+    <div className="space-y-4 animate-fadeIn relative font-sans">
       
       {/* Toast Notification */}
       {toastMessage && (
@@ -458,81 +467,28 @@ export default function PatientRegistrationModule({
         </div>
       )}
 
-      {/* REDESIGNED REGISTRATION & TRIAGE SUB-NAVIGATION TAB BAR */}
-      <div className="bg-surface border border-line rounded-none shadow-2xs p-1.5 flex flex-wrap items-center justify-between gap-2" role="tablist" aria-label="Patient Registration Sub Navigation">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeSubTab === 'queue'}
-            id="subtab-queue"
-            aria-controls="subtab-panel-queue"
-            title="Waiting Room Monitor: Live check-in queue, triage status, and doctor room assignments"
-            onClick={() => setActiveSubTab('queue')}
-            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
-              activeSubTab === 'queue' 
-                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
-                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
-            }`}
-          >
-            <Monitor className={`w-4 h-4 ${activeSubTab === 'queue' ? 'text-white' : 'text-muted'}`} />
-            <span>Waiting Room Monitor</span>
-            {triageQueue.length > 0 && (
-              <span className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
-                activeSubTab === 'queue' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900 border border-amber-300'
-              }`}>
-                {triageQueue.length}
-              </span>
-            )}
-          </button>
+      <PageHeading eyebrow="Front Desk 01" title={activeLanguage === 'BM' ? 'Pendaftaran pesakit' : 'Patient registration'} />
 
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeSubTab === 'form'}
-            id="subtab-form"
-            aria-controls="subtab-panel-form"
-            title="New Registration Form: MyKad biometric intake, patient demographics, and corporate panel selection"
-            onClick={() => setActiveSubTab('form')}
-            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
-              activeSubTab === 'form' 
-                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
-                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
-            }`}
-          >
-            <UserPlus className={`w-4 h-4 ${activeSubTab === 'form' ? 'text-white' : 'text-muted'}`} />
-            <span>Registration Form</span>
-          </button>
+      <StationTabs<'queue' | 'form' | 'registry'>
+        label="Patient registration sections"
+        active={activeSubTab}
+        onChange={setActiveSubTab}
+        tabs={[
+          { id: 'queue', label: 'Waiting room', count: triageQueue.length, alert: true, title: 'Waiting Room Monitor: Live check-in queue, triage status, and doctor room assignments' },
+          { id: 'form', label: 'Registration form', title: 'New Registration Form: MyKad biometric intake, patient demographics, and corporate panel selection' },
+          { id: 'registry', label: 'Patient registry', count: totalPatientCount, title: 'Patient Master Registry: Search existing patient EHR records, contact details, and past visit logs' },
+        ]}
+      />
 
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeSubTab === 'registry'}
-            id="subtab-registry"
-            aria-controls="subtab-panel-registry"
-            title="Patient Master Registry: Search existing patient EHR records, contact details, and past visit logs"
-            onClick={() => setActiveSubTab('registry')}
-            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
-              activeSubTab === 'registry' 
-                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
-                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
-            }`}
-          >
-            <FolderCheck className={`w-4 h-4 ${activeSubTab === 'registry' ? 'text-white' : 'text-muted'}`} />
-            <span>Patient Registry</span>
-            <span className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
-              activeSubTab === 'registry' ? 'bg-white/20 text-white' : 'bg-surface-muted text-muted border border-line-subtle'
-            }`}>
-              {totalPatientCount}
-            </span>
-          </button>
-        </div>
-
-        {/* Quick status pill on right */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1 font-mono text-2xs text-muted">
-          <span>Active Station: <strong className="text-accent uppercase font-bold">Front Desk 01</strong></span>
-        </div>
-      </div>
+      <StatStrip
+        label="Front desk figures"
+        stats={[
+          { label: 'Registered today', value: registeredToday, note: 'Walk-ins and bookings' },
+          { label: 'Waiting for triage', value: triageQueue.length, note: 'Registered, vitals not taken' },
+          { label: 'Wait time (avg / max)', value: `${formatWait(avgWait)} / ${formatWait(maxWait)}`, note: overSla > 0 ? `${overSla} over the 20 min target` : 'Within target' },
+          { label: 'Patients on file', value: totalPatientCount, note: 'In the patient registry' },
+        ]}
+      />
 
       {/* WAITING ROOM MONITOR */}
       {activeSubTab === 'queue' && (
@@ -594,81 +550,109 @@ export default function PatientRegistrationModule({
               </div>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto font-sans">
-              
-              {/* Wizard Stepper */}
-              <div className="mb-3 flex items-center justify-between relative bg-surface p-2.5 border border-line rounded-none font-sans">
-                {[1, 2].map(stepNum => (
-                  <div key={stepNum} className={`flex items-center gap-3 ${formStep >= stepNum ? '' : 'opacity-50'}`}>
-                    <div className={`w-7 h-7 rounded-none flex items-center justify-center font-bold text-xs font-sans transition-colors ${
-                      formStep === stepNum 
-                        ? 'bg-primary text-white' 
-                        : formStep > stepNum 
-                        ? 'bg-primary text-white' 
-                        : 'bg-surface text-muted border border-line-subtle'
-                    }`}>
-                      {formStep > stepNum ? <Check className="w-4 h-4" /> : stepNum}
+            <section className="flex flex-wrap bg-surface border border-line font-sans">
+              <article className="flex-[999_1_36rem] min-w-0 flex flex-col" aria-label="Registration form">
+                {/* Stepper */}
+                <ol className="flex flex-wrap border-b border-line">
+                  {[1, 2].map((stepNum) => {
+                    const current = formStep === stepNum;
+                    const done = formStep > stepNum;
+                    return (
+                      <li key={stepNum} aria-current={current ? 'step' : undefined} className={`flex-[1_1_14rem] flex items-center gap-3 px-7 py-4 ${stepNum > 1 ? 'border-l border-line' : ''} ${current ? 'bg-surface-accent' : ''}`}>
+                        <span className={`shrink-0 w-7 h-7 flex items-center justify-center text-xs font-bold ${current || done ? 'bg-primary text-white' : 'bg-surface text-muted border border-line'}`} aria-hidden="true">
+                          {done ? <Check className="w-4 h-4" /> : stepNum}
+                        </span>
+                        <span className={`text-sm ${current ? 'font-bold text-ink' : 'font-semibold text-muted'}`}>
+                          {stepNum === 1 ? 'Patient demographics' : 'Billing and medical alerts'}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ol>
+
+                <div className="p-5 sm:p-7 flex flex-col gap-6 flex-1">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <h2 className="text-2xl font-bold tracking-tight leading-tight text-ink">{existingPatientId ? 'Returning patient' : 'New patient'}</h2>
+                      <p className="mt-1 text-sm text-muted">
+                        {existingPatientId ? 'Found in the registry. Check the details are still current.' : `No match found for ${idCheckValue || 'this ID'}.`}
+                      </p>
                     </div>
-                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-ink">
-                      {stepNum === 1 ? '1. Patient Demographics' : '2. Billing & Medical Alerts'}
-                    </span>
+                    <button type="button" onClick={handleClearForm} className="btn-secondary min-h-11 px-4 text-xs">
+                      <RotateCcw className="w-3.5 h-3.5 text-accent" aria-hidden="true" /> Restart
+                    </button>
                   </div>
-                ))}
-              </div>
 
-              <div className="bg-surface-muted border border-line rounded-none shadow-xs p-4 sm:p-5 relative font-sans">
-                <div className="absolute top-4 right-4 z-10">
-                  <button 
-                    type="button" 
-                    onClick={handleClearForm} 
-                    className="text-xs font-sans font-bold text-accent hover:text-primary-hover flex items-center justify-center gap-1 bg-surface px-3 py-1.5 border border-line"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" /> Restart
-                  </button>
-                </div>
-
-                {/* Step 1: Demographics */}
-                {formStep === 1 && (
-                  <DemographicsStep existingPatientId={existingPatientId} fieldErrors={fieldErrors} manualForm={manualForm} setManualForm={setManualForm} clearError={clearError} inputBase={inputBase} />
-                )}
-
-                {/* Step 2: Billing & Medical Alerts */}
-                {formStep === 2 && (
-                  <BillingAlertsStep fieldErrors={fieldErrors} manualForm={manualForm} setManualForm={setManualForm} setCoverageStatus={setCoverageStatus} clearError={clearError} inputBase={inputBase} handleVerifyCoverage={handleVerifyCoverage} isVerifyingCoverage={isVerifyingCoverage} coverageStatus={coverageStatus} allergyInput={allergyInput} setAllergyInput={setAllergyInput} handleAddAllergyTag={handleAddAllergyTag} allergiesList={allergiesList} handleRemoveAllergyTag={handleRemoveAllergyTag} doctors={doctors} assignedDoctorId={assignedDoctorId} onAssignedDoctorChange={setAssignedDoctorId} />
-                )}
-
-                {/* Footer buttons */}
-                <div className="mt-4 pt-3 border-t border-line flex items-center justify-between font-sans">
-                  {formStep > 1 ? (
-                    <button 
-                      type="button" 
-                      onClick={() => setFormStep(1)}
-                      className="btn-secondary font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5"
-                    >
-                      <ArrowLeft className="w-4 h-4" /> Back
-                    </button>
-                  ) : <div></div>}
-
-                  {formStep < 2 ? (
-                    <button 
-                      type="button" 
-                      onClick={proceedToNextStep}
-                      className="bg-primary hover:bg-primary-hover text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
-                    >
-                      Next Step <ArrowRight className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <button 
-                      type="button" 
-                      onClick={handleRegisterSubmit} 
-                      className="bg-primary hover:bg-primary-hover text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
-                    >
-                      <UserCheck className="w-4 h-4" /> Route to Triage Queue
-                    </button>
+                  {/* Step 1: Demographics */}
+                  {formStep === 1 && (
+                    <DemographicsStep existingPatientId={existingPatientId} fieldErrors={fieldErrors} manualForm={manualForm} setManualForm={setManualForm} clearError={clearError} inputBase={inputBase} />
                   )}
+
+                  {/* Step 2: Billing & Medical Alerts */}
+                  {formStep === 2 && (
+                    <BillingAlertsStep fieldErrors={fieldErrors} manualForm={manualForm} setManualForm={setManualForm} setCoverageStatus={setCoverageStatus} clearError={clearError} inputBase={inputBase} handleVerifyCoverage={handleVerifyCoverage} isVerifyingCoverage={isVerifyingCoverage} coverageStatus={coverageStatus} allergyInput={allergyInput} setAllergyInput={setAllergyInput} handleAddAllergyTag={handleAddAllergyTag} allergiesList={allergiesList} handleRemoveAllergyTag={handleRemoveAllergyTag} doctors={doctors} assignedDoctorId={assignedDoctorId} onAssignedDoctorChange={setAssignedDoctorId} />
+                  )}
+
+                  {/* Footer buttons */}
+                  <div className="mt-auto pt-5 border-t border-line flex flex-wrap items-center justify-between gap-3">
+                    {formStep > 1 ? (
+                      <button type="button" onClick={() => setFormStep(1)} className="btn-secondary min-h-12 px-5 text-sm">
+                        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted"><span className="text-rose-600">*</span> Required to continue</span>
+                    )}
+
+                    {formStep < 2 ? (
+                      <button type="button" onClick={proceedToNextStep} className="btn-primary min-h-12 px-6 text-sm">
+                        Next step <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                    ) : (
+                      <button type="button" onClick={handleRegisterSubmit} className="btn-primary min-h-12 px-6 text-sm">
+                        <UserCheck className="w-4 h-4" aria-hidden="true" /> Route to triage queue
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </article>
+
+              {/* Waiting room, beside the form */}
+              <aside className="flex-[1_1_20rem] min-w-0 border-t lg:border-t-0 lg:border-l border-line flex flex-col" aria-labelledby="reg-waiting-title">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+                  <h2 id="reg-waiting-title" className="text-base font-bold text-ink">Waiting room</h2>
+                  <span className="px-2.5 py-1 bg-surface-muted text-muted text-xs font-semibold">{triageQueue.length} waiting</span>
+                </div>
+                {triageQueue.length === 0 ? (
+                  <p className="px-5 py-6 text-sm text-muted">No one is waiting for triage.</p>
+                ) : (
+                  <ol className="flex flex-col">
+                    {triageQueue.slice(0, 8).map((v) => {
+                      const pt = patientsMap[v.patientId];
+                      const pname = pt?.fullName ?? `Visit ${v.id}`;
+                      const mins = v.registeredTime ? Math.max(0, Math.floor((Date.now() - v.registeredTime) / 60000)) : null;
+                      const long = mins !== null && mins >= 20;
+                      const words = pname.split(/\s+/).filter(Boolean);
+                      const initials = (words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0]?.[0] ?? '').toUpperCase();
+                      return (
+                        <li key={v.id} className={`flex items-center gap-3 px-5 py-3 border-b border-line-subtle ${long ? 'bg-amber-50/70 dark:bg-amber-950/30' : ''}`}>
+                          <span className="shrink-0 w-9 h-9 bg-surface-strong text-accent flex items-center justify-center text-xs font-bold" aria-hidden="true">{initials}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-semibold text-ink truncate">{pname}</span>
+                            <span className="block text-xs text-muted truncate">Awaiting triage</span>
+                          </span>
+                          <span className={`shrink-0 px-2.5 py-1 text-xs font-bold tabular-nums ${long ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'bg-surface-strong text-accent'}`}>
+                            {mins !== null ? formatWait(mins) : 'Just in'}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )}
+                <button type="button" onClick={() => setActiveSubTab('queue')} className="mt-auto min-h-12 border-t border-line text-sm font-semibold text-accent hover:bg-surface-accent transition-colors cursor-pointer">
+                  Open waiting room monitor
+                </button>
+              </aside>
+            </section>
           )}
         </div>
       )}

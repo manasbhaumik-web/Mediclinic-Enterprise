@@ -114,6 +114,7 @@ export function TriagePage() {
       onUpdateVisit={s.updateVisitInDb}
       currentStaffId={s.userId ?? 'staff-nurse'}
       currentStaffName={s.userName}
+      onNavigateTab={s.navigateTab}
     />
   );
 }
