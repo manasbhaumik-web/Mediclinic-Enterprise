@@ -23,6 +23,7 @@ import { palette, seriesColors } from '../../theme/palette';
 import { useInventory } from '../../context/InventoryContext';
 import { useTelemetry } from '../../context/TelemetryContext';
 import DoctorFocusSheet from './DoctorFocusSheet';
+import AssistantTriageSheet from './AssistantTriageSheet';
 import type { KpiId, PanelId } from './types';
 import KpiCards from './KpiCards';
 import FlowAndDiagnosisCharts from './FlowAndDiagnosisCharts';
@@ -458,8 +459,11 @@ export default function LandingDashboard({
         if (kind === 'consult') {
           return <DoctorFocusSheet key={kind} visits={visits} patients={patientsList} activeLanguage={activeLanguage} onNavigateTab={onNavigateTab} />;
         }
+        if (kind === 'triage') {
+          return <AssistantTriageSheet key={kind} visits={visits} patients={patientsList} activeLanguage={activeLanguage} onNavigateTab={onNavigateTab} />;
+        }
         const cfg = WORK_SECTIONS[kind];
-        const KindIcon = kind === 'dispense' ? Pill : kind === 'billing' ? CreditCard : kind === 'triage' ? Activity : Stethoscope;
+        const KindIcon = kind === 'dispense' ? Pill : kind === 'billing' ? CreditCard : Stethoscope;
         return (
           <div key={kind} className="bg-surface border border-line rounded-none shadow-none">
             <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2.5 border-b border-line bg-surface-muted/20">
@@ -505,7 +509,6 @@ export default function LandingDashboard({
                   const detail =
                     kind === 'dispense' ? `${items.length} ${itemLabel}${v.soap?.plan?.pharmacyMemo ? ` · Memo: ${v.soap.plan.pharmacyMemo}` : ''}`
                     : kind === 'billing' ? `${t.outstanding || 'Outstanding'} RM ${outstanding.toFixed(2)}${patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? ` · ${t.panelText || 'Panel'}: ${patient.panelEmployer}` : ` · ${t.selfPayText || 'Self-pay'}`}`
-                    : kind === 'triage' ? (patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? `${t.panelText || 'Panel'}: ${patient.panelEmployer}` : (t.selfPayText || 'Self-pay'))
                     : (v.soap?.subjective || (isBM ? 'Tiada aduan dicatat' : 'No complaint recorded'));
                   return { patient, mins, flag, allergies, detail };
                 };
