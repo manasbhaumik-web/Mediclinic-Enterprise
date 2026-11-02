@@ -125,7 +125,7 @@ export default function EnterpriseLayoutTemplate({
   const can = (tab: Parameters<typeof canOpenTab>[1]) => canOpenTab(held, tab);
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
+    <div className={`staff-app min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
       isNightShift ? 'dark bg-night-850 text-slate-100' : 'bg-canvas text-ink'
     }`}>
 
@@ -339,6 +339,7 @@ export default function EnterpriseLayoutTemplate({
       </header>
 
       {/* PAGE BANNER - Unified and persistent across all tabs to eliminate layout jumps & flickering */}
+      {activeTab === 'dashboard' && (
       <section className="workspace-banner-section" aria-label="Page banner">
         <div className="workspace-banner-bar">
           <div className="flex items-center gap-3.5 min-w-0">
@@ -358,7 +359,7 @@ export default function EnterpriseLayoutTemplate({
               </span>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="hidden sm:flex flex-wrap items-center gap-3 shrink-0">
             <div className="flex items-center gap-2 font-mono text-xs">
               <div className="flex items-center gap-1.5 px-2.5 py-1 bg-chrome-deep border-0 text-white rounded-none shadow-none">
                 <Clock className="w-3.5 h-3.5 text-teal-200" />
@@ -368,6 +369,7 @@ export default function EnterpriseLayoutTemplate({
           </div>
         </div>
       </section>
+      )}
 
       {/* WORKSPACE SUB-NAVIGATION BAR */}
       <div className="flex-1 flex flex-col relative font-sans">
@@ -631,7 +633,7 @@ export default function EnterpriseLayoutTemplate({
 
         {/* MAIN CONTAINER */}
         <main id="main-content" tabIndex={-1} className="flex-1 p-3 sm:p-5 overflow-y-auto max-h-full font-sans focus:outline-none">
-          <div className="w-full">
+          <div className="w-full max-w-[1600px] mx-auto">
             {children}
           </div>
         </main>

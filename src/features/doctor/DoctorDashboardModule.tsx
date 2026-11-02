@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatWait } from '../../utils/waitTime';
 import { Patient, Visit, Language, SOAPNotes } from '../../types';
 import ConsultationRoom from '../consultation/ConsultationRoom';
 import { 
@@ -378,7 +379,14 @@ export default function DoctorDashboardModule({
       {/* ========================================================================= */}
       {internalTab === 'queue' && (
         <div className="animate-fadeIn w-full space-y-4 pb-8">
-          
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-muted">{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+              <h3 className="mt-1 type-section-title text-ink font-bold">Clinic flow queue</h3>
+            </div>
+            <span className="text-xs text-muted">Synced {lastSyncedText}</span>
+          </div>
+
           {/* 1. SINGLE INTEGRATED HORIZONTAL CLINICAL COMMAND BAR & DOMINANT OPERATIONAL ALERT */}
           {(() => {
             const overSlaCount = doctorQueue.filter(v => (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0) >= 20).length;
@@ -401,40 +409,40 @@ export default function DoctorDashboardModule({
                 </div>
 
                 {/* Live Triage Command Bar (4 High-Density KPI Tiles) */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-surface p-3.5 border border-line flex items-center justify-between">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] bg-surface border-l border-t border-line">
+                  <div className="px-5 py-5 border-r border-b border-line flex items-center justify-between">
                     <div>
-                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Active Queue</span>
-                      <span className="text-xl font-bold font-mono tabular-nums text-ink">{doctorQueue.length}</span>
+                      <span className="text-xs font-medium text-muted block">Active queue</span>
+                      <span className="text-3xl font-bold tracking-tight tabular-nums text-ink">{doctorQueue.length}</span>
                       <span className="text-2xs text-muted block mt-0.5">Patients waiting</span>
                     </div>
                     <Users className="w-5 h-5 text-accent opacity-60 shrink-0" />
                   </div>
 
-                  <div className={`bg-surface p-3.5 border border-line ${overSlaCount > 0 ? 'border-l-amber-500' : 'border-l-emerald-600'} flex items-center justify-between`}>
+                  <div className={`px-5 py-5 border-r border-b border-line flex items-center justify-between`}>
                     <div>
-                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Wait Time (Avg / Max)</span>
+                      <span className="text-xs font-medium text-muted block">Wait time (avg / max)</span>
                       <div className="flex items-baseline gap-1.5 mt-0.5">
-                        <span className="text-xl font-bold font-mono tabular-nums text-ink">{avgWaitMinutes}m</span>
-                        <span className={`text-xs font-mono tabular-nums font-semibold ${overSlaCount > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-muted'}`}>/ {maxWaitMinutes}m max</span>
+                        <span className="text-3xl font-bold tracking-tight tabular-nums text-ink">{formatWait(avgWaitMinutes)}</span>
+                        <span className={`text-xs font-mono tabular-nums font-semibold ${overSlaCount > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-muted'}`}>/ {formatWait(maxWaitMinutes)} max</span>
                       </div>
                       <span className="text-2xs text-muted block mt-0.5">{overSlaCount > 0 ? `${overSlaCount} over 20m SLA` : 'Within SLA target'}</span>
                     </div>
                     <Clock className={`w-5 h-5 ${overSlaCount > 0 ? 'text-amber-600' : 'text-emerald-600'} opacity-60 shrink-0`} />
                   </div>
 
-                  <div className={`bg-surface p-3.5 border border-line ${highPriorityCount > 0 ? 'border-l-rose-600' : 'border-l-line'} flex items-center justify-between`}>
+                  <div className={`px-5 py-5 border-r border-b border-line flex items-center justify-between`}>
                     <div>
-                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Clinical Acuity</span>
-                      <span className={`text-xl font-bold font-mono tabular-nums ${highPriorityCount > 0 ? 'text-rose-600' : 'text-ink'}`}>{highPriorityCount}</span>
+                      <span className="text-xs font-medium text-muted block">Clinical acuity</span>
+                      <span className={`text-3xl font-bold tracking-tight tabular-nums ${highPriorityCount > 0 ? 'text-rose-600' : 'text-ink'}`}>{highPriorityCount}</span>
                       <span className="text-2xs text-muted block mt-0.5">{highPriorityCount > 0 ? 'Allergy/Priority flags' : 'Standard triage'}</span>
                     </div>
                     <AlertTriangle className={`w-5 h-5 ${highPriorityCount > 0 ? 'text-rose-600' : 'text-muted'} opacity-60 shrink-0`} />
                   </div>
 
-                  <div className="bg-surface p-3.5 border border-line flex items-center justify-between">
+                  <div className="px-5 py-5 border-r border-b border-line flex items-center justify-between">
                     <div className="min-w-0 flex-1 pr-2">
-                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Station Room</span>
+                      <span className="text-xs font-medium text-muted block">Station room</span>
                       <select
                         id="doctor-active-room-select"
                         value={room}
@@ -542,8 +550,11 @@ export default function DoctorDashboardModule({
               {/* TOOLBAR: SEARCH, FILTER, SORT */}
               <QueueToolbar queueSearchQuery={queueSearchQuery} setQueueSearchQuery={setQueueSearchQuery} setQueuePage={setQueuePage} doctorQueue={doctorQueue} patientsMap={patientsMap} setAcuityFilter={setAcuityFilter} acuityFilter={acuityFilter} setSortRule={setSortRule} sortRule={sortRule} />
 
-              {/* NEXT IN LINE (#1 ONLY ON PAGE 1) */}
-              {nextPatient && nextVisit && (() => {
+              <div className="flex flex-wrap bg-surface border border-line">
+              {/* NEXT IN LINE (#1 ONLY ON PAGE 1): side panel beside the roster on wide screens */}
+              {nextPatient && nextVisit && (
+              <div className="flex-[1_1_24rem] min-w-0 lg:order-2 border-b lg:border-b-0 lg:border-l border-line">
+              {(() => {
                 const heroTriage = getTriageDetails(nextPatient, nextVisit);
                 const heroWait = nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0;
                 const obj = nextVisit.soap?.objective;
@@ -552,9 +563,14 @@ export default function DoctorDashboardModule({
                   <NextPatientCard userId={userId} pinnedVisitIds={pinnedVisitIds} nextVisit={nextVisit} calledTimestampMap={calledTimestampMap} stepIndex={stepIndex} nextPatient={nextPatient} heroTriage={heroTriage} renderAllergyBadge={renderAllergyBadge} activeConsultationVisitId={activeConsultationVisitId} calledVisitId={calledVisitId ?? ''} handleStartConsultation={handleStartConsultation} requestCallPatient={requestCallPatient} toggleDetails={toggleDetails} expandedDetails={expandedDetails} togglePinVisit={togglePinVisit} copyToClipboard={copyToClipboard} obj={obj} heroWait={heroWait} sortRule={sortRule} />
                 );
               })()}
+              </div>
+              )}
 
               {/* WAITING PATIENTS LIST */}
+              <div className="flex-[999_1_36rem] min-w-0 lg:order-1">
               <WaitingPatientsList userId={userId} currentPage={currentPage} sortedQueue={sortedQueue} totalPages={totalPages} sortRule={sortRule} remainingQueue={remainingQueue} nextVisit={nextVisit} patientsMap={patientsMap} activeConsultationVisitId={activeConsultationVisitId} expandedDetails={expandedDetails} startIndex={startIndex} pinnedVisitIds={pinnedVisitIds} toggleDetails={toggleDetails} renderAllergyBadge={renderAllergyBadge} togglePinVisit={togglePinVisit} copyToClipboard={copyToClipboard} handleStartConsultation={handleStartConsultation} requestCallPatient={requestCallPatient} entriesPerPage={entriesPerPage} setEntriesPerPage={setEntriesPerPage} setQueuePage={setQueuePage} />
+              </div>
+              </div>
             </div>
           )}
         </div>

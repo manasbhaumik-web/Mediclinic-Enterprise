@@ -80,13 +80,13 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
         <div className="bg-surface rounded-none p-3 border border-line flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <LineChart className="w-4 h-4 text-accent" aria-hidden="true" />
-            <span className="text-xs font-bold text-ink uppercase tracking-wider font-mono">Blood pressure, last 3 visits</span>
+            <span className="text-xs font-bold text-ink uppercase tracking-wider">Blood pressure, last 3 visits</span>
           </div>
           <div className="flex items-center gap-3">
             {patientPastVisits.slice(0, 3).map((v) => (
               <div key={v.id} className="flex flex-col items-center bg-surface-muted px-2.5 py-1 rounded-none border border-line">
-                <span className="text-xs text-subtle font-mono tabular-nums">{v.date.substring(5)}</span>
-                <span className="text-xs font-bold font-mono tabular-nums text-accent">{v.soap.objective.bpSystolic > 0 ? `${v.soap.objective.bpSystolic}/${v.soap.objective.bpDiastolic}` : 'Not recorded'}</span>
+                <span className="text-xs text-subtle tabular-nums">{v.date.substring(5)}</span>
+                <span className="text-xs font-bold tabular-nums text-accent">{v.soap.objective.bpSystolic > 0 ? `${v.soap.objective.bpSystolic}/${v.soap.objective.bpDiastolic}` : 'Not recorded'}</span>
               </div>
             ))}
           </div>
@@ -121,10 +121,10 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
                 value={recorded ? value : ''}
                 placeholder="Not recorded"
                 onChange={(e) => setVitals({ ...vitals, [f.key]: e.target.value === '' ? 0 : Number(e.target.value) })}
-                className={`w-full min-h-11 px-3 text-sm font-mono tabular-nums font-bold text-ink border border-line-strong ${isLocked ? 'bg-surface-muted' : 'bg-surface'}`}
+                className={`w-full min-h-11 px-3 text-sm tabular-nums font-bold text-ink border border-line-strong ${isLocked ? 'bg-surface-muted' : 'bg-surface'}`}
               />
-              {note ? <span className={`${CHIP[note.tone]} mt-1.5 px-2 py-0.5 text-xs inline-flex items-center font-mono tabular-nums`}>{note.text}</span>
-                : <span className="chip-neutral mt-1.5 px-2 py-0.5 text-xs inline-flex items-center font-mono">Not recorded</span>}
+              {note ? <span className={`${CHIP[note.tone]} mt-1.5 px-2 py-0.5 text-xs inline-flex items-center tabular-nums`}>{note.text}</span>
+                : <span className="chip-neutral mt-1.5 px-2 py-0.5 text-xs inline-flex items-center">Not recorded</span>}
             </div>
           );
         })}
@@ -140,7 +140,7 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
           <button
             type="button"
             onClick={() => setIsPoctQcModalOpen(true)}
-            className="text-2xs font-mono font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-2xs font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>Verify Glucometer / Strips Daily Calibration QC</span>
@@ -154,7 +154,7 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
                 Capillary Blood Glucose (CBG)
               </label>
               {cbg && (
-                <span className={`text-2xs font-mono font-bold px-1.5 py-0.2 border ${
+                <span className={`text-2xs font-bold px-1.5 py-0.2 border ${
                   parseFloat(cbg) < 4.0
                     ? 'chip-danger'
                     : parseFloat(cbg) > 11.1
@@ -173,9 +173,9 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
                 placeholder="e.g. 5.6"
                 value={cbg}
                 onChange={(e) => setCbg(e.target.value)}
-                className="w-full bg-surface border border-line px-3 py-1.5 text-xs font-mono font-bold text-ink focus:border-brand outline-none"
+                className="w-full bg-surface border border-line px-3 py-1.5 text-xs font-bold text-ink focus:border-brand outline-none"
               />
-              <span className="text-xs font-mono text-muted font-bold whitespace-nowrap">mmol/L</span>
+              <span className="text-xs text-muted font-bold whitespace-nowrap">mmol/L</span>
             </div>
           </div>
 
@@ -202,12 +202,12 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
             <Stethoscope className="w-4 h-4 text-accent" />
             <h4 className="type-label text-ink font-bold">Physical Examination (PE)</h4>
           </div>
-          <span className="text-2xs font-mono text-muted">Document physical signs, chest, throat, abdomen</span>
+          <span className="text-2xs text-muted">Document physical signs, chest, throat, abdomen</span>
         </div>
 
         {/* Quick Normal Stamp Tokens */}
         <div className="flex flex-wrap items-center gap-1.5 p-2 bg-surface-muted border border-line">
-          <span className="text-2xs font-mono uppercase font-bold text-muted mr-1">Normal Stamps:</span>
+          <span className="text-2xs uppercase font-bold text-muted mr-1">Normal Stamps:</span>
           {examTokens.map((token, idx) => (
             <button
               key={idx}

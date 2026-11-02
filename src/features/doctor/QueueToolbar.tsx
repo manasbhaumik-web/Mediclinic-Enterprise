@@ -54,7 +54,7 @@ export default function QueueToolbar({
     
       {/* Acuity / Triage Filter Buttons */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-2xs font-bold uppercase tracking-wider text-muted font-mono">Filter</span>
+        <span className="text-2xs font-bold uppercase tracking-wider text-muted">Filter</span>
         {([
           { id: 'all', label: 'All Patients', count: doctorQueue.length, warn: false },
           { id: 'high', label: 'High Acuity', count: doctorQueue.filter(v => (patientsMap[v.patientId]?.drugAllergies?.length || 0) > 0).length, warn: false },
@@ -72,7 +72,7 @@ export default function QueueToolbar({
             }`}
           >
             <span>{f.label}</span>
-            <span className={`text-2xs font-bold font-mono tabular-nums px-1.5 py-0.5 ${
+            <span className={`text-2xs font-bold tabular-nums px-1.5 py-0.5 ${
               acuityFilter === f.id
                 ? 'bg-white/20 text-white'
                 : f.warn ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-surface-accent text-accent border border-line'
@@ -83,7 +83,7 @@ export default function QueueToolbar({
     
       {/* Sort Rule Group */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-2xs font-bold uppercase tracking-wider text-muted font-mono">Sort By</span>
+        <span className="text-2xs font-bold uppercase tracking-wider text-muted">Sort By</span>
         <div role="group" aria-label="Sort the queue by" className="flex border border-line bg-surface">
           {(['urgency', 'wait', 'arrival'] as const).map((r) => (
             <button

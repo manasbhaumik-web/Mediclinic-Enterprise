@@ -105,7 +105,7 @@ export default function SubjectiveTab({
 
         {/* 1-Click Consultation Audio Simulations */}
         <div className="space-y-1.5">
-          <span className="text-2xs font-mono uppercase font-bold text-subtle block">
+          <span className="text-2xs uppercase font-bold text-subtle block">
             Simulate Patient Encounter Speech (1-Click AI Synthesis):
           </span>
           <div className="flex flex-wrap gap-1.5">
@@ -145,7 +145,7 @@ export default function SubjectiveTab({
           onChange={(e) => setSubjective(e.target.value)}
           placeholder="Record presenting symptoms, onset duration, severity, localized area, aggravating factors, and patient medical history..."
         />
-        <div className="absolute bottom-3 right-3 text-2xs text-slate-400 dark:text-slate-400 font-mono tabular-nums pointer-events-none bg-surface px-2 py-0.5 rounded-none border border-line">
+        <div className="absolute bottom-3 right-3 text-2xs text-slate-400 dark:text-slate-400 tabular-nums pointer-events-none bg-surface px-2 py-0.5 rounded-none border border-line">
           {subjective.length} characters
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function SubjectiveTab({
       <div className="bg-surface border border-line rounded-none p-3.5 space-y-2">
         <div className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span className="text-2xs font-bold text-ink uppercase tracking-wider font-mono">
+          <span className="text-2xs font-bold text-ink uppercase tracking-wider">
             Clinical Symptom Quick-Templates:
           </span>
         </div>

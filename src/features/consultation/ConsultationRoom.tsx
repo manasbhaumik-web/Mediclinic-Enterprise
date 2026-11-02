@@ -497,7 +497,7 @@ export default function ConsultationRoom({
   const roomText = activeVisit?.consultRoom ? `${activeVisit.consultRoom}${activeVisit.calledAt ? `, called ${new Date(activeVisit.calledAt).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })}` : ''}` : undefined;
 
   return (
-    <div className="space-y-4 pb-16 relative animate-fadeIn text-ink dark:text-slate-50">
+    <div className="space-y-4 pb-16 relative animate-fadeIn text-ink dark:text-slate-50 w-full max-w-[1600px] mx-auto">
       
       {/* ========================================================================= */}
       {/* AREA 1: PERSISTENT PATIENT SAFETY HEADER WITH PII MASKING & AUTO-SAVE     */}
@@ -506,7 +506,7 @@ export default function ConsultationRoom({
 
       {/* DRAFT SAVED NOTIFICATION TOAST BANNER */}
       {draftToast && (
-        <div role="status" className="bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-400 text-emerald-900 dark:text-emerald-200 px-4 py-2.5 rounded-none text-xs font-mono font-bold flex items-center justify-between shadow-none animate-fadeIn">
+        <div role="status" className="bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-400 text-emerald-900 dark:text-emerald-200 px-4 py-2.5 rounded-none text-xs font-bold flex items-center justify-between shadow-none animate-fadeIn">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{draftToast}</span>
@@ -519,7 +519,7 @@ export default function ConsultationRoom({
 
       {/* KEYBOARD SHORTCUTS OVERLAY BANNER */}
       {showShortcutsHelp && (
-        <div className="bg-surface-accent border border-line p-3 rounded-none flex items-center justify-between text-xs text-accent font-mono animate-fadeIn">
+        <div className="bg-surface-accent border border-line p-3 rounded-none flex items-center justify-between text-xs text-accent animate-fadeIn">
           <div className="flex flex-wrap items-center gap-4">
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+1</kbd> Subjective</span>
             <span><kbd className="bg-surface px-1.5 py-0.5 border border-line text-deep font-bold">Alt+2</kbd> Objective Vitals</span>
@@ -537,9 +537,9 @@ export default function ConsultationRoom({
       {/* ========================================================================= */}
       {/* AREA 2 & 3: MAIN ENCOUNTER WORKSPACE + CONTEXTUAL RIGHT PANEL             */}
       {/* ========================================================================= */}
-      <div className={`grid grid-cols-1 ${showContextPanel ? 'lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr]' : 'lg:grid-cols-[44px_1fr]'} gap-4 items-stretch min-h-[500px] transition-all duration-150`}>
+      <div className={`grid grid-cols-1 ${showContextPanel ? 'lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]' : 'lg:grid-cols-[44px_1fr]'} gap-0 bg-surface border border-line items-stretch min-h-[500px] transition-all duration-150`}>
         
-        {/* CONTEXTUAL LEFT PANEL — VITALS, LONGITUDINAL HISTORY & QUEUE (25%) */}
+        {/* CONTEXTUAL LEFT PANEL — VITALS, LONGITUDINAL HISTORY & QUEUE (30%) */}
         {showContextPanel ? (
           <div className="w-full min-w-0">
             <ContextPanel 
@@ -550,6 +550,13 @@ export default function ConsultationRoom({
               setSelectedPastVisit={setSelectedPastVisit} 
               stationHud={stationHud} 
               onToggleCollapse={toggleContextPanel}
+              patient={currentPatient}
+              patientAgeDisplay={patientAgeDetails.displayAge}
+              ticketText={formatTicket(activeVisit?.ticketNo)}
+              roomText={roomText}
+              maskedIC={maskedIC}
+              isPiiRevealed={isPiiRevealed}
+              setIsPiiRevealed={setIsPiiRevealed}
             />
           </div>
         ) : (
@@ -571,7 +578,7 @@ export default function ConsultationRoom({
             >
               <PanelLeftOpen className="w-4 h-4 text-accent" />
             </button>
-            <div className="[writing-mode:vertical-lr] rotate-180 flex items-center gap-2 text-2xs font-mono font-bold tracking-wider text-muted group-hover:text-ink uppercase py-2">
+            <div className="[writing-mode:vertical-lr] rotate-180 flex items-center gap-2 text-2xs font-bold tracking-wider text-muted group-hover:text-ink uppercase py-2">
               <Activity className="w-3.5 h-3.5 text-accent" />
               <span>Vitals &amp; History ({patientPastVisits.length})</span>
             </div>
@@ -579,7 +586,7 @@ export default function ConsultationRoom({
         )}
         
         {/* AREA 2: MAIN CONSULTATION WORKSPACE (75%) */}
-        <div className="w-full min-w-0 bg-surface border border-line p-5 rounded-none flex flex-col justify-between space-y-5">
+        <div className="w-full min-w-0 border-t lg:border-t-0 lg:border-l border-line p-5 rounded-none flex flex-col justify-between space-y-5">
           
           <div className="space-y-4">
             
@@ -593,7 +600,7 @@ export default function ConsultationRoom({
                 <button
                   type="button"
                   onClick={toggleContextPanel}
-                  className="inline-flex items-center gap-1.5 text-2xs font-mono font-bold text-accent hover:text-ink px-2.5 py-1 border border-line bg-surface hover:bg-surface-muted cursor-pointer transition-colors"
+                  className="inline-flex items-center gap-1.5 text-2xs font-bold text-accent hover:text-ink px-2.5 py-1 border border-line bg-surface hover:bg-surface-muted cursor-pointer transition-colors"
                 >
                   <PanelLeftOpen className="w-3.5 h-3.5" />
                   <span>Show Vitals &amp; History</span>

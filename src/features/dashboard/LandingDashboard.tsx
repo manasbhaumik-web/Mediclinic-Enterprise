@@ -5,6 +5,7 @@ import { ROLE_BANNER, bannerFor, getGreeting } from '../../domain/roleBanner';
 import { TRANSLATIONS } from '../../data';
 import { Visit, Patient, UserRole, Language } from '../../types';
 import { getPersonaAvatar } from '../../utils/personaAvatars';
+import { formatWait } from '../../utils/waitTime';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
   TrendingUp, ArrowUpRight, ShieldCheck, MapPin, Phone, Building2,
@@ -21,7 +22,7 @@ import { chartTheme } from '../../theme/chartTheme';
 import { palette, seriesColors } from '../../theme/palette';
 import { useInventory } from '../../context/InventoryContext';
 import { useTelemetry } from '../../context/TelemetryContext';
-import MicroSparkline from './MicroSparkline';
+import DoctorFocusSheet from './DoctorFocusSheet';
 import type { KpiId, PanelId } from './types';
 import KpiCards from './KpiCards';
 import FlowAndDiagnosisCharts from './FlowAndDiagnosisCharts';
@@ -91,6 +92,7 @@ export default function LandingDashboard({
     .filter((m): m is number => m !== null);
   const avgWaitMinutes = waitingTimes.length ? Math.round(waitingTimes.reduce((a, b) => a + b, 0) / waitingTimes.length) : 0;
   const longestDoctorWait = Math.max(0, ...doctorQueue.map((v) => minutesSince(v.registeredTime) ?? 0));
+  const allergyFlagCount = doctorQueue.filter((v) => (patientsList.find((pt) => pt.id === v.patientId)?.drugAllergies ?? []).some(Boolean)).length;
 
   // Hourly throughput: registrations per clock hour
   const hourlyTrafficData = Array.from({ length: 12 }, (_, i) => {
@@ -156,7 +158,7 @@ export default function LandingDashboard({
     doctor: {
       ...ROLE_BANNER['doctor'],
       modules: ['queue', 'consultation', 'report'],
-      kpis: ['waiting', 'encounters', 'efficiency'],
+      kpis: ['encounters', 'waiting', 'efficiency', 'allergies'],
       panels: ['worklist', 'throughput', 'icd', 'facility'],
     },
     pharmacist: {
@@ -432,33 +434,30 @@ export default function LandingDashboard({
           {headerBanner}
         </section>
       ) : (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface border-0 px-4 py-3 rounded-none shadow-2xs">
-          <div>
-            <h3 className="type-section-title text-ink font-bold">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted">{new Date().toLocaleDateString(isBM ? 'ms-MY' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+            <h3 className="mt-1 type-section-title text-ink font-bold">
               {isBM ? 'Pusat Kawalan & Pemantauan Operasi' : 'Clinical Operations & Command Center'}
             </h3>
-            <p className="text-xs text-muted font-medium">
-              {isBM
-                ? 'Pemantauan masa nyata aliran pesakit, telemetri fasiliti dan metrik prestasi klinikal.'
-                : 'Real-time telemetry, queue throughput, and clinical performance overview.'}
-            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleExportTelemetry}
-              disabled={isExporting}
-              className="btn-outline-primary text-xs px-3.5 py-1.5 inline-flex items-center gap-1.5 font-mono"
-            >
-              <Download className={`w-3.5 h-3.5 text-accent ${isExporting ? 'animate-bounce' : ''}`} />
-              <span>{isExporting ? (t.exporting || 'Exporting...') : (t.exportTelemetry || 'Export Telemetry')}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleExportTelemetry}
+            disabled={isExporting}
+            className="btn-outline-primary text-xs px-3.5 py-1.5 inline-flex items-center gap-1.5 font-mono"
+          >
+            <Download className={`w-3.5 h-3.5 text-accent ${isExporting ? 'animate-bounce' : ''}`} />
+            <span>{isExporting ? (t.exporting || 'Exporting...') : (t.exportTelemetry || 'Export Telemetry')}</span>
+          </button>
         </div>
       )}
 
       {/* ROLE WORKLISTS: what this role needs to act on next */}
       {showPanel('worklist') && worklists.map(({ kind, visits }) => {
+        if (kind === 'consult') {
+          return <DoctorFocusSheet key={kind} visits={visits} patients={patientsList} activeLanguage={activeLanguage} onNavigateTab={onNavigateTab} />;
+        }
         const cfg = WORK_SECTIONS[kind];
         const KindIcon = kind === 'dispense' ? Pill : kind === 'billing' ? CreditCard : kind === 'triage' ? Activity : Stethoscope;
         return (
@@ -472,7 +471,7 @@ export default function LandingDashboard({
                   <div className="flex items-center gap-2">
                     <h3 className="type-card-title text-ink font-bold">{cfg.title}</h3>
                     <span className="font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 border border-line bg-surface text-accent">
-                      <strong className="tabular-nums text-ink">{visits.length}</strong> {t.inQueue || 'in queue'}
+                      <strong className="tabular-nums text-ink">{visits.filter((v) => v.status !== 'Consulting').length}</strong> {t.inQueue || 'in queue'}
                     </span>
                   </div>
                   <p className="text-xs text-muted mt-0.5">{cfg.subtitle}</p>
@@ -494,11 +493,11 @@ export default function LandingDashboard({
                 {cfg.empty}
               </div>
             ) : (
-              <ul className="divide-y divide-line-subtle">
-                {visits.map((v, idx) => {
+              (() => {
+                const describe = (v: Visit) => {
                   const patient = patientsList.find((pt) => pt.id === v.patientId);
                   const mins = waitMinutes(v);
-                  const flag = kind === 'consult' ? vitalsFlag(v) : null;
+                  const flag: string | null = null;
                   const allergies = patient?.drugAllergies?.filter(Boolean) ?? [];
                   const items = v.soap?.plan?.prescription ?? [];
                   const outstanding = Math.max(0, (v.totalBill || 0) - (v.paidAmount || 0) - (v.panelClaimed || 0));
@@ -508,53 +507,104 @@ export default function LandingDashboard({
                     : kind === 'billing' ? `${t.outstanding || 'Outstanding'} RM ${outstanding.toFixed(2)}${patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? ` · ${t.panelText || 'Panel'}: ${patient.panelEmployer}` : ` · ${t.selfPayText || 'Self-pay'}`}`
                     : kind === 'triage' ? (patient?.panelEmployer && !/^none/i.test(patient.panelEmployer) ? `${t.panelText || 'Panel'}: ${patient.panelEmployer}` : (t.selfPayText || 'Self-pay'))
                     : (v.soap?.subjective || (isBM ? 'Tiada aduan dicatat' : 'No complaint recorded'));
+                  return { patient, mins, flag, allergies, detail };
+                };
 
-                  return (
-                    <li key={v.id} className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2 bg-surface hover:bg-surface-muted/50 transition-colors border-b border-line-subtle last:border-b-0">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-6 h-6 shrink-0 flex items-center justify-center bg-surface-muted border border-line text-ink font-mono tabular-nums text-2xs font-bold">{idx + 1}</span>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-bold text-ink truncate">{patient?.fullName ?? `Visit ${v.id}`}</p>
-                            {patient?.gender && (
-                              <span className="text-2xs font-mono text-muted uppercase">({patient.gender})</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted truncate mt-0.5">{detail}</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
-                        {allergies.length > 0 && kind !== 'billing' && (
-                          <span className="border border-rose-300 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {t.allergy || 'Allergy'}: {allergies.join(', ')}
-                          </span>
-                        )}
-                        {flag && (
-                          <span className="border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {flag}
-                          </span>
-                        )}
-                        {v.status === 'Consulting' && (
-                          <span className="border border-teal-300 dark:border-teal-900 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5">
-                            {t.inConsultation || 'In consultation'}
-                          </span>
-                        )}
-                        <span className={`font-mono text-xs font-bold px-2 py-1 border flex items-center gap-1.5 ${mins !== null && mins >= 20 ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'border-line bg-surface-accent text-accent'}`}>
-                          <Clock className="w-3 h-3" /> {mins !== null ? `${mins} min` : (t.justIn || 'Just in')}
+                const chipsFor = (v: Visit, d: ReturnType<typeof describe>) => (
+                  <>
+                    {d.allergies.length > 0 && kind !== 'billing' && (
+                      <span className="border border-rose-300 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> {t.allergy || 'Allergy'}: {d.allergies.join(', ')}
+                      </span>
+                    )}
+                    {d.flag && (
+                      <span className="border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> {d.flag}
+                      </span>
+                    )}
+                    {v.status === 'Consulting' && (
+                      <span className="border border-teal-300 dark:border-teal-900 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 font-mono text-2xs uppercase tracking-wider font-bold px-2 py-0.5">
+                        {t.inConsultation || 'In consultation'}
+                      </span>
+                    )}
+                  </>
+                );
+
+                const waitChip = (mins: number | null) => (
+                  <span className={`font-mono text-xs font-bold px-2 py-1 border flex items-center gap-1.5 ${mins !== null && mins >= 20 ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'border-line bg-surface-accent text-accent'}`}>
+                    <Clock className="w-3 h-3" /> {mins !== null ? formatWait(mins) : (t.justIn || 'Just in')}
+                  </span>
+                );
+
+                // The first visit is the one action this role should take next, so it leads as a focus card.
+                const [first, ...rest] = visits;
+                const firstInfo = describe(first);
+                const seeingNow = first.status === 'Consulting';
+                const heroCta = seeingNow ? (isBM ? 'Sambung perundingan' : 'Continue consultation') : cfg.rowCta;
+
+                return (
+                  <>
+                    <div className="px-4 py-4 sm:px-5 border-l-4 border-l-primary bg-surface-accent/40 flex flex-wrap items-center justify-between gap-4">
+                      <div className="min-w-0 space-y-1.5">
+                        <span className="text-2xs font-bold uppercase tracking-wider text-accent font-mono">
+                          {seeingNow ? (isBM ? 'Sedang dirawat' : 'Now seeing') : (isBM ? 'Seterusnya' : 'Up next')}
                         </span>
+                        <p className="text-lg font-bold text-ink truncate">
+                          {firstInfo.patient?.fullName ?? `Visit ${first.id}`}
+                          {firstInfo.patient?.gender && <span className="ml-2 text-xs font-mono font-normal text-muted uppercase">({firstInfo.patient.gender})</span>}
+                        </p>
+                        <p className="text-xs text-muted truncate">{firstInfo.detail}</p>
+                        <div className="flex flex-wrap items-center gap-2 pt-0.5">{chipsFor(first, firstInfo)}</div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {waitChip(firstInfo.mins)}
                         <button
                           type="button"
                           onClick={() => onNavigateTab(cfg.tab)}
-                          className="min-h-7 px-2.5 bg-surface hover:bg-surface-accent text-accent hover:text-ink border border-line text-2xs font-bold font-mono uppercase tracking-wider rounded-none cursor-pointer flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                          className="min-h-11 px-5 bg-primary hover:bg-deep text-white text-xs font-mono uppercase font-bold tracking-wider rounded-none cursor-pointer flex items-center gap-1.5 border border-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         >
-                          {cfg.rowCta}
-                          <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                          {heroCta}
+                          <ChevronRight className="w-4 h-4" aria-hidden="true" />
                         </button>
                       </div>
-                    </li>
-                  );
-                })}
-              </ul>
+                    </div>
+
+                    {rest.length > 0 && (
+                      <ul className="divide-y divide-line-subtle border-t border-line">
+                        {rest.map((v, idx) => {
+                          const d = describe(v);
+                          return (
+                            <li key={v.id} className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2 bg-surface hover:bg-surface-muted/50 transition-colors">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="w-6 h-6 shrink-0 flex items-center justify-center bg-surface-muted border border-line text-ink font-mono tabular-nums text-2xs font-bold">{idx + 2}</span>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm font-bold text-ink truncate">{d.patient?.fullName ?? `Visit ${v.id}`}</p>
+                                    {d.patient?.gender && <span className="text-2xs font-mono text-muted uppercase">({d.patient.gender})</span>}
+                                  </div>
+                                  <p className="text-xs text-muted truncate mt-0.5">{d.detail}</p>
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
+                                {chipsFor(v, d)}
+                                {waitChip(d.mins)}
+                                <button
+                                  type="button"
+                                  onClick={() => onNavigateTab(cfg.tab)}
+                                  className="min-h-7 px-2.5 bg-surface hover:bg-surface-accent text-accent hover:text-ink border border-line text-2xs font-bold font-mono uppercase tracking-wider rounded-none cursor-pointer flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                >
+                                  {cfg.rowCta}
+                                  <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                                </button>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </>
+                );
+              })()
             )}
 
             {kind === 'dispense' && lowStockDrugs.length > 0 && (
@@ -573,33 +623,7 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 2. WORKSPACE MODULE LAUNCHPAD (5 INTERACTIVE ENTERPRISE TILES)             */}
       {/* ========================================================================= */}
-      {worklists.length > 0 ? (
-        // A worklist leads this role's page, so the shortcuts shrink to one row of links
-        <div className="bg-surface border border-line px-3 py-2 rounded-none shadow-none flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-2xs font-mono uppercase font-bold tracking-wider text-muted">
-            <LayoutDashboard className="w-4 h-4 text-accent" />
-            <span>{t.clinicalWorkspaces || 'Clinical Workspaces'}</span>
-          </div>
-          <nav aria-label="Workspaces" className="flex flex-wrap items-center gap-2">
-            {workspaceModules.map((mod) => {
-              const IconComponent = mod.icon;
-              return (
-                <button
-                  key={mod.id}
-                  type="button"
-                  onClick={() => (mod.tabKey === 'admin' ? onOpenAdmin?.() : onNavigateTab(mod.tabKey))}
-                  aria-label={`${mod.title}: ${mod.badge}`}
-                  className="px-2.5 py-1.5 bg-surface hover:bg-surface-muted text-ink border border-line text-xs font-bold rounded-none cursor-pointer flex items-center gap-2 transition-colors group shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <IconComponent className="w-4 h-4 text-accent group-hover:text-primary transition-colors" aria-hidden="true" />
-                  <span>{mod.title}</span>
-                  <span className={`px-1.5 py-0.2 text-2xs font-mono font-bold uppercase tracking-wider border rounded-none ${mod.badgeColor}`}>{mod.badge}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-      ) : (
+      {worklists.length > 0 ? null : (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="type-heading-caps text-muted flex items-center gap-2">
@@ -653,7 +677,7 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 3. STATISTICAL KPI CARDS WITH SPARKLINES & SLA BADGES                     */}
       {/* ========================================================================= */}
-      <KpiCards showKpi={showKpi} pharmacyQueue={pharmacyQueue} completedVisits={completedVisits} totalEncountersToday={totalEncountersToday} activeQueueCount={activeQueueCount} cashierQueue={cashierQueue} hasThroughput={hasThroughput} hourlyTrafficData={hourlyTrafficData} doctorQueue={doctorQueue} longestDoctorWait={longestDoctorWait} triageQueue={triageQueue} calculatedRevenue={calculatedRevenue} avgWaitMinutes={avgWaitMinutes} waitingTimes={waitingTimes} />
+      <KpiCards showKpi={showKpi} pharmacyQueue={pharmacyQueue} completedVisits={completedVisits} totalEncountersToday={totalEncountersToday} activeQueueCount={activeQueueCount} cashierQueue={cashierQueue} hasThroughput={hasThroughput} hourlyTrafficData={hourlyTrafficData} doctorQueue={doctorQueue} longestDoctorWait={longestDoctorWait} triageQueue={triageQueue} calculatedRevenue={calculatedRevenue} avgWaitMinutes={avgWaitMinutes} waitingTimes={waitingTimes} allergyFlagCount={allergyFlagCount} />
 
       {/* ========================================================================= */}
       {/* 4. CHARTS ROW 1: THROUGHPUT TREND & ICD DIAGNOSIS                          */}

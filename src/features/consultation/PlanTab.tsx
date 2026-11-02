@@ -343,7 +343,7 @@ export default function PlanTab({
           <div>
             <h4 className="type-label">ALLERGY ALERT: a prescribed drug conflicts with a recorded allergy</h4>
             <p className="text-2xs mt-0.5 opacity-95">Patient registered allergies conflict with active prescription choices.</p>
-            <ul className="text-2xs mt-1 list-disc pl-4 font-mono bg-black/20 p-1.5 rounded-none">
+            <ul className="text-2xs mt-1 list-disc pl-4 bg-black/20 p-1.5 rounded-none">
               {allergyAlerts.map((alert, idx) => (
                 <li key={idx}><span className="font-bold">{alert.drugName}</span> belongs to <span className="font-bold underline uppercase">{alert.allergyGroup}</span> family.</li>
               ))}
@@ -397,7 +397,7 @@ export default function PlanTab({
               </h4>
               <p className="text-2xs opacity-95">
                 Statutory requirement: Notify PKD {matchedAct342.urgency.toLowerCase()} under Section 10(2) of Act 342.
-                {act342Dispatched && <span className="ml-2 font-mono font-bold bg-white text-rose-800 px-1.5 py-0.2">✓ Dispatched: {act342Dispatched}</span>}
+                {act342Dispatched && <span className="ml-2 font-bold bg-white text-rose-800 px-1.5 py-0.2">✓ Dispatched: {act342Dispatched}</span>}
               </p>
             </div>
           </div>
@@ -415,75 +415,75 @@ export default function PlanTab({
       {/* 5 STRUCTURED SUB-TABS NAVIGATION BAR (SINGLE-LINE CLINICAL LABELS)        */}
       {/* SUB-NAVIGATION TABS (Guaranteed Single-Line with min-w-fit & whitespace-nowrap) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto scrollbar-thin" role="tablist">
+      <div className="flex gap-1.5 overflow-x-auto scrollbar-thin pb-1" role="tablist">
         
         <button
           type="button"
           onClick={() => setSubTab('medication')}
-          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+          className={`flex-1 min-w-fit min-h-11 px-4 border text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'medication'
-              ? 'bg-primary text-white'
-              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+              ? 'bg-surface-strong border-surface-strong text-ink font-bold'
+              : 'bg-surface border-line text-muted font-semibold hover:bg-surface-accent'
           }`}
           title="Medication Prescribing & In-House Inventory"
         >
           <Pill className="w-4 h-4 shrink-0" />
           <span className="whitespace-nowrap">1. Medications</span>
-          {rxList.length > 0 && <span className="bg-surface text-accent px-1 font-mono text-2xs font-bold shrink-0">{rxList.length}</span>}
+          {rxList.length > 0 && <span className="bg-surface text-accent px-1 text-2xs font-bold shrink-0">{rxList.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('investigations')}
-          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+          className={`flex-1 min-w-fit min-h-11 px-4 border text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'investigations'
-              ? 'bg-primary text-white'
-              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+              ? 'bg-surface-strong border-surface-strong text-ink font-bold'
+              : 'bg-surface border-line text-muted font-semibold hover:bg-surface-accent'
           }`}
           title="Laboratory & Diagnostic Investigations"
         >
           <TestTube className="w-4 h-4 shrink-0" />
           <span className="whitespace-nowrap">2. Lab &amp; Tests</span>
-          {selectedLabs.length > 0 && <span className="bg-surface-accent text-accent px-1 font-mono text-2xs font-bold shrink-0">{selectedLabs.length}</span>}
+          {selectedLabs.length > 0 && <span className="bg-surface-accent text-accent px-1 text-2xs font-bold shrink-0">{selectedLabs.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('procedures')}
-          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+          className={`flex-1 min-w-fit min-h-11 px-4 border text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'procedures'
-              ? 'bg-primary text-white'
-              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+              ? 'bg-surface-strong border-surface-strong text-ink font-bold'
+              : 'bg-surface border-line text-muted font-semibold hover:bg-surface-accent'
           }`}
           title="In-Clinic Injections, Nebulizer, Wound Care & Rapid Tests"
         >
           <Activity className="w-4 h-4 shrink-0" />
           <span className="whitespace-nowrap">3. Procedures</span>
-          {procedures.length > 0 && <span className="bg-primary-hover text-white px-1.5 py-0.2 font-mono text-2xs font-bold shrink-0">{procedures.length}</span>}
+          {procedures.length > 0 && <span className="bg-surface text-accent px-1.5 py-0.5 text-2xs font-bold shrink-0">{procedures.length}</span>}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('documents')}
-          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+          className={`flex-1 min-w-fit min-h-11 px-4 border text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'documents'
-              ? 'bg-primary text-white'
-              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+              ? 'bg-surface-strong border-surface-strong text-ink font-bold'
+              : 'bg-surface border-line text-muted font-semibold hover:bg-surface-accent'
           }`}
           title="Medical Certificates (MC), Referral Letters & Pharmacy Memos"
         >
           <FileText className="w-4 h-4 shrink-0" />
           <span className="whitespace-nowrap">4. Documents / MC</span>
-          {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 shrink-0" />}
+          {(mcGenerated || referralGenerated) && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
         </button>
 
         <button
           type="button"
           onClick={() => setSubTab('summary')}
-          className={`flex-1 min-w-fit py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 rounded-none transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+          className={`flex-1 min-w-fit min-h-11 px-4 border text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             subTab === 'summary'
-              ? 'bg-primary text-white'
-              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+              ? 'bg-surface-strong border-surface-strong text-ink font-bold'
+              : 'bg-surface border-line text-muted font-semibold hover:bg-surface-accent'
           }`}
           title="Encounter Prescription & Order Summary"
         >
@@ -505,11 +505,11 @@ export default function PlanTab({
                 <span className="font-bold text-ink">
                   Corporate Panel Account: {currentPatient.panelEmployer}
                 </span>
-                <span className="text-2xs text-muted font-mono">
+                <span className="text-2xs text-muted">
                   (Standard Outpatient Limit: RM 65.00 • Non-covered items like vitamins/supplements split to patient excess)
                 </span>
               </div>
-              <span className="text-2xs font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 border border-primary/30">
+              <span className="text-2xs font-bold bg-primary/10 text-primary px-2 py-0.5 border border-primary/30">
                 GL Active
               </span>
             </div>
@@ -586,8 +586,8 @@ export default function PlanTab({
                       key={cat}
                       type="button"
                       onClick={() => setProcCategory(cat)}
-                      className={`px-2.5 py-1 text-2xs font-mono font-bold rounded-none cursor-pointer transition-colors ${
-                        procCategory === cat ? 'bg-primary text-white' : 'bg-surface-muted text-muted hover:text-ink'
+                      className={`px-2.5 py-1 text-2xs font-bold rounded-none cursor-pointer transition-colors ${
+                        procCategory === cat ? 'bg-surface-strong text-ink' : 'bg-surface-muted text-muted hover:text-ink'
                       }`}
                     >
                       {cat}
@@ -615,7 +615,7 @@ export default function PlanTab({
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-xs text-ink">{preset.name}</span>
-                          <span className="text-2xs font-mono px-1.5 py-0.2 bg-surface border border-line text-muted">{preset.category}</span>
+                          <span className="text-2xs px-1.5 py-0.2 bg-surface border border-line text-muted">{preset.category}</span>
                         </div>
                         <div className="text-2xs text-muted mt-0.5">{preset.dosageOrDetails}</div>
                       </div>
@@ -629,7 +629,7 @@ export default function PlanTab({
                             const newOrder = createProcedureOrder(preset, 'current-doc', 'Ordered during consultation');
                             setProcedures(prev => [...prev, newOrder]);
                           }}
-                          className={`px-3 py-1 font-mono text-2xs font-bold rounded-none cursor-pointer ${
+                          className={`px-3 py-1 text-2xs font-bold rounded-none cursor-pointer ${
                             isAlreadyOrdered
                               ? 'bg-surface-muted text-muted cursor-not-allowed border border-line'
                               : 'bg-primary hover:bg-primary-hover text-white'
@@ -674,7 +674,7 @@ export default function PlanTab({
                           </button>
                         )}
                       </div>
-                      <div className="flex items-center justify-between text-2xs font-mono text-muted">
+                      <div className="flex items-center justify-between text-2xs text-muted">
                         <span>Fee: RM {p.price.toFixed(2)}</span>
                         <span className={`px-1.5 py-0.2 font-bold ${
                           p.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
@@ -683,7 +683,7 @@ export default function PlanTab({
                         </span>
                       </div>
                       {p.result && (
-                        <div className="mt-1 p-1 bg-surface border border-line font-mono text-2xs text-accent">
+                        <div className="mt-1 p-1 bg-surface border border-line text-2xs text-accent">
                           <strong>Result:</strong> {p.result}
                         </div>
                       )}
@@ -691,7 +691,7 @@ export default function PlanTab({
                       <div className="flex items-center justify-between pt-1 border-t border-line/40 text-2xs">
                         <span className="text-ink-muted">PHFSA Consent:</span>
                         {signedConsents[p.id] ? (
-                          <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono">
+                          <span className="text-emerald-700 dark:text-emerald-400 font-bold">
                             ✓ Signed ({signedConsents[p.id].id})
                           </span>
                         ) : (
@@ -706,7 +706,7 @@ export default function PlanTab({
                       </div>
                     </div>
                   ))}
-                  <div className="pt-2 border-t border-line flex justify-between font-mono text-xs font-bold text-ink">
+                  <div className="pt-2 border-t border-line flex justify-between text-xs font-bold text-ink">
                     <span>Total Procedure Fees:</span>
                     <span className="text-primary">
                       RM {procedures.reduce((sum, item) => sum + (item.price || 0), 0).toFixed(2)}

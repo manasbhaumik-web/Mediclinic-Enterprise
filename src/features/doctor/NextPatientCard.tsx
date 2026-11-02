@@ -4,6 +4,7 @@ import type { SortRule, TriageDetails } from '../../utils/queueSorter';
 import type { VitalSigns } from '../../types';
 import { Pin, Stethoscope, Volume2, Copy } from 'lucide-react';
 import { getChiefComplaintLabel, getRankingRationale } from '../../utils/queueSorter';
+import { formatWait } from '../../utils/waitTime';
 import { Visit, Patient } from '../../types';
 
 interface NextPatientCardProps {
@@ -49,102 +50,106 @@ export default function NextPatientCard({
   heroWait,
   sortRule
 }: NextPatientCardProps) {
-  const hasAllergies = (nextPatient.drugAllergies?.length ?? 0) > 0;
-  const stripeClass = hasAllergies 
-    ? '' 
-    : heroWait >= 20 
-      ? '' 
-      : '';
+  const status = nextVisit.status === 'Consulting' && nextVisit.calledBy && nextVisit.calledBy !== userId
+    ? 'other'
+    : activeConsultationVisitId === nextVisit.id || calledVisitId === nextVisit.id ? 'called' : 'waiting';
+  const initials = nextPatient.fullName.split(/\s+/).filter(Boolean).map((w, i, a) => (i === 0 || i === a.length - 1 ? w[0] : '')).join('').toUpperCase();
+  const meta = [nextPatient.gender, nextPatient.dob ? `Born ${nextPatient.dob}` : null, formatTicket(nextVisit.ticketNo)].filter(Boolean).join(' · ');
+  const vitals = obj && obj.temperature > 0 ? [
+    { label: 'Temperature', value: `${obj.temperature}°C`, warn: obj.temperature >= 37.5 },
+    { label: 'Heart rate', value: `${obj.heartRate} bpm`, warn: false },
+    { label: 'Blood pressure', value: `${obj.bpSystolic}/${obj.bpDiastolic} mmHg`, warn: false },
+  ] : [];
 
   return (
-    <section aria-label="Next patient in line" className={`bg-surface border border-line ${stripeClass}`}>
-      {/* Top Banner with Steps */}
-      <div className="bg-surface-accent border-b border-line px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="bg-primary text-white text-xs font-bold uppercase tracking-wider px-3 py-1 font-mono">
-            Next in line (#1)
+    <section aria-label="Next patient in line" className="flex flex-col">
+      <div className="p-5 flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent">
+            <span className="w-2 h-2 bg-emerald-600" aria-hidden="true" />
+            Next in line
           </span>
           {pinnedVisitIds[nextVisit.id] && (
-            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold uppercase px-2.5 py-1 flex items-center gap-1.5 font-mono">
-              <Pin className="w-3 h-3 shrink-0" />
-              <span>Pinned priority</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-900 text-xs font-semibold">
+              <Pin className="w-3 h-3 shrink-0" aria-hidden="true" />
+              Pinned priority
             </span>
           )}
+        </div>
 
-        </div>
-    
-        <div>
-          {calledTimestampMap[nextVisit.id] ? (
-            <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 text-xs font-bold px-3 py-1 font-mono tabular-nums inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-              <span>Paged at {calledTimestampMap[nextVisit.id]}</span>
-            </span>
-          ) : (
-            <span className="bg-surface text-muted border border-line text-xs font-medium px-3 py-1 font-mono inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-slate-400" />
-              <span>Waiting in Lobby</span>
-            </span>
-          )}
-        </div>
-      </div>
-    
-      <div className="p-6 space-y-5">
-        {/* Row 1: Patient Details (Left) and Action Buttons (Right) */}
-        <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
-          <div className="min-w-0 space-y-2.5">
-            <div className="space-y-1">
-              <h3 className="text-2xl font-bold text-ink leading-tight flex items-baseline gap-2">
-                {formatTicket(nextVisit.ticketNo) && (
-                  <span className="font-mono tabular-nums text-accent">{formatTicket(nextVisit.ticketNo)}</span>
-                )}
-                <span>{nextPatient.fullName}</span>
-              </h3>
-              <p className="text-xs text-muted font-mono tabular-nums">
-                <span className="font-sans font-medium text-ink">{nextPatient.gender}</span> · Born {nextPatient.dob}
-                {nextPatient.icNumber && (
-                  <span> · IC: <span className="font-mono text-ink">{nextPatient.icNumber.substring(0, 6)}-{nextPatient.icNumber.substring(6, 8)}-****</span></span>
-                )}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className={`text-xs font-bold uppercase tracking-wide px-2.5 py-1 flex items-center gap-1.5 ${heroTriage.badgeBg}`}>
-                <heroTriage.icon className={`w-3.5 h-3.5 ${heroTriage.iconColor}`} />
-                <span>Triage: {heroTriage.level}</span>
-              </span>
-              {renderAllergyBadge(nextPatient.drugAllergies)}
-            </div>
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="shrink-0 w-14 h-14 bg-surface-strong text-accent flex items-center justify-center text-xl font-bold" aria-hidden="true">
+            {initials}
           </div>
-    
-          <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
-            {nextVisit.status === 'Consulting' && nextVisit.calledBy && nextVisit.calledBy !== userId ? (
-              <span className="chip-info min-h-10 px-4 inline-flex items-center text-xs font-bold whitespace-nowrap font-mono">
-                With {nextVisit.calledByName ?? 'another doctor'}{nextVisit.consultRoom ? `, ${nextVisit.consultRoom}` : ''}
-              </span>
-            ) : activeConsultationVisitId === nextVisit.id || calledVisitId === nextVisit.id ? (
-              <button
-                type="button"
-                onClick={() => handleStartConsultation(nextVisit.id)}
-                className="h-10 px-5 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 whitespace-nowrap transition-colors cursor-pointer"
-              >
-                <Stethoscope className="w-4 h-4" />
-                <span>Move to consultation</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
-                aria-label={`Call patient ${nextPatient.fullName}`}
-                className="h-10 px-5 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 whitespace-nowrap transition-colors cursor-pointer"
-              >
-                <Volume2 className="w-4 h-4" />
-                <span>Call patient</span>
-              </button>
-            )}
+          <div className="min-w-0">
+            <h3 className="text-xl font-bold tracking-tight leading-tight text-ink break-words">{nextPatient.fullName}</h3>
+            <p className="mt-1 text-sm text-muted">{meta}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={`text-xs font-semibold px-2.5 py-1 inline-flex items-center gap-1.5 ${heroTriage.badgeBg}`}>
+            <heroTriage.icon className={`w-3.5 h-3.5 ${heroTriage.iconColor}`} aria-hidden="true" />
+            <span>Triage: {heroTriage.level}</span>
+          </span>
+          {renderAllergyBadge(nextPatient.drugAllergies)}
+          <span className={`text-xs font-semibold px-2.5 py-1 tabular-nums ${heroWait >= 20 ? 'bg-amber-100 text-amber-900' : 'bg-surface-strong text-accent'}`}>
+            Waiting {formatWait(heroWait)}
+          </span>
+        </div>
+
+        <p className="text-sm text-ink">
+          <span className="text-muted">Chief complaint: </span>
+          <span className="font-semibold">{getChiefComplaintLabel(nextVisit.soap?.subjective)}</span>
+        </p>
+
+        {vitals.length > 0 && (
+          <dl className="grid grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] gap-px bg-line border border-line">
+            {vitals.map((v) => (
+              <div key={v.label} className="bg-surface-muted px-3 py-2.5">
+                <dt className="text-xs font-medium text-muted">{v.label}</dt>
+                <dd className={`mt-0.5 text-sm font-bold tabular-nums ${v.warn ? 'text-rose-700 dark:text-rose-300' : 'text-ink'}`}>{v.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+        <p className="text-xs text-muted">
+          <span className="font-semibold text-accent">{sortRule === 'urgency' ? 'Rank rationale: ' : 'Queue priority: '}</span>
+          {getRankingRationale(nextPatient, nextVisit, 0, sortRule)}
+        </p>
+
+        <div className="flex flex-col gap-2">
+          {status === 'other' ? (
+            <span className="chip-info min-h-12 px-4 inline-flex items-center text-sm font-semibold">
+              With {nextVisit.calledByName ?? 'another doctor'}{nextVisit.consultRoom ? `, ${nextVisit.consultRoom}` : ''}
+            </span>
+          ) : status === 'called' ? (
+            <button
+              type="button"
+              onClick={() => handleStartConsultation(nextVisit.id)}
+              className="btn-primary min-h-12 px-6 text-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Stethoscope className="w-4 h-4" aria-hidden="true" />
+              <span>Move to consultation</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
+              aria-label={`Call patient ${nextPatient.fullName}`}
+              className="btn-primary min-h-12 px-6 text-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Volume2 className="w-4 h-4" aria-hidden="true" />
+              <span>Call patient</span>
+            </button>
+          )}
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => toggleDetails(nextVisit.id)}
               aria-expanded={!!expandedDetails[nextVisit.id]}
-              className="h-10 px-4 bg-surface text-accent border border-primary text-xs font-bold whitespace-nowrap hover:bg-surface-accent transition-colors cursor-pointer"
+              className="btn-secondary flex-1 min-h-11 px-4 text-sm text-ink cursor-pointer"
             >
               {expandedDetails[nextVisit.id] ? 'Hide details' : 'View details'}
             </button>
@@ -153,69 +158,31 @@ export default function NextPatientCard({
               onClick={(e) => togglePinVisit(nextVisit.id, e)}
               aria-pressed={!!pinnedVisitIds[nextVisit.id]}
               aria-label={`${pinnedVisitIds[nextVisit.id] ? 'Unpin' : 'Pin'} ${nextPatient.fullName}`}
-              title="Toggle pin priority"
-              className={`h-10 px-3.5 border text-xs font-bold flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
-                pinnedVisitIds[nextVisit.id]
-                  ? 'chip-warn'
-                  : 'bg-surface text-ink border-line hover:bg-surface-accent'
+              className={`flex-1 min-h-11 px-4 border text-sm font-semibold flex items-center justify-center gap-1.5 cursor-pointer ${
+                pinnedVisitIds[nextVisit.id] ? 'chip-warn' : 'bg-surface text-ink border-line hover:bg-surface-accent'
               }`}
             >
-              <Pin className="w-3.5 h-3.5" />
+              <Pin className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{pinnedVisitIds[nextVisit.id] ? 'Pinned' : 'Pin'}</span>
             </button>
-
           </div>
-        </div>
-    
-        {/* Row 2: Vitals & Complaint Tiles */}
-        <div className={`grid grid-cols-2 gap-3 ${obj && obj.temperature > 0 ? 'lg:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]' : 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]'}`}>
-          <div className="bg-surface-muted border border-line px-3.5 py-3 col-span-2 lg:col-span-1 min-w-0">
-            <div className="text-2xs font-bold uppercase tracking-wider text-muted font-mono">Chief complaint</div>
-            <div className="mt-1 text-sm font-bold text-ink">{getChiefComplaintLabel(nextVisit.soap?.subjective)}</div>
-          </div>
-          <div className={`px-3.5 py-3 border border-line ${heroWait >= 20 ? 'border-l-amber-500 chip-warn' : 'border-l-emerald-600 bg-surface-muted text-ink'}`}>
-            <div className="text-2xs font-bold uppercase tracking-wider opacity-80 font-mono">Waiting</div>
-            <div className="mt-1 text-sm font-bold font-mono tabular-nums">{heroWait} min</div>
-          </div>
-          {obj && obj.temperature > 0 && (
-            <>
-              <div className="bg-surface-muted border border-line px-3.5 py-3">
-                <div className="text-2xs font-bold uppercase tracking-wider text-muted font-mono">Blood pressure</div>
-                <div className="mt-1 text-sm font-bold text-ink font-mono tabular-nums">{obj.bpSystolic}/{obj.bpDiastolic} <span className="text-2xs font-medium text-muted font-sans">mmHg</span></div>
-              </div>
-              <div className={`px-3.5 py-3 border border-line ${obj.temperature >= 37.5 ? 'border-l-rose-600 chip-danger' : 'border-l-emerald-600 bg-surface-muted text-ink'}`}>
-                <div className="text-2xs font-bold uppercase tracking-wider opacity-80 font-mono">Temperature</div>
-                <div className="mt-1 text-sm font-bold font-mono tabular-nums">{obj.temperature}°C</div>
-              </div>
-              <div className="bg-surface-muted border border-line px-3.5 py-3">
-                <div className="text-2xs font-bold uppercase tracking-wider text-muted font-mono">Heart rate</div>
-                <div className="mt-1 text-sm font-bold text-ink font-mono tabular-nums">{obj.heartRate} <span className="text-2xs font-medium text-muted font-sans">bpm</span></div>
-              </div>
-            </>
-          )}
-        </div>
-    
-        {/* Row 3: Why This Patient is Next */}
-        <div className="bg-surface-accent border border-line px-3.5 py-2.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="text-2xs font-bold uppercase tracking-wider text-accent font-mono">{sortRule === 'urgency' ? 'Rank Rationale' : 'Queue Priority'}</span>
-          <span className="text-xs text-ink font-medium">{getRankingRationale(nextPatient, nextVisit, 0, sortRule)}</span>
         </div>
       </div>
-    
+
       {/* Expanded Clinical Details Drawer */}
       {expandedDetails[nextVisit.id] && (
-        <div className="border-t border-line bg-surface-muted px-6 py-4 text-xs text-ink space-y-4 animate-fadeIn">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="border-t border-line bg-surface-muted px-5 py-4 text-xs text-ink space-y-4 animate-fadeIn">
+          <div className="grid grid-cols-1 gap-4">
             <div>
-              <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1 font-mono">Full clinical subjective note</strong>
+              <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">Full clinical subjective note</strong>
               <p className="leading-relaxed">{nextVisit.soap?.subjective || 'No additional history provided.'}</p>
             </div>
             <div>
-              <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1 font-mono">Panel employer / coverage</strong>
+              <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">Panel employer / coverage</strong>
               <p className="font-bold text-accent">{nextPatient.panelEmployer}</p>
             </div>
             <div>
-              <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1 font-mono">Address &amp; contact</strong>
+              <strong className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">Address &amp; contact</strong>
               <p className="font-mono tabular-nums">{nextPatient.phone} · <span className="font-sans">{nextPatient.address}</span></p>
             </div>
           </div>

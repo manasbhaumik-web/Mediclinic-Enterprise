@@ -1,4 +1,5 @@
 import { formatTicket } from '../../domain/ticket';
+import { formatWait } from '../../utils/waitTime';
 import { AlertCircle, X, PanelLeftClose } from 'lucide-react';
 import { Patient, Visit } from '../../types';
 import { assignmentOf, ClinicDoctor, doctorName, RoomOption } from '../../domain/doctorAssignment';
@@ -148,7 +149,7 @@ export default function QueueRail({
                         {pt?.fullName ?? 'Patient'}
                       </span>
                       <span className={`text-xs font-bold shrink-0 font-mono tabular-nums ${mins >= 20 ? 'text-amber-700 dark:text-amber-300' : 'text-muted'}`}>
-                        {mins}m
+                        {formatWait(mins)}
                       </span>
                     </span>
                     <div className="flex flex-wrap gap-1 mt-1">

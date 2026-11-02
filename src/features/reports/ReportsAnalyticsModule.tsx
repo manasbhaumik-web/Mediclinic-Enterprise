@@ -2,7 +2,7 @@ import { useColorTheme } from '../../hooks/useColorTheme';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { AlertTriangle, BarChart3, FileText, Info, Package, RefreshCw, Stethoscope, TrendingUp, Users, Wallet } from 'lucide-react';
+import { AlertTriangle, FileText, Info, Package, RefreshCw, Stethoscope, TrendingUp, Users, Wallet } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
 import EquipmentBookValueCard from '../equipment/EquipmentBookValueCard';
 import ExportButtons from './ExportButtons';
@@ -82,29 +82,26 @@ export default function ReportsAnalyticsModule() {
   const topAgeing = Math.max(1, ...ageing.buckets.map((b) => b.amount));
 
   return (
-    <div className="animate-fadeIn w-full space-y-6 pb-8">
-      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="type-page-title text-ink flex items-center gap-2.5">
-            <BarChart3 className="w-6 h-6 text-accent" aria-hidden="true" />
-            Analytics Reports
-          </h1>
-          <p className="text-xs text-muted font-medium max-w-2xl leading-relaxed">
-            Revenue, visits, diagnoses, prescribing, panel claims and stock for {periodText}, read from the clinic's records. Every table can be downloaded as CSV or PDF.
-          </p>
+    <div className="animate-fadeIn w-full space-y-5 pb-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted">{periodText}</p>
+          <h1 className="mt-1 type-section-title text-ink font-bold">Analytics reports</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="report-period" className="sr-only">Period</label>
-          <select id="report-period" value={period} onChange={(e) => setPeriod(e.target.value as typeof period)} className="text-xs font-bold border border-line bg-surface text-ink px-2 py-2 rounded-none cursor-pointer">
-            {PERIODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-          </select>
+        <div className="flex flex-wrap items-end gap-2">
+          <div>
+            <label htmlFor="report-period" className="block text-xs font-medium text-muted mb-1">Period</label>
+            <select id="report-period" value={period} onChange={(e) => setPeriod(e.target.value as typeof period)} className="min-h-11 min-w-44 text-sm font-semibold border border-line bg-surface text-ink px-3 rounded-none cursor-pointer">
+              {PERIODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
+          </div>
           <button
             type="button"
             onClick={() => { setNow(Date.now()); void queryClient.invalidateQueries({ queryKey: ['reports'] }); void queryClient.invalidateQueries({ queryKey: ['inventory'] }); }}
             disabled={isFetching}
-            className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-secondary min-h-11 px-4 text-sm text-ink disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
+            <RefreshCw className={`w-4 h-4 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
             {isFetching ? 'Refreshing…' : 'Refresh'}
           </button>
         </div>
@@ -123,24 +120,25 @@ export default function ReportsAnalyticsModule() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section aria-label="Period at a glance" className="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] bg-surface border-l border-t border-line">
         <Kpi icon={Wallet} label="Revenue" value={r.isPending ? '…' : formatRM(revenue.total)} note={`${revenue.visits} paid visit${revenue.visits === 1 ? '' : 's'}${revenue.visits ? ` · avg ${formatRM(revenue.average)}` : ''}`} />
         <Kpi icon={Users} label="Visits" value={r.isPending ? '…' : String(visitTotals.total)} note={`${visitTotals.completed} completed`} />
         <Kpi icon={FileText} label="Panel claims outstanding" value={formatRM(ageing.amount)} note={ageing.count ? `${ageing.count} claim${ageing.count === 1 ? '' : 's'} · oldest ${ageing.oldestDays} days` : 'None waiting'} tone={ageing.buckets[3].count > 0 ? 'warn' : 'ok'} />
         <Kpi icon={Package} label="Stock value at cost" value={drugs.isPending ? '…' : formatRM(stock.value)} note={stock.batchesMissingCost ? `${stock.batchesMissingCost} batch${stock.batchesMissingCost === 1 ? '' : 'es'} have no cost recorded` : 'All batches costed'} tone={stock.batchesMissingCost ? 'warn' : 'ok'} />
-      </div>
+      </section>
 
-      <div role="tablist" aria-label="Report sections" className="flex items-stretch gap-0 bg-surface-strong border-b border-line text-xs font-bold h-10 overflow-x-auto custom-scrollbar">
+      <section aria-label="Report" className="bg-surface border border-line">
+      <div role="tablist" aria-label="Report sections" className="flex flex-wrap gap-1.5 p-3 border-b border-line">
         {TABS.map((t) => (
           <button key={t.id} type="button" role="tab" title={t.tooltip} aria-selected={tab === t.id} onClick={() => setTab(t.id)}
-            className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer whitespace-nowrap ${tab === t.id ? 'bg-chrome text-white font-bold' : 'bg-transparent text-ink hover:bg-surface-strong font-bold'}`}>
+            className={`min-h-11 px-4 border text-sm transition-colors cursor-pointer whitespace-nowrap ${tab === t.id ? 'bg-surface-strong border-surface-strong text-ink font-bold' : 'bg-surface border-line text-muted font-semibold hover:bg-surface-accent'}`}>
             {t.label}
           </button>
         ))}
       </div>
 
       {tab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-line">
           <Panel className="lg:col-span-2" icon={TrendingUp} title="Revenue by month" action={<ExportButtons table={revenueTable(months, periodText)} />}>
             {revenue.visits === 0 ? <Empty>No paid visits in this period.</Empty> : (
               <div className="h-72 w-full" role="img" aria-label={`Revenue by month: ${months.map((m) => `${monthShort(m.month)} ${formatRM(m.total)}`).join(', ')}`}>
@@ -178,7 +176,7 @@ export default function ReportsAnalyticsModule() {
       )}
 
       {tab === 'clinical' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-line">
           <Panel icon={Users} title={`Visit volume, ${volumeBy === 'week' ? 'by week' : 'by day'}`} action={<ExportButtons table={volumeTable(volume, periodText, volumeBy)} />}>
             {visitTotals.total === 0 ? <Empty>No visits in this period.</Empty> : (
               <div className="h-64 w-full" role="img" aria-label={`Visits ${volumeBy === 'week' ? 'per week' : 'per day'}: ${visitTotals.total} in total`}>
@@ -201,10 +199,10 @@ export default function ReportsAnalyticsModule() {
           <Panel icon={Stethoscope} title="Top diagnoses" action={<ExportButtons table={diagnosesTable(r.diagnoses, periodText)} />}>
             {r.diagnoses.length === 0 ? <Empty>No coded diagnoses in this period. A diagnosis code is chosen when a doctor signs off a consultation.</Empty> : (
               <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-left text-xs min-w-[280px]">
-                <thead className="text-ink uppercase border-b border-line font-bold">
+                <thead className="text-muted border-b border-line font-semibold">
                   <tr><th scope="col" className="py-2 pr-3">Code</th><th scope="col" className="py-2 pr-3">Diagnosis</th><th scope="col" className="py-2 text-right">Visits</th></tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-line-subtle">
                   {r.diagnoses.map((d) => (
                     <tr key={d.icdCode}>
                       <th scope="row" className="py-2 pr-3 font-mono font-bold text-ink">{d.icdCode}</th>
@@ -225,14 +223,14 @@ export default function ReportsAnalyticsModule() {
       )}
 
       {tab === 'financial' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-line">
           <Panel icon={Wallet} title="Revenue by category" action={<ExportButtons table={categoryTable(category, periodText)} />}>
             {category.itemised === 0 ? (
               <Empty>No payments in this period carry an itemised bill yet. Bills are stored with each payment taken from now on, so this fills in as payments are recorded.</Empty>
             ) : (
               <>
                 <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-xs min-w-[280px]">
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-line-subtle">
                     {category.categories.map((c) => (
                       <tr key={c.kind}><th scope="row" className="py-2 pr-3 text-left font-semibold text-ink">{c.label}</th><td className="py-2 text-right font-mono">{formatRM(c.amount)}</td></tr>
                     ))}
@@ -276,14 +274,14 @@ export default function ReportsAnalyticsModule() {
       )}
 
       {tab === 'stock' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-line">
           <Panel icon={Package} title="Most prescribed drugs" action={<ExportButtons table={prescribingTable(movers, periodText)} />}>
             {movers.length === 0 ? <Empty>No prescriptions in this period.</Empty> : (
               <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-left text-xs min-w-[280px]">
-                <thead className="text-ink uppercase border-b border-line font-bold">
+                <thead className="text-muted border-b border-line font-semibold">
                   <tr><th scope="col" className="py-2 pr-3">Drug</th><th scope="col" className="py-2 pr-3 text-right">Prescribed</th><th scope="col" className="py-2 pr-3 text-right">Quantity</th><th scope="col" className="py-2 text-right">In stock</th></tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-line-subtle">
                   {movers.map((m) => (
                     <tr key={m.drugName}>
                       <th scope="row" className="py-2 pr-3 font-semibold text-ink">{m.drugName}{m.isControlled && <span className="ml-1.5 text-2xs font-bold text-teal-800 border border-teal-300 px-1">Controlled</span>}</th>
@@ -307,28 +305,26 @@ export default function ReportsAnalyticsModule() {
           <EquipmentBookValueCard />
         </div>
       )}
+      </section>
     </div>
   );
 }
 
-function Kpi({ icon: Icon, label, value, note, tone = 'ok' }: { icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; label: string; value: string; note: string; tone?: 'ok' | 'warn' }) {
+function Kpi({ label, value, note, tone = 'ok' }: { icon?: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; label: string; value: string; note: string; tone?: 'ok' | 'warn' }) {
   return (
-    <div className="bg-surface rounded-none border border-line p-4 shadow-2xs">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-subtle uppercase tracking-wider">{label}</span>
-        <div className="p-2 bg-teal-50 rounded-none text-accent"><Icon className="w-5 h-5" aria-hidden="true" /></div>
-      </div>
-      <h3 className={`type-metric mt-2 ${tone === 'warn' ? 'text-amber-700' : 'text-ink'}`}>{value}</h3>
-      <p className="mt-2 text-xs text-muted">{note}</p>
+    <div className="px-5 py-5 border-r border-b border-line">
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <p className={`mt-2 text-3xl font-bold leading-none tracking-tight tabular-nums break-words ${tone === 'warn' ? 'text-amber-800' : 'text-ink'}`}>{value}</p>
+      <p className={`mt-2.5 text-xs font-semibold ${tone === 'warn' ? 'text-amber-800' : 'text-accent'}`}>{note}</p>
     </div>
   );
 }
 
-function Panel({ icon: Icon, title, action, className = '', children }: { icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; title: string; action?: React.ReactNode; className?: string; children: React.ReactNode }) {
+function Panel({ title, action, className = '', children }: { icon?: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' }>; title: string; action?: React.ReactNode; className?: string; children: React.ReactNode }) {
   return (
-    <section className={`bg-surface rounded-none border border-line shadow-2xs overflow-hidden ${className}`}>
-      <div className="border-b border-teal-100 bg-surface p-4 flex items-center justify-between gap-3">
-        <h2 className="type-card-title text-ink flex items-center gap-2"><Icon className="w-4 h-4 text-accent" aria-hidden="true" />{title}</h2>
+    <section className={`bg-surface overflow-hidden ${className}`}>
+      <div className="border-b border-line px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-base font-bold text-ink">{title}</h2>
         {action}
       </div>
       <div className="p-5 overflow-x-auto">{children}</div>
@@ -340,8 +336,8 @@ const Empty = ({ children }: { children: React.ReactNode }) => <p className="tex
 
 function NotRecorded({ title, className = '', children }: { title: string; className?: string; children: React.ReactNode }) {
   return (
-    <section className={`border border-dashed border-line bg-surface p-5 ${className}`}>
-      <h2 className="type-card-title text-ink flex items-center gap-2"><Info className="w-4 h-4 text-slate-400" aria-hidden="true" />{title}: not recorded yet</h2>
+    <section className={`bg-surface p-5 ${className}`}>
+      <h2 className="text-base font-bold text-ink">{title}: not recorded yet</h2>
       <p className="mt-1.5 text-xs text-muted leading-relaxed">{children}</p>
     </section>
   );

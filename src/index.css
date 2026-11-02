@@ -84,6 +84,9 @@
   --color-tng: #0052a5;             /* Touch 'n Go eWallet */
 
   /* Shadows */
+  /* Flat: panels are separated by hairlines, not shadows. */
+  --shadow-xs: none;
+  --shadow-2xs: none;
   --shadow-glow-danger: 0 0 15px rgb(239 68 68 / 0.15);
   --shadow-bar-up: 0 -4px 16px rgb(15 60 76 / 0.08);  /* bottom-docked action bars */
 }
@@ -154,6 +157,16 @@ strong {
   }
 }
 
+/* Staff app: no tracked small caps anywhere inside the shell. */
+.staff-app .uppercase {
+  text-transform: none;
+}
+.staff-app [class*="tracking-wide"],
+.staff-app [class*="tracking-wider"],
+.staff-app [class*="tracking-widest"] {
+  letter-spacing: normal;
+}
+
 /* ========================================================================= */
 /* COMPONENT CLASSES                                                         */
 /* ========================================================================= */
@@ -186,10 +199,10 @@ strong {
     @apply text-2xl font-bold tracking-tight leading-none;
   }
   .type-heading-caps {       /* uppercase panel / table-group headings */
-    @apply text-xs font-bold uppercase tracking-wider;
+    @apply text-xs font-semibold;
   }
   .type-label {              /* eyebrows, field labels, badges */
-    @apply text-2xs font-semibold uppercase tracking-wider;
+    @apply text-2xs font-semibold;
   }
 
   .ice-mint-header {
@@ -288,7 +301,7 @@ strong {
   }
 
   .workspace-banner-title {
-    @apply text-[18px] font-bold tracking-tight leading-snug text-white truncate;
+    @apply text-base sm:text-[18px] font-bold tracking-tight leading-snug text-white sm:truncate;
   }
 
   .workspace-banner-pill {
@@ -296,7 +309,7 @@ strong {
   }
 
   .workspace-banner-status {
-    @apply px-2.5 py-0.5 bg-emerald-500/20 text-emerald-200 font-mono text-[10px] font-bold uppercase tracking-wider rounded-none flex items-center gap-1.5 border-0;
+    @apply px-2.5 py-0.5 bg-emerald-500/20 text-emerald-200 font-mono text-[10px] font-bold uppercase tracking-wider rounded-none hidden sm:flex items-center gap-1.5 border-0;
   }
 
   .workspace-banner-telemetry {

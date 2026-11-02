@@ -191,12 +191,12 @@ export default function AssessmentTab({
 
         <div>
           {selectedICD ? (
-            <span className="text-2xs font-mono tabular-nums font-bold px-2.5 py-1 border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-2xs tabular-nums font-bold px-2.5 py-1 border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 uppercase tracking-wider flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" />
               Diagnosis Confirmed: {selectedICD.code}
             </span>
           ) : (
-            <span className="text-2xs font-mono font-bold px-2.5 py-1 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-2xs font-bold px-2.5 py-1 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" />
               Required for Sign-Off
             </span>
@@ -212,7 +212,7 @@ export default function AssessmentTab({
             <span>Search Diagnosis by Keyword or Symptom</span>
             <span className="text-rose-500">*</span>
           </label>
-          <span className="text-2xs font-mono text-muted">
+          <span className="text-2xs text-muted">
             Try typing: "cold", "flu", "sugar", "blood pressure", "tummy", "fever"
           </span>
         </div>
@@ -245,7 +245,7 @@ export default function AssessmentTab({
           {searchICDQuery.trim().length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-1 bg-surface border-2 border-primary rounded-none z-30 max-h-[260px] overflow-y-auto divide-y divide-line shadow-xl">
               {icdSuggestions.length === 0 ? (
-                <div className="p-3 text-xs text-muted font-mono text-center">
+                <div className="p-3 text-xs text-muted text-center">
                   No exact match for "{searchICDQuery}". You can assign it as a custom diagnosis below.
                 </div>
               ) : (
@@ -263,7 +263,7 @@ export default function AssessmentTab({
                       <span className="font-mono tabular-nums font-bold text-accent block text-2xs">{item.code}</span>
                       <span className="text-ink font-semibold block text-xs truncate">{item.desc}</span>
                     </div>
-                    <span className="text-2xs text-accent bg-surface-accent px-2 py-0.5 rounded-none font-bold uppercase shrink-0 border border-line font-mono">
+                    <span className="text-2xs text-accent bg-surface-accent px-2 py-0.5 rounded-none font-bold uppercase shrink-0 border border-line">
                       {item.category}
                     </span>
                   </button>
@@ -284,7 +284,7 @@ export default function AssessmentTab({
                 className="w-full text-left px-3.5 py-2.5 text-xs bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-bold flex items-center justify-between cursor-pointer transition-colors border-t border-line"
               >
                 <span>➕ Assign Custom Diagnosis: "{searchICDQuery.trim()}"</span>
-                <span className="text-2xs bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200 px-1.5 py-0.5 rounded-none uppercase font-mono">
+                <span className="text-2xs bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200 px-1.5 py-0.5 rounded-none uppercase">
                   Custom DX
                 </span>
               </button>
@@ -294,7 +294,7 @@ export default function AssessmentTab({
 
         {/* Categorized Clinical Quick-Pick Presets with Plain-English Sub-labels */}
         <div className="pt-2 border-t border-line-subtle space-y-2">
-          <span className="text-2xs font-mono uppercase font-bold tracking-wider text-muted block">
+          <span className="text-2xs uppercase font-bold tracking-wider text-muted block">
             Common Outpatient Diagnoses (1-Click Select):
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -314,7 +314,7 @@ export default function AssessmentTab({
                 >
                   {isSelected && <Check className="w-3.5 h-3.5" />}
                   <span>{item.label}</span>
-                  <span className={`text-2xs font-mono tabular-nums ${isSelected ? 'text-white/80' : 'text-muted'}`}>
+                  <span className={`text-2xs tabular-nums ${isSelected ? 'text-white/80' : 'text-muted'}`}>
                     ({item.code})
                   </span>
                 </button>
@@ -329,18 +329,18 @@ export default function AssessmentTab({
         <div id="selected-icd-indicator" className="bg-surface border border-line p-4 rounded-none shadow-none space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-2xs bg-primary text-white px-2.5 py-0.5 rounded-none font-mono tabular-nums font-bold tracking-wide flex items-center justify-center gap-1">
+              <span className="text-2xs bg-primary text-white px-2.5 py-0.5 rounded-none tabular-nums font-bold tracking-wide flex items-center justify-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 ICD-10: {selectedICD.code}
               </span>
-              <span className="text-2xs text-accent bg-surface-accent px-2 py-0.5 rounded-none font-mono font-bold uppercase border border-line">
+              <span className="text-2xs text-accent bg-surface-accent px-2 py-0.5 rounded-none font-bold uppercase border border-line">
                 {selectedICD.category}
               </span>
             </div>
             <button
               type="button"
               onClick={() => setSelectedICD(null)}
-              className="text-muted hover:text-rose-600 text-xs font-bold font-mono uppercase tracking-wider shrink-0 cursor-pointer transition-colors"
+              className="text-muted hover:text-rose-600 text-xs font-bold uppercase tracking-wider shrink-0 cursor-pointer transition-colors"
             >
               Change / Remove Diagnosis
             </button>
@@ -350,7 +350,7 @@ export default function AssessmentTab({
             {selectedICD.desc}
           </strong>
 
-          <div className="pt-2 border-t border-line-subtle flex items-center justify-between text-2xs text-muted font-mono">
+          <div className="pt-2 border-t border-line-subtle flex items-center justify-between text-2xs text-muted">
             <span>Verified for Prescription Routing &amp; Panel e-GL Claims</span>
             <span className="text-emerald-700 dark:text-emerald-300 font-bold uppercase">Ready for Sign-Off ✓</span>
           </div>
@@ -374,7 +374,7 @@ export default function AssessmentTab({
             <Sparkles className="w-3.5 h-3.5 text-accent" />
             <span>Diagnostic Impression &amp; Clinical Rationale</span>
           </label>
-          <span className="text-2xs font-mono text-muted">
+          <span className="text-2xs text-muted">
             {clinicalNotes.length} Characters · Clinical Rationale
           </span>
         </div>
@@ -394,12 +394,12 @@ export default function AssessmentTab({
           type="button"
           onClick={onProceedToPlan}
           title="Proceed to Prescriptions & MC — Prescribe medications, requisition diagnostic labs, and generate medical certificates"
-          className="w-full py-3.5 px-5 text-sm font-bold font-mono uppercase tracking-wider flex items-center justify-center gap-2 border rounded-none cursor-pointer transition-all shadow-none bg-primary hover:bg-deep text-white border-primary focus:ring-2 focus:ring-accent"
+          className="w-full py-3.5 px-5 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 border rounded-none cursor-pointer transition-all shadow-none bg-primary hover:bg-deep text-white border-primary focus:ring-2 focus:ring-accent"
         >
           <span>👉 Proceed to Prescriptions &amp; MC (Plan Tab) ➔</span>
         </button>
         {!selectedICD && (
-          <p className="text-2xs text-amber-700 dark:text-amber-400 font-mono text-center mt-1.5 font-bold">
+          <p className="text-2xs text-amber-700 dark:text-amber-400 text-center mt-1.5 font-bold">
             Note: You can proceed to write prescriptions now, but remember to confirm an ICD-10 diagnosis before final sign-off.
           </p>
         )}
