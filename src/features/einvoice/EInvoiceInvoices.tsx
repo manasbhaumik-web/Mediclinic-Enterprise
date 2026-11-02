@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { RefreshCw, Send } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import Pagination from '../../components/ui/Pagination';
 import FormField from '../../components/ui/FormField';
 import { BuyerInput, useEInvoice } from '../../hooks/useEInvoice';
+import { Dialog, ReasonDialog } from '../inventory/shared';
 import {
   EDITABLE, EInvoiceConnection, EInvoiceRow, EInvoiceStatus, STATUS_LABELS, Tone,
   canCancel, cancelWindowOpen, consolidatedDueDate, recentMonths, summariseInvoices,
@@ -13,7 +15,7 @@ const toneClass: Record<Tone, string> = {
   warn: 'chip-warn',
   bad: 'chip-danger',
   info: 'chip-info',
-  idle: 'bg-slate-100 text-muted border-slate-300',
+  idle: 'chip-neutral',
 };
 
 const inputClass =
@@ -29,8 +31,18 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [editing, setEditing] = useState<EInvoiceRow | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<EInvoiceRow | null>(null);
+  const [confirmConsolidated, setConfirmConsolidated] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
 
-  const rows = api.invoices.data ?? [];
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, month]);
+
+  const allRows = api.invoices.data ?? [];
+  const startIdx = (currentPage - 1) * pageSize;
+  const rows = allRows.slice(startIdx, startIdx + pageSize);
   const counts = summariseInvoices((api.counts.data ?? []) as { status: EInvoiceStatus }[]);
   const due = consolidatedDueDate(month);
 
@@ -46,9 +58,7 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
   };
 
   const cancel = (r: EInvoiceRow) => {
-    if (!cancelWindowOpen(r.validatedAt) && !window.confirm('This e-invoice was validated more than 72 hours ago, so LHDN will probably refuse the cancellation. Try anyway?')) return;
-    const reason = window.prompt(`Reason for cancelling ${r.invoiceNumber}? (sent to LHDN)`);
-    if (reason && reason.trim()) void run({ action: 'cancel', id: r.id, reason: reason.trim() });
+    setCancelTarget(r);
   };
 
   return (
@@ -88,7 +98,7 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
               )}
             </FormField>
             <Button size="sm" disabled={api.action.isPending} onClick={() => {
-              if (window.confirm(`Submit one consolidated e-invoice for all pending walk-in receipts in ${month}?`)) void run({ action: 'submit_consolidated', month });
+              setConfirmConsolidated(month);
             }}>
               Submit consolidated
             </Button>
@@ -158,7 +168,45 @@ export default function EInvoiceInvoices({ connection }: { connection: EInvoiceC
             {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-subtle">No e-invoices {filter === 'all' ? 'yet' : 'with this status'}. They appear here when a payment is settled while e-Invoicing is ON.</td></tr>}
           </tbody>
         </table>
+
+        {/* 15 Records Per Page Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={allRows.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="e-invoices"
+        />
       </div>
+
+      {cancelTarget && (
+        <ReasonDialog
+          title={`Cancel e-Invoice ${cancelTarget.invoiceNumber}`}
+          message={!cancelWindowOpen(cancelTarget.validatedAt) ? 'Notice: This e-invoice was validated more than 72 hours ago. LHDN may decline the cancellation. Enter cancellation rationale:' : 'Enter the reason for cancelling this e-invoice (transmitted directly to LHDN MyInvois):'}
+          confirmLabel="Transmit Cancellation"
+          reasonLabel="Cancellation rationale"
+          busy={api.action.isPending}
+          onConfirm={(reason) => {
+            const targetId = cancelTarget.id;
+            setCancelTarget(null);
+            void run({ action: 'cancel', id: targetId, reason });
+          }}
+          onClose={() => setCancelTarget(null)}
+        />
+      )}
+      {confirmConsolidated && (
+        <Dialog title="Submit Consolidated e-Invoice" onClose={() => setConfirmConsolidated(null)}>
+          <p className="text-xs text-muted leading-relaxed">Submit one consolidated e-invoice for all pending walk-in receipts in <strong>{confirmConsolidated}</strong> to the LHDN MyInvois portal?</p>
+          <div className="flex justify-end gap-2 pt-3">
+            <Button size="sm" variant="secondary" onClick={() => setConfirmConsolidated(null)}>Cancel</Button>
+            <Button size="sm" disabled={api.action.isPending} onClick={() => {
+              const m = confirmConsolidated;
+              setConfirmConsolidated(null);
+              void run({ action: 'submit_consolidated', month: m });
+            }}>Confirm Submission</Button>
+          </div>
+        </Dialog>
+      )}
 
       {editing && (
         <BuyerDialog

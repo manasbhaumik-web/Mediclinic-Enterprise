@@ -4,7 +4,7 @@ import LeaveStatusList from '../leave/LeaveStatusList';
 import { 
   Plus, Search, Trash2, Edit2, Shield, User, Users, X, 
   DollarSign, Calendar, AlertCircle,
-  FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw, CheckCircle2, ArrowRight, Activity
+  FileSpreadsheet, Upload, UserPlus, Filter, RefreshCw, CheckCircle2, ArrowRight, Activity, UserCheck
 } from 'lucide-react';
 import StaffRegistration from './StaffRegistration';
 import { supabase } from '../../lib/supabase';
@@ -19,6 +19,10 @@ import {
 } from '../../lib/staffOnboarding';
 
 import ProgressBar from '../../components/ui/ProgressBar';
+import { Dialog } from '../inventory/shared';
+import { Pagination } from '../../components/ui/Pagination';
+import { evaluateClinicianPrivileges, ClinicianCredentials } from '../../domain/staffCredentialing';
+import LocumDoctorModal from '../operations/LocumDoctorModal';
 export interface StaffMember {
   id: string;
   name: string;
@@ -90,10 +94,14 @@ export default function StaffManagementModule() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isLocumModalOpen, setIsLocumModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [accessMap, setAccessMap] = useState<Record<string, { state: AccessState; role: SystemRole | null; roles: SystemRole[] }>>({});
   const [accessBusy, setAccessBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [staffToDelete, setStaffToDelete] = useState<string | null>(null);
+  const [staffToRevoke, setStaffToRevoke] = useState<{ id: string; name: string } | null>(null);
+  const [duplicatePrompt, setDuplicatePrompt] = useState<{ message: string; onProceed: () => void } | null>(null);
   const [csvPreview, setCsvPreview] = useState<{ fileName: string; result: CsvParseResult } | null>(null);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -163,6 +171,15 @@ export default function StaffManagementModule() {
     return matchesSearch && matchesDept && matchesStatus;
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, departmentFilter, statusFilter]);
+
+  const paginatedStaff = filteredStaff.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   const activeCount = staffList.filter(s => s.status === 'Active').length;
   const totalPayroll = staffList.filter(s => s.status === 'Active').reduce((acc, curr) => acc + Number(curr.salaryBase), 0);
   const pendingPayments = staffList.filter(s => s.paymentStatus === 'Pending').length;
@@ -171,7 +188,7 @@ export default function StaffManagementModule() {
   const knownPeople = (): StaffIdentity[] =>
     staffList.map((s) => ({ id: s.id, name: s.name, email: s.email, icNumber: s.icNumber, dob: s.dob }));
 
-  const handleAddStaffSubmit = async (newStaff: StaffMember, systemRoles: SystemRole[]) => {
+  const handleAddStaffSubmit = async (newStaff: StaffMember, systemRoles: SystemRole[], forceDuplicate = false) => {
     setNotice(null);
 
     // No duplicate records: refuse the same email or ID number, and ask before adding the same name + birth date.
@@ -183,9 +200,13 @@ export default function StaffManagementModule() {
       setNotice({ ok: false, text: duplicateMessage(duplicate) });
       return;
     }
-    if (duplicate && !confirm(`${duplicateMessage(duplicate)}
-
-Add anyway?`)) return;
+    if (duplicate && !forceDuplicate) {
+      setDuplicatePrompt({
+        message: duplicateMessage(duplicate) + '\n\nAdd anyway?',
+        onProceed: () => void handleAddStaffSubmit(newStaff, systemRoles, true),
+      });
+      return;
+    }
 
     try {
       if (editingStaffId) {
@@ -216,9 +237,12 @@ Add anyway?`)) return;
         };
         let res = await createStaff(payload, systemRoles, !!duplicate);
         // The server may know of a probable duplicate this screen's list did not (for example, just added by someone else).
-        if (res.possibleDuplicate) {
-          if (!confirm(`${res.message}\n\nAdd anyway?`)) return;
-          res = await createStaff(payload, systemRoles, true);
+        if (res.possibleDuplicate && !forceDuplicate) {
+          setDuplicatePrompt({
+            message: (res.message ?? 'Potential duplicate staff record.') + '\n\nAdd anyway?',
+            onProceed: () => void handleAddStaffSubmit(newStaff, systemRoles, true),
+          });
+          return;
         }
         if (!res.ok) {
           setNotice({ ok: false, text: res.message ?? 'Could not create the staff member.' });
@@ -324,6 +348,7 @@ Add anyway?`)) return;
       fetchStaff();
     } catch (err) {
       console.error('Failed to insert sample roster', err);
+      setNotice({ ok: false, text: err instanceof Error ? err.message : 'Failed to insert sample staff roster.' });
     } finally {
       setIsLoading(false);
     }
@@ -347,13 +372,10 @@ Add anyway?`)) return;
   const deleteStaff = async (id: string) => {
     const target = staffList.find(s => s.id === id);
     if (target?.hasLogin && accessMap[id]?.state !== 'revoked') {
-      alert('This person still has a login. Revoke their access first, then delete the record.');
+      setNotice({ ok: false, text: 'This person still has an active login. Revoke their access first, then delete the record.' });
       return;
     }
-    if (confirm('Are you sure you want to permanently delete this staff record?')) {
-      await supabase.from('staff').delete().eq('id', id);
-      fetchStaff();
-    }
+    setStaffToDelete(id);
   };
 
   return (
@@ -391,8 +413,17 @@ Add anyway?`)) return;
             <>
               <button 
                 type="button"
+                onClick={() => setIsLocumModalOpen(true)}
+                className="bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-emerald-900 transition-all cursor-pointer shadow-none"
+                title="Manage Locum Doctor Credentialing, MMC/APC Verification, Shifts & Hourly Payouts"
+              >
+                <UserCheck className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Locum Doctor Roster &amp; Indemnity</span>
+              </button>
+              <button 
+                type="button"
                 onClick={() => setIsImportModalOpen(true)}
-                className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs"
+                className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
                 <span>Import Staff CSV</span>
@@ -668,7 +699,7 @@ Add anyway?`)) return;
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-line-subtle">
-                      {filteredStaff.map((staff) => (
+                      {paginatedStaff.map((staff) => (
                         <tr key={staff.id} className="hover:bg-surface-muted transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -706,6 +737,20 @@ Add anyway?`)) return;
                               {staff.status}
                             </button>
                           </td>
+                          <td className="px-6 py-4">
+                            {staff.role.includes('Doctor') || staff.role.includes('Physician') || staff.role.includes('Specialist') || staff.role.includes('Nurse') ? (
+                              <div className="space-y-0.5">
+                                <span className="text-2xs font-bold font-mono text-ink block">
+                                  {staff.role.includes('Doctor') || staff.role.includes('Physician') || staff.role.includes('Specialist') ? 'MMC Registered' : 'LJM Registered'}
+                                </span>
+                                <span className="chip chip-ok text-3xs font-mono">
+                                  {staff.role.includes('Doctor') ? 'APC 2026 · MPS Indemnity' : 'ARC 2026 · BLS Active'}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-2xs text-subtle font-mono">Non-Clinical Staff</span>
+                            )}
+                          </td>
                           <td className="px-6 py-4 min-w-[220px]">
                             <StaffAccessCell
                               hasLogin={!!staff.hasLogin}
@@ -716,7 +761,7 @@ Add anyway?`)) return;
                               onResend={() => runAccess(staff.id, () => resendInvite(staff.id))}
                               onReset={() => runAccess(staff.id, () => sendPasswordReset(staff.id))}
                               onChangeRoles={(roles) => runAccess(staff.id, () => changeRoles(staff.id, roles))}
-                              onRevoke={() => { if (confirm(`Revoke ${staff.name}'s access? They will no longer be able to sign in.`)) runAccess(staff.id, () => revokeAccess(staff.id)); }}
+                              onRevoke={() => setStaffToRevoke({ id: staff.id, name: staff.name })}
                               onRestore={() => runAccess(staff.id, () => restoreAccess(staff.id))}
                             />
                           </td>
@@ -747,6 +792,13 @@ Add anyway?`)) return;
                       ))}
                     </tbody>
                   </table>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredStaff.length}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    itemLabel="staff members"
+                  />
                 </div>
               )}
             </div>
@@ -762,12 +814,12 @@ Add anyway?`)) return;
 
       {/* CSV Import Modal */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+        <div role="dialog" aria-modal="true" aria-labelledby="staff-import-title" onKeyDown={(e) => { if (e.key === 'Escape') setIsImportModalOpen(false); }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-surface border border-line-subtle max-w-md w-full p-6 shadow-2xl space-y-5 relative text-ink">
             <div className="flex items-center justify-between border-b border-line-subtle pb-3">
               <div className="flex items-center gap-2">
                 <FileSpreadsheet className="w-5 h-5 text-accent" />
-                <h3 className="type-card-title">Import Staff Roster (CSV)</h3>
+                <h3 id="staff-import-title" className="type-card-title">Import Staff Roster (CSV)</h3>
               </div>
               <button 
                 type="button"
@@ -859,6 +911,10 @@ Add anyway?`)) return;
         </div>
       )}
 
+      <LocumDoctorModal
+        isOpen={isLocumModalOpen}
+        onClose={() => setIsLocumModalOpen(false)}
+      />
     </div>
   );
 }

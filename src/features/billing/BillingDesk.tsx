@@ -13,12 +13,19 @@ import { useAuxiliary } from '../../context/AuxiliaryContext';
 import StripeCheckout from './StripeCheckout';
 import {
   CreditCard, ShieldCheck, DollarSign, Wallet, FileSpreadsheet, AlertTriangle, Loader2,
-  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer,
+  ClipboardCheck, CheckCircle2, Plus, Percent, Trash2, Download, Printer, Building2, FileCheck2, X,
 } from 'lucide-react';
 import { buttonProps, focusRing } from '../../lib/a11y';
+import CashDrawerReconciliationModal from './CashDrawerReconciliationModal';
+import { Calculator } from 'lucide-react';
+import { TPASettlementHub } from './TPASettlementHub';
+import EInvoicePage from '../einvoice/EInvoicePage';
+import { verifyTPAPolicyEligibility } from '../../domain/tpaPanelClaims';
 
 interface BillingDeskProps {
   queue: Visit[];
+  allVisits?: Visit[];
+  cashierName?: string;
   patientsMap: Record<string, any>;
   activeLanguage: Language;
   /** Records the payment and issues its receipt number. */
@@ -44,7 +51,9 @@ interface Attempt {
 
 const rm = (n: number) => `RM${n.toFixed(2)}`;
 
-export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
+export default function BillingDesk({ queue, allVisits, cashierName, patientsMap, activeLanguage, onPaymentComplete }: BillingDeskProps) {
+  const [isReconModalOpen, setIsReconModalOpen] = useState(false);
+  const [isEInvoiceModalOpen, setIsEInvoiceModalOpen] = useState(false);
   const { settings } = useSettings();
   const { tpaList } = useAuxiliary();
   const t = TRANSLATIONS[activeLanguage];
@@ -54,9 +63,33 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(queue.length > 0 ? queue[0].id : null);
 
   // Panel claim
+  const [billingTab, setBillingTab] = useState<'pos' | 'tpa-hub'>('pos');
   const [isPanelClaim, setIsPanelClaim] = useState(false);
   const [selectedTPA, setSelectedTPA] = useState<TPAConfig | null>(null);
   const [glReferenceNo, setGlReferenceNo] = useState('');
+  const [tpaVerificationInfo, setTpaVerificationInfo] = useState<string | null>(null);
+
+  const handleAutoVerifyGL = () => {
+    if (!activePatient) return;
+    const providerId = (selectedTPA?.name || 'micare').toLowerCase().includes('pmcare') ? 'pmcare'
+      : (selectedTPA?.name || '').toLowerCase().includes('healthmetrics') ? 'healthmetrics'
+      : (selectedTPA?.name || '').toLowerCase().includes('mediexpress') ? 'mediexpress'
+      : (selectedTPA?.name || '').toLowerCase().includes('aia') ? 'aia'
+      : 'micare';
+
+    const check = verifyTPAPolicyEligibility({
+      patientIc: activePatient.icNumber,
+      providerId,
+      employerName: activePatient.panelEmployer || 'Petronas'
+    });
+
+    if (check.isEligible) {
+      setGlReferenceNo(check.glNumber);
+      setTpaVerificationInfo(`✓ Policy Active: ${check.providerName} • GL #${check.glNumber} • Annual Bal: RM ${check.remainingAnnualLimitRM.toFixed(2)} • Visit Cap: RM ${check.perVisitCapRM.toFixed(2)}`);
+    } else {
+      setTpaVerificationInfo(`⚠ Ineligible: ${check.ineligibleReason}`);
+    }
+  };
 
   // Taking a payment
   const [stage, setStage] = useState<PayStage>(null);
@@ -234,7 +267,74 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
   const closeDialogs = () => { if (!saving) { setStage(null); setSaveError(null); } };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
+      {/* Top Cashier Operation Toolbar */}
+      <div className="bg-surface border border-line p-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary text-white flex items-center justify-center">
+            <DollarSign className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-ink">Cashier POS Billing Desk</h3>
+            <p className="text-2xs text-muted">Point-of-Sale settlement, receipting &amp; Malaysian shift balancing</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsEInvoiceModalOpen(true)}
+            className="flex items-center gap-1.5 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none border border-teal-500/40 bg-surface hover:bg-surface-accent text-accent font-bold"
+            title="View LHDN MyInvois Submission Status & e-Invoice Verification"
+          >
+            <FileCheck2 className="w-4 h-4 text-accent" />
+            <span>LHDN MyInvois Console</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsReconModalOpen(true)}
+            className="btn-primary flex items-center gap-2 font-mono text-xs px-3.5 py-1.5 cursor-pointer rounded-none"
+            title="Audit cash drawer float, count physical denominations, and print Malaysian Daily Z-Report"
+          >
+            <Calculator className="w-4 h-4" />
+            <span>Close Shift / Float Z-Report</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Billing Desk Sub-Navigation Tabs */}
+      <div className="flex border border-line bg-surface p-1 rounded-none gap-1 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setBillingTab('pos')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            billingTab === 'pos'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <DollarSign className="w-4 h-4 shrink-0" />
+          <span>Cashier Invoicing &amp; POS Queue ({queue.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setBillingTab('tpa-hub')}
+          className={`flex-1 py-2 px-3 text-xs font-bold flex items-center justify-center gap-2 rounded-none transition-all cursor-pointer whitespace-nowrap ${
+            billingTab === 'tpa-hub'
+              ? 'bg-primary text-white'
+              : 'text-ink dark:text-slate-300 hover:bg-surface-accent dark:hover:bg-night-800'
+          }`}
+        >
+          <Building2 className="w-4 h-4 shrink-0" />
+          <span>Corporate TPA Settlement Hub (Batch &amp; Remittance)</span>
+        </button>
+      </div>
+
+      {billingTab === 'tpa-hub' ? (
+        <TPASettlementHub />
+      ) : (
+        <>
       {unrecorded && !saving && stage === null && (
         <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-rose-50 border border-rose-300 text-rose-900 text-xs">
           <div className="flex items-start gap-2">
@@ -249,18 +349,21 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[480px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch min-h-[420px]">
 
         {/* 1. QUEUE */}
-        <div className="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-none p-4 space-y-4">
-          <div className="flex items-center gap-1.5 text-accent font-semibold text-xs border-b border-slate-200 pb-2 mb-1.5">
+        <div className="lg:col-span-4 bg-surface-accent border border-line rounded-none p-3 space-y-2.5">
+          <div className="flex items-center gap-1.5 text-accent font-semibold text-xs border-b border-line pb-2 mb-1.5">
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" aria-hidden="true" />
             <span>{t.totalBilling}</span>
-            <span className="bg-emerald-100 text-accent px-2 py-0.5 rounded-full text-2xs font-mono font-bold">{queue.length} Pending</span>
+            <span className="bg-emerald-100 text-accent px-2 py-0.5 rounded-full text-2xs font-mono tabular-nums font-bold">{queue.length} Pending</span>
+            <div role="status" aria-live="polite" className="sr-only">
+              {queue.length} patient{queue.length === 1 ? '' : 's'} in cashier billing queue
+            </div>
           </div>
 
           {queue.length === 0 ? (
-            <div className="bg-white rounded-none border border-slate-200 p-8 text-center text-slate-400">
+            <div className="bg-surface rounded-none border border-line p-8 text-center text-slate-400">
               <CheckCircle2 className="w-10 h-10 text-slate-300 mx-auto mb-2" aria-hidden="true" />
               <p className="text-xs font-semibold text-muted">All Accounts Balanced</p>
               <p className="text-2xs text-slate-400 mt-0.5">Dispensed pharmacy tickets will queue here for billing.</p>
@@ -286,14 +389,14 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                   <div
                     key={visit.id}
                     {...buttonProps(() => handleSelectVisit(visit.id), isSelected)}
-                    className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer ${focusRing} hover:bg-teal-50/50 bg-white ${isSelected ? 'border-brand bg-teal-50/40 shadow-xs' : 'border-slate-200'}`}
+                    className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer ${focusRing} hover:bg-surface-strong bg-surface ${isSelected ? 'border-brand bg-surface-strong shadow-none' : 'border-line'}`}
                   >
-                    <div className="flex items-center justify-between text-2xs font-mono">
+                    <div className="flex items-center justify-between text-2xs font-mono tabular-nums">
                       <span className="text-slate-400">ID: {visit.id}</span>
                       <span className="text-subtle font-bold">Est. {rm(estimate)}</span>
                     </div>
                     <h5 className="type-label text-strong mt-1">{pt.fullName}</h5>
-                    <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-100 text-2xs text-slate-400">
+                    <div className="flex items-center justify-between mt-2 pt-1 border-t border-line-subtle text-2xs text-slate-400">
                       <span>Panel: {pt.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : pt.panelEmployer}</span>
                       <span className="text-accent font-semibold">Ready to bill</span>
                     </div>
@@ -304,14 +407,14 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
           )}
 
           {/* Recent receipts, for reprinting */}
-          <div className="pt-3 border-t border-slate-200">
+          <div className="pt-3 border-t border-line">
             <h5 className="type-label text-muted mb-2 flex items-center gap-1"><Printer className="w-3 h-3" aria-hidden="true" /> Recent receipts</h5>
             {transactions.length === 0 ? (
               <p className="text-2xs text-slate-400">No payments recorded yet.</p>
             ) : (
               <ul className="space-y-1.5">
                 {transactions.slice(0, 6).map((trx) => (
-                  <li key={trx.id} className="flex items-center justify-between gap-2 bg-white border border-slate-200 px-2.5 py-1.5 text-2xs">
+                  <li key={trx.id} className="flex items-center justify-between gap-2 bg-surface border border-line px-2.5 py-1.5 text-2xs">
                     <div className="min-w-0">
                       <p className="font-bold text-muted truncate">{trx.patientName ?? 'Patient'}</p>
                       <p className="font-mono text-slate-400">{trx.receiptNo ?? 'Older payment'} · {rm(trx.paidAmount + trx.panelClaimed)}</p>
@@ -332,42 +435,42 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
         </div>
 
         {/* 2. BILL */}
-        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-none p-4 flex flex-col justify-between">
+        <div className="lg:col-span-8 bg-surface border border-line rounded-none p-3.5 flex flex-col justify-between">
           {activePatient && activeVisit ? (
             <div className="space-y-4">
 
-              <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="border-b border-line-subtle pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <span className="text-2xs font-bold text-accent uppercase tracking-wider block font-sans">Cashier desk (outpatient)</span>
                   <h4 className="type-heading-caps text-strong font-sans">{activePatient.fullName}</h4>
                   <p className="text-2xs font-mono text-slate-400">IC Registration: {activePatient.icNumber}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-subtle font-mono text-xs">VISIT TICKET ID: {activeVisit.id}</span>
+                  <span className="text-subtle font-mono tabular-nums text-xs">VISIT TICKET ID: {activeVisit.id}</span>
                 </div>
               </div>
 
-              <div className="border border-slate-200 rounded-none overflow-hidden">
+              <div className="border border-line rounded-none overflow-hidden">
                 <table className="w-full text-left text-xs border-collapse" id="active-invoice-breakdown-table">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-2xs text-subtle uppercase tracking-wider font-semibold">
+                    <tr className="bg-surface-accent border-b border-line text-2xs text-subtle uppercase tracking-wider font-semibold">
                       <th className="px-3 py-1.5 font-bold">Billing Item Description</th>
                       <th className="px-3 py-1.5 text-right font-bold w-32">Total Price (MYR)</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-slate-100 text-muted">
-                      <td className="px-3 py-2">Consultation fee</td>
-                      <td className="px-3 py-2 text-right font-mono font-medium">{rm(CONSULTATION_FEE)}</td>
+                    <tr className="border-b border-line-subtle text-muted">
+                      <td className="px-2.5 py-1.5">Consultation fee</td>
+                      <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(CONSULTATION_FEE)}</td>
                     </tr>
-                    <tr className="border-b border-slate-100 text-muted">
-                      <td className="px-3 py-2">Clinical procedures / nursing</td>
-                      <td className="px-3 py-2 text-right font-mono font-medium">{rm(PROCEDURE_FEE)}</td>
+                    <tr className="border-b border-line-subtle text-muted">
+                      <td className="px-2.5 py-1.5">Clinical procedures / nursing</td>
+                      <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(PROCEDURE_FEE)}</td>
                     </tr>
 
                     {prescription.length > 0 && (
-                      <tr className="border-b border-slate-100 text-muted">
-                        <td className="px-3 py-2">
+                      <tr className="border-b border-line-subtle text-muted">
+                        <td className="px-2.5 py-1.5">
                           <span>Dispensed medications</span>
                           <div className="text-2xs text-slate-400 pl-2.5 mt-0.5">
                             {prescription.map((rx, i) => (
@@ -375,13 +478,13 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                             ))}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-right font-mono font-medium">{rm(billingBreakdown.medicationCost)}</td>
+                        <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(billingBreakdown.medicationCost)}</td>
                       </tr>
                     )}
 
                     {customLineItems.length > 0 && (
-                      <tr className="border-b border-slate-100 text-muted">
-                        <td className="px-3 py-2">
+                      <tr className="border-b border-line-subtle text-muted">
+                        <td className="px-2.5 py-1.5">
                           <span>Additional charges</span>
                           <div className="text-2xs text-slate-400 pl-2.5 mt-0.5 space-y-1">
                             {customLineItems.map((item, i) => (
@@ -399,26 +502,26 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                             ))}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-right font-mono font-medium">{rm(billingBreakdown.customItemsTotal)}</td>
+                        <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-medium">{rm(billingBreakdown.customItemsTotal)}</td>
                       </tr>
                     )}
 
                     {billingBreakdown.discountAmount > 0 && (
-                      <tr className="border-b border-slate-100 text-red-600 bg-red-50/50">
+                      <tr className="border-b border-line-subtle text-red-600 bg-red-50/50">
                         <td className="px-3 py-2 font-semibold">Discount ({discount.type === 'percentage' ? `${discount.value}%` : 'fixed amount'})</td>
-                        <td className="px-3 py-2 text-right font-mono font-bold">-{rm(billingBreakdown.discountAmount)}</td>
+                        <td className="px-2.5 py-1.5 text-right font-mono tabular-nums font-bold">-{rm(billingBreakdown.discountAmount)}</td>
                       </tr>
                     )}
 
-                    <tr className="border-b border-slate-200 bg-slate-50 font-medium text-muted font-mono text-2xs">
+                    <tr className="border-b border-line bg-surface-accent font-medium text-muted font-mono tabular-nums text-2xs">
                       <td className="px-3 py-1.5 text-right font-semibold">Subtotal:</td>
                       <td className="px-3 py-1.5 text-right font-bold">{rm(billingBreakdown.subtotal)}</td>
                     </tr>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-muted font-mono text-2xs">
+                    <tr className="border-b border-line bg-surface-accent text-muted font-mono tabular-nums text-2xs">
                       <td className="px-3 py-1.5 text-right font-semibold">SST ({settings.billing.taxRate}%):</td>
                       <td className="px-3 py-1.5 text-right font-semibold">{rm(billingBreakdown.sstTax)}</td>
                     </tr>
-                    <tr className="bg-teal-50/50 font-bold text-strong font-mono text-xs">
+                    <tr className="bg-surface-strong font-bold text-strong font-mono tabular-nums text-xs">
                       <td className="px-3 py-2 text-right text-accent font-bold">Invoice Grand Total:</td>
                       <td className="px-3 py-2 text-right text-accent font-bold">{rm(billingBreakdown.grandTotal)}</td>
                     </tr>
@@ -427,12 +530,12 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
               </div>
 
               {/* Adjustments */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mt-2">
+                <div className="bg-surface-accent p-2.5 rounded-none border border-line">
                   <h5 className="type-label text-muted mb-2 flex items-center gap-1"><Plus className="w-3 h-3" aria-hidden="true" /> Add charge</h5>
                   <div className="flex gap-2">
-                    <input type="text" aria-label="Charge description" placeholder="Description" value={customDesc} onChange={(e) => setCustomDesc(e.target.value)} className="flex-1 text-xs border border-slate-300 px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none" />
-                    <input type="number" min="0" step="0.01" aria-label="Charge amount in RM" placeholder="RM" value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} className="w-20 text-xs border border-slate-300 px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none font-mono" />
+                    <input type="text" aria-label="Charge description" placeholder="Description" value={customDesc} onChange={(e) => setCustomDesc(e.target.value)} className="flex-1 text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none" />
+                    <input type="number" min="0" step="0.01" aria-label="Charge amount in RM" placeholder="RM" value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} className="w-20 text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none font-mono" />
                     <button type="button" onClick={() => {
                       const amt = parseFloat(customAmount);
                       if (customDesc.trim() && !isNaN(amt) && amt > 0) {
@@ -444,14 +547,14 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+                <div className="bg-surface-accent p-2.5 rounded-none border border-line">
                   <h5 className="type-label text-muted mb-2 flex items-center gap-1"><Percent className="w-3 h-3" aria-hidden="true" /> Discount</h5>
                   <div className="flex gap-2">
-                    <select aria-label="Discount type" value={discountType} onChange={(e) => setDiscountType(e.target.value as 'fixed' | 'percentage')} className="text-xs border border-slate-300 px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none bg-white">
+                    <select aria-label="Discount type" value={discountType} onChange={(e) => setDiscountType(e.target.value as 'fixed' | 'percentage')} className="text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none bg-surface">
                       <option value="fixed">Fixed RM</option>
                       <option value="percentage">%</option>
                     </select>
-                    <input type="number" min="0" step="0.01" aria-label="Discount value" placeholder="Value" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="flex-1 text-xs border border-slate-300 px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none font-mono" />
+                    <input type="number" min="0" step="0.01" aria-label="Discount value" placeholder="Value" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="flex-1 text-xs border border-line px-2 py-1.5 rounded-none focus:ring-1 focus:ring-brand outline-none font-mono" />
                     <button type="button" onClick={() => {
                       const val = parseFloat(discountInput);
                       if (!isNaN(val) && val >= 0) setDiscount({ type: discountType, value: val });
@@ -461,7 +564,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
               </div>
 
               {/* Panel claim */}
-              <div className="bg-slate-50 p-3.5 rounded-none border border-slate-200 space-y-3.5">
+              <div className="bg-surface-accent p-3.5 rounded-none border border-line space-y-3.5">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-bold text-muted uppercase tracking-tight flex items-center gap-1.5">
                     <ClipboardCheck className="w-4 h-4 text-accent" aria-hidden="true" />
@@ -474,7 +577,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                     disabled={tpaList.length === 0}
                     title={tpaList.length === 0 ? 'No panels are set up' : undefined}
                     aria-pressed={isPanelClaim}
-                    className={`px-3 py-1.5 rounded-none text-xs font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isPanelClaim ? 'bg-primary text-white' : 'bg-white border border-slate-300 text-muted hover:bg-slate-100'}`}
+                    className={`px-3 py-1.5 rounded-none text-xs font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isPanelClaim ? 'bg-primary text-white' : 'bg-surface border border-line text-muted hover:bg-surface-strong'}`}
                   >
                     {isPanelClaim ? 'Panel claim on' : 'Claim from a panel'}
                   </button>
@@ -482,12 +585,12 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
 
                 {isPanelClaim && (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-2 border-t border-slate-200/60 text-xs">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-2 border-t border-line/60 text-xs">
                       <div className="space-y-1">
                         <label htmlFor="tpa-select" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Panel</label>
                         <select
                           id="tpa-select"
-                          className="w-full text-xs px-2 py-1.5 bg-white border border-slate-300 rounded-none focus:ring-1 focus:ring-teal-600 focus:outline-none font-medium text-strong"
+                          className="w-full text-xs px-2 py-1.5 bg-surface border border-line rounded-none focus:ring-1 focus:ring-teal-600 focus:outline-none font-medium text-strong"
                           value={selectedTPA?.name || ''}
                           onChange={(e) => setSelectedTPA(tpaList.find((x) => x.name === e.target.value) ?? null)}
                         >
@@ -498,21 +601,36 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                       </div>
 
                       <div className="space-y-1">
-                        <label htmlFor="gl-ref-input" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Guarantee letter (GL) reference</label>
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="gl-ref-input" className="block text-2xs text-subtle font-bold uppercase tracking-wider">Guarantee letter (GL) reference</label>
+                          <button
+                            type="button"
+                            onClick={handleAutoVerifyGL}
+                            className="text-2xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
+                          >
+                            <span>⚡ Auto-Verify TPA</span>
+                          </button>
+                        </div>
                         <input
                           type="text"
                           id="gl-ref-input"
-                          className="w-full text-xs border border-slate-300 rounded-none px-2 py-1.5 font-mono uppercase"
+                          className="w-full text-xs border border-line rounded-none px-2 py-1.5 font-mono uppercase"
                           value={glReferenceNo}
                           onChange={(e) => setGlReferenceNo(e.target.value)}
                           placeholder="e.g. MIC-GL-10292"
                           aria-describedby="gl-note"
                         />
-                        <p id="gl-note" className="text-2xs text-subtle">Copy it from the panel's letter. This system does not check it with the panel.</p>
+                        {tpaVerificationInfo ? (
+                          <div className="text-2xs font-mono font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-1.5 border border-emerald-300">
+                            {tpaVerificationInfo}
+                          </div>
+                        ) : (
+                          <p id="gl-note" className="text-2xs text-subtle">Copy it from panel letter or click Auto-Verify to ping TPA engine.</p>
+                        )}
                       </div>
                     </div>
 
-                    <div id="panel-split-breakdown" className="bg-teal-50/50 p-3 rounded-none border border-brand/10 text-xs flex flex-row flex-wrap gap-3 items-center justify-between text-accent font-medium leading-relaxed">
+                    <div id="panel-split-breakdown" className="bg-surface-strong p-3 rounded-none border border-brand/10 text-xs flex flex-row flex-wrap gap-3 items-center justify-between text-accent font-medium leading-relaxed">
                       <div>
                         <span className="text-2xs uppercase text-subtle block font-mono">To claim from panel:</span>
                         <strong>{rm(claimAmount)}</strong>
@@ -560,7 +678,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                         id="checkout-cash-btn"
                         onClick={() => { setSaveError(null); setCashReceived(''); setStage('cash'); }}
                         disabled={payBlocked}
-                        className="bg-primary/90 hover:bg-primary border border-slate-200 text-white font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-primary/90 hover:bg-primary border border-line text-white font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <DollarSign className="w-5 h-5 text-white" aria-hidden="true" />
                         <span>Cash</span>
@@ -572,7 +690,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                         onClick={() => { setSaveError(null); setStage('card'); }}
                         disabled={payBlocked || dueNow < 2}
                         title={dueNow < 2 ? 'Card payments start at RM2.00' : undefined}
-                        className="bg-white hover:bg-slate-50 border border-slate-300 text-muted font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-surface hover:bg-surface-accent border border-line text-muted font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <CreditCard className="w-5 h-5 text-teal-600" aria-hidden="true" />
                         <span>Debit / Credit card</span>
@@ -583,7 +701,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
                         id="checkout-ewallet-btn"
                         onClick={() => { setSaveError(null); setWalletRef(''); setStage('ewallet'); }}
                         disabled={payBlocked}
-                        className="bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-800 font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-sky-50 border border-sky-300 hover:bg-sky-100 text-sky-800 font-semibold rounded-none p-3 text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Wallet className="w-5 h-5 text-sky-500" aria-hidden="true" />
                         <span>e-Wallet / bank transfer</span>
@@ -605,7 +723,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
             </div>
           )}
 
-          <div className="border-t border-slate-100 pt-3.5 mt-5 text-2xs text-slate-400 leading-relaxed text-center flex items-center justify-center gap-1.5">
+          <div className="border-t border-line-subtle pt-3.5 mt-5 text-2xs text-slate-400 leading-relaxed text-center flex items-center justify-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
             <p id="compliance-note-footer">{t.complianceText}</p>
           </div>
@@ -631,7 +749,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
             <div className="flex justify-between font-mono"><span className="text-subtle">Amount due</span><strong className="text-accent text-sm">{rm(dueNow)}</strong></div>
             <div>
               <label htmlFor="cash-received" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Cash received (RM)</label>
-              <input id="cash-received" autoFocus type="number" min="0" step="0.01" value={cashReceived} onChange={(e) => setCashReceived(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmCash(); }} className="w-full border border-slate-300 px-3 py-2 text-sm font-mono rounded-none focus:ring-1 focus:ring-brand outline-none" />
+              <input id="cash-received" autoFocus type="number" min="0" step="0.01" value={cashReceived} onChange={(e) => setCashReceived(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmCash(); }} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none focus:ring-1 focus:ring-brand outline-none" />
             </div>
             <div className="flex justify-between font-mono">
               <span className="text-subtle">Change to give</span>
@@ -659,7 +777,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
             <p className="text-muted leading-relaxed">Check that {rm(dueNow)} has arrived in the clinic's e-wallet or bank account, then enter the transaction reference. This system does not verify the payment.</p>
             <div>
               <label htmlFor="wallet-ref" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Transaction reference</label>
-              <input id="wallet-ref" autoFocus type="text" value={walletRef} onChange={(e) => setWalletRef(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmWallet(); }} className="w-full border border-slate-300 px-3 py-2 text-sm font-mono rounded-none focus:ring-1 focus:ring-brand outline-none" />
+              <input id="wallet-ref" autoFocus type="text" value={walletRef} onChange={(e) => setWalletRef(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmWallet(); }} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none focus:ring-1 focus:ring-brand outline-none" />
             </div>
             <DialogActions
               busy={saving}
@@ -687,10 +805,10 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
             <div className="w-14 h-14 bg-emerald-100 flex items-center justify-center mx-auto"><CheckCircle2 className="w-7 h-7 text-emerald-600" aria-hidden="true" /></div>
             <p className="text-sm text-subtle">Recorded as {receipt.settlement.paymentMethod === 'Panel' ? 'a panel claim' : receipt.settlement.paymentMethod}.</p>
             {receipt.receiptNo && <p className="font-mono text-lg font-bold text-ink">{receipt.receiptNo}</p>}
-            <div className="bg-slate-50 p-4 border border-slate-100 text-left space-y-2 font-mono text-xs">
+            <div className="bg-surface-accent p-4 border border-line-subtle text-left space-y-2 font-mono tabular-nums text-xs">
               <div className="flex justify-between"><span className="text-subtle">Patient:</span><span className="font-bold text-muted">{receipt.patient.fullName}</span></div>
               <div className="flex justify-between"><span className="text-subtle">Visit ID:</span><span className="text-muted">{receipt.visit.id}</span></div>
-              <div className="flex justify-between border-t border-slate-200 pt-2 mt-2"><span className="text-subtle">Amount paid:</span><span className="font-bold text-accent text-sm">{rm(receipt.amountPaid)}</span></div>
+              <div className="flex justify-between border-t border-line pt-2 mt-2"><span className="text-subtle">Amount paid:</span><span className="font-bold text-accent text-sm">{rm(receipt.amountPaid)}</span></div>
               {receipt.change !== undefined && receipt.change > 0 && (
                 <div className="flex justify-between"><span className="text-subtle">Change given:</span><span className="text-muted">{rm(receipt.change)}</span></div>
               )}
@@ -702,7 +820,7 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
               )}
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => printReceipt(receiptSource(receipt))} className="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-muted font-bold px-4 py-2.5 rounded-none flex items-center justify-center gap-2 cursor-pointer text-xs">
+              <button type="button" onClick={() => printReceipt(receiptSource(receipt))} className="flex-1 bg-surface border border-line hover:bg-surface-accent text-muted font-bold px-4 py-2.5 rounded-none flex items-center justify-center gap-2 cursor-pointer text-xs">
                 <Download className="w-4 h-4" aria-hidden="true" /> Download again
               </button>
               <button type="button" onClick={() => setReceipt(null)} autoFocus className="flex-1 bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 rounded-none cursor-pointer text-xs">Done</button>
@@ -710,14 +828,47 @@ export default function BillingDesk({ queue, patientsMap, activeLanguage, onPaym
           </div>
         </Dialog>
       )}
+        </>
+      )}
+
+      {isEInvoiceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-canvas border-2 border-line shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+            <div className="p-3 bg-surface border-b border-line flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileCheck2 className="w-5 h-5 text-accent" />
+                <h3 className="text-sm font-bold text-ink uppercase tracking-wider">LHDN MyInvois e-Invoice Real-Time Console</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEInvoiceModalOpen(false)}
+                className="p-1 hover:bg-surface-accent text-ink cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              <EInvoicePage />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 function Dialog({ title, onClose, busy = false, children }: { title: string; onClose: () => void; busy?: boolean; children: React.ReactNode }) {
+  React.useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !busy) onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [busy, onClose]);
+
   return (
     <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
-      <div role="dialog" aria-modal="true" aria-label={title} className="bg-white rounded-none shadow-2xl max-w-sm w-full border border-slate-200 p-6 space-y-4">
+      <div role="dialog" aria-modal="true" aria-label={title} className="bg-surface rounded-none shadow-none max-w-sm w-full border border-line p-6 space-y-4">
         <h3 className="type-heading-caps text-strong">{title}</h3>
         {children}
       </div>
@@ -732,7 +883,7 @@ function DialogActions({ busy, error, confirmLabel, confirmDisabled, onConfirm, 
     <>
       {error && <p role="alert" className="text-xs text-rose-700 font-medium">{error}</p>}
       <div className="flex items-center justify-end gap-2 pt-1">
-        <button type="button" onClick={onCancel} disabled={busy} className="px-3 py-2 border border-slate-200 text-muted rounded-none text-xs hover:bg-slate-100 cursor-pointer disabled:opacity-50">Cancel</button>
+        <button type="button" onClick={onCancel} disabled={busy} className="px-3 py-2 border border-line text-muted rounded-none text-xs hover:bg-surface-strong cursor-pointer disabled:opacity-50">Cancel</button>
         <button type="button" onClick={onConfirm} disabled={busy || confirmDisabled} className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
           {busy && <Loader2 className="w-3.5 h-3.5 motion-safe:animate-spin" aria-hidden="true" />}
           {busy ? 'Saving…' : confirmLabel}

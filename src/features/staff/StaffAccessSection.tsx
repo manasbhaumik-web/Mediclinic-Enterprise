@@ -24,7 +24,7 @@ export default function StaffAccessSection({ jobTitle, department, email, value,
   const access = value.length > 0 ? describeRoleAccess(value) : null;
 
   return (
-    <section className="bg-white border border-line shadow-xs rounded-none overflow-hidden">
+    <section className="bg-surface border border-line shadow-none rounded-none overflow-hidden">
       <div className="bg-surface-accent px-5 py-3.5 border-b border-line flex items-center gap-2.5">
         <KeyRound className="w-4 h-4 text-accent" />
         <h3 className="type-label text-ink">6. System Access (Login)</h3>

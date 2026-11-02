@@ -3,12 +3,15 @@
  * -> Awaiting Billing -> Paid. Pure functions so each transition can be tested in isolation.
  */
 import { SOAPNotes, VitalSigns, Visit } from '../types';
+import { determineNextWorkflowStep } from './procedures';
 
 export interface VisitQueues {
   triage: Visit[];
   doctor: Visit[];
   pharmacy: Visit[];
   cashier: Visit[];
+  procedure: Visit[];
+  holding: Visit[];
 }
 
 export function splitQueues(visits: Visit[]): VisitQueues {
@@ -17,6 +20,8 @@ export function splitQueues(visits: Visit[]): VisitQueues {
     doctor: visits.filter((v) => v.status === 'Awaiting Consult' || v.status === 'Consulting'),
     pharmacy: visits.filter((v) => v.status === 'Awaiting Dispensation'),
     cashier: visits.filter((v) => v.status === 'Awaiting Billing'),
+    procedure: visits.filter((v) => v.status === 'Awaiting Procedure'),
+    holding: visits.filter((v) => v.status === 'Holding for Results'),
   };
 }
 
@@ -34,7 +39,8 @@ export function completeTriage(visit: Visit, vitals: Partial<VitalSigns>, chiefC
 
 /** Doctor finishes the SOAP note; the visit goes to the pharmacy. */
 export function completeConsultation(visit: Visit, soap: SOAPNotes, mcIssued: boolean): Visit {
-  return { ...visit, soap, status: 'Awaiting Dispensation', mcIssued };
+  const nextStatus = determineNextWorkflowStep(soap);
+  return { ...visit, soap, status: nextStatus, mcIssued };
 }
 
 /** Pharmacist verifies dispensing; the visit goes to the cashier. */

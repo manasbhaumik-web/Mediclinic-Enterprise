@@ -23,11 +23,11 @@ import {
 
 type Tab = 'overview' | 'clinical' | 'financial' | 'stock';
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'clinical', label: 'Clinical' },
-  { id: 'financial', label: 'Financial & claims' },
-  { id: 'stock', label: 'Stock & assets' },
+const TABS: { id: Tab; label: string; tooltip: string }[] = [
+  { id: 'overview', label: 'Overview', tooltip: 'Executive Overview: Monthly revenue trends, patient visits, and clinic operational throughput' },
+  { id: 'clinical', label: 'Clinical', tooltip: 'Clinical Analytics: Patient visit volumes, top ICD-10 diagnoses, and epidemiological patterns' },
+  { id: 'financial', label: 'Financial & claims', tooltip: 'Financial Performance: Revenue by category, outstanding panel claims, and payment ledger' },
+  { id: 'stock', label: 'Stock & assets', tooltip: 'Pharmaceutical Stock Reports: High-volume prescribed medications and stock-on-hand valuation' },
 ];
 
 const PERIODS = [
@@ -95,14 +95,14 @@ export default function ReportsAnalyticsModule() {
         </div>
         <div className="flex items-center gap-2">
           <label htmlFor="report-period" className="sr-only">Period</label>
-          <select id="report-period" value={period} onChange={(e) => setPeriod(e.target.value as typeof period)} className="text-xs font-bold border border-line bg-white px-2 py-2 rounded-none cursor-pointer">
+          <select id="report-period" value={period} onChange={(e) => setPeriod(e.target.value as typeof period)} className="text-xs font-bold border border-line bg-surface text-ink px-2 py-2 rounded-none cursor-pointer">
             {PERIODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
           </select>
           <button
             type="button"
             onClick={() => { setNow(Date.now()); void queryClient.invalidateQueries({ queryKey: ['reports'] }); void queryClient.invalidateQueries({ queryKey: ['inventory'] }); }}
             disabled={isFetching}
-            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+            className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
             {isFetching ? 'Refreshing…' : 'Refresh'}
@@ -132,7 +132,7 @@ export default function ReportsAnalyticsModule() {
 
       <div role="tablist" aria-label="Report sections" className="flex items-stretch gap-0 bg-surface-strong border-b border-line text-xs font-bold h-10 overflow-x-auto custom-scrollbar">
         {TABS.map((t) => (
-          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+          <button key={t.id} type="button" role="tab" title={t.tooltip} aria-selected={tab === t.id} onClick={() => setTab(t.id)}
             className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer whitespace-nowrap ${tab === t.id ? 'bg-chrome text-white font-bold' : 'bg-transparent text-ink hover:bg-surface-strong font-bold'}`}>
             {t.label}
           </button>
@@ -200,7 +200,7 @@ export default function ReportsAnalyticsModule() {
 
           <Panel icon={Stethoscope} title="Top diagnoses" action={<ExportButtons table={diagnosesTable(r.diagnoses, periodText)} />}>
             {r.diagnoses.length === 0 ? <Empty>No coded diagnoses in this period. A diagnosis code is chosen when a doctor signs off a consultation.</Empty> : (
-              <table className="w-full text-left text-xs">
+              <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-left text-xs min-w-[280px]">
                 <thead className="text-ink uppercase border-b border-line font-bold">
                   <tr><th scope="col" className="py-2 pr-3">Code</th><th scope="col" className="py-2 pr-3">Diagnosis</th><th scope="col" className="py-2 text-right">Visits</th></tr>
                 </thead>
@@ -213,7 +213,7 @@ export default function ReportsAnalyticsModule() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </Panel>
 
@@ -231,7 +231,7 @@ export default function ReportsAnalyticsModule() {
               <Empty>No payments in this period carry an itemised bill yet. Bills are stored with each payment taken from now on, so this fills in as payments are recorded.</Empty>
             ) : (
               <>
-                <table className="w-full text-xs">
+                <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-xs min-w-[280px]">
                   <tbody className="divide-y divide-slate-100">
                     {category.categories.map((c) => (
                       <tr key={c.kind}><th scope="row" className="py-2 pr-3 text-left font-semibold text-ink">{c.label}</th><td className="py-2 text-right font-mono">{formatRM(c.amount)}</td></tr>
@@ -240,7 +240,7 @@ export default function ReportsAnalyticsModule() {
                     <tr><th scope="row" className="py-2 pr-3 text-left text-muted">SST</th><td className="py-2 text-right font-mono">{formatRM(category.tax)}</td></tr>
                     <tr className="font-bold"><th scope="row" className="py-2 pr-3 text-left text-ink">Total billed</th><td className="py-2 text-right font-mono">{formatRM(category.total)}</td></tr>
                   </tbody>
-                </table>
+                </table></div>
                 <p className="mt-3 text-2xs text-subtle">From {category.itemised} of {category.payments} payments in this period; the rest were taken before bills were stored.</p>
               </>
             )}
@@ -279,7 +279,7 @@ export default function ReportsAnalyticsModule() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Panel icon={Package} title="Most prescribed drugs" action={<ExportButtons table={prescribingTable(movers, periodText)} />}>
             {movers.length === 0 ? <Empty>No prescriptions in this period.</Empty> : (
-              <table className="w-full text-left text-xs">
+              <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-left text-xs min-w-[280px]">
                 <thead className="text-ink uppercase border-b border-line font-bold">
                   <tr><th scope="col" className="py-2 pr-3">Drug</th><th scope="col" className="py-2 pr-3 text-right">Prescribed</th><th scope="col" className="py-2 pr-3 text-right">Quantity</th><th scope="col" className="py-2 text-right">In stock</th></tr>
                 </thead>
@@ -293,7 +293,7 @@ export default function ReportsAnalyticsModule() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </Panel>
 

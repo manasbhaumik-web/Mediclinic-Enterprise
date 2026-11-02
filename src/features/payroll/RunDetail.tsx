@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useState } from 'react';
 import { ArrowLeft, Download } from 'lucide-react';
 import Button from '../../components/ui/Button';
@@ -8,6 +9,7 @@ import {
 } from '../../domain/payrollExports';
 import { generatePayslipPdf, generateRunPayslipsPdf, payslipFilename } from '../../utils/payslipPdf';
 import SlipInputs from './SlipInputs';
+import { Dialog, ReasonDialog } from '../inventory/shared';
 import { errorMessage, inputClass, myr, toneClass } from './shared';
 
 export default function RunDetail({ runId, role, onBack }: { runId: string; role: 'admin' | 'hr'; onBack: () => void }) {
@@ -16,11 +18,16 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [editing, setEditing] = useState<Payslip | null>(null);
   const [viewing, setViewing] = useState<Payslip | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
   const [exportProblems, setExportProblems] = useState<string[]>([]);
   const [paidOn, setPaidOn] = useState(new Date().toISOString().slice(0, 10));
+  const [confirmAction, setConfirmAction] = useState<{ body: Record<string, unknown>; message: string; title: string } | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const run = runQ.data;
   const slips = slipsQ.data ?? [];
+  const paginatedSlips = slips.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   if (runQ.isLoading) return <p className="text-xs text-subtle">Loading…</p>;
   if (!run) return <div className="space-y-3"><p className="text-xs text-rose-700 font-bold">This run could not be found.</p><Button variant="outline" size="sm" onClick={onBack}>Back</Button></div>;
 
@@ -28,8 +35,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
   const can = runActions(run.status, role);
   const totals = run.status === 'draft' || run.status === 'reviewed' ? liveTotals(slips) : run.totals;
 
-  const act = async (body: Record<string, unknown>, confirm?: string) => {
-    if (confirm && !window.confirm(confirm)) return;
+  const act = async (body: Record<string, unknown>) => {
     setMsg(null);
     try {
       const res = await api.call.mutateAsync({ runId, ...body });
@@ -44,8 +50,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
   };
 
   const cancel = () => {
-    const reason = window.prompt('Reason for cancelling this payroll run? It stays on record.');
-    if (reason && reason.trim()) void act({ action: 'cancel', reason: reason.trim() });
+    setIsCancelling(true);
   };
 
   const warned = slips.filter((s) => s.warnings.length > 0);
@@ -69,14 +74,14 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
 
         <div className="flex flex-wrap items-end gap-2">
           {can.recalc && <Button variant="outline" size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'recalc_run' })}>Recalculate</Button>}
-          {can.submit && <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'submit_review' }, 'Submit this run for approval? You will not be able to edit figures unless it is returned to draft.')}>Submit for approval</Button>}
+          {can.submit && <Button size="sm" disabled={api.call.isPending} onClick={() => setConfirmAction({ body: { action: 'submit_review' }, title: 'Submit for Approval', message: 'Submit this payroll run for approval? You will not be able to edit employee figures unless it is returned to draft.' })}>Submit for approval</Button>}
           {can.returnToDraft && <Button variant="outline" size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'return_to_draft' })}>Return to draft</Button>}
-          {can.approve && <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'approve' }, 'Approve this payroll? It becomes frozen and cannot be edited.')}>Approve</Button>}
+          {can.approve && <Button size="sm" disabled={api.call.isPending} onClick={() => setConfirmAction({ body: { action: 'approve' }, title: 'Approve Payroll Run', message: 'Approve this payroll? It becomes permanently frozen and cannot be modified.' })}>Approve</Button>}
           {can.markPaid && (
             <>
               <label className="space-y-1 block"><span className="text-2xs font-bold uppercase text-subtle">Paid on</span>
                 <input className={`${inputClass} !w-40`} type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} /></label>
-              <Button size="sm" disabled={api.call.isPending} onClick={() => act({ action: 'mark_paid', paidOn }, 'Record that salaries were paid? This cannot be undone.')}>Mark as paid</Button>
+              <Button size="sm" disabled={api.call.isPending} onClick={() => setConfirmAction({ body: { action: 'mark_paid', paidOn }, title: 'Confirm Salary Payment', message: 'Record that salaries were disbursed on ' + paidOn + '? This action cannot be reversed.' })}>Mark as paid</Button>
             </>
           )}
           {can.cancel && <Button variant="outline" size="sm" disabled={api.call.isPending} onClick={cancel}>Cancel run</Button>}
@@ -121,7 +126,7 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
             </tr>
           </thead>
           <tbody>
-            {slips.map((s) => (
+            {paginatedSlips.map((s) => (
               <tr key={s.id} className="border-b border-line-subtle">
                 <td className="p-3 font-bold text-ink">{s.employee.name}{s.warnings.length > 0 && <span className="ml-2 text-amber-700" title={s.warnings.join(' ')}>⚠</span>}</td>
                 <td className="p-3 text-right font-mono">{myr(s.employee.baseSalary)}</td>
@@ -138,6 +143,13 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
             {slips.length === 0 && <tr><td className="p-4 text-subtle" colSpan={6}>No payslips in this run.</td></tr>}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={slips.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="payslips"
+        />
       </div>
 
       <div className="bg-surface border border-line-subtle p-4 space-y-2">
@@ -149,6 +161,34 @@ export default function RunDetail({ runId, role, onBack }: { runId: string; role
           ))}
         </ul>
       </div>
+
+      {confirmAction && (
+        <Dialog title={confirmAction.title} onClose={() => setConfirmAction(null)}>
+          <p className="text-xs text-muted leading-relaxed">{confirmAction.message}</p>
+          <div className="flex justify-end gap-2 pt-3">
+            <Button size="sm" variant="outline" onClick={() => setConfirmAction(null)}>Cancel</Button>
+            <Button size="sm" disabled={api.call.isPending} onClick={() => {
+              const b = confirmAction.body;
+              setConfirmAction(null);
+              void act(b);
+            }}>Confirm</Button>
+          </div>
+        </Dialog>
+      )}
+      {isCancelling && (
+        <ReasonDialog
+          title="Cancel Payroll Run"
+          message="Reason for cancelling this payroll run? It stays permanently on record in the audit trail."
+          confirmLabel="Cancel Run"
+          reasonLabel="Cancellation rationale"
+          busy={api.call.isPending}
+          onConfirm={(reason) => {
+            setIsCancelling(false);
+            void act({ action: 'cancel', reason });
+          }}
+          onClose={() => setIsCancelling(false)}
+        />
+      )}
 
       {editing && <SlipInputs slip={editing} run={run} onClose={() => setEditing(null)} />}
       {viewing && <SlipView slip={viewing} onClose={() => setViewing(null)} />}

@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useState } from 'react';
 import { useDrugs, useInventoryEvents, useMovements } from '../../hooks/useInventoryData';
 import { MOVEMENT_LABEL } from '../../domain/inventory';
@@ -7,10 +8,14 @@ import { fmtDate, inputClass } from './shared';
 export default function InventoryHistory() {
   const [drugId, setDrugId] = useState('');
   const [view, setView] = useState<'stock' | 'changes'>('stock');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
   const drugs = useDrugs();
   const moves = useMovements(drugId || null, 300);
   const events = useInventoryEvents();
   const name = new Map((drugs.data ?? []).map((d) => [d.id, d.name]));
+  const allMoves = moves.data ?? [];
+  const paginatedMoves = allMoves.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const tab = (t: typeof view) => `px-3 py-1.5 text-xs font-bold cursor-pointer ${view === t ? 'bg-primary text-white' : 'text-muted hover:bg-surface-accent'}`;
 
   return (
@@ -21,7 +26,7 @@ export default function InventoryHistory() {
           <button role="tab" aria-selected={view === 'changes'} className={tab('changes')} onClick={() => setView('changes')}>Changes</button>
         </div>
         {view === 'stock' && (
-          <select className={`${inputClass} !w-72`} aria-label="Drug" value={drugId} onChange={(e) => setDrugId(e.target.value)}>
+          <select className={`${inputClass} !w-72`} aria-label="Drug" value={drugId} onChange={(e) => { setDrugId(e.target.value); setCurrentPage(1); }}>
             <option value="">All drugs</option>{(drugs.data ?? []).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
         )}
@@ -33,7 +38,7 @@ export default function InventoryHistory() {
           <table className="w-full text-xs">
             <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">When</th><th className="p-3">Drug</th><th className="p-3">What</th><th className="p-3 text-right">Qty</th><th className="p-3 text-right">Balance</th><th className="p-3">Reason</th><th className="p-3">By</th></tr></thead>
             <tbody>
-              {(moves.data ?? []).map((m) => (
+              {paginatedMoves.map((m) => (
                 <tr key={m.id} className="border-b border-line-subtle">
                   <td className="p-3 whitespace-nowrap">{fmtDate(m.createdAt)}</td>
                   <td className="p-3 font-bold text-ink">{name.get(m.inventoryId) ?? '?'}</td>
@@ -47,6 +52,13 @@ export default function InventoryHistory() {
               {(moves.data ?? []).length === 0 && <tr><td className="p-6 text-center text-subtle" colSpan={7}>No stock movements yet.</td></tr>}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={allMoves.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            itemLabel="movements"
+          />
         </div>
       ) : (
         <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">

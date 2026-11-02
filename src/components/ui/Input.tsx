@@ -39,10 +39,10 @@ export default function Input({ icon, error, label, className = '', id, ...props
           className={`
             w-full bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 text-strong dark:text-white rounded-none outline-none 
             transition-all duration-200 placeholder:text-slate-400
-            focus:ring-2 focus:ring-brand/20 focus:border-brand focus:bg-white dark:focus:bg-night-800
+            focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand focus:bg-white dark:focus:bg-night-800
             ${icon ? 'pl-10' : 'pl-4'} 
             pr-4 py-2.5 sm:text-sm
-            ${error ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : ''}
+            ${error ? 'border-rose-300 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' : ''}
             ${className}
           `}
           {...props}

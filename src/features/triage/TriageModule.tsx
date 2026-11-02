@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
 import { Patient, Visit, VitalSigns } from '../../types';
-import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight } from 'lucide-react';
+import { Users, Clock, Activity, CheckCircle2, Stethoscope, FileText, ArrowRight, Syringe, Siren } from 'lucide-react';
+import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
+import ProcedureStationModule from '../operations/ProcedureStationModule';
+import { completeVisitProcedure } from '../../domain/procedures';
 import { maskICNumber } from '../../utils/piiMasker';
+import { calculatePatientAge } from '../../domain/patientAge';
+import { calculateMEWS } from '../../domain/aiTriageScore';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Card, CardHeader, CardContent, CardFooter } from '../../components/ui/Card';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface TriageModuleProps {
   triageQueue: Visit[];
+  allVisits?: Visit[];
   patientsMap: Record<string, Patient>;
   onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
+  onUpdateVisit?: (visit: Visit) => void;
+  currentStaffId?: string;
+  currentStaffName?: string;
 }
 
-export default function TriageModule({ triageQueue, patientsMap, onTriageComplete }: TriageModuleProps) {
+export default function TriageModule({ triageQueue, allVisits = [], patientsMap, onTriageComplete, onUpdateVisit, currentStaffId, currentStaffName }: TriageModuleProps) {
+  const [activeStationTab, setActiveStationTab] = useState<'vitals' | 'procedures'>('vitals');
+  const { activeLanguage, t } = useLanguage();
+  const isBM = activeLanguage === 'BM';
   const [activeVisitId, setActiveVisitId] = useState<string | null>(null);
   const [vitalsForm, setVitalsForm] = useState({
     temperature: '',
@@ -23,9 +36,23 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
     chiefComplaint: ''
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isRedCodeModalOpen, setIsRedCodeModalOpen] = useState(false);
+  const procedureQueueCount = (allVisits || []).filter(v => {
+    if (v.status === 'Awaiting Procedure' || v.status === 'Holding for Results') return true;
+    const procs = v.soap?.plan?.procedures || [];
+    return procs.some(p => p.status === 'Pending' || p.status === 'In Progress');
+  }).length;
 
   const activeVisit = activeVisitId ? triageQueue.find(v => v.id === activeVisitId) : null;
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
+
+  const mewsResult = calculateMEWS({
+    bpSystolic: vitalsForm.bpSystolic,
+    bpDiastolic: vitalsForm.bpDiastolic,
+    heartRate: vitalsForm.heartRate,
+    respiratoryRate: vitalsForm.respiratoryRate,
+    temperature: vitalsForm.temperature,
+  });
 
   const handleSelectPatient = (visit: Visit) => {
     setActiveVisitId(visit.id);
@@ -58,40 +85,122 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
 
     onTriageComplete(activeVisitId, parsedVitals, vitalsForm.chiefComplaint);
     
-    showToast(`${activePatient?.fullName} triaged and sent to Doctor Queue.`);
+    showToast(isBM ? `${activePatient?.fullName} telah ditriaj dan dihantar ke Giliran Doktor.` : `${activePatient?.fullName} triaged and sent to Doctor Queue.`);
     setActiveVisitId(null);
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn relative font-sans text-strong">
+    <div className="space-y-3.5 animate-fadeIn relative font-sans text-strong">
+      {/* Sub-Station Navigation Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface border border-line p-2.5">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveStationTab('vitals')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeStationTab === 'vitals'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            <span>1. Vitals Triage Station</span>
+            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
+              {triageQueue.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveStationTab('procedures')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeStationTab === 'procedures'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Syringe className="w-4 h-4" />
+            <span>2. Treatment Room &amp; Procedures</span>
+            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
+              {procedureQueueCount}
+            </span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsRedCodeModalOpen(true)}
+            className="px-3 py-1.5 border border-rose-600 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-sm animate-pulse"
+          >
+            <Siren className="w-4 h-4 text-white" />
+            <span>🚨 CODE RED RESUS ALARM</span>
+          </button>
+          <div className="text-2xs font-mono text-muted flex items-center gap-2">
+            <span>Staff: <strong className="text-ink">{currentStaffName || 'Clinic Nurse'}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      {activeStationTab === 'procedures' ? (
+        <ProcedureStationModule
+          visits={allVisits}
+          patientsMap={patientsMap}
+          onCompleteProcedure={(visitId, procedureId, details) => {
+            const visit = allVisits.find((v) => v.id === visitId);
+            if (!visit || !onUpdateVisit) return;
+            const updated = completeVisitProcedure(visit, procedureId, currentStaffId || 'nurse-1', details);
+            onUpdateVisit(updated);
+          }}
+          onClearHold={(visitId, resultSummary) => {
+            const visit = allVisits.find((v) => v.id === visitId);
+            if (!visit || !onUpdateVisit) return;
+            onUpdateVisit({
+              ...visit,
+              status: 'Awaiting Consult',
+              soap: {
+                ...visit.soap,
+                assessment: {
+                  ...visit.soap?.assessment,
+                  clinicalNotes: `${visit.soap?.assessment?.clinicalNotes || ''} [Rapid Diagnostic Result: ${resultSummary}]`.trim()
+                }
+              } as any
+            });
+          }}
+        />
+      ) : (
+      <>
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center justify-center gap-3 z-50 animate-slideUp border border-teal-400">
+        <div className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center justify-center gap-3 z-50 animate-slideUp border border-line">
           <CheckCircle2 className="w-5 h-5 text-teal-200" />
           <span className="font-bold text-sm tracking-wide">{toastMessage}</span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
         
         {/* LEFT PANEL: Queue */}
         <div className="lg:col-span-1 space-y-4">
-          <Card className="flex flex-col h-[calc(100vh-140px)] rounded-none border-line-subtle dark:border-teal-800/40">
-            <CardHeader className="bg-surface-muted dark:bg-night-850 flex justify-between items-center py-4 border-b border-line-subtle dark:border-teal-800/40">
-              <h3 className="type-heading-caps text-ink dark:text-teal-300 flex items-center gap-2">
+          <Card className="flex flex-col h-[calc(100vh-170px)] min-h-[480px] rounded-none border-line">
+            <CardHeader className="bg-surface-muted flex justify-between items-center px-3.5 py-2.5 border-b border-line">
+              <h3 className="type-heading-caps text-ink flex items-center gap-2">
                 <Users className="w-4 h-4 text-accent" />
-                Awaiting Triage
+                {isBM ? 'Menunggu Triaj' : 'Awaiting Triage'}
               </h3>
-              <span className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-400 border border-line dark:border-teal-800/40 text-xs font-mono font-bold px-2.5 py-0.5 rounded-none">
+              <span className="bg-surface-accent text-accent border border-line text-xs font-mono font-bold px-2.5 py-0.5 rounded-none">
                 {triageQueue.length}
               </span>
+              <div role="status" aria-live="polite" className="sr-only">
+                {triageQueue.length} {isBM ? 'pesakit menunggu penilaian triaj' : 'patients awaiting triage assessment'}
+              </div>
             </CardHeader>
             
-            <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-surface dark:bg-night-900">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-surface">
               {triageQueue.length === 0 ? (
                 <div className="text-center py-10 text-slate-400">
                   <Activity className="w-10 h-10 mx-auto text-accent opacity-40 mb-2" />
-                  <p className="text-sm font-bold text-muted dark:text-slate-400">Triage Queue Empty</p>
+                  <p className="text-sm font-bold text-muted dark:text-slate-400">{isBM ? 'Giliran Triaj Kosong' : 'Triage Queue Empty'}</p>
                 </div>
               ) : (
                 triageQueue.map(visit => {
@@ -104,15 +213,16 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
                     <button
                       key={visit.id}
                       onClick={() => handleSelectPatient(visit)}
-                      className={`w-full text-left p-3.5 rounded-none border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
+                      title={`Select ${pt?.fullName} to record triage vital signs`}
+                      className={`w-full text-left p-2.5 rounded-none border transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
                         isActive 
-                          ? 'border-brand bg-surface-accent dark:bg-night-800 shadow-xs' 
-                          : 'border-line-subtle dark:border-teal-800/40 bg-white dark:bg-night-800 hover:bg-surface-muted dark:hover:bg-night-700'
+                          ? 'border-brand bg-surface-accent shadow-xs' 
+                          : 'border-line bg-surface hover:bg-surface-muted dark:hover:bg-night-700'
                       }`}
                     >
                       <div className="flex justify-between items-start mb-1.5">
                         <span className="font-bold text-sm text-ink dark:text-white truncate pr-2 uppercase">{pt?.fullName}</span>
-                        <span className="text-2xs font-mono font-bold text-accent dark:text-teal-400 bg-surface-accent dark:bg-night-850 px-2 py-0.5 border border-line dark:border-teal-800/40 flex items-center justify-center gap-1 shrink-0 rounded-none">
+                        <span className="text-2xs font-mono font-bold text-accent bg-surface-muted px-2 py-0.5 border border-line flex items-center justify-center gap-1 shrink-0 rounded-none">
                           <Clock className="w-3 h-3" /> {waitMins}m
                         </span>
                       </div>
@@ -128,88 +238,135 @@ export default function TriageModule({ triageQueue, patientsMap, onTriageComplet
         {/* RIGHT PANEL: Vitals Form */}
         <div className="lg:col-span-2">
           {activeVisit && activePatient ? (
-            <Card className="h-[calc(100vh-140px)] flex flex-col rounded-none border-line-subtle dark:border-teal-800/40">
-              <CardHeader className="bg-surface-muted dark:bg-night-850 flex items-center justify-between py-5 border-b border-line-subtle dark:border-teal-800/40">
+            <Card className="h-[calc(100vh-170px)] min-h-[480px] flex flex-col rounded-none border-line">
+              <CardHeader className="bg-surface-muted flex items-center justify-between px-3.5 py-2.5 border-b border-line">
                 <div>
                   <h2 className="type-heading-caps text-ink dark:text-white">{activePatient.fullName}</h2>
-                  <p className="text-xs text-muted dark:text-slate-300 font-mono mt-0.5">Age: {new Date().getFullYear() - new Date(activePatient.dob).getFullYear()} • IC: {activePatient.icNumber}</p>
+                  <p className="text-xs text-muted dark:text-slate-300 font-mono mt-0.5">{isBM ? 'Umur' : 'Age'}: {calculatePatientAge(activePatient.dob).displayAge} • IC: {activePatient.icNumber}</p>
                 </div>
-                <div className="bg-surface-accent dark:bg-night-800 text-accent dark:text-teal-400 border border-line dark:border-teal-800/40 text-xs font-mono font-bold px-3 py-1 rounded-none flex items-center justify-center gap-1.5 uppercase">
-                  <Activity className="w-3.5 h-3.5 text-accent" /> Triaging Active
+                <div className="bg-surface-accent text-accent border border-line text-xs font-mono font-bold px-3 py-1 rounded-none flex items-center justify-center gap-1.5 uppercase">
+                  <Activity className="w-3.5 h-3.5 text-accent" /> {isBM ? 'Triaj Aktif' : 'Triaging Active'}
                 </div>
               </CardHeader>
 
-              <div className="flex-1 overflow-y-auto p-6 bg-surface dark:bg-night-900">
-                <form id="triage-form" onSubmit={handleSubmitTriage} className="space-y-6 max-w-2xl">
+              <div className="flex-1 overflow-y-auto p-3.5 bg-surface">
+                <form id="triage-form" onSubmit={handleSubmitTriage} className="space-y-3.5 max-w-2xl">
                   
                   <div className="space-y-3">
-                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center gap-2">
-                      <Stethoscope className="w-4 h-4 text-accent" /> Vitals Examination
+                    <h4 className="type-label text-ink border-b border-line pb-2 flex items-center gap-2">
+                      <Stethoscope className="w-4 h-4 text-accent" /> {t.vitalsSign || 'Vitals Examination'}
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
                       <Input
-                        label="Temp (°C)"
+                        label={isBM ? 'Suhu (°C)' : 'Temp (°C)'}
                         type="number" step="0.1" required
                         value={vitalsForm.temperature} onChange={e => setVitalsForm({...vitalsForm, temperature: e.target.value})}
                         placeholder="36.6"
                       />
                       <Input
-                        label="BP Sys"
+                        label={isBM ? 'BP Sistolik' : 'BP Sys'}
                         type="number" required
                         value={vitalsForm.bpSystolic} onChange={e => setVitalsForm({...vitalsForm, bpSystolic: e.target.value})}
                         placeholder="120"
                       />
                       <Input
-                        label="BP Dia"
+                        label={isBM ? 'BP Diastolik' : 'BP Dia'}
                         type="number" required
                         value={vitalsForm.bpDiastolic} onChange={e => setVitalsForm({...vitalsForm, bpDiastolic: e.target.value})}
                         placeholder="80"
                       />
                       <Input
-                        label="Heart Rate"
+                        label={isBM ? 'Nadi (bpm)' : 'Heart Rate'}
                         type="number" required
                         value={vitalsForm.heartRate} onChange={e => setVitalsForm({...vitalsForm, heartRate: e.target.value})}
                         placeholder="72"
                       />
                       <Input
-                        label="Resp. Rate"
+                        label={isBM ? 'Pernafasan' : 'Resp. Rate'}
                         type="number" required
                         value={vitalsForm.respiratoryRate} onChange={e => setVitalsForm({...vitalsForm, respiratoryRate: e.target.value})}
                         placeholder="16"
                       />
                     </div>
+
+                    {/* AI CLINICAL EARLY WARNING (MEWS) TELEMETRY */}
+                    {(vitalsForm.bpSystolic || vitalsForm.heartRate) && (
+                      <div className={`p-3 border rounded-none text-xs transition-all ${
+                        mewsResult.riskLevel === 'High'
+                          ? 'bg-rose-50 border-rose-300 text-rose-900'
+                          : mewsResult.riskLevel === 'Medium'
+                          ? 'bg-amber-50 border-amber-300 text-amber-900'
+                          : 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      }`}>
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold uppercase tracking-wider text-2xs flex items-center gap-1">
+                              <Activity className="w-3.5 h-3.5" />
+                              AI Clinical Early Warning (MEWS)
+                            </span>
+                            <span className={`px-2 py-0.5 text-2xs font-bold uppercase rounded-none border ${
+                              mewsResult.riskLevel === 'High'
+                                ? 'chip-danger animate-pulse'
+                                : mewsResult.riskLevel === 'Medium'
+                                ? 'chip-warn'
+                                : 'chip-ok'
+                            }`}>
+                              {mewsResult.riskLevel} Risk (Score: {mewsResult.score})
+                            </span>
+                          </div>
+                          {mewsResult.flags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {mewsResult.flags.map((f, i) => (
+                                <span key={i} className="text-2xs font-mono font-bold px-1.5 py-0.5 bg-surface border border-current rounded-none">
+                                  {f}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-2xs font-medium leading-relaxed">
+                          {isBM ? mewsResult.actionPromptBM : mewsResult.actionPrompt}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="type-label text-ink dark:text-teal-300 border-b border-line-subtle dark:border-teal-800/40 pb-2 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-accent" /> Chief Complaint
+                    <h4 className="type-label text-ink border-b border-line pb-2 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-accent" /> {isBM ? 'Aduan Utama' : 'Chief Complaint'}
                     </h4>
                     <textarea
-                      required rows={4}
-                      className="w-full bg-surface dark:bg-night-900 border border-line-subtle dark:border-teal-800/40 rounded-none px-4 py-3 text-xs transition-all focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-white dark:focus:bg-night-800 outline-none resize-none text-strong dark:text-white"
+                      required rows={3}
+                      className="w-full bg-surface border border-line rounded-none px-3 py-2 text-xs transition-all focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-surface-accent dark:focus:bg-night-800 outline-none resize-none text-strong dark:text-white"
                       value={vitalsForm.chiefComplaint} onChange={e => setVitalsForm({...vitalsForm, chiefComplaint: e.target.value})}
-                      placeholder="Patient's primary complaint..."
+                      placeholder={isBM ? 'Aduan utama pesakit...' : "Patient's primary complaint..."}
                     />
                   </div>
 
                 </form>
               </div>
 
-              <CardFooter className="justify-end bg-surface-muted dark:bg-night-850 border-t border-line-subtle dark:border-teal-800/40 p-4">
-                <Button type="submit" form="triage-form" className="rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs">
-                  Send to Doctor Suite <ArrowRight className="w-4 h-4 ml-1" />
+              <CardFooter className="justify-end bg-surface-muted border-t border-line px-3.5 py-2">
+                <Button type="submit" form="triage-form" title="Save vital signs and route patient to active doctor consultation queue" className="rounded-none bg-primary hover:bg-primary-hover text-white font-bold text-xs">
+                  {isBM ? 'Hantar ke Sut Doktor' : 'Send to Doctor Suite'} <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardFooter>
             </Card>
           ) : (
-            <div className="h-[calc(100vh-140px)] flex flex-col items-center justify-center text-slate-400 bg-surface dark:bg-night-900 rounded-none border border-dashed border-line-subtle dark:border-teal-800/40">
+            <div className="h-[calc(100vh-170px)] min-h-[480px] flex flex-col items-center justify-center text-slate-400 bg-surface rounded-none border border-dashed border-line">
               <Activity className="w-16 h-16 text-accent opacity-30 mb-4" />
-              <p className="font-bold text-sm text-ink dark:text-teal-300">Select a patient from the queue to begin triage.</p>
+              <p className="font-bold text-sm text-ink">{isBM ? 'Pilih pesakit daripada giliran untuk memulakan triaj.' : 'Select a patient from the queue to begin triage.'}</p>
             </div>
           )}
         </div>
-
       </div>
+      </>
+      )}
+
+      <RedCodeAlarmModal
+        isOpen={isRedCodeModalOpen}
+        onClose={() => setIsRedCodeModalOpen(false)}
+      />
     </div>
   );
 }

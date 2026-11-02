@@ -1,6 +1,8 @@
+import { forecastStockDepletion } from '../../domain/predictiveStock';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Search, Bell, AlertTriangle, XCircle, PackageCheck, Archive } from 'lucide-react';
 import ActionMenu from '../../components/ui/ActionMenu';
+import Pagination from '../../components/ui/Pagination';
 import { useDrugs, useInventoryActions, useInventorySettings, useSuppliers } from '../../hooks/useInventoryData';
 import { DrugItem, buildAlerts, controlClassLabel, isExpired, usableStock } from '../../domain/inventory';
 import DrugForm from './DrugForm';
@@ -19,6 +21,12 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
   const [open, setOpen] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [q, filter, showRetired]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const today = todayStr();
 
@@ -45,7 +53,9 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
   const matchesFilter = (d: DrugItem) =>
     filter === 'all' || (filter === 'out' && has(d.id, 'out_of_stock')) || (filter === 'low' && has(d.id, 'low_stock')) || (filter === 'expiry' && has(d.id, 'expired_stock', 'near_expiry'));
 
-  const rows = all.filter((d) => (showRetired || d.status === 'active') && matchesFilter(d) && (`${d.name} ${d.category} ${d.genericName ?? ''}`.toLowerCase().includes(q.toLowerCase())));
+  const filteredRows = all.filter((d) => (showRetired || d.status === 'active') && matchesFilter(d) && (`${d.name} ${d.category} ${d.genericName ?? ''}`.toLowerCase().includes(q.toLowerCase())));
+  const startIndex = (currentPage - 1) * pageSize;
+  const rows = filteredRows.slice(startIndex, startIndex + pageSize);
 
   const retire = async (d: DrugItem, reason: string) => {
     setMsg(null);
@@ -59,33 +69,121 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <input className={`${inputClass} !w-72 !min-h-11`} placeholder="Search name, generic or category" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search drugs" />
-          <label className="flex items-center gap-2 min-h-11 text-xs font-medium cursor-pointer"><input type="checkbox" className="w-5 h-5 accent-primary" checked={showRetired} onChange={(e) => setShowRetired(e.target.checked)} /> Show retired</label>
-        </div>
-        <button type="button" className="btn-primary" onClick={() => setMode({ kind: 'add' })}><Plus className="w-4 h-4" aria-hidden="true" />Add a drug</button>
-      </div>
+      {/* REDESIGNED INVENTORY CONTROLS & FILTER BAR */}
+      <div className="bg-surface border border-line rounded-none shadow-2xs divide-y divide-line">
+        
+        {/* Top Control Bar: Search input, retired toggle, and Primary Add Action */}
+        <div className="p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3.5 bg-surface">
+          <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
+            {/* Search Input with Prefix Icon & Integrated Clear */}
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                className="w-full h-10 pl-9 pr-8 bg-surface-accent border border-line text-ink placeholder:text-muted/70 text-xs font-medium rounded-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                placeholder="Search name, generic, or category..."
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                aria-label="Search drugs"
+              />
+              {q && (
+                <button
+                  type="button"
+                  onClick={() => setQ('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-xs font-mono px-1 cursor-pointer"
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Stock levels">
-        {([
-          ['all', `All drugs (${activeDrugs.length})`, 'chip-neutral'],
-          ['out', `Out of stock (${summary.out})`, 'chip-danger'],
-          ['low', `Low stock (${summary.low})`, 'chip-warn'],
-          ['expiry', `Expired or near expiry (${summary.expiry})`, 'chip-warn'],
-        ] as const).map(([id, label, tone]) => (
-          <button key={id} type="button" aria-pressed={filter === id} onClick={() => setFilter(id)}
-            className={`${tone} min-h-11 px-3 text-xs font-bold cursor-pointer ${filter === id ? 'ring-2 ring-accent ring-offset-1' : 'opacity-90 hover:opacity-100'}`}>
-            {label}
-          </button>
-        ))}
-        {onShowAlerts && <button type="button" className="btn-secondary ml-auto" onClick={onShowAlerts}>Open alerts</button>}
+            {/* Show Retired Toggle Switch / Checkbox */}
+            <label className="inline-flex items-center gap-2 h-10 px-3 bg-surface-muted/60 border border-line-subtle text-xs font-medium text-ink/80 cursor-pointer select-none hover:bg-surface-muted transition-colors">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded-none accent-primary cursor-pointer"
+                checked={showRetired}
+                onChange={(e) => setShowRetired(e.target.checked)}
+              />
+              <span className="flex items-center gap-1.5">
+                <Archive className="w-3.5 h-3.5 text-muted" />
+                <span>Show retired</span>
+              </span>
+            </label>
+          </div>
+
+          {/* Action Buttons: Add a drug & Alerts */}
+          <div className="flex items-center gap-2 shrink-0">
+            {onShowAlerts && (
+              <button
+                type="button"
+                className="h-10 px-3.5 bg-surface hover:bg-surface-accent text-accent border border-line font-bold text-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                onClick={onShowAlerts}
+              >
+                <Bell className="w-3.5 h-3.5 text-accent" />
+                <span>Open alerts</span>
+                {summary.out + summary.low + summary.expiry > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse ml-0.5"></span>
+                )}
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="btn-primary h-10 px-4 text-xs font-bold inline-flex items-center gap-2 shadow-none cursor-pointer"
+              onClick={() => setMode({ kind: 'add' })}
+            >
+              <Plus className="w-4 h-4" aria-hidden="true" />
+              <span>Add a drug</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Bottom Filter Strip: Harmonized Category Chips */}
+        <div className="px-3.5 py-2.5 bg-surface-muted/30 flex flex-wrap items-center gap-2" role="group" aria-label="Stock levels">
+          {([
+            { id: 'all' as Filter, label: 'All drugs', count: activeDrugs.length, icon: PackageCheck, activeStyle: 'bg-primary text-white border-primary' },
+            { id: 'out' as Filter, label: 'Out of stock', count: summary.out, icon: XCircle, activeStyle: 'bg-rose-600 text-white border-rose-600', alert: summary.out > 0 },
+            { id: 'low' as Filter, label: 'Low stock', count: summary.low, icon: AlertTriangle, activeStyle: 'bg-amber-600 text-white border-amber-600', alert: summary.low > 0 },
+            { id: 'expiry' as Filter, label: 'Expired or near expiry', count: summary.expiry, icon: AlertTriangle, activeStyle: 'bg-amber-600 text-white border-amber-600', alert: summary.expiry > 0 },
+          ]).map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = filter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => setFilter(tab.id)}
+                className={`h-8 px-3 text-xs font-medium border inline-flex items-center gap-2 transition-all cursor-pointer ${
+                  isSelected
+                    ? `${tab.activeStyle} font-bold shadow-xs`
+                    : 'bg-surface text-ink/80 border-line hover:bg-surface-accent hover:border-line-strong hover:text-ink'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-muted'}`} />
+                <span>{tab.label}</span>
+                <span
+                  className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
+                    isSelected
+                      ? 'bg-white/20 text-white'
+                      : tab.alert
+                      ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-200 border border-rose-300 dark:border-rose-800'
+                      : 'bg-surface-muted text-muted border border-line-subtle'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {drugs.error && <Notice ok={false}>Could not load the stock list. Try again, or ask an administrator to check the inventory set-up.</Notice>}
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
 
-      <div className="bg-surface border border-line-subtle overflow-x-auto lg:overflow-visible">
+      <div className="bg-surface border border-line overflow-x-auto lg:overflow-visible shadow-none">
         <table className="w-full text-xs">
           <thead>
             <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
@@ -149,8 +247,26 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                   {open === d.id && (
                     <tr><td colSpan={6} className="p-3 bg-surface-accent">
                       {retired && d.retireReason && <p className="text-xs text-muted mb-2">Retired: {d.retireReason}</p>}
+                      {(() => {
+                        const forecast = forecastStockDepletion({
+                          id: d.id,
+                          name: d.name,
+                          currentStock: d.currentStock,
+                          reorderLevel: d.minThreshold,
+                        });
+                        return (
+                          <div className="mb-2 p-2.5 bg-surface border border-line flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <span className="font-bold text-ink">
+                              💡 AI Inventory Forecast: <span className="font-normal text-muted">{forecast.summary}</span>
+                            </span>
+                            <span className="text-2xs font-mono font-bold bg-surface-accent text-accent px-2 py-0.5 border border-line">
+                              Optimal Reorder: +{forecast.suggestedReorderQty} units
+                            </span>
+                          </div>
+                        );
+                      })()}
                       {(d.batches ?? []).length === 0 ? <p className="text-xs text-subtle">No batches. Use Receive to add stock.</p> : (
-                        <table className="w-full text-xs">
+                        <div className="w-full overflow-x-auto custom-scrollbar"><table className="w-full text-xs min-w-[320px]">
                           <thead><tr className="text-left text-2xs uppercase text-subtle"><th className="py-1">Batch</th><th className="py-1">Expiry</th><th className="py-1 text-right">Stock</th><th className="py-1 text-right">Received</th></tr></thead>
                           <tbody>
                             {[...(d.batches ?? [])].sort((a, b) => (a.expiryDate ?? '9999') < (b.expiryDate ?? '9999') ? -1 : 1).map((b) => (
@@ -162,20 +278,29 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                               </tr>
                             ))}
                           </tbody>
-                        </table>
+                        </table></div>
                       )}
                     </td></tr>
                   )}
                 </React.Fragment>
               );
             })}
-            {rows.length === 0 && !drugs.isLoading && (
+            {filteredRows.length === 0 && !drugs.isLoading && (
               <tr><td className="p-6 text-subtle text-center" colSpan={6}>
                 {all.length === 0 ? 'No drugs yet. Add your first drug, then receive stock into it.' : 'Nothing matches that search.'}
               </td></tr>
             )}
           </tbody>
         </table>
+
+        {/* 15 Records Per Page Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredRows.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="drugs"
+        />
       </div>
 
       {mode?.kind === 'add' && <DrugForm role={role} onClose={() => setMode(null)} />}

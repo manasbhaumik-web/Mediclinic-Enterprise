@@ -13,3 +13,5 @@ supabase/.temp/
 # Local tool configuration
 cline_mcp_settings.json
 .claude/
+
+scratch/

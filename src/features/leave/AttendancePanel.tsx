@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useMemo, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useApprovedLeaveDays, useAttendance, useLeaveActions, useLeaveReference, useStaffForLeave } from '../../hooks/useLeave';
@@ -20,6 +21,8 @@ export default function AttendancePanel() {
   const records = useAttendance(month, to);
   const leave = useApprovedLeaveDays(month, to);
   const [editing, setEditing] = useState<{ staffId: string; name: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
 
   const holidaySet = useMemo(() => new Set((holidays.data ?? []).map((h) => h.date)), [holidays.data]);
   const months = Array.from({ length: 12 }, (_, i) => { let m = monthStart(today); for (let k = 0; k < i; k++) m = monthStart(addDays(m, -1)); return m; });
@@ -30,11 +33,13 @@ export default function AttendancePanel() {
     return { p, s: summariseAttendance(recs, days, cfg, holidaySet, month, to, today) };
   });
 
+  const paginatedRows = rows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-xs font-bold text-muted">Month
-          <select className="px-3 py-2 bg-surface border border-line-subtle text-xs font-medium text-ink" value={month} onChange={(e) => setMonth(e.target.value)}>
+          <select className="px-3 py-2 bg-surface border border-line-subtle text-xs font-medium text-ink" value={month} onChange={(e) => { setMonth(e.target.value); setCurrentPage(1); }}>
             {months.map((m) => <option key={m} value={m}>{monthLabel(m)}</option>)}
           </select></label>
         <p className="text-xs text-subtle max-w-xl">Rate = days attended / days recorded. Approved leave and public holidays are left out. Days with no record are shown as unrecorded and do not count for or against anyone.</p>
@@ -50,7 +55,7 @@ export default function AttendancePanel() {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ p, s }) => (
+            {paginatedRows.map(({ p, s }) => (
               <tr key={p.id} className="border-b border-line-subtle">
                 <td className="p-3 font-bold text-ink">{p.name}</td>
                 <td className="p-3 text-right font-mono font-bold">{s.rate === null ? '–' : `${s.rate}%`}</td>
@@ -65,6 +70,13 @@ export default function AttendancePanel() {
             {rows.length === 0 && <tr><td className="p-4 text-subtle" colSpan={8}>No active staff.</td></tr>}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={rows.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="staff attendance"
+        />
       </div>
       {editing && <RecordDialog staffId={editing.staffId} name={editing.name} month={month} today={today} tz={cfg.timezone} records={(records.data ?? []).filter((r) => r.staffId === editing.staffId)} onClose={() => setEditing(null)} />}
     </div>

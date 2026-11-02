@@ -33,7 +33,11 @@ export function doctorName(doctors: ClinicDoctor[] | undefined, id: string | und
 /** Rooms a doctor can call a patient into, each with who is using it now (if anyone). */
 export interface RoomOption { name: string; busyWith?: string }
 
-export function roomOptions(roomNames: string[], visits: Pick<Visit, 'status' | 'consultRoom' | 'calledByName'>[], ignore?: (v: Pick<Visit, 'status' | 'consultRoom' | 'calledByName'>) => boolean): RoomOption[] {
+export function roomOptions<T extends Pick<Visit, 'status' | 'consultRoom' | 'calledByName'>>(
+  roomNames: string[],
+  visits: T[],
+  ignore?: (v: T) => boolean
+): RoomOption[] {
   return roomNames.map((name) => {
     const user = visits.find((v) => v.status === 'Consulting' && !ignore?.(v) && v.consultRoom?.trim().toLowerCase() === name.trim().toLowerCase());
     return user ? { name, busyWith: user.calledByName ?? 'another doctor' } : { name };

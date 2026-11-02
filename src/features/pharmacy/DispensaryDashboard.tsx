@@ -3,8 +3,12 @@ import { Visit, PrescriptionItem, Language } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import { 
   Users, User, CheckCircle, AlertCircle, FileText, Printer, CheckSquare, 
-  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill
+  Info, QrCode, ShieldCheck, HelpCircle, PackageOpen, ShieldAlert, Pill, Clock, Activity, CheckCircle2, ChevronRight, Sparkles, AlertTriangle, BookOpen, Lock, ThermometerSnowflake
 } from 'lucide-react';
+import BukuRacunRegister from './BukuRacunRegister';
+import DangerousDrugsSafeRegister from './DangerousDrugsSafeRegister';
+import ColdChainVaccineModal from '../operations/ColdChainVaccineModal';
+import { isAntibioticDrug } from '../../domain/antibioticStewardship';
 import { useInventory } from '../../context/InventoryContext';
 import { useInventoryActions, useVisitRegister } from '../../hooks/useInventoryData';
 import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
@@ -14,6 +18,7 @@ import { conflictsWithAllergy, recordedAllergies } from '../../domain/allergy';
 
 interface DispensaryDashboardProps {
   queue: Visit[];
+  allVisits?: Visit[];
   patientsMap: Record<string, any>;
   activeLanguage: Language;
   onDispenseSubmit: (visitId: string) => void;
@@ -22,11 +27,14 @@ interface DispensaryDashboardProps {
 
 export default function DispensaryDashboard({
   queue,
+  allVisits,
   patientsMap,
   activeLanguage,
   onDispenseSubmit,
   pharmacistName = "Pharm. Ahmad Razak"
 }: DispensaryDashboardProps) {
+  const [activeSubTab, setActiveSubTab] = useState<'dispensing' | 'buku-racun' | 'dda-safe'>('dispensing');
+  const [isColdChainModalOpen, setIsColdChainModalOpen] = useState(false);
   const t = TRANSLATIONS[activeLanguage];
   const { catalog } = useInventory();
   const inv = useInventoryActions();
@@ -118,11 +126,11 @@ export default function DispensaryDashboard({
   const triggerDispensingSignoff = async () => {
     if (!selectedVisitId || !activeVisit) return;
     if (!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained) {
-      alert(activeLanguage === 'EN' ? 'Safety Checklist incomplete. Please manually verify all safety safeguards first.' : 'Senarai Semak Keselamatan belum lengkap. Sila sahkan semua langkah keselamatan terlebih dahulu.');
+      setDispenseError(activeLanguage === 'EN' ? 'Safety Checklist incomplete. Please manually verify all safety safeguards first.' : 'Senarai Semak Keselamatan belum lengkap. Sila sahkan semua langkah keselamatan terlebih dahulu.');
       return;
     }
     if (hasUnskippedAllergies) {
-      alert(activeLanguage === 'EN' ? 'CRITICAL: Allergy conflict detected in active prescriptions. You must skip the conflicting drug or resolve the allergy before dispensing.' : 'KRITIKAL: Konflik alahan dikesan. Anda mesti melangkau ubat tersebut atau menyelesaikan alahan sebelum mendispens.');
+      setDispenseError(activeLanguage === 'EN' ? 'CRITICAL: Allergy conflict detected in active prescriptions. You must skip the conflicting drug or resolve the allergy before dispensing.' : 'KRITIKAL: Konflik alahan dikesan. Anda mesti melangkau ubat tersebut atau menyelesaikan alahan sebelum mendispens.');
       return;
     }
     setDispenseError(null);
@@ -149,61 +157,192 @@ export default function DispensaryDashboard({
   };
 
   return (
-    <div className="space-y-5 animate-fadeIn">
-      <p className="text-xs text-muted font-medium max-w-3xl">Pending prescriptions are awaiting dispensation. Verify patient details, labels, and dosage safety.</p>
+    <div className="space-y-5 animate-fadeIn font-sans">
 
+      {/* TOP CLINICAL PHARMACY COMMAND BANNER */}
+      <div className="bg-surface border border-line rounded-none p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-none bg-surface-accent border border-line text-accent flex items-center justify-center shrink-0">
+            <Pill className="w-5 h-5 text-accent" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="type-section-title text-ink font-bold">
+                {t.dispensary || 'Pharmacy & Dispensing Workstation'}
+              </h2>
+              <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 border border-teal-300/40 bg-surface-accent text-accent font-bold">
+                FEFO Live Stock
+              </span>
+            </div>
+            <p className="text-xs text-muted font-medium mt-0.5">
+              Verify patient identities, double-check allergen cross-reactivities, and print compliant bilingual drug labels.
+            </p>
+          </div>
+        </div>
+
+        {/* Live Station Indicators */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-muted/60 border border-line font-mono text-xs text-ink">
+            <Clock className="w-3.5 h-3.5 text-muted" />
+            <span>Active Pharmacist: <strong className="text-ink font-bold">{pharmacistName}</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-accent border border-line font-mono text-xs text-accent font-bold">
+            <Activity className="w-3.5 h-3.5 text-accent" />
+            <span>Pending Rx: <strong className="text-ink">{queue.length}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      {/* Sub-Station Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface border border-line p-2.5">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('dispensing')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'dispensing'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Pill className="w-4 h-4" />
+            <span>1. Dispensing Console</span>
+            <span className="px-1.5 py-0.2 bg-surface-muted text-accent border border-line font-mono text-2xs font-bold">
+              {queue.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('buku-racun')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'buku-racun'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>2. Buku Racun (KKM Poison Book)</span>
+            <span className="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-300/40 font-mono text-2xs font-bold">
+              Section 24
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('dda-safe')}
+            className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
+              activeSubTab === 'dda-safe'
+                ? 'bg-rose-900 text-white border-rose-900 shadow-xs'
+                : 'bg-surface text-muted border-line hover:text-ink'
+            }`}
+          >
+            <Lock className="w-4 h-4 text-rose-400" />
+            <span>3. Dangerous Drugs Safe (DDA 1952)</span>
+            <span className="px-1.5 py-0.2 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300/40 font-mono text-2xs font-bold">
+              Act 234
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsColdChainModalOpen(true)}
+            className="px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border border-sky-400 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-all cursor-pointer rounded-none"
+            title="Check and log dispensary medication & vaccine refrigerator temperatures (2°C to 8°C)"
+          >
+            <ThermometerSnowflake className="w-4 h-4 text-sky-600 dark:text-sky-300" />
+            <span>4. Vaccine Cold Chain (2°C–8°C)</span>
+            <span className="px-1.5 py-0.2 bg-sky-200/60 dark:bg-sky-800 text-sky-900 dark:text-sky-100 border border-sky-300 font-mono text-2xs font-bold">
+              GDP Log
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {activeSubTab === 'buku-racun' ? (
+        <BukuRacunRegister
+          visits={allVisits || queue}
+          patientsMap={patientsMap}
+        />
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
       
       {/* 1. DISPENSARY QUEUE LIST PANEL (Left Column - 35%) */}
-      <div className="lg:col-span-4 bg-surface border border-line rounded-none p-4 space-y-4">
+      <div className="lg:col-span-4 bg-surface border border-line rounded-none shadow-2xs overflow-hidden flex flex-col">
         
-        <div className="flex items-center gap-1.5 text-accent font-semibold text-xs border-b border-line pb-2 mb-1.5">
-          <Users className="w-4 h-4 text-accent" />
-          <span id="dispensary-queue-title">{t.dispensaryQueue}</span>
-          <span className="chip-warn px-2 py-0.5 rounded-full text-2xs font-mono font-bold">
-            {queue.length} Patients
+        {/* Panel Header */}
+        <div className="p-3.5 bg-surface-muted/40 border-b border-line flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-accent" />
+            <span id="dispensary-queue-title" className="text-xs font-bold text-ink uppercase tracking-wider">
+              {t.dispensaryQueue || 'Dispensation Queue'}
+            </span>
+          </div>
+          <span className={`font-mono text-2xs font-bold px-2 py-0.5 rounded-none border ${
+            queue.length > 0 
+              ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800' 
+              : 'bg-surface text-muted border-line-subtle'
+          }`}>
+            {queue.length} {queue.length === 1 ? 'Patient' : 'Patients'}
           </span>
         </div>
 
         {queue.length === 0 ? (
-          <div className="bg-surface rounded-none border border-line p-8 text-center text-subtle">
-            <PackageOpen className="w-10 h-10 text-subtle mx-auto mb-2 animate-pulse opacity-80" />
-            <p className="text-sm font-semibold text-muted">Dispensation Queue Empty</p>
-            <p className="text-xs text-subtle mt-0.5">Approved medications from SOAP rooms flow here automatically.</p>
+          <div className="p-8 text-center bg-surface text-subtle flex flex-col items-center justify-center min-h-[300px]">
+            <div className="w-12 h-12 rounded-none bg-surface-muted border border-line-subtle flex items-center justify-center mb-3">
+              <PackageOpen className="w-6 h-6 text-muted" />
+            </div>
+            <p className="text-xs font-bold uppercase tracking-wider text-ink">Dispensation Queue Empty</p>
+            <p className="text-xs text-muted max-w-xs mt-1 leading-relaxed">
+              Prescriptions validated and signed off in doctor consultation rooms flow into this queue automatically.
+            </p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+          <div className="divide-y divide-line max-h-[500px] overflow-y-auto">
             {queue.map((visit, index) => {
               const pt = patientsMap[visit.patientId];
               const isSelected = selectedVisitId === visit.id || (!selectedVisitId && index === 0);
               if (!pt) return null;
 
+              const medCount = visit.soap?.plan?.prescription?.length || 0;
+              const hasAllergyAlert = pt.drugAllergies && pt.drugAllergies.length > 0;
+
               return (
                 <div
                   key={visit.id}
                   {...buttonProps(() => handleSelectVisit(visit.id), isSelected)}
-                  className={`p-2.5 rounded-none border transition-colors text-left cursor-pointer ${focusRing} hover:bg-surface-muted bg-surface ${
+                  className={`p-3.5 transition-all text-left cursor-pointer ${focusRing} ${
                     isSelected 
-                      ? 'border-brand bg-surface-accent shadow-xs' 
-                      : 'border-line'
+                      ? 'bg-surface-accent border-l-4 border-l-accent border-r-0 border-y-0' 
+                      : 'bg-surface hover:bg-surface-muted/60'
                   }`}
                 >
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="bg-surface-strong text-muted font-mono px-1.5 py-0.5 rounded-none font-bold">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="font-mono text-2xs font-bold text-accent px-1.5 py-0.5 bg-surface border border-line">
                       RX-QUEUE #{index + 101}
                     </span>
-                    <span className="text-subtle font-mono">{visit.date}</span>
+                    <span className="text-2xs font-mono text-muted">{visit.date}</span>
                   </div>
 
-                  <h5 className="type-heading-caps text-strong mt-1.5 truncate">
+                  <h5 className="text-xs font-bold text-ink truncate mt-1">
                     {pt.fullName}
                   </h5>
 
-                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-line-subtle text-xs">
-                    <span className="text-subtle font-mono">
-                      Rx Meds: <strong className="text-muted">{visit.soap?.plan?.prescription?.length || 0} ITEMS</strong>
+                  <p className="text-2xs font-mono text-muted mt-0.5">
+                    NRIC: {pt.icNumber || 'Walk-in'}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-line-subtle text-2xs">
+                    <span className="font-mono text-muted">
+                      Items: <strong className="text-ink font-bold">{medCount} MEDS</strong>
                     </span>
-                    <span className="text-accent font-medium">Awaiting dispense</span>
+                    {hasAllergyAlert ? (
+                      <span className="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1 font-mono">
+                        <AlertTriangle className="w-3 h-3" /> Allergy Alert
+                      </span>
+                    ) : (
+                      <span className="text-accent font-semibold flex items-center gap-1">
+                        Awaiting dispense <ChevronRight className="w-3 h-3" />
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -214,7 +353,7 @@ export default function DispensaryDashboard({
       </div>
 
       {/* 2. DISPENSING DETAIL DETAILS (Right Column - 65%) */}
-      <div className="lg:col-span-8 bg-surface border border-line rounded-none p-4 flex flex-col justify-between min-h-[440px]">
+      <div className="lg:col-span-8 bg-surface border border-line rounded-none shadow-2xs p-4 sm:p-5 flex flex-col justify-between min-h-[480px]">
         {activePatient && activeVisit ? (
           <div className="space-y-4">
             
@@ -292,11 +431,17 @@ export default function DispensaryDashboard({
                         
                         {/* Drug Name with dual BM/EN dosage translations */}
                         <div className="flex-1 space-y-1.5">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <h6 className="font-bold text-sm text-strong tracking-tight">{rx.drugName}</h6>
                             <span className="bg-surface-strong text-muted text-xs font-bold px-1.5 py-0.5 rounded-none uppercase tracking-wider">
                               Qty: {rx.quantity}
                             </span>
+                            {isAntibioticDrug(rx.drugName) && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-2xs font-bold uppercase rounded-none bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-mono">
+                                <ShieldAlert className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+                                <span>MOH NAG Antimicrobial (AWaRe)</span>
+                              </span>
+                            )}
                           </div>
 
                           <div className="text-xs leading-relaxed border-l-2 border-line pl-2">
@@ -505,29 +650,35 @@ export default function DispensaryDashboard({
 
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center text-subtle p-8">
-            <Users className="w-12 h-12 text-line-strong mb-2 animate-pulse" />
-            <p className="text-sm font-semibold">Select Patient in Pharmacy Queue</p>
-            <p className="text-xs text-subtle mt-1">Currently awaiting formulation approvals from clinical consultations rooms.</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-12 min-h-[380px]">
+            <div className="w-16 h-16 rounded-none bg-surface-accent border border-line flex items-center justify-center mb-4">
+              <Pill className="w-8 h-8 text-accent" />
+            </div>
+            <h4 className="type-card-title text-ink font-bold">No Active Prescription Selected</h4>
+            <p className="text-xs text-muted max-w-sm mt-1 leading-relaxed">
+              Select an encounter from the left dispensation queue to review dosage formulas, allocate FEFO batches, verify allergen clearances, and print pharmacy stickers.
+            </p>
           </div>
         )}
       </div>
+      </div>
+      )}
 
       {/* DRUG LABEL PRINTING PREVIEW MODAL */}
       {isLabelModalOpen && selectedLabelRx && activePatient && (
-        <div id="drug-label-print-modal" className="fixed inset-0 bg-night-950/70 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-none shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+        <div id="drug-label-print-modal" role="dialog" aria-modal="true" aria-labelledby="drug-label-title" onKeyDown={(e) => { if (e.key === 'Escape') { setIsLabelModalOpen(false); setSelectedLabelRx(null); } }} className="fixed inset-0 bg-night-950/70 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+          <div className="bg-surface rounded-none shadow-none max-w-md w-full overflow-hidden border border-line">
             
             {/* Header */}
             <div className="bg-deep text-white px-5 py-3.5 flex items-center justify-between">
-              <span className="font-bold text-xs tracking-wider uppercase font-mono">Malaysian Sticker Pharmacist Label (4 x 2)</span>
+              <span id="drug-label-title" className="font-bold text-xs tracking-wider uppercase font-mono">Malaysian Sticker Pharmacist Label (4 x 2)</span>
               <button
                 type="button"
                 onClick={() => {
                   setIsLabelModalOpen(false);
                   setSelectedLabelRx(null);
                 }}
-                className="text-white hover:text-slate-300 font-bold text-lg cursor-pointer"
+                className="text-white hover:text-slate-300 font-bold text-lg cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center" aria-label="Close drug label preview"
               >
                 &times;
               </button>
@@ -613,7 +764,6 @@ export default function DispensaryDashboard({
               <button
                 type="button"
                 onClick={() => {
-                  alert("Label formatted successfully. Sent to thermal label printer queue.");
                   setIsLabelModalOpen(false);
                   setSelectedLabelRx(null);
                 }}
@@ -628,7 +778,10 @@ export default function DispensaryDashboard({
         </div>
       )}
 
-      </div>
+      <ColdChainVaccineModal
+        isOpen={isColdChainModalOpen}
+        onClose={() => setIsColdChainModalOpen(false)}
+      />
     </div>
   );
 }

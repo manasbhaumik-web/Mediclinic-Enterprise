@@ -1,5 +1,6 @@
-import React from 'react';
-import { LineChart, Activity, Copy, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import POCTQualityControlModal from '../operations/POCTQualityControlModal';
+import { LineChart, Activity, Copy, Lock, Stethoscope, PlusCircle, TestTube2, ShieldCheck } from 'lucide-react';
 import { Visit } from '../../types';
 
 type Vitals = { bpSystolic: number; bpDiastolic: number; heartRate: number; temperature: number; respiratoryRate: number };
@@ -10,6 +11,8 @@ interface ObjectiveTabProps {
   /** Vitals recorded at triage. A value of 0 means "not recorded". Recorded values are locked; the rest can be entered here. */
   triageVitals?: Partial<Vitals>;
   patientPastVisits: Visit[];
+  clinicalNotes?: string;
+  setClinicalNotes?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 type Field = { key: keyof Vitals; id: string; label: string; step?: string; note: (v: number) => { text: string; tone: 'ok' | 'warn' | 'danger' } };
@@ -23,7 +26,18 @@ const FIELDS: Field[] = [
 ];
 const CHIP = { ok: 'chip-ok', warn: 'chip-warn', danger: 'chip-danger' } as const;
 
-export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, patientPastVisits }: ObjectiveTabProps) {
+export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, patientPastVisits, clinicalNotes = "", setClinicalNotes }: ObjectiveTabProps) {
+  const [isPoctQcModalOpen, setIsPoctQcModalOpen] = useState(false);
+  const [cbg, setCbg] = useState<string>('');
+  const [urineDip, setUrineDip] = useState<string>('');
+  const examTokens = [
+    { label: "+ Alert & NAD", phrase: "NAD (Patient alert, conscious, no acute distress)" },
+    { label: "+ Lungs Clear", phrase: "Chest clear bilaterally, good equal air entry, no rhonchi/wheeze" },
+    { label: "+ Normal Abdomen", phrase: "Abdomen soft, non-tender, no organomegaly or guarding" },
+    { label: "+ Pharynx Normal", phrase: "Pharynx normal, tonsils not enlarged, no exudates" },
+    { label: "+ Throat Injected", phrase: "Pharynx mildly injected, tonsils grade 1, no purulent exudate" },
+    { label: "+ Heart Sounds Normal", phrase: "Dual rhythm S1 S2 heard, no murmurs" },
+  ];
   const locked = (k: keyof Vitals) => (triageVitals[k] ?? 0) > 0;
   const anyUnrecorded = FIELDS.some((f) => !locked(f.key));
   const anyLocked = FIELDS.some((f) => locked(f.key));
@@ -40,13 +54,13 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
   };
 
   return (
-    <div className="space-y-5 animate-fadeIn">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3.5 rounded-none border border-line shadow-xs">
+    <div className="space-y-4 animate-fadeIn">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-3.5 rounded-none border border-line">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h4 className="type-label text-ink flex items-center gap-1.5">
+            <h4 className="type-label text-ink flex items-center gap-1.5 font-bold">
               <Activity className="w-4 h-4 text-accent" aria-hidden="true" />
-              Objective: vitals
+              Objective: Clinical Vitals
             </h4>
             {anyLocked && <span className="chip-warn px-2 py-0.5 text-2xs inline-flex items-center gap-1"><Lock className="w-3 h-3" aria-hidden="true" />Recorded at triage</span>}
           </div>
@@ -66,13 +80,13 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
         <div className="bg-surface rounded-none p-3 border border-line flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <LineChart className="w-4 h-4 text-accent" aria-hidden="true" />
-            <span className="text-xs font-bold text-ink uppercase tracking-wider">Blood pressure, last 3 visits</span>
+            <span className="text-xs font-bold text-ink uppercase tracking-wider font-mono">Blood pressure, last 3 visits</span>
           </div>
           <div className="flex items-center gap-3">
             {patientPastVisits.slice(0, 3).map((v) => (
               <div key={v.id} className="flex flex-col items-center bg-surface-muted px-2.5 py-1 rounded-none border border-line">
-                <span className="text-xs text-subtle font-mono">{v.date.substring(5)}</span>
-                <span className="text-xs font-bold font-mono text-accent">{v.soap.objective.bpSystolic > 0 ? `${v.soap.objective.bpSystolic}/${v.soap.objective.bpDiastolic}` : 'Not recorded'}</span>
+                <span className="text-xs text-subtle font-mono tabular-nums">{v.date.substring(5)}</span>
+                <span className="text-xs font-bold font-mono tabular-nums text-accent">{v.soap.objective.bpSystolic > 0 ? `${v.soap.objective.bpSystolic}/${v.soap.objective.bpDiastolic}` : 'Not recorded'}</span>
               </div>
             ))}
           </div>
@@ -85,8 +99,17 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
           const recorded = value > 0;
           const isLocked = locked(f.key);
           const note = recorded ? f.note(value) : null;
+          
+          const stripeClass = !recorded 
+            ? ''
+            : note?.tone === 'danger'
+              ? ''
+              : note?.tone === 'warn'
+                ? ''
+                : '';
+
           return (
-            <div key={f.key} className="p-3.5 bg-surface border border-line rounded-none shadow-2xs">
+            <div key={f.key} className={`p-3.5 bg-surface border border-line rounded-none ${stripeClass}`}>
               <label htmlFor={f.id} className="block text-xs font-bold text-subtle uppercase tracking-wider mb-1">{f.label}</label>
               <input
                 id={f.id}
@@ -98,14 +121,128 @@ export default function ObjectiveTab({ vitals, setVitals, triageVitals = {}, pat
                 value={recorded ? value : ''}
                 placeholder="Not recorded"
                 onChange={(e) => setVitals({ ...vitals, [f.key]: e.target.value === '' ? 0 : Number(e.target.value) })}
-                className={`w-full min-h-11 px-3 text-sm font-mono font-bold text-ink border border-line-strong ${isLocked ? 'bg-surface-muted' : 'bg-surface'}`}
+                className={`w-full min-h-11 px-3 text-sm font-mono tabular-nums font-bold text-ink border border-line-strong ${isLocked ? 'bg-surface-muted' : 'bg-surface'}`}
               />
-              {note ? <span className={`${CHIP[note.tone]} mt-1.5 px-2 py-0.5 text-xs inline-flex items-center`}>{note.text}</span>
-                : <span className="chip-neutral mt-1.5 px-2 py-0.5 text-xs inline-flex items-center">Not recorded</span>}
+              {note ? <span className={`${CHIP[note.tone]} mt-1.5 px-2 py-0.5 text-xs inline-flex items-center font-mono tabular-nums`}>{note.text}</span>
+                : <span className="chip-neutral mt-1.5 px-2 py-0.5 text-xs inline-flex items-center font-mono">Not recorded</span>}
             </div>
           );
         })}
       </div>
+
+      {/* BEDSIDE POINT-OF-CARE TESTING (POCT) CARD */}
+      <div className="bg-surface border border-line p-3.5 rounded-none space-y-3 font-sans">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2">
+          <div className="flex items-center gap-2">
+            <TestTube2 className="w-4 h-4 text-accent" />
+            <h4 className="type-label text-ink font-bold">Bedside Point-of-Care Testing (POCT)</h4>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsPoctQcModalOpen(true)}
+            className="text-2xs font-mono font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Verify Glucometer / Strips Daily Calibration QC</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="p-3 bg-surface-muted/60 border border-line">
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="poct-cbg-input" className="text-2xs font-bold uppercase tracking-wider text-subtle">
+                Capillary Blood Glucose (CBG)
+              </label>
+              {cbg && (
+                <span className={`text-2xs font-mono font-bold px-1.5 py-0.2 border ${
+                  parseFloat(cbg) < 4.0
+                    ? 'chip-danger'
+                    : parseFloat(cbg) > 11.1
+                      ? 'chip-warn'
+                      : 'chip-ok'
+                }`}>
+                  {parseFloat(cbg) < 4.0 ? 'Hypoglycemia' : parseFloat(cbg) > 11.1 ? 'Hyperglycemia' : 'Normal'}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                id="poct-cbg-input"
+                type="number"
+                step="0.1"
+                placeholder="e.g. 5.6"
+                value={cbg}
+                onChange={(e) => setCbg(e.target.value)}
+                className="w-full bg-surface border border-line px-3 py-1.5 text-xs font-mono font-bold text-ink focus:border-brand outline-none"
+              />
+              <span className="text-xs font-mono text-muted font-bold whitespace-nowrap">mmol/L</span>
+            </div>
+          </div>
+
+          <div className="p-3 bg-surface-muted/60 border border-line">
+            <label htmlFor="poct-urine-input" className="block text-2xs font-bold uppercase tracking-wider text-subtle mb-1">
+              Urine Dipstick Summary
+            </label>
+            <input
+              id="poct-urine-input"
+              type="text"
+              placeholder="e.g. NAD or Protein 1+, Glucose 2+, Leukocytes+"
+              value={urineDip}
+              onChange={(e) => setUrineDip(e.target.value)}
+              className="w-full bg-surface border border-line px-3 py-1.5 text-xs font-sans text-ink focus:border-brand outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. PHYSICAL EXAMINATION FINDINGS (STANDARD OBJECTIVE CLINICAL EXAM) */}
+      <div className="bg-surface border border-line p-4 rounded-none space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2">
+          <div className="flex items-center gap-2">
+            <Stethoscope className="w-4 h-4 text-accent" />
+            <h4 className="type-label text-ink font-bold">Physical Examination (PE)</h4>
+          </div>
+          <span className="text-2xs font-mono text-muted">Document physical signs, chest, throat, abdomen</span>
+        </div>
+
+        {/* Quick Normal Stamp Tokens */}
+        <div className="flex flex-wrap items-center gap-1.5 p-2 bg-surface-muted border border-line">
+          <span className="text-2xs font-mono uppercase font-bold text-muted mr-1">Normal Stamps:</span>
+          {examTokens.map((token, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                if (!setClinicalNotes) return;
+                setClinicalNotes(prev => {
+                  const trimmed = prev.trim();
+                  if (!trimmed) return token.phrase;
+                  return `${trimmed}\n• ${token.phrase}`;
+                });
+              }}
+              className="text-2xs bg-surface hover:bg-surface-accent text-ink border border-line px-2.5 py-1 rounded-none cursor-pointer font-sans transition-colors flex items-center gap-1"
+              title={`Append "${token.phrase}" to examination findings`}
+            >
+              <PlusCircle className="w-3 h-3 text-accent" />
+              <span>{token.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {setClinicalNotes && (
+          <textarea
+            id="objective-physical-exam-input"
+            className="w-full bg-surface border border-line focus:border-primary focus:ring-1 focus:ring-primary rounded-none px-4 py-3 text-xs text-ink transition-all outline-none resize-y min-h-[110px] leading-relaxed placeholder:text-muted font-sans"
+            value={clinicalNotes}
+            onChange={(e) => setClinicalNotes(e.target.value)}
+            placeholder="Record physical examination findings (e.g., alert/NAD, chest clear, pharynx normal, soft abdomen)..."
+          />
+        )}
+      </div>
+      <POCTQualityControlModal
+        isOpen={isPoctQcModalOpen}
+        onClose={() => setIsPoctQcModalOpen(false)}
+      />
     </div>
   );
 }

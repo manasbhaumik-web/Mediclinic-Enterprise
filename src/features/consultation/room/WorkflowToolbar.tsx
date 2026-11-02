@@ -1,10 +1,12 @@
-import { Save, ArrowRight, Check, Undo2 } from 'lucide-react';
+import React from 'react';
+import { Save, ArrowRight, Check, Undo2, Clock } from 'lucide-react';
 
 type Tab = 'subjective' | 'objective' | 'assessment' | 'plan';
 
 interface WorkflowToolbarProps {
   onCancel: () => void;
   onSaveDraft: () => void;
+  onHoldForResults?: () => void;
   activeTab: Tab;
   setActiveTab: React.Dispatch<React.SetStateAction<Tab>>;
   handleOpenReviewModal: () => void;
@@ -24,12 +26,15 @@ const NEXT: Record<Exclude<Tab, 'plan'>, { to: Tab; label: string }> = {
  * One sticky bar: what to do next, then Return to queue, Save draft and a single primary action
  * that always moves the consultation forward (the last step is review and sign-off).
  */
-export default function WorkflowToolbar({ onCancel, onSaveDraft, activeTab, setActiveTab, handleOpenReviewModal, hint, savedLabel }: WorkflowToolbarProps) {
+export default function WorkflowToolbar({ onCancel, onSaveDraft, onHoldForResults, activeTab, setActiveTab, handleOpenReviewModal, hint, savedLabel }: WorkflowToolbarProps) {
   return (
-    <div className="sticky bottom-0 z-10 -mx-5 -mb-5 px-5 py-3 bg-surface border-t border-line shadow-bar-up flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="sticky bottom-0 z-10 -mx-5 -mb-5 px-5 py-3 bg-surface border-t-2 border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div className="min-w-0">
-        <p id="consult-next-hint" role="status" className="text-xs font-bold text-ink">{hint}</p>
-        <p className="text-xs text-muted">{savedLabel}</p>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-primary" />
+          <p id="consult-next-hint" role="status" className="text-xs font-bold text-ink">{hint}</p>
+        </div>
+        <p className="text-xs text-muted font-mono tabular-nums mt-0.5">{savedLabel}</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -37,18 +42,30 @@ export default function WorkflowToolbar({ onCancel, onSaveDraft, activeTab, setA
           <Undo2 className="w-4 h-4" aria-hidden="true" />
           Return to queue
         </button>
-        <button type="button" onClick={onSaveDraft} className="btn-secondary">
+        <button type="button" onClick={onSaveDraft} className="btn-secondary" title="Save draft locally on this workstation (Drafts auto-restore on page reload)">
           <Save className="w-4 h-4" aria-hidden="true" />
           Save draft
         </button>
 
+        {onHoldForResults && (
+          <button
+            type="button"
+            onClick={onHoldForResults}
+            className="btn-secondary text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+            title="Put encounter on hold while patient undergoes in-clinic rapid diagnostic testing or nursing procedures"
+          >
+            <Clock className="w-4 h-4 text-amber-600" aria-hidden="true" />
+            <span>Hold: Rapid Test / Lab</span>
+          </button>
+        )}
+
         {activeTab === 'plan' ? (
-          <button type="button" onClick={handleOpenReviewModal} aria-describedby="consult-next-hint" className="btn-primary px-6">
+          <button type="button" onClick={handleOpenReviewModal} aria-describedby="consult-next-hint" className="btn-primary px-6" title="Open final review modal to verify SOAP notes, prescriptions, and complete clinical sign-off">
             <Check className="w-4 h-4" aria-hidden="true" />
             Review &amp; sign off
           </button>
         ) : (
-          <button type="button" onClick={() => setActiveTab(NEXT[activeTab].to)} aria-describedby="consult-next-hint" className="btn-primary px-6">
+          <button type="button" onClick={() => setActiveTab(NEXT[activeTab].to)} aria-describedby="consult-next-hint" className="btn-primary px-6" title={`Advance to the next clinical stage: ${NEXT[activeTab].label}`}>
             {NEXT[activeTab].label}
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </button>

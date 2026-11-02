@@ -165,7 +165,7 @@ export default function MyLeave() {
       )}
 
       {adding && (
-        <div className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-start justify-center overflow-y-auto p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) setAdding(false); }}>
+        <div onKeyDown={(e) => { if (e.key === 'Escape') setAdding(false); }} className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-start justify-center overflow-y-auto p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) setAdding(false); }}>
           <div role="dialog" aria-modal="true" aria-label="Request leave" className="bg-surface border border-line w-full max-w-2xl mt-10 shadow-2xl">
             <div className="flex items-center justify-between px-4 py-2 border-b border-line-subtle">
               <h2 className="type-heading-caps text-ink">Request leave</h2>

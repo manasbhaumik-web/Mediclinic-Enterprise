@@ -223,7 +223,7 @@ export default function IntegrationsHub() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-white px-4 py-2 rounded-none border border-line flex items-center justify-center gap-4 shadow-2xs">
+          <div className="bg-surface px-4 py-2 rounded-none border border-line flex items-center justify-center gap-4 shadow-2xs">
             <div className="text-left">
               <span className="text-2xs uppercase font-bold text-subtle tracking-wider block">Network Status</span>
               <div className="flex items-center gap-2 mt-0.5">
@@ -407,7 +407,7 @@ export default function IntegrationsHub() {
 
       {/* 1. HL7 FHIR R4 ENGINE MODAL */}
       {activeModal === 'ehr' && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-sans">
           <div className="bg-surface-accent dark:bg-night-900 border border-line dark:border-teal-800 max-w-4xl w-full p-6 shadow-2xl space-y-5 text-ink dark:text-slate-100 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-line dark:border-teal-800 pb-3">
               <div className="flex items-center gap-2.5">

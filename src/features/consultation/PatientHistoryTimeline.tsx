@@ -34,7 +34,7 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
 
       {/* Vitals Trend Chart */}
       {chartData.length > 0 && (
-        <div className="bg-surface p-3 rounded-none border border-line shadow-xs">
+        <div className="bg-surface p-3 rounded-none border border-line ">
           <h4 className="type-label text-ink mb-2 text-center flex items-center justify-center gap-1">
             <Activity className="w-3.5 h-3.5 text-accent" /> Vitals Trend (BP &amp; Pulse)
           </h4>
@@ -70,7 +70,7 @@ export default function PatientHistoryTimeline({ patientPastVisits }: PatientHis
           patientPastVisits.map((visit, idx) => (
             <div key={idx} className="relative pl-4 group">
               <div className="absolute w-2.5 h-2.5 bg-primary dark:bg-teal-400 rounded-full -left-[5.5px] top-1.5 animate-pulse" />
-              <div className="bg-surface p-3 rounded-none border border-line shadow-2xs group-hover:border-brand transition-all">
+              <div className="bg-surface p-3 rounded-none border border-line  group-hover:border-brand transition-all">
                 
                 <div className="flex justify-between items-start mb-1.5">
                   <span className="text-2xs font-bold text-accent bg-surface-accent px-2 py-0.5 rounded-none border border-line">

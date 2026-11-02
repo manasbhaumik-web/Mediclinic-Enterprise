@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Globe, UserCheck, FolderCheck, Plus, RotateCcw, Activity, ShieldAlert, ArrowRight, ArrowLeft, Search, Loader2, ShieldCheck, CheckCircle2, Clock, Check, Filter, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Users, Globe, UserCheck, FolderCheck, Plus, UserPlus, Monitor, RotateCcw, Activity, ShieldAlert, ArrowRight, ArrowLeft, Search, Loader2, ShieldCheck, CheckCircle2, Clock, Check, Filter, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { Patient, Visit, Language } from '../../types';
 import MyKadScanner from './MyKadScanner';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,9 @@ import WaitingRoomMonitor from './WaitingRoomMonitor';
 import DemographicsStep from './DemographicsStep';
 import BillingAlertsStep from './BillingAlertsStep';
 import PatientRegistryTable from './PatientRegistryTable';
+import PatientDetailModal from '../patientAdmin/PatientDetailModal';
+import PatientReportModal from '../patientAdmin/PatientReportModal';
+import { UserRole } from '../../types';
 import { useClinicDoctors } from '../../hooks/useClinicSetup';
 
 interface PatientRegistrationModuleProps {
@@ -18,6 +21,7 @@ interface PatientRegistrationModuleProps {
   activeLanguage: Language;
   searchPatients: (query: string) => Promise<Patient[]>;
   totalPatientCount: number;
+  patientsList?: Patient[];
   triageQueue: Visit[];
   patientsMap: Record<string, Patient>;
   addPatientToDb: (p: Patient) => void;
@@ -26,6 +30,9 @@ interface PatientRegistrationModuleProps {
   /** Names (or clears) the doctor a waiting patient should see. */
   assignDoctor: (visitId: string, doctorId: string | null) => Promise<{ ok: true } | { ok: false; error: string }>;
   onNavigateTab: (tab: string) => void;
+  userRole?: UserRole;
+  updatePatientInDb?: (p: Patient) => Promise<any> | void;
+  completedVisits?: Visit[];
 }
 
 export default function PatientRegistrationModule({
@@ -33,13 +40,17 @@ export default function PatientRegistrationModule({
   activeLanguage,
   searchPatients,
   totalPatientCount,
+  patientsList,
   triageQueue,
   patientsMap,
   addPatientToDb,
   addVisitToDb,
   updateVisitInDb,
   assignDoctor,
-  onNavigateTab
+  onNavigateTab,
+  userRole,
+  updatePatientInDb,
+  completedVisits = []
 }: PatientRegistrationModuleProps) {
   const doctors = useClinicDoctors();
   const [assignedDoctorId, setAssignedDoctorId] = useState('');
@@ -52,6 +63,24 @@ export default function PatientRegistrationModule({
   
   // Toast Notification State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Patient Admin & Reports Modals
+  const [selectedPatientForDetail, setSelectedPatientForDetail] = useState<Patient | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailInitialTab, setDetailInitialTab] = useState<'profile' | 'visits' | 'medications' | 'billing' | 'dossier'>('profile');
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportPreselectedPatientId, setReportPreselectedPatientId] = useState<string | null>(null);
+
+  const handleOpenPatientDetail = (patient: Patient, initialTab: 'profile' | 'visits' | 'medications' | 'billing' | 'dossier' = 'profile') => {
+    setSelectedPatientForDetail(patient);
+    setDetailInitialTab(initialTab);
+    setDetailModalOpen(true);
+  };
+
+  const handleOpenReports = (patientId?: string) => {
+    setReportPreselectedPatientId(patientId || 'ALL');
+    setReportModalOpen(true);
+  };
 
   // Global PII Masking State
   const { showPII } = useAuth();
@@ -90,17 +119,38 @@ export default function PatientRegistrationModule({
       return rest;
     });
   const focusField = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.focus());
-  const inputBase = 'w-full bg-surface dark:bg-night-900 border rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 outline-none';
+  const inputBase = 'w-full bg-surface border border-line rounded-none px-3 py-2 text-xs text-ink outline-none focus:border-brand focus:ring-1 focus:ring-brand';
 
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const allPatients = useMemo(() => {
+    if (patientsList && patientsList.length > 0) return patientsList;
+    return Object.values(patientsMap);
+  }, [patientsList, patientsMap]);
+
   // Auto-populate form if IC Number exists in patientsList
   useEffect(() => {
     const icClean = manualForm.icNumber.replace(/-/g, '');
     if (icClean.length >= 6) {
+      const localMatch = allPatients.find(p => p.icNumber.replace(/-/g, '') === icClean);
+      if (localMatch && localMatch.id !== existingPatientId) {
+        setExistingPatientId(localMatch.id);
+        setManualForm(prev => ({
+          ...prev,
+          fullName: localMatch.fullName,
+          gender: localMatch.gender as any,
+          dob: localMatch.dob,
+          phone: localMatch.phone,
+          address: localMatch.address,
+          panelEmployer: localMatch.panelEmployer,
+        }));
+        setAllergiesList(localMatch.drugAllergies);
+        setCoverageStatus(localMatch.panelEmployer === 'None (Self-Pay)' ? 'verified' : 'unverified');
+        return;
+      }
       searchPatients(icClean).then(results => {
         const match = results.find(p => p.icNumber.replace(/-/g, '') === icClean);
         if (match && match.id !== existingPatientId) {
@@ -116,16 +166,16 @@ export default function PatientRegistrationModule({
           }));
           setAllergiesList(match.drugAllergies);
           setCoverageStatus(match.panelEmployer === 'None (Self-Pay)' ? 'verified' : 'unverified');
-        } else if (!match && existingPatientId) {
+        } else if (!match && !localMatch && existingPatientId) {
           setExistingPatientId(null);
           setCoverageStatus('unverified');
         }
       });
     }
-  }, [manualForm.icNumber, searchPatients, existingPatientId]);
+  }, [manualForm.icNumber, searchPatients, existingPatientId, allPatients]);
 
   // Registry Search State
-  const [registryResults, setRegistryResults] = useState<Patient[]>([]);
+  const [registryResults, setRegistryResults] = useState<Patient[]>(allPatients);
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' } | null>(null);
   const toggleSort = (key: SortKey) =>
     setSort((cur) => (!cur || cur.key !== key ? { key, dir: 'asc' } : cur.dir === 'asc' ? { key, dir: 'desc' } : null));
@@ -161,10 +211,36 @@ export default function PatientRegistrationModule({
   };
   useEffect(() => {
     if (activeSubTab === 'registry') {
-      const q = patientRegistrySearch.trim() || ' ';
-      searchPatients(q).then(setRegistryResults);
+      const q = patientRegistrySearch.trim().toLowerCase();
+      if (!q) {
+        setRegistryResults(allPatients);
+        return;
+      }
+      const cleanQ = q.replace(/[\s-]/g, '');
+      const localMatches = allPatients.filter((p) =>
+        p.fullName.toLowerCase().includes(q) ||
+        p.icNumber.replace(/-/g, '').includes(cleanQ) ||
+        p.phone.replace(/[\s-]/g, '').includes(cleanQ) ||
+        p.id.toLowerCase().includes(q)
+      );
+      setRegistryResults(localMatches);
+
+      if (q.length >= 2) {
+        searchPatients(q).then((remoteResults) => {
+          if (remoteResults && remoteResults.length > 0) {
+            setRegistryResults((prev) => {
+              const map = new Map<string, Patient>();
+              prev.forEach((p) => map.set(p.id, p));
+              remoteResults.forEach((p) => map.set(p.id, p));
+              return Array.from(map.values());
+            });
+          }
+        }).catch(() => {
+          // retain local matches
+        });
+      }
     }
-  }, [patientRegistrySearch, activeSubTab, searchPatients]);
+  }, [patientRegistrySearch, activeSubTab, searchPatients, allPatients]);
 
   // Trigger MyKad OCR simulated fill
   const handleMyKadComplete = (scannedDetails: any) => {
@@ -372,7 +448,7 @@ export default function PatientRegistrationModule({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn relative font-sans">
+    <div className="space-y-3.5 animate-fadeIn relative font-sans">
       
       {/* Toast Notification */}
       {toastMessage && (
@@ -382,50 +458,80 @@ export default function PatientRegistrationModule({
         </div>
       )}
 
-      {/* Sub-Navigation Buttons Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 bg-surface dark:bg-night-850 p-2 rounded-none border border-line-subtle dark:border-teal-800/40 shadow-xs" role="tablist" aria-label="Patient Registration Sub Navigation">
-        <button
-          role="tab"
-          aria-selected={activeSubTab === 'queue'}
-          id="subtab-queue"
-          aria-controls="subtab-panel-queue"
-          onClick={() => setActiveSubTab('queue')}
-          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
-            activeSubTab === 'queue' 
-              ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          Waiting Room Monitor
-        </button>
-        <button
-          role="tab"
-          aria-selected={activeSubTab === 'form'}
-          id="subtab-form"
-          aria-controls="subtab-panel-form"
-          onClick={() => setActiveSubTab('form')}
-          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
-            activeSubTab === 'form' 
-              ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          Registration Form
-        </button>
-        <button
-          role="tab"
-          aria-selected={activeSubTab === 'registry'}
-          id="subtab-registry"
-          aria-controls="subtab-panel-registry"
-          onClick={() => setActiveSubTab('registry')}
-          className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-none border ${
-            activeSubTab === 'registry' 
-              ? 'bg-primary text-white border-brand shadow-xs' 
-              : 'bg-surface dark:bg-night-900 text-ink dark:text-slate-200 border-line-subtle dark:border-teal-800/30 hover:bg-surface-accent dark:hover:bg-night-800'
-          }`}
-        >
-          Patient Registry
-        </button>
+      {/* REDESIGNED REGISTRATION & TRIAGE SUB-NAVIGATION TAB BAR */}
+      <div className="bg-surface border border-line rounded-none shadow-2xs p-1.5 flex flex-wrap items-center justify-between gap-2" role="tablist" aria-label="Patient Registration Sub Navigation">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'queue'}
+            id="subtab-queue"
+            aria-controls="subtab-panel-queue"
+            title="Waiting Room Monitor: Live check-in queue, triage status, and doctor room assignments"
+            onClick={() => setActiveSubTab('queue')}
+            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
+              activeSubTab === 'queue' 
+                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
+                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
+            }`}
+          >
+            <Monitor className={`w-4 h-4 ${activeSubTab === 'queue' ? 'text-white' : 'text-muted'}`} />
+            <span>Waiting Room Monitor</span>
+            {triageQueue.length > 0 && (
+              <span className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
+                activeSubTab === 'queue' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900 border border-amber-300'
+              }`}>
+                {triageQueue.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'form'}
+            id="subtab-form"
+            aria-controls="subtab-panel-form"
+            title="New Registration Form: MyKad biometric intake, patient demographics, and corporate panel selection"
+            onClick={() => setActiveSubTab('form')}
+            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
+              activeSubTab === 'form' 
+                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
+                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
+            }`}
+          >
+            <UserPlus className={`w-4 h-4 ${activeSubTab === 'form' ? 'text-white' : 'text-muted'}`} />
+            <span>Registration Form</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'registry'}
+            id="subtab-registry"
+            aria-controls="subtab-panel-registry"
+            title="Patient Master Registry: Search existing patient EHR records, contact details, and past visit logs"
+            onClick={() => setActiveSubTab('registry')}
+            className={`h-9 px-3.5 text-xs font-bold transition-all cursor-pointer rounded-none border inline-flex items-center gap-2 ${
+              activeSubTab === 'registry' 
+                ? 'bg-primary text-white border-primary shadow-xs font-bold' 
+                : 'bg-surface text-ink/75 border-transparent hover:bg-surface-accent hover:text-ink'
+            }`}
+          >
+            <FolderCheck className={`w-4 h-4 ${activeSubTab === 'registry' ? 'text-white' : 'text-muted'}`} />
+            <span>Patient Registry</span>
+            <span className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
+              activeSubTab === 'registry' ? 'bg-white/20 text-white' : 'bg-surface-muted text-muted border border-line-subtle'
+            }`}>
+              {totalPatientCount}
+            </span>
+          </button>
+        </div>
+
+        {/* Quick status pill on right */}
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 font-mono text-2xs text-muted">
+          <span>Active Station: <strong className="text-accent uppercase font-bold">Front Desk 01</strong></span>
+        </div>
       </div>
 
       {/* WAITING ROOM MONITOR */}
@@ -437,14 +543,14 @@ export default function PatientRegistrationModule({
       {activeSubTab === 'form' && (
         <div className="animate-fadeIn font-sans">
           {registrationStep === 'id_check' ? (
-            <div className="max-w-md mx-auto mt-8 bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-8 font-sans">
+            <div className="max-w-md mx-auto mt-4 bg-surface border border-line rounded-none shadow-none p-5 font-sans">
               <div className="text-center space-y-6">
-                <div className="mx-auto w-14 h-14 bg-primary/10 dark:bg-teal-900/40 rounded-none flex items-center justify-center border border-brand/20">
-                  <Search className="w-7 h-7 text-accent dark:text-teal-300" />
+                <div className="mx-auto w-10 h-10 bg-primary/10 rounded-none flex items-center justify-center border border-brand/20">
+                  <Search className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">Identify Patient</h3>
-                  <p className="text-xs text-accent dark:text-teal-300 font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
+                  <h3 className="type-heading-caps text-ink font-sans">Identify Patient</h3>
+                  <p className="text-xs text-muted font-sans mt-1">Enter NRIC/Passport or scan MyKad to begin.</p>
                 </div>
                 
                 <form onSubmit={handleIdCheckSubmit} noValidate className="space-y-4 text-left font-sans">
@@ -473,17 +579,17 @@ export default function PatientRegistrationModule({
                 </form>
                 
                 <div className="relative flex py-2 items-center">
-                  <div className="flex-grow border-t border-line-subtle dark:border-teal-800/40"></div>
-                  <span className="flex-shrink-0 mx-4 text-accent dark:text-teal-300 text-xs uppercase font-sans font-bold">Or</span>
-                  <div className="flex-grow border-t border-line-subtle dark:border-teal-800/40"></div>
+                  <div className="flex-grow border-t border-line"></div>
+                  <span className="flex-shrink-0 mx-4 text-muted text-xs uppercase font-sans font-bold">Or</span>
+                  <div className="flex-grow border-t border-line"></div>
                 </div>
                 
                 <button 
                   type="button" 
                   onClick={() => setIsMyKadOpen(true)}
-                  className="w-full bg-surface dark:bg-night-900 hover:bg-surface-accent dark:hover:bg-night-800 text-accent dark:text-teal-300 border border-line-subtle dark:border-teal-800/50 font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
+                  className="w-full btn-secondary font-bold text-xs py-2.5 rounded-none font-sans uppercase tracking-wider flex items-center justify-center gap-2"
                 >
-                  <Globe className="w-4 h-4 text-accent dark:text-teal-300" /> Scan PWA MyKad
+                  <Globe className="w-4 h-4 text-accent" /> Scan PWA MyKad
                 </button>
               </div>
             </div>
@@ -491,31 +597,31 @@ export default function PatientRegistrationModule({
             <div className="max-w-4xl mx-auto font-sans">
               
               {/* Wizard Stepper */}
-              <div className="mb-6 flex items-center justify-between relative bg-surface dark:bg-night-850 p-4 border border-line-subtle dark:border-teal-800/40 rounded-none font-sans">
+              <div className="mb-3 flex items-center justify-between relative bg-surface p-2.5 border border-line rounded-none font-sans">
                 {[1, 2].map(stepNum => (
                   <div key={stepNum} className={`flex items-center gap-3 ${formStep >= stepNum ? '' : 'opacity-50'}`}>
                     <div className={`w-7 h-7 rounded-none flex items-center justify-center font-bold text-xs font-sans transition-colors ${
                       formStep === stepNum 
                         ? 'bg-primary text-white' 
                         : formStep > stepNum 
-                        ? 'bg-emerald-600 text-white' 
-                        : 'bg-surface dark:bg-night-900 text-accent border border-line-subtle'
+                        ? 'bg-primary text-white' 
+                        : 'bg-surface text-muted border border-line-subtle'
                     }`}>
                       {formStep > stepNum ? <Check className="w-4 h-4" /> : stepNum}
                     </div>
-                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-ink dark:text-teal-300">
+                    <span className="text-xs font-bold font-sans uppercase tracking-wider text-ink">
                       {stepNum === 1 ? '1. Patient Demographics' : '2. Billing & Medical Alerts'}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-surface dark:bg-night-850 border border-line-subtle dark:border-teal-800/40 rounded-none shadow-xs p-6 sm:p-8 relative font-sans">
+              <div className="bg-surface-muted border border-line rounded-none shadow-xs p-4 sm:p-5 relative font-sans">
                 <div className="absolute top-4 right-4 z-10">
                   <button 
                     type="button" 
                     onClick={handleClearForm} 
-                    className="text-xs font-sans font-bold text-accent dark:text-teal-400 hover:text-accent flex items-center justify-center gap-1 bg-surface dark:bg-night-900 px-3 py-1.5 border border-line-subtle dark:border-teal-800/40"
+                    className="text-xs font-sans font-bold text-accent hover:text-primary-hover flex items-center justify-center gap-1 bg-surface px-3 py-1.5 border border-line"
                   >
                     <RotateCcw className="w-3.5 h-3.5" /> Restart
                   </button>
@@ -532,12 +638,12 @@ export default function PatientRegistrationModule({
                 )}
 
                 {/* Footer buttons */}
-                <div className="mt-8 pt-4 border-t border-line-subtle dark:border-teal-800/40 flex items-center justify-between font-sans">
+                <div className="mt-4 pt-3 border-t border-line flex items-center justify-between font-sans">
                   {formStep > 1 ? (
                     <button 
                       type="button" 
                       onClick={() => setFormStep(1)}
-                      className="bg-surface dark:bg-night-900 hover:bg-surface-accent text-accent dark:text-teal-300 border border-line-subtle font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5"
+                      className="btn-secondary font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5"
                     >
                       <ArrowLeft className="w-4 h-4" /> Back
                     </button>
@@ -555,7 +661,7 @@ export default function PatientRegistrationModule({
                     <button 
                       type="button" 
                       onClick={handleRegisterSubmit} 
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
+                      className="bg-primary hover:bg-primary-hover text-white font-sans font-bold text-xs px-4 py-2 rounded-none uppercase flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       <UserCheck className="w-4 h-4" /> Route to Triage Queue
                     </button>
@@ -569,7 +675,22 @@ export default function PatientRegistrationModule({
 
       {/* PATIENT REGISTRY TABLE TAB */}
       {activeSubTab === 'registry' && (
-        <PatientRegistryTable totalPatientCount={totalPatientCount} setActiveSubTab={setActiveSubTab} setRegistrationStep={setRegistrationStep} patientRegistrySearch={patientRegistrySearch} setPatientRegistrySearch={setPatientRegistrySearch} sortHeader={sortHeader} sortedResults={sortedResults} showPII={showPII} triageQueue={triageQueue} handleCreateTicket={handleCreateTicket} />
+        <PatientRegistryTable
+          totalPatientCount={totalPatientCount}
+          setActiveSubTab={setActiveSubTab}
+          setRegistrationStep={setRegistrationStep}
+          patientRegistrySearch={patientRegistrySearch}
+          setPatientRegistrySearch={setPatientRegistrySearch}
+          sortHeader={sortHeader}
+          sortedResults={sortedResults}
+          showPII={showPII}
+          triageQueue={triageQueue}
+          handleCreateTicket={handleCreateTicket}
+          userRole={userRole}
+          onOpenPatientDetail={handleOpenPatientDetail}
+          onOpenReports={handleOpenReports}
+          activeLanguage={activeLanguage}
+        />
       )}
 
       {isMyKadOpen && (
@@ -578,6 +699,39 @@ export default function PatientRegistrationModule({
           onClose={() => setIsMyKadOpen(false)}
         />
       )}
+
+      {/* Patient Detail / Longitudinal Clinical History Modal */}
+      <PatientDetailModal
+        patient={selectedPatientForDetail}
+        isOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        onSavePatient={async (updatedPatient) => {
+          if (updatePatientInDb) {
+            await updatePatientInDb(updatedPatient);
+          }
+          setSelectedPatientForDetail(updatedPatient);
+          setToastMessage(activeLanguage === 'BM' ? 'Rekod pesakit berjaya dikemaskini.' : 'Patient record updated successfully.');
+          setTimeout(() => setToastMessage(null), 3000);
+        }}
+        visits={[...completedVisits, ...triageQueue]}
+        activeLanguage={activeLanguage}
+        canEdit={true}
+        initialTab={detailInitialTab}
+        onGenerateReport={(patientId) => {
+          setDetailModalOpen(false);
+          handleOpenReports(patientId);
+        }}
+      />
+
+      {/* Patient & Encounters Reports Generator Modal */}
+      <PatientReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        patientsList={allPatients}
+        completedVisits={[...completedVisits, ...triageQueue]}
+        activeLanguage={activeLanguage}
+        preselectedPatientId={reportPreselectedPatientId}
+      />
     </div>
   );
 }

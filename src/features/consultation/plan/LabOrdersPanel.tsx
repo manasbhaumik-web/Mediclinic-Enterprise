@@ -36,8 +36,8 @@ export default function LabOrdersPanel({ selectedLabs, availableLabTests, toggle
               {...buttonProps(() => toggleLabSelection(test.name), isSelected)}
               className={`p-3 border rounded-none cursor-pointer transition-all flex items-center justify-between ${focusRing} ${
                 isSelected
-                  ? 'bg-surface border-brand text-ink dark:text-white shadow-2xs font-bold'
-                  : 'bg-surface border-slate-200 dark:border-teal-800/40 text-muted dark:text-slate-300 hover:border-line'
+                  ? 'bg-surface border-brand text-ink dark:text-white  font-bold'
+                  : 'bg-surface border-line dark:border-teal-800/40 text-muted dark:text-slate-300 hover:border-line'
               }`}
             >
               <div className="flex items-center gap-2.5">

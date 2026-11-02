@@ -91,7 +91,7 @@ export function HelpButton({ onClick, light = false }: { onClick: () => void; li
 export function AppFooter({ online, onHelp }: { online: boolean; onHelp: () => void }) {
   const { clinic } = useSettings();
   return (
-    <footer className="shrink-0 h-10 bg-chrome text-white border-t border-white/20 px-4 sm:px-6 flex items-center justify-between text-xs font-sans">
+    <footer className="shrink-0 h-10 bg-chrome text-white border-t border-white/20 px-3 sm:px-6 flex items-center justify-between text-xs font-sans">
       <span className="flex items-center gap-3 min-w-0">
         <span className="flex items-center gap-1.5 shrink-0" role="status">
           <span className={`w-2 h-2 rounded-full ${online ? 'bg-emerald-400' : 'bg-rose-400'}`} aria-hidden="true" />

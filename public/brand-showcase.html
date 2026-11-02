@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mediclinic Enterprise — Brand Logo & Contrast Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --bg-page: #f8fafc;
+      --border-line: #e2e8f0;
+      --color-ink: #0f172a;
+      --color-muted: #64748b;
+      --color-chrome: #0f6f8c;
+      --color-chrome-deep: #0b607c;
+      --color-night: #062a38;
+      --color-cyan: #00e5ff;
+      --color-teal: #0d9488;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--color-ink);
+      line-height: 1.5;
+      padding-bottom: 80px;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-line);
+      padding: 24px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ecfeff;
+      border: 1px solid #a5f3fc;
+      color: #0891b2;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #06b6d4;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .hero-panel {
+      background: #ffffff;
+      border: 1px solid var(--border-line);
+      padding: 32px;
+      margin-bottom: 40px;
+    }
+
+    .grid-concepts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+
+    .concept-card {
+      background: #ffffff;
+      border: 1px solid var(--border-line);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .concept-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fdfdfe;
+    }
+
+    .concept-body {
+      padding: 24px;
+      flex: 1;
+    }
+
+    .preview-box {
+      border: 1px solid var(--border-line);
+      border-radius: 0;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+
+    .preview-bg-white { background-color: #ffffff; color: #041e2b; }
+    .preview-bg-banner { background-color: #0b607c; color: #ffffff; }
+    .preview-bg-navbar { background-color: #0f6f8c; color: #ffffff; }
+    .preview-bg-night { background-color: #062a38; color: #ffffff; }
+
+    .theme-switch-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .theme-btn {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border-line);
+      background: #f1f5f9;
+      color: var(--color-ink);
+      font-family: var(--font-mono);
+      transition: all 0.15s ease;
+    }
+
+    .theme-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .theme-btn.active {
+      background: #0f6f8c;
+      color: #ffffff;
+      border-color: #0b607c;
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 16px;
+    }
+
+    .spec-table th, .spec-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: left;
+    }
+
+    .spec-table th {
+      color: var(--color-muted);
+      font-weight: 600;
+      width: 35%;
+    }
+
+    .spec-table td {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--color-ink);
+    }
+
+    .scale-test-strip {
+      background: #ffffff;
+      border: 1px solid var(--border-line);
+      padding: 28px;
+      margin-top: 32px;
+    }
+
+    .scale-row {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .scale-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--color-muted);
+    }
+
+    .btn-return {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f6f8c;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 20px;
+      border: 1px solid #0b607c;
+      cursor: pointer;
+    }
+
+    .btn-return:hover {
+      background: #0b607c;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="badge-live">
+        <span class="pulse-dot"></span>
+        Brand Architecture & Contrast Audit
+      </div>
+      <h1 style="font-size: 20px; font-weight: 800; margin-top: 6px; letter-spacing: -0.02em;">
+        Mediclinic Enterprise — Logo Design System
+      </h1>
+    </div>
+
+    <div>
+      <a href="/app/dashboard" class="btn-return">
+        ← Return to Workstation
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="hero-panel">
+      <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Applied: Concept B (Biometric Pulse Cross)</h2>
+      <p style="font-size: 13px; color: var(--color-muted); line-height: 1.6; max-width: 900px;">
+        Concept B has been successfully deployed as the primary vector brand mark in <strong>src/assets/logo_transparent.svg</strong>.
+        It features a bold, deep midnight medical cross (<strong>#041e2b</strong>) intersected by an electric cyan cardiogram telemetry surge (<strong>#00e5ff</strong>) with high-contrast pure white nodes.
+        It delivers <strong>14.2:1 contrast</strong> against light workstation headers, and vivid luminescence on dark clinical teal chrome bars.
+      </p>
+    </div>
+
+    <h2 style="font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; color: var(--color-muted); font-family: var(--font-mono);">
+      Brand Identity Evaluation
+    </h2>
+
+    <div class="grid-concepts">
+
+      <!-- CONCEPT B: APPLIED ACTIVE LIVE VECTOR SVG -->
+      <div class="concept-card" style="border-top: 4px solid #00e5ff;">
+        <div class="concept-header">
+          <div>
+            <h3 style="font-size: 14px; font-weight: 700;">Concept B (Biometric Pulse Cross)</h3>
+            <span style="font-size: 11px; color: #0891b2; font-weight: 600;">Vector SVG — Applied Live in Application</span>
+          </div>
+          <span style="background: #00e5ff; color: #041e2b; font-size: 10px; font-weight: 800; padding: 2px 8px; font-family: var(--font-mono);">ACTIVE LIVE</span>
+        </div>
+
+        <div class="concept-body">
+          <div class="theme-switch-bar">
+            <span style="font-size: 11px; font-weight: 700; align-self: center; color: var(--color-muted); margin-right: 4px;">Background:</span>
+            <button class="theme-btn active" onclick="setBoxBg('box-b-svg', 'preview-bg-white', this)">Day Surface</button>
+            <button class="theme-btn" onclick="setBoxBg('box-b-svg', 'preview-bg-banner', this)">Banner Teal</button>
+            <button class="theme-btn" onclick="setBoxBg('box-b-svg', 'preview-bg-navbar', this)">Navbar Chrome</button>
+            <button class="theme-btn" onclick="setBoxBg('box-b-svg', 'preview-bg-night', this)">Night Shift</button>
+          </div>
+
+          <div id="box-b-svg" class="preview-box preview-bg-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" style="width: 140px; height: 140px;">
+              <path d="M 76,20 L 124,20 L 124,76 L 180,76 L 180,124 L 124,124 L 124,180 L 76,180 L 76,124 L 20,124 L 20,76 L 76,76 Z" fill="#041e2b" stroke="#00e5ff" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M 82,26 L 118,26 L 118,70 L 174,70 L 174,118 L 118,118 L 118,174 L 82,174 L 82,118 L 26,118 L 26,70 L 82,70 Z" fill="#082b3a" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.4"/>
+              <polyline points="14,100 60,100 70,90 78,100 86,118 100,38 114,136 126,84 136,100 186,100" fill="none" stroke="#00e5ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="20,100 60,100 70,90 78,100 86,118 100,38 114,136 126,84 136,100 180,100" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.9"/>
+              <circle cx="100" cy="38" r="5" fill="#ffffff" stroke="#00e5ff" stroke-width="2"/>
+              <circle cx="114" cy="136" r="3.5" fill="#00e5ff"/>
+              <circle cx="136" cy="100" r="3" fill="#ffffff"/>
+            </svg>
+          </div>
+
+          <table class="spec-table">
+            <tr>
+              <th>Status</th>
+              <td><span style="color: #059669; font-weight: 700;">Live in Workstation</span></td>
+            </tr>
+            <tr>
+              <th>Contrast Ratio</th>
+              <td><span style="color: #059669; font-weight: 700;">14.2:1 (AAA)</span> vs White Canvas</td>
+            </tr>
+            <tr>
+              <th>Primary Palette</th>
+              <td>#041e2b, #00e5ff, #ffffff, #22d3ee</td>
+            </tr>
+            <tr>
+              <th>Flat Standards</th>
+              <td>Zero Gradients · Zero Drop Shadows</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONCEPT B: RASTER ARTWORK -->
+      <div class="concept-card">
+        <div class="concept-header">
+          <div>
+            <h3 style="font-size: 14px; font-weight: 700;">Concept B (High-Res Master)</h3>
+            <span style="font-size: 11px; color: var(--color-muted); font-weight: 600;">1024x1024 Artwork Artwork</span>
+          </div>
+          <span style="background: #f1f5f9; color: var(--color-muted); font-size: 10px; font-weight: 800; padding: 2px 8px; font-family: var(--font-mono);">SOURCE ART</span>
+        </div>
+
+        <div class="concept-body">
+          <div class="theme-switch-bar">
+            <span style="font-size: 11px; font-weight: 700; align-self: center; color: var(--color-muted); margin-right: 4px;">Background:</span>
+            <button class="theme-btn active" onclick="setBoxBg('box-c1', 'preview-bg-white', this)">Day Surface</button>
+            <button class="theme-btn" onclick="setBoxBg('box-c1', 'preview-bg-banner', this)">Banner Teal</button>
+            <button class="theme-btn" onclick="setBoxBg('box-c1', 'preview-bg-navbar', this)">Navbar Chrome</button>
+            <button class="theme-btn" onclick="setBoxBg('box-c1', 'preview-bg-night', this)">Night Shift</button>
+          </div>
+
+          <div id="box-c1" class="preview-box preview-bg-white">
+            <img src="/logos/concept-1.jpg" alt="Concept 1" style="max-height: 180px; max-width: 100%; object-fit: contain; border-radius: 4px;" />
+          </div>
+
+          <table class="spec-table">
+            <tr>
+              <th>Format</th>
+              <td>High-Res 1024x1024 Master</td>
+            </tr>
+            <tr>
+              <th>Theme Contrast</th>
+              <td>Deep Navy cross with electric pulse surge</td>
+            </tr>
+            <tr>
+              <th>Brand Tone</th>
+              <td>Diagnostic Technology & Active Monitoring</td>
+            </tr>
+            <tr>
+              <th>Best Context</th>
+              <td>Corporate Identity, Badges, Marketing</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONCEPT C: RASTER ARTWORK -->
+      <div class="concept-card">
+        <div class="concept-header">
+          <div>
+            <h3 style="font-size: 14px; font-weight: 700;">Concept C (Architectural Facets)</h3>
+            <span style="font-size: 11px; color: var(--color-muted); font-weight: 600;">Alternative Concept Master</span>
+          </div>
+          <span style="background: #f1f5f9; color: var(--color-muted); font-size: 10px; font-weight: 800; padding: 2px 8px; font-family: var(--font-mono);">ALTERNATIVE</span>
+        </div>
+
+        <div class="concept-body">
+          <div class="theme-switch-bar">
+            <span style="font-size: 11px; font-weight: 700; align-self: center; color: var(--color-muted); margin-right: 4px;">Background:</span>
+            <button class="theme-btn active" onclick="setBoxBg('box-c2', 'preview-bg-white', this)">Day Surface</button>
+            <button class="theme-btn" onclick="setBoxBg('box-c2', 'preview-bg-banner', this)">Banner Teal</button>
+            <button class="theme-btn" onclick="setBoxBg('box-c2', 'preview-bg-navbar', this)">Navbar Chrome</button>
+            <button class="theme-btn" onclick="setBoxBg('box-c2', 'preview-bg-night', this)">Night Shift</button>
+          </div>
+
+          <div id="box-c2" class="preview-box preview-bg-white">
+            <img src="/logos/concept-2.jpg" alt="Concept 2" style="max-height: 180px; max-width: 100%; object-fit: contain; border-radius: 4px;" />
+          </div>
+
+          <table class="spec-table">
+            <tr>
+              <th>Format</th>
+              <td>High-Res 1024x1024 Master</td>
+            </tr>
+            <tr>
+              <th>Theme Contrast</th>
+              <td>Architectural interlocking medical planes</td>
+            </tr>
+            <tr>
+              <th>Brand Tone</th>
+              <td>Enterprise Stability, Hospital Groups</td>
+            </tr>
+            <tr>
+              <th>Best Context</th>
+              <td>Hospital Signage, App Launcher, Print</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SCALE & CLARITY AUDIT -->
+    <div class="scale-test-strip">
+      <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 4px;">Multi-Scale Pixel Density Audit (Concept B)</h3>
+      <p style="font-size: 12px; color: var(--color-muted); margin-bottom: 20px;">
+        Verifying legibility and sharpness across clinical workstation responsive breakpoints:
+      </p>
+
+      <div class="scale-row">
+        <div class="scale-item">
+          <div style="width: 16px; height: 16px;">
+            <svg viewBox="0 0 200 200" fill="none">
+              <path d="M 76,20 L 124,20 L 124,76 L 180,76 L 180,124 L 124,124 L 124,180 L 76,180 L 76,124 L 20,124 L 20,76 L 76,76 Z" fill="#041e2b" stroke="#00e5ff" stroke-width="6"/>
+              <polyline points="14,100 78,100 86,118 100,38 114,136 126,84 186,100" stroke="#00e5ff" stroke-width="8"/>
+            </svg>
+          </div>
+          <span>16px (Favicon)</span>
+        </div>
+
+        <div class="scale-item">
+          <div style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 200 200" fill="none">
+              <path d="M 76,20 L 124,20 L 124,76 L 180,76 L 180,124 L 124,124 L 124,180 L 76,180 L 76,124 L 20,124 L 20,76 L 76,76 Z" fill="#041e2b" stroke="#00e5ff" stroke-width="4"/>
+              <polyline points="14,100 70,90 78,100 86,118 100,38 114,136 126,84 136,100 186,100" stroke="#00e5ff" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="100" cy="38" r="8" fill="#ffffff"/>
+            </svg>
+          </div>
+          <span>24px (Mobile Nav)</span>
+        </div>
+
+        <div class="scale-item">
+          <div style="width: 40px; height: 40px; border: 1px dashed #cbd5e1; padding: 2px;">
+            <svg viewBox="0 0 200 200" fill="none">
+              <path d="M 76,20 L 124,20 L 124,76 L 180,76 L 180,124 L 124,124 L 124,180 L 76,180 L 76,124 L 20,124 L 20,76 L 76,76 Z" fill="#041e2b" stroke="#00e5ff" stroke-width="3" stroke-linejoin="round"/>
+              <polyline points="14,100 60,100 70,90 78,100 86,118 100,38 114,136 126,84 136,100 186,100" fill="none" stroke="#00e5ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="20,100 60,100 70,90 78,100 86,118 100,38 114,136 126,84 136,100 180,100" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="100" cy="38" r="5" fill="#ffffff" stroke="#00e5ff" stroke-width="2"/>
+            </svg>
+          </div>
+          <span style="font-weight: 700; color: #0891b2;">40px (Workstation Header)</span>
+        </div>
+
+        <div class="scale-item">
+          <div style="width: 80px; height: 80px;">
+            <svg viewBox="0 0 200 200" fill="none">
+              <path d="M 76,20 L 124,20 L 124,76 L 180,76 L 180,124 L 124,124 L 124,180 L 76,180 L 76,124 L 20,124 L 20,76 L 76,76 Z" fill="#041e2b" stroke="#00e5ff" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M 82,26 L 118,26 L 118,70 L 174,70 L 174,118 L 118,118 L 118,174 L 82,174 L 82,118 L 26,118 L 26,70 L 82,70 Z" fill="#082b3a" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.4"/>
+              <polyline points="14,100 60,100 70,90 78,100 86,118 100,38 114,136 126,84 136,100 186,100" fill="none" stroke="#00e5ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="20,100 60,100 70,90 78,100 86,118 100,38 114,136 126,84 136,100 180,100" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.9"/>
+              <circle cx="100" cy="38" r="5" fill="#ffffff" stroke="#00e5ff" stroke-width="2"/>
+              <circle cx="114" cy="136" r="3.5" fill="#00e5ff"/>
+              <circle cx="136" cy="100" r="3" fill="#ffffff"/>
+            </svg>
+          </div>
+          <span>80px (Auth Splash)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function setBoxBg(boxId, bgClass, btn) {
+      const box = document.getElementById(boxId);
+      box.className = 'preview-box ' + bgClass;
+      
+      const buttons = btn.parentElement.querySelectorAll('.theme-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>

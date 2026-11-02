@@ -1,3 +1,4 @@
+import Pagination from '../../components/ui/Pagination';
 import React, { useEffect, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useDrugs, useInventoryActions, usePurchaseOrders, useSuppliers } from '../../hooks/useInventoryData';
@@ -27,6 +28,8 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
   const suppliers = useSuppliers();
   const drugs = useDrugs();
   const api = useInventoryActions();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
   const [form, setForm] = useState<{ po?: PurchaseOrder; seed?: OrderSeed[] } | null>(null);
   const [receiving, setReceiving] = useState<PurchaseOrder | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -35,6 +38,8 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
   const today = todayStr();
   const supplier = new Map((suppliers.data ?? []).map((s) => [s.id, s.name]));
   const drugName = new Map((drugs.data ?? []).map((d) => [d.id, d.name]));
+  const allOrders = orders.data ?? [];
+  const paginatedOrders = allOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   useEffect(() => { if (seed && seed.length) { setForm({ seed }); onSeedUsed(); } }, [seed, onSeedUsed]);
 
@@ -62,7 +67,7 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
         <table className="w-full text-xs">
           <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">Order</th><th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Expected</th><th className="p-3 text-right">Received</th><th className="p-3 text-right">Value</th><th className="p-3" /></tr></thead>
           <tbody>
-            {(orders.data ?? []).map((o) => {
+            {paginatedOrders.map((o) => {
               const st = PO_STYLE[o.status];
               const pr = poProgress(o.lines);
               return (
@@ -94,6 +99,13 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
             {(orders.data ?? []).length === 0 && <tr><td className="p-6 text-center text-subtle" colSpan={7}>No purchase orders yet.</td></tr>}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={allOrders.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="purchase orders"
+        />
       </div>
       {form && <PoForm po={form.po} seed={form.seed} onClose={() => setForm(null)} />}
       {receiving && <ReceiveGoods po={receiving} onClose={() => setReceiving(null)} />}

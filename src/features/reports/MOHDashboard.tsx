@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import {
-  AlertTriangle, Building, CheckCircle2, ChevronRight, ClipboardCheck, FileText, Info, RefreshCw, ShieldCheck, Stethoscope,
+  AlertTriangle, Building, CheckCircle2, ChevronRight, ClipboardCheck, FileText, Info, RefreshCw, ShieldCheck, Stethoscope, Award, Trash2, ShieldAlert, X,
 } from 'lucide-react';
 import { useCompliance } from '../../hooks/useCompliance';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
@@ -10,6 +10,9 @@ import { INVENTORY_KEY } from '../../context/InventoryContext';
 import { dueState } from '../../domain/equipment';
 import { LicenceState, licenceStatus } from '../../domain/compliance';
 import { localDateKey } from '../../domain/operations';
+import CKAPSDossierModal from '../operations/CKAPSDossierModal';
+import ClinicalIncidentModal from '../operations/ClinicalIncidentModal';
+import { ClinicalWasteModule } from '../operations/ClinicalWasteModule';
 
 interface MOHDashboardProps {
   /** Opens another Administration section. */
@@ -40,6 +43,9 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
   const { clinic } = useSettings();
 
   const [periodDays, setPeriodDays] = useState<number>(90);
+  const [isCkapsModalOpen, setIsCkapsModalOpen] = useState(false);
+  const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
+  const [isWasteModalOpen, setIsWasteModalOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 3_600_000);
@@ -93,10 +99,37 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
             id="compliance-period"
             value={periodDays}
             onChange={(e) => setPeriodDays(Number(e.target.value))}
-            className="text-xs font-bold border border-line bg-white px-2 py-2 rounded-none cursor-pointer"
+            className="text-xs font-bold border border-line bg-surface text-ink px-2 py-2 rounded-none cursor-pointer"
           >
             {PERIODS.map((p) => <option key={p.days} value={p.days}>{p.label}</option>)}
           </select>
+          <button
+            type="button"
+            onClick={() => setIsWasteModalOpen(true)}
+            className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none"
+            title="Inspect Scheduled Waste (SW404) Consignment Notes & DOE eSITS Manifests"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
+            <span>Waste (SW404)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsIncidentModalOpen(true)}
+            className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none"
+            title="Inspect Act 586 Reg 18 Clinical Incident Reports (CIR) & Root Cause Analyses"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-600" aria-hidden="true" />
+            <span>Incidents (CIR)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsCkapsModalOpen(true)}
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-teal-500/30 transition-all cursor-pointer shadow-xs"
+            title="Compile and package MOH CKAPS Form B Regulatory Inspection Dossier"
+          >
+            <Award className="w-3.5 h-3.5 text-teal-200" aria-hidden="true" />
+            <span>Compile CKAPS Form B Dossier</span>
+          </button>
           <button
             type="button"
             onClick={() => {
@@ -106,7 +139,7 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
               void queryClient.invalidateQueries({ queryKey: ['equipment'] });
             }}
             disabled={isFetching}
-            className="bg-white hover:bg-teal-50 text-deep text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed"
+            className="bg-surface hover:bg-surface-accent text-ink text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 border border-line transition-all cursor-pointer shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-accent ${isFetching ? 'motion-safe:animate-spin' : ''}`} aria-hidden="true" />
             {isFetching ? 'Refreshing…' : 'Refresh'}
@@ -269,6 +302,39 @@ export default function MOHDashboard({ onOpenTab }: MOHDashboardProps) {
           </Panel>
         </div>
       </div>
+
+      <CKAPSDossierModal
+        isOpen={isCkapsModalOpen}
+        onClose={() => setIsCkapsModalOpen(false)}
+      />
+
+      <ClinicalIncidentModal
+        isOpen={isIncidentModalOpen}
+        onClose={() => setIsIncidentModalOpen(false)}
+      />
+
+      {isWasteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-canvas border-2 border-line shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+            <div className="p-3 bg-surface border-b border-line flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Trash2 className="w-5 h-5 text-amber-600" />
+                <h3 className="text-sm font-bold text-ink uppercase tracking-wider">Scheduled Biohazard Waste (SW404) &bull; DOE eSITS Consignment Notes</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsWasteModalOpen(false)}
+                className="p-1 hover:bg-surface-accent text-ink cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              <ClinicalWasteModule />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

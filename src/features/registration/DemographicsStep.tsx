@@ -8,14 +8,14 @@ interface DemographicsStepProps {
   manualForm: { fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; };
   setManualForm: React.Dispatch<React.SetStateAction<{ fullName: string; icNumber: string; gender: 'Male' | 'Female'; dob: string; phone: string; address: string; panelEmployer: string; chiefComplaint: string; temperature: string; bpSystolic: string; bpDiastolic: string; heartRate: string; }>>;
   clearError: (key: string) => void;
-  inputBase: 'w-full bg-surface dark:bg-night-900 border rounded-none px-3 py-2 text-xs text-ink dark:text-slate-100 outline-none';
+  inputBase: string;
 }
 
 export default function DemographicsStep({ existingPatientId, fieldErrors, manualForm, setManualForm, clearError, inputBase }: DemographicsStepProps) {
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-3 font-sans">
       <div>
-        <h3 className="type-heading-caps text-ink dark:text-teal-300 font-sans">
+        <h3 className="type-heading-caps text-ink font-sans">
           Patient Demographics
         </h3>
         {existingPatientId && (
@@ -25,7 +25,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
         )}
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <FormField id="reg-fullName" label="Full Name" required error={fieldErrors.fullName}>
             {(f) => (
@@ -35,7 +35,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
                 value={manualForm.fullName}
                 onChange={(e) => { setManualForm({ ...manualForm, fullName: e.target.value }); clearError('fullName'); }}
                 placeholder="e.g. MOHD HAFIZ BIN RAZALI"
-                autoComplete="off"
+                autoComplete="name"
                 className={`${inputBase} font-bold font-sans ${fieldBorder(fieldErrors.fullName)}`}
               />
             )}
@@ -101,7 +101,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
                 value={manualForm.phone}
                 onChange={(e) => { setManualForm({ ...manualForm, phone: e.target.value }); clearError('phone'); }}
                 placeholder="e.g. 012-3456789"
-                autoComplete="off"
+                autoComplete="tel"
                 className={`${inputBase} font-mono ${fieldBorder(fieldErrors.phone)}`}
               />
             )}
@@ -118,7 +118,7 @@ export default function DemographicsStep({ existingPatientId, fieldErrors, manua
               value={manualForm.address}
               onChange={(e) => setManualForm({ ...manualForm, address: e.target.value })}
               placeholder="Enter full residential address..."
-              autoComplete="off"
+              autoComplete="street-address"
               className={`${inputBase} font-sans ${fieldBorder()}`}
             />
           )}

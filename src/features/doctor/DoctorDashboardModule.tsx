@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Patient, Visit, Language, SOAPNotes } from '../../types';
 import ConsultationRoom from '../consultation/ConsultationRoom';
 import { 
-  Stethoscope, Users, RefreshCw, Volume2, AlertCircle, Copy, Check
+  Stethoscope, Users, RefreshCw, Volume2, AlertCircle, Copy, Check,
+  CheckCircle2, AlertTriangle, ArrowRight, Clock
 } from 'lucide-react';
 import { 
   getChiefComplaintLabel, 
@@ -17,6 +18,7 @@ import NextPatientCard from './NextPatientCard';
 import WaitingPatientsList from './WaitingPatientsList';
 import QueueRail from './QueueRail';
 import { formatTicket } from '../../domain/ticket';
+import { calculatePatientAge } from '../../domain/patientAge';
 import { draftKey } from '../../domain/consultationDraft';
 import DoctorMonthlyReport from './DoctorMonthlyReport';
 import RoomPicker from './RoomPicker';
@@ -24,6 +26,7 @@ import { useClinicDoctors, useConsultationRooms } from '../../hooks/useClinicSet
 import { assignmentOf, doctorName as nameOfDoctor, roomOptions } from '../../domain/doctorAssignment';
 interface DoctorDashboardModuleProps {
   doctorQueue: Visit[];
+  holdingQueue?: Visit[];
   patientsMap: Record<string, Patient>;
   activeLanguage: Language;
   activeConsultationVisitId: string | null;
@@ -36,10 +39,12 @@ interface DoctorDashboardModuleProps {
   onReleasePatient?: (visitId: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   doctorTab?: 'queue' | 'consultation' | 'reports';
   onTabChange?: (tab: 'queue' | 'consultation' | 'reports') => void;
+  onHoldForResults?: (visitId: string, currentSoap: SOAPNotes) => void;
 }
 
 export default function DoctorDashboardModule({
   doctorQueue,
+  holdingQueue = [],
   patientsMap,
   activeLanguage,
   activeConsultationVisitId,
@@ -50,7 +55,8 @@ export default function DoctorDashboardModule({
   userId = null,
   onCallPatient,
   onReleasePatient,
-  onTabChange
+  onTabChange,
+  onHoldForResults
 }: DoctorDashboardModuleProps) {
   const [internalTab, setInternalTab] = useState<'queue' | 'consultation' | 'reports'>(doctorTab);
   const [room, setRoom] = useState<string>(() => {
@@ -66,10 +72,21 @@ export default function DoctorDashboardModule({
   const doctors = useClinicDoctors();
   const rooms = useConsultationRooms();
   const myDoctorId = doctors.find((d) => d.authId === userId)?.id ?? null;
-  const roomChoices = roomOptions(rooms.filter((r) => r.active).map((r) => r.name), doctorQueue);
+  const activeVisit = doctorQueue.find((v) => v.id === activeConsultationVisitId);
+  const roomChoices = roomOptions(
+    rooms.filter((r) => r.active).map((r) => r.name),
+    doctorQueue,
+    (v) =>
+      Boolean(
+        (userId && v.calledBy === userId) ||
+        (doctorName && v.calledByName === doctorName) ||
+        v.id === activeConsultationVisitId
+      )
+  );
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
   const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
+  const [queueRailMode, setQueueRailMode] = useState<'hidden' | 'drawer'>('hidden');
 
   // Who has been called is saved on the visit, so it survives a refresh and every screen sees it.
   const calledVisitId = doctorQueue.find((v) => v.status === 'Consulting' && v.calledBy === userId)?.id ?? null;
@@ -97,6 +114,14 @@ export default function DoctorDashboardModule({
     totalPages, startIndex
   } = useQueueFilter({ queue: doctorQueue, patientsMap, initialEntriesPerPage: 6, myDoctorId });
 
+  // Keep workstation room aligned with the active consultation's room
+  React.useEffect(() => {
+    if (activeVisit?.consultRoom && activeVisit.consultRoom !== room) {
+      setRoom(activeVisit.consultRoom);
+      try { localStorage.setItem('mediclinic.consultRoom', activeVisit.consultRoom); } catch { /* ignore */ }
+    }
+  }, [activeVisit?.consultRoom, room]);
+
   // Once the clinic's rooms are known, make sure the chosen room is one of them and is free.
   React.useEffect(() => {
     if (roomChoices.length === 0) return;
@@ -123,7 +148,11 @@ export default function DoctorDashboardModule({
         if (inputEl) inputEl.focus();
       } else if (key === 'r') {
         e.preventDefault();
-        handleManualQueueRefresh();
+        if (internalTab === 'consultation') {
+          setQueueRailMode((prev) => (prev === 'drawer' ? 'hidden' : 'drawer'));
+        } else {
+          handleManualQueueRefresh();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -209,6 +238,7 @@ export default function DoctorDashboardModule({
       setTimeout(() => setCallAnnouncementToast(null), 6000);
       return;
     }
+    setRoom(roomName);
     try { localStorage.setItem('mediclinic.consultRoom', roomName); } catch { /* ignore */ }
     const timeStr = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
     setActiveConsultationVisitId(visitId);
@@ -221,7 +251,7 @@ export default function DoctorDashboardModule({
   const renderAllergyBadge = (drugAllergies: string[] = []) => {
     if (drugAllergies.length === 0) return null;
     return (
-      <span className="inline-flex items-center justify-center gap-1.5 px-2 py-0.5 rounded-none text-2xs font-bold uppercase tracking-wider bg-rose-100 text-rose-950 dark:bg-rose-900/90 dark:text-rose-100 border border-rose-300 dark:border-rose-600 shadow-2xs font-mono shrink-0">
+      <span className="inline-flex items-center justify-center gap-1.5 px-2 py-0.5 rounded-none text-2xs font-bold uppercase tracking-wider bg-rose-100 text-rose-950 dark:bg-rose-900/90 dark:text-rose-100 border border-rose-300 dark:border-rose-600  font-mono shrink-0">
         <AlertCircle className="w-3 h-3 text-rose-700 dark:text-rose-200 shrink-0" />
         <span>Allergy: {drugAllergies.join(', ')}</span>
       </span>
@@ -265,7 +295,7 @@ export default function DoctorDashboardModule({
       
       {/* Step 1 Call Announcement Toast */}
       {callAnnouncementToast && (
-        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-none shadow-2xl border border-teal-500/40 flex items-center justify-center gap-3 animate-bounce-slow">
+        <div className="fixed top-20 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-none  border border-teal-500/40 flex items-center justify-center gap-3 animate-bounce-slow">
           <div className="w-8 h-8 rounded-none bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold">
             📢
           </div>
@@ -278,7 +308,7 @@ export default function DoctorDashboardModule({
 
       {/* Copy to Clipboard Toast Notification */}
       {copiedToast && (
-        <div className="fixed bottom-6 right-6 z-[130] bg-deep text-teal-300 px-4 py-2.5 rounded-none shadow-2xl border border-line flex items-center justify-center gap-2 text-xs font-mono font-bold animate-bounce-slow">
+        <div className="fixed bottom-6 right-6 z-[130] bg-deep text-teal-300 px-4 py-2.5 rounded-none  border border-line flex items-center justify-center gap-2 text-xs font-mono font-bold animate-bounce-slow">
           <Check className="w-4 h-4 text-teal-300" />
           <span>{copiedToast}</span>
         </div>
@@ -286,14 +316,14 @@ export default function DoctorDashboardModule({
 
       {/* Healthcare Safety Call Confirmation Modal */}
       {pendingCallVisit && (
-        <div className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-night-900 border-2 border-brand max-w-md w-full p-5 rounded-none shadow-2xl space-y-4 text-ink dark:text-white">
+        <div role="dialog" aria-modal="true" aria-labelledby="call-confirm-title" onKeyDown={(e) => { if (e.key === 'Escape') setPendingCallVisit(null); }} className="fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-surface border-2 border-brand max-w-md w-full p-5 rounded-none shadow-none space-y-4 text-ink">
             <div className="flex items-center gap-3 border-b border-line dark:border-teal-800/60 pb-3">
               <div className="w-9 h-9 bg-teal-50 dark:bg-teal-950 text-accent dark:text-teal-400 border border-line flex items-center justify-center shrink-0 font-bold text-base">
                 📢
               </div>
               <div>
-                <h3 className="type-card-title">Confirm Patient Call</h3>
+                <h3 id="call-confirm-title" className="type-card-title">Confirm Patient Call</h3>
                 <p className="text-xs text-subtle dark:text-slate-400 font-medium">Healthcare Safety Verification</p>
               </div>
             </div>
@@ -324,6 +354,7 @@ export default function DoctorDashboardModule({
               <button
                 type="button"
                 onClick={() => setPendingCallVisit(null)}
+                title="Dismiss call announcement without paging patient"
                 className="px-4 py-2 rounded-none text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-muted dark:text-slate-200 cursor-pointer"
               >
                 Cancel
@@ -331,7 +362,8 @@ export default function DoctorDashboardModule({
               <button
                 type="button"
                 onClick={confirmCallPatient}
-                className="px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-primary-hover text-white cursor-pointer shadow-md flex items-center justify-center gap-1.5"
+                title="Broadcast audio announcement and advance patient to in-consultation"
+                className="px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-primary-hover text-white cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Volume2 className="w-3.5 h-3.5" />
                 <span>Call patient now</span>
@@ -355,80 +387,147 @@ export default function DoctorDashboardModule({
               const mins = v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0;
               return mins > max ? mins : max;
             }, 0);
+            const avgWaitMinutes = doctorQueue.length > 0
+              ? Math.round(doctorQueue.reduce((acc, v) => acc + (v.registeredTime ? Math.floor((Date.now() - v.registeredTime) / 60000) : 0), 0) / doctorQueue.length)
+              : 0;
 
             return (
-              <div className="space-y-2">
-                {/* Screen-reader announcements: the region stays mounted so changes are read out */}
+              <div className="space-y-3">
+                {/* Screen-reader announcements */}
                 <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
                   {nextPatient
                     ? `Next in line: ${nextPatient.fullName}. ${doctorQueue.length} waiting${overSlaCount > 0 ? `, ${overSlaCount} over the 20 minute limit` : ''}.`
                     : 'No patients waiting.'}
                 </div>
-                {/* Dominant Operational Alert Strip if Breaches or High Acuity Patients Exist */}
-                {(overSlaCount > 0 || highPriorityCount > 0) && (
-                  <div className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 px-3.5 py-2 rounded-none flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs font-medium shadow-2xs">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span>
-                        <strong>Operational Alert:</strong> {overSlaCount > 0 ? `${overSlaCount} patient(s) exceeding SLA wait time (>20m)` : ''}
-                        {overSlaCount > 0 && highPriorityCount > 0 ? ' & ' : ''}
-                        {highPriorityCount > 0 ? `${highPriorityCount} high acuity/allergy patient(s) requiring immediate attention` : ''}.
-                      </span>
-                    </div>
-                    <span className="text-2xs font-mono uppercase bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 px-2 py-0.5 font-bold shrink-0">
-                      Action Required
-                    </span>
-                  </div>
-                )}
 
-                <div className="bg-surface dark:bg-night-850 text-ink dark:text-slate-100 p-3 px-4 rounded-none shadow-2xs border border-line dark:border-teal-800 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-                  {/* Left: Section Title & Live Telemetry Badge */}
-                  <div className="flex items-center gap-3 shrink-0">
-                    <div className="p-2 bg-teal-50 dark:bg-teal-950/60 border border-line dark:border-teal-800 text-accent dark:text-teal-400">
-                      <Users className="w-5 h-5" />
-                    </div>
+                {/* Live Triage Command Bar (4 High-Density KPI Tiles) */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="bg-surface p-3.5 border border-line flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h1 className="type-page-title text-ink dark:text-teal-300">
-                          Doctor Consultation Queue
-                        </h1>
-                        <span className="inline-flex items-center justify-center gap-1 text-2xs text-accent dark:text-teal-400 bg-white/80 dark:bg-night-950 px-2 py-0.5 rounded-none border border-line dark:border-teal-800 font-mono font-bold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                          Live
-                        </span>
-                      </div>
-                      <p className="text-2xs text-muted dark:text-slate-300 font-medium">
-                        Triaged outpatient waiting list telemetry
-                      </p>
+                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Active Queue</span>
+                      <span className="text-xl font-bold font-mono tabular-nums text-ink">{doctorQueue.length}</span>
+                      <span className="text-2xs text-muted block mt-0.5">Patients waiting</span>
                     </div>
+                    <Users className="w-5 h-5 text-accent opacity-60 shrink-0" />
                   </div>
 
-                  {/* Center/Right: longest wait (counts live in the filter chips below) + refresh */}
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <div className="flex items-center gap-2 text-xs font-mono flex-wrap">
-                      {/* Stat 4: Max Wait */}
-                      <div className="bg-white dark:bg-night-950 text-sky-700 dark:text-sky-300 px-2.5 py-1.5 rounded-none border border-sky-200/80 dark:border-sky-900/40 border-l-2 border-l-sky-400 flex items-center justify-center gap-2 shadow-2xs">
-                        <span className="text-2xs font-sans font-bold uppercase text-subtle dark:text-slate-400">Max Wait:</span>
-                        <strong className="font-bold text-sm text-ink dark:text-teal-300">{maxWaitMinutes}m</strong>
-                        <span className="text-2xs bg-sky-50/70 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 px-1 py-0.2 rounded-none font-sans font-bold border border-sky-200 dark:border-sky-800/60">Peak</span>
+                  <div className={`bg-surface p-3.5 border border-line ${overSlaCount > 0 ? 'border-l-amber-500' : 'border-l-emerald-600'} flex items-center justify-between`}>
+                    <div>
+                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Wait Time (Avg / Max)</span>
+                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                        <span className="text-xl font-bold font-mono tabular-nums text-ink">{avgWaitMinutes}m</span>
+                        <span className={`text-xs font-mono tabular-nums font-semibold ${overSlaCount > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-muted'}`}>/ {maxWaitMinutes}m max</span>
                       </div>
+                      <span className="text-2xs text-muted block mt-0.5">{overSlaCount > 0 ? `${overSlaCount} over 20m SLA` : 'Within SLA target'}</span>
                     </div>
+                    <Clock className={`w-5 h-5 ${overSlaCount > 0 ? 'text-amber-600' : 'text-emerald-600'} opacity-60 shrink-0`} />
+                  </div>
 
-                    {/* Refresh Action Button */}
-                    <button
-                      type="button"
-                      onClick={handleManualQueueRefresh}
-                      disabled={isRefreshingQueue}
-                      className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-3 py-2 rounded-none flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs shrink-0"
-                    >
-                      <RefreshCw className={`w-3.5 h-3.5 text-white ${isRefreshingQueue ? 'animate-spin' : ''}`} />
-                      <span>{isRefreshingQueue ? 'Refreshing...' : 'Refresh'}</span>
-                    </button>
+                  <div className={`bg-surface p-3.5 border border-line ${highPriorityCount > 0 ? 'border-l-rose-600' : 'border-l-line'} flex items-center justify-between`}>
+                    <div>
+                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Clinical Acuity</span>
+                      <span className={`text-xl font-bold font-mono tabular-nums ${highPriorityCount > 0 ? 'text-rose-600' : 'text-ink'}`}>{highPriorityCount}</span>
+                      <span className="text-2xs text-muted block mt-0.5">{highPriorityCount > 0 ? 'Allergy/Priority flags' : 'Standard triage'}</span>
+                    </div>
+                    <AlertTriangle className={`w-5 h-5 ${highPriorityCount > 0 ? 'text-rose-600' : 'text-muted'} opacity-60 shrink-0`} />
+                  </div>
+
+                  <div className="bg-surface p-3.5 border border-line flex items-center justify-between">
+                    <div className="min-w-0 flex-1 pr-2">
+                      <span className="text-2xs font-bold uppercase tracking-wider text-subtle block font-sans">Station Room</span>
+                      <select
+                        id="doctor-active-room-select"
+                        value={room}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setRoom(val);
+                          try { localStorage.setItem('mediclinic.consultRoom', val); } catch { /* ignore */ }
+                        }}
+                        className="text-xs font-mono font-bold text-accent bg-transparent border-0 border-b border-line hover:border-brand focus:outline-none cursor-pointer mt-0.5 py-0.5 w-full"
+                      >
+                        {roomChoices.map((r) => (
+                          <option key={r.name} value={r.name} disabled={Boolean(r.busyWith)}>
+                            {r.busyWith ? `${r.name} (in use by ${r.busyWith})` : r.name}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-2xs text-muted block mt-0.5">Audio PA broadcast destination</span>
+                    </div>
+                    <Volume2 className="w-5 h-5 text-accent opacity-60 shrink-0" />
                   </div>
                 </div>
+
+
               </div>
             );
           })()}
+
+
+          {/* HELD PATIENTS (Awaiting Rapid Test / Lab Diagnostics) */}
+          {holdingQueue && holdingQueue.length > 0 && (
+            <div className="bg-amber-50/80 dark:bg-amber-950/40 border-2 border-amber-400 p-4 rounded-none space-y-3 animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <h3 className="type-heading-caps text-ink font-bold">
+                    Patients on Hold for Rapid Diagnostics / Lab ({holdingQueue.length})
+                  </h3>
+                </div>
+                <span className="font-mono text-2xs uppercase px-2 py-0.5 border border-amber-300 dark:border-amber-700 bg-amber-100 dark:bg-amber-900/60 font-bold text-amber-900 dark:text-amber-200">
+                  Treatment Room Active
+                </span>
+              </div>
+              <p className="text-xs text-muted">
+                These patients have been ordered rapid in-clinic diagnostic tests (e.g. Dengue Combo, Blood Glucose, Nebulizer) and can be immediately recalled into the room once results are ready.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {holdingQueue.map(v => {
+                  const pt = patientsMap[v.patientId];
+                  const procs = v.soap?.plan?.procedures || [];
+                  const testNames = procs.map(p => p.name).join(', ') || 'In-clinic investigation';
+                  const allDone = procs.length > 0 && procs.every(p => p.status === 'Completed');
+                  return (
+                    <div key={v.id} className="p-3 bg-surface border border-line flex items-center justify-between gap-3 shadow-2xs">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-accent bg-surface-muted px-1.5 py-0.5 border border-line">
+                            {formatTicket(v.ticketNo)}
+                          </span>
+                          <span className="font-bold text-xs text-ink">{pt?.fullName}</span>
+                        </div>
+                        <div className="text-2xs text-muted mt-1">
+                          <strong>Order:</strong> {testNames}
+                        </div>
+                        {procs.some(p => p.result) && (
+                          <div className="text-2xs font-mono font-bold text-emerald-700 dark:text-emerald-300 mt-0.5">
+                            ✓ Result: {procs.filter(p => p.result).map(p => `${p.name}: ${p.result}`).join('; ')}
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveConsultationVisitId(v.id);
+                          setInternalTab('consultation');
+                          if (onTabChange) onTabChange('consultation');
+                        }}
+                        className={`px-3 py-1.5 font-mono text-2xs font-bold flex items-center gap-1.5 cursor-pointer rounded-none ${
+                          allDone
+                            ? 'bg-primary hover:bg-primary-hover text-white'
+                            : 'btn-primary'
+                        }`}
+                      >
+                        <span>Recall to Room</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* 2. PATIENT QUEUE LIST RENDERING */}
           {doctorQueue.length === 0 ? (
@@ -465,45 +564,214 @@ export default function DoctorDashboardModule({
       {/* 2. SEPARATE PAGE: DEDICATED CONSULTATION SUITE PAGE                       */}
       {/* ========================================================================= */}
       {internalTab === 'consultation' && (
-        <div className="flex flex-col lg:flex-row gap-4 items-start animate-fadeIn">
-          <QueueRail room={room} roomOptions={roomChoices} doctors={doctors} myDoctorId={myDoctorId} onRoomChange={(r) => { setRoom(r); try { localStorage.setItem('mediclinic.consultRoom', r); } catch { /* ignore */ } }} queue={sortedQueue} patientsMap={patientsMap} userId={userId} activeVisitId={activeConsultationVisitId} onCall={requestCallPatient} />
-          <div className="flex-1 min-w-0 w-full space-y-4">
-          {activeConsultationVisitId ? (
+        <div className="space-y-3 animate-fadeIn">
+          {/* Top HUD moved into right-hand ContextPanel under Longitudinal History to maximize consultation visibility */}
+
+          {/* Slide-over Drawer mode when invoked */}
+          {queueRailMode === 'drawer' && (
+            <QueueRail
+              room={room}
+              roomOptions={roomChoices}
+              doctors={doctors}
+              myDoctorId={myDoctorId}
+              onRoomChange={(r) => { setRoom(r); try { localStorage.setItem('mediclinic.consultRoom', r); } catch { /* ignore */ } }}
+              queue={sortedQueue}
+              patientsMap={patientsMap}
+              userId={userId}
+              activeVisitId={activeConsultationVisitId}
+              onCall={requestCallPatient}
+              isDrawer={true}
+              onClose={() => setQueueRailMode('hidden')}
+            />
+          )}
+
+          {/* Main workspace layout: 100% clean full width without cramped 3-column docking */}
+          <div className="w-full space-y-4">
+            {activeConsultationVisitId ? (
             <div className="animate-fade-in-up">
-              <ConsultationRoom
-                currentPatient={patientsMap[doctorQueue.find(v => v.id === activeConsultationVisitId)?.patientId || ''] || null}
-                activeVisit={doctorQueue.find(v => v.id === activeConsultationVisitId) || null}
-                activeLanguage={activeLanguage}
-                onConsultationComplete={handleDoctorSoapComplete}
-                onCancel={() => {
-                  // Leaving without signing off puts the patient back in the queue for everyone.
-                  const id = activeConsultationVisitId;
-                  if (id) { try { sessionStorage.removeItem(draftKey(id)); } catch { /* ignore */ } }
-                  setActiveConsultationVisitId(null);
-                  setInternalTab('queue');
-                  if (id && onReleasePatient) void onReleasePatient(id).then((r) => {
-                    if ('error' in r) { setCallAnnouncementToast(r.error); setTimeout(() => setCallAnnouncementToast(null), 6000); }
-                  });
-                }}
-              />
+              {(() => {
+                const currentActiveVisit = doctorQueue.find((v) => v.id === activeConsultationVisitId);
+                const activeRoom = currentActiveVisit?.consultRoom || room;
+                const waitingInQueue = sortedQueue.filter((v) => v.id !== activeConsultationVisitId);
+                const upcomingNextVisit = waitingInQueue[0];
+                const upcomingNextPatient = upcomingNextVisit ? patientsMap[upcomingNextVisit.patientId] : undefined;
+
+                const stationHud = (
+                  <div className="space-y-3 font-sans">
+                    <div className="flex items-center justify-between border-b border-line pb-2">
+                      <div className="flex items-center gap-1.5 font-bold text-xs font-mono text-ink">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="uppercase tracking-wider text-2xs text-muted font-sans font-bold">Station:</span>
+                        <span className="text-accent font-bold">{activeRoom}</span>
+                      </div>
+                      <span className="text-2xs font-mono font-bold text-muted bg-surface-muted px-2 py-0.5 border border-line">
+                        <strong className="text-ink">{waitingInQueue.length}</strong> waiting
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-2xs font-mono">
+                      <span className="text-muted font-sans font-medium">Next in line:</span>
+                      <strong className={upcomingNextPatient ? "text-ink truncate max-w-[150px]" : "text-slate-400 font-normal"}>
+                        {upcomingNextPatient ? upcomingNextPatient.fullName : 'None (Queue Clear)'}
+                      </strong>
+                    </div>
+
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setQueueRailMode(queueRailMode === 'drawer' ? 'hidden' : 'drawer')}
+                        className={`w-full py-1.5 px-3 text-2xs font-mono uppercase font-bold tracking-wider border rounded-none cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${
+                          queueRailMode === 'drawer'
+                            ? 'bg-primary text-white border-primary'
+                            : 'bg-surface hover:bg-surface-accent text-accent hover:text-ink border-line'
+                        }`}
+                        title="Slide out live patient queue roster without squeezing consultation view (Alt+R)"
+                      >
+                        <Users className="w-3.5 h-3.5" />
+                        <span>{queueRailMode === 'drawer' ? 'Close Queue Rail' : `View Full Queue (${waitingInQueue.length})`}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+
+                return (
+                  <ConsultationRoom
+                    currentPatient={patientsMap[[...doctorQueue, ...holdingQueue].find(v => v.id === activeConsultationVisitId)?.patientId || ''] || null}
+                    activeVisit={[...doctorQueue, ...holdingQueue].find(v => v.id === activeConsultationVisitId) || null}
+                    onHoldForResults={(vid, soap) => {
+                      if (onHoldForResults) onHoldForResults(vid, soap);
+                      setActiveConsultationVisitId(null);
+                      setInternalTab('queue');
+                    }}
+                    activeLanguage={activeLanguage}
+                    stationHud={stationHud}
+                    onConsultationComplete={handleDoctorSoapComplete}
+                    onCancel={() => {
+                      const id = activeConsultationVisitId;
+                      setActiveConsultationVisitId(null);
+                      setInternalTab('queue');
+                      if (id && onReleasePatient) void onReleasePatient(id).then((r) => {
+                        if ('error' in r) { setCallAnnouncementToast(r.error); setTimeout(() => setCallAnnouncementToast(null), 6000); }
+                      });
+                    }}
+                  />
+                );
+              })()}
             </div>
           ) : (
-            <div className="enterprise-card border-dashed p-16 text-center text-slate-400 mt-2 flex flex-col items-center justify-center min-h-[420px]">
-              <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-4 shadow-inner border border-teal-100">
-                <Stethoscope className="w-10 h-10 text-accent" />
+            <div className="border border-line bg-surface p-6 rounded-none space-y-6">
+              {/* Standby Header Status Banner */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-line">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-surface-accent border border-primary text-accent flex items-center justify-center shrink-0">
+                    <Stethoscope className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <h3 className="type-section-title text-ink font-bold">Consultation Suite Standby</h3>
+                      <span className="chip-brand px-2 py-0.5 text-2xs font-mono font-bold">
+                        {room ? (room.toLowerCase().includes('room') ? room : `Room ${room}`) : 'Station Online'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted mt-0.5">
+                      Ready for next outpatient encounter. Select a patient from the queue rail or call #1 below.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-surface-accent border border-line text-xs font-mono tabular-nums font-bold text-accent px-3 py-1.5">
+                    Queue: <strong className="text-ink">{sortedQueue.length}</strong> Waiting
+                  </span>
+                </div>
               </div>
-              <h4 className="type-section-title text-strong">No Active Patient Selected</h4>
-              <p className="text-xs text-subtle mt-2 max-w-md mx-auto leading-relaxed font-medium">
-                Choose a waiting patient from the list on the left to call them and start the consultation.
-              </p>
-              <button
-                type="button"
-                onClick={() => setInternalTab('queue')}
-                className="mt-5 px-5 py-2 rounded-none text-xs font-bold bg-primary hover:bg-primary text-white shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <Users className="w-4 h-4" />
-                <span>Go to Patient Waiting Queue</span>
-              </button>
+
+              {/* Next in Line Callout or Queue Empty */}
+              {nextVisit && nextPatient ? (
+                <div className="border border-primary bg-surface-strong p-5 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xs font-bold uppercase tracking-wider text-accent bg-surface px-2 py-0.5 border border-line">
+                        Next in Line (#1)
+                      </span>
+                      <span className="font-mono tabular-nums text-sm font-bold text-accent">
+                        {formatTicket(nextVisit.ticketNo)}
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono tabular-nums text-muted">
+                      Waiting {nextVisit.registeredTime ? Math.floor((Date.now() - nextVisit.registeredTime) / 60000) : 0} min
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-base font-bold text-ink flex items-center gap-2">
+                        <span>{nextPatient.fullName}</span>
+                        <span className="text-xs text-muted font-normal">
+                          ({calculatePatientAge(nextPatient.dob).displayAge}, {nextPatient.gender})
+                        </span>
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted mt-1.5">
+                        <span>IC: <strong className="font-mono text-ink">{nextPatient.icNumber ? `${nextPatient.icNumber.slice(0, 6)}-${nextPatient.icNumber.slice(6, 8)}-****` : 'N/A'}</strong></span>
+                        <span>·</span>
+                        <span>Coverage: <strong className="text-accent">{nextPatient.panelEmployer === 'None (Self-Pay)' ? 'Self-Pay' : nextPatient.panelEmployer}</strong></span>
+                        {nextPatient.drugAllergies && nextPatient.drugAllergies.length > 0 && (
+                          <span className="chip-danger px-2 py-0.5 text-2xs font-bold inline-flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            ALLERGY: {nextPatient.drugAllergies.join(', ')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => requestCallPatient(nextVisit.id, nextPatient.fullName, 1)}
+                        title="Broadcast audio announcement to call next triage patient into room"
+                        className="btn-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                        <span>Call Patient {formatTicket(nextVisit.ticketNo)}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setInternalTab('queue')}
+                        title="Switch to dedicated full-width patient waiting queue workspace"
+                        className="btn-secondary px-4 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Users className="w-4 h-4" />
+                        <span>View Queue</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="border border-line bg-surface-muted p-8 text-center text-muted">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                  <h4 className="type-card-title text-ink font-bold">Waiting Queue Clear</h4>
+                  <p className="text-xs text-muted mt-1">No outpatients are currently awaiting consultation.</p>
+                </div>
+              )}
+
+              {/* Quick Operation Metrics & Keyboard Help */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                <div className="bg-surface p-3.5 border border-line">
+                  <span className="text-2xs font-bold uppercase text-subtle block font-sans">Active Queue</span>
+                  <span className="text-lg font-mono tabular-nums font-bold text-ink">{sortedQueue.length}</span>
+                  <span className="text-2xs text-muted block mt-0.5">Patients in waiting roster</span>
+                </div>
+                <div className="bg-surface p-3.5 border border-line">
+                  <span className="text-2xs font-bold uppercase text-subtle block font-sans">Active Station</span>
+                  <span className="text-lg font-mono tabular-nums font-bold text-emerald-600">{room ? (room.toLowerCase().includes('room') ? room : `Room ${room}`) : 'Unassigned'}</span>
+                  <span className="text-2xs text-muted block mt-0.5">Live audio broadcast connected</span>
+                </div>
+                <div className="bg-surface p-3.5 border border-line">
+                  <span className="text-2xs font-bold uppercase text-subtle block font-sans">Clinical Shortcuts</span>
+                  <span className="text-xs font-mono font-bold text-accent block mt-1">Alt+1..4 Tabs · Ctrl+Enter Sign</span>
+                  <span className="text-2xs text-muted block mt-0.5">Session draft autosave enabled</span>
+                </div>
+              </div>
             </div>
           )}
           </div>

@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import Pagination from '../../components/ui/Pagination';
+import React, { useMemo, useState } from 'react';
 import { useApprovedLeaveDays, useAttendance, useLeaveReference, useStaffForLeave } from '../../hooks/useLeave';
 import { DEFAULT_SETTINGS, addDays, localParts, pickLeaveRule, summariseAttendance } from '../../domain/leave';
 import { entitlementDays } from '../../../supabase/functions/_shared/leaveCalc';
@@ -15,6 +16,10 @@ export default function LeaveStatusList() {
   const yearLeave = useApprovedLeaveDays(`${year}-01-01`, `${year}-12-31`);
   const records = useAttendance(monthStart, monthEnd);
   const holidaySet = useMemo(() => new Set((holidays.data ?? []).map((h) => h.date)), [holidays.data]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+  const staffList = staff.data ?? [];
+  const paginatedStaff = staffList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="space-y-3 animate-fadeIn">
@@ -26,7 +31,7 @@ export default function LeaveStatusList() {
             <tr><th className="px-6 py-3.5">Employee</th><th className="px-6 py-3.5 text-right">Leave taken ({year})</th><th className="px-6 py-3.5 text-right">Annual leave left</th><th className="px-6 py-3.5 text-right">Attendance this month</th></tr>
           </thead>
           <tbody className="divide-y divide-line-subtle">
-            {(staff.data ?? []).map((p) => {
+            {paginatedStaff.map((p) => {
               const mine = (yearLeave.data ?? []).filter((d) => d.staffId === p.id);
               const taken = mine.reduce((s, d) => s + d.fraction, 0);
               const annualTaken = mine.filter((d) => d.leaveType === 'annual').reduce((s, d) => s + d.fraction, 0);
@@ -46,6 +51,13 @@ export default function LeaveStatusList() {
             {(staff.data ?? []).length === 0 && <tr><td className="px-6 py-4 text-subtle" colSpan={4}>No active staff.</td></tr>}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={staffList.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          itemLabel="employees"
+        />
       </div>
     </div>
   );

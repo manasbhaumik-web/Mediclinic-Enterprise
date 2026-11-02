@@ -1,30 +1,62 @@
-import { Activity, History, Clock } from 'lucide-react';
+import React from 'react';
+import { Activity, History, Clock, Heart, ChevronLeft, PanelLeftClose } from 'lucide-react';
+import ChronicDiseaseFlowsheet from './ChronicDiseaseFlowsheet';
 import { buttonProps, focusRing } from '../../../lib/a11y';
 import { Visit } from '../../../types';
 
 interface ContextPanelProps {
   vitals: { bpSystolic: number; bpDiastolic: number; heartRate: number; temperature: number; respiratoryRate: number; };
-  t: { dashboard: string; patientRegistration: string; consultation: string; dispensary: string; billing: string; reports: string; networkStatus: string; bmToggle: string; enToggle: string; clinicName: string; online: string; offline: string; scanMyKad: string; registerNew: string; fullName: string; icNumber: string; gender: string; dob: string; address: string; phone: string; panelEmployer: string; drugAllergies: string; saveRegistration: string; male: string; female: string; activeAllergies: string; searchPatient: string; queueNo: string; patientQueue: string; longitudinalHistory: string; pastVisits: string; consultationRoom: string; subjective: string; objective: string; assessment: string; plan: string; vitalsSign: string; systolic: string; diastolic: string; pulse: string; temp: string; respRate: string; icd10Search: string; symptomsNotes: string; generateMc: string; mcDays: string; drugSearch: string; interactionAlert: string; dispensaryQueue: string; prescribedMeds: string; visualVerify: string; dosageInstruction: string; expiryWarnings: string; printLabel: string; totalBilling: string; selfPay: string; panelClaims: string; tpaSelect: string; glRef: string; proceedPayment: string; paymentDone: string; complianceText: string; nationalReporting: string; revenueToday: string; patientsToday: string; pendingClaims: string; lowStock: string; patientByHour: string; icdDistribution: string; } | { dashboard: string; patientRegistration: string; consultation: string; dispensary: string; billing: string; reports: string; networkStatus: string; bmToggle: string; enToggle: string; clinicName: string; online: string; offline: string; scanMyKad: string; registerNew: string; fullName: string; icNumber: string; gender: string; dob: string; address: string; phone: string; panelEmployer: string; drugAllergies: string; saveRegistration: string; male: string; female: string; activeAllergies: string; searchPatient: string; queueNo: string; patientQueue: string; longitudinalHistory: string; pastVisits: string; consultationRoom: string; subjective: string; objective: string; assessment: string; plan: string; vitalsSign: string; systolic: string; diastolic: string; pulse: string; temp: string; respRate: string; icd10Search: string; symptomsNotes: string; generateMc: string; mcDays: string; drugSearch: string; interactionAlert: string; dispensaryQueue: string; prescribedMeds: string; visualVerify: string; dosageInstruction: string; expiryWarnings: string; printLabel: string; totalBilling: string; selfPay: string; panelClaims: string; tpaSelect: string; glRef: string; proceedPayment: string; paymentDone: string; complianceText: string; nationalReporting: string; revenueToday: string; patientsToday: string; pendingClaims: string; lowStock: string; patientByHour: string; icdDistribution: string; };
+  t: { [key: string]: string };
   patientPastVisits: Visit[];
-  selectedPastVisit: Visit;
-  setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit>>;
+  selectedPastVisit: Visit | null;
+  setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit | null>>;
+  stationHud?: React.ReactNode;
+  onToggleCollapse?: () => void;
 }
 
-export default function ContextPanel({ vitals, t, patientPastVisits, selectedPastVisit, setSelectedPastVisit }: ContextPanelProps) {
+export default function ContextPanel({
+  vitals,
+  t,
+  patientPastVisits,
+  selectedPastVisit,
+  setSelectedPastVisit,
+  stationHud,
+  onToggleCollapse
+}: ContextPanelProps) {
+  const [panelMode, setPanelMode] = React.useState<'timeline' | 'flowsheet'>('timeline');
   return (
-    <div className="lg:col-span-4 space-y-4">
+    <div className="w-full space-y-4">
+      {/* Top Collapse Control Header */}
+      {onToggleCollapse && (
+        <div className="flex items-center justify-between bg-surface-muted/70 border border-line px-3 py-1.5 text-2xs font-mono">
+          <span className="font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-accent" />
+            Patient Context
+          </span>
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="inline-flex items-center gap-1 text-2xs font-mono font-bold text-accent hover:text-ink px-2 py-0.5 border border-line bg-surface hover:bg-surface-muted cursor-pointer transition-colors"
+            title="Collapse history & vitals panel (Alt+H)"
+            aria-label="Collapse patient context panel"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>Collapse</span>
+          </button>
+        </div>
+      )}
       
       {/* Contextual Recent Vitals Card */}
-      <div className="bg-surface p-4 rounded-none border border-line-subtle shadow-xs space-y-2.5">
-        <div className="flex items-center justify-between border-b border-line-subtle pb-2">
-          <h3 className="type-label text-ink flex items-center gap-1.5">
+      <div className="bg-surface p-4 rounded-none border border-line space-y-2.5">
+        <div className="flex items-center justify-between border-b border-line pb-2">
+          <h3 className="type-label text-ink flex items-center gap-1.5 font-bold">
             <Activity className="w-4 h-4 text-accent" />
             Vitals for this visit
           </h3>
-          <span className="text-xs text-subtle">Blank = not recorded</span>
+          <span className="text-2xs text-subtle font-mono">Blank = unrecorded</span>
         </div>
     
-        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+        <div className="grid grid-cols-2 gap-2 text-xs font-mono tabular-nums">
           <div className="bg-surface-muted p-2 border border-line">
             <span className="text-2xs text-subtle block font-sans">BP</span>
             <strong className="text-ink dark:text-white">{vitals.bpSystolic > 0 ? `${vitals.bpSystolic}/${vitals.bpDiastolic} mmHg` : 'Not recorded'}</strong>
@@ -44,14 +76,46 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
         </div>
       </div>
     
-      {/* Longitudinal Clinical History Timeline */}
-      <div className="bg-surface p-4 rounded-none border border-line-subtle shadow-xs space-y-3 flex-1 flex flex-col">
-        <div className="flex items-center justify-between border-b border-line-subtle pb-2">
-          <h3 className="type-label text-ink flex items-center gap-1.5">
+      {/* Longitudinal Clinical History Timeline & Chronic Flowsheet */}
+      <div className="bg-surface p-3.5 rounded-none border border-line space-y-3 flex-1 flex flex-col">
+        {/* Sub-mode Switcher */}
+        <div className="flex border border-line bg-surface-muted/50 p-0.5 rounded-none gap-0.5" role="tablist">
+          <button
+            type="button"
+            onClick={() => setPanelMode('timeline')}
+            className={`flex-1 py-1 px-2 text-2xs font-mono font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer rounded-none ${
+              panelMode === 'timeline'
+                ? 'bg-primary text-white'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Visits ({patientPastVisits.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPanelMode('flowsheet')}
+            className={`flex-1 py-1 px-2 text-2xs font-mono font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer rounded-none ${
+              panelMode === 'flowsheet'
+                ? 'bg-primary text-white'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            <Heart className="w-3.5 h-3.5 text-rose-400" />
+            <span>Chronic Flowsheet</span>
+          </button>
+        </div>
+
+        {panelMode === 'flowsheet' ? (
+          <ChronicDiseaseFlowsheet pastVisits={patientPastVisits} currentVitals={vitals} />
+        ) : (
+        <>
+        <div className="flex items-center justify-between border-b border-line pb-2">
+          <h3 className="type-label text-ink flex items-center gap-1.5 font-bold">
             <History className="w-4 h-4 text-accent" />
             {t.longitudinalHistory}
           </h3>
-          <span className="bg-surface-accent text-accent border border-line px-2 py-0.5 rounded-none text-2xs font-mono font-bold">
+          <span className="bg-surface-accent text-accent border border-line px-2 py-0.5 rounded-none text-2xs font-mono tabular-nums font-bold">
             {patientPastVisits.length} Visits
           </span>
         </div>
@@ -72,13 +136,13 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
                   {...buttonProps(() => setSelectedPastVisit(isSelected ? null : visit), isSelected)}
                   className={`p-3 rounded-none border transition-all text-left cursor-pointer ${focusRing} hover:bg-surface-muted dark:hover:bg-night-800 bg-surface-muted ${
                     isSelected 
-                      ? 'border-brand dark:border-teal-400 bg-surface-accent shadow-xs' 
-                      : 'border-line-subtle'
+                      ? 'border-brand dark:border-teal-400 bg-surface-accent' 
+                      : 'border-line hover:border-l-primary'
                   }`}
                 >
                   <div className="flex items-center justify-between text-2xs">
-                    <span className="font-mono font-bold text-muted dark:text-slate-300">{visit.date}</span>
-                    <span className="text-accent bg-surface-accent dark:bg-teal-950 border border-line font-bold text-2xs px-1.5 py-0.5 rounded-none">
+                    <span className="font-mono tabular-nums font-bold text-muted dark:text-slate-300">{visit.date}</span>
+                    <span className="text-accent bg-surface-accent dark:bg-teal-950 border border-line font-bold font-mono text-2xs px-1.5 py-0.5 rounded-none">
                       {visit.soap.assessment.icdCode}
                     </span>
                   </div>
@@ -90,8 +154,8 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
                   </p>
     
                   {isSelected && (
-                    <div className="mt-3 pt-2 border-t border-slate-200 dark:border-teal-800/40 text-2xs space-y-1.5 text-muted dark:text-slate-300 animate-fadeIn">
-                      <div><strong>Objective:</strong> BP {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg.</div>
+                    <div className="mt-3 pt-2 border-t border-line text-2xs space-y-1.5 text-muted dark:text-slate-300 animate-fadeIn">
+                      <div className="font-mono tabular-nums"><strong>Objective:</strong> BP {visit.soap.objective.bpSystolic}/{visit.soap.objective.bpDiastolic} mmHg.</div>
                       <div><strong>Notes:</strong> {visit.soap.assessment.clinicalNotes}</div>
                     </div>
                   )}
@@ -100,7 +164,16 @@ export default function ContextPanel({ vitals, t, patientPastVisits, selectedPas
             })}
           </div>
         )}
+        </>
+        )}
       </div>
+
+      {/* Consultation Station & Queue Telemetry Widget (Under Longitudinal History) */}
+      {stationHud && (
+        <div className="bg-surface p-4 rounded-none border border-line shadow-none">
+          {stationHud}
+        </div>
+      )}
     
     </div>
   );

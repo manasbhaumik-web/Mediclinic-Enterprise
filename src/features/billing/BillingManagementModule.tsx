@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import { auditPanelClaim } from '../../domain/claimsPreAudit';
+import Pagination from '../../components/ui/Pagination';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   CreditCard, DollarSign, Search, FileText, CheckCircle, Clock,
   ShieldCheck, Plus, Activity, CheckCircle2, AlertCircle, RefreshCw, Loader2
@@ -82,11 +84,23 @@ export default function BillingManagementModule() {
     (t.receiptNo ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const [ledgerPage, setLedgerPage] = useState(1);
+  const [claimsPage, setClaimsPage] = useState(1);
+  const pageSize = 15;
+
+  useEffect(() => {
+    setLedgerPage(1);
+    setClaimsPage(1);
+  }, [searchQuery, activeTab]);
+
+  const paginatedLedger = filteredLedger.slice((ledgerPage - 1) * pageSize, ledgerPage * pageSize);
+  const paginatedClaims = filteredClaims.slice((claimsPage - 1) * pageSize, claimsPage * pageSize);
+
   return (
-    <div className="animate-fadeIn w-full space-y-6 pb-8">
+    <div className="animate-fadeIn w-full space-y-3.5 pb-6">
       
       {/* 1. STRUCTURED PAGE HEADER BANNER */}
-      <div className="bg-surface text-ink p-5 rounded-none shadow-2xs border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface text-ink p-3.5 rounded-none shadow-none border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="bg-primary/10 text-accent text-2xs font-bold px-2.5 py-0.5 rounded-none border border-brand/20 uppercase tracking-wider">
@@ -108,13 +122,13 @@ export default function BillingManagementModule() {
       </div>
 
       {/* 2. TOP METRICS SUMMARY ROW */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Revenue this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{rm(totalRevenue)}</span>
         </div>
 
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Panel claims awaiting payment</span>
           <span className={`text-xl font-bold font-mono block mt-0.5 ${pendingClaims > 0 ? 'text-amber-600' : 'text-muted'}`}>
             {rm(pendingClaims)}
@@ -122,12 +136,12 @@ export default function BillingManagementModule() {
           <span className="text-2xs text-subtle">{pendingClaimTrx.length} claim{pendingClaimTrx.length === 1 ? '' : 's'}</span>
         </div>
 
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">SST included (estimate)</span>
           <span className="text-xl font-bold font-mono text-accent block mt-0.5">{rm(taxIncluded)}</span>
         </div>
 
-        <div className="bg-surface border border-line p-3.5 rounded-none shadow-2xs">
+        <div className="bg-surface border border-line p-2.5 rounded-none shadow-none">
           <span className="text-2xs font-bold uppercase text-subtle tracking-wider block">Transactions this month</span>
           <span className="text-xl font-bold font-mono text-ink block mt-0.5">{monthTransactions.length}</span>
         </div>
@@ -138,6 +152,7 @@ export default function BillingManagementModule() {
         <button
           type="button"
           onClick={() => setActiveTab('ledger')}
+          title="Daily Transaction Ledger: View paid outpatient receipts, payment methods, SST breakdowns, and e-Invoices"
           className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === 'ledger' 
               ? 'bg-chrome text-white font-bold' 
@@ -151,6 +166,7 @@ export default function BillingManagementModule() {
         <button
           type="button"
           onClick={() => setActiveTab('claims')}
+          title="Corporate Panel & TPA Claims: Manage pending Guarantee Letters (GL), insurer batch submissions, and settlement reconciliation"
           className={`px-4 h-full border-0 rounded-none transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === 'claims' 
               ? 'bg-chrome text-white font-bold' 
@@ -301,7 +317,7 @@ export default function BillingManagementModule() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line-subtle">
-                  {filteredLedger.map((trx) => (
+                  {paginatedLedger.map((trx) => (
                     <tr key={trx.id} className="hover:bg-surface-muted transition-colors">
                       <td className="px-6 py-4">
                         <p className="font-bold text-ink text-xs">{trx.patientName ?? 'Patient not recorded'}</p>
@@ -348,6 +364,13 @@ export default function BillingManagementModule() {
                   ))}
                 </tbody>
               </table>
+              <Pagination
+                currentPage={ledgerPage}
+                totalItems={filteredLedger.length}
+                pageSize={pageSize}
+                onPageChange={setLedgerPage}
+                itemLabel="transactions"
+              />
             </div>
           )}
 
@@ -374,7 +397,7 @@ export default function BillingManagementModule() {
                     <p className="text-xs font-bold text-ink">No panel claims match your criteria.</p>
                   </td>
                 </tr>
-              ) : filteredClaims.map((claim) => (
+              ) : paginatedClaims.map((claim) => (
                 <tr key={claim.id} className="hover:bg-surface-muted transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-bold text-ink flex items-center gap-2">
@@ -421,14 +444,23 @@ export default function BillingManagementModule() {
               ))}
             </tbody>
           </table>
+          {filteredClaims.length > 0 && (
+            <Pagination
+              currentPage={claimsPage}
+              totalItems={filteredClaims.length}
+              pageSize={pageSize}
+              onPageChange={setClaimsPage}
+              itemLabel="claims"
+            />
+          )}
         </div>
       )}
 
       {/* RECORD A PANEL PAYMENT */}
       {settling && (
-        <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !claimSaving) setSettling(null); }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="settle-panel-title" onKeyDown={(e) => { if (e.key === 'Escape' && !claimSaving) setSettling(null); }} className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !claimSaving) setSettling(null); }}>
           <div role="dialog" aria-modal="true" aria-label="Record panel payment" className="bg-surface rounded-none shadow-2xl max-w-sm w-full border border-line p-6 space-y-4">
-            <h3 className="type-heading-caps text-ink">Record panel payment</h3>
+            <h3 id="settle-panel-title" className="type-heading-caps text-ink">Record panel payment</h3>
             <div className="text-xs space-y-1 font-mono">
               <div className="flex justify-between"><span className="text-subtle">Claim</span><span>{settling.id}</span></div>
               <div className="flex justify-between"><span className="text-subtle">GL reference</span><span>{settling.glNumber ?? 'N/A'}</span></div>
@@ -438,11 +470,11 @@ export default function BillingManagementModule() {
             <div className="space-y-3 text-xs">
               <div>
                 <label htmlFor="claim-ref" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Panel payment / statement reference</label>
-                <input id="claim-ref" autoFocus type="text" value={claimRef} onChange={(e) => setClaimRef(e.target.value)} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
+                <input id="claim-ref" autoFocus type="text" value={claimRef} onChange={(e) => setClaimRef(e.target.value)} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none bg-surface focus:ring-1 focus:ring-brand outline-none" />
               </div>
               <div>
                 <label htmlFor="claim-date" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Date received</label>
-                <input id="claim-date" type="date" max={today} value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className="w-full border border-line px-3 py-2 text-sm rounded-none bg-white focus:ring-1 focus:ring-brand outline-none" />
+                <input id="claim-date" type="date" max={today} value={receivedOn} onChange={(e) => setReceivedOn(e.target.value)} className="w-full border border-line px-3 py-2 text-sm rounded-none bg-surface focus:ring-1 focus:ring-brand outline-none" />
               </div>
             </div>
             {claimError && <p role="alert" className="text-xs text-rose-700 font-medium">{claimError}</p>}

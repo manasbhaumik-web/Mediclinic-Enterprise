@@ -1,4 +1,4 @@
-import { FileText, Share } from 'lucide-react';
+import { FileText, Share, Ambulance, PhoneCall } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 
 interface CertificatesAndReferralPanelProps {
@@ -14,22 +14,23 @@ interface CertificatesAndReferralPanelProps {
   setReferralGenerated: React.Dispatch<React.SetStateAction<boolean>>;
   followUpWeeks: number;
   setFollowUpWeeks: React.Dispatch<React.SetStateAction<number>>;
+  onOpenEmergencySbar?: () => void;
 }
 
-export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setMcDays, mcReason, setMcReason, setMcGenerated, referralGenerated, referralDetails, setReferralDetails, setReferralGenerated, followUpWeeks, setFollowUpWeeks }: CertificatesAndReferralPanelProps) {
+export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setMcDays, mcReason, setMcReason, setMcGenerated, referralGenerated, referralDetails, setReferralDetails, setReferralGenerated, followUpWeeks, setFollowUpWeeks, onOpenEmergencySbar }: CertificatesAndReferralPanelProps) {
   return (
     <div className="space-y-4 animate-fadeIn">
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         
         {/* MEDICAL CERTIFICATE ISSUANCE CARD */}
-        <div className="border border-line bg-surface p-4 rounded-none space-y-3">
+        <div className="border border-line bg-surface p-4 rounded-none flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
             <h4 className="type-label text-ink flex items-center gap-2">
               <FileText className="w-4 h-4 text-accent" /> Digital Medical Certificate (MC)
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
-              mcGenerated ? 'chip-ok' : 'bg-slate-100 text-subtle border-slate-200'
+              mcGenerated ? 'chip-ok' : 'bg-slate-100 text-subtle border-line'
             }`}>
               {mcGenerated ? 'ISSUED' : 'NOT ISSUED'}
             </span>
@@ -44,7 +45,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 max="14"
                 value={mcDays}
                 onChange={e => setMcDays(parseInt(e.target.value) || 1)}
-                className="w-full text-xs p-2 border border-slate-300 rounded-none font-bold"
+                className="w-full text-xs p-2 border border-line rounded-none font-bold"
               />
             </div>
     
@@ -54,7 +55,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 type="text"
                 value={mcReason}
                 onChange={e => setMcReason(e.target.value)}
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
           </div>
@@ -66,8 +67,8 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             title={!mcGenerated && mcReason.trim() === '' ? 'Enter the reason first' : undefined}
             className={`w-full py-2 text-xs font-bold uppercase rounded-none border transition-colors cursor-pointer ${
               mcGenerated
-                ? 'bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700'
-                : 'bg-primary text-white border-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed'
+                ? 'bg-primary text-white border-primary hover:bg-primary-hover'
+                : 'bg-surface text-ink dark:text-slate-200 border-line hover:bg-surface-accent disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
           >
             {mcGenerated ? '✓ Medical Certificate (MC) Created & Attached' : 'Create medical certificate'}
@@ -75,13 +76,13 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
         </div>
     
         {/* SPECIALIST REFERRAL LETTER CARD */}
-        <div className="border border-line bg-surface p-4 rounded-none space-y-3">
+        <div className="border border-line bg-surface p-4 rounded-none flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-teal-800/30 pb-2">
             <h4 className="type-label text-ink flex items-center gap-2">
               <Share className="w-4 h-4 text-accent" /> Specialist Referral Note
             </h4>
             <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
-              referralGenerated ? 'chip-info' : 'bg-slate-100 text-subtle border-slate-200'
+              referralGenerated ? 'chip-info' : 'bg-slate-100 text-subtle border-line'
             }`}>
               {referralGenerated ? 'ATTACHED' : 'NONE'}
             </span>
@@ -95,7 +96,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 value={referralDetails.hospital}
                 onChange={e => setReferralDetails({ ...referralDetails, hospital: e.target.value })}
                 placeholder="e.g. Hospital Kuala Lumpur / Pantai Hospital"
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
     
@@ -106,7 +107,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 value={referralDetails.department}
                 onChange={e => setReferralDetails({ ...referralDetails, department: e.target.value })}
                 placeholder="e.g. ENT / General Medicine / Cardiology"
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
 
@@ -117,7 +118,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
                 value={referralDetails.reason}
                 onChange={e => setReferralDetails({ ...referralDetails, reason: e.target.value })}
                 placeholder="Why the patient is being referred"
-                className="w-full text-xs p-2 border border-slate-300 rounded-none"
+                className="w-full text-xs p-2 border border-line rounded-none"
               />
             </div>
           </div>
@@ -136,7 +137,35 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
             {referralGenerated ? '✓ Specialist Referral Created & Attached' : 'Create referral draft'}
           </button>
         </div>
-    
+
+        {/* EMERGENCY HOSPITAL TRANSFER CARD (MECC 999 SBAR) */}
+        <div className="border border-rose-300 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/20 p-4 rounded-none flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between border-b border-rose-200 dark:border-rose-800 pb-2">
+            <h4 className="type-label text-rose-900 dark:text-rose-200 flex items-center gap-2 font-bold">
+              <Ambulance className="w-4 h-4 text-rose-700 dark:text-rose-400" />
+              <span>MECC 999 SBAR Transfer</span>
+            </h4>
+            <span className="text-2xs font-bold px-2 py-0.5 rounded-none border border-rose-400 bg-rose-100 text-rose-900 dark:bg-rose-900/60 dark:text-rose-200 uppercase">
+              Emergency
+            </span>
+          </div>
+
+          <div className="space-y-2 text-xs text-rose-950 dark:text-rose-200 font-sans">
+            <p className="font-semibold text-2xs uppercase tracking-wider text-rose-700 dark:text-rose-400">Statutory Ambulance Handover Note</p>
+            <p className="text-2xs text-rose-800 dark:text-rose-300 leading-relaxed">
+              For acute coronary syndrome, stroke, acute stridor, or shock requiring tertiary emergency department ambulance dispatch.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenEmergencySbar}
+            className="w-full py-2 text-xs font-bold uppercase rounded-none border border-rose-700 bg-rose-700 hover:bg-rose-800 text-white transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+          >
+            <PhoneCall className="w-3.5 h-3.5" />
+            <span>Open MECC 999 SBAR Form</span>
+          </button>
+        </div>
       </div>
     
       <div className="border border-line bg-surface p-4 rounded-none flex flex-wrap items-center gap-3">
@@ -148,7 +177,7 @@ export default function CertificatesAndReferralPanel({ mcGenerated, mcDays, setM
           max="52"
           value={followUpWeeks}
           onChange={e => setFollowUpWeeks(Math.min(52, Math.max(0, parseInt(e.target.value) || 0)))}
-          className="w-20 text-xs p-2 border border-slate-300 rounded-none font-bold"
+          className="w-20 text-xs p-2 border border-line rounded-none font-bold"
         />
         <span className="text-2xs text-subtle">0 means no follow-up is needed</span>
       </div>
