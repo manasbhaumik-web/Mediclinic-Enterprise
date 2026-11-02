@@ -31,7 +31,7 @@ export default function NotificationBell({ onOpenTab, onOpenAdmin, light = false
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={count > 0 ? `Notifications, ${count} need attention` : 'Notifications, nothing needs attention'}
-        className={`relative flex items-center justify-center w-10 h-10 rounded-full border cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none ${light ? 'bg-surface hover:bg-surface-strong border-line' : 'bg-chrome-deep hover:bg-chrome-line border-teal-300/40'}`}
+        className={`relative flex items-center justify-center w-10 h-10 ${light ? 'rounded-none' : 'rounded-full'} border cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none ${light ? 'bg-surface hover:bg-surface-strong border-line-strong' : 'bg-chrome-deep hover:bg-chrome-line border-teal-300/40'}`}
       >
         <Bell className={`w-4 h-4 ${light ? 'text-accent' : 'text-teal-100'}`} />
         {count > 0 && (

@@ -151,7 +151,7 @@ export default function EnterpriseLayoutTemplate({
         <div className="flex items-center gap-3 relative">
 
           {/* Live Clock */}
-          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-surface px-2.5 py-1 border border-line font-mono text-xs text-ink rounded-none font-bold shadow-2xs">
+          <div className="hidden xl:flex items-center justify-center gap-1.5 bg-surface h-10 px-3 border border-line-strong font-mono text-xs text-ink rounded-none font-bold">
             <Clock className="w-3.5 h-3.5 text-accent" />
             <span>{timeString || '--:--:-- MYT'}</span>
           </div>
@@ -165,11 +165,11 @@ export default function EnterpriseLayoutTemplate({
             <button 
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center justify-center gap-2 bg-surface hover:bg-surface-strong border border-line px-3 py-1.5 rounded-none cursor-pointer transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
+              className="flex items-center justify-center gap-2.5 bg-surface hover:bg-surface-strong border border-line-strong h-10 pl-1.5 pr-2.5 rounded-none cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none"
               title="Workstation settings, user profile, and preferences"
               aria-expanded={showUserMenu}
             >
-              <div className="w-6 h-6 bg-primary text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none">
+              <div className="w-7 h-7 bg-primary text-white font-mono text-2xs font-bold flex items-center justify-center rounded-none">
                 {getUserInitials(userName)}
               </div>
               <div className="text-left hidden sm:block">
@@ -178,7 +178,6 @@ export default function EnterpriseLayoutTemplate({
                   {userRole ? joinRoleLabels(held) : 'Staff'}
                 </p>
               </div>
-              <Settings className="w-4 h-4 text-accent ml-1" />
               <ChevronDown className="w-3.5 h-3.5 text-accent" />
             </button>
 
