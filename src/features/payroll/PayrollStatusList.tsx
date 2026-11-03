@@ -2,7 +2,7 @@ import Pagination from '../../components/ui/Pagination';
 import React, { useState } from 'react';
 import { usePayProfiles, usePayrollRun, usePayrollRuns } from '../../hooks/usePayroll';
 import { RunStatus, STATUS_STYLE, monthLabel } from '../../domain/payroll';
-import { myr, toneClass } from './shared';
+import { myr, toneClass } from '../../components/ui/formHelpers';
 
 const thisMonth = () => new Date().toISOString().slice(0, 7) + '-01';
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useDrugs, useInventorySettings, usePurchaseOrders, useRegister } from '../../hooks/useInventoryData';
 import { StockAlert, buildAlerts, isOverdue, PO_STYLE } from '../../domain/inventory';
-import { Notice, errorMessage, inputClass, todayStr } from './shared';
+import { Notice, errorMessage, inputClass, todayStr } from '../../components/ui/shared';
 
 export interface OrderSeed { inventoryId: string; quantity: number }
 

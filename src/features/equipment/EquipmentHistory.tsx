@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEquipmentEvents, useEquipmentList } from '../../hooks/useEquipment';
 import { EquipmentEvent, KIND_LABEL } from '../../domain/equipment';
-import { fmtDate } from '../inventory/shared';
+import { fmtDate } from '../../components/ui/shared';
 
 const LABEL: Record<EquipmentEvent['kind'], string> = {
   ...KIND_LABEL, registered: 'Registered', edited: 'Edited', fault_reported: 'Fault reported', status_changed: 'Status changed', moved: 'Moved',

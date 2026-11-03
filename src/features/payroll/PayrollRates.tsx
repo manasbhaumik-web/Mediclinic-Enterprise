@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import { usePayrollActions, usePayrollRates } from '../../hooks/usePayroll';
 import { Citizenship, RateRow, SCHEMES, SCHEME_LABELS, Scheme, describeRate } from '../../domain/payroll';
-import { errorMessage, inputClass } from './shared';
+import { errorMessage, inputClass } from '../../components/ui/formHelpers';
 
 type Row = ReturnType<typeof usePayrollRates> extends { data?: infer D } ? (D extends (infer R)[] ? R : never) : never;
 

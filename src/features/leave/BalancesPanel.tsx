@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useBalances, useLeaveActions, useStaffForLeave } from '../../hooks/useLeave';
-import { errorMessage, inputClass } from '../payroll/shared';
+import { errorMessage, inputClass } from '../../components/ui/formHelpers';
 
 const val = (n: number | null) => (n === null ? 'No limit' : String(n));
 

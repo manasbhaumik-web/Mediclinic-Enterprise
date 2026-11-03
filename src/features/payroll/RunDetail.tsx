@@ -9,8 +9,8 @@ import {
 } from '../../domain/payrollExports';
 import { generatePayslipPdf, generateRunPayslipsPdf, payslipFilename } from '../../utils/payslipPdf';
 import SlipInputs from './SlipInputs';
-import { Dialog, ReasonDialog } from '../inventory/shared';
-import { errorMessage, inputClass, myr, toneClass } from './shared';
+import { Dialog, ReasonDialog } from '../../components/ui/shared';
+import { errorMessage, inputClass, myr, toneClass } from '../../components/ui/formHelpers';
 
 export default function RunDetail({ runId, role, onBack }: { runId: string; role: 'admin' | 'hr'; onBack: () => void }) {
   const { run: runQ, slips: slipsQ, events } = usePayrollRun(runId);

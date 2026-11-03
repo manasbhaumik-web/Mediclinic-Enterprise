@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useDrugs, useInventoryActions, usePurchaseOrders, useSuppliers } from '../../hooks/useInventoryData';
 import { PO_STYLE, PurchaseOrder, Supplier, isOverdue, poProgress, poTotal } from '../../domain/inventory';
-import { Dialog, Field, Notice, ReasonDialog, errorMessage, inputClass, myr, todayStr, toneClass } from './shared';
+import { Dialog, Field, Notice, ReasonDialog, errorMessage, inputClass, myr, todayStr, toneClass } from '../../components/ui/shared';
 import type { OrderSeed } from './AlertsPanel';
 
 type Sub = 'orders' | 'suppliers';

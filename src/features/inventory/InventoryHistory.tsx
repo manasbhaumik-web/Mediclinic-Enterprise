@@ -2,7 +2,7 @@ import Pagination from '../../components/ui/Pagination';
 import React, { useState } from 'react';
 import { useDrugs, useInventoryEvents, useMovements } from '../../hooks/useInventoryData';
 import { MOVEMENT_LABEL } from '../../domain/inventory';
-import { fmtDate, inputClass } from './shared';
+import { fmtDate, inputClass } from '../../components/ui/shared';
 
 /** The append-only ledger of every stock movement, and the log of catalogue, supplier and order changes. */
 export default function InventoryHistory() {

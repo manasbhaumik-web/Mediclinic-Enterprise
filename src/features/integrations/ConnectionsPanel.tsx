@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, RefreshCw, Trash2, Settings2, PlugZap } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import ConnectionForm from './ConnectionForm';
-import { Dialog } from '../inventory/shared';
+import { Dialog } from '../../components/ui/shared';
 import { useIntegrations, TestResult } from '../../hooks/useIntegrations';
 import { validateEndpoint } from '../../../supabase/functions/_shared/endpoint';
 import {

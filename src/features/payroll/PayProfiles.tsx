@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import { PayProfile, usePayProfiles } from '../../hooks/usePayroll';
 import { PayItem } from '../../domain/payroll';
-import { errorMessage, inputClass, myr } from './shared';
+import { errorMessage, inputClass, myr } from '../../components/ui/formHelpers';
 
 /** Salary, statutory numbers, bank details and recurring allowances/deductions for each person. */
 export default function PayProfiles() {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useInventoryActions } from '../../hooks/useInventoryData';
 import { CONTROL_CLASSES, ControlClass, DrugItem } from '../../domain/inventory';
-import { Dialog, Field, Notice, errorMessage, inputClass } from './shared';
+import { Dialog, Field, Notice, errorMessage, inputClass } from '../../components/ui/shared';
 
 const CATEGORIES = ['Analgesics', 'Antibiotics', 'Antihistamines', 'Antihypertensives', 'Antidiabetics', 'Cardiovascular', 'Dermatological', 'Gastrointestinal', 'Respiratory', 'Vitamins & Minerals', 'Supplies', 'General'];
 

@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useApprovedLeaveDays, useAttendance, useLeaveActions, useLeaveReference, useStaffForLeave } from '../../hooks/useLeave';
 import { ATTENDANCE_LABEL, AttendanceRecord, AttendanceStatus, DEFAULT_SETTINGS, addDays, localParts, summariseAttendance } from '../../domain/leave';
-import { errorMessage, inputClass } from '../payroll/shared';
+import { errorMessage, inputClass } from '../../components/ui/formHelpers';
 
 const monthStart = (d: string) => d.slice(0, 7) + '-01';
 const monthEnd = (start: string) => addDays(addDays(start, 31).slice(0, 7) + '-01', -1);

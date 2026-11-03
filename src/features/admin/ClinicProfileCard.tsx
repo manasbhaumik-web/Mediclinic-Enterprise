@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Building } from 'lucide-react';
 import { ClinicProfile, useSettings } from '../../context/SettingsContext';
-import { Field, Notice, errorMessage, inputClass } from '../inventory/shared';
+import { Field, Notice, errorMessage, inputClass } from '../../components/ui/shared';
 import Button from '../../components/ui/Button';
 
 /** Administrators edit who the clinic is. The header and its info popover read this; nothing is typed into the page. */

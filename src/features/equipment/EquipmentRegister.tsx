@@ -3,8 +3,8 @@ import React, { useMemo, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useEquipmentEvents, useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
 import { EquipmentItem, EquipmentStatus, bookValue, buildEquipmentAlerts, dueState, RETIRE_METHODS } from '../../domain/equipment';
-import { fmtDate, inputClass, myr, todayStr, Dialog } from '../inventory/shared';
-import { toneClass } from '../payroll/shared';
+import { fmtDate, inputClass, myr, todayStr, Dialog } from '../../components/ui/shared';
+import { toneClass } from '../../components/ui/formHelpers';
 import { DecommissionDialog, EquipmentForm, FaultDialog, MoveDialog, RestoreDialog, ServiceDialog, StatusDialog } from './EquipmentDialogs';
 import { EventList } from './EquipmentHistory';
 

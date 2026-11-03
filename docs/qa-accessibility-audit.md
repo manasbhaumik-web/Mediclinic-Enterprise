@@ -76,7 +76,7 @@ pie title Defect Remediation Status (16/16 Resolved)
 - Replaced with accessible inline error banners (`role="alert"`), non-blocking toast notifications (`errorToast`), `Dialog`, and `ReasonDialog` components.
 
 ### 3.3 Keyboard Accessibility & Focus Trapping (DEF-03, DEF-14, DEF-15, DEF-16)
-- Standardized focus trapping in `src/components/ui/Modal.tsx` and `src/features/inventory/shared.tsx`.
+- Standardized focus trapping in `src/components/ui/Modal.tsx` and `src/components/ui/shared.tsx`.
 - All modal dialogs across all 16 modules now implement:
   - `role="dialog"` or `role="alertdialog"`
   - `aria-modal="true"`

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEquipmentList } from '../../hooks/useEquipment';
 import { bookValue } from '../../domain/equipment';
-import { myr, todayStr } from '../inventory/shared';
+import { myr, todayStr } from '../../components/ui/shared';
 
 /** Straight-line book value of the equipment register, from each device's cost, purchase date, useful life and salvage value. */
 export default function EquipmentBookValueCard() {

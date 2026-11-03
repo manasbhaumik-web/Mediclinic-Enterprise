@@ -3,7 +3,7 @@ import { Stethoscope } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { useEquipmentList, useEquipmentSettings } from '../../hooks/useEquipment';
 import { AlertKind, EquipmentAlert, buildEquipmentAlerts } from '../../domain/equipment';
-import { Notice, errorMessage, inputClass, todayStr } from '../inventory/shared';
+import { Notice, errorMessage, inputClass, todayStr } from '../../components/ui/shared';
 import EquipmentRegister from './EquipmentRegister';
 import EquipmentHistory from './EquipmentHistory';
 

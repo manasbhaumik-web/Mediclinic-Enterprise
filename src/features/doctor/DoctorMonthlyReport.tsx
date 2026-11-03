@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { AlertTriangle, FileText, Info, RefreshCw, Search, Stethoscope, Users, Wallet } from 'lucide-react';
 import ProgressBar from '../../components/ui/ProgressBar';
-import ExportButtons from '../reports/ExportButtons';
+import ExportButtons from '../../components/ui/ExportButtons';
 import { chartTheme } from '../../theme/chartTheme';
 import { palette } from '../../theme/palette';
 import { useAuth } from '../../context/AuthContext';

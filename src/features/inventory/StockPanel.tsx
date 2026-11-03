@@ -6,7 +6,7 @@ import Pagination from '../../components/ui/Pagination';
 import { useDrugs, useInventoryActions, useInventorySettings, useSuppliers } from '../../hooks/useInventoryData';
 import { DrugItem, buildAlerts, controlClassLabel, isExpired, usableStock } from '../../domain/inventory';
 import DrugForm from './DrugForm';
-import { Dialog, Field, Notice, ReasonDialog, errorMessage, inputClass, todayStr } from './shared';
+import { Dialog, Field, Notice, ReasonDialog, errorMessage, inputClass, todayStr } from '../../components/ui/shared';
 
 type Mode = { kind: 'edit' | 'receive' | 'adjust' | 'retire'; drug: DrugItem } | { kind: 'add' } | null;
 type Filter = 'all' | 'out' | 'low' | 'expiry';

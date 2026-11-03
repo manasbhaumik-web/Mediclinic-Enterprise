@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import { usePayrollActions } from '../../hooks/usePayroll';
 import { PayInputs, Payslip, PayrollRun, validateInputs } from '../../domain/payroll';
-import { errorMessage, inputClass } from './shared';
+import { errorMessage, inputClass } from '../../components/ui/formHelpers';
 
 interface Line { label: string; amount: string; contributory: boolean }
 interface Ot { hours: string; multiplier: string; label: string }

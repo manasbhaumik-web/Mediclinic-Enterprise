@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useDrugs, useInventoryActions, useRegister } from '../../hooks/useInventoryData';
 import { controlClassLabel, reconcile } from '../../domain/inventory';
 import { maskICNumber } from '../../utils/piiMasker';
-import { Notice, errorMessage, fmtDate } from './shared';
+import { Notice, errorMessage, fmtDate } from '../../components/ui/shared';
 
 const ENTRY_LABEL = { opening: 'Opening balance', receipt: 'Receipt', dispense: 'Dispensed', disposal: 'Disposal', internal_use: 'Used in clinic', adjustment: 'Correction' } as const;
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
-import { Dialog, Field, Notice, errorMessage, inputClass, todayStr } from '../inventory/shared';
+import { Dialog, Field, Notice, errorMessage, inputClass, todayStr } from '../../components/ui/shared';
 import { useEquipmentActions } from '../../hooks/useEquipment';
 import {
   EQUIPMENT_CATEGORIES, EquipmentItem, KIND_LABEL, Outcome, RETIRE_METHODS, RetireMethod, ServiceKind,

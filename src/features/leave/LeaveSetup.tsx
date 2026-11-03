@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useLeaveActions, useLeaveReference } from '../../hooks/useLeave';
 import { DEFAULT_SETTINGS, LeaveRuleRow, WEEKDAYS, describeEntitlement } from '../../domain/leave';
-import { errorMessage, inputClass } from '../payroll/shared';
+import { errorMessage, inputClass } from '../../components/ui/formHelpers';
 
 type RuleRowT = LeaveRuleRow & { note: string | null };
 const EXAMPLE = '{"type":"service_tiers","tiers":[{"minYears":0,"days":8},{"minYears":2,"days":12},{"minYears":5,"days":16}]}';

@@ -3,7 +3,7 @@ import { CalendarOff, LogIn, LogOut, Plus, X } from 'lucide-react';
 import { useAttendance, useBalances, useLeaveActions, useLeaveReference, useLeaveRequests, useApprovedLeaveDays } from '../../hooks/useLeave';
 import { ATTENDANCE_LABEL, DEFAULT_SETTINGS, REQUEST_STYLE, addDays, formatRange, localParts, summariseAttendance } from '../../domain/leave';
 import LeaveRequestForm from './LeaveRequestForm';
-import { errorMessage, toneClass } from '../payroll/shared';
+import { errorMessage, toneClass } from '../../components/ui/formHelpers';
 
 const val = (n: number | null) => (n === null ? 'No limit' : String(n));
 

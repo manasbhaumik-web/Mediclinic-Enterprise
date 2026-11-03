@@ -4,7 +4,7 @@ import Button from '../../components/ui/Button';
 import { usePayrollActions, usePayrollRuns } from '../../hooks/usePayroll';
 import { STATUS_STYLE, monthLabel } from '../../domain/payroll';
 import RunDetail from './RunDetail';
-import { errorMessage, inputClass, myr, toneClass } from './shared';
+import { errorMessage, inputClass, myr, toneClass } from '../../components/ui/formHelpers';
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
 

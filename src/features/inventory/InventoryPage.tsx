@@ -6,7 +6,7 @@ import AlertsPanel, { OrderSeed } from './AlertsPanel';
 import OrdersPanel from './OrdersPanel';
 import RegisterPanel from './RegisterPanel';
 import InventoryHistory from './InventoryHistory';
-import { todayStr } from './shared';
+import { todayStr } from '../../components/ui/shared';
 import { PageHeading, StationTabs, StatStrip } from '../../components/ui/StationChrome';
 import { Boxes, AlertTriangle, Truck, ShieldAlert, History } from 'lucide-react';
 

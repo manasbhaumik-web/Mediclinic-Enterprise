@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHrEvents, useStaffForLeave } from '../../hooks/useLeave';
-import { inputClass } from '../payroll/shared';
+import { inputClass } from '../../components/ui/formHelpers';
 
 const ENTITIES: [string, string][] = [
   ['', 'Everything'], ['leave_request', 'Leave requests'], ['attendance', 'Attendance'], ['leave_rules', 'Entitlement rules'],

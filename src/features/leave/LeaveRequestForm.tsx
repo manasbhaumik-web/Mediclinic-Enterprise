@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useLeaveActions, useLeaveReference } from '../../hooks/useLeave';
-import { errorMessage, inputClass } from '../payroll/shared';
+import { errorMessage, inputClass } from '../../components/ui/formHelpers';
 
 export interface PersonOption { id: string; name: string }
 

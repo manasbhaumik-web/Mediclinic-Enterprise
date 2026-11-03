@@ -4,7 +4,7 @@ import Button from '../../components/ui/Button';
 import Pagination from '../../components/ui/Pagination';
 import FormField from '../../components/ui/FormField';
 import { BuyerInput, useEInvoice } from '../../hooks/useEInvoice';
-import { Dialog, ReasonDialog } from '../inventory/shared';
+import { Dialog, ReasonDialog } from '../../components/ui/shared';
 import {
   EDITABLE, EInvoiceConnection, EInvoiceRow, EInvoiceStatus, STATUS_LABELS, Tone,
   canCancel, cancelWindowOpen, consolidatedDueDate, recentMonths, summariseInvoices,

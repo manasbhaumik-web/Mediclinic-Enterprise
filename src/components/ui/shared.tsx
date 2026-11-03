@@ -1,7 +1,7 @@
 import React from 'react';
 
-export { inputClass, errorMessage, toneClass, myr } from '../payroll/shared';
-import { inputClass } from '../payroll/shared';
+export { inputClass, errorMessage, toneClass, myr } from './formHelpers';
+import { inputClass } from './formHelpers';
 
 export const todayStr = () => new Date().toISOString().slice(0, 10);
 

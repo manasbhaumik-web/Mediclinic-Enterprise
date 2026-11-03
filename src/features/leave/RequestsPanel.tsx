@@ -5,8 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useHrEvents, useLeaveActions, useLeaveReference, useLeaveRequests, useStaffForLeave } from '../../hooks/useLeave';
 import { REQUEST_STYLE, formatRange, requestActions } from '../../domain/leave';
 import LeaveRequestForm from './LeaveRequestForm';
-import { ReasonDialog } from '../inventory/shared';
-import { errorMessage, toneClass } from '../payroll/shared';
+import { ReasonDialog } from '../../components/ui/shared';
+import { errorMessage, toneClass } from '../../components/ui/formHelpers';
 
 /** Leave requests for HR and administrators: review, approve, reject, cancel, or file on someone's behalf. */
 export default function RequestsPanel({ role }: { role: 'admin' | 'hr' }) {

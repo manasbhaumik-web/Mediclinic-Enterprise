@@ -12,7 +12,7 @@ import { isAntibioticDrug } from '../../domain/antibioticStewardship';
 import { useInventory } from '../../context/InventoryContext';
 import { useInventoryActions, useVisitRegister } from '../../hooks/useInventoryData';
 import { DrugItem, allocateFefo, usableStock } from '../../domain/inventory';
-import { errorMessage } from '../payroll/shared';
+import { errorMessage } from '../../components/ui/formHelpers';
 import { buttonProps, focusRing } from '../../lib/a11y';
 import { conflictsWithAllergy, recordedAllergies } from '../../domain/allergy';
 import { PageHeading, StationTabs, StatStrip } from '../../components/ui/StationChrome';

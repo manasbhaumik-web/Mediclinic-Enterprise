@@ -19,7 +19,7 @@ import {
 } from '../../lib/staffOnboarding';
 
 import ProgressBar from '../../components/ui/ProgressBar';
-import { Dialog } from '../inventory/shared';
+import { Dialog } from '../../components/ui/shared';
 import { Pagination } from '../../components/ui/Pagination';
 import { evaluateClinicianPrivileges, ClinicianCredentials } from '../../domain/staffCredentialing';
 import LocumDoctorModal from '../operations/LocumDoctorModal';
