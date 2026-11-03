@@ -16,6 +16,7 @@ import {
 } from '../../domain/dangerousDrugsDDA';
 import { maskICNumber } from '../../utils/piiMasker';
 import { useAuth } from '../../context/AuthContext';
+import { StationTabs } from '../../components/ui/StationChrome';
 
 interface DangerousDrugsSafeRegisterProps {
   clinicName?: string;
@@ -286,123 +287,49 @@ export default function DangerousDrugsSafeRegister({
     <div className="space-y-4 animate-fadeIn font-sans">
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 bg-emerald-900 text-white px-5 py-3 border border-emerald-400 rounded-none shadow-xl flex items-center gap-3">
-          <ShieldCheck className="w-5 h-5 text-emerald-300" />
-          <span className="text-xs font-bold">{toastMessage}</span>
+        <div role="status" className="fixed top-20 right-6 z-50 bg-primary text-white px-5 py-3 border border-line rounded-none flex items-center gap-3">
+          <ShieldCheck className="w-5 h-5 text-teal-200" aria-hidden="true" />
+          <span className="text-sm font-bold">{toastMessage}</span>
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="bg-surface border border-line p-4 rounded-none flex flex-wrap items-center justify-between gap-3 shadow-2xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-rose-900 text-white flex items-center justify-center rounded-none border border-rose-700 shadow-2xs">
-            <Lock className="w-5 h-5 text-rose-200" />
+      {/* Title block */}
+      <section aria-labelledby="dda-title" className="bg-surface border border-line px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0 flex-[1_1_28rem]">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2 id="dda-title" className="text-xl font-bold tracking-tight text-ink">Dangerous drugs safe register</h2>
+            <span className="px-2.5 py-0.5 bg-surface-strong text-accent text-xs font-bold">Akta Dadah Berbahaya 1952 (Act 234)</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-ink">
-                Dangerous Drugs Safe Register (Buku Daftar Dadah Berbahaya)
-              </h2>
-              <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 border border-rose-300/40 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 font-bold rounded-none">
-                Akta Dadah Berbahaya 1952 (Act 234)
-              </span>
-              <span className="font-mono text-2xs uppercase tracking-wider px-2 py-0.5 border border-slate-300 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 font-bold rounded-none">
-                MOH BPF Standard
-              </span>
-            </div>
-            <p className="text-xs text-muted font-medium mt-0.5">
-              Statutory perpetual inventory, dual-authorization medical practitioner sign-off, partial wastage logging, and physical reconciliation.
-            </p>
-          </div>
+          <p className="mt-1.5 text-sm text-muted leading-relaxed max-w-3xl">
+            Perpetual inventory of dangerous drugs, with two-person sign-off on withdrawals, wastage logging and physical count checks.
+          </p>
+          <p className="mt-1.5 text-xs text-muted">This register is kept on this device only. For the audited database register, use Controlled register under Inventory.</p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleExportCsv}
-            className="btn-primary flex items-center gap-2 rounded-none px-3.5 py-2 font-mono text-xs font-bold cursor-pointer"
-            title="Export official ledger in MOH Pharmacy Enforcement Division format"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Export MOH Audit CSV</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Sub-Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-2 bg-surface border border-line p-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab('balance')}
-          className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-            activeTab === 'balance'
-              ? 'bg-primary text-white border-primary shadow-xs'
-              : 'bg-surface text-muted border-line hover:text-ink'
-          }`}
-        >
-          <Lock className="w-4 h-4" />
-          <span>1. Safe Inventory &amp; Stock</span>
+        <button type="button" onClick={handleExportCsv} className="btn-primary min-h-12 px-6 text-sm" title="Export official ledger in MOH Pharmacy Enforcement Division format">
+          <FileSpreadsheet className="w-4 h-4" aria-hidden="true" />
+          Export MOH audit CSV
         </button>
+      </section>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('withdraw')}
-          className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-            activeTab === 'withdraw'
-              ? 'bg-primary text-white border-primary shadow-xs'
-              : 'bg-surface text-muted border-line hover:text-ink'
-          }`}
-        >
-          <ArrowUpRight className="w-4 h-4 text-rose-400" />
-          <span>2. Outward Withdrawal (Dual-Auth)</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('inward')}
-          className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-            activeTab === 'inward'
-              ? 'bg-primary text-white border-primary shadow-xs'
-              : 'bg-surface text-muted border-line hover:text-ink'
-          }`}
-        >
-          <ArrowDownLeft className="w-4 h-4 text-emerald-400" />
-          <span>3. Inward Stock Receipt</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('ledger')}
-          className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-            activeTab === 'ledger'
-              ? 'bg-primary text-white border-primary shadow-xs'
-              : 'bg-surface text-muted border-line hover:text-ink'
-          }`}
-        >
-          <History className="w-4 h-4" />
-          <span>4. Perpetual Ledger Transactions ({transactions.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('physical_audit')}
-          className={`px-3.5 py-1.5 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer rounded-none ${
-            activeTab === 'physical_audit'
-              ? 'bg-primary text-white border-primary shadow-xs'
-              : 'bg-surface text-muted border-line hover:text-ink'
-          }`}
-        >
-          <Scale className="w-4 h-4" />
-          <span>5. Physical Count Audit &amp; Discrepancy</span>
-        </button>
-      </div>
+      <StationTabs<'balance' | 'withdraw' | 'inward' | 'ledger' | 'physical_audit'>
+        label="Dangerous drugs register sections"
+        active={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { id: 'balance', label: 'Safe inventory' },
+          { id: 'withdraw', label: 'Withdrawal (two-person)' },
+          { id: 'inward', label: 'Stock receipt' },
+          { id: 'ledger', label: 'Ledger', count: transactions.length },
+          { id: 'physical_audit', label: 'Physical count audit' },
+        ]}
+      />
 
       {/* TAB 1: SAFE BALANCE */}
       {activeTab === 'balance' && (
         <div className="space-y-4">
-          <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-surface-muted p-4 border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+              <h3 className="text-base font-bold text-ink">
                 Dangerous Drugs Storage Compliance (Regulation 8, DDA 1952)
               </h3>
               <p className="text-xs text-muted mt-1 leading-relaxed max-w-3xl">
@@ -413,7 +340,7 @@ export default function DangerousDrugsSafeRegister({
             <button
               type="button"
               onClick={() => setActiveTab('withdraw')}
-              className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-4 py-2 rounded-none border border-primary flex items-center gap-2 cursor-pointer shadow-2xs shrink-0"
+              className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-4 py-2 rounded-none border border-primary flex items-center gap-2 cursor-pointer  shrink-0"
             >
               <Key className="w-3.5 h-3.5" />
               <span>Unlock &amp; Withdraw Drug</span>
@@ -424,16 +351,16 @@ export default function DangerousDrugsSafeRegister({
             {drugs.map((drug) => {
               const isLow = drug.currentStock <= drug.minThreshold;
               return (
-                <div key={drug.id} className="border border-line bg-surface p-4 flex flex-col justify-between shadow-2xs space-y-3">
+                <div key={drug.id} className="border border-line bg-surface p-4 flex flex-col justify-between  space-y-3">
                   <div>
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <span className="text-2xs font-mono font-bold text-muted uppercase">{drug.id}</span>
+                        <span className="text-2xs tabular-nums font-bold text-muted uppercase">{drug.id}</span>
                         <h4 className="text-sm font-bold text-ink mt-0.5">{drug.drugName}</h4>
-                        <p className="text-2xs text-muted font-mono">{drug.schedule}</p>
+                        <p className="text-2xs text-muted tabular-nums">{drug.schedule}</p>
                       </div>
                       <span
-                        className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                        className={`px-2 py-0.5 text-xs font-bold border ${
                           isLow
                             ? 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-200'
                             : 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200'
@@ -443,10 +370,10 @@ export default function DangerousDrugsSafeRegister({
                       </span>
                     </div>
 
-                    <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
+                    <div className="mt-4 p-3 bg-surface-muted border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
                       <div className="flex justify-between items-baseline">
                         <span className="text-muted text-2xs font-bold uppercase">Safe Balance:</span>
-                        <span className="font-mono text-base font-black text-ink">
+                        <span className="tabular-nums text-base font-black text-ink">
                           {drug.currentStock} <span className="text-xs font-medium text-muted">{drug.unit}</span>
                         </span>
                       </div>
@@ -456,7 +383,7 @@ export default function DangerousDrugsSafeRegister({
                       </div>
                       <div className="flex justify-between text-2xs">
                         <span className="text-muted">Min Threshold:</span>
-                        <span className="font-mono">{drug.minThreshold} {drug.unit}</span>
+                        <span className="tabular-nums">{drug.minThreshold} {drug.unit}</span>
                       </div>
                     </div>
                   </div>
@@ -494,7 +421,7 @@ export default function DangerousDrugsSafeRegister({
 
       {/* TAB 2: WITHDRAW DRUG (DUAL-AUTH) */}
       {activeTab === 'withdraw' && (
-        <form onSubmit={handleWithdrawal} className="border border-line bg-surface p-6 space-y-6 shadow-2xs">
+        <form onSubmit={handleWithdrawal} className="border border-line bg-surface p-6 space-y-6 ">
           <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 p-4 flex items-start gap-3">
             <Lock className="w-5 h-5 text-rose-700 shrink-0 mt-0.5" />
             <div className="text-xs text-rose-900 dark:text-rose-200 leading-relaxed">
@@ -510,7 +437,7 @@ export default function DangerousDrugsSafeRegister({
               <select
                 value={selectedDrugId}
                 onChange={(e) => setSelectedDrugId(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-bold focus:outline-hidden focus:border-primary"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent font-bold "
               >
                 {drugs.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -528,7 +455,7 @@ export default function DangerousDrugsSafeRegister({
                 max={selectedDrug.currentStock}
                 value={qtyOut}
                 onChange={(e) => setQtyOut(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-sm font-mono p-2 rounded-none"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm tabular-nums px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 required
               />
             </div>
@@ -540,7 +467,7 @@ export default function DangerousDrugsSafeRegister({
                 min="0"
                 value={qtyWastage}
                 onChange={(e) => setQtyWastage(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-sm font-mono p-2 rounded-none"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm tabular-nums px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 placeholder="e.g. 0 if full ampoule used"
               />
               <span className="text-2xs text-muted">e.g. Residual dose discarded in sharps container.</span>
@@ -552,7 +479,7 @@ export default function DangerousDrugsSafeRegister({
                 type="text"
                 value={patientName}
                 onChange={(e) => setPatientName(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 placeholder="e.g. En. Kamal bin Hassan"
                 required
               />
@@ -564,7 +491,7 @@ export default function DangerousDrugsSafeRegister({
                 type="text"
                 value={patientIc}
                 onChange={(e) => setPatientIc(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                 placeholder="YYMMDD-XX-XXXX"
                 required
               />
@@ -576,7 +503,7 @@ export default function DangerousDrugsSafeRegister({
                 type="text"
                 value={encounterRef}
                 onChange={(e) => setEncounterRef(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                 placeholder="e.g. ENC-20261101-081"
               />
             </div>
@@ -587,7 +514,7 @@ export default function DangerousDrugsSafeRegister({
                 type="text"
                 value={batchNo}
                 onChange={(e) => setBatchNo(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                 required
               />
             </div>
@@ -598,7 +525,7 @@ export default function DangerousDrugsSafeRegister({
                 type="date"
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                 required
               />
             </div>
@@ -609,7 +536,7 @@ export default function DangerousDrugsSafeRegister({
                 type="text"
                 value={clinicalReason}
                 onChange={(e) => setClinicalReason(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 placeholder="e.g. Acute renal colic / post-op pain"
                 required
               />
@@ -617,8 +544,8 @@ export default function DangerousDrugsSafeRegister({
           </div>
 
           {/* DUAL AUTHORIZATION SIGN-OFF BOX */}
-          <div className="border-2 border-line bg-slate-50 dark:bg-slate-900/40 p-4 space-y-3">
-            <h4 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-2">
+          <div className="border-2 border-line bg-surface-muted p-4 space-y-3">
+            <h4 className="text-base font-bold text-ink flex items-center gap-2">
               <UserCheck className="w-4 h-4 text-accent" />
               <span>Mandatory Dual Electronic Authentication</span>
             </h4>
@@ -631,7 +558,7 @@ export default function DangerousDrugsSafeRegister({
                     type="text"
                     value={prescribingDoctorName}
                     onChange={(e) => setPrescribingDoctorName(e.target.value)}
-                    className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none"
+                    className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                     placeholder="Doctor Name"
                     required
                   />
@@ -639,7 +566,7 @@ export default function DangerousDrugsSafeRegister({
                     type="text"
                     value={prescribingDoctorMMC}
                     onChange={(e) => setPrescribingDoctorMMC(e.target.value)}
-                    className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none font-mono"
+                    className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                     placeholder="MMC Number"
                     required
                   />
@@ -653,7 +580,7 @@ export default function DangerousDrugsSafeRegister({
                     type="text"
                     value={custodianName}
                     onChange={(e) => setCustodianName(e.target.value)}
-                    className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none"
+                    className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                     placeholder="Custodian Name"
                     required
                   />
@@ -661,7 +588,7 @@ export default function DangerousDrugsSafeRegister({
                     type="text"
                     value={dualWitnessName}
                     onChange={(e) => setDualWitnessName(e.target.value)}
-                    className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none"
+                    className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                     placeholder="Witness Name"
                     required
                   />
@@ -674,13 +601,13 @@ export default function DangerousDrugsSafeRegister({
             <button
               type="button"
               onClick={() => setActiveTab('balance')}
-              className="px-4 py-2 text-xs font-semibold text-muted hover:text-ink border border-line rounded-none cursor-pointer"
+              className="btn-secondary px-5 text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 rounded-none border border-primary flex items-center gap-2 cursor-pointer shadow-2xs"
+              className="btn-primary min-h-12 px-6 text-sm "
             >
               <Key className="w-4 h-4" />
               <span>Authorize &amp; Record Safe Withdrawal</span>
@@ -691,7 +618,7 @@ export default function DangerousDrugsSafeRegister({
 
       {/* TAB 3: INWARD STOCK RECEIPT */}
       {activeTab === 'inward' && (
-        <form onSubmit={handleInwardReceipt} className="border border-line bg-surface p-6 space-y-6 shadow-2xs">
+        <form onSubmit={handleInwardReceipt} className="border border-line bg-surface p-6 space-y-6 ">
           <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-4 flex items-start gap-3">
             <ArrowDownLeft className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
             <div className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
@@ -707,7 +634,7 @@ export default function DangerousDrugsSafeRegister({
               <select
                 value={inwardDrugId}
                 onChange={(e) => setInwardDrugId(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-bold"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent font-bold"
               >
                 {drugs.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -724,7 +651,7 @@ export default function DangerousDrugsSafeRegister({
                 min="1"
                 value={inwardQty}
                 onChange={(e) => setInwardQty(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-sm font-mono p-2 rounded-none"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm tabular-nums px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 required
               />
             </div>
@@ -735,7 +662,7 @@ export default function DangerousDrugsSafeRegister({
                 type="text"
                 value={inwardSupplier}
                 onChange={(e) => setInwardSupplier(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 required
               />
             </div>
@@ -747,7 +674,7 @@ export default function DangerousDrugsSafeRegister({
                 value={inwardInvoice}
                 onChange={(e) => setInwardInvoice(e.target.value)}
                 placeholder="e.g. INV-DKSH-99201"
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                 required
               />
             </div>
@@ -759,7 +686,7 @@ export default function DangerousDrugsSafeRegister({
                 value={inwardBatch}
                 onChange={(e) => setInwardBatch(e.target.value)}
                 placeholder="e.g. BAT-MOR-2026C"
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                 required
               />
             </div>
@@ -770,7 +697,7 @@ export default function DangerousDrugsSafeRegister({
                 type="date"
                 value={inwardExpiry}
                 onChange={(e) => setInwardExpiry(e.target.value)}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent tabular-nums"
                 required
               />
             </div>
@@ -780,13 +707,13 @@ export default function DangerousDrugsSafeRegister({
             <button
               type="button"
               onClick={() => setActiveTab('balance')}
-              className="px-4 py-2 text-xs font-semibold text-muted hover:text-ink border border-line rounded-none cursor-pointer"
+              className="btn-secondary px-5 text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 rounded-none border border-primary flex items-center gap-2 cursor-pointer shadow-2xs"
+              className="btn-primary min-h-12 px-6 text-sm "
             >
               <ArrowDownLeft className="w-4 h-4" />
               <span>Record Wholesaler Inward Stock</span>
@@ -800,20 +727,20 @@ export default function DangerousDrugsSafeRegister({
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-muted absolute left-3 top-2.5" />
+              <Search className="w-4 h-4 text-muted absolute left-3.5 top-3.5 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search drug, patient, doctor, or invoice..."
-                className="w-full pl-9 pr-3 py-2 text-xs border border-line bg-surface text-ink rounded-none"
+                className="w-full min-h-11 pl-10 pr-3 text-sm border border-line bg-surface text-ink rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
               />
             </div>
 
             <button
               type="button"
               onClick={handleExportCsv}
-              className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-ink border border-line flex items-center gap-1.5 cursor-pointer shadow-2xs self-start"
+              className="px-3.5 py-2 text-xs font-bold bg-surface hover:bg-surface-accent text-ink border border-line flex items-center gap-1.5 cursor-pointer  self-start"
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
               <span>Export CSV</span>
@@ -838,16 +765,16 @@ export default function DangerousDrugsSafeRegister({
               <tbody className="divide-y divide-line">
                 {filteredTransactions.map((tx) => (
                   <tr key={tx.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20">
-                    <td className="p-3 whitespace-nowrap font-mono text-2xs">
+                    <td className="p-3 whitespace-nowrap tabular-nums text-2xs">
                       {new Date(tx.timestamp).toLocaleDateString('en-GB')} {new Date(tx.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                     </td>
                     <td className="p-3">
                       <span className="font-bold text-ink">{tx.drugName}</span>
-                      <span className="block text-2xs text-muted font-mono">{tx.batchNo} (Exp: {tx.expiryDate})</span>
+                      <span className="block text-2xs text-muted tabular-nums">{tx.batchNo} (Exp: {tx.expiryDate})</span>
                     </td>
                     <td className="p-3 whitespace-nowrap">
                       <span
-                        className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                        className={`px-2 py-0.5 text-xs font-bold border ${
                           tx.transactionType === 'INWARD_PURCHASE'
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300'
                             : tx.transactionType === 'OUTWARD_PATIENT'
@@ -858,17 +785,17 @@ export default function DangerousDrugsSafeRegister({
                         {tx.transactionType.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="p-3 font-mono text-2xs">{tx.referenceNo}</td>
-                    <td className="p-3 font-mono font-semibold text-emerald-700 dark:text-emerald-300">
+                    <td className="p-3 tabular-nums text-2xs">{tx.referenceNo}</td>
+                    <td className="p-3 tabular-nums font-semibold text-emerald-700 dark:text-emerald-300">
                       {tx.quantityIn > 0 ? `+${tx.quantityIn}` : '-'}
                     </td>
-                    <td className="p-3 font-mono font-semibold text-rose-700 dark:text-rose-300">
+                    <td className="p-3 tabular-nums font-semibold text-rose-700 dark:text-rose-300">
                       {tx.quantityOut > 0 ? `-${tx.quantityOut}` : '-'}
                     </td>
-                    <td className="p-3 font-mono text-2xs text-amber-700 dark:text-amber-300">
+                    <td className="p-3 tabular-nums text-2xs text-amber-700 dark:text-amber-300">
                       {tx.quantityWastage > 0 ? `${tx.quantityWastage}` : '-'}
                     </td>
-                    <td className="p-3 font-mono font-bold text-ink bg-slate-50/50 dark:bg-slate-900/30">
+                    <td className="p-3 tabular-nums font-bold text-ink bg-slate-50/50 dark:bg-slate-900/30">
                       {tx.runningBalance}
                     </td>
                     <td className="p-3 text-2xs">
@@ -894,9 +821,9 @@ export default function DangerousDrugsSafeRegister({
 
       {/* TAB 5: PHYSICAL COUNT AUDIT & DISCREPANCY */}
       {activeTab === 'physical_audit' && (
-        <div className="border border-line bg-surface p-6 space-y-6 shadow-2xs">
-          <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-line">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+        <div className="border border-line bg-surface p-6 space-y-6 ">
+          <div className="bg-surface-muted p-4 border border-line">
+            <h3 className="text-base font-bold text-ink">
               Statutory Stocktake &amp; Physical Discrepancy Audit (DDA 1952 Regulation 18)
             </h3>
             <p className="text-xs text-muted mt-1 leading-relaxed">
@@ -915,7 +842,7 @@ export default function DangerousDrugsSafeRegister({
                   setAuditDrugId(e.target.value);
                   setAuditResult(null);
                 }}
-                className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-bold"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent font-bold"
               >
                 {drugs.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -935,7 +862,7 @@ export default function DangerousDrugsSafeRegister({
                   setPhysicalCountInput(e.target.value);
                   setAuditResult(null);
                 }}
-                className="w-full bg-surface border border-line text-ink text-sm font-mono p-2 rounded-none"
+                className="w-full bg-surface border border-line text-ink min-h-11 text-sm tabular-nums px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 placeholder="Counted units in safe"
                 required
               />
@@ -943,7 +870,7 @@ export default function DangerousDrugsSafeRegister({
 
             <button
               type="submit"
-              className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 rounded-none border border-primary flex items-center justify-center gap-2 cursor-pointer shadow-2xs h-10"
+              className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 rounded-none border border-primary flex items-center justify-center gap-2 cursor-pointer  h-10"
             >
               <Scale className="w-4 h-4" />
               <span>Evaluate Count vs Ledger</span>
@@ -976,7 +903,7 @@ export default function DangerousDrugsSafeRegister({
                 </h4>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 font-mono text-xs border-y border-current/20 py-2">
+              <div className="grid grid-cols-3 gap-3 tabular-nums text-xs border-y border-current/20 py-2">
                 <div>
                   <span className="text-2xs opacity-80 block">Theoretical Ledger:</span>
                   <span className="font-bold">{auditTargetDrug.currentStock} {auditTargetDrug.unit}</span>
@@ -994,7 +921,7 @@ export default function DangerousDrugsSafeRegister({
               <p className="text-xs leading-relaxed">{auditResult.message}</p>
 
               <div className="space-y-1.5 pt-2">
-                <label className="text-2xs font-bold uppercase tracking-wider block">
+                <label className="text-xs font-bold block">
                   Audit Findings &amp; Corrective Action Notes (CAPA)
                 </label>
                 <input
@@ -1002,7 +929,7 @@ export default function DangerousDrugsSafeRegister({
                   value={auditNotes}
                   onChange={(e) => setAuditNotes(e.target.value)}
                   placeholder="e.g. Visual verification by Dr. Sarah & Pharm. Ahmad. Broken ampoule reported."
-                  className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none"
+                  className="w-full bg-surface border border-line text-ink min-h-11 text-sm px-3 rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
                 />
               </div>
 
@@ -1010,7 +937,7 @@ export default function DangerousDrugsSafeRegister({
                 <button
                   type="button"
                   onClick={handleApplyPhysicalReconciliation}
-                  className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-4 py-2 rounded-none border border-primary flex items-center gap-2 cursor-pointer shadow-2xs"
+                  className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-4 py-2 rounded-none border border-primary flex items-center gap-2 cursor-pointer "
                 >
                   <ShieldCheck className="w-4 h-4" />
                   <span>Certify &amp; Apply Stock Reconciliation</span>

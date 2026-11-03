@@ -200,6 +200,8 @@ export default function DispensaryDashboard({
           visits={allVisits || queue}
           patientsMap={patientsMap}
         />
+      ) : activeSubTab === 'dda-safe' ? (
+        <DangerousDrugsSafeRegister currentStaffName={pharmacistName} />
       ) : (
       <section className="flex flex-wrap bg-surface border border-line">
 
