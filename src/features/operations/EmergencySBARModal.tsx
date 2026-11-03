@@ -233,7 +233,7 @@ export default function EmergencySBARModal({
       aria-labelledby="sbar-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
     >
-      <div className="bg-surface text-ink w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none border border-line shadow-2xl animate-fadeIn">
+      <div className="bg-surface text-ink w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none border border-line animate-fadeIn">
         {/* Header */}
         <div className="p-5 border-b border-line bg-surface flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -246,7 +246,7 @@ export default function EmergencySBARModal({
                   Emergency Hospital Transfer &amp; SBAR Handover
                 </h2>
                 <span
-                  className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                  className={`px-2 py-0.5 text-2xs font-bold border ${
                     priority === 'Red'
                       ? 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200'
                       : 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200'
@@ -254,7 +254,7 @@ export default function EmergencySBARModal({
                 >
                   {priority} Priority Transfer
                 </span>
-                <span className="px-2 py-0.5 text-2xs font-bold uppercase tracking-wider bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
+                <span className="px-2 py-0.5 text-2xs font-bold bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
                   MMC Standard
                 </span>
               </div>
@@ -330,11 +330,11 @@ export default function EmergencySBARModal({
               {/* Patient Banner */}
               <div className="bg-slate-50 dark:bg-slate-900/40 border border-line p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div>
-                  <span className="text-2xs text-muted font-bold uppercase tracking-wider">Patient</span>
+                  <span className="text-2xs text-muted font-bold ">Patient</span>
                   <p className="text-sm font-bold text-ink mt-0.5">
                     {currentRecord.patientName} ({currentRecord.gender}, {currentRecord.age})
                   </p>
-                  <p className="text-2xs font-mono text-muted">IC: {currentRecord.patientIC}</p>
+                  <p className="text-2xs tabular-nums text-muted">IC: {currentRecord.patientIC}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -367,10 +367,10 @@ export default function EmergencySBARModal({
               {/* SECTION S: Situation */}
               <div className="border border-line bg-surface p-4 space-y-4 shadow-2xs">
                 <div className="flex items-center gap-2 border-b border-line pb-2">
-                  <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center font-mono">
+                  <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center tabular-nums">
                     S
                   </span>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     Situation (Reason for Emergency Transfer)
                   </h3>
                 </div>
@@ -414,7 +414,7 @@ export default function EmergencySBARModal({
                       type="text"
                       value={doctorMMC}
                       onChange={(e) => setDoctorMMC(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono focus:outline-hidden focus:border-primary"
+                      className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none tabular-nums focus:outline-hidden focus:border-primary"
                     />
                   </div>
                 </div>
@@ -423,10 +423,10 @@ export default function EmergencySBARModal({
               {/* SECTION B: Background */}
               <div className="border border-line bg-surface p-4 space-y-4 shadow-2xs">
                 <div className="flex items-center gap-2 border-b border-line pb-2">
-                  <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center font-mono">
+                  <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center tabular-nums">
                     B
                   </span>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     Background (Medical History &amp; Baseline)
                   </h3>
                 </div>
@@ -472,10 +472,10 @@ export default function EmergencySBARModal({
               <div className="border border-line bg-surface p-4 space-y-4 shadow-2xs">
                 <div className="flex items-center justify-between border-b border-line pb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center font-mono">
+                    <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center tabular-nums">
                       A
                     </span>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                    <h3 className="text-xs font-bold text-ink">
                       Assessment (Pre-Transfer Vitals &amp; Shock Index)
                     </h3>
                   </div>
@@ -500,7 +500,7 @@ export default function EmergencySBARModal({
                       type="number"
                       value={sbp}
                       onChange={(e) => setSbp(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs font-mono p-2 rounded-none"
+                      className="w-full bg-surface border border-line text-ink text-xs tabular-nums p-2 rounded-none"
                     />
                   </div>
                   <div>
@@ -509,7 +509,7 @@ export default function EmergencySBARModal({
                       type="number"
                       value={dbp}
                       onChange={(e) => setDbp(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs font-mono p-2 rounded-none"
+                      className="w-full bg-surface border border-line text-ink text-xs tabular-nums p-2 rounded-none"
                     />
                   </div>
                   <div>
@@ -518,7 +518,7 @@ export default function EmergencySBARModal({
                       type="number"
                       value={hr}
                       onChange={(e) => setHr(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs font-mono p-2 rounded-none"
+                      className="w-full bg-surface border border-line text-ink text-xs tabular-nums p-2 rounded-none"
                     />
                   </div>
                   <div>
@@ -527,7 +527,7 @@ export default function EmergencySBARModal({
                       type="number"
                       value={rr}
                       onChange={(e) => setRr(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs font-mono p-2 rounded-none"
+                      className="w-full bg-surface border border-line text-ink text-xs tabular-nums p-2 rounded-none"
                     />
                   </div>
                   <div>
@@ -536,7 +536,7 @@ export default function EmergencySBARModal({
                       type="number"
                       value={spo2}
                       onChange={(e) => setSpo2(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs font-mono p-2 rounded-none"
+                      className="w-full bg-surface border border-line text-ink text-xs tabular-nums p-2 rounded-none"
                     />
                   </div>
                   <div>
@@ -545,7 +545,7 @@ export default function EmergencySBARModal({
                       type="number"
                       value={gcs}
                       onChange={(e) => setGcs(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs font-mono p-2 rounded-none"
+                      className="w-full bg-surface border border-line text-ink text-xs tabular-nums p-2 rounded-none"
                     />
                   </div>
                 </div>
@@ -568,7 +568,7 @@ export default function EmergencySBARModal({
                       type="text"
                       value={ecgFindings}
                       onChange={(e) => setEcgFindings(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono"
+                      className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none tabular-nums"
                       placeholder="e.g. Sinus tach, ST elevation in V2-V4"
                     />
                   </div>
@@ -589,10 +589,10 @@ export default function EmergencySBARModal({
               {/* SECTION R: Recommendation & Emergency Medications */}
               <div className="border border-line bg-surface p-4 space-y-4 shadow-2xs">
                 <div className="flex items-center gap-2 border-b border-line pb-2">
-                  <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center font-mono">
+                  <span className="w-5 h-5 bg-teal-800 text-white text-xs font-bold flex items-center justify-center tabular-nums">
                     R
                   </span>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     Recommendation &amp; Pre-Hospital Interventions Given
                   </h3>
                 </div>
@@ -653,14 +653,14 @@ export default function EmergencySBARModal({
 
                 {/* Emergency Meds Given Prior to Transfer */}
                 <div className="space-y-2 pt-2 border-t border-line">
-                  <span className="text-xs font-bold uppercase tracking-wider text-ink block">
+                  <span className="text-xs font-bold text-ink block">
                     Emergency Medications Administered Prior to Transfer
                   </span>
 
                   {medsGiven.length > 0 && (
                     <div className="border border-line overflow-x-auto">
                       <table className="w-full text-left text-xs border-collapse">
-                        <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs uppercase tracking-wider text-muted font-bold">
+                        <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs text-muted font-bold">
                           <tr>
                             <th className="p-2.5">Time</th>
                             <th className="p-2.5">Medication</th>
@@ -672,9 +672,9 @@ export default function EmergencySBARModal({
                         <tbody className="divide-y divide-line">
                           {medsGiven.map((m, idx) => (
                             <tr key={idx}>
-                              <td className="p-2.5 font-mono text-2xs">{m.time}</td>
+                              <td className="p-2.5 tabular-nums text-2xs">{m.time}</td>
                               <td className="p-2.5 font-bold text-ink">{m.drugName}</td>
-                              <td className="p-2.5 font-mono">{m.dose}</td>
+                              <td className="p-2.5 tabular-nums">{m.dose}</td>
                               <td className="p-2.5">{m.route}</td>
                               <td className="p-2.5 text-2xs text-muted">{m.administeredBy}</td>
                             </tr>
@@ -698,7 +698,7 @@ export default function EmergencySBARModal({
                       value={newMedDose}
                       onChange={(e) => setNewMedDose(e.target.value)}
                       placeholder="Dose (e.g. 0.5 mg)"
-                      className="text-xs p-2 border border-line bg-surface text-ink w-28 rounded-none font-mono"
+                      className="text-xs p-2 border border-line bg-surface text-ink w-28 rounded-none tabular-nums"
                     />
                     <select
                       value={newMedRoute}
@@ -762,7 +762,7 @@ export default function EmergencySBARModal({
           {activeTab === 'dispatch' && (
             <div className="space-y-6">
               <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-line">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Ambulance Dispatch &amp; Pre-Hospital Timeline (MOH Standard)
                 </h3>
                 <p className="text-xs text-muted mt-1 leading-relaxed">
@@ -773,7 +773,7 @@ export default function EmergencySBARModal({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="border border-line bg-surface p-4 space-y-3">
-                  <h4 className="text-xs font-bold text-ink uppercase tracking-wider">Dispatch Coordination</h4>
+                  <h4 className="text-xs font-bold text-ink ">Dispatch Coordination</h4>
                   <div className="space-y-1">
                     <label className="text-2xs font-bold text-muted">Ambulance Service Provider</label>
                     <p className="text-xs font-bold text-ink">{ambulanceProvider}</p>
@@ -798,23 +798,23 @@ export default function EmergencySBARModal({
                       type="text"
                       value={receivingContact}
                       onChange={(e) => setReceivingContact(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none font-mono"
+                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none tabular-nums"
                       placeholder="e.g. 03-8947 5555"
                     />
                   </div>
                 </div>
 
                 <div className="border border-line bg-surface p-4 space-y-3">
-                  <h4 className="text-xs font-bold text-ink uppercase tracking-wider">Time Milestones</h4>
+                  <h4 className="text-xs font-bold text-ink ">Time Milestones</h4>
                   <div className="space-y-1">
                     <label className="text-2xs font-bold text-muted">Transfer Decision Time</label>
-                    <p className="text-xs font-mono font-semibold text-ink">
+                    <p className="text-xs tabular-nums font-semibold text-ink">
                       {new Date(decisionTime).toLocaleTimeString('en-GB')}
                     </p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-2xs font-bold text-muted">Ambulance Dispatch Call Placed</label>
-                    <p className="text-xs font-mono font-semibold text-ink">
+                    <p className="text-xs tabular-nums font-semibold text-ink">
                       {new Date(callOutTime).toLocaleTimeString('en-GB')}
                     </p>
                   </div>
@@ -824,7 +824,7 @@ export default function EmergencySBARModal({
                       type="time"
                       value={ambulanceArrivalTime}
                       onChange={(e) => setAmbulanceArrivalTime(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none font-mono"
+                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none tabular-nums"
                     />
                   </div>
                   <div className="space-y-1">
@@ -833,7 +833,7 @@ export default function EmergencySBARModal({
                       type="time"
                       value={departureTime}
                       onChange={(e) => setDepartureTime(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none font-mono"
+                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none tabular-nums"
                     />
                   </div>
                 </div>
@@ -846,7 +846,7 @@ export default function EmergencySBARModal({
               {/* Toolbar */}
               <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 p-3.5 border border-line">
                 <div>
-                  <h3 className="text-xs font-bold text-ink uppercase tracking-wider">
+                  <h3 className="text-xs font-bold text-ink ">
                     Statutory SBAR Handover Sheet &amp; Verbal Script
                   </h3>
                   <p className="text-2xs text-muted">
@@ -877,19 +877,19 @@ export default function EmergencySBARModal({
               <div className="border border-line bg-white text-slate-900 p-8 shadow-sm font-sans space-y-6 max-w-4xl mx-auto">
                 <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
                   <div>
-                    <h1 className="text-lg font-black tracking-tight uppercase text-slate-900">
+                    <h1 className="text-lg font-bold tracking-tight uppercase text-slate-900">
                       Mediclinic Enterprise · Ambulatory Care Centre
                     </h1>
                     <p className="text-xs text-slate-600 font-medium">
                       Emergency Inter-Facility Transfer &amp; SBAR Handover Document
                     </p>
-                    <p className="text-2xs text-slate-500 font-mono mt-0.5">
+                    <p className="text-2xs text-slate-500 tabular-nums mt-0.5">
                       Statutory Compliance: MMC Code of Professional Conduct &amp; PHFSA 1998
                     </p>
                   </div>
                   <div className="text-right">
                     <span
-                      className={`inline-block px-3 py-1 text-xs font-black uppercase tracking-wider border-2 ${
+                      className={`inline-block px-3 py-1 text-xs font-bold border-2 ${
                         priority === 'Red'
                           ? 'border-rose-700 bg-rose-50 text-rose-800'
                           : 'border-amber-600 bg-amber-50 text-amber-800'
@@ -897,7 +897,7 @@ export default function EmergencySBARModal({
                     >
                       {priority} Priority
                     </span>
-                    <p className="text-2xs font-mono text-slate-600 mt-1">Ref: {currentRecord.id}</p>
+                    <p className="text-2xs tabular-nums text-slate-600 mt-1">Ref: {currentRecord.id}</p>
                   </div>
                 </div>
 
@@ -909,7 +909,7 @@ export default function EmergencySBARModal({
                   </div>
                   <div>
                     <span className="text-2xs text-slate-500 block">NRIC / Passport</span>
-                    <span className="font-mono font-semibold text-slate-900">{currentRecord.patientIC}</span>
+                    <span className="tabular-nums font-semibold text-slate-900">{currentRecord.patientIC}</span>
                   </div>
                   <div>
                     <span className="text-2xs text-slate-500 block">Age / Gender</span>
@@ -944,13 +944,13 @@ export default function EmergencySBARModal({
                 <div className="space-y-1 text-xs">
                   <h4 className="font-bold text-slate-900 uppercase border-b border-slate-200 pb-1 flex justify-between">
                     <span>[A] Assessment &amp; Hemodynamics</span>
-                    <span className="font-mono text-2xs">Shock Index: {shockEval.shockIndex} ({shockEval.riskGrade.toUpperCase()})</span>
+                    <span className="tabular-nums text-2xs">Shock Index: {shockEval.shockIndex} ({shockEval.riskGrade.toUpperCase()})</span>
                   </h4>
-                  <p className="font-mono bg-slate-50 p-2 border border-slate-200">
+                  <p className="tabular-nums bg-slate-50 p-2 border border-slate-200">
                     BP: {sbp}/{dbp} mmHg | HR: {hr} bpm | RR: {rr}/min | SpO2: {spo2}% on {o2Support} | GCS: {gcs}/15
                   </p>
                   <p><span className="text-slate-500">Clinical Findings:</span> {clinicalFindings}</p>
-                  {ecgFindings && <p><span className="text-slate-500">ECG:</span> <span className="font-mono">{ecgFindings}</span></p>}
+                  {ecgFindings && <p><span className="text-slate-500">ECG:</span> <span className="tabular-nums">{ecgFindings}</span></p>}
                 </div>
 
                 {/* R */}
@@ -977,9 +977,9 @@ export default function EmergencySBARModal({
                       <tbody className="divide-y divide-slate-200">
                         {medsGiven.map((m, idx) => (
                           <tr key={idx}>
-                            <td className="p-1.5 font-mono">{m.time}</td>
+                            <td className="p-1.5 tabular-nums">{m.time}</td>
                             <td className="p-1.5 font-bold">{m.drugName}</td>
-                            <td className="p-1.5 font-mono">{m.dose}</td>
+                            <td className="p-1.5 tabular-nums">{m.dose}</td>
                             <td className="p-1.5">{m.route}</td>
                             <td className="p-1.5">{m.administeredBy}</td>
                           </tr>

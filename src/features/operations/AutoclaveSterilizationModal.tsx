@@ -133,7 +133,7 @@ export default function AutoclaveSterilizationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      <div className="bg-surface border border-line w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl rounded-none">
+      <div className="bg-surface border border-line w-full max-w-4xl max-h-[90vh] flex flex-col rounded-none">
         
         {/* HEADER */}
         <div className="bg-surface-accent border-b border-line p-4 flex items-center justify-between">
@@ -144,7 +144,7 @@ export default function AutoclaveSterilizationModal({
             <div>
               <h3 className="type-section-title text-ink flex items-center gap-2">
                 Autoclave Sterilization & Instrument Pack Register
-                <span className="text-2xs font-mono font-bold px-2 py-0.5 chip-neutral">PHFSA Part XVI</span>
+                <span className="text-2xs tabular-nums font-bold px-2 py-0.5 chip-neutral">PHFSA Part XVI</span>
               </h3>
               <p className="text-2xs text-subtle">
                 Statutory steam sterilization cycle validation, biological spore tests, and sterile pack batch tracking.
@@ -192,7 +192,7 @@ export default function AutoclaveSterilizationModal({
             </button>
           </div>
 
-          <span className="text-2xs font-mono font-bold text-subtle">
+          <span className="text-2xs tabular-nums font-bold text-subtle">
             Autoclave #1: 134°C Porous Certified
           </span>
         </div>
@@ -205,20 +205,20 @@ export default function AutoclaveSterilizationModal({
             <div className="space-y-3">
               <div className="p-3 bg-surface-accent border border-line rounded-none flex items-center justify-between text-xs">
                 <span className="text-subtle font-medium">Sterile instrument packs packaged in medical-grade Tyvek pouches (30-day validity from cycle).</span>
-                <span className="font-mono font-bold text-accent">{allAvailablePacks.length} Ready for Clinical Use</span>
+                <span className="tabular-nums font-bold text-accent">{allAvailablePacks.length} Ready for Clinical Use</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {allAvailablePacks.map((pack) => (
                   <div key={pack.packId} className="border border-line bg-surface p-3.5 rounded-none space-y-2.5 shadow-2xs">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-xs text-ink">{pack.packId}</span>
+                      <span className="tabular-nums font-bold text-xs text-ink">{pack.packId}</span>
                       <span className="chip chip-ok text-2xs">STERILE</span>
                     </div>
 
                     <p className="text-xs font-bold text-accent">{pack.packType}</p>
 
-                    <div className="text-2xs text-subtle space-y-0.5 font-mono pt-1 border-t border-line-subtle">
+                    <div className="text-2xs text-subtle space-y-0.5 tabular-nums pt-1 border-t border-line-subtle">
                       <p>Sterilized: {new Date(pack.sterilizedAt).toLocaleDateString()}</p>
                       <p className="font-bold text-ink">Expiry: {pack.expiryDate}</p>
                     </div>
@@ -248,16 +248,16 @@ export default function AutoclaveSterilizationModal({
                 <div key={c.id} className="border border-line bg-surface p-4 rounded-none space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-xs text-ink">{c.cycleNumber}</span>
+                      <span className="tabular-nums font-bold text-xs text-ink">{c.cycleNumber}</span>
                       <span className="chip chip-brand text-2xs">{c.program}</span>
                       <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${c.isCycleCompliant ? 'chip-ok' : 'chip-danger'}`}>
                         {c.isCycleCompliant ? 'CYCLE COMPLIANT (PASS)' : 'NON-COMPLIANT (FAILED)'}
                       </span>
                     </div>
-                    <span className="text-2xs text-subtle font-mono">{new Date(c.timestamp).toLocaleString()}</span>
+                    <span className="text-2xs text-subtle tabular-nums">{new Date(c.timestamp).toLocaleString()}</span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-surface-accent p-2.5 rounded-none font-mono text-2xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-surface-accent p-2.5 rounded-none tabular-nums text-2xs">
                     <div>
                       <span className="text-subtle block">Temperature:</span>
                       <span className="font-bold text-ink">{c.achievedTemperatureC}°C</span>
@@ -276,7 +276,7 @@ export default function AutoclaveSterilizationModal({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-2xs text-subtle pt-1 font-mono">
+                  <div className="flex items-center justify-between text-2xs text-subtle pt-1 tabular-nums">
                     <span>Operator: {c.operatorNurseName}</span>
                     <span>Packs generated: {c.packsGenerated.length} set(s)</span>
                   </div>
@@ -324,7 +324,7 @@ export default function AutoclaveSterilizationModal({
                     required
                     value={temperature}
                     onChange={e => setTemperature(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-surface text-ink rounded-none font-mono"
+                    className="w-full text-xs p-2 border border-line bg-surface text-ink rounded-none tabular-nums"
                   />
                 </div>
 
@@ -336,7 +336,7 @@ export default function AutoclaveSterilizationModal({
                     required
                     value={pressure}
                     onChange={e => setPressure(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-surface text-ink rounded-none font-mono"
+                    className="w-full text-xs p-2 border border-line bg-surface text-ink rounded-none tabular-nums"
                   />
                 </div>
 
@@ -348,7 +348,7 @@ export default function AutoclaveSterilizationModal({
                     required
                     value={holdTime}
                     onChange={e => setHoldTime(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-surface text-ink rounded-none font-mono"
+                    className="w-full text-xs p-2 border border-line bg-surface text-ink rounded-none tabular-nums"
                   />
                 </div>
               </div>
@@ -381,33 +381,33 @@ export default function AutoclaveSterilizationModal({
                 <h4 className="text-2xs font-bold text-subtle uppercase">Packs to Generate in this Batch:</h4>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-3xs font-mono text-muted mb-1">Suture Sets</label>
+                    <label className="block text-3xs tabular-nums text-muted mb-1">Suture Sets</label>
                     <input
                       type="number"
                       min={0}
                       value={packSutureCount}
                       onChange={e => setPackSutureCount(parseInt(e.target.value) || 0)}
-                      className="w-full text-xs p-1.5 border border-line bg-surface rounded-none font-mono"
+                      className="w-full text-xs p-1.5 border border-line bg-surface rounded-none tabular-nums"
                     />
                   </div>
                   <div>
-                    <label className="block text-3xs font-mono text-muted mb-1">Incision & Drainage</label>
+                    <label className="block text-3xs tabular-nums text-muted mb-1">Incision & Drainage</label>
                     <input
                       type="number"
                       min={0}
                       value={packInciseCount}
                       onChange={e => setPackInciseCount(parseInt(e.target.value) || 0)}
-                      className="w-full text-xs p-1.5 border border-line bg-surface rounded-none font-mono"
+                      className="w-full text-xs p-1.5 border border-line bg-surface rounded-none tabular-nums"
                     />
                   </div>
                   <div>
-                    <label className="block text-3xs font-mono text-muted mb-1">Biopsy / Excision</label>
+                    <label className="block text-3xs tabular-nums text-muted mb-1">Biopsy / Excision</label>
                     <input
                       type="number"
                       min={0}
                       value={packBiopsyCount}
                       onChange={e => setPackBiopsyCount(parseInt(e.target.value) || 0)}
-                      className="w-full text-xs p-1.5 border border-line bg-surface rounded-none font-mono"
+                      className="w-full text-xs p-1.5 border border-line bg-surface rounded-none tabular-nums"
                     />
                   </div>
                 </div>

@@ -225,7 +225,7 @@ export default function AEFIAndSharpsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="bg-canvas border border-line shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+      <div className="bg-canvas border border-line w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
         {/* Header */}
         <div className="px-6 py-4 bg-canvas-subtle border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ export default function AEFIAndSharpsModal({
                 <h2 className="text-base font-bold tracking-tight text-ink">
                   AEFI Surveillance &amp; Staff Sharps PEP Protocol
                 </h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-rose-500/15 text-rose-700 border border-rose-500/30">
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-rose-500/15 text-rose-700 border border-rose-500/30">
                   KKM BPKK &bull; OSHA 1994
                 </span>
               </div>
@@ -321,7 +321,7 @@ export default function AEFIAndSharpsModal({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <AlertOctagon className="w-5 h-5 text-rose-600 animate-pulse" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-rose-900">
+                    <span className="text-xs font-bold text-rose-900">
                       Emergency Vaccine Anaphylaxis Protocol (Immediate Action)
                     </span>
                   </div>
@@ -375,7 +375,7 @@ export default function AEFIAndSharpsModal({
                       type="number"
                       value={calcWeight}
                       onChange={(e) => setCalcWeight(e.target.value)}
-                      className="w-16 text-xs p-1.5 border border-line bg-canvas font-mono font-bold text-ink rounded-none"
+                      className="w-16 text-xs p-1.5 border border-line bg-canvas tabular-nums font-bold text-ink rounded-none"
                     />
                   </div>
 
@@ -390,7 +390,7 @@ export default function AEFIAndSharpsModal({
               {/* Recent AEFI Cases Table */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">Recent Immunisation AEFI Incidents</h3>
+                  <h3 className="text-xs font-bold text-ink">Recent Immunisation AEFI Incidents</h3>
                   <button
                     onClick={() => setActiveTab('log_aefi')}
                     className="px-3 py-1 text-xs font-semibold bg-brand text-white hover:bg-brand/90 transition-colors flex items-center gap-1"
@@ -413,7 +413,7 @@ export default function AEFIAndSharpsModal({
                         <th className="p-2.5">Disposition</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-line font-mono text-[11px]">
+                    <tbody className="divide-y divide-line tabular-nums text-[11px]">
                       {aefiRecords.map((rec) => (
                         <tr key={rec.id} className="hover:bg-canvas-subtle/50">
                           <td className="p-2.5">
@@ -422,11 +422,11 @@ export default function AEFIAndSharpsModal({
                           </td>
                           <td className="p-2.5 font-sans">
                             <span className="font-medium text-ink block">{rec.patientName}</span>
-                            <span className="text-[10px] text-ink-muted font-mono">{rec.patientAgeYears}y / {rec.weightKg}kg</span>
+                            <span className="text-[10px] text-ink-muted tabular-nums">{rec.patientAgeYears}y / {rec.weightKg}kg</span>
                           </td>
                           <td className="p-2.5 font-sans text-ink">
                             <span>{rec.vaccineName}</span>
-                            <span className="block text-[10px] font-mono text-ink-muted">Lot: {rec.batchNo}</span>
+                            <span className="block text-[10px] tabular-nums text-ink-muted">Lot: {rec.batchNo}</span>
                           </td>
                           <td className="p-2.5">{rec.onsetMinutes}m post-dose</td>
                           <td className="p-2.5">
@@ -481,7 +481,7 @@ export default function AEFIAndSharpsModal({
                     value={patientIc}
                     onChange={(e) => setPatientIc(e.target.value)}
                     placeholder="e.g. 190412-14-5522"
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -491,7 +491,7 @@ export default function AEFIAndSharpsModal({
                       type="number"
                       value={patientAge}
                       onChange={(e) => setPatientAge(e.target.value)}
-                      className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                      className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                       required
                     />
                   </div>
@@ -501,7 +501,7 @@ export default function AEFIAndSharpsModal({
                       type="number"
                       value={weightKg}
                       onChange={(e) => setWeightKg(e.target.value)}
-                      className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                      className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                       required
                     />
                   </div>
@@ -525,7 +525,7 @@ export default function AEFIAndSharpsModal({
                     type="text"
                     value={vaccineBatch}
                     onChange={(e) => setVaccineBatch(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -535,7 +535,7 @@ export default function AEFIAndSharpsModal({
                     type="number"
                     value={onsetMinutes}
                     onChange={(e) => setOnsetMinutes(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -580,7 +580,7 @@ export default function AEFIAndSharpsModal({
               >
                 <AlertOctagon className="w-5 h-5 shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold block uppercase tracking-wide">
+                  <span className="font-bold block ">
                     Evaluated Severity: {liveAEFIEval.severity.toUpperCase()}
                   </span>
                   <p className="mt-0.5 leading-relaxed">{liveAEFIEval.guidance}</p>
@@ -635,7 +635,7 @@ export default function AEFIAndSharpsModal({
                     type="text"
                     value={doctorMMC}
                     onChange={(e) => setDoctorMMC(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -749,7 +749,7 @@ export default function AEFIAndSharpsModal({
                     step="0.5"
                     value={elapsedHours}
                     onChange={(e) => setElapsedHours(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -789,7 +789,7 @@ export default function AEFIAndSharpsModal({
               {/* Live 72-Hour PEP Evaluation Box */}
               <div className="border border-line p-4 bg-canvas space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-2">
+                  <span className="text-xs font-bold text-ink flex items-center gap-2">
                     <Clock className="w-4 h-4 text-brand" />
                     <span>Post-Exposure Prophylaxis (PEP) Assessment</span>
                   </span>
@@ -842,7 +842,7 @@ export default function AEFIAndSharpsModal({
               {/* BPKK AEFI Reports */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     BPKK / NPRA Statutory AEFI Incident Reports
                   </h3>
                   <span className="text-xs text-ink-muted">Form 48-Hour Submission</span>
@@ -860,7 +860,7 @@ export default function AEFIAndSharpsModal({
                         <th className="p-2.5 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-line font-mono text-[11px]">
+                    <tbody className="divide-y divide-line tabular-nums text-[11px]">
                       {aefiRecords.map((r) => (
                         <tr key={r.id} className="hover:bg-canvas-subtle/50">
                           <td className="p-2.5 font-bold text-ink">{r.id}</td>
@@ -891,7 +891,7 @@ export default function AEFIAndSharpsModal({
               {/* OSHA Sharps Incident Registry */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     OSHA 1994 Sharps Exposure Register (JKKP 6)
                   </h3>
                   <span className="text-xs text-ink-muted">Occupational Safety &amp; Health</span>
@@ -909,7 +909,7 @@ export default function AEFIAndSharpsModal({
                         <th className="p-2.5">Statutory Filing</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-line font-mono text-[11px]">
+                    <tbody className="divide-y divide-line tabular-nums text-[11px]">
                       {sharpsRecords.map((s) => (
                         <tr key={s.id} className="hover:bg-canvas-subtle/50">
                           <td className="p-2.5 font-bold text-ink">{s.id}</td>

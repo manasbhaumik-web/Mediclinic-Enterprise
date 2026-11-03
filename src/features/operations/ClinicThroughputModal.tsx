@@ -76,7 +76,7 @@ export default function ClinicThroughputModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      <div className="bg-surface border border-line w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl rounded-none">
+      <div className="bg-surface border border-line w-full max-w-4xl max-h-[90vh] flex flex-col rounded-none">
         
         {/* HEADER */}
         <div className="bg-surface-accent border-b border-line p-4 flex items-center justify-between">
@@ -87,7 +87,7 @@ export default function ClinicThroughputModal({
             <div>
               <h3 className="type-section-title text-ink flex items-center gap-2">
                 Clinic Turnaround Time (TAT) & Throughput Bottleneck Monitor
-                <span className="text-2xs font-mono font-bold px-2 py-0.5 chip-neutral">Outpatient SLA</span>
+                <span className="text-2xs tabular-nums font-bold px-2 py-0.5 chip-neutral">Outpatient SLA</span>
               </h3>
               <p className="text-2xs text-subtle">
                 Real-time door-to-doctor-to-dispensary tracking, bottleneck detection, and patient flow efficiency.
@@ -106,15 +106,15 @@ export default function ClinicThroughputModal({
         {/* TOP SUMMARY STATS */}
         <div className="grid grid-cols-2 md:grid-cols-4 border-b border-line bg-surface">
           <div className="p-4 border-r border-line">
-            <span className="text-2xs font-bold text-subtle uppercase block font-mono">Analyzed Encounters</span>
+            <span className="text-2xs font-bold text-subtle uppercase block tabular-nums">Analyzed Encounters</span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="type-metric text-ink">{analysis.totalVisitsAnalyzed}</span>
-              <span className="text-2xs text-subtle font-mono">active today</span>
+              <span className="text-2xs text-subtle tabular-nums">active today</span>
             </div>
           </div>
 
           <div className="p-4 border-r border-line">
-            <span className="text-2xs font-bold text-subtle uppercase block font-mono">Avg Clinic Stay</span>
+            <span className="text-2xs font-bold text-subtle uppercase block tabular-nums">Avg Clinic Stay</span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="type-metric text-ink">{analysis.averageTotalClinicStayMinutes || 56}m</span>
               <span className="text-2xs chip-ok">Target ≤ 60m</span>
@@ -122,17 +122,17 @@ export default function ClinicThroughputModal({
           </div>
 
           <div className="p-4 border-r border-line">
-            <span className="text-2xs font-bold text-subtle uppercase block font-mono">SLA Compliance</span>
+            <span className="text-2xs font-bold text-subtle uppercase block tabular-nums">SLA Compliance</span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className={`type-metric ${analysis.overallSlaComplianceRatePercent >= 85 ? 'text-emerald-700' : 'text-amber-700'}`}>
                 {analysis.overallSlaComplianceRatePercent}%
               </span>
-              <span className="text-2xs text-subtle font-mono">target 90%</span>
+              <span className="text-2xs text-subtle tabular-nums">target 90%</span>
             </div>
           </div>
 
           <div className="p-4 bg-surface-accent">
-            <span className="text-2xs font-bold text-subtle uppercase block font-mono">Current Bottleneck</span>
+            <span className="text-2xs font-bold text-subtle uppercase block tabular-nums">Current Bottleneck</span>
             <div className="mt-1">
               {analysis.primaryBottleneckStage ? (
                 <span className="text-xs font-bold text-rose-700 flex items-center gap-1">
@@ -166,7 +166,7 @@ export default function ClinicThroughputModal({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-none bg-surface-strong text-accent flex items-center justify-center font-bold text-xs font-mono">
+                      <span className="w-6 h-6 rounded-none bg-surface-strong text-accent flex items-center justify-center font-bold text-xs tabular-nums">
                         {idx + 1}
                       </span>
                       <div>
@@ -178,19 +178,19 @@ export default function ClinicThroughputModal({
                             </span>
                           )}
                         </div>
-                        <span className="text-2xs text-subtle font-mono">
+                        <span className="text-2xs text-subtle tabular-nums">
                           Target SLA: ≤ {stage.targetMaxMinutes} mins · Evaluated {stage.patientCount} patients
                         </span>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span className={`text-base font-mono font-bold ${
+                      <span className={`text-base tabular-nums font-bold ${
                         isOverTarget ? 'text-rose-700' : 'text-accent'
                       }`}>
                         Avg: {stage.averageMinutes} mins
                       </span>
-                      <span className="block text-2xs font-mono text-subtle">
+                      <span className="block text-2xs tabular-nums text-subtle">
                         {stage.slaBreachCount} breach(es)
                       </span>
                     </div>

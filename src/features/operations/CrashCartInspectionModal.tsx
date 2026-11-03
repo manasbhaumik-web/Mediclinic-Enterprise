@@ -112,7 +112,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fadeIn font-sans">
-      <div className="bg-surface border border-line w-full max-w-3xl max-h-[92vh] flex flex-col rounded-none shadow-2xl">
+      <div className="bg-surface border border-line w-full max-w-3xl max-h-[92vh] flex flex-col rounded-none ">
         
         {/* Header */}
         <div className="bg-surface-accent border-b border-line px-5 py-3.5 flex items-center justify-between shrink-0">
@@ -121,7 +121,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
               <Activity className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-ink dark:text-white uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-ink dark:text-white ">
                 Daily Emergency Crash Cart &amp; Resuscitation Readiness (PHFSA 1998)
               </h3>
               <p className="text-2xs text-ink-muted">
@@ -151,7 +151,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                     Crash Cart Inspection Verified &amp; Signed Off
                   </h4>
                   <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
-                    Audit Log ID: <span className="font-mono font-bold">{savedRecord.id}</span> • Shift: {savedRecord.shift}
+                    Audit Log ID: <span className="tabular-nums font-bold">{savedRecord.id}</span> • Shift: {savedRecord.shift}
                   </p>
                   <p className="text-2xs text-emerald-800 dark:text-emerald-400 mt-0.5">
                     Inspector: {savedRecord.inspectorNurse} • Seal: {savedRecord.tamperSealNumber} • O2: {savedRecord.oxygenPsi} PSI
@@ -161,10 +161,10 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
 
               {/* Log Snapshot */}
               <div className="border border-line bg-surface-muted/30 p-3 rounded-none">
-                <span className="text-2xs font-bold uppercase tracking-wider text-ink-muted">
+                <span className="text-2xs font-bold text-ink-muted">
                   Official PHFSA 1998 Audit Log Snapshot
                 </span>
-                <pre className="text-2xs font-mono text-ink whitespace-pre-wrap max-h-56 overflow-y-auto bg-surface p-2.5 border border-line mt-1">
+                <pre className="text-2xs tabular-nums text-ink whitespace-pre-wrap max-h-56 overflow-y-auto bg-surface p-2.5 border border-line mt-1">
                   {exportCrashCartLogText(savedRecord)}
                 </pre>
               </div>
@@ -205,7 +205,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                     <AlertTriangle className="w-5 h-5 text-rose-600" />
                   )}
                   <div>
-                    <h4 className="font-bold uppercase tracking-wide">
+                    <h4 className="font-bold ">
                       {currentEval.isFullyReady ? '✓ Resuscitation Trolley 100% Operational & Audit Ready' : '⚠ Resuscitation Readiness Compromised'}
                     </h4>
                     <p className="text-2xs opacity-90">
@@ -215,7 +215,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                     </p>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 text-2xs font-mono font-bold uppercase rounded-none border ${
+                <span className={`px-2 py-0.5 text-2xs tabular-nums font-bold uppercase rounded-none border ${
                   currentEval.isFullyReady ? 'chip-ok' : 'chip-danger'
                 }`}>
                   {currentEval.isFullyReady ? 'PASSED' : 'DEFECTS'}
@@ -254,7 +254,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                       type="text"
                       value={tamperSeal}
                       onChange={(e) => setTamperSeal(e.target.value)}
-                      className="w-full p-2 border border-line bg-surface text-ink font-mono"
+                      className="w-full p-2 border border-line bg-surface text-ink tabular-nums"
                     />
                     <label className="flex items-center gap-1 text-2xs cursor-pointer shrink-0">
                       <input
@@ -271,7 +271,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
 
               {/* Airway & Medical Gas */}
               <div className="border border-line p-3.5 bg-surface rounded-none space-y-2.5">
-                <h5 className="text-2xs font-bold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+                <h5 className="text-2xs font-bold text-ink-muted flex items-center gap-1.5">
                   <Wind className="w-3.5 h-3.5 text-primary" />
                   <span>Airway &amp; Medical Gas Delivery</span>
                 </h5>
@@ -285,11 +285,11 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                         type="number"
                         value={oxygenPsi}
                         onChange={(e) => setOxygenPsi(Number(e.target.value))}
-                        className={`w-full p-1.5 border font-mono font-bold text-xs ${
+                        className={`w-full p-1.5 border tabular-nums font-bold text-xs ${
                           oxygenPsi >= 1000 ? 'border-emerald-500 bg-emerald-50 text-emerald-900' : 'border-rose-500 bg-rose-50 text-rose-900'
                         }`}
                       />
-                      <span className="text-2xs font-mono text-ink-muted">PSI</span>
+                      <span className="text-2xs tabular-nums text-ink-muted">PSI</span>
                     </div>
                     <span className="text-3xs text-ink-muted mt-0.5 block">Min 1000 PSI</span>
                   </div>
@@ -328,7 +328,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
 
               {/* Defibrillation & AED */}
               <div className="border border-line p-3.5 bg-surface rounded-none space-y-2.5">
-                <h5 className="text-2xs font-bold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+                <h5 className="text-2xs font-bold text-ink-muted flex items-center gap-1.5">
                   <Zap className="w-3.5 h-3.5 text-primary" />
                   <span>Automated External Defibrillator (AED)</span>
                 </h5>
@@ -359,7 +359,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                       type="date"
                       value={aedAdultPadExp}
                       onChange={(e) => setAedAdultPadExp(e.target.value)}
-                      className="w-full p-1.5 border border-line text-2xs font-mono"
+                      className="w-full p-1.5 border border-line text-2xs tabular-nums"
                     />
                   </div>
 
@@ -369,7 +369,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                       type="date"
                       value={aedPedsPadExp}
                       onChange={(e) => setAedPedsPadExp(e.target.value)}
-                      className="w-full p-1.5 border border-line text-2xs font-mono"
+                      className="w-full p-1.5 border border-line text-2xs tabular-nums"
                     />
                   </div>
                 </div>
@@ -377,7 +377,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
 
               {/* Emergency Drug Tray Table */}
               <div className="border border-line p-3.5 bg-surface rounded-none space-y-2.5">
-                <h5 className="text-2xs font-bold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+                <h5 className="text-2xs font-bold text-ink-muted flex items-center gap-1.5">
                   <Pill className="w-3.5 h-3.5 text-primary" />
                   <span>Mandatory Emergency Drug Tray (PHFSA 1998 Schedule)</span>
                 </h5>
@@ -399,11 +399,11 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                               const val = Number(e.target.value);
                               setDrugState(prev => prev.map((d, i) => i === idx ? { ...d, availableQty: val } : d));
                             }}
-                            className={`w-14 p-1 border font-mono text-center font-bold ${
+                            className={`w-14 p-1 border tabular-nums text-center font-bold ${
                               isQtyOk ? 'border-line' : 'border-rose-500 bg-rose-50 text-rose-800'
                             }`}
                           />
-                          <span className="text-ink-muted font-mono">/{req}</span>
+                          <span className="text-ink-muted tabular-nums">/{req}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-ink-muted">Exp:</span>
@@ -414,7 +414,7 @@ export const CrashCartInspectionModal: React.FC<CrashCartInspectionModalProps> =
                               const val = e.target.value;
                               setDrugState(prev => prev.map((d, i) => i === idx ? { ...d, expiryDate: val } : d));
                             }}
-                            className={`p-1 border font-mono text-2xs ${
+                            className={`p-1 border tabular-nums text-2xs ${
                               isExpOk ? 'border-line' : 'border-rose-500 bg-rose-50 text-rose-800 font-bold'
                             }`}
                           />

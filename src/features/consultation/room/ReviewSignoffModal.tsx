@@ -26,7 +26,7 @@ export default function ReviewSignoffModal({
         <div className="flex items-center justify-between border-b border-line pb-3">
           <div className="flex items-center gap-2.5">
             <Stethoscope className="w-5 h-5 text-accent" />
-            <h3 id="review-signoff-title" className="type-heading-caps font-bold">Review and Send Prescription</h3>
+            <h3 id="review-signoff-title" className="text-base font-semibold font-bold">Review and Send Prescription</h3>
           </div>
           <button type="button" onClick={() => setIsReviewModalOpen(false)} className="text-slate-400 hover:text-muted cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center" aria-label="Close review dialog">
             <X className="w-5 h-5" />
@@ -36,23 +36,23 @@ export default function ReviewSignoffModal({
         <div className="space-y-3.5 text-xs">
           <div className="bg-surface-muted p-3 border border-line flex justify-between items-center font-bold">
             <span>Patient: <strong>{currentPatient.fullName}</strong></span>
-            <span>IC: <strong className="font-mono tabular-nums">{maskedIC}</strong></span>
+            <span>IC: <strong className="tabular-nums tabular-nums">{maskedIC}</strong></span>
           </div>
     
           <div>
-            <span className="text-slate-400 uppercase font-bold text-2xs block font-mono">Primary ICD-10 Diagnosis</span>
+            <span className="text-slate-400 uppercase font-bold text-2xs block tabular-nums">Primary ICD-10 Diagnosis</span>
             <div className="bg-surface-accent dark:bg-teal-950 p-2.5 border border-line font-bold text-accent mt-1 flex items-center justify-between">
-              <span className="font-mono tabular-nums">{selectedICD?.code} — {selectedICD?.desc}</span>
+              <span className="tabular-nums tabular-nums">{selectedICD?.code} — {selectedICD?.desc}</span>
               <CheckCircle2 className="w-4 h-4 text-accent" />
             </div>
           </div>
     
           <div>
-            <span className="text-slate-400 uppercase font-bold text-2xs block font-mono">
+            <span className="text-slate-400 uppercase font-bold text-2xs block tabular-nums">
               Prescriptions ({rxList.length} Items)
             </span>
             {rxList.length > 0 ? (
-              <ul className="bg-surface-muted border border-line p-3 space-y-1.5 mt-1 font-mono tabular-nums text-2xs">
+              <ul className="bg-surface-muted border border-line p-3 space-y-1.5 mt-1 tabular-nums tabular-nums text-2xs">
                 {rxList.map((rx, idx) => (
                   <li key={idx} className="flex justify-between border-b border-line pb-1 last:border-0 last:pb-0">
                     <span>{rx.drugName} (Qty: {rx.quantity})</span>
@@ -73,7 +73,7 @@ export default function ReviewSignoffModal({
           )}
         </div>
     
-        <div className="bg-surface-muted p-3 border border-line font-mono tabular-nums text-2xs text-accent">
+        <div className="bg-surface-muted p-3 border border-line tabular-nums tabular-nums text-2xs text-accent">
           This will sign the consultation note and send {rxList.length} medication order(s) to the dispensary.
         </div>
     

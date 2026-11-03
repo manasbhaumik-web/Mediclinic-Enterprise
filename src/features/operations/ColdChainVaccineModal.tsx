@@ -219,7 +219,7 @@ export default function ColdChainVaccineModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="bg-canvas border border-line shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+      <div className="bg-canvas border border-line w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
         {/* Header */}
         <div className="px-6 py-4 bg-canvas-subtle border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -231,7 +231,7 @@ export default function ColdChainVaccineModal({
                 <h2 className="text-base font-bold tracking-tight text-ink">
                   Vaccine Cold Chain & Refrigerator Log
                 </h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
                   +2.0°C to +8.0°C Statutory Range
                 </span>
               </div>
@@ -333,7 +333,7 @@ export default function ColdChainVaccineModal({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-brand" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-ink">
+                    <span className="text-xs font-bold text-ink">
                       Today&apos;s Monitoring Checklist ({todayStr})
                     </span>
                   </div>
@@ -385,13 +385,13 @@ export default function ColdChainVaccineModal({
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-ink">{fridge.name}</span>
-                            <span className="text-[10px] px-1.5 py-0.5 bg-canvas-subtle border border-line font-mono text-ink-muted">
+                            <span className="text-[10px] px-1.5 py-0.5 bg-canvas-subtle border border-line tabular-nums text-ink-muted">
                               {fridge.id}
                             </span>
                           </div>
                           <p className="text-xs text-ink-muted mt-0.5">{fridge.location} &bull; S/N: {fridge.serialNumber}</p>
                         </div>
-                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border ${
+                        <span className={`text-[10px] font-bold px-2 py-0.5 border ${
                           isSafe
                             ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700'
                             : 'bg-rose-500/10 border-rose-500/30 text-rose-700 animate-pulse'
@@ -403,15 +403,15 @@ export default function ColdChainVaccineModal({
                       {/* Live gauge simulation */}
                       <div className="p-3 bg-canvas-subtle border border-line flex items-center justify-between">
                         <div>
-                          <span className="text-[10px] text-ink-muted block uppercase font-mono">Last Logged Temp</span>
-                          <span className="text-2xl font-bold font-mono tracking-tight text-ink">
+                          <span className="text-[10px] text-ink-muted block uppercase tabular-nums">Last Logged Temp</span>
+                          <span className="text-2xl font-bold tabular-nums tracking-tight text-ink">
                             {latestLog ? `${latestLog.currentTempC.toFixed(1)}°C` : '4.0°C'}
                           </span>
                         </div>
 
                         <div className="text-right text-xs">
                           <span className="text-ink-muted block text-[10px]">Min / Max Recorded</span>
-                          <span className="font-mono font-medium text-ink">
+                          <span className="tabular-nums font-medium text-ink">
                             {latestLog ? `${latestLog.minTempC.toFixed(1)}°C / ${latestLog.maxTempC.toFixed(1)}°C` : '3.2°C / 5.0°C'}
                           </span>
                         </div>
@@ -421,11 +421,11 @@ export default function ColdChainVaccineModal({
                       <div className="grid grid-cols-2 gap-2 text-[11px] text-ink-muted pt-1 border-t border-line">
                         <div>
                           <span>Cal. Cert: </span>
-                          <span className="font-mono text-ink font-medium">{fridge.calibrationCertificateNo}</span>
+                          <span className="tabular-nums text-ink font-medium">{fridge.calibrationCertificateNo}</span>
                         </div>
                         <div>
                           <span>Next Cal: </span>
-                          <span className="font-mono text-ink font-medium">{fridge.nextCalibrationDue}</span>
+                          <span className="tabular-nums text-ink font-medium">{fridge.nextCalibrationDue}</span>
                         </div>
                         <div>
                           <span>Emergency Power: </span>
@@ -447,7 +447,7 @@ export default function ColdChainVaccineModal({
                       <ShieldAlert className="w-4 h-4 text-amber-600" />
                       <span className="text-xs font-bold text-ink">Excursion Incident History</span>
                     </div>
-                    <span className="text-[10px] px-2 py-0.5 bg-canvas-subtle border border-line font-mono text-ink-muted">
+                    <span className="text-[10px] px-2 py-0.5 bg-canvas-subtle border border-line tabular-nums text-ink-muted">
                       Total: {excursions.length}
                     </span>
                   </div>
@@ -461,11 +461,11 @@ export default function ColdChainVaccineModal({
                       <div key={exc.id} className="p-2 border border-line bg-canvas-subtle text-xs space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-rose-700">{exc.excursionType}</span>
-                          <span className="text-[10px] font-mono text-ink-muted">{new Date(exc.occurredAt).toLocaleDateString()}</span>
+                          <span className="text-[10px] tabular-nums text-ink-muted">{new Date(exc.occurredAt).toLocaleDateString()}</span>
                         </div>
                         <div className="text-[11px] text-ink-muted flex items-center justify-between">
                           <span>Cause: {exc.cause}</span>
-                          <span className="font-mono">{exc.lowestTempRecordedC}°C - {exc.highestTempRecordedC}°C</span>
+                          <span className="tabular-nums">{exc.lowestTempRecordedC}°C - {exc.highestTempRecordedC}°C</span>
                         </div>
                         <div className="text-[10px] text-ink flex items-center gap-1 font-medium">
                           <span>Action:</span>
@@ -536,7 +536,7 @@ export default function ColdChainVaccineModal({
                     step="0.1"
                     value={currentTemp}
                     onChange={(e) => setCurrentTemp(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono font-medium rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums font-medium rounded-none focus:outline-none focus:border-brand"
                     placeholder="e.g. 4.2"
                     required
                   />
@@ -552,7 +552,7 @@ export default function ColdChainVaccineModal({
                     step="0.1"
                     value={minTemp}
                     onChange={(e) => setMinTemp(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono font-medium rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums font-medium rounded-none focus:outline-none focus:border-brand"
                     placeholder="e.g. 3.5"
                     required
                   />
@@ -568,7 +568,7 @@ export default function ColdChainVaccineModal({
                     step="0.1"
                     value={maxTemp}
                     onChange={(e) => setMaxTemp(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono font-medium rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums font-medium rounded-none focus:outline-none focus:border-brand"
                     placeholder="e.g. 5.1"
                     required
                   />
@@ -595,7 +595,7 @@ export default function ColdChainVaccineModal({
                     <Flame className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                   )}
                   <div>
-                    <span className="font-bold block uppercase tracking-wide">
+                    <span className="font-bold block ">
                       {evalResult.isCompliant ? 'Compliant (+2.0°C to +8.0°C)' : evalResult.excursionType}
                     </span>
                     <p className="mt-0.5 leading-relaxed">{evalResult.message}</p>
@@ -625,7 +625,7 @@ export default function ColdChainVaccineModal({
                     type="text"
                     value={operatorId}
                     onChange={(e) => setOperatorId(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -682,7 +682,7 @@ export default function ColdChainVaccineModal({
 
               {/* Log Shake Test Form */}
               <form onSubmit={handleLogShakeTest} className="border border-line p-4 bg-canvas space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink border-b border-line pb-2">
+                <h3 className="text-xs font-bold text-ink border-b border-line pb-2">
                   Log New Shake Test Record
                 </h3>
 
@@ -703,7 +703,7 @@ export default function ColdChainVaccineModal({
                       type="text"
                       value={stBatchNo}
                       onChange={(e) => setStBatchNo(e.target.value)}
-                      className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                      className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                       placeholder="e.g. HX2026-B81"
                       required
                     />
@@ -717,7 +717,7 @@ export default function ColdChainVaccineModal({
                       type="number"
                       value={stSedimentationMin}
                       onChange={(e) => setStSedimentationMin(e.target.value)}
-                      className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                      className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                       required
                     />
                   </div>
@@ -771,7 +771,7 @@ export default function ColdChainVaccineModal({
 
               {/* Past Shake Tests History */}
               <div className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Documented Shake Test Evaluations
                 </h3>
                 <div className="border border-line overflow-hidden">
@@ -786,12 +786,12 @@ export default function ColdChainVaccineModal({
                         <th className="p-2.5">Staff</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-line font-mono text-[11px]">
+                    <tbody className="divide-y divide-line tabular-nums text-[11px]">
                       {shakeTests.map((st) => (
                         <tr key={st.id} className="hover:bg-canvas-subtle/50">
                           <td className="p-2.5">{new Date(st.testedAt).toLocaleDateString()}</td>
                           <td className="p-2.5 font-sans font-medium text-ink">
-                            {st.vaccineName} <span className="font-mono text-ink-muted text-[10px]">({st.batchNo})</span>
+                            {st.vaccineName} <span className="tabular-nums text-ink-muted text-[10px]">({st.batchNo})</span>
                           </td>
                           <td className="p-2.5">{st.sedimentationTimeMinutes}m</td>
                           <td className="p-2.5">
@@ -819,7 +819,7 @@ export default function ColdChainVaccineModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     Twice-Daily Temperature Audit Ledger
                   </h3>
                   <p className="text-xs text-ink-muted">
@@ -849,7 +849,7 @@ export default function ColdChainVaccineModal({
                       <th className="p-2.5">Logged By</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-line font-mono text-[11px]">
+                  <tbody className="divide-y divide-line tabular-nums text-[11px]">
                     {records.map((r) => (
                       <tr key={r.id} className="hover:bg-canvas-subtle/50">
                         <td className="p-2.5 text-ink-muted">{r.id}</td>

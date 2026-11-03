@@ -248,7 +248,7 @@ export default function PatientReportModal({
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="patient-report-title" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
-      <div className="bg-surface border border-line rounded-none shadow-2xl max-w-6xl w-full h-[92vh] max-h-[900px] flex flex-col overflow-hidden">
+      <div className="bg-surface border border-line rounded-none max-w-6xl w-full h-[92vh] max-h-[900px] flex flex-col overflow-hidden">
         
         {/* HEADER */}
         <div className="bg-surface-muted border-b border-line px-5 py-4 flex items-center justify-between gap-4">
@@ -307,7 +307,7 @@ export default function PatientReportModal({
         <div className="bg-surface border-b border-line p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
           {/* Patient Selector */}
           <div>
-            <label className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">
+            <label className="block text-2xs font-bold text-muted mb-1">
               {isBM ? 'Pesakit' : 'Patient Filter'}
             </label>
             <select
@@ -326,13 +326,13 @@ export default function PatientReportModal({
 
           {/* Year Selector */}
           <div>
-            <label className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">
+            <label className="block text-2xs font-bold text-muted mb-1">
               {isBM ? 'Tahun' : 'Year'}
             </label>
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="w-full bg-surface border border-line px-2.5 py-1.5 text-xs text-ink focus:border-brand outline-none font-mono"
+              className="w-full bg-surface border border-line px-2.5 py-1.5 text-xs text-ink focus:border-brand outline-none tabular-nums"
             >
               <option value="ALL">{isBM ? 'Semua Tahun' : 'All Years'}</option>
               <option value="2026">2026</option>
@@ -343,7 +343,7 @@ export default function PatientReportModal({
 
           {/* Month Selector */}
           <div>
-            <label className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">
+            <label className="block text-2xs font-bold text-muted mb-1">
               {isBM ? 'Bulan' : 'Month'}
             </label>
             <select
@@ -369,7 +369,7 @@ export default function PatientReportModal({
 
           {/* Sponsor Category */}
           <div>
-            <label className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">
+            <label className="block text-2xs font-bold text-muted mb-1">
               {isBM ? 'Kategori Bayaran' : 'Billing Category'}
             </label>
             <select
@@ -385,7 +385,7 @@ export default function PatientReportModal({
 
           {/* Search Query */}
           <div>
-            <label className="block text-2xs font-bold uppercase tracking-wider text-muted mb-1">
+            <label className="block text-2xs font-bold text-muted mb-1">
               {isBM ? 'Carian Teks' : 'Keyword Search'}
             </label>
             <div className="relative">
@@ -404,55 +404,55 @@ export default function PatientReportModal({
         {/* SUMMARY KPI CARDS */}
         <div className="bg-surface-muted border-b border-line px-5 py-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
           <div className="bg-surface border border-line p-2.5">
-            <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+            <span className="text-2xs font-bold text-muted block">
               {isBM ? 'Jumlah Lawatan' : 'Total Encounters'}
             </span>
-            <span className="text-base font-mono font-bold text-ink mt-0.5 block">
+            <span className="text-base tabular-nums font-bold text-ink mt-0.5 block">
               {summary.totalEncounters}
             </span>
           </div>
 
           <div className="bg-surface border border-line p-2.5">
-            <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+            <span className="text-2xs font-bold text-muted block">
               {isBM ? 'Pesakit Unik' : 'Unique Patients'}
             </span>
-            <span className="text-base font-mono font-bold text-accent mt-0.5 block">
+            <span className="text-base tabular-nums font-bold text-accent mt-0.5 block">
               {summary.uniquePatients}
             </span>
           </div>
 
           <div className="bg-surface border border-line p-2.5">
-            <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+            <span className="text-2xs font-bold text-muted block">
               {isBM ? 'Jumlah Kutipan' : 'Total Revenue'}
             </span>
-            <span className="text-base font-mono font-bold text-ink mt-0.5 block">
+            <span className="text-base tabular-nums font-bold text-ink mt-0.5 block">
               RM {summary.totalRevenue.toFixed(2)}
             </span>
           </div>
 
           <div className="bg-surface border border-line p-2.5">
-            <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+            <span className="text-2xs font-bold text-muted block">
               {isBM ? 'Tuntutan Panel' : 'Panel Claims'}
             </span>
-            <span className="text-base font-mono font-bold text-accent mt-0.5 block">
+            <span className="text-base tabular-nums font-bold text-accent mt-0.5 block">
               RM {summary.totalPanel.toFixed(2)}
             </span>
           </div>
 
           <div className="bg-surface border border-line p-2.5">
-            <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+            <span className="text-2xs font-bold text-muted block">
               {isBM ? 'Bayaran Kendiri' : 'Self-Pay Paid'}
             </span>
-            <span className="text-base font-mono font-bold text-emerald-600 mt-0.5 block">
+            <span className="text-base tabular-nums font-bold text-emerald-600 mt-0.5 block">
               RM {summary.totalSelfPay.toFixed(2)}
             </span>
           </div>
 
           <div className="bg-surface border border-line p-2.5">
-            <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+            <span className="text-2xs font-bold text-muted block">
               {isBM ? 'Item Ubat' : 'Medications Dispensed'}
             </span>
-            <span className="text-base font-mono font-bold text-ink mt-0.5 block">
+            <span className="text-base tabular-nums font-bold text-ink mt-0.5 block">
               {summary.totalRx} {isBM ? 'item' : 'items'}
             </span>
           </div>
@@ -493,25 +493,25 @@ export default function PatientReportModal({
                     const p = patientsMap[v.patientId];
                     return (
                       <tr key={v.id || i} className="hover:bg-surface-accent/40 transition-colors">
-                        <td className="px-3 py-2 font-mono text-muted whitespace-nowrap">
+                        <td className="px-3 py-2 tabular-nums text-muted whitespace-nowrap">
                           {v.date || '-'}
                         </td>
                         <td className="px-3 py-2">
                           <span className="font-bold text-ink block">
                             {p ? p.fullName : v.patientId}
                           </span>
-                          <span className="text-2xs font-mono text-accent">ID: {v.patientId}</span>
+                          <span className="text-2xs tabular-nums text-accent">ID: {v.patientId}</span>
                         </td>
-                        <td className="px-3 py-2 font-mono text-muted whitespace-nowrap">
+                        <td className="px-3 py-2 tabular-nums text-muted whitespace-nowrap">
                           {p ? maskICNumber(p.icNumber, showPII) : '-'}
                         </td>
                         <td className="px-3 py-2">
                           <span className="text-ink block">{v.doctorName || 'Attending Physician'}</span>
-                          {v.roomId && <span className="text-2xs text-muted font-mono">{v.roomId}</span>}
+                          {v.roomId && <span className="text-2xs text-muted tabular-nums">{v.roomId}</span>}
                         </td>
                         <td className="px-3 py-2 max-w-xs">
                           {v.soap?.assessment?.icdCode && (
-                            <span className="font-mono text-2xs font-bold text-accent bg-surface-accent border border-line px-1.5 py-0.2 mr-1">
+                            <span className="tabular-nums text-2xs font-bold text-accent bg-surface-accent border border-line px-1.5 py-0.2 mr-1">
                               {v.soap.assessment.icdCode}
                             </span>
                           )}
@@ -520,13 +520,13 @@ export default function PatientReportModal({
                         <td className="px-3 py-2 text-2xs text-muted max-w-xs">
                           {(v.soap?.plan?.prescription || []).map((rx) => rx.drugName).join(', ') || '-'}
                         </td>
-                        <td className="px-3 py-2 text-right font-mono text-accent">
+                        <td className="px-3 py-2 text-right tabular-nums text-accent">
                           {(v.panelClaimed || 0).toFixed(2)}
                         </td>
-                        <td className="px-3 py-2 text-right font-mono text-ink">
+                        <td className="px-3 py-2 text-right tabular-nums text-ink">
                           {(v.paidAmount || 0).toFixed(2)}
                         </td>
-                        <td className="px-3 py-2 text-right font-mono font-bold text-ink">
+                        <td className="px-3 py-2 text-right tabular-nums font-bold text-ink">
                           {(v.totalBill || 0).toFixed(2)}
                         </td>
                         <td className="px-3 py-2 text-center whitespace-nowrap">
@@ -550,7 +550,7 @@ export default function PatientReportModal({
               ? `Menunjukkan ${filteredVisits.length} rekod perundingan klinikal`
               : `Displaying ${filteredVisits.length} outpatient encounter records`}
           </span>
-          <span className="font-mono text-2xs">
+          <span className="tabular-nums text-2xs">
             {reportPeriodLabel} • Klinik Mediclinic Enterprise
           </span>
         </div>

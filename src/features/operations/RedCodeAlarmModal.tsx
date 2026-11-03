@@ -122,7 +122,7 @@ export default function RedCodeAlarmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="bg-canvas border-2 border-rose-600 shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+      <div className="bg-canvas border-2 border-rose-600 w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
         {/* Header */}
         <div className="px-6 py-4 bg-rose-950/20 border-b border-rose-300 dark:border-rose-900 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -134,7 +134,7 @@ export default function RedCodeAlarmModal({
                 <h2 className="text-base font-extrabold tracking-tight text-rose-900 dark:text-rose-100 uppercase">
                   Code Red Resuscitation Bay Alarm
                 </h2>
-                <span className="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 bg-rose-600 text-white border border-rose-700">
+                <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 bg-rose-600 text-white border border-rose-700">
                   Critical Clinical Bypass
                 </span>
               </div>
@@ -211,14 +211,14 @@ export default function RedCodeAlarmModal({
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 bg-rose-700 text-white text-[10px] font-extrabold uppercase tracking-wider animate-pulse">
+                        <span className="px-2 py-0.5 bg-rose-700 text-white text-[10px] font-extrabold animate-pulse">
                           CRITICAL CODE RED BROADCAST ACTIVE
                         </span>
-                        <span className="font-mono text-xs font-bold text-rose-900 dark:text-rose-200">
+                        <span className="tabular-nums text-xs font-bold text-rose-900 dark:text-rose-200">
                           {activeIncident.id}
                         </span>
                       </div>
-                      <h3 className="text-xl font-black text-rose-950 dark:text-rose-100 mt-1">
+                      <h3 className="text-xl font-bold text-rose-950 dark:text-rose-100 mt-1">
                         {activeIncident.patientName} ({activeIncident.estimatedAge}y)
                       </h3>
                       <p className="text-xs text-rose-800 dark:text-rose-300 font-medium">
@@ -227,8 +227,8 @@ export default function RedCodeAlarmModal({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] text-rose-700 dark:text-rose-300 uppercase block font-mono font-bold">Alarm Elapsed</span>
-                      <span className="text-2xl font-black font-mono text-rose-700 dark:text-rose-400">
+                      <span className="text-[10px] text-rose-700 dark:text-rose-300 uppercase block tabular-nums font-bold">Alarm Elapsed</span>
+                      <span className="text-2xl font-bold tabular-nums text-rose-700 dark:text-rose-400">
                         {Math.floor((Date.now() - new Date(activeIncident.triggeredAt).getTime()) / 60000)}m
                       </span>
                     </div>
@@ -236,7 +236,7 @@ export default function RedCodeAlarmModal({
 
                   {/* Immediate Clinical Action Checklist */}
                   <div className="p-4 bg-white dark:bg-night-900 border border-rose-300 dark:border-rose-800 space-y-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-rose-900 dark:text-rose-200 block border-b border-rose-200 pb-1.5">
+                    <span className="text-xs font-bold text-rose-900 dark:text-rose-200 block border-b border-rose-200 pb-1.5">
                       Immediate Clinical Action Protocol: {activeProtocol.title}
                     </span>
 
@@ -291,7 +291,7 @@ export default function RedCodeAlarmModal({
                 /* No Alarm Active: Quick 1-Click Trigger Form */
                 <form onSubmit={handleTriggerAlarm} className="border-2 border-rose-300 bg-canvas p-5 space-y-5">
                   <div className="border-b border-line pb-3">
-                    <h3 className="text-sm font-black uppercase tracking-wider text-rose-800 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-rose-800 flex items-center gap-2">
                       <AlertOctagon className="w-5 h-5 text-rose-600" />
                       <span>Broadcast Immediate Code Red Resuscitation Alarm</span>
                     </h3>
@@ -302,7 +302,7 @@ export default function RedCodeAlarmModal({
 
                   {/* Condition Selector */}
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-ink mb-2">
+                    <label className="block text-xs font-bold text-ink mb-2">
                       Select Emergency Clinical Condition:
                     </label>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
@@ -350,7 +350,7 @@ export default function RedCodeAlarmModal({
                         type="number"
                         value={patientAge}
                         onChange={(e) => setPatientAge(e.target.value)}
-                        className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-rose-600"
+                        className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-rose-600"
                         required
                       />
                     </div>
@@ -371,7 +371,7 @@ export default function RedCodeAlarmModal({
                   <div className="flex justify-end pt-2">
                     <button
                       type="submit"
-                      className="px-6 py-2.5 text-xs font-black bg-rose-600 hover:bg-rose-700 text-white uppercase tracking-wider flex items-center gap-2 shadow-md transition-colors"
+                      className="px-6 py-2.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-2 shadow-md transition-colors"
                     >
                       <Siren className="w-4 h-4 text-white animate-pulse" />
                       <span>🚨 SOUND CODE RED ALARM</span>
@@ -386,7 +386,7 @@ export default function RedCodeAlarmModal({
           {activeTab === 'protocols' && (
             <div className="space-y-4">
               <div className="border border-line bg-canvas-subtle p-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Resuscitation Council of Asia / KKM Emergency Protocols
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
@@ -438,7 +438,7 @@ export default function RedCodeAlarmModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     Code Red Resuscitation Event Log
                   </h3>
                   <p className="text-xs text-ink-muted">
@@ -459,7 +459,7 @@ export default function RedCodeAlarmModal({
                       <th className="p-2.5">Outcome</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-line font-mono text-[11px]">
+                  <tbody className="divide-y divide-line tabular-nums text-[11px]">
                     {incidents.map((inc) => (
                       <tr key={inc.id} className="hover:bg-canvas-subtle/50">
                         <td className="p-2.5 font-bold text-ink">{inc.id}</td>

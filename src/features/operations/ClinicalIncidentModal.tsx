@@ -134,7 +134,7 @@ export default function ClinicalIncidentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      <div className="bg-surface border border-line w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl rounded-none">
+      <div className="bg-surface border border-line w-full max-w-4xl max-h-[90vh] flex flex-col rounded-none">
         
         {/* MODAL HEADER */}
         <div className="bg-surface-accent border-b border-line p-4 flex items-center justify-between">
@@ -145,7 +145,7 @@ export default function ClinicalIncidentModal({
             <div>
               <h3 className="type-section-title text-ink flex items-center gap-2">
                 Clinical Incident & Near-Miss Register
-                <span className="text-2xs font-mono font-bold px-2 py-0.5 chip-neutral">CKAPS & OSHA 1994</span>
+                <span className="text-2xs tabular-nums font-bold px-2 py-0.5 chip-neutral">CKAPS & OSHA 1994</span>
               </h3>
               <p className="text-2xs text-subtle">
                 Statutory clinical risk governance, medication errors, sentinel events and occupational exposures.
@@ -185,7 +185,7 @@ export default function ClinicalIncidentModal({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-2xs font-mono font-bold text-subtle">Active Open: {incidents.filter(i => i.status !== 'Closed').length}</span>
+            <span className="text-2xs tabular-nums font-bold text-subtle">Active Open: {incidents.filter(i => i.status !== 'Closed').length}</span>
           </div>
         </div>
 
@@ -200,7 +200,7 @@ export default function ClinicalIncidentModal({
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-xs text-ink">{inc.incidentNumber}</span>
+                        <span className="tabular-nums font-bold text-xs text-ink">{inc.incidentNumber}</span>
                         <span className={`text-2xs font-bold px-2 py-0.5 rounded-none border ${
                           inc.severity === 'NearMiss' ? 'chip-ok' :
                           inc.severity === 'NoHarm' ? 'chip-info' :
@@ -217,7 +217,7 @@ export default function ClinicalIncidentModal({
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-2xs text-subtle pt-1 font-mono">
+                      <div className="flex items-center gap-4 text-2xs text-subtle pt-1 tabular-nums">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(inc.timestamp).toLocaleString()}</span>
                         <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {inc.location}</span>
                         <span className="flex items-center gap-1"><User className="w-3 h-3" /> Rep: {inc.reporterStaffName} ({inc.reporterRole})</span>
@@ -252,7 +252,7 @@ export default function ClinicalIncidentModal({
                     <div className="text-2xs space-y-1 bg-teal-50/50 p-2.5 border border-line rounded-none">
                       <p className="font-bold text-accent">Root Cause Analysis (RCA): {inc.rootCauseAnalysis}</p>
                       <p className="text-muted">Corrective & Preventive Action (CAPA): {inc.correctivePreventiveAction}</p>
-                      <p className="text-subtle pt-1 font-mono">Investigated & signed off by: {inc.investigatedBy} on {new Date(inc.closedAt!).toLocaleDateString()}</p>
+                      <p className="text-subtle pt-1 tabular-nums">Investigated & signed off by: {inc.investigatedBy} on {new Date(inc.closedAt!).toLocaleDateString()}</p>
                     </div>
                   )}
                 </div>

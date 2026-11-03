@@ -198,7 +198,7 @@ export default function PatientDetailModal({
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="patient-detail-title" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
-      <div className="bg-surface border border-line rounded-none shadow-2xl max-w-5xl w-full h-[90vh] max-h-[850px] flex flex-col overflow-hidden">
+      <div className="bg-surface border border-line rounded-none max-w-5xl w-full h-[90vh] max-h-[850px] flex flex-col overflow-hidden">
         
         {/* MODAL HEADER */}
         <div className="bg-surface-muted border-b border-line px-5 py-4 flex items-center justify-between gap-4">
@@ -211,7 +211,7 @@ export default function PatientDetailModal({
                 <h2 id="patient-detail-title" className="type-section-title text-ink truncate font-bold">
                   {formData.fullName}
                 </h2>
-                <span className="font-mono text-2xs px-2 py-0.5 bg-surface border border-line text-accent font-bold">
+                <span className="tabular-nums text-2xs px-2 py-0.5 bg-surface border border-line text-accent font-bold">
                   {formData.id}
                 </span>
                 <span className={`text-2xs px-2 py-0.5 border font-bold ${
@@ -233,7 +233,7 @@ export default function PatientDetailModal({
                 <span>•</span>
                 <span>{ageDetails.fullLabel}</span>
                 <span>•</span>
-                <span className="font-mono">{maskICNumber(formData.icNumber, effectivePII)}</span>
+                <span className="tabular-nums">{maskICNumber(formData.icNumber, effectivePII)}</span>
                 <button
                   type="button"
                   onClick={() => setLocalShowPII(!localShowPII)}
@@ -269,7 +269,7 @@ export default function PatientDetailModal({
         </div>
 
         {/* TABS NAVIGATION */}
-        <div className="bg-surface border-b border-line px-5 flex items-center gap-1 overflow-x-auto text-xs font-bold uppercase tracking-wider">
+        <div className="bg-surface border-b border-line px-5 flex items-center gap-1 overflow-x-auto text-xs font-bold ">
           <button
             type="button"
             onClick={() => setActiveTab('profile')}
@@ -335,7 +335,7 @@ export default function PatientDetailModal({
           >
             <CreditCard className="w-4 h-4" />
             <span>{isBM ? 'Bayaran & Pengebilan' : 'Payments & Billing'}</span>
-            <span className="ml-1 px-1.5 py-0.2 bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 text-2xs font-mono">
+            <span className="ml-1 px-1.5 py-0.2 bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 text-2xs tabular-nums">
               RM {stats.totalBilled.toFixed(2)}
             </span>
           </button>
@@ -386,7 +386,7 @@ export default function PatientDetailModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
+                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 mb-1 font-sans">
                     {isBM ? 'Nama Penuh (seperti dalam IC)' : 'Full Name (as per IC)'} <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -403,7 +403,7 @@ export default function PatientDetailModal({
 
                 {/* IC Number */}
                 <div>
-                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
+                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 mb-1 font-sans">
                     {isBM ? 'No. Kad Pengenalan / Pasport' : 'IC Number / Passport'} <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -413,7 +413,7 @@ export default function PatientDetailModal({
                     onBlur={handleNricBlur}
                     disabled={!canEdit}
                     placeholder="e.g. 900101-14-5555"
-                    className={`w-full bg-surface border px-3 py-2 text-xs font-mono text-ink focus:border-brand focus:ring-1 focus:ring-brand outline-none ${
+                    className={`w-full bg-surface border px-3 py-2 text-xs tabular-nums text-ink focus:border-brand focus:ring-1 focus:ring-brand outline-none ${
                       errors.icNumber ? 'border-rose-500' : 'border-line'
                     }`}
                   />
@@ -422,7 +422,7 @@ export default function PatientDetailModal({
 
                 {/* Gender */}
                 <div>
-                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
+                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 mb-1 font-sans">
                     {isBM ? 'Jantina' : 'Gender'} <span className="text-rose-500">*</span>
                   </label>
                   <select
@@ -438,7 +438,7 @@ export default function PatientDetailModal({
 
                 {/* Date of Birth */}
                 <div>
-                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
+                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 mb-1 font-sans">
                     {isBM ? 'Tarikh Lahir' : 'Date of Birth'} ({ageDetails.displayAge}) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -446,13 +446,13 @@ export default function PatientDetailModal({
                     value={formData.dob}
                     onChange={(e) => handleInputChange('dob', e.target.value)}
                     disabled={!canEdit}
-                    className="w-full bg-surface border border-line px-3 py-2 text-xs text-ink font-mono focus:border-brand outline-none"
+                    className="w-full bg-surface border border-line px-3 py-2 text-xs text-ink tabular-nums focus:border-brand outline-none"
                   />
                 </div>
 
                 {/* Phone */}
                 <div>
-                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
+                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 mb-1 font-sans">
                     {isBM ? 'Nombor Telefon' : 'Contact Phone'} <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -461,7 +461,7 @@ export default function PatientDetailModal({
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     disabled={!canEdit}
                     placeholder="e.g. 012-3456789"
-                    className={`w-full bg-surface border px-3 py-2 text-xs font-mono text-ink focus:border-brand focus:ring-1 focus:ring-brand outline-none ${
+                    className={`w-full bg-surface border px-3 py-2 text-xs tabular-nums text-ink focus:border-brand focus:ring-1 focus:ring-brand outline-none ${
                       errors.phone ? 'border-rose-500' : 'border-line'
                     }`}
                   />
@@ -470,7 +470,7 @@ export default function PatientDetailModal({
 
                 {/* Panel Employer */}
                 <div>
-                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
+                  <label className="block text-2xs font-bold text-accent dark:text-teal-300 mb-1 font-sans">
                     {isBM ? 'Majikan Panel / Insurans' : 'Corporate Panel / Insurer'}
                   </label>
                   <select
@@ -493,7 +493,7 @@ export default function PatientDetailModal({
 
               {/* Address */}
               <div>
-                <label className="block text-2xs font-bold text-accent dark:text-teal-300 uppercase tracking-wider mb-1 font-sans">
+                <label className="block text-2xs font-bold text-accent dark:text-teal-300 mb-1 font-sans">
                   {isBM ? 'Alamat Kediaman' : 'Residential Address'}
                 </label>
                 <textarea
@@ -641,7 +641,7 @@ export default function PatientDetailModal({
                       {/* Visit top bar */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2.5">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono text-xs font-bold text-accent px-2 py-0.5 bg-primary/10 border border-brand/20">
+                          <span className="tabular-nums text-xs font-bold text-accent px-2 py-0.5 bg-primary/10 border border-brand/20">
                             {v.id}
                           </span>
                           <span className="text-xs font-bold text-ink">
@@ -659,7 +659,7 @@ export default function PatientDetailModal({
                           }`}>
                             {v.status}
                           </span>
-                          <span className="font-mono text-xs font-bold text-ink">
+                          <span className="tabular-nums text-xs font-bold text-ink">
                             RM {(v.totalBill || 0).toFixed(2)}
                           </span>
                         </div>
@@ -669,12 +669,12 @@ export default function PatientDetailModal({
                       <div className="bg-surface-muted border border-line p-3 space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+                            <span className="text-2xs font-bold text-muted block">
                               {isBM ? 'Diagnosis & Kod ICD-10' : 'Diagnosis & ICD-10 Code'}
                             </span>
                             <div className="flex items-center gap-2 mt-0.5">
                               {v.soap?.assessment?.icdCode && (
-                                <span className="font-mono text-xs font-bold px-2 py-0.5 bg-brand/10 text-accent border border-brand/30">
+                                <span className="tabular-nums text-xs font-bold px-2 py-0.5 bg-brand/10 text-accent border border-brand/30">
                                   {v.soap.assessment.icdCode}
                                 </span>
                               )}
@@ -697,25 +697,25 @@ export default function PatientDetailModal({
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                           <div className="bg-surface-accent/40 border border-line p-2">
                             <span className="text-2xs text-muted block font-medium">BP (Blood Pressure)</span>
-                            <span className="font-mono font-bold text-ink">
+                            <span className="tabular-nums font-bold text-ink">
                               {v.soap.objective.bpSystolic}/{v.soap.objective.bpDiastolic} mmHg
                             </span>
                           </div>
                           <div className="bg-surface-accent/40 border border-line p-2">
                             <span className="text-2xs text-muted block font-medium">Heart Rate</span>
-                            <span className="font-mono font-bold text-ink">
+                            <span className="tabular-nums font-bold text-ink">
                               {v.soap.objective.heartRate} bpm
                             </span>
                           </div>
                           <div className="bg-surface-accent/40 border border-line p-2">
                             <span className="text-2xs text-muted block font-medium">Temperature</span>
-                            <span className="font-mono font-bold text-ink">
+                            <span className="tabular-nums font-bold text-ink">
                               {v.soap.objective.temperature} °C
                             </span>
                           </div>
                           <div className="bg-surface-accent/40 border border-line p-2">
                             <span className="text-2xs text-muted block font-medium">Respiratory Rate</span>
-                            <span className="font-mono font-bold text-ink">
+                            <span className="tabular-nums font-bold text-ink">
                               {v.soap.objective.respiratoryRate} /min
                             </span>
                           </div>
@@ -725,7 +725,7 @@ export default function PatientDetailModal({
                       {/* Subjective Notes */}
                       {v.soap?.subjective && (
                         <div className="text-xs">
-                          <span className="text-2xs font-bold uppercase tracking-wider text-muted block">
+                          <span className="text-2xs font-bold text-muted block">
                             {isBM ? 'Aduan Utama (Subjective)' : 'Chief Complaint (Subjective)'}
                           </span>
                           <p className="text-xs text-ink mt-0.5">
@@ -737,7 +737,7 @@ export default function PatientDetailModal({
                       {/* Prescriptions Summary for this visit */}
                       {v.soap?.plan?.prescription && v.soap.plan.prescription.length > 0 && (
                         <div className="border-t border-line pt-2 text-xs">
-                          <span className="text-2xs font-bold uppercase tracking-wider text-muted block mb-1">
+                          <span className="text-2xs font-bold text-muted block mb-1">
                             {isBM ? 'Ubat Dipreskripsi' : 'Prescribed Medications'} ({v.soap.plan.prescription.length})
                           </span>
                           <div className="flex flex-wrap gap-1.5">
@@ -804,13 +804,13 @@ export default function PatientDetailModal({
                       {patientVisits.flatMap((v) =>
                         (v.soap?.plan?.prescription || []).map((rx, idx) => (
                           <tr key={`${v.id}-${idx}`} className="hover:bg-surface-accent/40 transition-colors">
-                            <td className="px-3 py-2.5 font-mono text-muted whitespace-nowrap">
+                            <td className="px-3 py-2.5 tabular-nums text-muted whitespace-nowrap">
                               {v.date ? new Date(v.date).toLocaleDateString('en-MY', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
                               <span className="block text-2xs text-accent font-bold">{v.doctorName || 'Clinician'}</span>
                             </td>
                             <td className="px-3 py-2.5">
                               <span className="font-bold text-ink block">{rx.drugName}</span>
-                              <span className="text-2xs font-mono text-muted">Ref: {rx.id}</span>
+                              <span className="text-2xs tabular-nums text-muted">Ref: {rx.id}</span>
                             </td>
                             <td className="px-3 py-2.5 text-muted">
                               <p className="text-ink">{rx.dosage}</p>
@@ -819,14 +819,14 @@ export default function PatientDetailModal({
                               )}
                             </td>
                             <td className="px-3 py-2.5">
-                              <span className="font-mono px-1.5 py-0.5 bg-surface-accent border border-line text-accent font-bold text-2xs">
+                              <span className="tabular-nums px-1.5 py-0.5 bg-surface-accent border border-line text-accent font-bold text-2xs">
                                 {rx.frequency}
                               </span>
                             </td>
-                            <td className="px-3 py-2.5 text-right font-mono font-bold text-ink">
+                            <td className="px-3 py-2.5 text-right tabular-nums font-bold text-ink">
                               {rx.quantity}
                             </td>
-                            <td className="px-3 py-2.5 text-right font-mono text-ink">
+                            <td className="px-3 py-2.5 text-right tabular-nums text-ink">
                               {((rx.pricePerUnit || 0) * (rx.quantity || 1)).toFixed(2)}
                             </td>
                           </tr>
@@ -859,11 +859,11 @@ export default function PatientDetailModal({
                 <div className="flex items-center justify-between border-b border-line pb-2">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-ink">
+                    <h4 className="text-xs font-bold text-ink">
                       {isBM ? 'Status Imunisasi KKM (Jadual Kanak-Kanak & Dewasa)' : 'KKM Immunisation Milestone Status (NIP)'}
                     </h4>
                   </div>
-                  <span className="text-2xs font-mono font-bold px-2 py-0.5 bg-surface-accent border border-line text-accent">
+                  <span className="text-2xs tabular-nums font-bold px-2 py-0.5 bg-surface-accent border border-line text-accent">
                     DOB: {patient?.dob || 'Not recorded'}
                   </span>
                 </div>
@@ -878,7 +878,7 @@ export default function PatientDetailModal({
                         <th className="px-3 py-2 text-center">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-line bg-surface font-mono">
+                    <tbody className="divide-y divide-line bg-surface tabular-nums">
                       {patient?.dob ? (
                         evaluateImmunizationStatus(patient.dob).slice(0, 8).map((vac) => (
                           <tr key={vac.vaccineCode} className="hover:bg-surface-accent/40">
@@ -917,12 +917,12 @@ export default function PatientDetailModal({
                 <div className="bg-surface border border-line p-4 space-y-3">
                   <div className="flex items-center gap-2 border-b border-line pb-2">
                     <FileText className="w-4 h-4 text-accent" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Informed Procedural Consents</h4>
+                    <h4 className="text-xs font-bold text-ink">Informed Procedural Consents</h4>
                   </div>
                   <p className="text-2xs text-muted">
                     Bilingual (English/BM) consents signed under MMC guidelines for minor surgery, wound debridement, and injections.
                   </p>
-                  <div className="p-3 bg-surface-accent border border-line text-xs font-mono text-muted space-y-1">
+                  <div className="p-3 bg-surface-accent border border-line text-xs tabular-nums text-muted space-y-1">
                     <p className="font-bold text-ink">Verified Digital Signatures: 0 On-file</p>
                     <p className="text-2xs text-subtle">Consents executed in Procedure Room automatically archive to this dossier.</p>
                   </div>
@@ -931,12 +931,12 @@ export default function PatientDetailModal({
                 <div className="bg-surface border border-line p-4 space-y-3">
                   <div className="flex items-center gap-2 border-b border-line pb-2">
                     <Ambulance className="w-4 h-4 text-rose-600" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Emergency SBAR Handover Notes</h4>
+                    <h4 className="text-xs font-bold text-ink">Emergency SBAR Handover Notes</h4>
                   </div>
                   <p className="text-2xs text-muted">
                     MECC 999 ambulance transfers and tertiary emergency department handovers.
                   </p>
-                  <div className="p-3 bg-surface-accent border border-line text-xs font-mono text-muted space-y-1">
+                  <div className="p-3 bg-surface-accent border border-line text-xs tabular-nums text-muted space-y-1">
                     <p className="font-bold text-ink">Tertiary Transfers: None Recorded</p>
                     <p className="text-2xs text-subtle">Hospital handover notes dispatched via Code Red or Consultation sync here.</p>
                   </div>
@@ -964,10 +964,10 @@ export default function PatientDetailModal({
               {/* KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-surface-muted border border-line p-3.5">
-                  <span className="text-2xs uppercase tracking-wider font-bold text-muted block">
+                  <span className="text-2xs font-bold text-muted block">
                     {isBM ? 'Jumlah Invois Sepanjang Hayat' : 'Lifetime Invoiced Amount'}
                   </span>
-                  <span className="text-lg font-mono font-bold text-ink mt-1 block">
+                  <span className="text-lg tabular-nums font-bold text-ink mt-1 block">
                     RM {stats.totalBilled.toFixed(2)}
                   </span>
                   <span className="text-2xs text-muted mt-0.5 block">
@@ -976,10 +976,10 @@ export default function PatientDetailModal({
                 </div>
 
                 <div className="bg-surface-muted border border-line p-3.5">
-                  <span className="text-2xs uppercase tracking-wider font-bold text-muted block">
+                  <span className="text-2xs font-bold text-muted block">
                     {isBM ? 'Tuntutan Panel Majikan' : 'Corporate Panel Claims'}
                   </span>
-                  <span className="text-lg font-mono font-bold text-accent mt-1 block">
+                  <span className="text-lg tabular-nums font-bold text-accent mt-1 block">
                     RM {stats.totalPanel.toFixed(2)}
                   </span>
                   <span className="text-2xs text-muted mt-0.5 block">
@@ -988,10 +988,10 @@ export default function PatientDetailModal({
                 </div>
 
                 <div className="bg-surface-muted border border-line p-3.5">
-                  <span className="text-2xs uppercase tracking-wider font-bold text-muted block">
+                  <span className="text-2xs font-bold text-muted block">
                     {isBM ? 'Bayaran Kendiri (Out-of-Pocket)' : 'Patient Out-of-Pocket'}
                   </span>
-                  <span className="text-lg font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-1 block">
+                  <span className="text-lg tabular-nums font-bold text-emerald-600 dark:text-emerald-400 mt-1 block">
                     RM {stats.totalPaid.toFixed(2)}
                   </span>
                   <span className="text-2xs text-muted mt-0.5 block">
@@ -1024,10 +1024,10 @@ export default function PatientDetailModal({
                     ) : (
                       patientVisits.map((v, i) => (
                         <tr key={v.id || i} className="hover:bg-surface-accent/40 transition-colors">
-                          <td className="px-3 py-2.5 font-mono text-muted whitespace-nowrap">
+                          <td className="px-3 py-2.5 tabular-nums text-muted whitespace-nowrap">
                             {v.date ? new Date(v.date).toLocaleDateString('en-MY', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
                           </td>
-                          <td className="px-3 py-2.5 font-mono text-xs">
+                          <td className="px-3 py-2.5 tabular-nums text-xs">
                             <span className="font-bold text-ink block">{v.receiptNumber || `INV-${v.id}`}</span>
                             {v.glNumber && (
                               <span className="text-2xs text-muted block">GL: {v.glNumber}</span>
@@ -1038,13 +1038,13 @@ export default function PatientDetailModal({
                               {v.paymentMethod || (v.panelClaimed > 0 ? 'Panel Guarantee' : 'Cash / Direct')}
                             </span>
                           </td>
-                          <td className="px-3 py-2.5 text-right font-mono text-accent">
+                          <td className="px-3 py-2.5 text-right tabular-nums text-accent">
                             RM {(v.panelClaimed || 0).toFixed(2)}
                           </td>
-                          <td className="px-3 py-2.5 text-right font-mono text-ink">
+                          <td className="px-3 py-2.5 text-right tabular-nums text-ink">
                             RM {(v.paidAmount || 0).toFixed(2)}
                           </td>
-                          <td className="px-3 py-2.5 text-right font-mono font-bold text-ink">
+                          <td className="px-3 py-2.5 text-right tabular-nums font-bold text-ink">
                             RM {(v.totalBill || 0).toFixed(2)}
                           </td>
                           <td className="px-3 py-2.5 text-center">
@@ -1086,17 +1086,17 @@ export default function PatientDetailModal({
 
               {/* Clinic Letterhead */}
               <div className="text-center border-b-2 border-brand pb-4">
-                <h1 className="text-base font-bold uppercase tracking-wider text-ink">
+                <h1 className="text-base font-bold text-ink">
                   Klinik Mediclinic Enterprise
                 </h1>
                 <p className="text-xs text-muted">
                   No 12, Jalan Sultan Ismail, 50250 Kuala Lumpur • Tel: 03-2144 8888
                 </p>
-                <p className="text-2xs text-muted font-mono mt-0.5">
+                <p className="text-2xs text-muted tabular-nums mt-0.5">
                   KKM License: BKP/1049/2026 • SSM: 202601004521 (1452104-M)
                 </p>
                 <div className="mt-2 text-center">
-                  <span className="inline-block font-bold text-xs uppercase tracking-widest px-3 py-1 bg-primary/10 text-accent border border-brand/20">
+                  <span className="inline-block font-bold text-xs px-3 py-1 bg-primary/10 text-accent border border-brand/20">
                     {isBM ? 'DOSSIER REKOD PERUBATAN & KEWANGAN PESAKIT' : 'PATIENT MEDICAL & FINANCIAL DOSSIER'}
                   </span>
                 </div>
@@ -1110,7 +1110,7 @@ export default function PatientDetailModal({
                 </div>
                 <div>
                   <span className="text-2xs text-muted block uppercase font-bold">{isBM ? 'No. IC / Pasport' : 'IC / Passport'}</span>
-                  <span className="font-mono text-ink block">{maskICNumber(formData.icNumber, effectivePII)}</span>
+                  <span className="tabular-nums text-ink block">{maskICNumber(formData.icNumber, effectivePII)}</span>
                 </div>
                 <div>
                   <span className="text-2xs text-muted block uppercase font-bold">{isBM ? 'Jantina & Umur' : 'Gender & Age'}</span>
@@ -1126,11 +1126,11 @@ export default function PatientDetailModal({
                 </div>
                 <div>
                   <span className="text-2xs text-muted block uppercase font-bold">{isBM ? 'No. Telefon' : 'Phone'}</span>
-                  <span className="font-mono text-ink block">{formData.phone}</span>
+                  <span className="tabular-nums text-ink block">{formData.phone}</span>
                 </div>
                 <div>
                   <span className="text-2xs text-muted block uppercase font-bold">{isBM ? 'Tarikh Daftar' : 'Registered Date'}</span>
-                  <span className="font-mono text-ink block">{formData.registeredDate}</span>
+                  <span className="tabular-nums text-ink block">{formData.registeredDate}</span>
                 </div>
               </div>
 
@@ -1147,7 +1147,7 @@ export default function PatientDetailModal({
 
               {/* Diagnoses Summary */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-ink border-b border-line pb-1 mb-2">
+                <h4 className="text-xs font-bold text-ink border-b border-line pb-1 mb-2">
                   {isBM ? 'Sejarah Diagnosis Klinikal' : 'Clinical Diagnoses & Encounters Summary'}
                 </h4>
                 {patientVisits.length === 0 ? (
@@ -1158,7 +1158,7 @@ export default function PatientDetailModal({
                       <div key={i} className="text-xs border-b border-line/60 pb-2 flex justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-2xs font-bold text-accent">{v.date}</span>
+                            <span className="tabular-nums text-2xs font-bold text-accent">{v.date}</span>
                             <span className="font-bold text-ink">
                               {v.soap?.assessment?.icdCode ? `[${v.soap.assessment.icdCode}] ` : ''}
                               {v.soap?.assessment?.description || 'Consultation'}
@@ -1170,7 +1170,7 @@ export default function PatientDetailModal({
                         </div>
                         <div className="text-right shrink-0">
                           <span className="text-2xs text-muted block">{v.doctorName || 'Doctor'}</span>
-                          <span className="font-mono text-2xs font-bold text-ink">RM {(v.totalBill || 0).toFixed(2)}</span>
+                          <span className="tabular-nums text-2xs font-bold text-ink">RM {(v.totalBill || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     ))}
@@ -1180,24 +1180,24 @@ export default function PatientDetailModal({
 
               {/* Financial Ledger Summary */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-ink border-b border-line pb-1 mb-2">
+                <h4 className="text-xs font-bold text-ink border-b border-line pb-1 mb-2">
                   {isBM ? 'Penyata Akaun & Kewangan' : 'Financial Statement of Account'}
                 </h4>
                 <div className="flex justify-between text-xs py-1">
                   <span className="text-muted">{isBM ? 'Jumlah Bil Dikenakan:' : 'Total Billed Charges:'}</span>
-                  <span className="font-mono font-bold text-ink">RM {stats.totalBilled.toFixed(2)}</span>
+                  <span className="tabular-nums font-bold text-ink">RM {stats.totalBilled.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-xs py-1">
                   <span className="text-muted">{isBM ? 'Tuntutan Panel Diluluskan:' : 'Approved Corporate Panel Claims:'}</span>
-                  <span className="font-mono font-bold text-accent">RM {stats.totalPanel.toFixed(2)}</span>
+                  <span className="tabular-nums font-bold text-accent">RM {stats.totalPanel.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-xs py-1 border-b border-line pb-1">
                   <span className="text-muted">{isBM ? 'Jumlah Dibayar Oleh Pesakit:' : 'Patient Out-of-Pocket Settlements:'}</span>
-                  <span className="font-mono font-bold text-emerald-600">RM {stats.totalPaid.toFixed(2)}</span>
+                  <span className="tabular-nums font-bold text-emerald-600">RM {stats.totalPaid.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-xs py-1 font-bold pt-2">
                   <span className="text-ink">{isBM ? 'Baki Tertunggak:' : 'Outstanding Balance:'}</span>
-                  <span className="font-mono text-emerald-600">RM 0.00 (SETTLED)</span>
+                  <span className="tabular-nums text-emerald-600">RM 0.00 (SETTLED)</span>
                 </div>
               </div>
 

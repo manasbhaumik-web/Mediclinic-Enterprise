@@ -164,7 +164,7 @@ export default function POCTQualityControlModal({
       aria-labelledby="poct-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
     >
-      <div className="bg-surface text-ink w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none border border-line shadow-2xl animate-fadeIn">
+      <div className="bg-surface text-ink w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none border border-line animate-fadeIn">
         {/* Header */}
         <div className="p-5 border-b border-line bg-surface flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -176,10 +176,10 @@ export default function POCTQualityControlModal({
                 <h2 id="poct-modal-title" className="type-modal-title text-ink font-bold">
                   Point-of-Care Testing (POCT) &amp; Calibration Log
                 </h2>
-                <span className="px-2 py-0.5 text-2xs font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-300 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-700">
+                <span className="px-2 py-0.5 text-2xs font-bold bg-teal-100 text-teal-800 border border-teal-300 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-700">
                   PHFSA 1998 § 38
                 </span>
-                <span className="px-2 py-0.5 text-2xs font-bold uppercase tracking-wider bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
+                <span className="px-2 py-0.5 text-2xs font-bold bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
                   CKAPS Standard
                 </span>
               </div>
@@ -251,7 +251,7 @@ export default function POCTQualityControlModal({
             <div className="space-y-6">
               <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     PHFSA 1998 § 38 Outpatient Lab Standard
                   </h3>
                   <p className="text-xs text-muted mt-1 leading-relaxed max-w-2xl">
@@ -287,14 +287,14 @@ export default function POCTQualityControlModal({
                       <div>
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <span className="text-2xs font-mono font-bold text-muted uppercase">
+                            <span className="text-2xs tabular-nums font-bold text-muted uppercase">
                               {device.id}
                             </span>
                             <h4 className="text-sm font-bold text-ink mt-0.5">{device.name}</h4>
                             <p className="text-2xs text-muted">{device.location}</p>
                           </div>
                           <span
-                            className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                            className={`px-2 py-0.5 text-2xs font-bold border ${
                               evalResult.isValid
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700'
                                 : evalResult.status === 'failed_qc'
@@ -316,7 +316,7 @@ export default function POCTQualityControlModal({
                         <div className="mt-3 p-2.5 bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 space-y-1 text-2xs">
                           <div className="flex justify-between">
                             <span className="text-muted">Reagent Lot:</span>
-                            <span className="font-mono font-bold text-ink">{device.reagentLotNumber}</span>
+                            <span className="tabular-nums font-bold text-ink">{device.reagentLotNumber}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted">Open-Vial Shelf Life:</span>
@@ -397,7 +397,7 @@ export default function POCTQualityControlModal({
                     value={controlLot}
                     onChange={(e) => setControlLot(e.target.value)}
                     placeholder="e.g. CTL-GLUC-2026-N1"
-                    className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono focus:outline-hidden focus:border-primary"
+                    className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none tabular-nums focus:outline-hidden focus:border-primary"
                     required
                   />
                 </div>
@@ -421,7 +421,7 @@ export default function POCTQualityControlModal({
                     type="text"
                     value={operatorId}
                     onChange={(e) => setOperatorId(e.target.value)}
-                    className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none font-mono focus:outline-hidden focus:border-primary"
+                    className="w-full bg-surface border border-line text-ink text-xs p-2.5 rounded-none tabular-nums focus:outline-hidden focus:border-primary"
                     required
                   />
                 </div>
@@ -433,14 +433,14 @@ export default function POCTQualityControlModal({
                 <div className="border border-line bg-surface p-4 space-y-3 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-ink uppercase tracking-wider">Level 1: Normal Control</h4>
+                      <h4 className="text-xs font-bold text-ink ">Level 1: Normal Control</h4>
                       <p className="text-2xs text-muted">
                         Acceptable Range: <span className="font-bold text-ink">{selectedDevice.level1Target.min} - {selectedDevice.level1Target.max} {selectedDevice.level1Target.unit}</span>
                       </p>
                     </div>
                     {l1Eval && (
                       <span
-                        className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                        className={`px-2 py-0.5 text-2xs font-bold border ${
                           l1Eval.status === 'pass'
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700'
                             : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-700'
@@ -459,7 +459,7 @@ export default function POCTQualityControlModal({
                       value={level1Reading}
                       onChange={(e) => setLevel1Reading(e.target.value)}
                       placeholder={`e.g. ${((selectedDevice.level1Target.min + selectedDevice.level1Target.max) / 2).toFixed(1)}`}
-                      className="w-full bg-surface border border-line text-ink text-sm font-mono p-2.5 rounded-none focus:outline-hidden focus:border-primary"
+                      className="w-full bg-surface border border-line text-ink text-sm tabular-nums p-2.5 rounded-none focus:outline-hidden focus:border-primary"
                       required
                     />
                   </div>
@@ -477,14 +477,14 @@ export default function POCTQualityControlModal({
                 <div className="border border-line bg-surface p-4 space-y-3 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-ink uppercase tracking-wider">Level 2: High / Pathological Control</h4>
+                      <h4 className="text-xs font-bold text-ink ">Level 2: High / Pathological Control</h4>
                       <p className="text-2xs text-muted">
                         Acceptable Range: <span className="font-bold text-ink">{selectedDevice.level2Target.min} - {selectedDevice.level2Target.max} {selectedDevice.level2Target.unit}</span>
                       </p>
                     </div>
                     {l2Eval && (
                       <span
-                        className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                        className={`px-2 py-0.5 text-2xs font-bold border ${
                           l2Eval.status === 'pass'
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700'
                             : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-700'
@@ -503,7 +503,7 @@ export default function POCTQualityControlModal({
                       value={level2Reading}
                       onChange={(e) => setLevel2Reading(e.target.value)}
                       placeholder={`e.g. ${((selectedDevice.level2Target.min + selectedDevice.level2Target.max) / 2).toFixed(1)}`}
-                      className="w-full bg-surface border border-line text-ink text-sm font-mono p-2.5 rounded-none focus:outline-hidden focus:border-primary"
+                      className="w-full bg-surface border border-line text-ink text-sm tabular-nums p-2.5 rounded-none focus:outline-hidden focus:border-primary"
                       required
                     />
                   </div>
@@ -555,7 +555,7 @@ export default function POCTQualityControlModal({
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-xs font-bold text-ink uppercase tracking-wider">
+                  <h3 className="text-xs font-bold text-ink ">
                     Statutory POCT Calibration Register (PHFSA 1998 § 38)
                   </h3>
                   <p className="text-2xs text-muted">
@@ -579,7 +579,7 @@ export default function POCTQualityControlModal({
               ) : (
                 <div className="border border-line overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs uppercase tracking-wider text-muted font-bold">
+                    <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs text-muted font-bold">
                       <tr>
                         <th className="p-3">Tested At</th>
                         <th className="p-3">Device / Instrument</th>
@@ -592,21 +592,21 @@ export default function POCTQualityControlModal({
                     <tbody className="divide-y divide-line">
                       {records.map((r) => (
                         <tr key={r.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20">
-                          <td className="p-3 whitespace-nowrap font-mono text-2xs">
+                          <td className="p-3 whitespace-nowrap tabular-nums text-2xs">
                             {new Date(r.testedAt).toLocaleDateString('en-GB')} {new Date(r.testedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                           </td>
                           <td className="p-3">
                             <span className="font-bold text-ink">{r.deviceName}</span>
-                            <span className="block text-2xs text-muted font-mono">{r.deviceId}</span>
+                            <span className="block text-2xs text-muted tabular-nums">{r.deviceId}</span>
                           </td>
                           <td className="p-3 whitespace-nowrap">
-                            <span className="font-mono font-semibold">{r.level1.measuredValue} {r.level1.unit}</span>
+                            <span className="tabular-nums font-semibold">{r.level1.measuredValue} {r.level1.unit}</span>
                             <span className={`ml-2 text-2xs font-bold uppercase ${r.level1.status === 'pass' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700'}`}>
                               ({r.level1.status})
                             </span>
                           </td>
                           <td className="p-3 whitespace-nowrap">
-                            <span className="font-mono font-semibold">{r.level2.measuredValue} {r.level2.unit}</span>
+                            <span className="tabular-nums font-semibold">{r.level2.measuredValue} {r.level2.unit}</span>
                             <span className={`ml-2 text-2xs font-bold uppercase ${r.level2.status === 'pass' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700'}`}>
                               ({r.level2.status})
                             </span>
@@ -617,7 +617,7 @@ export default function POCTQualityControlModal({
                           </td>
                           <td className="p-3 whitespace-nowrap">
                             <span
-                              className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                              className={`px-2 py-0.5 text-2xs font-bold border ${
                                 r.overallStatus === 'pass'
                                   ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700'
                                   : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-700'

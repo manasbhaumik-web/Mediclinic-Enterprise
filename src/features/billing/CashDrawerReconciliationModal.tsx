@@ -135,11 +135,11 @@ export default function CashDrawerReconciliationModal({
       className="fixed inset-0 z-50 bg-night-950/75 backdrop-blur-xs flex items-center justify-center p-4 font-sans"
       onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
-      <div className="bg-surface border-2 border-line w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none shadow-2xl animate-scaleUp overflow-hidden">
+      <div className="bg-surface border-2 border-line w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none animate-scaleUp overflow-hidden">
         
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="bg-emerald-900 text-white px-4 py-2.5 border-b border-emerald-400 flex items-center gap-2 text-xs font-bold font-mono">
+          <div className="bg-emerald-900 text-white px-4 py-2.5 border-b border-emerald-400 flex items-center gap-2 text-xs font-bold tabular-nums">
             <CheckCircle2 className="w-4 h-4 text-emerald-300" />
             <span>{toastMessage}</span>
           </div>
@@ -153,10 +153,10 @@ export default function CashDrawerReconciliationModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 id="reconciliation-modal-title" className="text-sm font-bold text-ink uppercase tracking-wider">
+                <h3 id="reconciliation-modal-title" className="text-sm font-bold text-ink ">
                   Cash Drawer Float Count &amp; Daily Z-Report
                 </h3>
-                <span className="font-mono text-2xs uppercase px-2 py-0.5 border border-line bg-surface font-bold text-accent">
+                <span className="tabular-nums text-2xs uppercase px-2 py-0.5 border border-line bg-surface font-bold text-accent">
                   Shift End Balancing
                 </span>
               </div>
@@ -182,15 +182,15 @@ export default function CashDrawerReconciliationModal({
           {/* Shift Details & Opening Float Bar */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-surface-muted/30 border border-line p-3 text-xs">
             <div>
-              <span className="text-2xs font-mono text-muted uppercase">Register Station:</span>
-              <div className="font-bold font-mono text-ink">{counterId} (Main Cashier)</div>
+              <span className="text-2xs tabular-nums text-muted uppercase">Register Station:</span>
+              <div className="font-bold tabular-nums text-ink">{counterId} (Main Cashier)</div>
             </div>
             <div>
-              <span className="text-2xs font-mono text-muted uppercase">Active Cashier:</span>
+              <span className="text-2xs tabular-nums text-muted uppercase">Active Cashier:</span>
               <div className="font-bold text-ink">{cashierName}</div>
             </div>
             <div>
-              <label htmlFor="opening-float-input" className="text-2xs font-mono text-muted uppercase block">
+              <label htmlFor="opening-float-input" className="text-2xs tabular-nums text-muted uppercase block">
                 Opening Cash Float (RM):
               </label>
               <input
@@ -200,7 +200,7 @@ export default function CashDrawerReconciliationModal({
                 min="0"
                 value={openingFloat}
                 onChange={(e) => setOpeningFloat(Math.max(0, parseFloat(e.target.value) || 0))}
-                className="w-full mt-0.5 px-2 py-1 bg-surface border border-line font-mono font-bold text-xs text-ink focus:outline-none focus:border-brand"
+                className="w-full mt-0.5 px-2 py-1 bg-surface border border-line tabular-nums font-bold text-xs text-ink focus:outline-none focus:border-brand"
               />
             </div>
           </div>
@@ -211,12 +211,12 @@ export default function CashDrawerReconciliationModal({
             {/* Left Column: Physical Denomination Counter (7 Cols) */}
             <div className="lg:col-span-7 border border-line p-4 bg-surface space-y-3">
               <div className="flex items-center justify-between border-b border-line pb-2">
-                <span className="type-heading-caps text-ink flex items-center gap-2">
+                <span className="text-base font-semibold text-ink flex items-center gap-2">
                   <Coins className="w-4 h-4 text-accent" />
                   Physical Cash Count Breakdown
                 </span>
-                <span className="font-mono text-xs font-bold text-ink">
-                  Total Counted: <span className="text-primary font-mono text-sm">RM {reconciliation.actualCashCounted.toFixed(2)}</span>
+                <span className="tabular-nums text-xs font-bold text-ink">
+                  Total Counted: <span className="text-primary tabular-nums text-sm">RM {reconciliation.actualCashCounted.toFixed(2)}</span>
                 </span>
               </div>
 
@@ -226,7 +226,7 @@ export default function CashDrawerReconciliationModal({
                   const count = breakdown[den.key] || 0;
                   const lineTotal = count * den.value;
                   return (
-                    <div key={den.key} className="flex items-center justify-between px-3 py-1.5 hover:bg-surface-muted/40 transition-colors text-xs font-mono">
+                    <div key={den.key} className="flex items-center justify-between px-3 py-1.5 hover:bg-surface-muted/40 transition-colors text-xs tabular-nums">
                       <div className="flex items-center gap-2 w-32">
                         <span className={`w-2 h-2 rounded-none ${den.type === 'note' ? 'bg-primary' : 'bg-amber-600'}`} />
                         <span className="font-bold text-ink">{den.label}</span>
@@ -259,12 +259,12 @@ export default function CashDrawerReconciliationModal({
               
               {/* Summary Card */}
               <div className="border border-line bg-surface p-4 space-y-3">
-                <span className="type-heading-caps text-ink flex items-center gap-2 border-b border-line pb-2">
+                <span className="text-base font-semibold text-ink flex items-center gap-2 border-b border-line pb-2">
                   <DollarSign className="w-4 h-4 text-accent" />
                   Drawer Reconciliation Audit
                 </span>
 
-                <div className="space-y-2 text-xs font-mono">
+                <div className="space-y-2 text-xs tabular-nums">
                   <div className="flex justify-between py-1 border-b border-line/40">
                     <span className="text-muted">Opening Cash Float:</span>
                     <span className="font-bold text-ink">RM {reconciliation.openingFloat.toFixed(2)}</span>
@@ -293,13 +293,13 @@ export default function CashDrawerReconciliationModal({
                         : 'bg-rose-50 dark:bg-rose-950/60 border-rose-400 text-rose-900 dark:text-rose-200'
                   }`}>
                     <div>
-                      <div className="text-2xs uppercase tracking-wider font-bold">Variance Status</div>
+                      <div className="text-2xs font-bold">Variance Status</div>
                       <div className="text-base font-bold">
                         {reconciliation.status.toUpperCase()}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xs uppercase tracking-wider font-bold">Difference</div>
+                      <div className="text-2xs font-bold">Difference</div>
                       <div className="text-lg font-bold">
                         {reconciliation.variance >= 0 ? '+' : ''}RM {reconciliation.variance.toFixed(2)}
                       </div>
@@ -308,7 +308,7 @@ export default function CashDrawerReconciliationModal({
                 </div>
 
                 {/* Additional Non-Cash Breakdown */}
-                <div className="pt-2 border-t border-line text-2xs font-mono space-y-1 text-muted">
+                <div className="pt-2 border-t border-line text-2xs tabular-nums space-y-1 text-muted">
                   <div className="flex justify-between">
                     <span>Credit / Debit Card:</span>
                     <span>RM {reconciliation.totalCardCollected.toFixed(2)}</span>
@@ -330,7 +330,7 @@ export default function CashDrawerReconciliationModal({
 
               {/* Cashier Notes */}
               <div className="space-y-1.5">
-                <label htmlFor="cashier-recon-notes" className="text-2xs font-mono text-muted uppercase font-bold block">
+                <label htmlFor="cashier-recon-notes" className="text-2xs tabular-nums text-muted uppercase font-bold block">
                   Reconciliation Notes / Variance Reason:
                 </label>
                 <textarea
@@ -355,7 +355,7 @@ export default function CashDrawerReconciliationModal({
             <button
               type="button"
               onClick={handlePrintZReport}
-              className="btn-secondary flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 cursor-pointer"
+              className="btn-secondary flex items-center gap-1.5 tabular-nums text-xs px-3 py-1.5 cursor-pointer"
               title="Print formal thermal paper Daily Z-Report slip"
             >
               <Printer className="w-4 h-4" />
@@ -364,7 +364,7 @@ export default function CashDrawerReconciliationModal({
             <button
               type="button"
               onClick={handleExportCsv}
-              className="btn-secondary flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 cursor-pointer"
+              className="btn-secondary flex items-center gap-1.5 tabular-nums text-xs px-3 py-1.5 cursor-pointer"
               title="Export shift audit figures to spreadsheet CSV"
             >
               <Download className="w-4 h-4" />

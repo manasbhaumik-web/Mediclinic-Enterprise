@@ -147,7 +147,7 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fadeIn">
-      <div className="bg-surface border border-line w-full max-w-3xl max-h-[92vh] flex flex-col rounded-none shadow-2xl font-sans">
+      <div className="bg-surface border border-line w-full max-w-3xl max-h-[92vh] flex flex-col rounded-none font-sans">
         
         {/* Header */}
         <div className="bg-surface-accent border-b border-line px-5 py-3.5 flex items-center justify-between shrink-0">
@@ -156,7 +156,7 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
               <ShieldAlert className="w-5 h-5 text-accent" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-ink dark:text-white uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-ink dark:text-white ">
                 Statutory Informed Procedural Consent (PHFSA 1998)
               </h3>
               <p className="text-2xs text-ink-muted">
@@ -185,7 +185,7 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
                     Consent Form Validated & Medico-Legally Executed
                   </h4>
                   <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
-                    Consent ID: <span className="font-mono font-bold">{signedRecord.id}</span> • Signed on {new Date(signedRecord.signedAt).toLocaleString('en-GB')}
+                    Consent ID: <span className="tabular-nums font-bold">{signedRecord.id}</span> • Signed on {new Date(signedRecord.signedAt).toLocaleString('en-GB')}
                   </p>
                   <p className="text-2xs text-emerald-800 dark:text-emerald-400 mt-0.5">
                     Attending Physician: {signedRecord.doctorName} ({signedRecord.doctorMmcNo}) • Signer: {signedRecord.signerName} ({signedRecord.signerType})
@@ -195,10 +195,10 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
 
               {/* Legal Text Preview */}
               <div className="border border-line bg-surface-muted/30 p-3 rounded-none">
-                <p className="text-2xs font-bold text-ink-muted uppercase tracking-wider mb-1">
+                <p className="text-2xs font-bold text-ink-muted mb-1">
                   Statutory Record Snapshot
                 </p>
-                <pre className="text-2xs font-mono text-ink whitespace-pre-wrap max-h-48 overflow-y-auto bg-surface p-2.5 border border-line">
+                <pre className="text-2xs tabular-nums text-ink whitespace-pre-wrap max-h-48 overflow-y-auto bg-surface p-2.5 border border-line">
                   {exportConsentText(signedRecord)}
                 </pre>
               </div>
@@ -229,10 +229,10 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
               {/* Procedure Details Card */}
               <div className="border border-primary/20 bg-primary/5 p-3.5 rounded-none">
                 <div className="flex items-center justify-between">
-                  <span className="text-2xs font-bold uppercase tracking-wider text-primary px-2 py-0.5 bg-primary/10">
+                  <span className="text-2xs font-bold text-primary px-2 py-0.5 bg-primary/10">
                     {template.category}
                   </span>
-                  <span className="text-2xs text-ink-muted font-mono">
+                  <span className="text-2xs text-ink-muted tabular-nums">
                     Patient: {patientName} ({patientIc})
                   </span>
                 </div>
@@ -255,7 +255,7 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
               <div className="border border-amber-300 dark:border-amber-700/60 bg-amber-50/50 dark:bg-amber-950/20 p-3.5 rounded-none">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <h5 className="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wide">
+                  <h5 className="text-xs font-bold text-amber-900 dark:text-amber-200 ">
                     Mandatory Statutory Risk Disclosures (Check Each to Acknowledge)
                   </h5>
                 </div>
@@ -279,7 +279,7 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
 
               {/* Signer Identity Selection */}
               <div className="border border-line p-3.5 bg-surface rounded-none space-y-3">
-                <h5 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
+                <h5 className="text-xs font-bold text-ink flex items-center gap-1.5">
                   <UserCheck className="w-4 h-4 text-primary" />
                   Signer Identity & Capacity
                 </h5>
@@ -345,7 +345,7 @@ export const ProceduralConsentModal: React.FC<ProceduralConsentModalProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
                     <Edit3 className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-bold text-ink uppercase tracking-wider">
+                    <span className="text-xs font-bold text-ink ">
                       Patient / Guardian Signature (Touchpad / Stylus)
                     </span>
                   </div>

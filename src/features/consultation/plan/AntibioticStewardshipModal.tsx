@@ -43,7 +43,7 @@ export const AntibioticStewardshipModal: React.FC<AntibioticStewardshipModalProp
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fadeIn">
-      <div className="bg-surface border border-rose-300 dark:border-rose-800 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-none shadow-2xl font-sans">
+      <div className="bg-surface border border-rose-300 dark:border-rose-800 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-none font-sans">
         
         {/* Header */}
         <div className="bg-rose-50 dark:bg-rose-950/40 border-b border-rose-200 dark:border-rose-800/60 px-5 py-3.5 flex items-center justify-between shrink-0">
@@ -52,7 +52,7 @@ export const AntibioticStewardshipModal: React.FC<AntibioticStewardshipModalProp
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-rose-950 dark:text-rose-100 uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-rose-950 dark:text-rose-100 ">
                 KKM National Antimicrobial Guideline (NAG) Guard
               </h3>
               <p className="text-2xs text-rose-700 dark:text-rose-300">
@@ -81,7 +81,7 @@ export const AntibioticStewardshipModal: React.FC<AntibioticStewardshipModalProp
               </p>
               <div className="text-ink">
                 <strong>Prescribed:</strong>{' '}
-                <span className="font-mono text-rose-700 dark:text-rose-300 font-bold">
+                <span className="tabular-nums text-rose-700 dark:text-rose-300 font-bold">
                   {stewardshipResult.prescribedAntibiotics.join(', ')}
                 </span>
               </div>
@@ -136,7 +136,7 @@ export const AntibioticStewardshipModal: React.FC<AntibioticStewardshipModalProp
 
           {/* Mandatory Clinical Justification Override */}
           <div className="border border-line p-3.5 bg-surface rounded-none space-y-3">
-            <h4 className="text-xs font-bold text-ink uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-ink ">
               Or Document Clinical Justification for Antimicrobial Coverage
             </h4>
             <p className="text-2xs text-ink-muted">

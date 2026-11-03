@@ -117,7 +117,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="bg-canvas border border-line shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+      <div className="bg-canvas border border-line w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
         {/* Header */}
         <div className="px-6 py-4 bg-canvas-subtle border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                 <h2 className="text-base font-bold tracking-tight text-ink">
                   MOH CKAPS Form B Regulatory Inspection Dossier
                 </h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-emerald-500/15 text-emerald-800 border border-emerald-500/30">
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-emerald-500/15 text-emerald-800 border border-emerald-500/30">
                   {dossier.grade}
                 </span>
               </div>
@@ -231,7 +231,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-brand" />
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-ink">
+                    <h3 className="text-sm font-bold text-ink">
                       Facility Inspection Readiness Assessment
                     </h3>
                   </div>
@@ -242,13 +242,13 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
 
                 <div className="flex items-baseline gap-4 p-3 bg-canvas border border-line shrink-0">
                   <div className="text-right">
-                    <span className="text-[10px] text-ink-muted uppercase block font-mono">Weighted Score</span>
-                    <span className="text-3xl font-extrabold font-mono text-brand tracking-tight">
+                    <span className="text-[10px] text-ink-muted uppercase block tabular-nums">Weighted Score</span>
+                    <span className="text-3xl font-extrabold tabular-nums text-brand tracking-tight">
                       {dossier.overallScore.toFixed(1)}%
                     </span>
                   </div>
                   <div className="border-l border-line pl-3">
-                    <span className="text-[10px] text-ink-muted uppercase block font-mono">Classification</span>
+                    <span className="text-[10px] text-ink-muted uppercase block tabular-nums">Classification</span>
                     <span className="text-xs font-bold text-emerald-800 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 inline-block mt-0.5">
                       {dossier.grade}
                     </span>
@@ -260,7 +260,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
               <div className="border border-line p-4 bg-canvas space-y-2">
                 <div className="flex items-center gap-2">
                   <AlertOctagon className="w-4 h-4 text-brand" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <span className="text-xs font-bold text-ink">
                     MOH Inspection Zero-Tolerance Check
                   </span>
                 </div>
@@ -283,7 +283,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
 
               {/* 8 Statutory Pillars Summary Grid */}
               <div className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Statutory Pillars Breakdown
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -301,7 +301,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                       </div>
 
                       <div className="text-right shrink-0">
-                        <span className="text-xs font-bold font-mono text-ink block">{pillar.score}%</span>
+                        <span className="text-xs font-bold tabular-nums text-ink block">{pillar.score}%</span>
                         <span className={`text-[10px] font-bold px-1.5 py-0.2 border ${
                           pillar.status === 'compliant'
                             ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700'
@@ -321,7 +321,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
           {activeTab === 'statutory_evidence' && (
             <div className="space-y-4">
               <div className="border border-line bg-canvas-subtle p-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Regulatory Evidence Registers (Act 586 Inspections)
                 </h3>
                 <p className="text-xs text-ink-muted mt-1">
@@ -334,10 +334,10 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                   <div key={p.id} className="p-3 border border-line bg-canvas space-y-2">
                     <div className="flex items-center justify-between border-b border-line pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-brand font-mono">0{idx + 1}.</span>
+                        <span className="text-xs font-bold text-brand tabular-nums">0{idx + 1}.</span>
                         <span className="text-xs font-bold text-ink">{p.pillarName}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-ink-muted">{p.governingAct}</span>
+                      <span className="text-[10px] tabular-nums text-ink-muted">{p.governingAct}</span>
                     </div>
 
                     <p className="text-xs text-ink-muted">{p.summary}</p>
@@ -388,7 +388,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                     type="text"
                     value={profile.ckapsRegistrationNo}
                     disabled
-                    className="w-full text-xs p-2 border border-line bg-canvas-subtle text-ink font-mono rounded-none opacity-80"
+                    className="w-full text-xs p-2 border border-line bg-canvas-subtle text-ink tabular-nums rounded-none opacity-80"
                   />
                 </div>
               </div>
@@ -410,7 +410,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                     type="text"
                     value={picMmc}
                     onChange={(e) => setPicMmc(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -423,7 +423,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                     type="number"
                     value={apcYear}
                     onChange={(e) => setApcYear(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -433,7 +433,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                     type="text"
                     value={indemnityPolicy}
                     onChange={(e) => setIndemnityPolicy(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -443,7 +443,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                     type="date"
                     value={indemnityExpiry}
                     onChange={(e) => setIndemnityExpiry(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -466,7 +466,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     Generated Form B Inspection Dossier Preview
                   </h3>
                   <p className="text-xs text-ink-muted">
@@ -491,7 +491,7 @@ export default function CKAPSDossierModal({ isOpen, onClose }: CKAPSDossierModal
                 </div>
               </div>
 
-              <div className="p-4 border border-line bg-canvas font-mono text-xs text-ink max-h-[50vh] overflow-y-auto whitespace-pre-wrap leading-relaxed shadow-inner">
+              <div className="p-4 border border-line bg-canvas tabular-nums text-xs text-ink max-h-[50vh] overflow-y-auto whitespace-pre-wrap leading-relaxed shadow-inner">
                 {dossierMarkdown}
               </div>
             </div>

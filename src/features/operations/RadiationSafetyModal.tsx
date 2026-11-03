@@ -183,7 +183,7 @@ export default function RadiationSafetyModal({
       aria-labelledby="radiation-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
     >
-      <div className="bg-surface text-ink w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none border border-line shadow-2xl animate-fadeIn">
+      <div className="bg-surface text-ink w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none border border-line animate-fadeIn">
         {/* Header */}
         <div className="p-5 border-b border-line bg-surface flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -195,10 +195,10 @@ export default function RadiationSafetyModal({
                 <h2 id="radiation-modal-title" className="type-modal-title text-ink font-bold">
                   Radiation Safety &amp; Diagnostic X-Ray Register
                 </h2>
-                <span className="px-2 py-0.5 text-2xs font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200">
+                <span className="px-2 py-0.5 text-2xs font-bold bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-200">
                   Akta Tenaga Atom 1984 (Act 304)
                 </span>
-                <span className="px-2 py-0.5 text-2xs font-bold uppercase tracking-wider bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
+                <span className="px-2 py-0.5 text-2xs font-bold bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-300">
                   PHFSA 1998 Reg 45-54
                 </span>
               </div>
@@ -287,7 +287,7 @@ export default function RadiationSafetyModal({
             <div className="space-y-6">
               <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-line flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     MOH Radiation Health &amp; Safety Section (CKSP) Licencing
                   </h3>
                   <p className="text-xs text-muted mt-1 leading-relaxed max-w-3xl">
@@ -313,12 +313,12 @@ export default function RadiationSafetyModal({
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <span className="text-2xs font-mono font-bold text-muted uppercase">{app.id}</span>
+                            <span className="text-2xs tabular-nums font-bold text-muted uppercase">{app.id}</span>
                             <h4 className="text-sm font-bold text-ink mt-0.5">{app.name}</h4>
                             <p className="text-2xs text-muted">{app.roomLocation}</p>
                           </div>
                           <span
-                            className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                            className={`px-2 py-0.5 text-2xs font-bold border ${
                               licenceEval.status === 'active'
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200'
                                 : licenceEval.status === 'expiring_soon'
@@ -337,7 +337,7 @@ export default function RadiationSafetyModal({
                         <div className="p-3 bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
                           <div className="flex justify-between">
                             <span className="text-muted">MOH Class C Licence:</span>
-                            <span className="font-mono font-bold text-ink">{app.licenceClassCNumber}</span>
+                            <span className="tabular-nums font-bold text-ink">{app.licenceClassCNumber}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted">Licence Expiry:</span>
@@ -353,13 +353,13 @@ export default function RadiationSafetyModal({
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted">Annual QA Due:</span>
-                            <span className="font-mono text-ink">{app.nextQaDueDate}</span>
+                            <span className="tabular-nums text-ink">{app.nextQaDueDate}</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="pt-2 border-t border-line text-2xs text-muted">
-                        Serial: <span className="font-mono">{app.serialNumber}</span> · Type: {app.type}
+                        Serial: <span className="tabular-nums">{app.serialNumber}</span> · Type: {app.type}
                       </div>
                     </div>
                   );
@@ -372,7 +372,7 @@ export default function RadiationSafetyModal({
           {activeTab === 'tld' && (
             <div className="space-y-4">
               <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-line">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Staff Personal Radiation Dosimetry (Agensi Nuklear Malaysia)
                 </h3>
                 <p className="text-xs text-muted mt-1 leading-relaxed">
@@ -383,7 +383,7 @@ export default function RadiationSafetyModal({
 
               <div className="border border-line overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs uppercase tracking-wider text-muted font-bold">
+                  <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs text-muted font-bold">
                     <tr>
                       <th className="p-3">Monitoring Period</th>
                       <th className="p-3">Staff Name &amp; Role</th>
@@ -404,16 +404,16 @@ export default function RadiationSafetyModal({
                             <span className="font-bold text-ink">{tld.staffName}</span>
                             <span className="block text-2xs text-muted">{tld.role}</span>
                           </td>
-                          <td className="p-3 font-mono text-2xs">{tld.badgeNumber}</td>
-                          <td className="p-3 font-mono font-bold text-ink">
+                          <td className="p-3 tabular-nums text-2xs">{tld.badgeNumber}</td>
+                          <td className="p-3 tabular-nums font-bold text-ink">
                             {tld.deepDoseHp10Msv.toFixed(2)} mSv
                           </td>
-                          <td className="p-3 font-mono">
+                          <td className="p-3 tabular-nums">
                             {tld.cumulativeAnnualMsv.toFixed(2)} / 20.0 mSv
                           </td>
                           <td className="p-3 whitespace-nowrap">
                             <span
-                              className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                              className={`px-2 py-0.5 text-2xs font-bold border ${
                                 evalRes.status === 'normal'
                                   ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200'
                                   : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-200'
@@ -422,7 +422,7 @@ export default function RadiationSafetyModal({
                               {evalRes.status === 'normal' ? 'Normal (<1.0 mSv)' : 'Alert / Investigate'}
                             </span>
                           </td>
-                          <td className="p-3 font-mono text-2xs text-muted">{tld.laboratoryReportRef}</td>
+                          <td className="p-3 tabular-nums text-2xs text-muted">{tld.laboratoryReportRef}</td>
                         </tr>
                       );
                     })}
@@ -436,7 +436,7 @@ export default function RadiationSafetyModal({
           {activeTab === 'aprons' && (
             <div className="space-y-6">
               <div className="bg-slate-50 dark:bg-slate-900/40 p-4 border border-line">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Lead Rubber Protective Apparel 6-Monthly Crack Inspection (PHFSA Reg 48)
                 </h3>
                 <p className="text-xs text-muted mt-1 leading-relaxed">
@@ -453,9 +453,9 @@ export default function RadiationSafetyModal({
                     <div key={apron.id} className="border border-line bg-surface p-4 flex flex-col justify-between shadow-2xs space-y-3">
                       <div>
                         <div className="flex items-start justify-between gap-1">
-                          <span className="text-2xs font-mono font-bold text-muted uppercase">{apron.id}</span>
+                          <span className="text-2xs tabular-nums font-bold text-muted uppercase">{apron.id}</span>
                           <span
-                            className={`px-2 py-0.5 text-2xs font-bold uppercase tracking-wider border ${
+                            className={`px-2 py-0.5 text-2xs font-bold border ${
                               apron.status === 'Pass / Intact' && !isOverdue
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200'
                                 : isOverdue
@@ -472,7 +472,7 @@ export default function RadiationSafetyModal({
                         <div className="mt-3 p-2 bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 text-2xs space-y-1">
                           <div className="flex justify-between">
                             <span className="text-muted">Lead Equiv:</span>
-                            <span className="font-mono font-bold">{apron.leadEquivalenceMm} mm Pb</span>
+                            <span className="tabular-nums font-bold">{apron.leadEquivalenceMm} mm Pb</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted">Last Checked:</span>
@@ -500,7 +500,7 @@ export default function RadiationSafetyModal({
 
               {/* Log Inspection Form */}
               <form onSubmit={handleLogInspection} className="border border-line bg-surface p-5 space-y-4 shadow-2xs">
-                <h4 className="text-xs font-bold text-ink uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-ink ">
                   Record 6-Monthly Shield Quality Inspection
                 </h4>
 
@@ -576,20 +576,20 @@ export default function RadiationSafetyModal({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 border border-line bg-surface shadow-2xs">
                   <span className="text-2xs font-bold text-muted uppercase">Total Radiographic Exposures</span>
-                  <p className="text-xl font-black text-ink mt-1">{rejectStats.totalExposures}</p>
+                  <p className="text-xl font-bold text-ink mt-1">{rejectStats.totalExposures}</p>
                   <span className="text-2xs text-muted">All diagnostic procedures logged</span>
                 </div>
 
                 <div className="p-4 border border-line bg-surface shadow-2xs">
                   <span className="text-2xs font-bold text-muted uppercase">Retakes / Repeated Films</span>
-                  <p className="text-xl font-black text-rose-700 dark:text-rose-300 mt-1">{rejectStats.retakes}</p>
+                  <p className="text-xl font-bold text-rose-700 dark:text-rose-300 mt-1">{rejectStats.retakes}</p>
                   <span className="text-2xs text-muted">Films discarded due to error</span>
                 </div>
 
                 <div className="p-4 border border-line bg-surface shadow-2xs">
                   <span className="text-2xs font-bold text-muted uppercase">Reject Rate Benchmark (&lt;5%)</span>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <p className="text-xl font-black text-ink">{rejectStats.rejectRatePercent}%</p>
+                    <p className="text-xl font-bold text-ink">{rejectStats.rejectRatePercent}%</p>
                     <span
                       className={`text-2xs font-bold px-2 py-0.5 border ${
                         rejectStats.isWithinBenchmark
@@ -606,7 +606,7 @@ export default function RadiationSafetyModal({
 
               {/* Log Exposure Form */}
               <form onSubmit={handleLogExposure} className="border border-line bg-surface p-5 space-y-4 shadow-2xs">
-                <h4 className="text-xs font-bold text-ink uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-ink ">
                   Log Radiographic Exposure &amp; Technical Factors
                 </h4>
 
@@ -640,7 +640,7 @@ export default function RadiationSafetyModal({
                       type="number"
                       value={newKvp}
                       onChange={(e) => setNewKvp(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none font-mono"
+                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none tabular-nums"
                       required
                     />
                   </div>
@@ -652,7 +652,7 @@ export default function RadiationSafetyModal({
                       step="0.1"
                       value={newMas}
                       onChange={(e) => setNewMas(e.target.value)}
-                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none font-mono"
+                      className="w-full bg-surface border border-line text-ink text-xs p-2 rounded-none tabular-nums"
                       required
                     />
                   </div>
@@ -698,7 +698,7 @@ export default function RadiationSafetyModal({
               {/* Exposure Records Table */}
               <div className="border border-line overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs uppercase tracking-wider text-muted font-bold">
+                  <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-line text-2xs text-muted font-bold">
                     <tr>
                       <th className="p-3">Time</th>
                       <th className="p-3">Patient</th>
@@ -711,21 +711,21 @@ export default function RadiationSafetyModal({
                   <tbody className="divide-y divide-line">
                     {exposures.map((exp) => (
                       <tr key={exp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20">
-                        <td className="p-3 font-mono text-2xs">
+                        <td className="p-3 tabular-nums text-2xs">
                           {new Date(exp.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="p-3 font-bold text-ink">{exp.patientName}</td>
                         <td className="p-3 font-medium">{exp.examination}</td>
-                        <td className="p-3 font-mono text-2xs">
+                        <td className="p-3 tabular-nums text-2xs">
                           {exp.kVp} kVp · {exp.mAs} mAs
                         </td>
                         <td className="p-3">
                           {exp.isRejectRetake ? (
-                            <span className="px-2 py-0.5 text-2xs font-bold uppercase tracking-wider bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950 dark:text-rose-200">
+                            <span className="px-2 py-0.5 text-2xs font-bold bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950 dark:text-rose-200">
                               REJECT: {exp.rejectReason}
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 text-2xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
+                            <span className="px-2 py-0.5 text-2xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200">
                               Accepted
                             </span>
                           )}

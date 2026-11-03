@@ -87,7 +87,7 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fadeIn">
-      <div className="bg-surface border border-rose-300 dark:border-rose-800 w-full max-w-2xl max-h-[92vh] flex flex-col rounded-none shadow-2xl font-sans">
+      <div className="bg-surface border border-rose-300 dark:border-rose-800 w-full max-w-2xl max-h-[92vh] flex flex-col rounded-none font-sans">
         
         {/* Header */}
         <div className="bg-rose-50 dark:bg-rose-950/40 border-b border-rose-200 dark:border-rose-800/60 px-5 py-3.5 flex items-center justify-between shrink-0">
@@ -96,7 +96,7 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-rose-950 dark:text-rose-100 uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-rose-950 dark:text-rose-100 ">
                 Statutory Outbreak Notification (Act 342)
               </h3>
               <p className="text-2xs text-rose-700 dark:text-rose-300">
@@ -120,7 +120,7 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
           <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-300 dark:border-rose-800 p-3 rounded-none flex items-start gap-2.5 text-xs text-rose-900 dark:text-rose-200">
             <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
             <div>
-              <strong className="uppercase tracking-wide">
+              <strong className="">
                 Mandatory Notification Window: {rule.urgency}
               </strong>
               <p className="text-2xs text-rose-800 dark:text-rose-300 mt-0.5">
@@ -139,7 +139,7 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
                     Statutory Notification Logged &amp; Dispatched to {dispatchedRecord.districtPKD}
                   </h4>
                   <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
-                    Reference ID: <span className="font-mono font-bold">{dispatchedRecord.id}</span> • Status: {dispatchedRecord.notificationStatus}
+                    Reference ID: <span className="tabular-nums font-bold">{dispatchedRecord.id}</span> • Status: {dispatchedRecord.notificationStatus}
                   </p>
                   <p className="text-2xs text-emerald-800 dark:text-emerald-400 mt-0.5">
                     Attending Officer: {dispatchedRecord.doctorName} ({dispatchedRecord.doctorMmcNo})
@@ -149,10 +149,10 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
 
               {/* Form Snapshot */}
               <div className="border border-line bg-surface-muted/30 p-3 rounded-none">
-                <span className="text-2xs font-bold uppercase tracking-wider text-ink-muted">
+                <span className="text-2xs font-bold text-ink-muted">
                   Borang Notifikasi e-Notifikasi Preview
                 </span>
-                <pre className="text-2xs font-mono text-ink whitespace-pre-wrap max-h-48 overflow-y-auto bg-surface p-2.5 border border-line mt-1">
+                <pre className="text-2xs tabular-nums text-ink whitespace-pre-wrap max-h-48 overflow-y-auto bg-surface p-2.5 border border-line mt-1">
                   {exportAct342FormText(dispatchedRecord)}
                 </pre>
               </div>
@@ -183,7 +183,7 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
               {/* Disease Summary Card */}
               <div className="border border-line bg-surface-muted/30 p-3 rounded-none flex items-center justify-between">
                 <div>
-                  <span className="text-2xs font-bold uppercase tracking-wider text-rose-600 font-mono">
+                  <span className="text-2xs font-bold text-rose-600 tabular-nums">
                     ICD-10: {icd10Code}
                   </span>
                   <h4 className="text-sm font-bold text-ink">{rule.diseaseName}</h4>
@@ -191,14 +191,14 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
                     Recommended Specimen: {rule.sampleRequirements}
                   </p>
                 </div>
-                <span className="bg-rose-100 text-rose-800 text-2xs font-bold font-mono px-2 py-1 border border-rose-300">
+                <span className="bg-rose-100 text-rose-800 text-2xs font-bold tabular-nums px-2 py-1 border border-rose-300">
                   {rule.urgency}
                 </span>
               </div>
 
               {/* Patient Particulars */}
               <div className="border border-line p-3 bg-surface rounded-none space-y-2">
-                <h5 className="text-2xs font-bold uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+                <h5 className="text-2xs font-bold text-ink-muted flex items-center gap-1.5">
                   <UserCheck className="w-3.5 h-3.5 text-primary" />
                   <span>Patient Demographic Verification</span>
                 </h5>
@@ -221,7 +221,7 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
                     type="date"
                     value={onsetDate}
                     onChange={(e) => setOnsetDate(e.target.value)}
-                    className="w-full p-2 border border-line bg-surface text-ink font-mono rounded-none"
+                    className="w-full p-2 border border-line bg-surface text-ink tabular-nums rounded-none"
                   />
                 </div>
 
@@ -278,7 +278,7 @@ export const Act342NotificationModal: React.FC<Act342NotificationModalProps> = (
 
               {/* Attending Declaration */}
               <div className="p-2.5 bg-surface-muted/40 border border-line text-2xs text-ink-muted">
-                Statutory Reporting Officer: <strong className="text-ink">{doctorName}</strong> (MMC Reg: <span className="font-mono">{doctorMmcNo}</span>)
+                Statutory Reporting Officer: <strong className="text-ink">{doctorName}</strong> (MMC Reg: <span className="tabular-nums">{doctorMmcNo}</span>)
               </div>
 
               {/* Action Buttons */}

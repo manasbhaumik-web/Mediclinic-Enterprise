@@ -725,13 +725,13 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
       {/* CASH */}
       {stage === 'cash' && activeVisit && (
         <Dialog title="Cash payment" onClose={closeDialogs} busy={saving}>
-          <div className="space-y-3 text-xs">
-            <div className="flex justify-between font-mono"><span className="text-subtle">Amount due</span><strong className="text-accent text-sm">{rm(dueNow)}</strong></div>
+          <div className="space-y-4 text-sm">
+            <div className="flex justify-between items-baseline px-4 py-3 bg-surface-strong"><span className="text-muted">Amount due</span><strong className="text-accent text-2xl tabular-nums">{rm(dueNow)}</strong></div>
             <div>
-              <label htmlFor="cash-received" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Cash received (RM)</label>
-              <input id="cash-received" autoFocus type="number" min="0" step="0.01" value={cashReceived} onChange={(e) => setCashReceived(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmCash(); }} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none focus:ring-1 focus:ring-brand outline-none" />
+              <label htmlFor="cash-received" className="block text-xs font-semibold text-ink mb-1.5">Cash received (RM)</label>
+              <input id="cash-received" autoFocus type="number" min="0" step="0.01" value={cashReceived} onChange={(e) => setCashReceived(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmCash(); }} className="w-full min-h-12 px-3 text-lg font-semibold tabular-nums bg-surface border border-line rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent" />
             </div>
-            <div className="flex justify-between font-mono">
+            <div className="flex justify-between items-baseline">
               <span className="text-subtle">Change to give</span>
               <strong className={cashChange !== null && cashChange < 0 ? 'text-rose-700' : 'text-ink'}>
                 {cashChange === null ? '—' : cashChange < 0 ? `Short by ${rm(-cashChange)}` : rm(cashChange)}
@@ -752,12 +752,12 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
       {/* E-WALLET / BANK TRANSFER */}
       {stage === 'ewallet' && activeVisit && (
         <Dialog title="e-Wallet / bank transfer" onClose={closeDialogs} busy={saving}>
-          <div className="space-y-3 text-xs">
-            <div className="flex justify-between font-mono"><span className="text-subtle">Amount due</span><strong className="text-accent text-sm">{rm(dueNow)}</strong></div>
+          <div className="space-y-4 text-sm">
+            <div className="flex justify-between items-baseline px-4 py-3 bg-surface-strong"><span className="text-muted">Amount due</span><strong className="text-accent text-2xl tabular-nums">{rm(dueNow)}</strong></div>
             <p className="text-muted leading-relaxed">Check that {rm(dueNow)} has arrived in the clinic's e-wallet or bank account, then enter the transaction reference. This system does not verify the payment.</p>
             <div>
-              <label htmlFor="wallet-ref" className="block text-2xs font-bold text-subtle uppercase tracking-wider mb-1">Transaction reference</label>
-              <input id="wallet-ref" autoFocus type="text" value={walletRef} onChange={(e) => setWalletRef(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmWallet(); }} className="w-full border border-line px-3 py-2 text-sm font-mono rounded-none focus:ring-1 focus:ring-brand outline-none" />
+              <label htmlFor="wallet-ref" className="block text-xs font-semibold text-ink mb-1.5">Transaction reference</label>
+              <input id="wallet-ref" autoFocus type="text" value={walletRef} onChange={(e) => setWalletRef(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') confirmWallet(); }} className="w-full min-h-12 px-3 text-base tabular-nums bg-surface border border-line rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent" />
             </div>
             <DialogActions
               busy={saving}
@@ -774,7 +774,7 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
       {/* SAVING A CARD PAYMENT */}
       {saving && stage === null && (
         <Dialog title="Recording payment" busy onClose={() => {}}>
-          <p className="flex items-center gap-2 text-xs text-muted"><Loader2 className="w-4 h-4 motion-safe:animate-spin" aria-hidden="true" />Saving the payment. Please wait.</p>
+          <p className="flex items-center gap-2 text-sm text-muted"><Loader2 className="w-4 h-4 motion-safe:animate-spin" aria-hidden="true" />Saving the payment. Please wait.</p>
         </Dialog>
       )}
 
@@ -782,10 +782,10 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
       {receipt && (
         <Dialog title="Payment recorded" onClose={() => setReceipt(null)}>
           <div className="text-center space-y-4">
-            <div className="w-14 h-14 bg-emerald-100 flex items-center justify-center mx-auto"><CheckCircle2 className="w-7 h-7 text-emerald-600" aria-hidden="true" /></div>
+            <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center mx-auto"><CheckCircle2 className="w-7 h-7 text-emerald-600" aria-hidden="true" /></div>
             <p className="text-sm text-subtle">Recorded as {receipt.settlement.paymentMethod === 'Panel' ? 'a panel claim' : receipt.settlement.paymentMethod}.</p>
-            {receipt.receiptNo && <p className="font-mono text-lg font-bold text-ink">{receipt.receiptNo}</p>}
-            <div className="bg-surface-accent p-4 border border-line-subtle text-left space-y-2 font-mono tabular-nums text-xs">
+            {receipt.receiptNo && <p className="text-2xl font-bold tabular-nums text-ink">{receipt.receiptNo}</p>}
+            <div className="bg-surface-muted p-4 border border-line text-left space-y-2 tabular-nums text-sm">
               <div className="flex justify-between"><span className="text-subtle">Patient:</span><span className="font-bold text-muted">{receipt.patient.fullName}</span></div>
               <div className="flex justify-between"><span className="text-subtle">Visit ID:</span><span className="text-muted">{receipt.visit.id}</span></div>
               <div className="flex justify-between border-t border-line pt-2 mt-2"><span className="text-subtle">Amount paid:</span><span className="font-bold text-accent text-sm">{rm(receipt.amountPaid)}</span></div>
@@ -800,10 +800,10 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
               )}
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => printReceipt(receiptSource(receipt))} className="flex-1 bg-surface border border-line hover:bg-surface-accent text-muted font-bold px-4 py-2.5 rounded-none flex items-center justify-center gap-2 cursor-pointer text-xs">
+              <button type="button" onClick={() => printReceipt(receiptSource(receipt))} className="btn-secondary flex-1 min-h-12 px-4 text-sm">
                 <Download className="w-4 h-4" aria-hidden="true" /> Download again
               </button>
-              <button type="button" onClick={() => setReceipt(null)} autoFocus className="flex-1 bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 rounded-none cursor-pointer text-xs">Done</button>
+              <button type="button" onClick={() => setReceipt(null)} autoFocus className="btn-primary flex-1 min-h-12 px-4 text-sm">Done</button>
             </div>
           </div>
         </Dialog>
@@ -812,19 +812,20 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
       )}
 
       {isEInvoiceModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-canvas border-2 border-line shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
-            <div className="p-3 bg-surface border-b border-line flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-night-950/70 backdrop-blur-xs p-4">
+          <div role="dialog" aria-modal="true" aria-labelledby="einvoice-console-title" className="bg-canvas border border-line w-full max-w-5xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+            <div className="px-5 py-3 bg-surface border-b border-line flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileCheck2 className="w-5 h-5 text-accent" />
-                <h3 className="text-sm font-bold text-ink uppercase tracking-wider">LHDN MyInvois e-Invoice Real-Time Console</h3>
+                <h3 id="einvoice-console-title" className="text-lg font-bold tracking-tight text-ink">LHDN MyInvois e-Invoice console</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsEInvoiceModalOpen(false)}
-                className="p-1 hover:bg-surface-accent text-ink cursor-pointer"
+                className="w-11 h-11 flex items-center justify-center hover:bg-surface-strong text-ink cursor-pointer"
+                aria-label="Close e-Invoice console"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
             <div className="p-4 overflow-y-auto flex-1">
@@ -847,9 +848,9 @@ function Dialog({ title, onClose, busy = false, children }: { title: string; onC
   }, [busy, onClose]);
 
   return (
-    <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
-      <div role="dialog" aria-modal="true" aria-label={title} className="bg-surface rounded-none shadow-none max-w-sm w-full border border-line p-6 space-y-4">
-        <h3 className="type-heading-caps text-strong">{title}</h3>
+    <div className="fixed inset-0 bg-night-950/70 flex items-center justify-center z-50 p-4 backdrop-blur-xs" onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+      <div role="dialog" aria-modal="true" aria-label={title} className="bg-surface rounded-none max-w-md w-full border border-line p-6 space-y-5">
+        <h3 className="text-xl font-bold tracking-tight text-ink">{title}</h3>
         {children}
       </div>
     </div>
@@ -861,11 +862,11 @@ function DialogActions({ busy, error, confirmLabel, confirmDisabled, onConfirm, 
 }) {
   return (
     <>
-      {error && <p role="alert" className="text-xs text-rose-700 font-medium">{error}</p>}
-      <div className="flex items-center justify-end gap-2 pt-1">
-        <button type="button" onClick={onCancel} disabled={busy} className="px-3 py-2 border border-line text-muted rounded-none text-xs hover:bg-surface-strong cursor-pointer disabled:opacity-50">Cancel</button>
-        <button type="button" onClick={onConfirm} disabled={busy || confirmDisabled} className="bg-primary hover:bg-primary-hover text-white font-bold text-xs px-4 py-2 rounded-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
-          {busy && <Loader2 className="w-3.5 h-3.5 motion-safe:animate-spin" aria-hidden="true" />}
+      {error && <p role="alert" className="text-sm text-rose-700 dark:text-rose-300 font-medium">{error}</p>}
+      <div className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-line">
+        <button type="button" onClick={onCancel} disabled={busy} className="btn-secondary min-h-12 px-5 text-sm">Cancel</button>
+        <button type="button" onClick={onConfirm} disabled={busy || confirmDisabled} className="btn-primary min-h-12 px-6 text-sm">
+          {busy && <Loader2 className="w-4 h-4 motion-safe:animate-spin" aria-hidden="true" />}
           {busy ? 'Saving…' : confirmLabel}
         </button>
       </div>

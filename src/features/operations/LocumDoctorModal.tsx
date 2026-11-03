@@ -206,7 +206,7 @@ export default function LocumDoctorModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="bg-canvas border border-line shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
+      <div className="bg-canvas border border-line w-full max-w-4xl max-h-[92vh] flex flex-col rounded-none overflow-hidden text-ink">
         {/* Header */}
         <div className="px-6 py-4 bg-canvas-subtle border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -218,7 +218,7 @@ export default function LocumDoctorModal({
                 <h2 className="text-base font-bold tracking-tight text-ink">
                   Locum Doctor MMC Session &amp; Credential Governance
                 </h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-brand/15 text-brand border border-brand/30">
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-brand/15 text-brand border border-brand/30">
                   MMC Guidelines &bull; Act 586 § 14
                 </span>
               </div>
@@ -315,33 +315,33 @@ export default function LocumDoctorModal({
                 <div className="border border-emerald-500/30 bg-emerald-500/10 p-5 space-y-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-500/20 px-2 py-0.5 border border-emerald-500/30">
+                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 border border-emerald-500/30">
                         Active Consulting Locum On-Duty
                       </span>
                       <h3 className="text-base font-bold text-ink mt-1.5">{activeShift.doctorName}</h3>
-                      <p className="text-xs text-ink-muted font-mono">
+                      <p className="text-xs text-ink-muted tabular-nums">
                         MMC Reg: {activeShift.mmcNumber} &bull; Check-in: {new Date(activeShift.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] text-ink-muted block uppercase font-mono">Hourly Remuneration</span>
-                      <span className="text-lg font-bold font-mono text-ink">RM {activeShift.hourlyRateMyr.toFixed(2)}/hr</span>
+                      <span className="text-[10px] text-ink-muted block uppercase tabular-nums">Hourly Remuneration</span>
+                      <span className="text-lg font-bold tabular-nums text-ink">RM {activeShift.hourlyRateMyr.toFixed(2)}/hr</span>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-canvas border border-line text-xs">
                     <div>
                       <span className="text-ink-muted block text-[10px] uppercase">Session Length</span>
-                      <span className="font-bold text-ink font-mono">{activeShift.scheduledHours} Hours</span>
+                      <span className="font-bold text-ink tabular-nums">{activeShift.scheduledHours} Hours</span>
                     </div>
                     <div>
                       <span className="text-ink-muted block text-[10px] uppercase">Patients Consulted</span>
-                      <span className="font-bold text-ink font-mono">{activeShift.patientsConsultedCount} Patients</span>
+                      <span className="font-bold text-ink tabular-nums">{activeShift.patientsConsultedCount} Patients</span>
                     </div>
                     <div>
                       <span className="text-ink-muted block text-[10px] uppercase">Session Payout</span>
-                      <span className="font-bold text-brand font-mono text-sm">RM {activeShift.totalPayoutMyr.toFixed(2)}</span>
+                      <span className="font-bold text-brand tabular-nums text-sm">RM {activeShift.totalPayoutMyr.toFixed(2)}</span>
                     </div>
                   </div>
 
@@ -362,7 +362,7 @@ export default function LocumDoctorModal({
                 /* No locum on duty: Quick Check-in form */
                 <form onSubmit={handleStartShift} className="border border-line p-5 bg-canvas space-y-4">
                   <div className="border-b border-line pb-3">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                    <h3 className="text-xs font-bold text-ink">
                       Check-In Visiting Locum Doctor for Current Shift
                     </h3>
                     <p className="text-xs text-ink-muted mt-0.5">
@@ -397,7 +397,7 @@ export default function LocumDoctorModal({
                         step="0.5"
                         value={scheduledHours}
                         onChange={(e) => setScheduledHours(e.target.value)}
-                        className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                        className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                         required
                       />
                     </div>
@@ -420,7 +420,7 @@ export default function LocumDoctorModal({
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] text-ink-muted">
                         <div>
                           <span>APC Year: </span>
-                          <span className="font-mono text-ink font-semibold">{selectedProfile.apcYear}</span>
+                          <span className="tabular-nums text-ink font-semibold">{selectedProfile.apcYear}</span>
                         </div>
                         <div>
                           <span>Indemnity: </span>
@@ -428,7 +428,7 @@ export default function LocumDoctorModal({
                         </div>
                         <div>
                           <span>Policy Expiry: </span>
-                          <span className="font-mono text-ink font-semibold">{selectedProfile.indemnityExpiryDate}</span>
+                          <span className="tabular-nums text-ink font-semibold">{selectedProfile.indemnityExpiryDate}</span>
                         </div>
                         <div>
                           <span>Primary Hospital: </span>
@@ -478,7 +478,7 @@ export default function LocumDoctorModal({
           {activeTab === 'quick_register' && (
             <form onSubmit={handleRegisterLocum} className="space-y-6">
               <div className="border border-line bg-canvas-subtle p-4 space-y-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Quick 60-Second Visiting Locum Doctor Onboarding
                 </h3>
                 <p className="text-xs text-ink-muted">
@@ -505,7 +505,7 @@ export default function LocumDoctorModal({
                     value={regIc}
                     onChange={(e) => setRegIc(e.target.value)}
                     placeholder="e.g. 920311-14-6102"
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -519,7 +519,7 @@ export default function LocumDoctorModal({
                     value={regMmc}
                     onChange={(e) => setRegMmc(e.target.value)}
                     placeholder="e.g. MMC-65490"
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -529,7 +529,7 @@ export default function LocumDoctorModal({
                     type="number"
                     value={regApcYear}
                     onChange={(e) => setRegApcYear(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -540,7 +540,7 @@ export default function LocumDoctorModal({
                     step="5"
                     value={regHourlyRate}
                     onChange={(e) => setRegHourlyRate(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -567,7 +567,7 @@ export default function LocumDoctorModal({
                     value={regIndemnityPolicy}
                     onChange={(e) => setRegIndemnityPolicy(e.target.value)}
                     placeholder="e.g. MPS-MY-99210-26"
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -577,7 +577,7 @@ export default function LocumDoctorModal({
                     type="date"
                     value={regIndemnityExpiry}
                     onChange={(e) => setRegIndemnityExpiry(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -600,7 +600,7 @@ export default function LocumDoctorModal({
                     type="text"
                     value={regPhone}
                     onChange={(e) => setRegPhone(e.target.value)}
-                    className="w-full text-xs p-2 border border-line bg-canvas text-ink font-mono rounded-none focus:outline-none focus:border-brand"
+                    className="w-full text-xs p-2 border border-line bg-canvas text-ink tabular-nums rounded-none focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -640,7 +640,7 @@ export default function LocumDoctorModal({
           {activeTab === 'directory' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="text-xs font-bold text-ink">
                   Approved Locum Practitioners ({profiles.length})
                 </h3>
                 <button
@@ -660,7 +660,7 @@ export default function LocumDoctorModal({
                       <div className="flex items-start justify-between">
                         <div>
                           <h4 className="text-xs font-bold text-ink">{doc.fullName}</h4>
-                          <span className="text-[10px] text-ink-muted font-mono">{doc.mmcNumber} &bull; APC {doc.apcYear}</span>
+                          <span className="text-[10px] text-ink-muted tabular-nums">{doc.mmcNumber} &bull; APC {doc.apcYear}</span>
                         </div>
                         <span className={`text-[10px] font-bold px-1.5 py-0.2 border ${
                           check.isValid
@@ -674,7 +674,7 @@ export default function LocumDoctorModal({
                       <div className="text-[11px] text-ink-muted space-y-0.5 pt-1 border-t border-line">
                         <div><span>Indemnity: </span><span className="text-ink font-medium">{doc.indemnityProvider} (Exp: {doc.indemnityExpiryDate})</span></div>
                         <div><span>Hospital: </span><span className="text-ink font-medium">{doc.primaryPracticePlace}</span></div>
-                        <div><span>Rate: </span><span className="text-brand font-bold font-mono">RM {doc.hourlyRateMyr.toFixed(2)}/hr</span></div>
+                        <div><span>Rate: </span><span className="text-brand font-bold tabular-nums">RM {doc.hourlyRateMyr.toFixed(2)}/hr</span></div>
                       </div>
 
                       <div className="pt-2 flex justify-end">
@@ -700,7 +700,7 @@ export default function LocumDoctorModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-bold text-ink">
                     CKAPS Locum Attendance &amp; Shift Register
                   </h3>
                   <p className="text-xs text-ink-muted">
@@ -730,13 +730,13 @@ export default function LocumDoctorModal({
                       <th className="p-2.5">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-line font-mono text-[11px]">
+                  <tbody className="divide-y divide-line tabular-nums text-[11px]">
                     {shifts.map((s) => (
                       <tr key={s.id} className="hover:bg-canvas-subtle/50">
                         <td className="p-2.5 text-ink-muted">{s.id}</td>
                         <td className="p-2.5 font-sans font-medium text-ink">
                           {s.doctorName}
-                          <span className="block text-[10px] text-ink-muted font-mono">{s.mmcNumber}</span>
+                          <span className="block text-[10px] text-ink-muted tabular-nums">{s.mmcNumber}</span>
                         </td>
                         <td className="p-2.5 font-sans text-ink-muted">{new Date(s.checkInTime).toLocaleString()}</td>
                         <td className="p-2.5 text-right text-ink">{s.actualHoursWorked.toFixed(1)}</td>
