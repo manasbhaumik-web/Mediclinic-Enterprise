@@ -55,7 +55,8 @@ export interface ClinicShellContext {
   /** Records a rapid-test result and returns a held patient to the doctor's queue. */
   clearVisitHold: ClinicData['clearVisitHold'];
   onConsultationComplete: (soap: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
-  onDispenseVerified: (visitId: string) => void;
+  /** Resolves false when the hand-off to billing was not saved. */
+  onDispenseVerified: (visitId: string) => Promise<boolean>;
   /** Records the payment and issues its receipt number. */
   onBillingSettled: (visitId: string, payInfo: PaymentInfo) => Promise<SettleResult>;
 }
@@ -110,7 +111,9 @@ export default function ClinicShell() {
     await signOut();
     // Drop cached patient data so the next user on this browser cannot see it.
     queryClient.clear();
+    // Drafts are kept in both stores; clear both so a shared workstation does not keep the last doctor's patient notes.
     try { clearAllDrafts(sessionStorage); } catch { /* ignore */ }
+    try { clearAllDrafts(localStorage); } catch { /* ignore */ }
     navigate('/login', { replace: true });
   };
 
@@ -169,10 +172,14 @@ export default function ClinicShell() {
         navigateTab('dashboard');
       });
     },
-    onDispenseVerified: (visitId) => {
+    onDispenseVerified: async (visitId) => {
       const visit = findVisit(visitId);
-      if (visit) updateVisitInDb(completeDispensing(visit));
+      if (!visit) return false;
+      const saved = await updateVisitInDb(completeDispensing(visit));
+      // Stock is already deducted by now, so a failed hand-off must stay on screen for another try.
+      if (!saved) return false;
       navigateTab('dashboard');
+      return true;
     },
     onBillingSettled: async (visitId, payInfo) => {
       const result = await settleVisit(visitId, payInfo);
@@ -184,11 +191,18 @@ export default function ClinicShell() {
 
   return (
     <>
+      {data.syncError && (
+        <div role="alert" className="fixed top-20 left-1/2 -translate-x-1/2 z-[90] max-w-xl w-[calc(100%-2rem)] bg-amber-100 text-amber-950 border border-amber-400 px-4 py-3 flex items-center gap-3 shadow-xl">
+          <AlertTriangle className="w-5 h-5 shrink-0" aria-hidden="true" />
+          <p className="text-sm font-semibold flex-1">Some clinic data could not be loaded, so queues may be incomplete. This is not the same as nobody waiting.</p>
+          <button type="button" onClick={() => void queryClient.invalidateQueries()} className="min-h-11 px-4 bg-amber-900 text-white text-sm font-bold cursor-pointer hover:bg-amber-950">Retry</button>
+        </div>
+      )}
       {errorToast && (
         <div role="alert" aria-live="assertive" className="fixed top-20 right-8 z-[100] bg-rose-600 text-white px-4 py-3 rounded-none shadow-2xl flex items-center justify-center gap-3 border border-rose-400 animate-slideDown font-sans">
           <AlertTriangle className="w-5 h-5 text-white shrink-0" aria-hidden="true" />
           <div>
-            <p className="font-bold text-sm">Consultation Sign-Off Alert</p>
+            <p className="font-bold text-sm">Not saved</p>
             <p className="text-xs text-rose-100">{errorToast}</p>
           </div>
           <button type="button" aria-label="Dismiss error notice" onClick={() => setErrorToast(null)} className="ml-4 hover:text-rose-200 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center">

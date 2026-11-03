@@ -12,7 +12,7 @@ interface WaitingRoomMonitorProps {
   patientsMap: Record<string, Patient>;
   showPII: boolean;
   showToast: (message: string) => void;
-  updateVisitInDb: (v: Visit) => void;
+  updateVisitInDb: (v: Visit) => Promise<boolean> | void;
   doctors: ClinicDoctor[];
   assignDoctor: (visitId: string, doctorId: string | null) => Promise<{ ok: true } | { ok: false; error: string }>;
 }
@@ -117,14 +117,11 @@ export default function WaitingRoomMonitor({
                 </div>
 
                 <div className="flex gap-2 shrink-0">
-                  <button type="button" onClick={() => showToast(`${pt?.fullName} flagged as Priority for Doctor`)} className="btn-primary px-4 text-sm">
-                    <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> Priority
-                  </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      updateVisitInDb({ ...visit, status: 'Cancelled' });
-                      showToast(`${pt?.fullName} visit cancelled`);
+                    onClick={async () => {
+                      const cancelled = await updateVisitInDb({ ...visit, status: 'Cancelled' });
+                      showToast(cancelled === false ? `${pt?.fullName}'s visit was NOT cancelled. Check the connection, or ask a doctor if they are already in consultation.` : `${pt?.fullName} visit cancelled`);
                     }}
                     className="btn-secondary px-4 text-sm !text-rose-800 !border-rose-200"
                   >

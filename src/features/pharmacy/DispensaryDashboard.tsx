@@ -23,7 +23,8 @@ interface DispensaryDashboardProps {
   allVisits?: Visit[];
   patientsMap: Record<string, any>;
   activeLanguage: Language;
-  onDispenseSubmit: (visitId: string) => void;
+  /** Resolves false when the hand-off to billing was not saved. */
+  onDispenseSubmit: (visitId: string) => Promise<boolean> | void;
   pharmacistName?: string;
 }
 
@@ -145,16 +146,24 @@ export default function DispensaryDashboard({
     try {
       const res = await inv.dispenseVisit.mutateAsync({ visitId: selectedVisitId, lines });
       if (res.pending_signatures > 0) return;               // wait for the second signature before the patient leaves the pharmacy
-      onDispenseSubmit(selectedVisitId);
+      const handed = await onDispenseSubmit(selectedVisitId);
+      if (handed === false) {
+        setDispenseError('The medicines were dispensed and stock was updated, but the patient could not be handed to billing. Press the button again to retry the hand-off.');
+        return;
+      }
       setSelectedVisitId(null);
     } catch (e) {
       setDispenseError(errorMessage(e));
     }
   };
 
-  const completeHandover = () => {
+  const completeHandover = async () => {
     if (!selectedVisitId) return;
-    onDispenseSubmit(selectedVisitId);
+    const handed = await onDispenseSubmit(selectedVisitId);
+    if (handed === false) {
+      setDispenseError('The patient could not be handed to billing. Check the connection and try again.');
+      return;
+    }
     setSelectedVisitId(null);
   };
 

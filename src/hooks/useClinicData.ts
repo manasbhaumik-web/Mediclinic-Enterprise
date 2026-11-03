@@ -3,7 +3,7 @@
  * Replaces the old hand-rolled useSupabaseSync: caching, optimistic updates with rollback,
  * and realtime invalidation all live here.
  */
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +12,7 @@ import {
   appointmentFromRow, appointmentToRow, patientFromRow, patientToRow,
   buildSignoffArgs, prescriptionsToRows, soapToRow, visitFromRow,
 } from '../lib/mappers';
+import { missingPatientIds } from '../domain/patientLookup';
 import { SEED_PATIENTS, SEED_VISITS, SEED_COMPLETED_VISITS } from '../mocks/seed';
 
 export const QUERY_KEYS = {
@@ -89,15 +90,35 @@ export function useClinicData() {
     },
   });
 
+  // The patient list is capped at the 100 most recent, but a visit can belong to an older patient. Without their
+  // record the queues show an unknown name and the allergy checks have nothing to check, so fetch them by id.
+  const missingIds = useMemo(
+    () => missingPatientIds(patients.data ?? NO_PATIENTS, [...(activeVisits.data ?? []), ...(completedVisits.data ?? [])]),
+    [patients.data, activeVisits.data, completedVisits.data],
+  );
+  const extraPatients = useQuery({
+    queryKey: [...QUERY_KEYS.patients, 'byId', missingIds.join(',')],
+    enabled: enabled && patients.isSuccess && missingIds.length > 0,
+    queryFn: async (): Promise<Patient[]> => {
+      const { data, error } = await supabase.from('patients').select('*').in('id', missingIds);
+      if (error) throw error;
+      return (data ?? []).map(patientFromRow);
+    },
+  });
+  const patientsList = useMemo(
+    () => (extraPatients.data?.length ? [...(patients.data ?? NO_PATIENTS), ...extraPatients.data] : patients.data ?? NO_PATIENTS),
+    [patients.data, extraPatients.data],
+  );
+
   const mutations = useClinicMutations();
 
   return {
-    patientsList: patients.data ?? NO_PATIENTS,
+    patientsList,
     visitsQueue: activeVisits.data ?? NO_VISITS,
     completedVisits: completedVisits.data ?? NO_VISITS,
     appointments: appointments.data ?? NO_APPOINTMENTS,
     isSyncing: enabled && (patients.isPending || activeVisits.isPending),
-    syncError: patients.error ?? activeVisits.error ?? completedVisits.error ?? appointments.error ?? null,
+    syncError: patients.error ?? activeVisits.error ?? completedVisits.error ?? appointments.error ?? extraPatients.error ?? null,
     searchPatients,
     ...mutations,
   };
