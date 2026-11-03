@@ -1,23 +1,10 @@
 import { UserRole } from '../types';
+import { APP_MODULES, type AppTab } from '../modules/appModules';
 
-export type AppTab =
-  | 'dashboard' | 'queue' | 'consultation' | 'reports'
-  | 'registration' | 'triage' | 'dispensary' | 'billing' | 'appointments' | 'my-leave' | 'inventory';
+export type { AppTab };
 
-/** Roles allowed on each /app/* page. Mirrors what the old tab switch in App.tsx enforced. */
-export const TAB_ROLES: Record<AppTab, readonly UserRole[]> = {
-  dashboard: ['doctor', 'pharmacist', 'receptionist', 'clinic-assistant', 'cashier', 'admin', 'hr'],
-  queue: ['doctor'],
-  consultation: ['doctor'],
-  reports: ['doctor'],
-  registration: ['receptionist', 'clinic-assistant'],
-  triage: ['clinic-assistant'],
-  appointments: ['receptionist', 'admin'],
-  dispensary: ['pharmacist'],
-  inventory: ['pharmacist'],
-  billing: ['cashier'],
-  'my-leave': ['doctor', 'pharmacist', 'receptionist', 'clinic-assistant', 'cashier', 'admin', 'hr'],
-};
+/** Roles allowed on each /app/* page. Derived from the module registry (`src/modules/appModules.ts`). */
+export const TAB_ROLES = Object.fromEntries(APP_MODULES.map((m) => [m.id, m.roles])) as Record<AppTab, readonly UserRole[]>;
 
 /** Whether anyone holding `roles` may open `tab`. A person with several roles gets the union of their pages. */
 export const canOpenTab = (roles: readonly UserRole[] | null | undefined, tab: AppTab): boolean =>

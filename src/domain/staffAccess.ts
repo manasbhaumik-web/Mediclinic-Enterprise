@@ -1,6 +1,7 @@
 /** Staff access (RBAC) helpers for the UI. The rules themselves live in the shared module the server also uses. */
 import { ClinicalPermission, RBACPermissionEngine } from './rbacPermissionEngine';
 import { ADMIN_ROLES, TAB_ROLES } from '../routes/permissions';
+import { APP_MODULES } from '../modules/appModules';
 import { SystemRole } from '../../supabase/functions/_shared/staffAccess';
 
 export {
@@ -8,19 +9,7 @@ export {
 } from '../../supabase/functions/_shared/staffAccess';
 export type { AccessState, SystemRole } from '../../supabase/functions/_shared/staffAccess';
 
-const PAGE_LABELS: Record<string, string> = {
-  dashboard: 'Dashboard',
-  queue: 'Patient queue',
-  consultation: 'Consultation suite',
-  reports: 'Monthly reports',
-  registration: 'Patient registration',
-  triage: 'Triage',
-  appointments: 'Appointments',
-  dispensary: 'Dispensary',
-  billing: 'Billing desk',
-  inventory: 'Inventory',
-  'my-leave': 'My leave',
-};
+const PAGE_LABELS: Record<string, string> = Object.fromEntries(APP_MODULES.map((m) => [m.id, m.label.en]));
 
 const PERMISSION_LABELS: Record<ClinicalPermission, string> = {
   VIEW_FULL_NRIC: 'See full NRIC numbers',

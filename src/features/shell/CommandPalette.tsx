@@ -1,27 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, CornerDownLeft } from 'lucide-react';
-import { canOpenTab, type AppTab } from '../../routes/permissions';
+import { paletteModules, type AppModule } from '../../modules';
 import type { UserRole } from '../../types';
-
-interface PageEntry {
-  tab: AppTab;
-  label: string;
-  hint: string;
-}
-
-const PAGES: PageEntry[] = [
-  { tab: 'dashboard', label: 'Dashboard', hint: 'Today at a glance' },
-  { tab: 'queue', label: 'Patient queue', hint: 'Doctor queue' },
-  { tab: 'consultation', label: 'Consultation', hint: 'See a patient' },
-  { tab: 'reports', label: 'Monthly report', hint: 'Your consultations and billing' },
-  { tab: 'registration', label: 'Patient registration', hint: 'Waiting room, registration form, registry' },
-  { tab: 'triage', label: 'Triage station', hint: 'Vitals, treatment room' },
-  { tab: 'appointments', label: 'Appointments', hint: 'Day schedule and booking' },
-  { tab: 'dispensary', label: 'Dispensary', hint: 'Dispense, Buku Racun, dangerous drugs' },
-  { tab: 'inventory', label: 'Inventory and pharmacy', hint: 'Stock, orders, register, ledger' },
-  { tab: 'billing', label: 'Billing and panel claims', hint: 'Cashier invoicing, TPA claims' },
-  { tab: 'my-leave', label: 'My leave and attendance', hint: 'Balances, requests' },
-];
 
 /**
  * A quick switcher: Ctrl+K (or Cmd+K) opens it, type to filter the pages you can open, Enter goes there.
@@ -54,13 +34,13 @@ export default function CommandPalette({ roles, onOpenTab }: { roles: readonly U
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return PAGES.filter((p) => canOpenTab(roles, p.tab) && (!q || `${p.label} ${p.hint}`.toLowerCase().includes(q)));
+    return paletteModules(roles).filter((m) => !q || `${m.label.en} ${m.hint}`.toLowerCase().includes(q));
   }, [roles, query]);
 
-  const go = (entry: PageEntry | undefined) => {
+  const go = (entry: AppModule | undefined) => {
     if (!entry) return;
     setOpen(false);
-    onOpenTab(entry.tab);
+    onOpenTab(entry.id);
   };
 
   const onInputKey = (e: React.KeyboardEvent) => {
@@ -102,7 +82,7 @@ export default function CommandPalette({ roles, onOpenTab }: { roles: readonly U
                 role="combobox"
                 aria-expanded="true"
                 aria-controls="command-palette-list"
-                aria-activedescendant={results[index] ? `cmd-${results[index].tab}` : undefined}
+                aria-activedescendant={results[index] ? `cmd-${results[index].id}` : undefined}
                 className="w-full min-h-14 pl-11 pr-4 bg-transparent text-base text-ink placeholder:text-muted outline-none"
               />
             </div>
@@ -111,7 +91,7 @@ export default function CommandPalette({ roles, onOpenTab }: { roles: readonly U
                 <li className="px-4 py-6 text-sm text-muted text-center">No page matches that.</li>
               ) : (
                 results.map((p, i) => (
-                  <li key={p.tab} id={`cmd-${p.tab}`} role="option" aria-selected={i === index}>
+                  <li key={p.id} id={`cmd-${p.id}`} role="option" aria-selected={i === index}>
                     <button
                       type="button"
                       tabIndex={-1}
@@ -120,7 +100,7 @@ export default function CommandPalette({ roles, onOpenTab }: { roles: readonly U
                       className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left cursor-pointer ${i === index ? 'bg-surface-accent shadow-[inset_3px_0_0_var(--color-primary)]' : ''}`}
                     >
                       <span className="min-w-0">
-                        <span className="block text-sm font-semibold text-ink">{p.label}</span>
+                        <span className="block text-sm font-semibold text-ink">{p.label.en}</span>
                         <span className="block text-xs text-muted truncate">{p.hint}</span>
                       </span>
                       {i === index && <CornerDownLeft className="w-4 h-4 text-accent shrink-0" aria-hidden="true" />}

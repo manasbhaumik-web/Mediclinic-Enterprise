@@ -4,18 +4,16 @@ import ThemeSelector from '../../components/ui/ThemeSelector';
 import Modal from '../../components/ui/Modal';
 import NotificationBell from './NotificationBell';
 import CommandPalette from './CommandPalette';
+import NavTabs from './NavTabs';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import { brandName } from '../../utils/brandName';
 import BrandName from '../../components/ui/BrandName';
 import { bannerFor, getGreeting } from '../../domain/roleBanner';
-import { canOpenTab } from '../../routes/permissions';
 import { joinRoleLabels } from '../../domain/roles';
 import type { UserRole } from '../../types';
 import { useSettings } from '../../context/SettingsContext';
 import {
-  Activity, Wifi, WifiOff, Eye, EyeOff, LayoutDashboard, Users, Stethoscope, 
-  FileText, Pill, CreditCard, Search, Clock, RefreshCw, 
-  ChevronDown, ChevronRight, LogOut, CalendarClock, PackageOpen, Moon, Sun, ShieldAlert, CheckCircle2, UserCheck, Settings, Globe, ShieldCheck, User
+  Wifi, WifiOff, Eye, EyeOff, Clock, RefreshCw, ChevronRight, LogOut, CalendarClock, Moon, Sun, Settings, Globe, User
 } from 'lucide-react';
 import logoUrl from '../../assets/logo_transparent.svg';
 import { getPersonaAvatar } from '../../utils/personaAvatars';
@@ -86,7 +84,7 @@ export default function EnterpriseLayoutTemplate({
   const { clinic } = useSettings();
   const help = useHelp();
 
-  // Close workstation settings popup when clicking outside
+  // Keep the selected navbar tab in view when the bar scrolls
   useEffect(() => {
     document.querySelector('.workspace-navbar .nav-btn-active')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
   }, [activeTab]);
@@ -106,6 +104,7 @@ export default function EnterpriseLayoutTemplate({
     return () => { nav.removeEventListener('scroll', update); window.removeEventListener('resize', update); ro.disconnect(); };
   }, [activeTab]);
 
+  // Close workstation settings popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -141,8 +140,6 @@ export default function EnterpriseLayoutTemplate({
 
   const held: UserRole[] = userRoles && userRoles.length > 0 ? userRoles : [userRole as UserRole];
   const roleLabel = bannerFor(held, activeLanguage).label;
-  // Navbar items come from the same table as the route guards, so a page is shown exactly when it can be opened.
-  const can = (tab: Parameters<typeof canOpenTab>[1]) => canOpenTab(held, tab);
 
   return (
     <div className={`staff-app min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
@@ -398,233 +395,14 @@ export default function EnterpriseLayoutTemplate({
 
         <nav className="workspace-navbar">
 
-          <div className="flex items-stretch h-full" id="sidebar-navigation-links">
-
-            {/* Dashboard Link */}
-            <button
-              type="button"
-              id="sidebar-link-dashboard"
-              onClick={() => setActiveTab('dashboard')}
-              aria-current={activeTab === 'dashboard' ? 'page' : undefined}
-              className={`nav-btn ${
-                activeTab === 'dashboard' ? 'nav-btn-active' : 'nav-btn-inactive'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                {activeTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-white' : 'text-teal-100/90'}`} />
-                <span>{t.dashboard || 'Dashboard'}</span>
-              </div>
-            </button>
-
-            {/* Administration Console Link (admin / HR) */}
-            {(held.includes('admin') || held.includes('hr')) && (
-              <button
-                type="button"
-                id="sidebar-link-admin"
-                onClick={() => onOpenAdmin?.()}
-                className="nav-btn nav-btn-inactive"
-              >
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-teal-100/90" />
-                  <span>{t.administration || 'Administration'}</span>
-                </div>
-              </button>
-            )}
-
-            {/* Registration Navigation Link */}
-            {can('registration') && (
-              <button
-                type="button"
-                id="sidebar-link-registration"
-                onClick={() => setActiveTab('registration')}
-              aria-current={activeTab === 'registration' ? 'page' : undefined}
-                className={`nav-btn ${
-                  activeTab === 'registration' ? 'nav-btn-active' : 'nav-btn-inactive'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {activeTab === 'registration' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                  <Users className={`w-4 h-4 ${activeTab === 'registration' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>{t.patientRegistration || 'Patients & Registry'}</span>
-                </div>
-              </button>
-            )}
-
-            {/* Triage Module Link */}
-            {can('triage') && (
-              <button
-                type="button"
-                id="sidebar-link-triage"
-                onClick={() => setActiveTab('triage')}
-              aria-current={activeTab === 'triage' ? 'page' : undefined}
-                className={`nav-btn ${
-                  activeTab === 'triage' ? 'nav-btn-active' : 'nav-btn-inactive'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {activeTab === 'triage' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                  <Activity className={`w-4 h-4 ${activeTab === 'triage' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>{t.triageModule || 'Triage Module'}</span>
-                </div>
-                {triageQueueLength > 0 && (
-                  <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'triage' ? 'bg-white text-chrome font-bold' : 'bg-black/25 text-white border border-white/20'
-                  }`}>
-                    {triageQueueLength}
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* Appointments Link */}
-            {held.includes('receptionist') && can('appointments') && (
-              <button
-                type="button"
-                id="sidebar-link-appointments"
-                onClick={() => setActiveTab('appointments')}
-              aria-current={activeTab === 'appointments' ? 'page' : undefined}
-                className={`nav-btn ${
-                  activeTab === 'appointments' ? 'nav-btn-active' : 'nav-btn-inactive'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {activeTab === 'appointments' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                  <CalendarClock className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>{t.appointments || 'Appointments'}</span>
-                </div>
-              </button>
-            )}
-
-            {/* Doctor Suite Links */}
-            {can('queue') && (
-              <>
-                <button
-                  type="button"
-                  id="sidebar-link-queue"
-                  onClick={() => setActiveTab('queue')}
-              aria-current={activeTab === 'queue' ? 'page' : undefined}
-                  className={`nav-btn ${
-                    activeTab === 'queue' ? 'nav-btn-active' : 'nav-btn-inactive'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {activeTab === 'queue' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                    <Users className={`w-4 h-4 ${activeTab === 'queue' ? 'text-white' : 'text-teal-100/90'}`} />
-                    <span>{t.patientQueue || 'Patient Queue'}</span>
-                  </div>
-                  {activeTab !== 'consultation' && doctorQueueLength > 0 && (
-                    <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                      activeTab === 'queue' ? 'bg-white text-chrome font-bold' : 'bg-black/25 text-white border border-white/20'
-                    }`}>
-                      {doctorQueueLength}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  id="sidebar-link-consultation"
-                  onClick={() => setActiveTab('consultation')}
-              aria-current={activeTab === 'consultation' ? 'page' : undefined}
-                  className={`nav-btn ${
-                    activeTab === 'consultation' ? 'nav-btn-active' : 'nav-btn-inactive'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {activeTab === 'consultation' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                    <Stethoscope className={`w-4 h-4 ${activeTab === 'consultation' ? 'text-white' : 'text-teal-100/90'}`} />
-                    <span>{t.consultationSuite || 'Consultation Suite'}</span>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  id="sidebar-link-reports"
-                  onClick={() => setActiveTab('reports')}
-              aria-current={activeTab === 'reports' ? 'page' : undefined}
-                  className={`nav-btn ${
-                    activeTab === 'reports' ? 'nav-btn-active' : 'nav-btn-inactive'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {activeTab === 'reports' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                    <FileText className={`w-4 h-4 ${activeTab === 'reports' ? 'text-white' : 'text-teal-100/90'}`} />
-                    <span>{t.monthlyReports || 'Monthly Reports'}</span>
-                  </div>
-                </button>
-              </>
-            )}
-
-            {/* Pharmacy Link */}
-            {can('dispensary') && (
-              <button
-                type="button"
-                id="sidebar-link-dispensary"
-                onClick={() => setActiveTab('dispensary')}
-              aria-current={activeTab === 'dispensary' ? 'page' : undefined}
-                className={`nav-btn ${
-                  activeTab === 'dispensary' ? 'nav-btn-active' : 'nav-btn-inactive'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {activeTab === 'dispensary' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                  <Pill className={`w-4 h-4 ${activeTab === 'dispensary' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>{t.dispensary || 'Dispensary'}</span>
-                </div>
-                {pharmacyQueueLength > 0 && (
-                  <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'dispensary' ? 'bg-white text-chrome font-bold' : 'bg-black/25 text-white border border-white/20'
-                  }`}>
-                    {pharmacyQueueLength}
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* Inventory & stock (pharmacist) */}
-            {can('inventory') && (
-              <button
-                type="button"
-                id="sidebar-link-inventory"
-                onClick={() => setActiveTab('inventory')}
-              aria-current={activeTab === 'inventory' ? 'page' : undefined}
-                className={`nav-btn ${activeTab === 'inventory' ? 'nav-btn-active' : 'nav-btn-inactive'}`}
-              >
-                <div className="flex items-center gap-2">
-                  {activeTab === 'inventory' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                  <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>{t.inventory || 'Inventory'}</span>
-                </div>
-              </button>
-            )}
-
-            {/* Billing Link */}
-            {can('billing') && (
-              <button
-                type="button"
-                id="sidebar-link-billing"
-                onClick={() => setActiveTab('billing')}
-              aria-current={activeTab === 'billing' ? 'page' : undefined}
-                className={`nav-btn ${
-                  activeTab === 'billing' ? 'nav-btn-active' : 'nav-btn-inactive'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {activeTab === 'billing' && <span className="w-1.5 h-1.5 rounded-none bg-white"></span>}
-                  <CreditCard className={`w-4 h-4 ${activeTab === 'billing' ? 'text-white' : 'text-teal-100/90'}`} />
-                  <span>{t.billing || 'Billing'}</span>
-                </div>
-                {cashierQueueLength > 0 && (
-                  <span className={`text-2xs font-bold font-mono px-1.5 py-0.5 rounded-none min-w-[16px] flex items-center justify-center ml-2 ${
-                    activeTab === 'billing' ? 'bg-white text-chrome font-bold' : 'bg-black/25 text-white border border-white/20'
-                  }`}>
-                    {cashierQueueLength}
-                  </span>
-                )}
-              </button>
-            )}
-          </div>
+          <NavTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            held={held}
+            t={t}
+            badges={{ triage: triageQueueLength, doctor: doctorQueueLength, pharmacy: pharmacyQueueLength, cashier: cashierQueueLength }}
+            onOpenAdmin={onOpenAdmin}
+          />
 
           {/* Sync Status & Sync Now Action */}
           <div className="hidden lg:flex items-center space-x-3 text-xs text-white/90 font-sans pl-4 border-l border-chrome-deep ml-4">

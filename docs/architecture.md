@@ -43,4 +43,15 @@ docs/           Feature notes.
 - A feature may import from `domain`, `hooks`, `lib`, `utils`, `context`, `components/ui` and `theme`. Avoid importing one feature from another; if two features need the same thing, move it to `domain`, `utils` or `components/ui`. `shell` and `admin` are the exceptions: they compose other features' screens. Some leave over-reaches remain (for example payroll and inventory helpers imported by sibling folders) and are good candidates to tidy.
 - `domain` imports nothing from React, hooks or features (one type-only import from `lib/einvoiceQueue` in `visitWorkflow.ts` is the single exception).
 - A screen's tests and helpers sit in its feature folder; domain tests sit beside the rule they test.
-- Access is decided in two places that must agree: `routes/permissions.ts` (tabs) and the database policies in `supabase/migrations`.
+- Access is decided in two places that must agree: the module registry (`src/modules`, which `routes/permissions.ts` reads) and the database policies in `supabase/migrations`.
+
+## Modules
+
+Pages are declared once, in `src/modules`, and everything else reads that:
+
+- `appModules.ts`: every staff page under `/app/*` (id, English and Malay label, palette hint, icon, who may open it, whether and how it shows in the navbar or user menu). The order is the navbar order. `routes/permissions.ts` (`TAB_ROLES`, `canOpenTab`), the routes in `App.tsx`, the navbar (`features/shell/NavTabs.tsx`), the command palette and the staff access summary are all built from it.
+- `adminSections.ts`: every section of the admin console, its group, who sees it, and the clinic switch (`settings.modules`) that turns it off.
+- `routes/appPages.tsx` and the `sectionPages` map in `features/admin/AdminModule.tsx` hold the screen for each entry. They are typed as a record over the registry, so the build fails if a registered page has no screen.
+
+To add a staff page: add an entry to `appModules.ts`, its screen to `routes/appPages.tsx`, and the navbar label to `data.ts` (English and Malay). To add an admin section: add an entry to `adminSections.ts` and its screen to `sectionPages`. `src/modules/registry.test.ts` pins who sees what.
+

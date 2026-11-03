@@ -5,11 +5,7 @@ import logoUrl from '../../assets/logo_transparent.svg';
 import ThemeSelector from '../../components/ui/ThemeSelector';
 import BrandName from '../../components/ui/BrandName';
 import {
-  Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, 
-  Building, ShieldAlert, LogOut, Server, Database, Globe2, Globe, TrendingUp,
-  Clock, ShieldCheck, Moon, Sun, ChevronDown, ChevronRight, Eye, EyeOff, Wifi, WifiOff,
-  Layers, FolderKanban, CalendarClock, FolderCheck,
-  LayoutDashboard, UserCog
+  Settings, LogOut, Globe, Clock, Moon, Sun, ChevronRight, Eye, EyeOff, Wifi, WifiOff, FolderKanban, LayoutDashboard
 } from 'lucide-react';
 import GlobalSpinner from '../../components/ui/GlobalSpinner';
 import { useClinicData } from '../../hooks/useClinicData';
@@ -36,16 +32,13 @@ import NotificationBell from '../shell/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { getGreeting } from '../../domain/roleBanner';
+import { ADMIN_CATEGORIES, visibleAdminSections, type AdminTab, type AdminCategoryId as AdminCategory } from '../../modules';
 
 interface AdminModuleProps {
   onNavigate: (view: 'landing' | 'login') => void;
   userRole: 'admin' | 'hr';
   onOpenDashboard?: () => void;
 }
-
-type AdminTab = 'staff' | 'patients' | 'medicine' | 'equipment' | 'billing' | 'reports' | 'moh' | 'settings' | 'integrations' | 'operations' | 'security' | 'rcm' | 'einvoice' | 'payroll' | 'leave' | 'architecture';
-
-type AdminCategory = 'people' | 'clinical' | 'finance' | 'compliance' | 'platform';
 
 export default function AdminModule({
   onNavigate,
@@ -89,57 +82,45 @@ export default function AdminModule({
     ? (activeLanguage === 'BM' ? 'Pentadbir Sistem' : 'System Administrator')
     : (activeLanguage === 'BM' ? 'Eksekutif Sumber Manusia' : 'HR Executive');
 
-  // Navigation module definition with categories
-  const modules = [
-    // 1. People
-    { id: 'staff', label: activeLanguage === 'BM' ? 'Direktori Staf' : 'Staff Directory', category: 'people', icon: Users, roleReq: 'all', enabled: settings.modules.staff },
-    { id: 'patients', label: activeLanguage === 'BM' ? 'Pentadbiran Pesakit' : 'Patient Administration', category: 'people', icon: FolderCheck, roleReq: 'admin', enabled: true },
-    { id: 'leave', label: activeLanguage === 'BM' ? 'Cuti & Kehadiran' : 'Leave & Attendance', category: 'people', icon: CalendarClock, roleReq: 'all', enabled: true },
-    
-    // 2. Clinical Operations
-    { id: 'medicine', label: activeLanguage === 'BM' ? 'Inventori & Farmasi' : 'Inventory & Pharmacy', category: 'clinical', icon: Pill, roleReq: 'admin', enabled: settings.modules.medicine },
-    { id: 'equipment', label: activeLanguage === 'BM' ? 'Peralatan & Aset' : 'Equipment & Assets', category: 'clinical', icon: Stethoscope, roleReq: 'admin', enabled: settings.modules.equipment },
-    { id: 'operations', label: activeLanguage === 'BM' ? 'Hab Operasi' : 'Operations Hub', category: 'clinical', icon: Activity, roleReq: 'admin', enabled: true },
-    
-    // 3. Finance
-    { id: 'billing', label: activeLanguage === 'BM' ? 'Meja Pengebilan' : 'Billing Desk', category: 'finance', icon: DollarSign, roleReq: 'admin', enabled: settings.modules.billing },
-    { id: 'payroll', label: activeLanguage === 'BM' ? 'Gaji & Imbuhan' : 'Payroll', category: 'finance', icon: DollarSign, roleReq: 'all', enabled: true },
-    { id: 'einvoice', label: activeLanguage === 'BM' ? 'e-Invois (LHDN)' : 'e-Invoice (LHDN)', category: 'finance', icon: FileText, roleReq: 'admin', enabled: true },
-    { id: 'rcm', label: activeLanguage === 'BM' ? 'Hasil & Kutipan' : 'Revenue', category: 'finance', icon: TrendingUp, roleReq: 'admin', enabled: true },
-
-    // 4. Compliance & Governance
-    { id: 'moh', label: activeLanguage === 'BM' ? 'Kepatuhan KKM' : 'MOH Compliance', category: 'compliance', icon: Globe2, roleReq: 'admin', enabled: true },
-    { id: 'reports', label: activeLanguage === 'BM' ? 'Laporan Analitik' : 'Analytics Reports', category: 'compliance', icon: FileText, roleReq: 'admin', enabled: settings.modules.reports },
-    { id: 'security', label: activeLanguage === 'BM' ? 'Keselamatan & Audit' : 'Security & Audit', category: 'compliance', icon: ShieldAlert, roleReq: 'admin', enabled: true },
-
-    // 5. Platform
-    { id: 'architecture', label: activeLanguage === 'BM' ? 'Status Sistem' : 'System Status', category: 'platform', icon: Server, roleReq: 'admin', enabled: true },
-    { id: 'integrations', label: activeLanguage === 'BM' ? 'Integrasi Sistem' : 'Integrations', category: 'platform', icon: Database, roleReq: 'admin', enabled: true },
-    { id: 'settings', label: activeLanguage === 'BM' ? 'Tetapan Konsol' : 'Console Settings', category: 'platform', icon: Settings, roleReq: 'admin', enabled: true }
-  ];
-
   const handleSelectTab = (tabId: AdminTab, cat: AdminCategory) => {
     setActiveTab(tabId);
     setActiveCategory(cat);
   };
 
-  const filteredModules = modules.filter(m => {
-    if (!m.enabled) return false;
-    if (m.roleReq === 'admin' && userRole !== 'admin') return false;
-    return true;
-  });
+  // The sections this person can see, from the registry (`src/modules/adminSections.ts`): role and clinic switches are applied once, here.
+  const lang = activeLanguage === 'BM' ? 'bm' : 'en';
+  const filteredModules = visibleAdminSections(userRole, settings.modules).map((m) => ({ ...m, label: m.label[lang] }));
+  const availableCategories = ADMIN_CATEGORIES
+    .filter((cat) => filteredModules.some((m) => m.category === cat.id))
+    .map((cat) => ({ id: cat.id, label: cat.label[lang] }));
 
-  const categories = [
-    { id: 'people', label: activeLanguage === 'BM' ? 'Kakitangan' : 'People' },
-    { id: 'clinical', label: activeLanguage === 'BM' ? 'Operasi Klinikal' : 'Clinical Ops' },
-    { id: 'finance', label: activeLanguage === 'BM' ? 'Kewangan' : 'Finance' },
-    { id: 'compliance', label: activeLanguage === 'BM' ? 'Pematuhan' : 'Compliance' },
-    { id: 'platform', label: activeLanguage === 'BM' ? 'Platform' : 'Platform' }
-  ];
-
-  const availableCategories = categories.filter(cat => 
-    filteredModules.some(m => m.category === cat.id)
-  );
+  // The screen for each admin section. The type makes the build fail if a registered section has none.
+  const sectionPages: Record<AdminTab, React.ReactNode> = {
+    staff: <StaffManagementModule />,
+    patients: (
+      <PatientAdminView
+        patientsList={clinicData.patientsList}
+        completedVisits={clinicData.completedVisits}
+        activeVisits={clinicData.visitsQueue}
+        onUpdatePatient={clinicData.updatePatientInDb}
+        activeLanguage={activeLanguage}
+      />
+    ),
+    medicine: <InventoryPage role="admin" />,
+    equipment: <EquipmentPage />,
+    billing: <BillingManagementModule />,
+    reports: <ReportsAnalyticsModule />,
+    moh: <MOHDashboard onOpenTab={setActiveTab} />,
+    settings: <SettingsModule />,
+    leave: <LeavePage role={userRole} />,
+    payroll: <PayrollPage role={userRole} />,
+    einvoice: <EInvoicePage />,
+    integrations: <IntegrationsPage />,
+    operations: <OperationsHub onOpenTab={setActiveTab} />,
+    security: <SecurityHub />,
+    rcm: <RevenueCycleHub onOpenTab={setActiveTab} />,
+    architecture: <SystemArchitectureHub onOpenTab={setActiveTab} />,
+  };
 
   return (
     <div className={`staff-app min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
@@ -450,77 +431,7 @@ export default function AdminModule({
           <div className="w-full">
           <React.Suspense fallback={<GlobalSpinner />}>
 
-          {activeTab === 'staff' && (userRole === 'admin' || userRole === 'hr') && settings.modules.staff && (
-            <StaffManagementModule />
-          )}
-
-          {activeTab === 'patients' && userRole === 'admin' && (
-            <PatientAdminView
-              patientsList={clinicData.patientsList}
-              completedVisits={clinicData.completedVisits}
-              activeVisits={clinicData.visitsQueue}
-              onUpdatePatient={clinicData.updatePatientInDb}
-              activeLanguage={activeLanguage}
-            />
-          )}
-
-          {activeTab === 'medicine' && userRole === 'admin' && settings.modules.medicine && (
-            <InventoryPage role="admin" />
-          )}
-
-          {activeTab === 'equipment' && userRole === 'admin' && settings.modules.equipment && (
-            <EquipmentPage />
-          )}
-
-          {activeTab === 'billing' && userRole === 'admin' && settings.modules.billing && (
-            <BillingManagementModule />
-          )}
-
-          {activeTab === 'reports' && userRole === 'admin' && settings.modules.reports && (
-            <ReportsAnalyticsModule />
-          )}
-
-          {activeTab === 'moh' && userRole === 'admin' && (
-            <MOHDashboard onOpenTab={setActiveTab} />
-          )}
-
-          {activeTab === 'settings' && userRole === 'admin' && (
-            <SettingsModule />
-          )}
-
-          {activeTab === 'leave' && (
-            <LeavePage role={userRole} />
-          )}
-
-          {activeTab === 'payroll' && (
-            <PayrollPage role={userRole} />
-          )}
-
-          {activeTab === 'einvoice' && userRole === 'admin' && (
-            <EInvoicePage />
-          )}
-
-          {activeTab === 'integrations' && userRole === 'admin' && (
-            <IntegrationsPage />
-          )}
-
-          {activeTab === 'operations' && userRole === 'admin' && (
-            <OperationsHub onOpenTab={setActiveTab} />
-          )}
-
-          {activeTab === 'security' && userRole === 'admin' && (
-            <SecurityHub />
-          )}
-
-          {activeTab === 'rcm' && userRole === 'admin' && (
-            <RevenueCycleHub onOpenTab={setActiveTab} />
-          )}
-
-          {activeTab === 'architecture' && userRole === 'admin' && (
-            <SystemArchitectureHub onOpenTab={setActiveTab} />
-          )}
-
-        
+          {filteredModules.some((m) => m.id === activeTab) && sectionPages[activeTab]}
           </React.Suspense>
           </div>
         </main>
