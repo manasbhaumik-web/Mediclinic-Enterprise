@@ -38,6 +38,8 @@ export interface AppModule {
   nav?: NavConfig;
   /** Reachable from the user menu instead of the navbar. */
   userMenu?: boolean;
+  /** The clinic switch that turns this page off everywhere (route, navbar, palette). No key means always on. */
+  moduleKey?: SettingsModuleKey;
 }
 
 export type AdminCategoryId = 'people' | 'clinical' | 'finance' | 'compliance' | 'platform';
@@ -54,5 +56,5 @@ export interface AdminSection {
   /** `admin`: administrators only. `all`: administrators and HR. */
   roleReq: 'all' | 'admin';
   /** The clinic switch that turns this section off, if it has one. */
-  settingsKey?: SettingsModuleKey;
+  moduleKey?: SettingsModuleKey;
 }

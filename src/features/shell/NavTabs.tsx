@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { navModules, type NavBadge } from '../../modules';
 import type { UserRole } from '../../types';
+import { useSettings } from '../../context/SettingsContext';
 
 interface NavTabsProps {
   activeTab: string;
@@ -16,6 +17,7 @@ interface NavTabsProps {
 
 /** The navbar tabs, built from the module registry (`src/modules/appModules.ts`). */
 export default function NavTabs({ activeTab, setActiveTab, held, t, badges, onOpenAdmin }: NavTabsProps) {
+  const { settings } = useSettings();
   const isAdmin = held.includes('admin') || held.includes('hr');
   const adminButton = isAdmin && (
     <button
@@ -34,7 +36,7 @@ export default function NavTabs({ activeTab, setActiveTab, held, t, badges, onOp
 
   return (
     <div className="flex items-stretch h-full" id="sidebar-navigation-links">
-      {navModules(held).map((m, i) => {
+      {navModules(held, settings.modules).map((m, i) => {
         const nav = m.nav!;
         const active = activeTab === m.id;
         const Icon = m.icon;

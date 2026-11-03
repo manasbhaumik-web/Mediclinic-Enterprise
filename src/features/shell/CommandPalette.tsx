@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, CornerDownLeft } from 'lucide-react';
 import { paletteModules, type AppModule } from '../../modules';
+import { useSettings } from '../../context/SettingsContext';
 import type { UserRole } from '../../types';
 
 /**
@@ -8,6 +9,7 @@ import type { UserRole } from '../../types';
  * It lists only pages the signed-in roles may open, the same rule the navbar uses.
  */
 export default function CommandPalette({ roles, onOpenTab }: { roles: readonly UserRole[]; onOpenTab: (tab: string) => void }) {
+  const { settings } = useSettings();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [index, setIndex] = useState(0);
@@ -34,8 +36,8 @@ export default function CommandPalette({ roles, onOpenTab }: { roles: readonly U
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return paletteModules(roles).filter((m) => !q || `${m.label.en} ${m.hint}`.toLowerCase().includes(q));
-  }, [roles, query]);
+    return paletteModules(roles, settings.modules).filter((m) => !q || `${m.label.en} ${m.hint}`.toLowerCase().includes(q));
+  }, [roles, query, settings.modules]);
 
   const go = (entry: AppModule | undefined) => {
     if (!entry) return;

@@ -2,6 +2,8 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
+import { useSettings } from '../context/SettingsContext';
+import { isModuleOn, type SettingsModuleKey } from '../modules';
 import GlobalSpinner from '../components/ui/GlobalSpinner';
 
 /** Requires a signed-in user with a resolved profile role; otherwise sends them to /login. */
@@ -11,6 +13,17 @@ export function RequireAuth() {
   if (isLoading) return <GlobalSpinner />;
   if (!role) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   return <Outlet />;
+}
+
+/** Sends everyone to `fallback` while the clinic has switched the module off. No key means always on. */
+export function RequireModule({ moduleKey, fallback = '/app/dashboard', children }: {
+  moduleKey: SettingsModuleKey | undefined;
+  fallback?: string;
+  children: React.ReactNode;
+}) {
+  const { settings } = useSettings();
+  if (!isModuleOn(settings.modules, moduleKey)) return <Navigate to={fallback} replace />;
+  return <>{children}</>;
 }
 
 /** Renders children only when the person holds one of the listed roles; everyone else is sent to `fallback`. */

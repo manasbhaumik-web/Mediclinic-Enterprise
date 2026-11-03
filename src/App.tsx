@@ -2,21 +2,23 @@ import React, { Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import GlobalSpinner from './components/ui/GlobalSpinner';
 import ErrorBoundary from './components/ui/ErrorBoundary';
-import { RequireAuth, RequireRole } from './routes/guards';
+import { RequireAuth, RequireModule, RequireRole } from './routes/guards';
 import { ADMIN_ROLES, TAB_ROLES, type AppTab } from './routes/permissions';
 import ClinicShell from './routes/ClinicShell';
-import { APP_MODULES } from './modules';
+import { APP_MODULES, moduleById } from './modules';
 import { APP_PAGES } from './routes/appPages';
 import { AdminPage, LandingPage, LoginPage, TelemetryPage } from './routes/PublicPages';
 import SetPasswordPage from './routes/SetPasswordPage';
 import { TenantProvider } from './context/TenantContext';
 
-/** Wraps a page so only the roles listed for it in TAB_ROLES can open it. */
+/** Wraps a page so only the roles listed for it in TAB_ROLES can open it, and only while the clinic has its module switched on. */
 const guarded = (tab: AppTab, page: React.ReactNode) => (
   <RequireRole roles={TAB_ROLES[tab]}>
-    <ErrorBoundary fallbackTitle={`Workstation Error (${String(tab)})`}>
-      {page}
-    </ErrorBoundary>
+    <RequireModule moduleKey={moduleById(tab).moduleKey}>
+      <ErrorBoundary fallbackTitle={`Workstation Error (${String(tab)})`}>
+        {page}
+      </ErrorBoundary>
+    </RequireModule>
   </RequireRole>
 );
 

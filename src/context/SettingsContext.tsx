@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { WebsiteCMSConfig, DEFAULT_WEBSITE_CONFIG } from '../domain/websiteCms';
+import { DEFAULT_MODULE_SWITCHES, resolveModuleSwitches, type ClinicModuleSwitches } from '../modules/clinicModules';
 
 export interface AISettings {
   enabled: boolean;
@@ -42,13 +43,7 @@ export interface GlobalSettings {
     consultationFee: number;
     procedureFee: number;
   };
-  modules: {
-    staff: boolean;
-    medicine: boolean;
-    equipment: boolean;
-    billing: boolean;
-    reports: boolean;
-  };
+  modules: ClinicModuleSwitches;
   hardware: {
     mykadScanner: boolean;
     receiptPrinter: boolean;
@@ -121,13 +116,7 @@ const DEFAULT_SETTINGS: GlobalSettings = {
     consultationFee: 35.00,
     procedureFee: 15.00
   },
-  modules: {
-    staff: true,
-    medicine: true,
-    equipment: true,
-    billing: true,
-    reports: true
-  },
+  modules: DEFAULT_MODULE_SWITCHES,
   hardware: {
     mykadScanner: true,
     receiptPrinter: true,
@@ -158,7 +147,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             consultationFee: Number(data.consultation_fee),
             procedureFee: Number(data.procedure_fee)
           },
-          modules: data.active_modules,
+          modules: resolveModuleSwitches(data.active_modules),
           hardware: data.hardware_config
         }));
         setClinic(clinicFromRow(data));
@@ -176,7 +165,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             consultationFee: Number(data.consultation_fee),
             procedureFee: Number(data.procedure_fee)
           },
-          modules: data.active_modules,
+          modules: resolveModuleSwitches(data.active_modules),
           hardware: data.hardware_config
         }));
         setClinic(clinicFromRow(data));

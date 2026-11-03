@@ -47,21 +47,25 @@ export const APP_MODULES = [
     id: 'reports', label: { en: 'Monthly report', bm: 'Laporan bulanan' }, hint: 'Your consultations and billing', icon: FileText,
     roles: ['doctor'],
     nav: { labelKey: 'monthlyReports', fallback: 'Monthly Reports' },
+    moduleKey: 'reports',
   },
   {
     id: 'dispensary', label: { en: 'Dispensary', bm: 'Farmasi' }, hint: 'Dispense, Buku Racun, dangerous drugs', icon: Pill,
     roles: ['pharmacist'],
     nav: { labelKey: 'dispensary', fallback: 'Dispensary', badge: 'pharmacy' },
+    moduleKey: 'medicine',
   },
   {
     id: 'inventory', label: { en: 'Inventory and pharmacy', bm: 'Inventori dan farmasi' }, hint: 'Stock, orders, register, ledger', icon: PackageOpen,
     roles: ['pharmacist'],
     nav: { labelKey: 'inventory', fallback: 'Inventory' },
+    moduleKey: 'medicine',
   },
   {
     id: 'billing', label: { en: 'Billing and panel claims', bm: 'Bil dan tuntutan panel' }, hint: 'Cashier invoicing, TPA claims', icon: CreditCard,
     roles: ['cashier'],
     nav: { labelKey: 'billing', fallback: 'Billing', badge: 'cashier' },
+    moduleKey: 'billing',
   },
   {
     id: 'my-leave', label: { en: 'My leave and attendance', bm: 'Cuti dan kehadiran saya' }, hint: 'Balances, requests', icon: CalendarClock,

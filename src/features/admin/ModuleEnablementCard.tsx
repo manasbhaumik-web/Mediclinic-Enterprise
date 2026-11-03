@@ -4,6 +4,7 @@ import {
   Check, CheckCircle2, ShieldCheck, AlertCircle 
 } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
+import { modulePages } from '../../modules';
 
 export default function ModuleEnablementCard() {
   const { settings, updateSettings } = useSettings();
@@ -72,7 +73,7 @@ export default function ModuleEnablementCard() {
           <div>
             <h3 className="type-card-title text-ink">Administration Module Governance</h3>
             <p className="text-2xs text-subtle mt-0.5">
-              Control workspace availability and sidebar module visibility across the enterprise console.
+              Switch whole modules on or off for this clinic, in the staff workspace and the admin console.
             </p>
           </div>
         </div>
@@ -83,13 +84,14 @@ export default function ModuleEnablementCard() {
 
       <div className="p-5 space-y-4">
         <p className="text-xs text-subtle">
-          Disabled modules are immediately hidden from the staff workspace navigation sidebar to simplify workstation workflows.
+          A switched-off module disappears from the navigation, the page switcher and its web address everywhere: staff who open it are sent back to the dashboard. Nothing is deleted, and switching it on again brings it back.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {moduleDefinitions.map((mod) => {
             const isEnabled = settings.modules[mod.id];
             const Icon = mod.icon;
+            const controls = modulePages(mod.id);
             return (
               <div 
                 key={mod.id}
@@ -115,6 +117,10 @@ export default function ModuleEnablementCard() {
                       </span>
                     </div>
                     <p className="text-2xs text-subtle mt-1 leading-relaxed">{mod.desc}</p>
+                    <p className="text-2xs text-subtle mt-1 leading-relaxed">
+                      <span className="font-semibold text-ink">Controls: </span>
+                      {[...controls.staffPages.map((p) => `${p} (staff page)`), ...controls.adminSections.map((s) => `${s} (admin console)`)].join(', ')}
+                    </p>
                   </div>
                 </div>
 
@@ -123,6 +129,7 @@ export default function ModuleEnablementCard() {
                     type="checkbox" 
                     checked={isEnabled} 
                     onChange={() => handleModuleToggle(mod.id)} 
+                    aria-label={`${mod.name}: ${isEnabled ? 'on' : 'off'}`}
                     className="sr-only peer" 
                   />
                   <div className="w-9 h-5 bg-surface-strong dark:bg-night-700 peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-line after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>

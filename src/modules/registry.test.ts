@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { TAB_ROLES, canOpenTab, ADMIN_ROLES } from '../routes/permissions';
 import type { UserRole } from '../types';
-import { APP_MODULES, ADMIN_SECTIONS, ADMIN_CATEGORIES, navModules, paletteModules, visibleAdminSections } from './index';
+import {
+  APP_MODULES, ADMIN_SECTIONS, ADMIN_CATEGORIES, DEFAULT_MODULE_SWITCHES, modulePages, navModules, paletteModules, resolveModuleSwitches, visibleAdminSections,
+} from './index';
 
 /** The module registry replaced several hand-written lists. These tables pin the behaviour those lists had. */
 
@@ -104,5 +106,55 @@ describe('admin sections', () => {
     expect(ids('admin', { ...allOn, billing: false, reports: false, equipment: false })).toEqual(
       ids('admin').filter((id) => !['billing', 'reports', 'equipment'].includes(id)),
     );
+  });
+});
+
+describe('clinic module switches', () => {
+  const off = (...keys: (keyof typeof DEFAULT_MODULE_SWITCHES)[]) => ({ ...DEFAULT_MODULE_SWITCHES, ...Object.fromEntries(keys.map((k) => [k, false])) });
+
+  it('keeps every page when every switch is on', () => {
+    expect(navModules(['pharmacist'], DEFAULT_MODULE_SWITCHES).map((m) => m.id)).toEqual(['dashboard', 'dispensary', 'inventory']);
+    expect(navModules(['cashier'], DEFAULT_MODULE_SWITCHES).map((m) => m.id)).toEqual(['dashboard', 'billing']);
+  });
+
+  it('removes a switched-off module from the navbar and the command palette', () => {
+    expect(navIds(['pharmacist']).length).toBe(3);
+    expect(navModules(['pharmacist'], off('medicine')).map((m) => m.id)).toEqual(['dashboard']);
+    expect(navModules(['cashier'], off('billing')).map((m) => m.id)).toEqual(['dashboard']);
+    expect(navModules(['doctor'], off('reports')).map((m) => m.id)).toEqual(['dashboard', 'queue', 'consultation']);
+    expect(paletteModules(['pharmacist'], off('medicine')).map((m) => m.id)).toEqual(['dashboard', 'my-leave']);
+  });
+
+  it('leaves the other modules alone', () => {
+    expect(navModules(['cashier'], off('medicine', 'reports', 'staff', 'equipment')).map((m) => m.id)).toEqual(['dashboard', 'billing']);
+  });
+
+  it('never switches off a page that has no switch', () => {
+    const everythingOff = off('staff', 'medicine', 'equipment', 'billing', 'reports');
+    for (const role of ALL) {
+      const ids = paletteModules([role], everythingOff).map((m) => m.id);
+      expect(ids).toContain('dashboard');
+      expect(ids).toContain('my-leave');
+    }
+    expect(navModules(['doctor'], everythingOff).map((m) => m.id)).toEqual(['dashboard', 'queue', 'consultation']);
+  });
+
+  it('drops the admin console sections of a switched-off module too', () => {
+    expect(visibleAdminSections('admin', off('billing')).map((s) => s.id)).not.toContain('billing');
+    expect(visibleAdminSections('admin', off('medicine')).map((s) => s.id)).not.toContain('medicine');
+  });
+
+  it('says what each switch controls', () => {
+    expect(modulePages('medicine')).toEqual({ staffPages: ['Dispensary', 'Inventory and pharmacy'], adminSections: ['Inventory & Pharmacy'] });
+    expect(modulePages('billing')).toEqual({ staffPages: ['Billing and panel claims'], adminSections: ['Billing Desk'] });
+    expect(modulePages('equipment')).toEqual({ staffPages: [], adminSections: ['Equipment & Assets'] });
+  });
+
+  it('turns on anything missing or invalid in stored settings', () => {
+    expect(resolveModuleSwitches(null)).toEqual(DEFAULT_MODULE_SWITCHES);
+    expect(resolveModuleSwitches(undefined)).toEqual(DEFAULT_MODULE_SWITCHES);
+    expect(resolveModuleSwitches({ billing: false })).toEqual({ ...DEFAULT_MODULE_SWITCHES, billing: false });
+    expect(resolveModuleSwitches({ billing: 'no', staff: 0, medicine: false, extra: false })).toEqual({ ...DEFAULT_MODULE_SWITCHES, medicine: false });
+    expect(resolveModuleSwitches('nonsense')).toEqual(DEFAULT_MODULE_SWITCHES);
   });
 });
