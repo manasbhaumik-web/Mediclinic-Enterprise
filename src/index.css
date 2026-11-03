@@ -276,7 +276,7 @@ strong {
   }
 
   .workspace-header-settings-btn {
-    @apply flex items-center justify-center w-9 h-9 bg-surface-accent dark:bg-night-800 hover:bg-surface-strong dark:hover:bg-night-700 active:bg-surface-muted border border-line dark:border-teal-800/40 text-accent dark:text-teal-300 rounded-none cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none shadow-2xs;
+    @apply flex items-center justify-center w-10 h-10 bg-surface-accent dark:bg-night-800 hover:bg-surface-strong dark:hover:bg-night-700 active:bg-surface-muted border border-line dark:border-teal-800/40 text-accent dark:text-teal-300 rounded-full cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none shadow-2xs;
   }
 
   .workspace-header-user-btn {

@@ -80,7 +80,7 @@ export function HelpButton({ onClick, light = false }: { onClick: () => void; li
       onClick={onClick}
       aria-label="Open help"
       title="Help (press ?)"
-      className={`flex items-center justify-center w-10 h-10 ${light ? 'rounded-none' : 'rounded-full'} border cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none ${light ? 'bg-surface hover:bg-surface-strong border-line-strong' : 'bg-chrome-deep hover:bg-chrome-line border-teal-300/40'}`}
+      className={`flex items-center justify-center w-10 h-10 rounded-full border cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:outline-none ${light ? 'bg-surface hover:bg-surface-strong border-line-strong' : 'bg-chrome-deep hover:bg-chrome-line border-teal-300/40'}`}
     >
       <CircleHelp className={`w-4 h-4 ${light ? 'text-accent' : 'text-teal-100'}`} />
     </button>
