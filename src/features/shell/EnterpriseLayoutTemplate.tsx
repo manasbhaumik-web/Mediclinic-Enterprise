@@ -3,6 +3,7 @@ import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import ThemeSelector from '../../components/ui/ThemeSelector';
 import Modal from '../../components/ui/Modal';
 import NotificationBell from './NotificationBell';
+import CommandPalette from './CommandPalette';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from './HelpCenter';
 import { brandName } from '../../utils/brandName';
 import BrandName from '../../components/ui/BrandName';
@@ -177,6 +178,8 @@ export default function EnterpriseLayoutTemplate({
             <Clock className="w-3.5 h-3.5 text-accent dark:text-teal-400" />
             <span>{timeString || '--:--:-- MYT'}</span>
           </div>
+
+          <CommandPalette roles={held} onOpenTab={setActiveTab} />
 
           <HelpButton onClick={help.show} light />
 

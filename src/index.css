@@ -250,7 +250,7 @@ strong {
   }
 
   .nav-btn-active {
-    @apply bg-chrome-deep text-white border-b-2 border-b-white font-bold shadow-none ring-0;
+    @apply bg-white/20 text-white border-b-4 border-b-white font-bold shadow-none ring-0;
   }
 
 
@@ -322,7 +322,7 @@ strong {
 
   /* Workspace Navbar */
   .workspace-navbar {
-    @apply w-full bg-chrome text-white border-b border-chrome-deep flex items-stretch justify-between shrink-0 px-2 sm:px-6 h-11 overflow-x-auto sticky top-[60px] z-40 font-sans shadow-xs scrollbar-none touch-pan-x;
+    @apply w-full bg-chrome text-white border-b border-chrome-deep flex items-stretch justify-between shrink-0 px-2 sm:px-6 h-12 overflow-x-auto sticky top-[60px] z-40 font-sans shadow-xs scrollbar-none touch-pan-x;
   }
 
   .workspace-nav-badge-active {
