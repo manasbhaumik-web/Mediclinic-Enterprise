@@ -48,7 +48,12 @@ export interface ClinicShellContext {
   addAppointment: (app: Omit<Appointment, 'id' | 'createdAt'>) => Promise<void>;
   updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>;
   checkInAppointment: (id: string) => Promise<{ ok: true } | { ok: false; error: string }>;
-  onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
+  /** Resolves true once the triage is saved. */
+  onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => Promise<boolean>;
+  /** Shows a dismissible error notice for something the database refused. */
+  reportError: (message: string) => void;
+  /** Records a rapid-test result and returns a held patient to the doctor's queue. */
+  clearVisitHold: ClinicData['clearVisitHold'];
   onConsultationComplete: (soap: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
   onDispenseVerified: (visitId: string) => void;
   /** Records the payment and issues its receipt number. */
@@ -141,10 +146,13 @@ export default function ClinicShell() {
       const existing = appointments.find((a) => a.id === id);
       if (existing) await data.updateAppointmentInDb({ ...existing, ...updates });
     },
-    onTriageComplete: (visitId, vitals, chiefComplaint) => {
+    onTriageComplete: async (visitId, vitals, chiefComplaint) => {
       const visit = findVisit(visitId);
-      if (visit) updateVisitInDb(completeTriage(visit, vitals, chiefComplaint));
+      if (!visit) return false;
+      return updateVisitInDb(completeTriage(visit, vitals, chiefComplaint));
     },
+    reportError: setErrorToast,
+    clearVisitHold: data.clearVisitHold,
     onConsultationComplete: (soap, issueMc) => {
       const visit = activeConsultationVisitId ? findVisit(activeConsultationVisitId) : undefined;
       if (!visit) return;

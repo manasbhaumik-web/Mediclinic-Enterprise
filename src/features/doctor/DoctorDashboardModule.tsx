@@ -40,7 +40,8 @@ interface DoctorDashboardModuleProps {
   onReleasePatient?: (visitId: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   doctorTab?: 'queue' | 'consultation' | 'reports';
   onTabChange?: (tab: 'queue' | 'consultation' | 'reports') => void;
-  onHoldForResults?: (visitId: string, currentSoap: SOAPNotes) => void;
+  /** Resolves false when the hold was not saved, so the doctor stays in the room. */
+  onHoldForResults?: (visitId: string, currentSoap: SOAPNotes) => Promise<boolean | void> | void;
 }
 
 export default function DoctorDashboardModule({
@@ -654,8 +655,10 @@ export default function DoctorDashboardModule({
                   <ConsultationRoom
                     currentPatient={patientsMap[[...doctorQueue, ...holdingQueue].find(v => v.id === activeConsultationVisitId)?.patientId || ''] || null}
                     activeVisit={[...doctorQueue, ...holdingQueue].find(v => v.id === activeConsultationVisitId) || null}
-                    onHoldForResults={(vid, soap) => {
-                      if (onHoldForResults) onHoldForResults(vid, soap);
+                    onHoldForResults={async (vid, soap) => {
+                      const saved = onHoldForResults ? await onHoldForResults(vid, soap) : true;
+                      // Stay in the room when the hold was not saved: the patient is still in consultation.
+                      if (saved === false) return;
                       setActiveConsultationVisitId(null);
                       setInternalTab('queue');
                     }}

@@ -26,8 +26,9 @@ interface PatientRegistrationModuleProps {
   patientsList?: Patient[];
   triageQueue: Visit[];
   patientsMap: Record<string, Patient>;
-  addPatientToDb: (p: Patient) => void;
-  addVisitToDb: (v: Visit) => void;
+  /** Resolves true once the database has saved it. */
+  addPatientToDb: (p: Patient) => Promise<boolean> | void;
+  addVisitToDb: (v: Visit) => Promise<boolean> | void;
   updateVisitInDb: (v: Visit) => void;
   /** Names (or clears) the doctor a waiting patient should see. */
   assignDoctor: (visitId: string, doctorId: string | null) => Promise<{ ok: true } | { ok: false; error: string }>;
@@ -65,6 +66,7 @@ export default function PatientRegistrationModule({
   
   // Toast Notification State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Patient Admin & Reports Modals
   const [selectedPatientForDetail, setSelectedPatientForDetail] = useState<Patient | null>(null);
@@ -372,6 +374,11 @@ export default function PatientRegistrationModule({
     }
   };
 
+  const showError = (message: string) => {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(null), 12000);
+  };
+
   const handleRegisterSubmit = async () => {
     let targetPatientId = existingPatientId;
 
@@ -388,8 +395,15 @@ export default function PatientRegistrationModule({
         drugAllergies: allergiesList,
         registeredDate: new Date().toISOString().split('T')[0]
       };
-      await addPatientToDb(newPatient);
+      // Nothing is cleared or routed unless the patient is really saved; a failed save keeps the form for another try.
+      const patientSaved = await addPatientToDb(newPatient);
+      if (patientSaved === false) {
+        showError(`${manualForm.fullName} could not be registered. The MyKad number may already be in the registry, or the connection dropped. Search the registry before trying again.`);
+        return;
+      }
       targetPatientId = newPatient.id;
+      // If the visit below fails, a retry reuses this patient instead of registering them twice.
+      setExistingPatientId(newPatient.id);
     }
 
     const targetVisitId = crypto.randomUUID();
@@ -417,13 +431,17 @@ export default function PatientRegistrationModule({
       paidAmount: 0,
     };
 
-    addVisitToDb(newVisit);
+    const visitSaved = await addVisitToDb(newVisit);
+    if (visitSaved === false) {
+      showError(`${manualForm.fullName} is registered but was not added to the triage queue. Press Register again, or create the ticket from the registry.`);
+      return;
+    }
     showToast(`${manualForm.fullName} routed to Triage Queue.`);
     handleClearForm();
     setActiveSubTab('queue');
   };
 
-  const handleCreateTicket = (patient: Patient) => {
+  const handleCreateTicket = async (patient: Patient) => {
     if (triageQueue.some((v) => v.patientId === patient.id)) {
       showToast(`${patient.fullName} is already waiting for triage.`);
       return;
@@ -444,7 +462,11 @@ export default function PatientRegistrationModule({
       panelClaimed: 0,
       paidAmount: 0,
     };
-    addVisitToDb(newVisit);
+    const visitSaved = await addVisitToDb(newVisit);
+    if (visitSaved === false) {
+      showError(`${patient.fullName} was not added to the triage queue. Check the connection and try again.`);
+      return;
+    }
     showToast(`${patient.fullName} routed to Triage Queue.`);
     setActiveSubTab('queue');
   };
@@ -518,6 +540,12 @@ export default function PatientRegistrationModule({
     <div className="space-y-4 animate-fadeIn relative font-sans">
       
       {/* Toast Notification */}
+      {errorMessage && (
+        <div role="alert" className="fixed bottom-6 right-6 z-50 max-w-md bg-rose-700 text-white px-5 py-4 rounded-none shadow-2xl flex items-start gap-3 border border-rose-900">
+          <span className="text-sm font-semibold leading-snug flex-1">{errorMessage}</span>
+          <button type="button" aria-label="Dismiss" onClick={() => setErrorMessage(null)} className="min-h-8 min-w-8 -my-1 -mr-2 text-rose-100 hover:text-white cursor-pointer">x</button>
+        </div>
+      )}
       {toastMessage && (
         <div role="status" aria-live="polite" className="fixed bottom-6 right-6 bg-primary text-white px-6 py-4 rounded-none shadow-2xl flex items-center justify-center gap-3 z-50 animate-slideUp font-sans text-xs border border-line-subtle">
           <CheckCircle2 className="w-5 h-5 text-teal-300" />

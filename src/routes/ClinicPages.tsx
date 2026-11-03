@@ -41,17 +41,18 @@ export function DoctorPage({ tab }: { tab: DoctorTab }) {
       activeConsultationVisitId={s.activeConsultationVisitId}
       setActiveConsultationVisitId={s.setActiveConsultationVisitId}
       onConsultationComplete={s.onConsultationComplete}
-      onHoldForResults={(visitId, currentSoap) => {
+      onHoldForResults={async (visitId, currentSoap) => {
         const visit = s.visitsQueue.find((v) => v.id === visitId);
-        if (visit) {
-          s.updateVisitInDb({
-            ...visit,
-            soap: currentSoap,
-            status: 'Holding for Results'
-          });
-          s.setActiveConsultationVisitId(null);
-          s.navigateTab('dashboard');
+        if (!visit) return false;
+        const saved = await s.updateVisitInDb({ ...visit, soap: currentSoap, status: 'Holding for Results' });
+        // The doctor stays in the room if the hold was not saved: the patient is still in consultation.
+        if (!saved) {
+          s.reportError('The patient could not be put on hold, so they are still in your consultation. Check the connection and try again.');
+          return false;
         }
+        s.setActiveConsultationVisitId(null);
+        s.navigateTab('dashboard');
+        return true;
       }}
       doctorName={s.userName}
       userId={s.userId}
@@ -112,6 +113,8 @@ export function TriagePage() {
       patientsMap={s.patientsMap}
       onTriageComplete={s.onTriageComplete}
       onUpdateVisit={s.updateVisitInDb}
+      onClearHold={s.clearVisitHold}
+      onReportError={s.reportError}
       currentStaffId={s.userId ?? 'staff-nurse'}
       currentStaffName={s.userName}
       onNavigateTab={s.navigateTab}

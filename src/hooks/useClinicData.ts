@@ -123,6 +123,9 @@ const logFailure = (action: string) => (err: unknown): false => {
   return false;
 };
 
+// Visits whose SOAP note is the same as the cached copy when an update starts (see updateVisit).
+const soapUnchanged = new Map<string, boolean>();
+
 function useClinicMutations() {
   const qc = useQueryClient();
 
@@ -207,6 +210,12 @@ function useClinicMutations() {
 
       if (!visit.soap) return;
 
+      // A move that did not touch the note must not rewrite it: the cached copy can be minutes old, and a stale
+      // rewrite would overwrite what a doctor saved since.
+      const skipNote = soapUnchanged.get(visit.id) === true;
+      soapUnchanged.delete(visit.id);
+      if (skipNote) return;
+
       const { data: existing, error: findErr } = await supabase.from('soap_notes')
         .select('id').eq('visit_id', visit.id).maybeSingle();
       if (findErr) throw findErr;
@@ -233,6 +242,8 @@ function useClinicMutations() {
       await qc.cancelQueries({ queryKey: ['visits'] });
       const prevActive = qc.getQueryData<Visit[]>(QUERY_KEYS.activeVisits);
       const prevCompleted = qc.getQueryData<Visit[]>(QUERY_KEYS.completedVisits);
+      const before = [...(prevActive ?? []), ...(prevCompleted ?? [])].find((v) => v.id === visit.id);
+      soapUnchanged.set(visit.id, !!before && JSON.stringify(before.soap) === JSON.stringify(visit.soap));
       if (isClosed(visit)) {
         qc.setQueryData<Visit[]>(QUERY_KEYS.activeVisits, (old = []) => old.filter((v) => v.id !== visit.id));
         if (visit.status === 'Paid') {
@@ -243,7 +254,8 @@ function useClinicMutations() {
       }
       return { prevActive, prevCompleted };
     },
-    onError: (_e, _v, ctx) => {
+    onError: (_e, v, ctx) => {
+      soapUnchanged.delete(v.id);
       qc.setQueryData(QUERY_KEYS.activeVisits, ctx?.prevActive);
       qc.setQueryData(QUERY_KEYS.completedVisits, ctx?.prevCompleted);
     },
@@ -333,6 +345,14 @@ function useClinicMutations() {
     onError: (_e, _v, ctx) => qc.setQueryData(QUERY_KEYS.activeVisits, ctx?.prev),
     onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
   });
+  // Recording a rapid-test result returns a held patient to the doctor's queue, in one database step.
+  const clearHold = useMutation({
+    mutationFn: async ({ visitId, result }: { visitId: string; result: string }) => {
+      const { error } = await supabase.rpc('clear_visit_hold', { p_visit_id: visitId, p_result: result });
+      if (error) throw error;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['visits'] }),
+  });
   const releasePatient = useMutation({
     mutationFn: async (visitId: string) => {
       const { error } = await supabase.rpc('release_patient', { p_visit_id: visitId });
@@ -355,6 +375,11 @@ function useClinicMutations() {
     assignDoctor: (visitId: string, doctorId: string | null) => assignDoctor.mutateAsync({ visitId, doctorId }).then(
       () => ({ ok: true as const }),
       (err: { message?: string }) => ({ ok: false as const, error: err?.message || 'The doctor could not be assigned.' }),
+    ),
+    /** Records a rapid-test result and returns the held patient to the doctor's queue. */
+    clearVisitHold: (visitId: string, result: string) => clearHold.mutateAsync({ visitId, result }).then(
+      () => ({ ok: true as const }),
+      (err: { message?: string }) => ({ ok: false as const, error: err?.message || 'The result could not be recorded.' }),
     ),
     /** Puts a called patient back in the queue. */
     releasePatient: (visitId: string) => releasePatient.mutateAsync(visitId).then(

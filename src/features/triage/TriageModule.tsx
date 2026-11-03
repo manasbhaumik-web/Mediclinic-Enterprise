@@ -16,8 +16,11 @@ interface TriageModuleProps {
   triageQueue: Visit[];
   allVisits?: Visit[];
   patientsMap: Record<string, Patient>;
-  onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => void;
-  onUpdateVisit?: (visit: Visit) => void;
+  onTriageComplete: (visitId: string, vitals: Partial<VitalSigns>, chiefComplaint: string) => Promise<boolean> | void;
+  onUpdateVisit?: (visit: Visit) => Promise<boolean> | void;
+  /** Records a rapid-test result and returns the held patient to the doctor's queue. */
+  onClearHold?: (visitId: string, result: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+  onReportError?: (message: string) => void;
   currentStaffId?: string;
   currentStaffName?: string;
   onNavigateTab?: (tab: string) => void;
@@ -29,7 +32,7 @@ const initialsOf = (name: string) => {
   return letters.join('').toUpperCase();
 };
 
-export default function TriageModule({ triageQueue, allVisits = [], patientsMap, onTriageComplete, onUpdateVisit, currentStaffId, currentStaffName, onNavigateTab }: TriageModuleProps) {
+export default function TriageModule({ triageQueue, allVisits = [], patientsMap, onTriageComplete, onUpdateVisit, onClearHold, onReportError, currentStaffId, currentStaffName, onNavigateTab }: TriageModuleProps) {
   const [activeStationTab, setActiveStationTab] = useState<'vitals' | 'procedures'>('vitals');
   const { activeLanguage, t } = useLanguage();
   const isBM = activeLanguage === 'BM';
@@ -84,20 +87,26 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleSubmitTriage = (e: React.FormEvent) => {
+  const handleSubmitTriage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeVisitId) return;
 
+    // A reading left blank is recorded as not measured (0), never as a normal-looking value nobody took.
     const parsedVitals = {
-      temperature: parseFloat(vitalsForm.temperature) || 36.6,
-      bpSystolic: parseInt(vitalsForm.bpSystolic) || 120,
-      bpDiastolic: parseInt(vitalsForm.bpDiastolic) || 80,
-      heartRate: parseInt(vitalsForm.heartRate) || 72,
-      respiratoryRate: parseInt(vitalsForm.respiratoryRate) || 16,
+      temperature: parseFloat(vitalsForm.temperature) || 0,
+      bpSystolic: parseInt(vitalsForm.bpSystolic) || 0,
+      bpDiastolic: parseInt(vitalsForm.bpDiastolic) || 0,
+      heartRate: parseInt(vitalsForm.heartRate) || 0,
+      respiratoryRate: parseInt(vitalsForm.respiratoryRate) || 0,
     };
 
-    onTriageComplete(activeVisitId, parsedVitals, vitalsForm.chiefComplaint);
-    
+    const saved = await onTriageComplete(activeVisitId, parsedVitals, vitalsForm.chiefComplaint);
+    // The patient stays selected when the save fails, so nothing typed is lost.
+    if (saved === false) {
+      onReportError?.(isBM ? 'Triaj tidak disimpan. Semak sambungan dan cuba lagi.' : 'The triage was not saved. Check the connection and try again.');
+      return;
+    }
+
     showToast(isBM ? `${activePatient?.fullName} telah ditriaj dan dihantar ke Giliran Doktor.` : `${activePatient?.fullName} triaged and sent to Doctor Queue.`);
     setActiveVisitId(null);
   };
@@ -146,20 +155,10 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
             const updated = completeVisitProcedure(visit, procedureId, currentStaffId || 'nurse-1', details);
             onUpdateVisit(updated);
           }}
-          onClearHold={(visitId, resultSummary) => {
-            const visit = allVisits.find((v) => v.id === visitId);
-            if (!visit || !onUpdateVisit) return;
-            onUpdateVisit({
-              ...visit,
-              status: 'Awaiting Consult',
-              soap: {
-                ...visit.soap,
-                assessment: {
-                  ...visit.soap?.assessment,
-                  clinicalNotes: `${visit.soap?.assessment?.clinicalNotes || ''} [Rapid Diagnostic Result: ${resultSummary}]`.trim()
-                }
-              } as any
-            });
+          onClearHold={async (visitId, resultSummary) => {
+            if (!onClearHold) return;
+            const result = await onClearHold(visitId, resultSummary);
+            if ('error' in result) onReportError?.(`The result was not recorded, so the patient is still on hold. ${result.error}`);
           }}
         />
       ) : (
