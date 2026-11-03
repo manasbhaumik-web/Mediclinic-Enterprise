@@ -258,13 +258,27 @@ strong {
   /* UNIFIED USER WORKSPACE HEADER, BANNER & NAVBAR TEMPLATES                */
   /* ----------------------------------------------------------------------- */
   
+  /* Shared gutter: matches the page content padding (p-3, sm:p-5). Past 1600px (plus gutters) the content is centred
+     in a 1600px column, so the header, banner and navbar contents are inset to line up with it. */
+  .workspace-header,
+  .workspace-banner-bar,
+  .workspace-navbar {
+    --shell-gutter: 0.75rem;
+    padding-inline: max(var(--shell-gutter), calc((100% - 1600px) / 2));
+  }
+  @media (min-width: 640px) {
+    .workspace-header,
+    .workspace-banner-bar,
+    .workspace-navbar { --shell-gutter: 1.25rem; }
+  }
+
   /* Top Header Bar */
   .workspace-header {
-    @apply h-[60px] min-h-[60px] bg-surface text-ink px-3 sm:px-6 flex items-center justify-between border-b border-line shrink-0 sticky top-0 z-50 font-sans shadow-none;
+    @apply h-[60px] min-h-[60px] bg-surface text-ink gap-2 flex items-center justify-between border-b border-line shrink-0 sticky top-0 z-50 font-sans shadow-none;
   }
 
   .workspace-header-title {
-    @apply text-base sm:text-[22px] font-semibold tracking-tight leading-none font-sans text-ink;
+    @apply text-sm min-[380px]:text-[15px] min-[420px]:text-lg md:text-xl lg:text-[22px] font-semibold tracking-tight leading-none font-sans text-ink;
   }
 
   .workspace-header-clock {
@@ -293,7 +307,7 @@ strong {
   }
 
   .workspace-banner-bar {
-    @apply w-[95%] mx-auto h-auto min-h-[70px] sm:h-[70px] bg-chrome-deep text-white border-b-0 px-3 sm:px-6 py-2 sm:py-0 flex items-center justify-between gap-3 sm:gap-4 overflow-visible relative font-sans shadow-none;
+    @apply w-full h-auto min-h-[70px] bg-chrome-deep text-white border-b-0 py-2 flex items-center justify-between gap-3 sm:gap-4 overflow-visible relative font-sans shadow-none;
   }
 
   .workspace-banner-avatar {
@@ -322,7 +336,13 @@ strong {
 
   /* Workspace Navbar */
   .workspace-navbar {
-    @apply w-full bg-chrome text-white border-b border-chrome-deep flex items-stretch justify-between shrink-0 px-2 sm:px-6 h-12 overflow-x-auto sticky top-[60px] z-40 font-sans shadow-xs scrollbar-none touch-pan-x;
+    @apply w-full bg-chrome text-white border-b border-chrome-deep flex items-stretch justify-between shrink-0 h-12 overflow-x-auto sticky top-[60px] z-40 font-sans shadow-xs scrollbar-none touch-pan-x;
+  }
+
+  /* Set by the shell while more tabs are hidden off the right edge */
+  .workspace-navbar[data-more='true'] {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
   }
 
   .workspace-nav-badge-active {

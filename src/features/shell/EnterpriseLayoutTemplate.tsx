@@ -88,6 +88,25 @@ export default function EnterpriseLayoutTemplate({
 
   // Close workstation settings popup when clicking outside
   useEffect(() => {
+    document.querySelector('.workspace-navbar .nav-btn-active')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }, [activeTab]);
+
+  // Fade the navbar's right edge only while more tabs are hidden off to the right
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>('.workspace-navbar');
+    if (!nav) return;
+    const update = () => { nav.dataset.more = String(nav.scrollWidth - nav.scrollLeft - nav.clientWidth > 4); };
+    update();
+    nav.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    const ro = new ResizeObserver(update);
+    ro.observe(nav);
+    const links = nav.firstElementChild;
+    if (links) ro.observe(links);
+    return () => { nav.removeEventListener('scroll', update); window.removeEventListener('resize', update); ro.disconnect(); };
+  }, [activeTab]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
@@ -143,11 +162,11 @@ export default function EnterpriseLayoutTemplate({
 
         {/* Left: Brand logo & clinic title */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-full border border-line bg-surface-accent p-1 shrink-0 flex items-center justify-center shadow-2xs">
+          <div className="hidden min-[420px]:flex w-8 h-8 rounded-full border border-line bg-surface-accent p-1 shrink-0 items-center justify-center shadow-2xs">
             <img src={logoUrl} alt="Mediclinic Enterprise Logo" className="w-full h-full object-contain" />
           </div>
           <div className="flex items-center gap-2 min-w-0">
-            <h1 className="workspace-header-title truncate text-[22px]" style={{ fontSize: '22px' }}>
+            <h1 className="workspace-header-title truncate">
               <BrandName 
                 name={clinic.name || t.clinicName || 'Mediclinic Enterprise'} 
                 className="font-bold tracking-tight text-ink dark:text-white"
@@ -155,7 +174,7 @@ export default function EnterpriseLayoutTemplate({
               />
             </h1>
             {clinic.branch && (
-              <span className="hidden md:inline-block px-2 py-0.5 bg-surface-accent text-accent border border-line text-2xs font-mono font-semibold rounded-none shrink-0">
+              <span className="hidden lg:inline-block px-2 py-0.5 bg-surface-accent text-accent border border-line text-2xs font-mono font-semibold rounded-none shrink-0">
                 {clinic.branch}
               </span>
             )}
@@ -171,7 +190,7 @@ export default function EnterpriseLayoutTemplate({
         )}
 
         {/* Right Controls: Clock, Help, Alerts, User Profile, Settings */}
-        <div className="flex items-center gap-2 sm:gap-3 relative shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 relative shrink-0">
 
           {/* Live Clock */}
           <div className="workspace-header-clock">
@@ -181,7 +200,7 @@ export default function EnterpriseLayoutTemplate({
 
           <CommandPalette roles={held} onOpenTab={setActiveTab} />
 
-          <HelpButton onClick={help.show} light />
+          <span className="max-[379px]:hidden"><HelpButton onClick={help.show} light /></span>
 
           <NotificationBell onOpenTab={setActiveTab} onOpenAdmin={onOpenAdmin} light />
 
