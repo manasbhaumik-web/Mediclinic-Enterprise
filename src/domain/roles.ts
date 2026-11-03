@@ -1,11 +1,12 @@
 import type { UserRole } from '../types';
+import { SYSTEM_ROLES } from '../../supabase/functions/_shared/staffAccess';
 
 /**
  * Every role a staff member can hold. One person may hold several (a small clinic's front desk can be
  * Receptionist, Assistant and Cashier at once); they then see the union of those roles' pages and permissions.
  * The first role is the person's primary one, used for display and as the stored `profiles.role`.
  */
-export const ALL_ROLES: readonly UserRole[] = ['doctor', 'pharmacist', 'receptionist', 'clinic-assistant', 'cashier', 'admin', 'hr'];
+export const ALL_ROLES: readonly UserRole[] = SYSTEM_ROLES;
 
 export const ROLE_LABEL: Record<UserRole, string> = {
   doctor: 'Doctor',

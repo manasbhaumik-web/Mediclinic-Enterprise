@@ -1,5 +1,6 @@
 import { UserRole } from '../types';
 import { APP_MODULES, type AppTab } from '../modules/appModules';
+import { PRIVILEGED_ROLES } from '../../supabase/functions/_shared/staffAccess';
 
 export type { AppTab };
 
@@ -10,6 +11,7 @@ export const TAB_ROLES = Object.fromEntries(APP_MODULES.map((m) => [m.id, m.role
 export const canOpenTab = (roles: readonly UserRole[] | null | undefined, tab: AppTab): boolean =>
   !!roles && roles.some((r) => TAB_ROLES[tab].includes(r));
 
-export const ADMIN_ROLES: readonly UserRole[] = ['admin', 'hr'];
+/** Roles that can open the admin console: the same ones that may manage other people's access. */
+export const ADMIN_ROLES: readonly UserRole[] = PRIVILEGED_ROLES;
 
 export const tabPath = (tab: string) => `/app/${tab}`;

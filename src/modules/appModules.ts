@@ -2,9 +2,10 @@ import {
   LayoutDashboard, Users, Activity, CalendarClock, Stethoscope, FileText, Pill, PackageOpen, CreditCard,
 } from 'lucide-react';
 import type { UserRole } from '../types';
+import { SYSTEM_ROLES } from '../../supabase/functions/_shared/staffAccess';
 import type { AppModule } from './types';
 
-const EVERYONE: readonly UserRole[] = ['doctor', 'pharmacist', 'receptionist', 'clinic-assistant', 'cashier', 'admin', 'hr'];
+const EVERYONE: readonly UserRole[] = SYSTEM_ROLES;
 
 /**
  * Every staff page under /app/*, in navbar order. To add a page: add it here, add its screen to

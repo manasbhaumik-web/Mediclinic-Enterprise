@@ -1,5 +1,9 @@
+import type { SystemRole } from '../supabase/functions/_shared/staffAccess';
+
 export type Language = 'EN' | 'BM';
-export type UserRole = 'doctor' | 'pharmacist' | 'receptionist' | 'clinic-assistant' | 'cashier' | 'admin' | 'hr';
+
+/** A staff role. Defined once, in `supabase/functions/_shared/staffAccess.ts`, which the edge functions share. */
+export type UserRole = SystemRole;
 
 export interface Patient {
   id: string;

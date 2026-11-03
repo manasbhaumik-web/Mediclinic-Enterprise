@@ -53,5 +53,7 @@ Pages are declared once, in `src/modules`, and everything else reads that:
 - `adminSections.ts`: every section of the admin console, its group, who sees it, and the clinic switch (`settings.modules`) that turns it off.
 - `routes/appPages.tsx` and the `sectionPages` map in `features/admin/AdminModule.tsx` hold the screen for each entry. They are typed as a record over the registry, so the build fails if a registered page has no screen.
 
+Roles are defined once, as `SYSTEM_ROLES` in `supabase/functions/_shared/staffAccess.ts` (the edge functions share that file). `UserRole`, `ALL_ROLES`, `ADMIN_ROLES` and the registry's "everyone" list derive from it, and the label tables are typed over it, so adding a role fails the build until every table has it. `src/modules/roles.test.ts` also checks that the database role constraints in `supabase/migrations` list the same roles.
+
 To add a staff page: add an entry to `appModules.ts`, its screen to `routes/appPages.tsx`, and the navbar label to `data.ts` (English and Malay). To add an admin section: add an entry to `adminSections.ts` and its screen to `sectionPages`. `src/modules/registry.test.ts` pins who sees what.
 
