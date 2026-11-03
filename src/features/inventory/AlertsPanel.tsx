@@ -67,7 +67,7 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
       {stockAlerts.length > 0 && (
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="type-heading-caps text-ink">Reorder</h3>
+            <h3 className="text-base font-bold text-ink">Reorder</h3>
             <button type="button" className="btn-primary" disabled={picked.size === 0} onClick={start}>Start a purchase order with {picked.size || 'selected'}</button>
           </div>
           <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
@@ -77,7 +77,7 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
                 <span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${SEVERITY_CLASS[a.severity]}`}>{KIND_LABEL[a.kind]}</span>
                 <span className="font-bold text-ink">{a.drugName}</span>
                 <span className="text-subtle">{a.detail}</span>
-                <span className="ml-auto font-mono text-muted">suggest {a.suggestedOrder}</span>
+                <span className="ml-auto tabular-nums text-muted">suggest {a.suggestedOrder}</span>
               </label>
             ))}
           </div>
@@ -86,7 +86,7 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
 
       {batchAlerts.length > 0 && (
         <section className="space-y-2">
-          <h3 className="type-heading-caps text-ink">Batches</h3>
+          <h3 className="text-base font-bold text-ink">Batches</h3>
           <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
             {batchAlerts.map((a, i) => (
               <div key={`${a.batchId}-${i}`} className="flex items-center gap-3 px-3 py-2 text-xs">
@@ -102,7 +102,7 @@ export default function AlertsPanel({ role, onStartPo, onOpenDrug, onOpenRegiste
 
       {overdue.length > 0 && (
         <section className="space-y-2">
-          <h3 className="type-heading-caps text-ink">Overdue orders</h3>
+          <h3 className="text-base font-bold text-ink">Overdue orders</h3>
           <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
             {overdue.map((o) => (
               <div key={o.id} className="px-3 py-2 text-xs"><b className="text-ink">{o.poNumber}</b> · {PO_STYLE[o.status].label} · expected {o.expectedDate} · {o.lines.map((l) => nameOf.get(l.inventoryId) ?? '?').join(', ')}</div>

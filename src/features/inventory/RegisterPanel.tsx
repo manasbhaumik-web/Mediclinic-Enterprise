@@ -48,7 +48,7 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
                 className={`text-left bg-surface border p-3 cursor-pointer ${drugId === d.id ? 'border-brand' : 'border-line-subtle'}`}>
                 <div className="text-xs font-bold text-ink">{d.name}</div>
                 <div className="text-2xs text-subtle">{controlClassLabel(d.controlClass)}</div>
-                <div className="text-xl font-bold font-mono text-ink">{bal}<span className="text-2xs text-subtle font-medium"> in register</span></div>
+                <div className="text-xl font-bold tabular-nums text-ink">{bal}<span className="text-2xs text-subtle font-medium"> in register</span></div>
                 {unsigned(d.id) > 0 && <div className="chip-brand inline-block px-2 py-0.5 text-2xs">{unsigned(d.id)} awaiting signature</div>}
                 {problem && <div className="chip-danger inline-block px-2 py-0.5 text-2xs">{problem}</div>}
               </button>
@@ -66,7 +66,7 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
+            <tr className="text-left text-xs font-semibold text-muted bg-surface-muted border-b border-line">
               <th className="p-3">When</th><th className="p-3">Drug</th><th className="p-3">Entry</th><th className="p-3 text-right">Qty</th><th className="p-3 text-right">Balance</th><th className="p-3">Patient / prescriber</th><th className="p-3">Done by</th><th className="p-3">Second signature</th>
             </tr>
           </thead>
@@ -76,9 +76,9 @@ export default function RegisterPanel({ focusPending = false }: { focusPending?:
                 <td className="p-3 whitespace-nowrap">{fmtDate(e.createdAt)}</td>
                 <td className="p-3 font-bold text-ink">{name.get(e.inventoryId) ?? '?'}</td>
                 <td className="p-3">{ENTRY_LABEL[e.entryType]}{e.reference && <div className="text-subtle">{e.reference}</div>}{e.reason && <div className="text-subtle max-w-[14rem]">{e.reason}</div>}</td>
-                <td className={`p-3 text-right font-mono ${e.quantity < 0 ? 'text-rose-700' : ''}`}>{e.quantity > 0 ? `+${e.quantity}` : e.quantity}</td>
-                <td className="p-3 text-right font-mono font-bold">{e.balanceAfter}</td>
-                <td className="p-3">{e.patientName ? <>{e.patientName}<div className="font-mono text-subtle">{maskICNumber(e.patientIc, showPII)}</div></> : '–'}{e.prescriberName && <div className="text-subtle">Dr: {e.prescriberName}</div>}</td>
+                <td className={`p-3 text-right tabular-nums ${e.quantity < 0 ? 'text-rose-700' : ''}`}>{e.quantity > 0 ? `+${e.quantity}` : e.quantity}</td>
+                <td className="p-3 text-right tabular-nums font-bold">{e.balanceAfter}</td>
+                <td className="p-3">{e.patientName ? <>{e.patientName}<div className="tabular-nums text-subtle">{maskICNumber(e.patientIc, showPII)}</div></> : '–'}{e.prescriberName && <div className="text-subtle">Dr: {e.prescriberName}</div>}</td>
                 <td className="p-3">{e.performedByName ?? '?'}</td>
                 <td className="p-3">
                   {e.signedBy ? <span className="text-accent font-bold">{e.signedByName}<div className="font-medium text-subtle">{fmtDate(e.signedAt)}</div></span>

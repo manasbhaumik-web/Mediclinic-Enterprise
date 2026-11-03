@@ -39,7 +39,7 @@ export function Dialog({ title, onClose, children, wide = false }: { title: stri
   return (
     <div className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div ref={panel} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={titleId} className={`bg-surface border border-line w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[90vh] overflow-y-auto p-5 space-y-3 shadow-2xl focus:outline-none`}>
-        <h3 id={titleId} className="type-heading-caps text-ink">{title}</h3>
+        <h3 id={titleId} className="text-xl font-bold tracking-tight text-ink">{title}</h3>
         {children}
       </div>
     </div>
@@ -73,8 +73,8 @@ export function ReasonDialog({ title, message, confirmLabel, reasonLabel = 'Reas
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block space-y-1">
-      <span className="text-2xs font-bold uppercase tracking-wider text-subtle">{label}</span>
+    <label className="block space-y-1.5">
+      <span className="block text-xs font-semibold text-ink">{label}</span>
       {children}
     </label>
   );

@@ -36,15 +36,15 @@ export default function InventoryHistory() {
       {view === 'stock' ? (
         <div className="bg-surface border border-line-subtle overflow-x-auto">
           <table className="w-full text-xs">
-            <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">When</th><th className="p-3">Drug</th><th className="p-3">What</th><th className="p-3 text-right">Qty</th><th className="p-3 text-right">Balance</th><th className="p-3">Reason</th><th className="p-3">By</th></tr></thead>
+            <thead><tr className="text-left text-xs font-semibold text-muted bg-surface-muted border-b border-line"><th className="p-3">When</th><th className="p-3">Drug</th><th className="p-3">What</th><th className="p-3 text-right">Qty</th><th className="p-3 text-right">Balance</th><th className="p-3">Reason</th><th className="p-3">By</th></tr></thead>
             <tbody>
               {paginatedMoves.map((m) => (
                 <tr key={m.id} className="border-b border-line-subtle">
                   <td className="p-3 whitespace-nowrap">{fmtDate(m.createdAt)}</td>
                   <td className="p-3 font-bold text-ink">{name.get(m.inventoryId) ?? '?'}</td>
                   <td className="p-3">{MOVEMENT_LABEL[m.type]}</td>
-                  <td className={`p-3 text-right font-mono ${m.quantity < 0 ? 'text-rose-700' : 'text-emerald-700'}`}>{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</td>
-                  <td className="p-3 text-right font-mono">{m.balanceAfter}</td>
+                  <td className={`p-3 text-right tabular-nums ${m.quantity < 0 ? 'text-rose-700' : 'text-emerald-700'}`}>{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</td>
+                  <td className="p-3 text-right tabular-nums">{m.balanceAfter}</td>
                   <td className="p-3 text-muted max-w-xs">{m.reason}</td>
                   <td className="p-3">{m.actorName ?? 'System'}</td>
                 </tr>
@@ -64,7 +64,7 @@ export default function InventoryHistory() {
         <div className="bg-surface border border-line-subtle divide-y divide-line-subtle">
           {(events.data ?? []).map((e) => (
             <div key={e.id} className="px-3 py-2 text-xs">
-              <span className="font-mono text-subtle">{fmtDate(e.createdAt)}</span> · <b>{e.entity.replace(/_/g, ' ')}</b> · {e.action.replace(/_/g, ' ')}
+              <span className="tabular-nums text-subtle">{fmtDate(e.createdAt)}</span> · <b>{e.entity.replace(/_/g, ' ')}</b> · {e.action.replace(/_/g, ' ')}
               {e.entity === 'drug' && e.entityId && name.get(e.entityId) && <> · {name.get(e.entityId)}</>}
               {e.detail && <div className="text-subtle break-words">{Object.entries(e.detail).filter(([k, v]) => v !== null && v !== '' && k !== 'before' && k !== 'after' && k !== 'name').map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`).join(' · ')}</div>}
             </div>

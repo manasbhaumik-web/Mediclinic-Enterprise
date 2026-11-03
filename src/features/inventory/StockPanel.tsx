@@ -1,6 +1,6 @@
 import { forecastStockDepletion } from '../../domain/predictiveStock';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Plus, Search, Bell, AlertTriangle, XCircle, PackageCheck, Archive } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Search, Bell, X } from 'lucide-react';
 import ActionMenu from '../../components/ui/ActionMenu';
 import Pagination from '../../components/ui/Pagination';
 import { useDrugs, useInventoryActions, useInventorySettings, useSuppliers } from '../../hooks/useInventoryData';
@@ -69,125 +69,83 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
 
   return (
     <div className="space-y-4">
-      {/* REDESIGNED INVENTORY CONTROLS & FILTER BAR */}
-      <div className="bg-surface border border-line rounded-none shadow-2xs divide-y divide-line">
-        
-        {/* Top Control Bar: Search input, retired toggle, and Primary Add Action */}
-        <div className="p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3.5 bg-surface">
-          <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
-            {/* Search Input with Prefix Icon & Integrated Clear */}
-            <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                className="w-full h-10 pl-9 pr-8 bg-surface-accent border border-line text-ink placeholder:text-muted/70 text-xs font-medium rounded-none focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                placeholder="Search name, generic, or category..."
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                aria-label="Search drugs"
-              />
-              {q && (
-                <button
-                  type="button"
-                  onClick={() => setQ('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-xs font-mono px-1 cursor-pointer"
-                  title="Clear search"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            {/* Show Retired Toggle Switch / Checkbox */}
-            <label className="inline-flex items-center gap-2 h-10 px-3 bg-surface-muted/60 border border-line-subtle text-xs font-medium text-ink/80 cursor-pointer select-none hover:bg-surface-muted transition-colors">
-              <input
-                type="checkbox"
-                className="w-4 h-4 rounded-none accent-primary cursor-pointer"
-                checked={showRetired}
-                onChange={(e) => setShowRetired(e.target.checked)}
-              />
-              <span className="flex items-center gap-1.5">
-                <Archive className="w-3.5 h-3.5 text-muted" />
-                <span>Show retired</span>
-              </span>
-            </label>
-          </div>
-
-          {/* Action Buttons: Add a drug & Alerts */}
-          <div className="flex items-center gap-2 shrink-0">
-            {onShowAlerts && (
-              <button
-                type="button"
-                className="h-10 px-3.5 bg-surface hover:bg-surface-accent text-accent border border-line font-bold text-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                onClick={onShowAlerts}
-              >
-                <Bell className="w-3.5 h-3.5 text-accent" />
-                <span>Open alerts</span>
-                {summary.out + summary.low + summary.expiry > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse ml-0.5"></span>
-                )}
+      {/* Search, retired toggle and the primary action */}
+      <div className="bg-surface border border-line px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
+          <div className="relative flex-[1_1_18rem] max-w-md">
+            <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
+            <input
+              className="w-full min-h-11 pl-10 pr-10 bg-surface border border-line text-ink placeholder:text-muted text-sm rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent"
+              placeholder="Search name, generic or category"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              aria-label="Search drugs"
+              autoComplete="off"
+            />
+            {q && (
+              <button type="button" onClick={() => setQ('')} className="absolute right-0 top-0 w-11 h-11 flex items-center justify-center text-muted hover:text-ink cursor-pointer" aria-label="Clear search">
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             )}
-
-            <button
-              type="button"
-              className="btn-primary h-10 px-4 text-xs font-bold inline-flex items-center gap-2 shadow-none cursor-pointer"
-              onClick={() => setMode({ kind: 'add' })}
-            >
-              <Plus className="w-4 h-4" aria-hidden="true" />
-              <span>Add a drug</span>
-            </button>
           </div>
+
+          <label className="inline-flex items-center gap-2.5 min-h-11 px-3 text-sm font-medium text-ink cursor-pointer select-none">
+            <input type="checkbox" className="w-5 h-5 rounded-none accent-primary cursor-pointer" checked={showRetired} onChange={(e) => setShowRetired(e.target.checked)} />
+            Show retired
+          </label>
         </div>
 
-        {/* Bottom Filter Strip: Harmonized Category Chips */}
-        <div className="px-3.5 py-2.5 bg-surface-muted/30 flex flex-wrap items-center gap-2" role="group" aria-label="Stock levels">
-          {([
-            { id: 'all' as Filter, label: 'All drugs', count: activeDrugs.length, icon: PackageCheck, activeStyle: 'bg-primary text-white border-primary' },
-            { id: 'out' as Filter, label: 'Out of stock', count: summary.out, icon: XCircle, activeStyle: 'bg-rose-600 text-white border-rose-600', alert: summary.out > 0 },
-            { id: 'low' as Filter, label: 'Low stock', count: summary.low, icon: AlertTriangle, activeStyle: 'bg-amber-600 text-white border-amber-600', alert: summary.low > 0 },
-            { id: 'expiry' as Filter, label: 'Expired or near expiry', count: summary.expiry, icon: AlertTriangle, activeStyle: 'bg-amber-600 text-white border-amber-600', alert: summary.expiry > 0 },
-          ]).map((tab) => {
-            const Icon = tab.icon;
-            const isSelected = filter === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => setFilter(tab.id)}
-                className={`h-8 px-3 text-xs font-medium border inline-flex items-center gap-2 transition-all cursor-pointer ${
-                  isSelected
-                    ? `${tab.activeStyle} font-bold shadow-xs`
-                    : 'bg-surface text-ink/80 border-line hover:bg-surface-accent hover:border-line-strong hover:text-ink'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-muted'}`} />
-                <span>{tab.label}</span>
-                <span
-                  className={`font-mono text-2xs px-1.5 py-0.2 rounded-none font-bold tabular-nums ${
-                    isSelected
-                      ? 'bg-white/20 text-white'
-                      : tab.alert
-                      ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-200 border border-rose-300 dark:border-rose-800'
-                      : 'bg-surface-muted text-muted border border-line-subtle'
-                  }`}
-                >
-                  {tab.count}
-                </span>
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          {onShowAlerts && (
+            <button type="button" className="btn-secondary px-4 text-sm" onClick={onShowAlerts}>
+              <Bell className="w-4 h-4 text-accent" aria-hidden="true" />
+              Open alerts
+              {summary.out + summary.low + summary.expiry > 0 && <span className="w-2 h-2 bg-rose-600" aria-label="Alerts waiting" />}
+            </button>
+          )}
+          <button type="button" className="btn-primary px-5 text-sm" onClick={() => setMode({ kind: 'add' })}>
+            <Plus className="w-4 h-4" aria-hidden="true" />
+            Add a drug
+          </button>
         </div>
+      </div>
+
+      {/* Stock level filter */}
+      <div className="flex flex-wrap border border-line bg-surface self-start w-fit max-w-full" role="group" aria-label="Stock levels">
+        {([
+          { id: 'all' as Filter, label: 'All drugs', count: activeDrugs.length },
+          { id: 'out' as Filter, label: 'Out of stock', count: summary.out, alert: summary.out > 0 },
+          { id: 'low' as Filter, label: 'Low stock', count: summary.low, alert: summary.low > 0 },
+          { id: 'expiry' as Filter, label: 'Expired or near expiry', count: summary.expiry, alert: summary.expiry > 0 },
+        ]).map((tab, i) => {
+          const isSelected = filter === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => setFilter(tab.id)}
+              className={`min-h-11 px-4 text-sm inline-flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${i > 0 ? 'border-l border-line' : ''} ${
+                isSelected ? 'bg-primary text-white font-bold' : 'text-muted font-semibold hover:bg-surface-strong hover:text-ink'
+              }`}
+            >
+              {tab.label}
+              <span className={`px-2 py-0.5 text-xs font-bold tabular-nums ${isSelected ? 'bg-white/20 text-white' : tab.alert ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200' : 'bg-surface-muted text-muted'}`}>
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {drugs.error && <Notice ok={false}>Could not load the stock list. Try again, or ask an administrator to check the inventory set-up.</Notice>}
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
 
-      <div className="bg-surface border border-line overflow-x-auto lg:overflow-visible shadow-none">
-        <table className="w-full text-xs">
+      <div className="bg-surface border border-line overflow-x-auto lg:overflow-visible">
+        <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle">
-              <th className="p-3">Drug</th><th className="p-3 text-right">In stock</th><th className="p-3 text-right">Reorder at</th><th className="p-3 text-right">Price</th><th className="p-3">Flags</th><th className="p-3" />
+            <tr className="text-left text-xs font-semibold text-muted bg-surface-muted border-b border-line">
+              <th className="px-4 py-3">Drug</th><th className="px-4 py-3 text-right">In stock</th><th className="px-4 py-3 text-right">Reorder at</th><th className="px-4 py-3 text-right">Price</th><th className="px-4 py-3">Flags</th><th className="px-4 py-3"><span className="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody>
@@ -205,7 +163,7 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                       <div className="font-medium text-subtle pl-5">{d.category}{d.drugType ? ` · ${d.drugType}` : ''}</div>
                     </td>
                     <td className="p-3 text-right">
-                      <div className="font-mono font-bold text-ink">{d.currentStock}</div>
+                      <div className="tabular-nums font-bold text-ink">{d.currentStock}</div>
                       {usable !== d.currentStock && <div className="text-muted" title="Part of the stock is expired">{usable} usable</div>}
                       {!retired && (
                         <div className="mt-1 ml-auto w-24 h-2 bg-surface-strong relative" role="img" aria-label={`${usable} in date against a reorder level of ${d.minThreshold}`}>
@@ -214,14 +172,14 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                         </div>
                       )}
                     </td>
-                    <td className="p-3 text-right font-mono">{d.minThreshold}</td>
-                    <td className="p-3 text-right font-mono">RM{d.price.toFixed(2)}</td>
+                    <td className="p-3 text-right tabular-nums">{d.minThreshold}</td>
+                    <td className="p-3 text-right tabular-nums">RM{d.price.toFixed(2)}</td>
                     <td className="p-3 space-x-1 space-y-1">
-                      {retired && <span className="chip-neutral text-2xs px-2 py-0.5 uppercase">Retired</span>}
-                      {!retired && has(d.id, 'out_of_stock') && <span className="chip-danger text-2xs px-2 py-0.5 uppercase">Out of stock</span>}
-                      {!retired && has(d.id, 'low_stock') && <span className="chip-warn text-2xs px-2 py-0.5 uppercase">Low stock</span>}
-                      {!retired && has(d.id, 'expired_stock') && <span className="chip-danger text-2xs px-2 py-0.5 uppercase">Expired batch</span>}
-                      {!retired && has(d.id, 'near_expiry') && <span className="chip-warn text-2xs px-2 py-0.5 uppercase">Near expiry</span>}
+                      {retired && <span className="chip-neutral text-xs px-2 py-0.5 font-bold">Retired</span>}
+                      {!retired && has(d.id, 'out_of_stock') && <span className="chip-danger text-xs px-2 py-0.5 font-bold">Out of stock</span>}
+                      {!retired && has(d.id, 'low_stock') && <span className="chip-warn text-xs px-2 py-0.5 font-bold">Low stock</span>}
+                      {!retired && has(d.id, 'expired_stock') && <span className="chip-danger text-xs px-2 py-0.5 font-bold">Expired batch</span>}
+                      {!retired && has(d.id, 'near_expiry') && <span className="chip-warn text-xs px-2 py-0.5 font-bold">Near expiry</span>}
                       {d.registerRequired && <span className="chip-info text-2xs px-2 py-0.5 uppercase" title={controlClassLabel(d.controlClass)}>Controlled</span>}
                     </td>
                     <td className="p-3">
@@ -257,9 +215,9 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                         return (
                           <div className="mb-2 p-2.5 bg-surface border border-line flex flex-wrap items-center justify-between gap-2 text-xs">
                             <span className="font-bold text-ink">
-                              💡 AI Inventory Forecast: <span className="font-normal text-muted">{forecast.summary}</span>
+                              Stock forecast: <span className="font-normal text-muted">{forecast.summary}</span>
                             </span>
-                            <span className="text-2xs font-mono font-bold bg-surface-accent text-accent px-2 py-0.5 border border-line">
+                            <span className="text-2xs tabular-nums font-bold bg-surface-accent text-accent px-2 py-0.5 border border-line">
                               Optimal Reorder: +{forecast.suggestedReorderQty} units
                             </span>
                           </div>
@@ -271,9 +229,9 @@ export default function StockPanel({ role, focusDrugId, onShowAlerts }: { role: 
                           <tbody>
                             {[...(d.batches ?? [])].sort((a, b) => (a.expiryDate ?? '9999') < (b.expiryDate ?? '9999') ? -1 : 1).map((b) => (
                               <tr key={b.id} className="border-t border-line-subtle">
-                                <td className="py-1 font-mono">{b.batchId}</td>
+                                <td className="py-1 tabular-nums">{b.batchId}</td>
                                 <td className={`py-1 ${isExpired(b, today) && b.stock > 0 ? 'text-rose-700 dark:text-rose-300 font-bold' : ''}`}>{b.expiryDate ?? 'Unknown'}{isExpired(b, today) && b.stock > 0 ? ' (expired)' : ''}</td>
-                                <td className="py-1 text-right font-mono">{b.stock}</td>
+                                <td className="py-1 text-right tabular-nums">{b.stock}</td>
                                 <td className="py-1 text-right text-subtle">{b.receivedAt ? new Date(b.receivedAt).toLocaleDateString() : ''}</td>
                               </tr>
                             ))}

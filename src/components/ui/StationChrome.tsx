@@ -24,9 +24,9 @@ export interface StationTab<T extends string> {
 }
 
 /** One flat ruled strip of tabs. The active tab is filled with the primary colour. */
-export function StationTabs<T extends string>({ tabs, active, onChange, label }: { tabs: StationTab<T>[]; active: T; onChange: (id: T) => void; label: string }) {
+export function StationTabs<T extends string>({ tabs, active, onChange, label, idPrefix = 'station-tab', onKeyDown }: { tabs: StationTab<T>[]; active: T; onChange: (id: T) => void; label: string; idPrefix?: string; onKeyDown?: React.KeyboardEventHandler<HTMLDivElement> }) {
   return (
-    <div role="tablist" aria-label={label} className="flex flex-wrap bg-surface border border-line">
+    <div role="tablist" aria-label={label} onKeyDown={onKeyDown} className="flex flex-wrap bg-surface border border-line">
       {tabs.map((tab, i) => {
         const on = tab.id === active;
         return (
@@ -34,7 +34,8 @@ export function StationTabs<T extends string>({ tabs, active, onChange, label }:
             key={tab.id}
             type="button"
             role="tab"
-            id={`station-tab-${tab.id}`}
+            id={`${idPrefix}-${tab.id}`}
+            tabIndex={onKeyDown ? (on ? 0 : -1) : undefined}
             aria-selected={on}
             title={tab.title}
             onClick={() => onChange(tab.id)}

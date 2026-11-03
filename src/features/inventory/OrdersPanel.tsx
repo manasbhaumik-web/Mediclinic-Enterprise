@@ -65,7 +65,7 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
       {msg && <Notice ok={msg.ok}>{msg.text}</Notice>}
       <div className="bg-surface border border-line-subtle overflow-x-auto">
         <table className="w-full text-xs">
-          <thead><tr className="text-left text-2xs uppercase tracking-wider text-subtle border-b border-line-subtle"><th className="p-3">Order</th><th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Expected</th><th className="p-3 text-right">Received</th><th className="p-3 text-right">Value</th><th className="p-3" /></tr></thead>
+          <thead><tr className="text-left text-xs font-semibold text-muted bg-surface-muted border-b border-line"><th className="p-3">Order</th><th className="p-3">Supplier</th><th className="p-3">Status</th><th className="p-3">Expected</th><th className="p-3 text-right">Received</th><th className="p-3 text-right">Value</th><th className="p-3" /></tr></thead>
           <tbody>
             {paginatedOrders.map((o) => {
               const st = PO_STYLE[o.status];
@@ -76,9 +76,9 @@ function Orders({ seed, onSeedUsed }: { seed: OrderSeed[] | null; onSeedUsed: ()
                     <td className="p-3 font-bold text-ink"><button type="button" className="cursor-pointer" onClick={() => setOpen(open === o.id ? null : o.id)}>{o.poNumber}</button></td>
                     <td className="p-3">{supplier.get(o.supplierId) ?? '?'}</td>
                     <td className="p-3"><span className={`text-2xs font-bold px-2 py-0.5 border uppercase ${toneClass[st.tone]}`}>{st.label}</span>{isOverdue(o, today) && <span className="chip-danger ml-2 px-2 py-0.5 text-2xs uppercase">Overdue</span>}</td>
-                    <td className="p-3 font-mono">{o.expectedDate ?? '–'}</td>
-                    <td className="p-3 text-right font-mono">{pr.received}/{pr.ordered} ({pr.percent}%)</td>
-                    <td className="p-3 text-right font-mono">{poTotal(o.lines) ? myr(poTotal(o.lines)) : '–'}</td>
+                    <td className="p-3 tabular-nums">{o.expectedDate ?? '–'}</td>
+                    <td className="p-3 text-right tabular-nums">{pr.received}/{pr.ordered} ({pr.percent}%)</td>
+                    <td className="p-3 text-right tabular-nums">{poTotal(o.lines) ? myr(poTotal(o.lines)) : '–'}</td>
                     <td className="p-3 text-right space-x-3 whitespace-nowrap">
                       {o.status === 'draft' && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => setForm({ po: o })}>Edit</button>}
                       {o.status === 'draft' && <button type="button" className="font-bold text-accent cursor-pointer" onClick={() => act(() => api.setPoStatus.mutateAsync({ id: o.id, status: 'ordered' }), `${o.poNumber} marked as ordered.`)}>Mark ordered</button>}
