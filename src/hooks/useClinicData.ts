@@ -411,14 +411,33 @@ export function useClinicRealtime() {
 
   useEffect(() => {
     if (!session) return;
+    // Changes can be missed while the connection is down, and queries stay fresh for minutes, so refetch everything
+    // when the channel comes back and when the browser goes back online.
+    let wasDown = false;
+    const refetchAll = () => { void qc.invalidateQueries(); };
     const channel = supabase.channel('clinic_sync_' + Math.random().toString(36).substring(2, 9))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'visits' },
         () => qc.invalidateQueries({ queryKey: ['visits'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'prescriptions' },
         () => qc.invalidateQueries({ queryKey: ['visits'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'soap_notes' },
+        () => qc.invalidateQueries({ queryKey: ['visits'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'patients' },
+        () => qc.invalidateQueries({ queryKey: QUERY_KEYS.patients }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' },
         () => qc.invalidateQueries({ queryKey: QUERY_KEYS.appointments }))
-      .subscribe();
-    return () => { void supabase.removeChannel(channel); };
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          if (wasDown) refetchAll();
+          wasDown = false;
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          wasDown = true;
+        }
+      });
+    window.addEventListener('online', refetchAll);
+    return () => {
+      window.removeEventListener('online', refetchAll);
+      void supabase.removeChannel(channel);
+    };
   }, [qc, session]);
 }

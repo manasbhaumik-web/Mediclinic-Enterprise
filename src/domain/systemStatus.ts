@@ -16,7 +16,7 @@ export const EDGE_FUNCTIONS = [
 
 /** Tables the app listens to for live changes. A test keeps this list in step with the subscriptions in the code. */
 export const APP_REALTIME_TABLES = [
-  'appointments', 'clinic_settings', 'drug_batches', 'inventory', 'prescriptions', 'staff', 'stock_movements', 'transactions', 'visits',
+  'appointments', 'clinic_settings', 'drug_batches', 'inventory', 'patients', 'prescriptions', 'soap_notes', 'staff', 'stock_movements', 'transactions', 'visits',
 ] as const;
 
 // ---- API round trip ----------------------------------------------------------------------------------------------

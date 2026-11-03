@@ -433,7 +433,7 @@ export default function PatientRegistrationModule({
 
     const visitSaved = await addVisitToDb(newVisit);
     if (visitSaved === false) {
-      showError(`${manualForm.fullName} is registered but was not added to the triage queue. Press Register again, or create the ticket from the registry.`);
+      showError(`${manualForm.fullName} is registered but was not added to the triage queue. They may already have an open visit, or the connection dropped. Check the waiting room, then press Register again.`);
       return;
     }
     showToast(`${manualForm.fullName} routed to Triage Queue.`);
@@ -464,7 +464,7 @@ export default function PatientRegistrationModule({
     };
     const visitSaved = await addVisitToDb(newVisit);
     if (visitSaved === false) {
-      showError(`${patient.fullName} was not added to the triage queue. Check the connection and try again.`);
+      showError(`${patient.fullName} was not added to the triage queue. They may already have an open visit (check the waiting room), or the connection dropped.`);
       return;
     }
     showToast(`${patient.fullName} routed to Triage Queue.`);
