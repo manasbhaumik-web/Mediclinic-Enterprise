@@ -75,7 +75,7 @@ describe('procedures domain logic', () => {
     expect(determineNextWorkflowStep(soapWithProc)).toBe('Awaiting Procedure');
   });
 
-  it('completes visit procedure, adds fee to totalBill, and advances status when all completed', () => {
+  it('completes visit procedure, leaves the bill to the cashier, and advances status when all completed', () => {
     const order = createProcedureOrder(COMMON_CLINIC_PROCEDURES[0], 'doc-1'); // RM 35
     const dummyVisit = {
       id: 'vis-1',
@@ -105,7 +105,7 @@ describe('procedures domain logic', () => {
     });
 
     expect(updated.status).toBe('Awaiting Dispensation');
-    expect(updated.totalBill).toBe(85.00); // 50 + 35
+    expect(updated.totalBill).toBe(50.00); // unchanged: only the cashier sets the bill
     expect(updated.soap?.plan?.procedures?.[0].status).toBe('Completed');
     expect(updated.soap?.plan?.procedures?.[0].adminSite).toBe('Right Gluteal');
   });

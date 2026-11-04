@@ -97,6 +97,16 @@ describe('visit mapping', () => {
     expect(soapToRow(v).mc_reason).toBeNull();
   });
 
+  it('saves ordered procedures with the note and reads them back', () => {
+    const procedures = [{ id: 'pr1', name: 'Wound dressing', price: 35, status: 'Completed', adminSite: 'Left arm' }];
+    const v = { ...visit, soap: { ...visit.soap, plan: { ...visit.soap!.plan, procedures } } } as unknown as Visit;
+    expect(soapToRow(v).procedures).toEqual(procedures);
+    expect(buildSignoffArgs(v, false).soap_payload.procedures).toEqual(procedures);
+    const back = visitFromRow({ id: 'v1', patient_id: 'p', status: 'Awaiting Procedure', created_at: '2026-01-01T00:00:00Z', soap_notes: [{ procedures }] });
+    expect(back.soap.plan.procedures).toEqual(procedures);
+    expect(soapToRow(visit).procedures).toEqual([]);
+  });
+
   it('tolerates a visit with no soap note or prescriptions yet', () => {
     const v = visitFromRow({ id: 'v2', patient_id: 'p', status: 'Awaiting Triage', created_at: '2026-01-01T00:00:00Z' });
     expect(v.soap.subjective).toBe('');

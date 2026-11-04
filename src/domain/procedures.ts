@@ -106,7 +106,10 @@ export function completeProcedure(
   };
 }
 
-/** Nurse completes administration for a visit, updates billing, and transitions status if all complete */
+/**
+ * Nurse completes administration for a visit and transitions status if all complete. The bill is not touched here:
+ * only the cashier may set it (the database refuses any other change), and billing works the fee out itself.
+ */
 export function completeVisitProcedure(
   visit: Visit,
   procedureId: string,
@@ -117,9 +120,6 @@ export function completeVisitProcedure(
   const updatedProcs = existingProcs.map((p) =>
     p.id === procedureId ? completeProcedure(p, nurseId, details) : p
   );
-
-  const completedItem = updatedProcs.find((p) => p.id === procedureId);
-  const addPrice = completedItem?.price || 0;
 
   const allCompleted = updatedProcs.every((p) => p.status === 'Completed' || p.status === 'Cancelled');
 
@@ -132,7 +132,6 @@ export function completeVisitProcedure(
 
   return {
     ...visit,
-    totalBill: (visit.totalBill || 0) + addPrice,
     status: newStatus,
     soap: {
       ...visit.soap,

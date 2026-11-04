@@ -96,6 +96,7 @@ export function visitFromRow(v: any): Visit {
         mcReason: soap.mc_reason ?? undefined,
         labOrders: Array.isArray(soap.lab_orders) ? soap.lab_orders : [],
         labReason: soap.lab_reason ?? undefined,
+        procedures: Array.isArray(soap.procedures) ? soap.procedures : [],
         referralDetails: soap.referral_hospital || soap.referral_department || soap.referral_reason
           ? { hospital: soap.referral_hospital ?? '', department: soap.referral_department ?? '', reason: soap.referral_reason ?? '' }
           : undefined,
@@ -127,6 +128,7 @@ export function soapToRow(visit: Visit) {
     referral_reason: soap.plan.referralDetails?.reason ?? null,
     lab_orders: soap.plan.labOrders ?? [],
     lab_reason: soap.plan.labReason ?? null,
+    procedures: soap.plan.procedures ?? [],
   };
 }
 
