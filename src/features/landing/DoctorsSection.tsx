@@ -5,7 +5,7 @@ interface DoctorsSectionProps {
   isBM: boolean;
   setDoctorSpecialty: React.Dispatch<React.SetStateAction<string>>;
   doctorSpecialty: string;
-  filteredDoctors: { id: string; name: string; title: string; role: string; specialty: string; bgColor: string; status: string; availabilityState: string; nextSlot: string; languages: string; queueCount: number; rating: number; experience: string; }[];
+  filteredDoctors: { id: string; initials: string; name: string; title: string; role: string; specialty: string; bgColor: string; status: string; availabilityState: string; nextSlot: string; languages: string; queueCount: number; rating: number; experience: string; }[];
   openDoctorBooking: (doctorName: string) => void;
 }
 
@@ -57,7 +57,7 @@ export default function DoctorsSection({ isBM, setDoctorSpecialty, doctorSpecial
               </div>
     
               <div className={`w-20 h-20 rounded-none ${doc.bgColor} mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-md group-hover:scale-105 transition-transform border border-teal-600`}>
-                {doc.id}
+                {doc.initials}
               </div>
               
               <div className="space-y-1">

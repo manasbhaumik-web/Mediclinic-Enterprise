@@ -182,6 +182,7 @@ export default function ConsultationRoom({
 
   // Populate longitudinal history for active patient
   const [patientPastVisits, setPatientPastVisits] = useState<Visit[]>([]);
+  const [historyError, setHistoryError] = useState(false);
 
   useEffect(() => {
     if (!currentPatient) return;
@@ -192,8 +193,10 @@ export default function ConsultationRoom({
       .in('status', ['Awaiting Dispensation', 'Dispensing', 'Awaiting Billing', 'Paid'])
       .order('created_at', { ascending: false })
       .limit(10)
-      .then(({ data }) => {
-        if (live && data) setPatientPastVisits(data.map(visitFromRow).filter((v) => v.id !== activeVisit?.id));
+      .then(({ data, error }) => {
+        if (!live) return;
+        setHistoryError(!!error);
+        if (data) setPatientPastVisits(data.map(visitFromRow).filter((v) => v.id !== activeVisit?.id));
       });
     return () => { live = false; };
   }, [currentPatient?.id, activeVisit?.id]);
@@ -546,6 +549,7 @@ export default function ConsultationRoom({
               vitals={vitals} 
               t={t} 
               patientPastVisits={patientPastVisits} 
+              historyError={historyError}
               selectedPastVisit={selectedPastVisit} 
               setSelectedPastVisit={setSelectedPastVisit} 
               stationHud={stationHud} 

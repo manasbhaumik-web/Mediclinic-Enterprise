@@ -8,6 +8,8 @@ interface ContextPanelProps {
   vitals: { bpSystolic: number; bpDiastolic: number; heartRate: number; temperature: number; respiratoryRate: number; };
   t: { [key: string]: string };
   patientPastVisits: Visit[];
+  /** The patient's earlier visits could not be loaded: an empty list does not mean a first visit. */
+  historyError?: boolean;
   selectedPastVisit: Visit | null;
   setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit | null>>;
   stationHud?: React.ReactNode;
@@ -31,6 +33,7 @@ export default function ContextPanel({
   vitals,
   t,
   patientPastVisits,
+  historyError = false,
   selectedPastVisit,
   setSelectedPastVisit,
   stationHud,
@@ -181,8 +184,8 @@ export default function ContextPanel({
             {patientPastVisits.length === 0 ? (
               <div className="py-6 text-center flex-1 flex flex-col items-center justify-center">
                 <Clock className="w-8 h-8 text-accent opacity-50 mb-2" aria-hidden="true" />
-                <span className="text-sm text-ink font-semibold">First outpatient encounter</span>
-                <span className="text-xs text-subtle mt-0.5">This session starts the patient's clinical timeline.</span>
+                <span className="text-sm text-ink font-semibold">{historyError ? 'Previous visits could not be loaded' : 'First outpatient encounter'}</span>
+                <span className="text-xs text-subtle mt-0.5">{historyError ? 'Do not assume this is a first visit. Check the connection and reopen the patient.' : "This session starts the patient's clinical timeline."}</span>
               </div>
             ) : (
               <div className="overflow-y-auto max-h-[320px] custom-scrollbar border-t border-line-subtle">

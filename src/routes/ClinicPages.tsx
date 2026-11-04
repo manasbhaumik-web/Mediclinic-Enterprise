@@ -132,6 +132,7 @@ export function AppointmentsPage() {
       updateAppointment={s.updateAppointment}
       checkInAppointment={s.checkInAppointment}
       userRole={s.role}
+      onNavigateTab={s.navigateTab}
     />
   );
 }

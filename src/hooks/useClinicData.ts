@@ -133,8 +133,9 @@ export async function searchPatients(query: string): Promise<Patient[]> {
   const { data, error } = await supabase.from('patients').select('*')
     .or(`full_name.ilike.%${safe}%,ic_number.ilike.%${safe}%,phone.ilike.%${safe}%`)
     .limit(20);
-  if (error || !data) return [];
-  return data.map(patientFromRow);
+  // A failed search must not look like "no such patient": that leads to registering them a second time.
+  if (error) throw error;
+  return (data ?? []).map(patientFromRow);
 }
 
 // Callers may ignore the result: on failure the optimistic update is already rolled back by onError.

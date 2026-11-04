@@ -1,7 +1,7 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, MessageCircle, X } from 'lucide-react';
+import { AlertTriangle, BellRing, X } from 'lucide-react';
 import { Appointment, Language, Patient, SOAPNotes, UserRole, VitalSigns, Visit } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { clearAllDrafts, draftKey, removeDraft } from '../domain/consultationDraft';
@@ -17,6 +17,7 @@ import GlobalSpinner from '../components/ui/GlobalSpinner';
 import { enqueueIntegration } from '../lib/integrationQueue';
 import { recordEInvoice } from '../lib/einvoiceQueue';
 import { tabPath } from './permissions';
+import { STATION_MESSAGE, keepActiveConsultation, newArrivals, snapshotOf, stationsForRoles, type QueueSnapshot } from '../domain/stationAlerts';
 
 type ClinicData = ReturnType<typeof useClinicData>;
 
@@ -85,9 +86,18 @@ export default function ClinicShell() {
     window.addEventListener('offline', down);
     return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
   }, []);
-  const [whatsappToast, setWhatsappToast] = useState<string | null>(null);
+  const [infoToast, setInfoToast] = useState<string | null>(null);
   const [errorToast, setErrorToast] = useState<string | null>(null);
-  const [activeConsultationVisitId, setActiveConsultationVisitId] = useState<string | null>(null);
+  // The open consultation is kept for this browser tab, so a reload returns the doctor to the room instead of leaving the
+  // patient 'Consulting' with nobody in it.
+  const ACTIVE_CONSULT_KEY = 'mediclinic.activeConsultation';
+  const [activeConsultationVisitId, setActiveConsultationId] = useState<string | null>(() => {
+    try { return sessionStorage.getItem(ACTIVE_CONSULT_KEY); } catch { return null; }
+  });
+  const setActiveConsultationVisitId = useCallback((id: string | null) => {
+    setActiveConsultationId(id);
+    try { if (id) sessionStorage.setItem(ACTIVE_CONSULT_KEY, id); else sessionStorage.removeItem(ACTIVE_CONSULT_KEY); } catch { /* ignore */ }
+  }, []);
 
   const activeTab = location.pathname.split('/')[2] ?? 'dashboard';
   const navigateTab = useCallback((tab: string) => navigate(tabPath(tab)), [navigate]);
@@ -99,6 +109,37 @@ export default function ClinicShell() {
   );
 
   const findVisit = (id: string) => visitsQueue.find((v) => v.id === id);
+
+  // A consultation remembered from before a reload is checked once, when the queue first loads: it is kept only if the patient
+  // is still with this doctor (or on hold for them). Later changes are left to the pages, since a call is not yet in the cache.
+  const restoreChecked = useRef(false);
+  useEffect(() => {
+    if (restoreChecked.current || data.isSyncing) return;
+    restoreChecked.current = true;
+    if (activeConsultationVisitId && !keepActiveConsultation(visitsQueue, activeConsultationVisitId, user?.id ?? null)) {
+      setActiveConsultationVisitId(null);
+    }
+  }, [activeConsultationVisitId, visitsQueue, data.isSyncing, user?.id, setActiveConsultationVisitId]);
+
+  // Tell people when a patient reaches their queue; before this the only sign was a count changing in the navbar.
+  const lastQueues = useRef<QueueSnapshot | null>(null);
+  useEffect(() => {
+    if (data.isSyncing) return;
+    const now = snapshotOf(queues);
+    const arrived = newArrivals(lastQueues.current, now, stationsForRoles(roles));
+    lastQueues.current = now;
+    if (arrived.length === 0) return;
+    const first = arrived[0];
+    const visit = visitsQueue.find((v) => v.id === first.visitIds[0]);
+    const name = (visit && patientsMap[visit.patientId]?.fullName) || 'A patient';
+    const more = arrived.reduce((n, a) => n + a.visitIds.length, 0) - 1;
+    setInfoToast(`${name}${more > 0 ? ` and ${more} more` : ''} ${more > 0 ? 'are' : 'is'} ${STATION_MESSAGE[first.station]}.`);
+  }, [queues, roles, data.isSyncing, visitsQueue, patientsMap]);
+  useEffect(() => {
+    if (!infoToast) return;
+    const t = setTimeout(() => setInfoToast(null), 8000);
+    return () => clearTimeout(t);
+  }, [infoToast]);
 
   const userName = (() => {
     if (fullName) return fullName;
@@ -114,6 +155,7 @@ export default function ClinicShell() {
     // Drafts are kept in both stores; clear both so a shared workstation does not keep the last doctor's patient notes.
     try { clearAllDrafts(sessionStorage); } catch { /* ignore */ }
     try { clearAllDrafts(localStorage); } catch { /* ignore */ }
+    try { sessionStorage.removeItem(ACTIVE_CONSULT_KEY); } catch { /* ignore */ }
     navigate('/login', { replace: true });
   };
 
@@ -198,6 +240,15 @@ export default function ClinicShell() {
           <button type="button" onClick={() => void queryClient.invalidateQueries()} className="min-h-11 px-4 bg-amber-900 text-white text-sm font-bold cursor-pointer hover:bg-amber-950">Retry</button>
         </div>
       )}
+      {infoToast && (
+        <div role="status" aria-live="polite" className="fixed top-20 right-8 z-[95] bg-primary text-white px-4 py-3 rounded-none shadow-2xl flex items-center gap-3 max-w-sm">
+          <BellRing className="w-5 h-5 shrink-0" aria-hidden="true" />
+          <p className="text-sm font-semibold flex-1">{infoToast}</p>
+          <button type="button" aria-label="Dismiss notice" onClick={() => setInfoToast(null)} className="min-h-8 min-w-8 -my-1 -mr-1 flex items-center justify-center cursor-pointer hover:text-teal-100">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
       {errorToast && (
         <div role="alert" aria-live="assertive" className="fixed top-20 right-8 z-[100] bg-rose-600 text-white px-4 py-3 rounded-none shadow-2xl flex items-center justify-center gap-3 border border-rose-400 animate-slideDown font-sans">
           <AlertTriangle className="w-5 h-5 text-white shrink-0" aria-hidden="true" />
@@ -211,18 +262,6 @@ export default function ClinicShell() {
         </div>
       )}
 
-      {whatsappToast && (
-        <div className="fixed top-20 right-8 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-none shadow-2xl flex items-center justify-center gap-3">
-          <MessageCircle className="w-5 h-5" />
-          <div>
-            <p className="font-bold text-sm">WhatsApp Sent</p>
-            <p className="text-xs text-emerald-100">{whatsappToast}</p>
-          </div>
-          <button onClick={() => setWhatsappToast(null)} className="ml-4 hover:text-emerald-200 cursor-pointer">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       <EnterpriseLayoutTemplate
         activeTab={activeTab}

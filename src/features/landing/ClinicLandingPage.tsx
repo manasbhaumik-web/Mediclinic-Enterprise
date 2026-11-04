@@ -125,7 +125,8 @@ export default function ClinicLandingPage({
       return cms.doctors
         .filter(d => d.showOnWebsite)
         .map((doc, idx) => ({
-          id: doc.id.substring(0, 2).toUpperCase() || `D${idx + 1}`,
+          id: doc.id || `D${idx + 1}`,
+          initials: doc.name.replace(/^Dr\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || `D${idx + 1}`,
           name: doc.name,
           title: doc.title,
           role: isBM ? doc.roleBm : doc.roleEn,
@@ -143,6 +144,7 @@ export default function ClinicLandingPage({
     return [
       {
         id: 'SJ',
+        initials: 'ST',
         name: 'Dr. Sarah Tan',
         title: 'MD (UKM), MMC Reg #48291',
         role: isBM ? 'Doktor Perubatan & Keluarga Senior' : 'Senior General Practitioner & Family Physician',

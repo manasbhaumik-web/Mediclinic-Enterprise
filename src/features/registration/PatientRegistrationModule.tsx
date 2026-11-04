@@ -174,6 +174,8 @@ export default function PatientRegistrationModule({
           setExistingPatientId(null);
           setCoverageStatus('unverified');
         }
+      }).catch(() => {
+        showError('The patient registry could not be searched, so "no match" is not reliable. Check the connection before registering this MyKad as new.');
       });
     }
   }, [manualForm.icNumber, searchPatients, existingPatientId, allPatients]);
@@ -240,7 +242,8 @@ export default function PatientRegistrationModule({
             });
           }
         }).catch(() => {
-          // retain local matches
+          // Keep the local matches, but say the full registry was not searched.
+          showError('The full registry could not be searched. Only patients already loaded are shown.');
         });
       }
     }

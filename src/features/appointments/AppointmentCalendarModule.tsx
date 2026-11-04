@@ -15,6 +15,8 @@ interface AppointmentCalendarProps {
   updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>;
   checkInAppointment: (id: string) => Promise<{ ok: true } | { ok: false; error: string }>;
   userRole?: UserRole;
+  /** Opens another page; used to send a failed check-in to registration. */
+  onNavigateTab?: (tab: string) => void;
 }
 
 export default function AppointmentCalendarModule({
@@ -23,7 +25,8 @@ export default function AppointmentCalendarModule({
   addAppointment,
   updateAppointment,
   checkInAppointment,
-  userRole
+  userRole,
+  onNavigateTab
 }: AppointmentCalendarProps) {
   const isAdmin = userRole === 'admin';
   const { activeLanguage, t } = useLanguage();
@@ -186,7 +189,12 @@ export default function AppointmentCalendarModule({
       {notice && (
         <div role={notice.tone === 'error' ? 'alert' : 'status'} className={`flex items-start justify-between gap-3 px-4 py-3 text-sm font-medium border ${notice.tone === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-100' : 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-100'}`}>
           <span>{notice.text}</span>
-          <button type="button" onClick={() => setNotice(null)} className="font-bold underline cursor-pointer">{isBM ? 'Tutup' : 'Dismiss'}</button>
+          <span className="flex items-center gap-3 shrink-0">
+            {notice.tone === 'error' && /register|MyKad/i.test(notice.text) && onNavigateTab && userRole !== 'admin' && (
+              <button type="button" onClick={() => onNavigateTab('registration')} className="font-bold underline cursor-pointer">{isBM ? 'Buka pendaftaran' : 'Open registration'}</button>
+            )}
+            <button type="button" onClick={() => setNotice(null)} className="font-bold underline cursor-pointer">{isBM ? 'Tutup' : 'Dismiss'}</button>
+          </span>
         </div>
       )}
 
