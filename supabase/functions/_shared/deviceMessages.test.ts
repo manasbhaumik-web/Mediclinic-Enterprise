@@ -106,6 +106,11 @@ describe('parseDeviceMessage', () => {
     expect(detectFormat('hello')).toBeNull();
   });
 
+  it('reads what the message is, even when the device is set to another format', () => {
+    expect(parseDeviceMessage(HL7, 'json').format).toBe('hl7v2');
+    expect(parseDeviceMessage(JSON.stringify({ patient: 'X', results: [{ code: 'A', value: '1' }] }), 'hl7v2').format).toBe('json');
+  });
+
   it('rejects an unknown, invalid or oversized message without throwing', () => {
     expect(parseDeviceMessage('hello').errors[0]).toMatch(/not recognised/);
     expect(parseDeviceMessage('{bad', 'json').errors[0]).toMatch(/not valid JSON/);

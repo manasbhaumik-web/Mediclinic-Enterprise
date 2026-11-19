@@ -267,7 +267,8 @@ export function parseJsonMessage(input: unknown): ParsedDeviceMessage {
 
 export function parseDeviceMessage(body: string, hint?: DeviceFormat, contentType = ''): ParsedDeviceMessage {
   if (body.length > MAX_MESSAGE_BYTES) return { format: hint ?? 'json', observations: [], errors: ['The message is too large.'] };
-  const format = hint ?? detectFormat(body, contentType);
+  // What the message plainly is wins over what the device is set up to send, so a bridge that switches format still works.
+  const format = detectFormat(body, contentType) ?? hint;
   if (!format) return { format: 'json', observations: [], errors: ['The message format was not recognised (expected HL7 v2, FHIR or JSON).'] };
 
   let parsed: ParsedDeviceMessage;
