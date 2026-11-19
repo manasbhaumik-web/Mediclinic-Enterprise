@@ -89,9 +89,9 @@ describe('admin sections', () => {
     for (const s of ADMIN_SECTIONS) expect(groups).toContain(s.category);
   });
 
-  it('shows administrators all 17 sections in menu order', () => {
+  it('shows administrators all 18 sections in menu order', () => {
     expect(ids('admin')).toEqual([
-      'staff', 'patients', 'leave', 'medicine', 'equipment', 'operations', 'labdevices', 'billing', 'payroll', 'einvoice', 'rcm',
+      'staff', 'patients', 'leave', 'medicine', 'equipment', 'operations', 'labdevices', 'messages', 'billing', 'payroll', 'einvoice', 'rcm',
       'moh', 'reports', 'security', 'architecture', 'integrations', 'settings',
     ]);
   });

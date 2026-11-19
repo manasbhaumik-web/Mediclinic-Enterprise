@@ -11,6 +11,7 @@ export const EDGE_FUNCTIONS = [
   { slug: 'einvoice-worker', label: 'e-Invoice worker', scheduled: true },
   { slug: 'integrations-admin', label: 'Integrations admin actions', scheduled: false },
   { slug: 'integrations-worker', label: 'Integrations worker (outbound messages)', scheduled: true },
+  { slug: 'messages-worker', label: 'Patient WhatsApp messages (reminders)', scheduled: true },
   { slug: 'lab-device-ingest', label: 'Lab device results (inbound from analyzers and imaging)', scheduled: false },
   { slug: 'payment-intent', label: 'Card payments (Stripe)', scheduled: false },
 ] as const;
