@@ -129,6 +129,12 @@ export function actionableCount(roles: readonly UserRole[], items: readonly Inve
   return n;
 }
 
+/** Results in that a doctor has not yet marked as read, and how many of them are abnormal. */
+export function unreviewedSummary(items: readonly Investigation[]): { count: number; abnormal: number } {
+  const waiting = items.filter((i) => i.status === 'Resulted');
+  return { count: waiting.length, abnormal: waiting.filter((i) => i.abnormal).length };
+}
+
 const URGENCY_RANK: Record<InvestigationUrgency, number> = { urgent: 0, routine: 1 };
 
 /** Urgent first, then oldest first, so nothing waits behind newer work. */

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  INVESTIGATION_CATALOG, actionableCount, investigationFromRow, outsideRange, parseRange, sortWorklist, type Investigation,
+  INVESTIGATION_CATALOG, actionableCount, investigationFromRow, outsideRange, parseRange, sortWorklist, unreviewedSummary, type Investigation,
 } from './investigations';
 
 const inv = (o: Partial<Investigation>): Investigation => ({
@@ -60,6 +60,14 @@ describe('work waiting', () => {
       inv({ id: 'urgent', urgency: 'urgent', orderedAt: '2026-11-19T11:00:00Z' }),
     ]);
     expect(sorted.map((i) => i.id)).toEqual(['urgent', 'old', 'new']);
+  });
+});
+
+describe('unreviewedSummary', () => {
+  it('counts results not yet read and how many are abnormal', () => {
+    const items = [inv({ status: 'Resulted', abnormal: true }), inv({ status: 'Resulted' }), inv({ status: 'Reviewed', abnormal: true }), inv({ status: 'Ordered' })];
+    expect(unreviewedSummary(items)).toEqual({ count: 2, abnormal: 1 });
+    expect(unreviewedSummary([])).toEqual({ count: 0, abnormal: 0 });
   });
 });
 

@@ -1,6 +1,9 @@
 import React from 'react';
 import { History, Clock, ChevronLeft, AlertTriangle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import ChronicDiseaseFlowsheet from './ChronicDiseaseFlowsheet';
+import ResultsList from './ResultsList';
+import { unreviewedSummary, type Investigation } from '../../../domain/investigations';
+import type { MoveResult } from '../../../hooks/useInvestigations';
 import { buttonProps, focusRing } from '../../../lib/a11y';
 import { Patient, Visit } from '../../../types';
 
@@ -10,6 +13,12 @@ interface ContextPanelProps {
   patientPastVisits: Visit[];
   /** The patient's earlier visits could not be loaded: an empty list does not mean a first visit. */
   historyError?: boolean;
+  /** Lab and imaging orders and results for this patient. */
+  investigations?: Investigation[];
+  investigationsError?: boolean;
+  currentVisitId?: string;
+  /** Marks a result as read. */
+  onReviewInvestigation?: (id: string) => Promise<MoveResult>;
   selectedPastVisit: Visit | null;
   setSelectedPastVisit: React.Dispatch<React.SetStateAction<Visit | null>>;
   stationHud?: React.ReactNode;
@@ -34,6 +43,10 @@ export default function ContextPanel({
   t,
   patientPastVisits,
   historyError = false,
+  investigations = [],
+  investigationsError = false,
+  currentVisitId,
+  onReviewInvestigation,
   selectedPastVisit,
   setSelectedPastVisit,
   stationHud,
@@ -46,7 +59,8 @@ export default function ContextPanel({
   isPiiRevealed = false,
   setIsPiiRevealed,
 }: ContextPanelProps) {
-  const [panelMode, setPanelMode] = React.useState<'timeline' | 'flowsheet'>('timeline');
+  const [panelMode, setPanelMode] = React.useState<'timeline' | 'results' | 'flowsheet'>('timeline');
+  const unreviewed = unreviewedSummary(investigations);
   const allergies = patient?.drugAllergies?.filter(Boolean) ?? [];
   const coverage = patient ? (!patient.panelEmployer || /^none/i.test(patient.panelEmployer) ? 'Self-pay' : patient.panelEmployer) : '';
   const meta = patient ? [patientAgeDisplay, patient.gender, coverage].filter(Boolean).join(' · ') : '';
@@ -162,6 +176,20 @@ export default function ContextPanel({
           <button
             type="button"
             role="tab"
+            aria-selected={panelMode === 'results'}
+            onClick={() => setPanelMode('results')}
+            className={`flex-1 min-h-11 px-3 border text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+              panelMode === 'results' ? 'bg-surface-strong border-surface-strong text-ink font-bold' : 'bg-surface border-line text-muted font-semibold hover:bg-surface-accent'
+            }`}
+          >
+            <span>Results</span>
+            {(unreviewed.count > 0 || investigationsError) && (
+              <span className={`px-1.5 py-0.5 text-2xs font-bold tabular-nums ${unreviewed.abnormal > 0 || investigationsError ? 'bg-rose-100 text-rose-900 dark:bg-rose-950/60 dark:text-rose-200' : 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200'}`}>{investigationsError ? '!' : unreviewed.count}</span>
+            )}
+          </button>
+          <button
+            type="button"
+            role="tab"
             aria-selected={panelMode === 'flowsheet'}
             onClick={() => setPanelMode('flowsheet')}
             className={`flex-1 min-h-11 px-3 border text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
@@ -172,7 +200,9 @@ export default function ContextPanel({
           </button>
         </div>
 
-        {panelMode === 'flowsheet' ? (
+        {panelMode === 'results' ? (
+          <ResultsList investigations={investigations} currentVisitId={currentVisitId} loadError={investigationsError} onReview={onReviewInvestigation} />
+        ) : panelMode === 'flowsheet' ? (
           <ChronicDiseaseFlowsheet pastVisits={patientPastVisits} currentVitals={vitals} />
         ) : (
           <>

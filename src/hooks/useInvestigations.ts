@@ -34,6 +34,26 @@ export type MoveResult = { ok: true } | { ok: false; error: string };
 
 type RpcCall = PromiseLike<{ error: { message?: string } | null }>;
 
+/** Every lab and imaging order for one patient (this visit and earlier ones), for the consultation room. */
+export function usePatientInvestigations(patientId?: string) {
+  const { session } = useAuth();
+  const query = useQuery({
+    queryKey: [...INVESTIGATION_KEY, 'patient', patientId],
+    enabled: !!session && !!patientId,
+    queryFn: async (): Promise<Investigation[]> => {
+      const { data, error } = await supabase.from('investigations')
+        .select(SELECT)
+        .eq('patient_id', patientId!)
+        .neq('status', 'Cancelled')
+        .order('ordered_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []).map(investigationFromRow);
+    },
+  });
+  return { items: query.data ?? NO_ITEMS, loadError: !!query.error };
+}
+
 export function useInvestigations() {
   const { session } = useAuth();
   const qc = useQueryClient();

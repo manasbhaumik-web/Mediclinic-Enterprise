@@ -28,6 +28,7 @@ import ReviewSignoffModal from './room/ReviewSignoffModal';
 import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
 import { visitFromRow } from '../../lib/mappers';
 import { formatTicket } from '../../domain/ticket';
+import { useInvestigations, usePatientInvestigations } from '../../hooks/useInvestigations';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { ConsultationDraft, draftKey, getSavedDraft, parseDraft, saveDraft } from '../../domain/consultationDraft';
 
@@ -183,6 +184,8 @@ export default function ConsultationRoom({
   // Populate longitudinal history for active patient
   const [patientPastVisits, setPatientPastVisits] = useState<Visit[]>([]);
   const [historyError, setHistoryError] = useState(false);
+  const patientLab = usePatientInvestigations(currentPatient?.id);
+  const { review: reviewInvestigation } = useInvestigations();
 
   useEffect(() => {
     if (!currentPatient) return;
@@ -550,6 +553,10 @@ export default function ConsultationRoom({
               t={t} 
               patientPastVisits={patientPastVisits} 
               historyError={historyError}
+              investigations={patientLab.items}
+              investigationsError={patientLab.loadError}
+              currentVisitId={activeVisit?.id}
+              onReviewInvestigation={reviewInvestigation}
               selectedPastVisit={selectedPastVisit} 
               setSelectedPastVisit={setSelectedPastVisit} 
               stationHud={stationHud} 
