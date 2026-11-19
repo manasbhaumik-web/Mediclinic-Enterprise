@@ -38,6 +38,8 @@ interface EnterpriseLayoutTemplateProps {
   doctorQueueLength: number;
   pharmacyQueueLength: number;
   cashierQueueLength: number;
+  /** Lab and imaging work waiting for this person. */
+  labQueueLength?: number;
   children: React.ReactNode;
 }
 
@@ -60,6 +62,7 @@ export default function EnterpriseLayoutTemplate({
   doctorQueueLength,
   pharmacyQueueLength,
   cashierQueueLength,
+  labQueueLength = 0,
   children
 }: EnterpriseLayoutTemplateProps) {
   // Live Real-Time Clock & Sync timestamp
@@ -400,7 +403,7 @@ export default function EnterpriseLayoutTemplate({
             setActiveTab={setActiveTab}
             held={held}
             t={t}
-            badges={{ triage: triageQueueLength, doctor: doctorQueueLength, pharmacy: pharmacyQueueLength, cashier: cashierQueueLength }}
+            badges={{ triage: triageQueueLength, doctor: doctorQueueLength, pharmacy: pharmacyQueueLength, cashier: cashierQueueLength, lab: labQueueLength }}
             onOpenAdmin={onOpenAdmin}
           />
 

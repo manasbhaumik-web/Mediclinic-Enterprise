@@ -9,7 +9,7 @@ export interface Bilingual {
 }
 
 /** Which live count a navbar tab shows as its badge. */
-export type NavBadge = 'triage' | 'doctor' | 'pharmacy' | 'cashier';
+export type NavBadge = 'triage' | 'doctor' | 'pharmacy' | 'cashier' | 'lab';
 
 /** Where and how a staff page appears in the navbar. A page with no `nav` is not in the navbar. */
 export interface NavConfig {

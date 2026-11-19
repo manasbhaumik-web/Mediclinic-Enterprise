@@ -5,6 +5,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { useClinicShell } from './ClinicShell';
+import { useInvestigations } from '../hooks/useInvestigations';
 
 import LandingDashboard from '../features/dashboard/LandingDashboard';
 const DoctorDashboardModule = React.lazy(() => import('../features/doctor/DoctorDashboardModule'));
@@ -14,6 +15,7 @@ const AppointmentCalendarModule = React.lazy(() => import('../features/appointme
 const DispensaryDashboard = React.lazy(() => import('../features/pharmacy/DispensaryDashboard'));
 const BillingDesk = React.lazy(() => import('../features/billing/BillingDesk'));
 const MyLeave = React.lazy(() => import('../features/leave/MyLeave'));
+const InvestigationsModule = React.lazy(() => import('../features/investigations/InvestigationsModule'));
 
 export function MyLeavePage() {
   return <MyLeave />;
@@ -58,6 +60,31 @@ export function DoctorPage({ tab }: { tab: DoctorTab }) {
       userId={s.userId}
       onCallPatient={s.onCallPatient}
       onReleasePatient={s.onReleasePatient}
+    />
+  );
+}
+
+export function InvestigationsPage() {
+  const s = useClinicShell();
+  const lab = useInvestigations();
+  // A doctor orders for patients in their queue or consultation, or on hold.
+  const orderableVisits = [...s.queues.doctor, ...s.queues.holding].map((v) => ({
+    visitId: v.id,
+    patientName: s.patientsMap[v.patientId]?.fullName ?? 'Unknown patient',
+  }));
+  return (
+    <InvestigationsModule
+      roles={s.roles}
+      isBM={s.activeLanguage === 'BM'}
+      staffName={s.userName}
+      investigations={lab.investigations}
+      loadError={lab.loadError}
+      orderableVisits={orderableVisits}
+      onOrder={lab.order}
+      onCollect={lab.collect}
+      onRecordResult={lab.recordResult}
+      onReview={lab.review}
+      onCancel={lab.cancel}
     />
   );
 }

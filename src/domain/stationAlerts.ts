@@ -1,24 +1,25 @@
 import type { UserRole, Visit } from '../types';
 import type { VisitQueues } from './visitWorkflow';
 
-export type Station = 'triage' | 'doctor' | 'pharmacy' | 'cashier';
+export type Station = 'triage' | 'procedure' | 'doctor' | 'pharmacy' | 'cashier';
 
-const STATION_OF_ROLE: Partial<Record<UserRole, Station>> = {
-  'clinic-assistant': 'triage',
-  doctor: 'doctor',
-  pharmacist: 'pharmacy',
-  cashier: 'cashier',
+const STATIONS_OF_ROLE: Partial<Record<UserRole, Station[]>> = {
+  'clinic-assistant': ['triage', 'procedure'],
+  doctor: ['doctor'],
+  pharmacist: ['pharmacy'],
+  cashier: ['cashier'],
 };
 
 /** The queues a person watches: one per role they hold that works from a queue. */
 export function stationsForRoles(roles: readonly UserRole[]): Station[] {
-  return [...new Set(roles.map((r) => STATION_OF_ROLE[r]).filter((s): s is Station => !!s))];
+  return [...new Set(roles.flatMap((r) => STATIONS_OF_ROLE[r] ?? []))];
 }
 
 export type QueueSnapshot = Record<Station, string[]>;
 
 export const snapshotOf = (q: Pick<VisitQueues, Station>): QueueSnapshot => ({
   triage: q.triage.map((v) => v.id),
+  procedure: q.procedure.map((v) => v.id),
   doctor: q.doctor.map((v) => v.id),
   pharmacy: q.pharmacy.map((v) => v.id),
   cashier: q.cashier.map((v) => v.id),
@@ -41,6 +42,7 @@ export function newArrivals(
 
 export const STATION_MESSAGE: Record<Station, string> = {
   triage: 'waiting for triage',
+  procedure: 'waiting in the treatment room',
   doctor: 'waiting for the doctor',
   pharmacy: 'ready at the pharmacy',
   cashier: 'ready for billing',

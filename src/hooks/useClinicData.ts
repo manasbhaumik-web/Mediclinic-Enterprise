@@ -147,6 +147,8 @@ const logFailure = (action: string) => (err: unknown): false => {
 
 // Visits whose SOAP note is the same as the cached copy when an update starts (see updateVisit).
 const soapUnchanged = new Map<string, boolean>();
+/** Visits whose prescription list did not change in this update (a nurse recording a procedure, say). */
+const rxUnchanged = new Map<string, boolean>();
 
 function useClinicMutations() {
   const qc = useQueryClient();
@@ -236,6 +238,8 @@ function useClinicMutations() {
       // rewrite would overwrite what a doctor saved since.
       const skipNote = soapUnchanged.get(visit.id) === true;
       soapUnchanged.delete(visit.id);
+      const skipRx = rxUnchanged.get(visit.id) === true;
+      rxUnchanged.delete(visit.id);
       if (skipNote) return;
 
       const { data: existing, error: findErr } = await supabase.from('soap_notes')
@@ -252,7 +256,7 @@ function useClinicMutations() {
       if (decidedErr) throw decidedErr;
       const locked = (decided ?? []).length > 0;
 
-      if (visit.soap.plan.prescription.length > 0 && !locked) {
+      if (visit.soap.plan.prescription.length > 0 && !locked && !skipRx) {
         // Replace-all keeps prescriptions in step with the SOAP plan.
         const { error: delErr } = await supabase.from('prescriptions').delete().eq('visit_id', visit.id);
         if (delErr) throw delErr;
@@ -266,6 +270,7 @@ function useClinicMutations() {
       const prevCompleted = qc.getQueryData<Visit[]>(QUERY_KEYS.completedVisits);
       const before = [...(prevActive ?? []), ...(prevCompleted ?? [])].find((v) => v.id === visit.id);
       soapUnchanged.set(visit.id, !!before && JSON.stringify(before.soap) === JSON.stringify(visit.soap));
+      rxUnchanged.set(visit.id, !!before && JSON.stringify(before.soap?.plan?.prescription) === JSON.stringify(visit.soap?.plan?.prescription));
       if (isClosed(visit)) {
         qc.setQueryData<Visit[]>(QUERY_KEYS.activeVisits, (old = []) => old.filter((v) => v.id !== visit.id));
         if (visit.status === 'Paid') {
@@ -278,6 +283,7 @@ function useClinicMutations() {
     },
     onError: (_e, v, ctx) => {
       soapUnchanged.delete(v.id);
+      rxUnchanged.delete(v.id);
       qc.setQueryData(QUERY_KEYS.activeVisits, ctx?.prevActive);
       qc.setQueryData(QUERY_KEYS.completedVisits, ctx?.prevCompleted);
     },
@@ -448,6 +454,8 @@ export function useClinicRealtime() {
         () => qc.invalidateQueries({ queryKey: QUERY_KEYS.patients }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' },
         () => qc.invalidateQueries({ queryKey: QUERY_KEYS.appointments }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'investigations' },
+        () => qc.invalidateQueries({ queryKey: ['investigations'] }))
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           if (wasDown) refetchAll();

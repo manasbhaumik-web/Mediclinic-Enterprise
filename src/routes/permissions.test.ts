@@ -43,7 +43,7 @@ describe('the front-desk workflow is split by role', () => {
   it('each front-desk role sees only its own pages (plus the dashboard and My Leave)', () => {
     const pages = (role: UserRole) => (Object.keys(TAB_ROLES) as (keyof typeof TAB_ROLES)[]).filter((t) => canOpenTab([role], t)).sort();
     expect(pages('receptionist')).toEqual(['appointments', 'dashboard', 'my-leave', 'registration']);
-    expect(pages('clinic-assistant')).toEqual(['dashboard', 'my-leave', 'registration', 'triage']);
+    expect(pages('clinic-assistant')).toEqual(['dashboard', 'investigations', 'my-leave', 'registration', 'triage']);
     expect(pages('cashier')).toEqual(['billing', 'dashboard', 'my-leave']);
     expect(pages('admin')).not.toContain('registration');
   });

@@ -3,8 +3,9 @@ import { keepActiveConsultation, newArrivals, snapshotOf, stationsForRoles } fro
 import type { Visit } from '../types';
 
 const v = (id: string, status: Visit['status'], calledBy?: string) => ({ id, status, calledBy } as Visit);
-const queues = (o: Partial<Record<'triage' | 'doctor' | 'pharmacy' | 'cashier', string[]>>) => snapshotOf({
+const queues = (o: Partial<Record<'triage' | 'procedure' | 'doctor' | 'pharmacy' | 'cashier', string[]>>) => snapshotOf({
   triage: (o.triage ?? []).map((id) => v(id, 'Awaiting Triage')),
+  procedure: (o.procedure ?? []).map((id) => v(id, 'Awaiting Procedure')),
   doctor: (o.doctor ?? []).map((id) => v(id, 'Awaiting Consult')),
   pharmacy: (o.pharmacy ?? []).map((id) => v(id, 'Awaiting Dispensation')),
   cashier: (o.cashier ?? []).map((id) => v(id, 'Awaiting Billing')),
@@ -13,7 +14,7 @@ const queues = (o: Partial<Record<'triage' | 'doctor' | 'pharmacy' | 'cashier', 
 describe('stationsForRoles', () => {
   it('maps queue roles to their queues and ignores the rest', () => {
     expect(stationsForRoles(['doctor'])).toEqual(['doctor']);
-    expect(stationsForRoles(['clinic-assistant', 'receptionist', 'cashier'])).toEqual(['triage', 'cashier']);
+    expect(stationsForRoles(['clinic-assistant', 'receptionist', 'cashier'])).toEqual(['triage', 'procedure', 'cashier']);
     expect(stationsForRoles(['admin', 'hr', 'receptionist'])).toEqual([]);
   });
 });
@@ -25,6 +26,10 @@ describe('newArrivals', () => {
 
   it('reports visits that joined a watched queue', () => {
     expect(newArrivals(queues({ doctor: ['a'] }), queues({ doctor: ['a', 'b'] }), ['doctor'])).toEqual([{ station: 'doctor', visitIds: ['b'] }]);
+  });
+
+  it('reports a patient who reaches the treatment room', () => {
+    expect(newArrivals(queues({}), queues({ procedure: ['p'] }), ['triage', 'procedure'])).toEqual([{ station: 'procedure', visitIds: ['p'] }]);
   });
 
   it('ignores queues the person does not watch and visits that left', () => {

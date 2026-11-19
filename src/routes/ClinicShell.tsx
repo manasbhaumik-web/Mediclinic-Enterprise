@@ -17,6 +17,8 @@ import GlobalSpinner from '../components/ui/GlobalSpinner';
 import { enqueueIntegration } from '../lib/integrationQueue';
 import { recordEInvoice } from '../lib/einvoiceQueue';
 import { tabPath } from './permissions';
+import { useInvestigations } from '../hooks/useInvestigations';
+import { actionableCount } from '../domain/investigations';
 import { STATION_MESSAGE, keepActiveConsultation, newArrivals, snapshotOf, stationsForRoles, type QueueSnapshot } from '../domain/stationAlerts';
 
 type ClinicData = ReturnType<typeof useClinicData>;
@@ -109,6 +111,10 @@ export default function ClinicShell() {
   );
 
   const findVisit = (id: string) => visitsQueue.find((v) => v.id === id);
+
+  // Lab and imaging work for this person: shown as the navbar count.
+  const { investigations } = useInvestigations();
+  const labWork = useMemo(() => actionableCount(roles, investigations), [roles, investigations]);
 
   // A consultation remembered from before a reload is checked once, when the queue first loads: it is kept only if the patient
   // is still with this doctor (or on hold for them). Later changes are left to the pages, since a call is not yet in the cache.
@@ -278,10 +284,11 @@ export default function ClinicShell() {
         onSignOut={handleSignOut}
         onOpenAdmin={() => navigate('/admin')}
         t={t}
-        triageQueueLength={queues.triage.length}
+        triageQueueLength={queues.triage.length + queues.procedure.length}
         doctorQueueLength={queues.doctor.length}
         pharmacyQueueLength={queues.pharmacy.length}
         cashierQueueLength={queues.cashier.length}
+        labQueueLength={labWork}
       >
         <Suspense fallback={<GlobalSpinner />}>
           <Outlet context={ctx} />

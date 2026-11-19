@@ -6,7 +6,7 @@ export type DomainId = 'journey' | 'clinical' | 'pharmacy' | 'revenue' | 'people
 
 export const DOMAINS: Record<DomainId, { label: string; features: readonly string[] }> = {
   journey: { label: 'Patient journey', features: ['registration', 'triage', 'appointments', 'patientAdmin'] },
-  clinical: { label: 'Clinical care', features: ['consultation', 'doctor'] },
+  clinical: { label: 'Clinical care', features: ['consultation', 'doctor', 'investigations'] },
   pharmacy: { label: 'Pharmacy and stock', features: ['pharmacy', 'inventory', 'equipment'] },
   revenue: { label: 'Revenue', features: ['billing', 'einvoice'] },
   people: { label: 'People', features: ['staff', 'leave', 'payroll'] },

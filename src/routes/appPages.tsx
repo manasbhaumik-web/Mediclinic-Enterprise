@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { AppTab } from '../modules/appModules';
 import {
-  AppointmentsPage, BillingPage, DashboardPage, DispensaryPage, DoctorPage, InventoryRoutePage, MyLeavePage, RegistrationPage, TriagePage,
+  AppointmentsPage, BillingPage, DashboardPage, DispensaryPage, DoctorPage, InventoryRoutePage, InvestigationsPage, MyLeavePage, RegistrationPage, TriagePage,
 } from './ClinicPages';
 
 /**
@@ -16,6 +16,7 @@ export const APP_PAGES: Record<AppTab, ReactNode> = {
   queue: <DoctorPage tab="queue" />,
   consultation: <DoctorPage tab="consultation" />,
   reports: <DoctorPage tab="reports" />,
+  investigations: <InvestigationsPage />,
   dispensary: <DispensaryPage />,
   inventory: <InventoryRoutePage />,
   billing: <BillingPage />,

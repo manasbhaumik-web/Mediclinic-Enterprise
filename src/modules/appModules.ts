@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Users, Activity, CalendarClock, Stethoscope, FileText, Pill, PackageOpen, CreditCard,
+  LayoutDashboard, Users, Activity, CalendarClock, Stethoscope, FileText, Pill, PackageOpen, CreditCard, FlaskConical,
 } from 'lucide-react';
 import type { UserRole } from '../types';
 import { SYSTEM_ROLES } from '../../supabase/functions/_shared/staffAccess';
@@ -42,6 +42,11 @@ export const APP_MODULES = [
     id: 'consultation', label: { en: 'Consultation', bm: 'Perundingan' }, hint: 'See a patient', icon: Stethoscope,
     roles: ['doctor'],
     nav: { labelKey: 'consultationSuite', fallback: 'Consultation Suite' },
+  },
+  {
+    id: 'investigations', label: { en: 'Lab and imaging', bm: 'Makmal dan pengimejan' }, hint: 'Lab tests, scans, results', icon: FlaskConical,
+    roles: ['doctor', 'clinic-assistant'],
+    nav: { labelKey: 'labImaging', fallback: 'Lab & Imaging', badge: 'lab' },
   },
   {
     id: 'reports', label: { en: 'Monthly report', bm: 'Laporan bulanan' }, hint: 'Your consultations and billing', icon: FileText,

@@ -13,6 +13,7 @@ const EXPECTED_TAB_ROLES: Record<string, UserRole[]> = {
   dashboard: ALL,
   queue: ['doctor'],
   consultation: ['doctor'],
+  investigations: ['doctor', 'clinic-assistant'],
   reports: ['doctor'],
   registration: ['receptionist', 'clinic-assistant'],
   triage: ['clinic-assistant'],
@@ -52,15 +53,15 @@ describe('module registry', () => {
   });
 
   it('shows the same navbar tabs per role as the hand-written navbar did', () => {
-    expect(navIds(['doctor'])).toEqual(['dashboard', 'queue', 'consultation', 'reports']);
+    expect(navIds(['doctor'])).toEqual(['dashboard', 'queue', 'consultation', 'investigations', 'reports']);
     expect(navIds(['pharmacist'])).toEqual(['dashboard', 'dispensary', 'inventory']);
     expect(navIds(['receptionist'])).toEqual(['dashboard', 'registration', 'appointments']);
-    expect(navIds(['clinic-assistant'])).toEqual(['dashboard', 'registration', 'triage']);
+    expect(navIds(['clinic-assistant'])).toEqual(['dashboard', 'registration', 'triage', 'investigations']);
     expect(navIds(['cashier'])).toEqual(['dashboard', 'billing']);
     // Admins may open appointments by URL, but only receptionists get the tab.
     expect(navIds(['admin'])).toEqual(['dashboard']);
     expect(navIds(['hr'])).toEqual(['dashboard']);
-    expect(navIds(['doctor', 'receptionist'])).toEqual(['dashboard', 'registration', 'appointments', 'queue', 'consultation', 'reports']);
+    expect(navIds(['doctor', 'receptionist'])).toEqual(['dashboard', 'registration', 'appointments', 'queue', 'consultation', 'investigations', 'reports']);
   });
 
   it('keeps my leave out of the navbar but in the command palette', () => {
@@ -121,7 +122,7 @@ describe('clinic module switches', () => {
     expect(navIds(['pharmacist']).length).toBe(3);
     expect(navModules(['pharmacist'], off('medicine')).map((m) => m.id)).toEqual(['dashboard']);
     expect(navModules(['cashier'], off('billing')).map((m) => m.id)).toEqual(['dashboard']);
-    expect(navModules(['doctor'], off('reports')).map((m) => m.id)).toEqual(['dashboard', 'queue', 'consultation']);
+    expect(navModules(['doctor'], off('reports')).map((m) => m.id)).toEqual(['dashboard', 'queue', 'consultation', 'investigations']);
     expect(paletteModules(['pharmacist'], off('medicine')).map((m) => m.id)).toEqual(['dashboard', 'my-leave']);
   });
 
@@ -136,7 +137,7 @@ describe('clinic module switches', () => {
       expect(ids).toContain('dashboard');
       expect(ids).toContain('my-leave');
     }
-    expect(navModules(['doctor'], everythingOff).map((m) => m.id)).toEqual(['dashboard', 'queue', 'consultation']);
+    expect(navModules(['doctor'], everythingOff).map((m) => m.id)).toEqual(['dashboard', 'queue', 'consultation', 'investigations']);
   });
 
   it('drops the admin console sections of a switched-off module too', () => {
