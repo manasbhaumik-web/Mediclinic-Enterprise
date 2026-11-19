@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { checkDrugSafety } from './drugSafetyEngine';
+import { checkDrugSafety, drugClassOf } from './drugSafetyEngine';
 
 describe('AI Clinical Drug Safety Engine', () => {
   it('detects direct allergy conflict (Penicillin allergy with Amoxicillin)', () => {
@@ -56,5 +56,13 @@ describe('AI Clinical Drug Safety Engine', () => {
 
     expect(safety.hasAlerts).toBe(false);
     expect(safety.alerts.length).toBe(0);
+  });
+});
+
+describe('drugClassOf', () => {
+  it('names the family of a drug it knows, and says nothing about one it does not', () => {
+    expect(drugClassOf('Augmentin (Amoxicillin/Clavulanate) 625mg')).toBe('penicillin');
+    expect(drugClassOf('Ibuprofen 400mg')).toBe('nsaid');
+    expect(drugClassOf('Amlodipine 5mg')).toBeNull();
   });
 });

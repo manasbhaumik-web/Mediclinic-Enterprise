@@ -344,16 +344,6 @@ export default function ConsultationRoom({
     return () => clearTimeout(t);
   }, [activeTab, subjective, vitals, selectedICD, clinicalNotes, rxList, mcDays, mcGenerated, pharmacyMemo, referralDetails, referralGenerated, labOrders, labReason, mcReason, followUpWeeks]);
 
-  if (!currentPatient) {
-    return (
-      <div className="bg-surface p-12 text-center rounded-none border border-line-subtle">
-        <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h3 className="type-section-title text-ink">No Patient Selected</h3>
-        <p className="text-subtle dark:text-slate-400 text-xs mt-1">Please select an outpatient from the waiting queue to begin clinical documentation.</p>
-      </div>
-    );
-  }
-
   // Authoritative Single Progress & Step Requirements
   const soapSteps = [
     { key: 'subjective', title: '1. Subjective History', isDone: subjective.trim().length > 0 },
@@ -477,6 +467,17 @@ export default function ConsultationRoom({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [subjective, vitals, selectedICD, clinicalNotes, rxList, activeLanguage]);
+
+  // Every hook is above this line: returning before one of them runs changes the hook count between renders and crashes the room.
+  if (!currentPatient) {
+    return (
+      <div className="bg-surface p-12 text-center rounded-none border border-line-subtle">
+        <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+        <h3 className="type-section-title text-ink">No Patient Selected</h3>
+        <p className="text-subtle dark:text-slate-400 text-xs mt-1">Please select an outpatient from the waiting queue to begin clinical documentation.</p>
+      </div>
+    );
+  }
 
   if (isLocked) {
     return (

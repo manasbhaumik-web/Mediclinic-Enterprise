@@ -84,6 +84,22 @@ describe('visit mapping', () => {
     expect(v.soap.plan.prescription[0]).toMatchObject({ drugName: 'Paracetamol', quantity: 10 });
   });
 
+  it('reads the note when the database returns it as one object, as it does for a visit with a single note', () => {
+    const v = visitFromRow({
+      id: 'v1', patient_id: 'p1', status: 'Consulting', created_at: '2026-01-01T00:00:00Z',
+      soap_notes: { subjective: 'Fever 3 days', bp_systolic: 118, bp_diastolic: 76, heart_rate: 88, temperature: 38.4, respiratory_rate: 18, icd_code: 'R50.9', procedures: [] },
+    });
+    expect(v.soap.subjective).toBe('Fever 3 days');
+    expect(v.soap.objective).toMatchObject({ bpSystolic: 118, bpDiastolic: 76, heartRate: 88, temperature: 38.4, respiratoryRate: 18 });
+    expect(v.soap.assessment.icdCode).toBe('R50.9');
+  });
+
+  it('reads the note when it comes as a list, and when there is none', () => {
+    expect(visitFromRow({ id: 'v', patient_id: 'p', status: 'Awaiting Triage', created_at: 'z', soap_notes: [{ subjective: 'Cough' }] }).soap.subjective).toBe('Cough');
+    expect(visitFromRow({ id: 'v', patient_id: 'p', status: 'Awaiting Triage', created_at: 'z', soap_notes: null }).soap.subjective).toBe('');
+    expect(visitFromRow({ id: 'v', patient_id: 'p', status: 'Awaiting Triage', created_at: 'z', soap_notes: [] }).soap.subjective).toBe('');
+  });
+
   it('sends lab orders, referral details and the MC reason, and reads them back', () => {
     const v = { ...visit, soap: { ...visit.soap, plan: { ...visit.soap!.plan, mcReason: 'Fever', labOrders: ['FBC'], labReason: 'Anaemia?', referralDetails: { hospital: 'HKL', department: 'ENT', reason: 'Recurrent sinusitis' } } } } as unknown as Visit;
     const row = soapToRow(v);

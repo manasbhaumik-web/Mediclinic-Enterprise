@@ -1,6 +1,8 @@
 import { AlertTriangle } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 import { Patient } from '../../../types';
+import { drugClassOf } from '../../../domain/drugSafetyEngine';
+import { recordedAllergies } from '../../../domain/allergy';
 
 interface ContraindicationModalProps {
   currentPatient: Patient;
@@ -25,8 +27,8 @@ export default function ContraindicationModal({ currentPatient, pendingAllergyDr
             Patient <strong className="text-ink">{currentPatient.fullName}</strong> has registered allergies matching <strong className="text-rose-600 uppercase underline font-bold">{pendingAllergyDrug.allergyGroup || pendingAllergyDrug.name}</strong>.
           </p>
           <div className="bg-rose-50 dark:bg-rose-950/60 p-3 border border-rose-200 dark:border-rose-800 font-mono text-2xs text-rose-900 dark:text-rose-200">
-            <p><strong>Drug Class:</strong> {pendingAllergyDrug.allergyGroup || 'NSAID / Anti-inflammatory'}</p>
-            <p><strong>Reaction History:</strong> {currentPatient.drugAllergies.join(', ') || 'Severe Bronchospasm & Urticaria'}</p>
+            <p><strong>Drug family:</strong> {pendingAllergyDrug.allergyGroup && pendingAllergyDrug.allergyGroup !== 'None' ? pendingAllergyDrug.allergyGroup : (drugClassOf(pendingAllergyDrug.name) ?? 'Not classified')}</p>
+            <p><strong>Recorded allergies:</strong> {recordedAllergies(currentPatient.drugAllergies).join(', ') || 'None recorded'}</p>
           </div>
           <p>
             To prescribe <strong>{pendingAllergyDrug.name}</strong> anyway, you must document a valid clinical rationale for override.

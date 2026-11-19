@@ -36,7 +36,8 @@ export function patientToRow(patient: Patient) {
 
 /** Maps a `visits` row joined with `soap_notes(*)` and `prescriptions(*)`. */
 export function visitFromRow(v: any): Visit {
-  const soap = v.soap_notes?.[0] || {};
+  // A visit has one note, so the database returns it as a single object; a list is accepted too.
+  const soap = (Array.isArray(v.soap_notes) ? v.soap_notes[0] : v.soap_notes) || {};
   const rx = v.prescriptions || [];
 
   return {

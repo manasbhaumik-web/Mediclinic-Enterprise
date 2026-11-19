@@ -8,6 +8,9 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Patient, PrescriptionItem, ICD10Code, ClinicalProcedureItem } from '../../types';
 import { COMMON_CLINIC_PROCEDURES, createProcedureOrder } from '../../domain/procedures';
+import { conflictsWithAllergy, recordedAllergies } from '../../domain/allergy';
+import { checkDrugSafety } from '../../domain/drugSafetyEngine';
+import { splitOverride } from '../../domain/signoffSafety';
 import { useInventory } from '../../context/InventoryContext';
 import { useAuth } from '../../context/AuthContext';
 import { DRUG_DATABASE } from '../../data';
@@ -235,6 +238,14 @@ export default function PlanTab({
         }
       }
     });
+    // The same check the safety guardian uses, so this banner never says "no conflict" while the guardian says contraindicated.
+    const names = rxList.map((item) => splitOverride(item.drugName).drug);
+    checkDrugSafety(names, recordedAllergies(currentPatient.drugAllergies)).alerts
+      .filter((a) => a.type === 'allergy' && a.severity === 'contraindicated')
+      .forEach((a) => {
+        const original = rxList.find((item) => splitOverride(item.drugName).drug === a.drugA)?.drugName ?? a.drugA;
+        if (!alerts.some((x) => x.drugName === original)) alerts.push({ drugName: original, allergyGroup: a.allergen ?? 'recorded allergy' });
+      });
     return alerts;
   }, [rxList, currentPatient, mergedCatalog]);
 
@@ -260,7 +271,7 @@ export default function PlanTab({
 
     // Safety Contraindication Check against Patient Allergies
     const grp = drug.allergyGroup || '';
-    const isAllergic = currentPatient.drugAllergies.some(
+    const isAllergic = conflictsWithAllergy(drug.name, currentPatient.drugAllergies) || currentPatient.drugAllergies.some(
       a => (grp && grp !== 'None' && (a.toLowerCase() === grp.toLowerCase() || grp.toLowerCase().includes(a.toLowerCase()))) ||
            drug.name.toLowerCase().includes(a.toLowerCase())
     );

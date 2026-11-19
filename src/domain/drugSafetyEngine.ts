@@ -102,6 +102,11 @@ function matchDrugClass(drugName: string): { key: string; class: string; crossCl
   return null;
 }
 
+/** The drug family the safety check knows for a drug name ("penicillin", "nsaid"), or null when it does not know the drug. */
+export function drugClassOf(drugName: string): string | null {
+  return matchDrugClass(drugName)?.class ?? null;
+}
+
 /**
  * Checks a prescription list against patient known allergies and concurrent drug interactions.
  */

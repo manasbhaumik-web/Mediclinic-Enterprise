@@ -69,6 +69,8 @@ No second factor (the docs list it as not built). Supabase leaked-password prote
 The project is in `ap-northeast-1` (Tokyo). Storing Malaysian patients' data outside Malaysia is a cross-border transfer under the PDPA. It is usually allowed with safeguards, but it should be documented. WhatsApp (Meta) is another third party that receives phone numbers and first names. **Fix:** record the transfer and safeguards in your data protection documents; mention both providers in the privacy notice; consider a closer region if your counsel advises it.
 
 ### M3. Drug-safety check
+
+**Fixed on 19 Nov (found while clicking through the screens):** the prompt that asks a doctor for a reason before prescribing against an allergy only matched the allergy word inside the drug name, so amoxicillin for a penicillin-allergic patient went in with no prompt, and a green banner said "no conflict" next to a red "contraindicated" alert. The prompt, the banner and the dispensary check now all recognise drug families, and the prompt no longer shows an invented drug class. The rest of this finding is still open.
 There is a check (`drugSafetyEngine`), and a separate allergy check at the dispensary, but:
 - It knows about roughly 45 drug names and has four interaction rules (double NSAID, anticoagulant with NSAID, statin with macrolide, clopidogrel with omeprazole).
 - It compares only the drugs on this prescription. It does not look at what the patient is already taking or has been prescribed recently.
