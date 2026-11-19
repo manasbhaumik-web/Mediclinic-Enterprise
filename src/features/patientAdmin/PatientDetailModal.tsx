@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useAuditView } from '../../hooks/useClinicalAudit';
 import {
   X, User, Calendar, FileText, Pill, CreditCard, ShieldAlert,
   CheckCircle2, AlertCircle, AlertTriangle, Save, Clock, Activity, Printer, Download,
@@ -37,6 +38,7 @@ export default function PatientDetailModal({
 }: PatientDetailModalProps) {
   const isBM = activeLanguage === 'BM';
   const { showPII } = useAuth();
+  useAuditView(isOpen ? patient?.id : null, 'patient-admin');
   const [activeTab, setActiveTab] = useState<'profile' | 'visits' | 'medications' | 'clinical' | 'billing' | 'dossier'>(initialTab);
 
   // Edit state

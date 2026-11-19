@@ -20,6 +20,8 @@ import { tabPath } from './permissions';
 import { useInvestigations } from '../hooks/useInvestigations';
 import { actionableCount } from '../domain/investigations';
 import { useDeviceResults } from '../hooks/useDeviceResults';
+import IdleGuard from '../components/IdleGuard';
+import { idleMinutes } from '../domain/idleTimeout';
 import { STATION_MESSAGE, keepActiveConsultation, newArrivals, snapshotOf, stationsForRoles, type QueueSnapshot } from '../domain/stationAlerts';
 
 type ClinicData = ReturnType<typeof useClinicData>;
@@ -244,6 +246,7 @@ export default function ClinicShell() {
 
   return (
     <>
+      <IdleGuard timeoutMinutes={idleMinutes(!!activeConsultationVisitId)} onTimeout={handleSignOut} />
       {data.syncError && (
         <div role="alert" className="fixed top-20 left-1/2 -translate-x-1/2 z-[90] max-w-xl w-[calc(100%-2rem)] bg-amber-100 text-amber-950 border border-amber-400 px-4 py-3 flex items-center gap-3 shadow-xl">
           <AlertTriangle className="w-5 h-5 shrink-0" aria-hidden="true" />

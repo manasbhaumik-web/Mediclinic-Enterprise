@@ -1,6 +1,6 @@
 import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, ShieldAlert, Server, Database, Globe2,
-  TrendingUp, CalendarClock, FolderCheck, Cpu, MessageCircle,
+  TrendingUp, CalendarClock, FolderCheck, Cpu, MessageCircle, ScrollText,
 } from 'lucide-react';
 import type { AdminCategoryId, AdminSection, Bilingual } from './types';
 import { isModuleOn, type ClinicModuleSwitches } from './clinicModules';
@@ -32,6 +32,7 @@ export const ADMIN_SECTIONS = [
   { id: 'moh', label: { en: 'MOH Compliance', bm: 'Kepatuhan KKM' }, category: 'compliance', icon: Globe2, roleReq: 'admin' },
   { id: 'reports', label: { en: 'Analytics Reports', bm: 'Laporan Analitik' }, category: 'compliance', icon: FileText, roleReq: 'admin', moduleKey: 'reports' },
   { id: 'security', label: { en: 'Security & Audit', bm: 'Keselamatan & Audit' }, category: 'compliance', icon: ShieldAlert, roleReq: 'admin' },
+  { id: 'clinicalaudit', label: { en: 'Patient Data Audit', bm: 'Audit Data Pesakit' }, category: 'compliance', icon: ScrollText, roleReq: 'admin' },
 
   // Platform
   { id: 'architecture', label: { en: 'System Status', bm: 'Status Sistem' }, category: 'platform', icon: Server, roleReq: 'admin' },

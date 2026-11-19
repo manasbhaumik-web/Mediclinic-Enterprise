@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuditView } from '../../hooks/useClinicalAudit';
 import { Visit, PrescriptionItem, Language } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import { 
@@ -68,6 +69,7 @@ export default function DispensaryDashboard({
   // Find the selected active visit
   const activeVisit = queue.find(v => v.id === selectedVisitId) || queue[0];
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
+  useAuditView(activePatient?.id, 'dispensary');
   const visitRegister = useVisitRegister(activeVisit?.id);
 
   const cleanName = (n: string) => n.replace(/\s*\[OVERRIDDEN:.*\]$/, '').trim().toLowerCase();

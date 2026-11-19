@@ -24,6 +24,7 @@ const LeavePage = React.lazy(() => import('../leave/LeavePage'));
 const IntegrationsPage = React.lazy(() => import('../integrations/IntegrationsPage'));
 const LabDevicesAdmin = React.lazy(() => import('../investigations/LabDevicesAdmin'));
 const PatientMessagesAdmin = React.lazy(() => import('./PatientMessagesAdmin'));
+const ClinicalAuditAdmin = React.lazy(() => import('./ClinicalAuditAdmin'));
 const OperationsHub = React.lazy(() => import('../operations/OperationsHub'));
 const SecurityHub = React.lazy(() => import('./SecurityHub'));
 const RevenueCycleHub = React.lazy(() => import('../billing/RevenueCycleHub'));
@@ -32,6 +33,8 @@ import { useSettings } from '../../context/SettingsContext';
 import HelpCenter, { AppFooter, HelpButton, useHelp } from '../shell/HelpCenter';
 import NotificationBell from '../shell/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
+import IdleGuard from '../../components/IdleGuard';
+import { IDLE_MINUTES } from '../../domain/idleTimeout';
 import { useLanguage } from '../../context/LanguageContext';
 import { getGreeting } from '../../domain/roleBanner';
 import { ADMIN_CATEGORIES, visibleAdminSections, type AdminTab, type AdminCategoryId as AdminCategory } from '../../modules';
@@ -120,6 +123,7 @@ export default function AdminModule({
     integrations: <IntegrationsPage />,
     labdevices: <LabDevicesAdmin />,
     messages: <PatientMessagesAdmin />,
+    clinicalaudit: <ClinicalAuditAdmin />,
     operations: <OperationsHub onOpenTab={setActiveTab} />,
     security: <SecurityHub />,
     rcm: <RevenueCycleHub onOpenTab={setActiveTab} />,
@@ -130,6 +134,7 @@ export default function AdminModule({
     <div className={`staff-app min-h-screen flex flex-col font-sans antialiased selection:bg-primary/20 transition-colors duration-300 ${
       isNightShift ? 'dark bg-night-900 text-slate-100' : 'bg-canvas text-ink'
     }`}>
+      <IdleGuard timeoutMinutes={IDLE_MINUTES} onTimeout={() => onNavigate('landing')} />
 
       {/* ========================================================================= */}
       {/* GLOBAL TOP ADMIN HEADER BAR                                               */}

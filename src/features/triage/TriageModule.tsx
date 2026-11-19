@@ -4,6 +4,7 @@ import { Activity, CheckCircle2, ArrowRight, AlertTriangle, Siren } from 'lucide
 import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
 import ProcedureStationModule from '../operations/ProcedureStationModule';
 import { completeVisitProcedure } from '../../domain/procedures';
+import { useAuditView } from '../../hooks/useClinicalAudit';
 import { maskICNumber } from '../../utils/piiMasker';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { calculateMEWS } from '../../domain/aiTriageScore';
@@ -61,6 +62,7 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
 
   const activeVisit = activeVisitId ? triageQueue.find(v => v.id === activeVisitId) : null;
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
+  useAuditView(activePatient?.id, 'triage');
 
   const mewsResult = calculateMEWS({
     bpSystolic: vitalsForm.bpSystolic,

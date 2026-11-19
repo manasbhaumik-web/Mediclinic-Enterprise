@@ -29,6 +29,7 @@ import RedCodeAlarmModal from '../operations/RedCodeAlarmModal';
 import { visitFromRow } from '../../lib/mappers';
 import { formatTicket } from '../../domain/ticket';
 import { useInvestigations, usePatientInvestigations } from '../../hooks/useInvestigations';
+import { useAuditView } from '../../hooks/useClinicalAudit';
 import { calculatePatientAge } from '../../domain/patientAge';
 import { ConsultationDraft, draftKey, getSavedDraft, parseDraft, saveDraft } from '../../domain/consultationDraft';
 
@@ -185,6 +186,7 @@ export default function ConsultationRoom({
   const [patientPastVisits, setPatientPastVisits] = useState<Visit[]>([]);
   const [historyError, setHistoryError] = useState(false);
   const patientLab = usePatientInvestigations(currentPatient?.id);
+  useAuditView(currentPatient?.id, 'consultation');
   const { review: reviewInvestigation } = useInvestigations();
 
   useEffect(() => {

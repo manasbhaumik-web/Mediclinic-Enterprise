@@ -9,20 +9,20 @@ Not reviewed: the Supabase and Vercel account settings (backups, MFA for dashboa
 | ID | Area | Finding | Severity | Status |
 | --- | --- | --- | --- | --- |
 | H1 | Access | Seeded demo logins share the password `password123` | High | Open |
-| H2 | Audit | No record of who viewed, changed or exported patient or clinical data | High | Open |
+| H2 | Audit | No record of who viewed or changed patient or clinical data | High | **Fixed (v49)** |
 | H3 | Clinical safety | Sign-off screen showed "Allergy Safety Verification Passed" even when the prescription conflicted | High | **Fixed** |
 | H4 | Access | Too much is readable by too many roles (see below) | High | Open |
 | H5 | PDPA | No privacy notice or consent is recorded at registration | High | Open |
-| M1 | Access | No second factor, no idle sign-out, leaked-password check is off | Medium | Open |
+| M1 | Access | No second factor, leaked-password check is off (idle sign-out now added) | Medium | Partly fixed |
 | M2 | PDPA | Data is hosted in Tokyo; cross-border transfer is not documented | Medium | Open |
 | M3 | Clinical safety | The drug-safety check is narrow and advisory | Medium | Open |
 | M4 | Clinical safety | An allergy override is saved inside the drug name | Medium | Open |
 | M5 | Privacy | IC masking is only in the browser | Medium | Open |
-| M6 | Privacy | Consultation drafts (clinical notes) sit in browser storage | Medium | Open |
+| M6 | Privacy | Consultation drafts (clinical notes) sit in browser storage | Medium | Reduced (cleared on idle sign-out) |
 | M7 | PDPA | No retention schedule, no patient access/correction process | Medium | Open |
 | M8 | PDPA | No written breach procedure | Medium | Open |
 | M9 | Resilience | Backups and recovery are not evidenced | Medium | Open |
-| L1 | Access | Two reference tables can be read without signing in | Low | Open |
+| L1 | Access | Two reference tables can be read without signing in | Low | **Fixed (v49)** |
 | L2 | Hygiene | Remaining security-check warnings (mostly intended) | Low | Open |
 
 ## What is already in good shape
@@ -39,7 +39,9 @@ Not reviewed: the Supabase and Vercel account settings (backups, MFA for dashboa
 ### H1. Seeded demo passwords
 `supabase/migrations/20260726000005_v6_auth_and_rls.sql` (doctor, pharmacist, assistant) and `20261025180000_v38_receptionist_and_cashier_logins.sql` (reception, cashier) create `@mediclinic.local` accounts with the password `password123`. If those accounts still exist with that password, anyone who has seen the repository can sign in with a clinical role. **Fix:** change or delete the accounts in Supabase (Authentication > Users). Take the seed passwords out of the migrations, or generate them per environment.
 
-### H2. No audit trail for patient data
+### H2. No audit trail for patient data (fixed in v49)
+
+**Done:** `clinical_audit` is append-only (nobody can edit, delete or empty it, not even an administrator) and readable only by administrators. Triggers record every create, change and removal on patients, visits, consultation notes, prescriptions, lab and imaging orders and device results: who, when, which row, which fields (never the values). Screens record when a patient's record is opened (consultation, triage, dispensary, billing, patient administration). Administration > Patient Data Audit searches it by patient, staff member, action, kind of record and date, and downloads a page as CSV. Not covered: appointments, messages, billing and e-invoices (they have their own logs), and report downloads (aggregate tables). The original finding follows.
 The audit feed in Administration > Security covers inventory, HR, payroll, equipment and integration events only. Nothing records who **opened** a patient record, who **changed** a patient, SOAP note, prescription or result, or who exported data. Without it you cannot investigate a suspected leak, and the PDPA security principle is hard to demonstrate. **Fix (needs a migration):** an append-only `clinical_audit` table fed by triggers on `patients`, `visits`, `soap_notes`, `prescriptions`, `investigations` and `device_results` (who, when, action, row id, changed field names but not values), a record when a patient record is opened, and an admin screen to search it. Admins and staff must not be able to edit or delete it.
 
 ### H3. False allergy reassurance at sign-off (fixed)
@@ -58,7 +60,9 @@ No screen records that the patient was shown the clinic's privacy notice, or wha
 
 ## Medium
 
-### M1. Sign-in strength
+### M1. Sign-in strength (idle sign-out added)
+
+**Done:** the staff app and the admin console now sign out after 15 minutes without activity (30 in a consultation), with a one-minute warning and a "Stay signed in" button; signing out clears cached patient data and drafts. **Still open:** a second factor and leaked-password protection (both Supabase dashboard settings). The original finding follows.
 No second factor (the docs list it as not built). Supabase leaked-password protection is off (switch in the dashboard). The 10-character rule is only on the set-password page. There is no automatic sign-out after inactivity: the only lock is the manual lock in the consultation room. **Fix:** enable Supabase MFA (TOTP) for admins and doctors first, turn on leaked-password protection, add an idle timeout (for example 15 minutes) that signs out and clears drafts.
 
 ### M2. Hosting location
@@ -94,7 +98,7 @@ I could not see the backup settings. **Fix:** confirm point-in-time recovery is 
 
 ## Low
 
-### L1. Two tables readable without signing in
+### L1. Two tables readable without signing in (fixed in v49)
 `clinical_embeddings` (empty today) and `diseases` (reference data) have read policies for the public role, so a visitor can read them. Today this exposes nothing sensitive, but a future import of patient-derived text would. **Fix:** change both policies to signed-in users.
 
 ### L2. Security-check warnings

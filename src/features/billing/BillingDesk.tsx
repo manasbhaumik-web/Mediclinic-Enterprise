@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useAuditView } from '../../hooks/useClinicalAudit';
 import { Visit, Language, TPAConfig } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import type { PaymentInfo } from '../../domain/visitWorkflow';
@@ -116,6 +117,7 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
 
   const activeVisit = queue.find((v) => v.id === selectedVisitId) || queue[0];
   const activePatient = activeVisit ? patientsMap[activeVisit.patientId] : null;
+  useAuditView(activePatient?.id, 'billing');
 
   const CONSULTATION_FEE = settings.billing.consultationFee;
   const PROCEDURE_FEE = procedureFeeFor(settings.billing.procedureFee, activeVisit?.soap?.plan?.requiresReferral);
