@@ -456,6 +456,8 @@ export function useClinicRealtime() {
         () => qc.invalidateQueries({ queryKey: QUERY_KEYS.appointments }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'investigations' },
         () => qc.invalidateQueries({ queryKey: ['investigations'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'device_results' },
+        () => qc.invalidateQueries({ queryKey: ['device-results'] }))
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           if (wasDown) refetchAll();

@@ -19,6 +19,7 @@ import { recordEInvoice } from '../lib/einvoiceQueue';
 import { tabPath } from './permissions';
 import { useInvestigations } from '../hooks/useInvestigations';
 import { actionableCount } from '../domain/investigations';
+import { useDeviceResults } from '../hooks/useDeviceResults';
 import { STATION_MESSAGE, keepActiveConsultation, newArrivals, snapshotOf, stationsForRoles, type QueueSnapshot } from '../domain/stationAlerts';
 
 type ClinicData = ReturnType<typeof useClinicData>;
@@ -114,7 +115,11 @@ export default function ClinicShell() {
 
   // Lab and imaging work for this person: shown as the navbar count.
   const { investigations } = useInvestigations();
-  const labWork = useMemo(() => actionableCount(roles, investigations), [roles, investigations]);
+  const { results: deviceResults } = useDeviceResults();
+  const labWork = useMemo(() => {
+    const devicesWaiting = roles.includes('clinic-assistant') || roles.includes('doctor') ? deviceResults.filter((r) => r.status === 'Pending').length : 0;
+    return actionableCount(roles, investigations) + devicesWaiting;
+  }, [roles, investigations, deviceResults]);
 
   // A consultation remembered from before a reload is checked once, when the queue first loads: it is kept only if the patient
   // is still with this doctor (or on hold for them). Later changes are left to the pages, since a call is not yet in the cache.

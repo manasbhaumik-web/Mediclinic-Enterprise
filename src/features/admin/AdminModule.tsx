@@ -22,6 +22,7 @@ const EInvoicePage = React.lazy(() => import('../einvoice/EInvoicePage'));
 const PayrollPage = React.lazy(() => import('../payroll/PayrollPage'));
 const LeavePage = React.lazy(() => import('../leave/LeavePage'));
 const IntegrationsPage = React.lazy(() => import('../integrations/IntegrationsPage'));
+const LabDevicesAdmin = React.lazy(() => import('../investigations/LabDevicesAdmin'));
 const OperationsHub = React.lazy(() => import('../operations/OperationsHub'));
 const SecurityHub = React.lazy(() => import('./SecurityHub'));
 const RevenueCycleHub = React.lazy(() => import('../billing/RevenueCycleHub'));
@@ -116,6 +117,7 @@ export default function AdminModule({
     payroll: <PayrollPage role={userRole} />,
     einvoice: <EInvoicePage />,
     integrations: <IntegrationsPage />,
+    labdevices: <LabDevicesAdmin />,
     operations: <OperationsHub onOpenTab={setActiveTab} />,
     security: <SecurityHub />,
     rcm: <RevenueCycleHub onOpenTab={setActiveTab} />,

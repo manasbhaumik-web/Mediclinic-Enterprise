@@ -6,6 +6,7 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { useClinicShell } from './ClinicShell';
 import { useInvestigations } from '../hooks/useInvestigations';
+import { useDeviceResults, useLabDevices } from '../hooks/useDeviceResults';
 
 import LandingDashboard from '../features/dashboard/LandingDashboard';
 const DoctorDashboardModule = React.lazy(() => import('../features/doctor/DoctorDashboardModule'));
@@ -67,6 +68,8 @@ export function DoctorPage({ tab }: { tab: DoctorTab }) {
 export function InvestigationsPage() {
   const s = useClinicShell();
   const lab = useInvestigations();
+  const deviceInbox = useDeviceResults();
+  const labDevices = useLabDevices();
   // A doctor orders for patients in their queue or consultation, or on hold.
   const orderableVisits = [...s.queues.doctor, ...s.queues.holding].map((v) => ({
     visitId: v.id,
@@ -85,6 +88,12 @@ export function InvestigationsPage() {
       onRecordResult={lab.recordResult}
       onReview={lab.review}
       onCancel={lab.cancel}
+      devices={labDevices.devices}
+      deviceResults={deviceInbox.results}
+      deviceLoadError={deviceInbox.loadError}
+      onAcceptDevice={deviceInbox.accept}
+      onRejectDevice={deviceInbox.reject}
+      onImportDevice={deviceInbox.importResults}
     />
   );
 }

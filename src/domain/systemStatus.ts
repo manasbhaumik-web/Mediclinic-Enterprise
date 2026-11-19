@@ -11,12 +11,13 @@ export const EDGE_FUNCTIONS = [
   { slug: 'einvoice-worker', label: 'e-Invoice worker', scheduled: true },
   { slug: 'integrations-admin', label: 'Integrations admin actions', scheduled: false },
   { slug: 'integrations-worker', label: 'Integrations worker (outbound messages)', scheduled: true },
+  { slug: 'lab-device-ingest', label: 'Lab device results (inbound from analyzers and imaging)', scheduled: false },
   { slug: 'payment-intent', label: 'Card payments (Stripe)', scheduled: false },
 ] as const;
 
 /** Tables the app listens to for live changes. A test keeps this list in step with the subscriptions in the code. */
 export const APP_REALTIME_TABLES = [
-  'appointments', 'clinic_settings', 'drug_batches', 'inventory', 'investigations', 'patients', 'prescriptions', 'soap_notes', 'staff', 'stock_movements', 'transactions', 'visits',
+  'appointments', 'clinic_settings', 'device_results', 'drug_batches', 'inventory', 'investigations', 'patients', 'prescriptions', 'soap_notes', 'staff', 'stock_movements', 'transactions', 'visits',
 ] as const;
 
 // ---- API round trip ----------------------------------------------------------------------------------------------

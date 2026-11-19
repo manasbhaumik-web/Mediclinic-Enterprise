@@ -7,6 +7,10 @@ import {
   type Investigation, type InvestigationUrgency,
 } from '../../domain/investigations';
 import type { MoveResult, NewOrder, ResultInput } from '../../hooks/useInvestigations';
+import type { DeviceResult, LabDevice } from '../../domain/deviceResults';
+import type { ImportSummary } from '../../hooks/useDeviceResults';
+import type { DeviceObservation } from '../../../supabase/functions/_shared/deviceMessages';
+import DeviceInbox from './DeviceInbox';
 
 export interface OrderableVisit {
   visitId: string;
@@ -26,9 +30,16 @@ interface InvestigationsModuleProps {
   onRecordResult: (id: string, r: ResultInput) => Promise<MoveResult>;
   onReview: (id: string) => Promise<MoveResult>;
   onCancel: (id: string, reason: string) => Promise<MoveResult>;
+  /** Results sent by connected devices, waiting for staff to accept them. */
+  devices: LabDevice[];
+  deviceResults: DeviceResult[];
+  deviceLoadError: string | null;
+  onAcceptDevice: (id: string, investigationId?: string) => Promise<MoveResult>;
+  onRejectDevice: (id: string, reason: string) => Promise<MoveResult>;
+  onImportDevice: (deviceId: string, observations: DeviceObservation[], format: string) => Promise<{ ok: true; summary: ImportSummary } | { ok: false; error: string }>;
 }
 
-type Section = 'todo' | 'results' | 'history';
+type Section = 'todo' | 'results' | 'devices' | 'history';
 
 const fieldClass = 'min-h-11 w-full px-3 border border-line bg-surface text-ink text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 const buttonClass = 'min-h-11 px-4 text-sm font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed';
@@ -39,6 +50,7 @@ const when = (iso?: string) => (iso ? new Date(iso).toLocaleString('en-GB', { da
 
 export default function InvestigationsModule({
   roles, isBM, staffName, investigations, loadError, orderableVisits, onOrder, onCollect, onRecordResult, onReview, onCancel,
+  devices, deviceResults, deviceLoadError, onAcceptDevice, onRejectDevice, onImportDevice,
 }: InvestigationsModuleProps) {
   const record = canRecordResults(roles);
   const order = canOrder(roles);
@@ -56,6 +68,7 @@ export default function InvestigationsModule({
   );
   const urgentWaiting = todo.filter((i) => i.urgency === 'urgent').length;
   const abnormalWaiting = results.filter((i) => i.abnormal).length;
+  const devicePending = deviceResults.filter((r) => r.status === 'Pending').length;
   const shown = section === 'todo' ? todo : section === 'results' ? results : history;
 
   const act = async (id: string, call: () => Promise<MoveResult>, done: string) => {
@@ -74,10 +87,12 @@ export default function InvestigationsModule({
     title: isBM ? 'Makmal dan pengimejan' : 'Lab and imaging',
     todo: isBM ? 'Untuk dibuat' : 'To do',
     results: isBM ? 'Keputusan untuk disemak' : 'Results to review',
+    devices: isBM ? 'Daripada peranti' : 'From devices',
     history: isBM ? 'Sejarah' : 'History',
     empty: {
       todo: isBM ? 'Tiada ujian atau imbasan menunggu.' : 'No tests or scans are waiting.',
       results: isBM ? 'Tiada keputusan menunggu semakan.' : 'No results are waiting for review.',
+      devices: '',
       history: isBM ? 'Belum ada rekod dalam 7 hari lepas.' : 'Nothing reviewed or cancelled in the last 7 days.',
     },
   };
@@ -93,6 +108,7 @@ export default function InvestigationsModule({
         tabs={[
           { id: 'todo', label: text.todo, count: todo.length, alert: record },
           { id: 'results', label: text.results, count: results.length, alert: review },
+          ...(record ? [{ id: 'devices' as const, label: text.devices, count: devicePending, alert: true }] : []),
           { id: 'history', label: text.history, count: history.length },
         ]}
       />
@@ -123,6 +139,9 @@ export default function InvestigationsModule({
 
       {order && <NewOrderForm isBM={isBM} visits={orderableVisits} onOrder={onOrder} onNotice={setNotice} />}
 
+      {section === 'devices' ? (
+        <DeviceInbox isBM={isBM} results={deviceResults} devices={devices} investigations={investigations} loadError={deviceLoadError} onAccept={onAcceptDevice} onReject={onRejectDevice} onImport={onImportDevice} onNotice={setNotice} />
+      ) : (
       <section aria-label={text[section]} className="bg-surface border border-line">
         {shown.length === 0 ? (
           <p className="px-5 py-10 text-center text-sm text-muted">{text.empty[section]}</p>
@@ -186,6 +205,7 @@ export default function InvestigationsModule({
           </ul>
         )}
       </section>
+      )}
     </div>
   );
 }

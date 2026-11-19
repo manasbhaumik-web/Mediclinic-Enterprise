@@ -1,6 +1,6 @@
 import {
   Users, Stethoscope, Pill, DollarSign, Activity, FileText, Settings, ShieldAlert, Server, Database, Globe2,
-  TrendingUp, CalendarClock, FolderCheck,
+  TrendingUp, CalendarClock, FolderCheck, Cpu,
 } from 'lucide-react';
 import type { AdminCategoryId, AdminSection, Bilingual } from './types';
 import { isModuleOn, type ClinicModuleSwitches } from './clinicModules';
@@ -19,6 +19,7 @@ export const ADMIN_SECTIONS = [
   { id: 'medicine', label: { en: 'Inventory & Pharmacy', bm: 'Inventori & Farmasi' }, category: 'clinical', icon: Pill, roleReq: 'admin', moduleKey: 'medicine' },
   { id: 'equipment', label: { en: 'Equipment & Assets', bm: 'Peralatan & Aset' }, category: 'clinical', icon: Stethoscope, roleReq: 'admin', moduleKey: 'equipment' },
   { id: 'operations', label: { en: 'Operations Hub', bm: 'Hab Operasi' }, category: 'clinical', icon: Activity, roleReq: 'admin' },
+  { id: 'labdevices', label: { en: 'Lab Devices', bm: 'Peranti Makmal' }, category: 'clinical', icon: Cpu, roleReq: 'admin' },
 
   // Finance
   { id: 'billing', label: { en: 'Billing Desk', bm: 'Meja Pengebilan' }, category: 'finance', icon: DollarSign, roleReq: 'admin', moduleKey: 'billing' },
