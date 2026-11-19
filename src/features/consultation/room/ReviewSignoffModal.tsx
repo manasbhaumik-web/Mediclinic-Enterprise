@@ -1,5 +1,6 @@
 import React from 'react';
-import { Stethoscope, X, CheckCircle2, Check } from 'lucide-react';
+import { Stethoscope, X, CheckCircle2, Check, AlertTriangle, Info } from 'lucide-react';
+import { signoffSafety } from '../../../domain/signoffSafety';
 import { Patient, ICD10Code, PrescriptionItem } from '../../../types';
 
 interface ReviewSignoffModalProps {
@@ -19,6 +20,7 @@ export default function ReviewSignoffModal({
   rxList,
   handleFinalSignoff
 }: ReviewSignoffModalProps) {
+  const safety = signoffSafety(rxList.map((rx) => rx.drugName), currentPatient.drugAllergies);
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="review-signoff-title" onKeyDown={(e) => { if (e.key === 'Escape') setIsReviewModalOpen(false); }} className="fixed inset-0 z-50 bg-night-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-surface border-2 border-primary max-w-2xl w-full p-6 rounded-none space-y-5 text-ink dark:text-white">
@@ -65,10 +67,28 @@ export default function ReviewSignoffModal({
             )}
           </div>
     
-          {currentPatient.drugAllergies.length > 0 && (
+          {safety.status === 'conflict' && (
+            <div role="alert" className="bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 p-3 text-rose-900 dark:text-rose-100 space-y-1.5">
+              <p className="font-bold flex items-center gap-2"><AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" />Drug safety: {safety.alerts.length} conflict{safety.alerts.length === 1 ? '' : 's'} on this prescription</p>
+              <ul className="list-disc pl-6 space-y-0.5">
+                {safety.alerts.map((a) => <li key={a.id}>{a.title}</li>)}
+              </ul>
+              {safety.overrides.length > 0 && (
+                <p className="font-semibold">Added anyway by the prescriber: {safety.overrides.map((o) => `${o.drug} (${o.rationale})`).join('; ')}</p>
+              )}
+              <p>Check this is intended before sending to the dispensary.</p>
+            </div>
+          )}
+          {safety.status === 'clear' && (
             <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 p-2.5 text-emerald-900 dark:text-emerald-200 font-bold flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Allergy Safety Verification Passed (No active conflicts with {currentPatient.drugAllergies.join(', ')})</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
+              <span>No conflicts found with the recorded allergies ({safety.allergies.join(', ')}) or between these medicines</span>
+            </div>
+          )}
+          {safety.status === 'none-recorded' && rxList.length > 0 && (
+            <div className="bg-surface-muted border border-line p-2.5 text-muted font-semibold flex items-center gap-2">
+              <Info className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <span>No drug allergy is recorded for this patient, so nothing was checked against allergies. Confirm with the patient.</span>
             </div>
           )}
         </div>
