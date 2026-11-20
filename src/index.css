@@ -21,6 +21,9 @@
      12 labels, badges, table headers · 13 secondary text · 14 body · 16 emphasis. */
   --text-2xs: 0.75rem;
   --text-2xs--line-height: 1rem;
+  /* text-3xs is used in 20 places but had no size, so it fell back to the 16px default. It follows the 12px floor. */
+  --text-3xs: 0.75rem;
+  --text-3xs--line-height: 1rem;
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.125rem;
 
