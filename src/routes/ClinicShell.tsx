@@ -18,7 +18,7 @@ import { enqueueIntegration } from '../lib/integrationQueue';
 import { recordEInvoice } from '../lib/einvoiceQueue';
 import { tabPath } from './permissions';
 import { useInvestigations } from '../hooks/useInvestigations';
-import { actionableCount } from '../domain/investigations';
+import { actionableCount, ordersFromNames } from '../domain/investigations';
 import { useDeviceResults } from '../hooks/useDeviceResults';
 import IdleGuard from '../components/IdleGuard';
 import { idleMinutes } from '../domain/idleTimeout';
@@ -61,6 +61,8 @@ export interface ClinicShellContext {
   /** Records a rapid-test result and returns a held patient to the doctor's queue. */
   clearVisitHold: ClinicData['clearVisitHold'];
   onConsultationComplete: (soap: SOAPNotes, issueMc: boolean, mcDuration: number) => void;
+  /** Creates the lab and imaging orders for the tests ticked in a consultation, so the lab sees them. Resolves false if they were not saved. */
+  placeLabOrders: (visitId: string, soap: SOAPNotes) => Promise<boolean>;
   /** Resolves false when the hand-off to billing was not saved. */
   onDispenseVerified: (visitId: string) => Promise<boolean>;
   /** Records the payment and issues its receipt number. */
@@ -116,7 +118,7 @@ export default function ClinicShell() {
   const findVisit = (id: string) => visitsQueue.find((v) => v.id === id);
 
   // Lab and imaging work for this person: shown as the navbar count.
-  const { investigations } = useInvestigations();
+  const { investigations, order: orderInvestigations } = useInvestigations();
   const { results: deviceResults } = useDeviceResults();
   const labWork = useMemo(() => {
     const devicesWaiting = roles.includes('clinic-assistant') || roles.includes('doctor') ? deviceResults.filter((r) => r.status === 'Pending').length : 0;
@@ -211,6 +213,12 @@ export default function ClinicShell() {
     },
     reportError: setErrorToast,
     clearVisitHold: data.clearVisitHold,
+    placeLabOrders: async (visitId, soap) => {
+      const items = ordersFromNames(soap.plan?.labOrders, soap.plan?.labReason);
+      if (items.length === 0) return true;
+      const res = await orderInvestigations(visitId, items);
+      return res.ok;
+    },
     onConsultationComplete: (soap, issueMc) => {
       const visit = activeConsultationVisitId ? findVisit(activeConsultationVisitId) : undefined;
       if (!visit) return;
@@ -223,6 +231,10 @@ export default function ClinicShell() {
         // Queue the external hand-off only once the note is saved; the worker reads it from the database.
         void enqueueIntegration('fhir', 'consultation.completed', 'visit', visit.id);
         removeDraft(visit.id);
+        // Tests ticked in the consultation become real lab and imaging orders, so results can come back to this patient's record.
+        void orderInvestigations(visit.id, ordersFromNames(soap.plan?.labOrders, soap.plan?.labReason)).then((r) => {
+          if (!r.ok) setErrorToast('The consultation was signed off, but the lab and imaging orders were not saved. Order them again from Lab and imaging.');
+        });
         setActiveConsultationVisitId(null);
         navigateTab('dashboard');
       });

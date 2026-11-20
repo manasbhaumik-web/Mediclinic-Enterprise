@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  INVESTIGATION_CATALOG, actionableCount, investigationFromRow, outsideRange, parseRange, sortWorklist, unreviewedSummary, type Investigation,
+  INVESTIGATION_CATALOG, actionableCount, investigationFromRow, ordersFromNames, outsideRange, parseRange, sortWorklist, unreviewedSummary, type Investigation,
 } from './investigations';
 
 const inv = (o: Partial<Investigation>): Investigation => ({
@@ -94,5 +94,21 @@ describe('catalog', () => {
     expect(INVESTIGATION_CATALOG.some((c) => c.kind === 'imaging')).toBe(true);
     expect(INVESTIGATION_CATALOG.some((c) => c.kind === 'lab')).toBe(true);
     for (const n of ['Full Blood Count (FBC)', 'Chest X-Ray (PA View)', '12-Lead Electrocardiogram (ECG)']) expect(names).toContain(n);
+  });
+});
+
+describe('ordersFromNames', () => {
+  it('turns ticked test names into orders, imaging for scans and lab for the rest', () => {
+    const o = ordersFromNames(['Full Blood Count (FBC)', 'Chest X-Ray (PA View)'], 'rule out chest infection');
+    expect(o.map((x) => [x.name, x.kind])).toEqual([['Full Blood Count (FBC)', 'lab'], ['Chest X-Ray (PA View)', 'imaging']]);
+    expect(o.every((x) => x.urgency === 'routine' && x.clinicalInfo === 'rule out chest infection')).toBe(true);
+  });
+  it('treats a name outside the catalogue as a lab test', () => {
+    expect(ordersFromNames(['Something New'])[0].kind).toBe('lab');
+  });
+  it('drops blanks and repeats and handles nothing ticked', () => {
+    expect(ordersFromNames(['A', ' a ', '', 'B']).map((x) => x.name)).toEqual(['A', 'B']);
+    expect(ordersFromNames(undefined)).toEqual([]);
+    expect(ordersFromNames([])).toEqual([]);
   });
 });

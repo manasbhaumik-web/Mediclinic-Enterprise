@@ -143,6 +143,24 @@ export function sortWorklist(items: readonly Investigation[]): Investigation[] {
 }
 
 /** Only these roles may enter results or take samples (the database enforces the same). */
+/**
+ * The orders to place for the test names a doctor ticked in the consultation. Each name is looked up in the catalogue to decide
+ * lab or imaging (a name not in it is treated as a lab test); repeats and blanks are dropped.
+ */
+export function ordersFromNames(names: readonly string[] | undefined, clinicalInfo?: string): { kind: InvestigationKind; name: string; urgency: InvestigationUrgency; clinicalInfo?: string }[] {
+  const seen = new Set<string>();
+  const out: { kind: InvestigationKind; name: string; urgency: InvestigationUrgency; clinicalInfo?: string }[] = [];
+  for (const raw of names ?? []) {
+    const name = (raw ?? '').trim();
+    const key = name.toLowerCase();
+    if (!name || seen.has(key)) continue;
+    seen.add(key);
+    const item = INVESTIGATION_CATALOG.find((c) => c.name.toLowerCase() === key);
+    out.push({ kind: item?.kind ?? 'lab', name, urgency: 'routine', clinicalInfo: clinicalInfo?.trim() || undefined });
+  }
+  return out;
+}
+
 export const canRecordResults = (roles: readonly UserRole[]) => roles.includes('clinic-assistant') || roles.includes('doctor');
 export const canOrder = (roles: readonly UserRole[]) => roles.includes('doctor');
 export const canReview = (roles: readonly UserRole[]) => roles.includes('doctor');

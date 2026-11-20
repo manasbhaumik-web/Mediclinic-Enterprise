@@ -266,15 +266,20 @@ function ResultForm({ item, isBM, busy, onSave, onClose }: { item: Investigation
   const id = `result-${item.id}`;
   return (
     <div className="mt-4 border border-line p-4 grid gap-3 sm:grid-cols-3" role="group" aria-label={`${isBM ? 'Keputusan untuk' : 'Result for'} ${item.name}`}>
-      <label className="text-sm font-medium text-muted" htmlFor={`${id}-value`}>{isBM ? 'Nilai' : 'Value'}
-        <input id={`${id}-value`} className={`${fieldClass} mt-1`} value={value} onChange={(e) => setValue(e.target.value)} inputMode="decimal" />
-      </label>
-      <label className="text-sm font-medium text-muted" htmlFor={`${id}-unit`}>{isBM ? 'Unit' : 'Unit'}
-        <input id={`${id}-unit`} className={`${fieldClass} mt-1`} value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="mmol/L" />
-      </label>
-      <label className="text-sm font-medium text-muted" htmlFor={`${id}-range`}>{isBM ? 'Julat rujukan' : 'Reference range'}
-        <input id={`${id}-range`} className={`${fieldClass} mt-1`} value={range} onChange={(e) => setRange(e.target.value)} placeholder="3.5-5.0" />
-      </label>
+      {/* A scan has a written report, not a number: value, unit and range are for laboratory tests. */}
+      {item.kind !== 'imaging' && (
+        <>
+        <label className="text-sm font-medium text-muted" htmlFor={`${id}-value`}>{isBM ? 'Nilai' : 'Value'}
+          <input id={`${id}-value`} className={`${fieldClass} mt-1`} value={value} onChange={(e) => setValue(e.target.value)} inputMode="decimal" />
+        </label>
+        <label className="text-sm font-medium text-muted" htmlFor={`${id}-unit`}>{isBM ? 'Unit' : 'Unit'}
+          <input id={`${id}-unit`} className={`${fieldClass} mt-1`} value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="mmol/L" />
+        </label>
+        <label className="text-sm font-medium text-muted" htmlFor={`${id}-range`}>{isBM ? 'Julat rujukan' : 'Reference range'}
+          <input id={`${id}-range`} className={`${fieldClass} mt-1`} value={range} onChange={(e) => setRange(e.target.value)} placeholder="3.5-5.0" />
+        </label>
+        </>
+      )}
       <label className="text-sm font-medium text-muted sm:col-span-3" htmlFor={`${id}-notes`}>{item.kind === 'imaging' ? (isBM ? 'Laporan / penemuan' : 'Report / findings') : (isBM ? 'Catatan' : 'Notes')}
         <textarea id={`${id}-notes`} rows={3} className={`${fieldClass} mt-1 py-2`} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>

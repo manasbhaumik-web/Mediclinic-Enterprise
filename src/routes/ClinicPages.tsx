@@ -53,6 +53,9 @@ export function DoctorPage({ tab }: { tab: DoctorTab }) {
           s.reportError('The patient could not be put on hold, so they are still in your consultation. Check the connection and try again.');
           return false;
         }
+        // The tests ticked in the consultation become real orders; without this the lab never sees them.
+        const ordered = await s.placeLabOrders(visitId, currentSoap);
+        if (!ordered) s.reportError('The patient is on hold, but the lab and imaging orders were not saved. Order them again from Lab and imaging.');
         s.setActiveConsultationVisitId(null);
         s.navigateTab('dashboard');
         return true;
