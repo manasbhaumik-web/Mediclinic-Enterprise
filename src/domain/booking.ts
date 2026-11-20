@@ -35,6 +35,11 @@ export function clinicDateKey(d: Date): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: CLINIC_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 }
 
+/** The hour of the day (0-23) at the clinic for an instant. */
+export function clinicHour(ms: number): number {
+  return Number(new Intl.DateTimeFormat('en-GB', { timeZone: CLINIC_TIME_ZONE, hour: '2-digit', hourCycle: 'h23' }).format(ms));
+}
+
 /** True when a visit date (a full timestamp or a plain date) falls on today's date at the clinic. */
 export function isClinicToday(date: string | undefined | null, now: Date = new Date()): boolean {
   if (!date) return false;

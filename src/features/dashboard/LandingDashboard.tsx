@@ -6,6 +6,7 @@ import { TRANSLATIONS } from '../../data';
 import { Visit, Patient, UserRole, Language } from '../../types';
 import { getPersonaAvatar } from '../../utils/personaAvatars';
 import { formatWait } from '../../utils/waitTime';
+import { clinicHour, isClinicToday } from '../../domain/booking';
 import { 
   Activity, Users, Stethoscope, Pill, CreditCard, Clock, 
   TrendingUp, ArrowUpRight, ShieldCheck, MapPin, Phone, Building2,
@@ -83,24 +84,30 @@ export default function LandingDashboard({
   const { inventory, logs } = useInventory();
 
   // Derived metrics, all computed from live visit, patient and inventory data
-  const allVisits = [...completedVisits, ...triageQueue, ...doctorQueue, ...pharmacyQueue, ...cashierQueue];
+  // "Today" is today at the clinic. The completed list holds the last 200 paid visits, so it is narrowed to today here;
+  // without this, "Seen today" and "Today's collections" showed everything ever paid.
+  const cameToday = (v: Visit) => isClinicToday(v.registeredTime ? new Date(v.registeredTime).toISOString() : v.date);
+  const completedToday = completedVisits.filter(cameToday);
+  const allVisits = [...completedToday, ...[...triageQueue, ...doctorQueue, ...pharmacyQueue, ...cashierQueue].filter(cameToday)];
   const totalEncountersToday = allVisits.length;
   const activeQueueCount = triageQueue.length + doctorQueue.length + pharmacyQueue.length;
-  const calculatedRevenue = completedVisits.reduce((acc, curr) => acc + (curr.paidAmount || 0) + (curr.panelClaimed || 0), 0);
+  const calculatedRevenue = completedToday.reduce((acc, curr) => acc + (curr.paidAmount || 0) + (curr.panelClaimed || 0), 0);
 
   const minutesSince = (t?: number) => (t ? Math.max(0, Math.round((Date.now() - t) / 60000)) : null);
-  const waitingTimes = [...triageQueue, ...doctorQueue, ...pharmacyQueue]
+  // A patient already in a consultation room is being seen, not waiting.
+  const waitingForDoctor = doctorQueue.filter((v) => v.status !== 'Consulting');
+  const waitingTimes = [...triageQueue, ...waitingForDoctor, ...pharmacyQueue]
     .map((v) => minutesSince(v.registeredTime))
     .filter((m): m is number => m !== null);
   const avgWaitMinutes = waitingTimes.length ? Math.round(waitingTimes.reduce((a, b) => a + b, 0) / waitingTimes.length) : 0;
-  const longestDoctorWait = Math.max(0, ...doctorQueue.map((v) => minutesSince(v.registeredTime) ?? 0));
+  const longestDoctorWait = Math.max(0, ...waitingForDoctor.map((v) => minutesSince(v.registeredTime) ?? 0));
   const allergyFlagCount = doctorQueue.filter((v) => (patientsList.find((pt) => pt.id === v.patientId)?.drugAllergies ?? []).some(Boolean)).length;
 
   // Hourly throughput: registrations per clock hour
   const hourlyTrafficData = Array.from({ length: 12 }, (_, i) => {
     const h = 8 + i;
     const label = `${h % 12 === 0 ? 12 : h % 12}:00 ${h < 12 ? 'AM' : 'PM'}`;
-    const encounters = allVisits.filter((v) => v.registeredTime && new Date(v.registeredTime).getHours() === h).length;
+    const encounters = allVisits.filter((v) => v.registeredTime && clinicHour(v.registeredTime) === h).length;
     return { hour: label, encounters };
   });
   const hasThroughput = hourlyTrafficData.some((d) => d.encounters > 0);
@@ -112,7 +119,7 @@ export default function LandingDashboard({
   // Diagnoses from completed consultations
   const icdPalette = [palette.brand, seriesColors.cyanDark, seriesColors.emeraldDark, seriesColors.sky, palette.primary];
   const icdCounts = new Map<string, { name: string; count: number }>();
-  completedVisits.forEach((v) => {
+  completedToday.forEach((v) => {
     const a = v.soap?.assessment;
     if (!a?.icdCode) return;
     const cur = icdCounts.get(a.icdCode) ?? { name: `${a.description || a.icdCode} (${a.icdCode})`, count: 0 };
@@ -127,7 +134,7 @@ export default function LandingDashboard({
 
   // Revenue by payer (employer panel, or self-pay)
   const payerTotals = new Map<string, number>();
-  completedVisits.forEach((v) => {
+  completedToday.forEach((v) => {
     const emp = patientsList.find((pt) => pt.id === v.patientId)?.panelEmployer;
     const name = !emp || /^none/i.test(emp) ? 'Self-Pay' : emp;
     payerTotals.set(name, (payerTotals.get(name) ?? 0) + (v.paidAmount || 0) + (v.panelClaimed || 0));
@@ -673,7 +680,7 @@ export default function LandingDashboard({
       {/* ========================================================================= */}
       {/* 3. STATISTICAL KPI CARDS WITH SPARKLINES & SLA BADGES                     */}
       {/* ========================================================================= */}
-      <KpiCards showKpi={showKpi} pharmacyQueue={pharmacyQueue} completedVisits={completedVisits} totalEncountersToday={totalEncountersToday} activeQueueCount={activeQueueCount} cashierQueue={cashierQueue} hasThroughput={hasThroughput} hourlyTrafficData={hourlyTrafficData} doctorQueue={doctorQueue} longestDoctorWait={longestDoctorWait} triageQueue={triageQueue} calculatedRevenue={calculatedRevenue} avgWaitMinutes={avgWaitMinutes} waitingTimes={waitingTimes} allergyFlagCount={allergyFlagCount} />
+      <KpiCards showKpi={showKpi} pharmacyQueue={pharmacyQueue} completedVisits={completedToday} totalEncountersToday={totalEncountersToday} activeQueueCount={activeQueueCount} cashierQueue={cashierQueue} hasThroughput={hasThroughput} hourlyTrafficData={hourlyTrafficData} doctorQueue={doctorQueue} longestDoctorWait={longestDoctorWait} triageQueue={triageQueue} calculatedRevenue={calculatedRevenue} avgWaitMinutes={avgWaitMinutes} waitingTimes={waitingTimes} allergyFlagCount={allergyFlagCount} />
 
       {/* ========================================================================= */}
       {/* 4. CHARTS ROW 1: THROUGHPUT TREND & ICD DIAGNOSIS                          */}

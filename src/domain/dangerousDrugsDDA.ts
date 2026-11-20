@@ -1,3 +1,4 @@
+import { csvField } from './csv';
 /**
  * Dangerous Drugs Act 1952 (Act 234) & Dangerous Drugs Regulations 1952 Safe Register
  * Enforcement: Bahagian Penguatkuasaan Farmasi (BPF), Kementerian Kesihatan Malaysia
@@ -269,7 +270,7 @@ export function exportDDALedgerCsv(transactions: DDALedgerTransaction[]): string
   const rows = transactions.map((t) => [
     t.id,
     t.timestamp,
-    `"${t.drugName}"`,
+    `${t.drugName}`,
     t.transactionType,
     t.referenceNo,
     t.batchNo,
@@ -278,15 +279,15 @@ export function exportDDALedgerCsv(transactions: DDALedgerTransaction[]): string
     t.quantityOut,
     t.quantityWastage,
     t.runningBalance,
-    `"${t.patientName || ''}"`,
-    `"${t.patientIc || ''}"`,
-    `"Dr. ${t.prescribingDoctorName} (${t.prescribingDoctorMMC})"`,
-    `"${t.custodianStaffName} (${t.custodianStaffRole})"`,
-    `"${t.dualWitnessStaffName || ''}"`,
-    `"${t.reasonOrNotes.replace(/"/g, '""')}"`,
+    `${t.patientName || ''}`,
+    `${t.patientIc || ''}`,
+    `Dr. ${t.prescribingDoctorName} (${t.prescribingDoctorMMC})`,
+    `${t.custodianStaffName} (${t.custodianStaffRole})`,
+    `${t.dualWitnessStaffName || ''}`,
+    `${t.reasonOrNotes}`,
   ]);
 
-  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  return [headers.join(','), ...rows.map((r) => r.map(csvField).join(','))].join('\n');
 }
 
 export const INITIAL_DDA_TRANSACTIONS: DDALedgerTransaction[] = [

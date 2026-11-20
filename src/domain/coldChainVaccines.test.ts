@@ -142,11 +142,11 @@ describe('Vaccine Cold Chain Temperature Monitoring & Quality Control Engine', (
   });
 
   describe('exportColdChainMonthlyCsv', () => {
-    it('generates properly formatted CSV with headers and quoted fields', () => {
+    it('generates properly formatted CSV with headers and fields', () => {
       const csv = exportColdChainMonthlyCsv(DEFAULT_COLD_CHAIN_RECORDS);
       expect(csv).toContain('Log ID,Date,Shift,Logged At,Current Temp (°C),Min Temp (°C),Max Temp (°C),Compliance Status,Excursion Type,Operator Staff,Notes');
       expect(csv).toContain('CC-LOG-20261101-01,2026-11-01,Morning (08:00)');
-      expect(csv).toContain('4.2,3.4,5.1,COMPLIANT,None,"Staff Nurse Aisyah (STF-CA-01)"');
+      expect(csv).toContain('4.2,3.4,5.1,COMPLIANT,None,Staff Nurse Aisyah (STF-CA-01)');
     });
 
     it('escapes quotes in notes', () => {

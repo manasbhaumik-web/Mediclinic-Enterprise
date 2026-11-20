@@ -1,4 +1,5 @@
 import { Visit } from '../types';
+import { csvField } from './csv';
 
 export interface DenominationBreakdown {
   rm100: number;
@@ -179,5 +180,5 @@ export function exportShiftCsv(r: ShiftReconciliationReport): string {
     ['Transaction Count', r.transactionCount.toString()],
     ['Notes', r.explanation || ''],
   ];
-  return [headers.join(','), ...rows.map(row => row.map(cell => `"${cell}"`).join(','))].join('\n');
+  return [headers.join(','), ...rows.map(row => row.map(csvField).join(','))].join('\n');
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { csvField } from '../../domain/csv';
 import {
   X, CheckCircle2, AlertTriangle, ShieldCheck, Microscope,
   RefreshCw, Clock, Plus, FileText, Download, ShieldAlert,
@@ -130,19 +131,19 @@ export default function POCTQualityControlModal({
         [
           r.id,
           r.deviceId,
-          `"${r.deviceName}"`,
+          `${r.deviceName}`,
           r.deviceType,
           r.testedAt,
-          `"${r.operatorStaffName} (${r.operatorStaffId})"`,
-          `"${r.level1.targetMin}-${r.level1.targetMax} ${r.level1.unit}"`,
+          `${r.operatorStaffName} (${r.operatorStaffId})`,
+          `${r.level1.targetMin}-${r.level1.targetMax} ${r.level1.unit}`,
           r.level1.measuredValue,
           r.level1.status,
-          `"${r.level2.targetMin}-${r.level2.targetMax} ${r.level2.unit}"`,
+          `${r.level2.targetMin}-${r.level2.targetMax} ${r.level2.unit}`,
           r.level2.measuredValue,
           r.level2.status,
           r.overallStatus.toUpperCase(),
-          `"${r.notes || ''}"`,
-        ].join(',')
+          `${r.notes || ''}`,
+        ].map(csvField).join(',')
       ),
     ];
 

@@ -1,3 +1,4 @@
+import { csvField } from './csv';
 /**
  * Corporate Panel & TPA Guarantee Letter (GL) Pre-Authorization & Outpatient Excess Engine
  * Protects clinic from corporate claim rejections, clawbacks, and uncollected patient excess.
@@ -357,16 +358,16 @@ export function exportTPAClaimsCSV(claims: TPAClaimRecord[]): string {
   const rows = claims.map(c => [
     c.id,
     c.glNumber,
-    `"${c.providerName}"`,
-    `"${c.employerName}"`,
-    `"${c.patientName}"`,
+    `${c.providerName}`,
+    `${c.employerName}`,
+    `${c.patientName}`,
     c.patientIc,
     c.visitDate,
     c.totalBillRM.toFixed(2),
     c.panelBilledRM.toFixed(2),
     c.patientExcessRM.toFixed(2),
     c.status
-  ].join(','));
+  ].map(csvField).join(','));
 
   return [headers, ...rows].join('\n');
 }

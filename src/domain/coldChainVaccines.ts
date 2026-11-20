@@ -1,3 +1,4 @@
+import { csvField } from './csv';
 /**
  * Vaccine Cold Chain Temperature Monitoring & Quality Control Engine
  * Statutory Standards: PHFSA 1998 (Act 586), CKAPS Private Clinic Guidelines,
@@ -181,11 +182,11 @@ export function exportColdChainMonthlyCsv(records: TwiceDailyTempRecord[]): stri
     r.maxTempC.toFixed(1),
     r.isCompliant ? 'COMPLIANT' : 'EXCURSION',
     r.excursionType || 'None',
-    `"${r.operatorStaffName} (${r.operatorStaffId})"`,
-    `"${(r.notes || '').replace(/"/g, '""')}"`,
+    `${r.operatorStaffName} (${r.operatorStaffId})`,
+    `${(r.notes || '')}`,
   ]);
 
-  return [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+  return [headers.join(','), ...rows.map((row) => row.map(csvField).join(','))].join('\n');
 }
 
 export const DEFAULT_VACCINE_FRIDGES: VaccineRefrigerator[] = [

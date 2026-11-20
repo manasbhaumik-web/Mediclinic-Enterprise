@@ -42,6 +42,7 @@ export default function KpiCards({
   allergyFlagCount,
 }: KpiCardsProps) {
   const inProgress = activeQueueCount + cashierQueue.length;
+  const waitingForDoctor = doctorQueue.filter((v) => v.status !== 'Consulting');
   const slaOk = waitingTimes.length === 0 || avgWaitMinutes <= 20;
 
   const tiles: { id: KpiId; label: string; value: string; note: string; tone: Tone }[] = [
@@ -54,8 +55,8 @@ export default function KpiCards({
       note: `${inProgress} in progress`, tone: 'ok',
     },
     {
-      id: 'waiting', label: 'Waiting for doctor', value: String(doctorQueue.length),
-      note: doctorQueue.length === 0 ? 'No wait' : `Longest wait ${formatWait(longestDoctorWait)}`,
+      id: 'waiting', label: 'Waiting for doctor', value: String(waitingForDoctor.length),
+      note: waitingForDoctor.length === 0 ? 'No wait' : `Longest wait ${formatWait(longestDoctorWait)}`,
       tone: longestDoctorWait >= 30 ? 'warn' : 'ok',
     },
     {

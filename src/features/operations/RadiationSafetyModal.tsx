@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { csvField } from '../../domain/csv';
 import {
   X, CheckCircle2, AlertTriangle, ShieldCheck, ShieldAlert,
   Radio, FileSpreadsheet, Plus, Download, Clock, UserCheck,
@@ -152,14 +153,14 @@ export default function RadiationSafetyModal({
       [
         e.id,
         e.timestamp,
-        `"${e.patientName}"`,
-        `"${e.examination}"`,
+        `${e.patientName}`,
+        `${e.examination}`,
         e.kVp,
         e.mAs,
         e.isRejectRetake ? 'YES' : 'NO',
-        `"${e.rejectReason || ''}"`,
-        `"${e.operatorStaffName}"`,
-      ].join(',')
+        `${e.rejectReason || ''}`,
+        `${e.operatorStaffName}`,
+      ].map(csvField).join(',')
     );
 
     const blob = new Blob([[headers, ...rows].join('\n')], { type: 'text/csv' });

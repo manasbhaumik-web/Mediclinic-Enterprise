@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bookableDays, clinicDateKey, dayLabel, isClinicToday, groupSlots, phoneDigits, slotLabel, validateBookingDetails, whenLabel } from './booking';
+import { bookableDays, clinicDateKey, dayLabel, isClinicToday, clinicHour, groupSlots, phoneDigits, slotLabel, validateBookingDetails, whenLabel } from './booking';
 
 describe('validateBookingDetails', () => {
   const ok = { name: 'Ahmad Firdaus', ic: '900101-14-5555', phone: '+60 12-345 6789' };
@@ -62,5 +62,13 @@ describe('isClinicToday', () => {
     expect(isClinicToday('2026-11-19T10:00:00Z', now)).toBe(false);
     expect(isClinicToday('not a date', now)).toBe(false);
     expect(isClinicToday(undefined, now)).toBe(false);
+  });
+});
+
+describe('clinicHour', () => {
+  it('reads the hour at the clinic, not in the browser or UTC', () => {
+    expect(clinicHour(Date.parse('2026-11-20T02:30:00Z'))).toBe(10);
+    expect(clinicHour(Date.parse('2026-11-19T16:30:00Z'))).toBe(0);
+    expect(clinicHour(Date.parse('2026-11-20T15:59:00Z'))).toBe(23);
   });
 });

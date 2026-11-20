@@ -1,5 +1,6 @@
 /** Pure roll-ups and export tables for the Analytics Reports and the doctor's Monthly Report. */
 import { InvoiceSnapshot, LineKind, round2 } from './billing';
+import { csvField } from './csv';
 import { DrugItem, usableStock } from './inventory';
 import { daysBetween } from './equipment';
 import { localDateKey } from './operations';
@@ -19,13 +20,7 @@ export interface ReportTable {
   numeric?: number[];
 }
 
-/** One CSV field. Text that a spreadsheet would run as a formula (starts with = + - @) is made safe. */
-export function csvField(value: Cell): string {
-  if (value === null || value === undefined) return '';
-  let text = String(value);
-  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
+export { csvField } from './csv';
 
 export function toCsv(table: Pick<ReportTable, 'columns' | 'rows'>): string {
   return [table.columns, ...table.rows].map((r) => r.map(csvField).join(',')).join('\r\n');

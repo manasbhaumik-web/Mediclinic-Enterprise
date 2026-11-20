@@ -1,3 +1,4 @@
+import { csvField } from './csv';
 /** The audit trail for patient and clinical data: who opened or changed what, and when. It never holds the values themselves. */
 export type AuditAction = 'create' | 'update' | 'delete' | 'view';
 
@@ -93,8 +94,7 @@ export const PAGE_SIZE = 50;
 
 /** CSV text of the entries on screen, for an investigation. No clinical values are in the log, so none are in the file. */
 export function auditCsv(entries: readonly ClinicalAuditEntry[], nameOf: (id?: string) => string, patientOf: (id?: string) => string): string {
-  const esc = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   const head = ['time', 'staff', 'roles', 'action', 'what', 'patient', 'fields', 'screen'];
   const rows = entries.map((e) => [e.at, nameOf(e.actor), e.actorRoles.join('/'), ACTION_LABEL[e.action], ENTITY_LABEL[e.entity] ?? e.entity, patientOf(e.patientId), e.fields.join(' '), e.context]);
-  return [head, ...rows].map((r) => r.map((c) => esc(String(c ?? ''))).join(',')).join('\n');
+  return [head, ...rows].map((r) => r.map((c) => csvField(c ?? '')).join(',')).join('\n');
 }

@@ -1,4 +1,5 @@
 import { Visit, Patient, PrescriptionItem } from '../types';
+import { csvField } from './csv';
 
 export interface BukuRacunEntry {
   serialNo: string;
@@ -150,21 +151,21 @@ export function exportBukuRacunCsv(entries: BukuRacunEntry[]): string {
   ];
 
   const rows = entries.map((e) => [
-    `"${e.serialNo}"`,
-    `"${e.date}"`,
-    `"${e.prescriptionRef}"`,
-    `"${e.patientName}"`,
-    `"${e.patientIc}"`,
-    `"${e.patientAddress.replace(/"/g, '""')}"`,
-    `"${e.prescribingDoctor} (${e.doctorMmcNo || 'MMC-REG'})"`,
-    `"${e.medicineName}"`,
-    `"${e.poisonCategory}"`,
-    `"${e.dosageInstructions}"`,
+    `${e.serialNo}`,
+    `${e.date}`,
+    `${e.prescriptionRef}`,
+    `${e.patientName}`,
+    `${e.patientIc}`,
+    `${e.patientAddress}`,
+    `${e.prescribingDoctor} (${e.doctorMmcNo || 'MMC-REG'})`,
+    `${e.medicineName}`,
+    `${e.poisonCategory}`,
+    `${e.dosageInstructions}`,
     e.quantityDispensed,
-    `"${e.batchNo}"`,
-    `"${e.diagnosis.replace(/"/g, '""')}"`,
-    `"${e.dispensedBy}"`,
+    `${e.batchNo}`,
+    `${e.diagnosis}`,
+    `${e.dispensedBy}`,
   ]);
 
-  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
+  return [headers.join(','), ...rows.map((r) => r.map(csvField).join(','))].join('\r\n');
 }

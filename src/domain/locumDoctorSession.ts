@@ -1,3 +1,4 @@
+import { csvField } from './csv';
 /**
  * Locum Doctor MMC Session & Statutory Credential Governance Engine
  * Standards: Malaysian Medical Council (MMC) Locum Tenens Guidelines & PHFSA 1998 (Act 586) Section 14.
@@ -138,10 +139,10 @@ export function exportCKAPSLocumAttendanceLedger(
     const prof = profileMap.get(s.locumDoctorId);
     return [
       s.id,
-      `"${s.doctorName}"`,
+      `${s.doctorName}`,
       s.mmcNumber,
       prof?.apcYear || 2026,
-      `"${prof?.indemnityProvider || 'MPS'} (${prof?.indemnityPolicyNo || 'N/A'})"`,
+      `${prof?.indemnityProvider || 'MPS'} (${prof?.indemnityPolicyNo || 'N/A'})`,
       s.checkInTime,
       s.checkOutTime || 'IN_PROGRESS',
       s.actualHoursWorked.toFixed(1),
@@ -149,12 +150,12 @@ export function exportCKAPSLocumAttendanceLedger(
       s.patientsConsultedCount,
       s.totalPayoutMyr.toFixed(2),
       s.paymentStatus.toUpperCase(),
-      `"${s.paymentReference || 'None'}"`,
-      `"${s.verifiedByStaff}"`,
+      `${s.paymentReference || 'None'}`,
+      `${s.verifiedByStaff}`,
     ];
   });
 
-  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  return [headers.join(','), ...rows.map((r) => r.map(csvField).join(','))].join('\n');
 }
 
 export const DEFAULT_LOCUM_PROFILES: LocumDoctorProfile[] = [
