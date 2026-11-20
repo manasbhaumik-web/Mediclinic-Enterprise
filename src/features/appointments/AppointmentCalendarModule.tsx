@@ -138,7 +138,14 @@ export default function AppointmentCalendarModule({
   };
 
   const onlineCount = todayAppointments.filter((a) => a.source === 'online').length;
-  const openSlots = Math.max(0, timeSlots.length - totalBooked);
+  // A slot whose time has gone cannot be booked, and a cancelled or no-show booking does not use its slot up.
+  const slotPassed = (time: Date) => time.getTime() + slotDuration * 60000 <= Date.now();
+  const slotHasLiveBooking = (time: Date) => todayAppointments.some((a) => {
+    if (a.status === 'Cancelled' || a.status === 'No-Show') return false;
+    const t = parseISO(a.appointmentTime).getTime();
+    return t >= time.getTime() && t < time.getTime() + slotDuration * 60000;
+  });
+  const openSlots = timeSlots.filter((t) => !slotPassed(t) && !slotHasLiveBooking(t)).length;
   const bookingsOn = (day: Date) => appointments.filter((a) => isSameDay(parseISO(a.appointmentTime), day)).length;
   const controlField = 'w-full min-h-11 px-3 bg-surface border border-line text-sm text-ink rounded-none outline-none focus:border-brand focus:ring-2 focus:ring-accent';
   const labelClass = 'block text-xs font-semibold text-ink mb-1.5';
@@ -282,8 +289,10 @@ export default function AppointmentCalendarModule({
                           </div>
                         )}
                       </div>
-                    )) : isAdmin ? (
-                      <div className="min-h-11 flex items-center px-4 text-sm text-muted border border-line-subtle bg-surface-muted">{isBM ? 'Slot tersedia' : 'Available slot'}</div>
+                    )) : isAdmin || slotPassed(time) ? (
+                      <div className="min-h-11 flex items-center px-4 text-sm text-muted border border-line-subtle bg-surface-muted">
+                        {slotPassed(time) ? (isBM ? 'Masa telah berlalu' : 'Time has passed') : (isBM ? 'Slot tersedia' : 'Available slot')}
+                      </div>
                     ) : (
                       <button
                         type="button"
