@@ -33,6 +33,8 @@ const initialsOf = (name: string) => {
   return letters.join('').toUpperCase();
 };
 
+const reading = (n: number | string | undefined | null) => (Number(n) > 0 ? String(n) : '');
+
 export default function TriageModule({ triageQueue, allVisits = [], patientsMap, onTriageComplete, onUpdateVisit, onClearHold, onReportError, currentStaffId, currentStaffName, onNavigateTab }: TriageModuleProps) {
   const [activeStationTab, setActiveStationTab] = useState<'vitals' | 'procedures'>('vitals');
   const { activeLanguage, t } = useLanguage();
@@ -75,11 +77,12 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
   const handleSelectPatient = (visit: Visit) => {
     setActiveVisitId(visit.id);
     setVitalsForm({
-      temperature: visit.soap?.objective?.temperature?.toString() || '',
-      bpSystolic: visit.soap?.objective?.bpSystolic?.toString() || '',
-      bpDiastolic: visit.soap?.objective?.bpDiastolic?.toString() || '',
-      heartRate: visit.soap?.objective?.heartRate?.toString() || '',
-      respiratoryRate: visit.soap?.objective?.respiratoryRate?.toString() || '',
+      // A new registration is saved with 0 for every reading. 0 means "not taken yet", so the box starts empty.
+      temperature: reading(visit.soap?.objective?.temperature),
+      bpSystolic: reading(visit.soap?.objective?.bpSystolic),
+      bpDiastolic: reading(visit.soap?.objective?.bpDiastolic),
+      heartRate: reading(visit.soap?.objective?.heartRate),
+      respiratoryRate: reading(visit.soap?.objective?.respiratoryRate),
       chiefComplaint: visit.soap?.subjective === 'Pending Triage' ? '' : (visit.soap?.subjective || '')
     });
   };
@@ -214,11 +217,11 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
                   <legend className="pb-3 text-xs font-bold text-accent tracking-wide">{t.vitalsSign || (isBM ? 'Tanda vital' : 'Vital signs')}</legend>
                   <div className="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-px bg-line border border-line">
                     {[
-                      { key: 'temperature', label: isBM ? 'Suhu' : 'Temperature', unit: '°C', ph: '36.6', step: '0.1' },
-                      { key: 'bpSystolic', label: isBM ? 'BP sistolik' : 'BP systolic', unit: 'mmHg', ph: '120' },
-                      { key: 'bpDiastolic', label: isBM ? 'BP diastolik' : 'BP diastolic', unit: 'mmHg', ph: '80' },
-                      { key: 'heartRate', label: isBM ? 'Kadar nadi' : 'Heart rate', unit: 'bpm', ph: '72' },
-                      { key: 'respiratoryRate', label: isBM ? 'Kadar pernafasan' : 'Respiratory rate', unit: '/min', ph: '16' },
+                      { key: 'temperature', label: isBM ? 'Suhu' : 'Temperature', unit: '°C', ph: '36.6', step: '0.1', min: '0.1' },
+                      { key: 'bpSystolic', label: isBM ? 'BP sistolik' : 'BP systolic', unit: 'mmHg', ph: '120', min: '1' },
+                      { key: 'bpDiastolic', label: isBM ? 'BP diastolik' : 'BP diastolic', unit: 'mmHg', ph: '80', min: '1' },
+                      { key: 'heartRate', label: isBM ? 'Kadar nadi' : 'Heart rate', unit: 'bpm', ph: '72', min: '1' },
+                      { key: 'respiratoryRate', label: isBM ? 'Kadar pernafasan' : 'Respiratory rate', unit: '/min', ph: '16', min: '1' },
                     ].map((f) => (
                       <div key={f.key} className="bg-surface-muted px-4 py-3">
                         <label htmlFor={`triage-${f.key}`} className="block text-xs font-semibold text-ink mb-1.5">{f.label}</label>
@@ -226,6 +229,7 @@ export default function TriageModule({ triageQueue, allVisits = [], patientsMap,
                           id={`triage-${f.key}`}
                           type="number"
                           step={f.step}
+                          min={f.min}
                           required
                           value={(vitalsForm as Record<string, string>)[f.key]}
                           onChange={(e) => setVitalsForm({ ...vitalsForm, [f.key]: e.target.value })}

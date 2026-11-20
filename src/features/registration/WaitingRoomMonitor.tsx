@@ -73,11 +73,10 @@ export default function WaitingRoomMonitor({
         <ul className="bg-surface border border-line" aria-live="polite">
           {triageQueue.map((visit) => {
             const pt = patientsMap[visit.patientId];
-            const waitTimeMs = Date.now() - (visit.registeredTime || Date.now());
-            let waitMins = Math.floor(waitTimeMs / 60000);
-            if (waitMins < 1) waitMins = Math.floor(Math.random() * 45) + 1;
+            const waitMins = visit.registeredTime ? Math.max(0, Math.floor((Date.now() - visit.registeredTime) / 60000)) : 0;
             const waitBadgeClass = waitMins > 30 ? 'chip-danger' : waitMins >= 15 ? 'chip-warn' : 'chip-ok';
             const o = visit.soap?.objective;
+            const hasVitals = !!o && (Number(o.temperature) > 0 || Number(o.heartRate) > 0 || Number(o.bpSystolic) > 0);
             const pname = pt?.fullName ?? `Visit ${visit.id}`;
 
             return (
@@ -99,7 +98,7 @@ export default function WaitingRoomMonitor({
                   {pt?.panelEmployer && pt.panelEmployer !== 'None (Self-Pay)' && <span className="text-accent font-semibold">Panel: {pt.panelEmployer}</span>}
                   <span className="text-muted tabular-nums">
                     <Activity className="w-3.5 h-3.5 inline -mt-0.5 mr-1 text-accent" aria-hidden="true" />
-                    {o?.temperature}°C · HR {o?.heartRate} · BP {o?.bpSystolic}/{o?.bpDiastolic}
+                    {hasVitals ? `${o?.temperature}°C · HR ${o?.heartRate} · BP ${o?.bpSystolic}/${o?.bpDiastolic}` : 'Vitals not taken yet'}
                   </span>
                 </div>
 

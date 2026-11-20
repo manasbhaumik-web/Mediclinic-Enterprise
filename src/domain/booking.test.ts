@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bookableDays, clinicDateKey, dayLabel, groupSlots, phoneDigits, slotLabel, validateBookingDetails, whenLabel } from './booking';
+import { bookableDays, clinicDateKey, dayLabel, isClinicToday, groupSlots, phoneDigits, slotLabel, validateBookingDetails, whenLabel } from './booking';
 
 describe('validateBookingDetails', () => {
   const ok = { name: 'Ahmad Firdaus', ic: '900101-14-5555', phone: '+60 12-345 6789' };
@@ -45,5 +45,22 @@ describe('days and slots', () => {
     const g = groupSlots(['2026-10-26T01:00:00Z', '2026-10-26T02:30:00Z', '2026-10-26T06:00:00Z']);
     expect(g.map((x) => [x.key, x.slots.length])).toEqual([['morning', 2], ['afternoon', 1]]);
     expect(groupSlots(['2026-10-26T06:00:00Z']).map((x) => x.key)).toEqual(['afternoon']);
+  });
+});
+
+describe('isClinicToday', () => {
+  const now = new Date('2026-11-20T02:30:00Z'); // 10:30 on 20 Nov in Malaysia
+  it('counts a full database timestamp from today', () => {
+    expect(isClinicToday('2026-11-20 02:26:41.249+00', now)).toBe(true);
+  });
+  it('uses the clinic date, not the UTC date', () => {
+    // 20 Nov 01:00 in Malaysia is still 19 Nov in UTC
+    expect(isClinicToday('2026-11-19T17:00:00Z', new Date('2026-11-19T18:00:00Z'))).toBe(true);
+    expect(isClinicToday('2026-11-19T17:00:00Z', now)).toBe(true);
+  });
+  it('rejects other days and bad values', () => {
+    expect(isClinicToday('2026-11-19T10:00:00Z', now)).toBe(false);
+    expect(isClinicToday('not a date', now)).toBe(false);
+    expect(isClinicToday(undefined, now)).toBe(false);
   });
 });

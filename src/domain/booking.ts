@@ -35,6 +35,14 @@ export function clinicDateKey(d: Date): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: CLINIC_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 }
 
+/** True when a visit date (a full timestamp or a plain date) falls on today's date at the clinic. */
+export function isClinicToday(date: string | undefined | null, now: Date = new Date()): boolean {
+  if (!date) return false;
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return false;
+  return clinicDateKey(d) === clinicDateKey(now);
+}
+
 /** Today and the days ahead that can be booked, as clinic dates. */
 export function bookableDays(now: Date, count = BOOKING_DAYS_AHEAD + 1): string[] {
   const [y, m, d] = clinicDateKey(now).split('-').map(Number);

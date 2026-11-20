@@ -17,6 +17,7 @@ import { UserRole } from '../../types';
 import { useClinicDoctors } from '../../hooks/useClinicSetup';
 import { PageHeading, StationTabs, StatStrip } from '../../components/ui/StationChrome';
 import { formatWait } from '../../utils/waitTime';
+import { isClinicToday } from '../../domain/booking';
 
 interface PatientRegistrationModuleProps {
   t: any;
@@ -532,8 +533,7 @@ export default function PatientRegistrationModule({
     </ol>
   );
 
-  const today = new Date().toISOString().split('T')[0];
-  const registeredToday = [...completedVisits, ...triageQueue].filter((v) => v.date === today).length;
+  const registeredToday = [...completedVisits, ...triageQueue].filter((v) => isClinicToday(v.date)).length;
   const waits = triageQueue.map((v) => (v.registeredTime ? Math.max(0, Math.floor((Date.now() - v.registeredTime) / 60000)) : 0));
   const avgWait = waits.length ? Math.round(waits.reduce((a, b) => a + b, 0) / waits.length) : 0;
   const maxWait = waits.length ? Math.max(...waits) : 0;
