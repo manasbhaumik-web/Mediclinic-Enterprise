@@ -436,8 +436,9 @@ export default function AdminModule({
         {/* ========================================================================= */}
         {/* MAIN CONTENT AREA                                                         */}
         {/* ========================================================================= */}
-        <main className="flex-1 p-5 overflow-y-auto bg-canvas dark:bg-night-900 text-ink dark:text-slate-100">
-          <div className="w-full">
+        <main className="flex-1 p-3 sm:p-5 overflow-y-auto bg-canvas dark:bg-night-900 text-ink dark:text-slate-100">
+          {/* Same 1600px centred column as the staff pages, so the content lines up with the header, banner and navbar. */}
+          <div className="w-full max-w-[1600px] mx-auto">
           <React.Suspense fallback={<GlobalSpinner />}>
 
           {filteredModules.some((m) => m.id === activeTab) && sectionPages[activeTab]}
