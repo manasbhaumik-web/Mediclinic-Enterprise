@@ -69,7 +69,7 @@ export default function SettingsOverviewCard({ onSelectCategory }: SettingsOverv
       id: 'hardware' as const,
       title: 'Hardware Peripherals',
       icon: Smartphone,
-      badge: `${activeHardwareCount} of 3 Online`,
+      badge: `${activeHardwareCount} of 3 switched on`,
       badgeTone: activeHardwareCount > 0 ? 'ok' : 'warn',
       summary: 'MyKad IC Reader, Thermal Printer, Barcode Scanner',
       detail: 'Direct USB, ESC/POS, and HID device communication drivers.',

@@ -116,7 +116,7 @@ export default function SettingsModule() {
       shortLabel: 'Hardware',
       icon: Smartphone,
       description: 'MyKad smartcard reader, thermal receipt printer, and barcode scanner',
-      badge: `${activeHardwareCount}/3 Online`,
+      badge: `${activeHardwareCount}/3 switched on`,
       keywords: ['hardware', 'mykad', 'smartcard', 'reader', 'printer', 'receipt', 'barcode', 'scanner', 'peripherals', 'usb', 'pos']
     }
   ];
@@ -227,7 +227,7 @@ export default function SettingsModule() {
             <span className={`text-xs px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium ${
               aiEnabled ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-slate-500 bg-slate-100'
             }`}>
-              {aiEnabled ? 'Online' : 'Standby'}
+              {aiEnabled ? 'Switched on' : 'Off'}
             </span>
           </div>
         </button>
