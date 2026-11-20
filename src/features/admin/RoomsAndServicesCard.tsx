@@ -74,8 +74,8 @@ export default function RoomsAndServicesCard() {
                   onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
                 />
                 <label className="flex items-center gap-1.5 text-xs text-ink cursor-pointer">
-                  <input type="checkbox" checked={r.active} onChange={(e) => void actions.updateRoom(r.id, { active: e.target.checked }).then((x) => report(x, e.target.checked ? `${r.name} is in use.` : `${r.name} is switched off.`))} />
-                  In use
+                  <input type="checkbox" checked={r.active} onChange={(e) => void actions.updateRoom(r.id, { active: e.target.checked }).then((x) => report(x, e.target.checked ? `${r.name} is switched on.` : `${r.name} is switched off.`))} />
+                  Switched on
                 </label>
               </li>
             ))}

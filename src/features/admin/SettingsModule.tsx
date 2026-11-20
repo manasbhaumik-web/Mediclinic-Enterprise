@@ -80,7 +80,7 @@ export default function SettingsModule() {
       shortLabel: 'Public CMS',
       icon: Globe,
       description: 'Patient-facing website banner, resident doctors, services & FAQs',
-      badge: 'Live Portal',
+      badge: 'This browser only',
       keywords: ['website', 'cms', 'public', 'landing', 'hero', 'banner', 'portal', 'faqs', 'hours', 'doctors', 'services']
     },
     {
@@ -265,7 +265,7 @@ export default function SettingsModule() {
           <div className="mt-2 flex items-baseline justify-between">
             <h3 className="type-metric text-ink">CMS Ready</h3>
             <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center justify-center gap-1 font-medium">
-              Live Portal
+              This browser only
             </span>
           </div>
         </button>

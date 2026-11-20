@@ -659,11 +659,16 @@ export default function WebsiteCMSCard() {
           </div>
         )}
 
+        <p className="p-3 bg-amber-50 border border-amber-300 text-amber-900 text-xs">
+          <strong>Saved in this browser only.</strong> Website content is not stored on the server yet, so patients who visit the public site still see its
+          built-in content. Your changes show here and in the preview, not on other computers.
+        </p>
+
         {/* SAVED TOAST */}
         {savedSuccess && (
           <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span className="font-bold">Public website CMS configuration successfully published!</span>
+            <span className="font-bold">Saved in this browser. Patients visiting the public site do not see these changes yet.</span>
           </div>
         )}
 
@@ -684,7 +689,7 @@ export default function WebsiteCMSCard() {
             className="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold flex items-center gap-1.5 border border-teal-500/30 cursor-pointer shadow-xs transition-all"
           >
             <Save className="w-3.5 h-3.5" />
-            Publish Website Changes
+            Save in this browser
           </button>
         </div>
       </div>

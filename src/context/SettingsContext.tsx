@@ -87,7 +87,8 @@ const loadStoredAISettings = (): AISettings => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('mediclinic_ai_settings');
       if (stored) {
-        return { ...DEFAULT_AI_SETTINGS, ...JSON.parse(stored) };
+        // A key is never kept in storage, so one saved by an earlier version is dropped here.
+        return { ...DEFAULT_AI_SETTINGS, ...JSON.parse(stored), apiKey: '' };
       }
     }
   } catch (err) {
@@ -155,6 +156,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     };
     fetchSettings();
 
+    // The settings can only be read by a signed-in person, so the fetch above (made when the app first loads, before anyone has
+    // signed in) comes back empty. Fetch again at sign-in, or the app runs on built-in defaults until the page is reloaded, and
+    // saving anything from that state would write the defaults over the real settings.
+    const { data: authSub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        // Deferred: calling supabase from inside this callback can deadlock the auth client.
+        setTimeout(() => { void fetchSettings(); }, 0);
+      }
+    });
+
     const channel = supabase.channel('settings_sync_' + Math.random().toString(36).substring(2, 9))
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'clinic_settings' }, (payload: any) => {
         const data = payload.new;
@@ -173,6 +184,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       .subscribe();
 
     return () => {
+      authSub.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, []);
@@ -183,7 +195,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       if (newSettings.aiConfig) {
         try {
-          localStorage.setItem('mediclinic_ai_settings', JSON.stringify(newSettings.aiConfig));
+          // The API key stays out of storage: browser storage is readable by anything running on the page.
+          localStorage.setItem('mediclinic_ai_settings', JSON.stringify({ ...newSettings.aiConfig, apiKey: '' }));
         } catch (e) {
           console.warn('Failed to persist AI settings to localStorage', e);
         }

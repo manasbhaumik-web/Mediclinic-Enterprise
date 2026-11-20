@@ -24,14 +24,16 @@ export default function HardwarePeripheralsCard() {
     setTestingDevice(id);
     setTestResult(null);
 
+    // A web page cannot see a card reader, printer or scanner from here, so there is nothing to test. Reporting a reply from
+    // a device would be untrue.
     setTimeout(() => {
       setTestingDevice(null);
       setTestResult({
         id,
-        ok: true,
-        msg: `Ping ACK received from ${name} (Port COM3 / USB HID). Ready for continuous polling.`
+        ok: false,
+        msg: `Nothing was tested. This page cannot detect the ${name}; check it by using it (registration, a receipt print or a dispensing scan).`
       });
-    }, 700);
+    }, 300);
   };
 
   const activeHardwareCount = Object.values(settings.hardware).filter(Boolean).length;
@@ -95,7 +97,7 @@ export default function HardwarePeripheralsCard() {
               <div className="flex items-center justify-between text-2xs">
                 <span className="text-subtle font-mono">USB / PC/SC CCID</span>
                 <span className={settings.hardware.mykadScanner ? 'text-emerald-700 font-bold' : 'text-slate-400'}>
-                  {settings.hardware.mykadScanner ? 'Online' : 'Disabled'}
+                  {settings.hardware.mykadScanner ? 'Switched on' : 'Disabled'}
                 </span>
               </div>
               {settings.hardware.mykadScanner && (
@@ -145,7 +147,7 @@ export default function HardwarePeripheralsCard() {
               <div className="flex items-center justify-between text-2xs">
                 <span className="text-subtle font-mono">ESC/POS 80mm Network</span>
                 <span className={settings.hardware.receiptPrinter ? 'text-emerald-700 font-bold' : 'text-slate-400'}>
-                  {settings.hardware.receiptPrinter ? 'Online' : 'Disabled'}
+                  {settings.hardware.receiptPrinter ? 'Switched on' : 'Disabled'}
                 </span>
               </div>
               {settings.hardware.receiptPrinter && (
@@ -195,7 +197,7 @@ export default function HardwarePeripheralsCard() {
               <div className="flex items-center justify-between text-2xs">
                 <span className="text-subtle font-mono">HID Keyboard Wedge</span>
                 <span className={settings.hardware.barcodeScanner ? 'text-emerald-700 font-bold' : 'text-slate-400'}>
-                  {settings.hardware.barcodeScanner ? 'Online' : 'Disabled'}
+                  {settings.hardware.barcodeScanner ? 'Switched on' : 'Disabled'}
                 </span>
               </div>
               {settings.hardware.barcodeScanner && (

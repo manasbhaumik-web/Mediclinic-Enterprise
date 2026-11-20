@@ -42,20 +42,9 @@ export default function AIGatewayCard() {
   };
 
   const handleTestConnection = () => {
-    setTestStatus('testing');
-    setTestMessage('Verifying gateway endpoint and model latency...');
-
-    setTimeout(() => {
-      if (localConfig.provider !== 'on-premise' && !localConfig.apiKey && localConfig.enabled) {
-        setTestStatus('error');
-        setTestMessage(`API key required for ${localConfig.provider.toUpperCase()} provider.`);
-        return;
-      }
-
-      setTestStatus('success');
-      const pingTime = Math.floor(Math.random() * 80) + 120;
-      setTestMessage(`Connected to ${localConfig.modelName} successfully (${pingTime}ms latency). Ready for clinical inference.`);
-    }, 600);
+    // Nothing in the app calls an AI service yet, so there is no connection to test. Saying "connected" would be untrue.
+    setTestStatus('error');
+    setTestMessage('Nothing was tested: this version of the app does not send anything to an AI service yet.');
   };
 
   const handleSave = () => {
@@ -96,7 +85,7 @@ export default function AIGatewayCard() {
               ? 'chip-ok' 
               : 'chip-neutral'
           }`}>
-            {localConfig.enabled ? 'GATEWAY ACTIVE' : 'GATEWAY DISABLED'}
+            {localConfig.enabled ? 'SWITCHED ON, NOT CONNECTED' : 'SWITCHED OFF'}
           </span>
           <label className="relative inline-flex items-center justify-center cursor-pointer">
             <input 
@@ -223,7 +212,7 @@ export default function AIGatewayCard() {
                 {showApiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
             </div>
-            <p className="text-2xs text-subtle">Encrypted locally in browser session storage. Never exposed in public logs.</p>
+            <p className="text-2xs text-subtle">Not saved. The key is kept in this browser tab only and must be entered again after a reload.</p>
           </div>
         </div>
 
