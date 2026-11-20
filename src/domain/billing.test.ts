@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BillInput, buildSettlementArgs, calculateBill, procedureFeeFor, validateSettlement } from './billing';
+import { BillInput, buildSettlementArgs, calculateBill, chargeableLines, procedureFeeFor, validateSettlement } from './billing';
 
 const base = (over: Partial<BillInput> = {}): BillInput => ({
   consultationFee: 50,
@@ -121,5 +121,26 @@ describe('settlement helpers', () => {
     const a = buildSettlementArgs('v3', { paymentMethod: 'Panel', paidAmount: 0, panelClaimed: 37.1, glNumber: 'GL-1', panelName: ' MiCare TPA ', bill });
     expect(a.p_bill).toBe(bill);
     expect(a.p_panel_name).toBe('MiCare TPA');
+  });
+});
+
+describe('chargeableLines', () => {
+  const para = { drugName: 'Paracetamol', pricePerUnit: 0.15, quantity: 10 };
+  const augmentin = { drugName: 'Augmentin', pricePerUnit: 2.8, quantity: 14 };
+
+  it('leaves out a line the pharmacist skipped', () => {
+    const lines = chargeableLines([{ ...para, dispensedQuantity: 10, skipped: false }, { ...augmentin, dispensedQuantity: null, skipped: true }]);
+    expect(lines.map((l) => l.drugName)).toEqual(['Paracetamol']);
+    expect(calculateBill({ consultationFee: 0, procedureFee: 0, prescription: lines, customItems: [], discount: { type: 'fixed', value: 0 }, taxRate: 0 }).medicationCost).toBeCloseTo(1.5, 5);
+  });
+  it('charges the quantity handed over, not the quantity prescribed', () => {
+    expect(chargeableLines([{ ...para, dispensedQuantity: 6, skipped: false }])[0].quantity).toBe(6);
+  });
+  it('charges a line not dispensed yet in full', () => {
+    expect(chargeableLines([{ ...para, dispensedQuantity: null, skipped: false }])[0].quantity).toBe(10);
+    expect(chargeableLines([{ ...para }])[0].quantity).toBe(10);
+  });
+  it('drops a line with nothing handed over', () => {
+    expect(chargeableLines([{ ...para, dispensedQuantity: 0, skipped: false }])).toEqual([]);
   });
 });

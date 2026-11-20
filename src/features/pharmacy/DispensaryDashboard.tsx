@@ -129,7 +129,8 @@ export default function DispensaryDashboard({
         : '';
 
   const triggerDispensingSignoff = async () => {
-    if (!selectedVisitId || !activeVisit) return;
+    // Act on the patient shown on screen. selectedVisitId can still be null when the queue loaded after first render.
+    if (!activeVisit) return;
     if (!checklist.patientVerified || !checklist.allergyCleared || !checklist.dosageExplained) {
       setDispenseError(activeLanguage === 'EN' ? 'Safety Checklist incomplete. Please manually verify all safety safeguards first.' : 'Senarai Semak Keselamatan belum lengkap. Sila sahkan semua langkah keselamatan terlebih dahulu.');
       return;
@@ -146,9 +147,9 @@ export default function DispensaryDashboard({
         : { prescription_id: rx.id, action: 'dispense' as const, inventory_id: stockFor(rx)?.id ?? null, quantity: rx.quantity },
     );
     try {
-      const res = await inv.dispenseVisit.mutateAsync({ visitId: selectedVisitId, lines });
+      const res = await inv.dispenseVisit.mutateAsync({ visitId: activeVisit.id, lines });
       if (res.pending_signatures > 0) return;               // wait for the second signature before the patient leaves the pharmacy
-      const handed = await onDispenseSubmit(selectedVisitId);
+      const handed = await onDispenseSubmit(activeVisit.id);
       if (handed === false) {
         setDispenseError('The medicines were dispensed and stock was updated, but the patient could not be handed to billing. Press the button again to retry the hand-off.');
         return;
@@ -160,8 +161,8 @@ export default function DispensaryDashboard({
   };
 
   const completeHandover = async () => {
-    if (!selectedVisitId) return;
-    const handed = await onDispenseSubmit(selectedVisitId);
+    if (!activeVisit) return;
+    const handed = await onDispenseSubmit(activeVisit.id);
     if (handed === false) {
       setDispenseError('The patient could not be handed to billing. Check the connection and try again.');
       return;
@@ -347,7 +348,7 @@ export default function DispensaryDashboard({
                               }}
                               className="btn-secondary"
                             >
-                              {isSkipped ? 'Restore line' : locked ? 'Skip this line' : 'Out of stock: skip'}
+                              {isSkipped ? 'Restore line' : 'Skip this line'}
                             </button>
                           </div>
                         </li>

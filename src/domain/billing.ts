@@ -42,6 +42,17 @@ export const EMPTY_BREAKDOWN: BillBreakdown = {
   patientCopay: 0,
 };
 
+/**
+ * The prescription lines a patient is actually charged for, at the quantity actually handed over.
+ * A line the pharmacist skipped (allergy, out of stock) is never charged. A line not yet dispensed counts in full.
+ */
+export function chargeableLines<T extends Pick<PrescriptionItem, 'quantity' | 'skipped' | 'dispensedQuantity'>>(lines: T[]): T[] {
+  return lines
+    .filter((rx) => !rx.skipped)
+    .map((rx) => ({ ...rx, quantity: rx.dispensedQuantity ?? rx.quantity }))
+    .filter((rx) => rx.quantity > 0);
+}
+
 export function calculateBill(input: BillInput): BillBreakdown {
   const medicationCost = input.prescription.reduce((sum, rx) => sum + rx.pricePerUnit * rx.quantity, 0);
   const customItemsTotal = input.customItems.reduce((sum, item) => sum + item.amount, 0);

@@ -4,7 +4,7 @@ import { Visit, Language, TPAConfig } from '../../types';
 import { TRANSLATIONS } from '../../data';
 import type { PaymentInfo } from '../../domain/visitWorkflow';
 import {
-  EMPTY_BREAKDOWN, SettleResult, Settlement, buildInvoiceSnapshot, calculateBill, procedureFeeFor, round2,
+  EMPTY_BREAKDOWN, SettleResult, Settlement, buildInvoiceSnapshot, calculateBill, chargeableLines, procedureFeeFor, round2,
 } from '../../domain/billing';
 import type { ReceiptSource } from '../../domain/receipt';
 import { useReceiptPrinter } from '../../hooks/useReceipt';
@@ -122,7 +122,8 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
   const CONSULTATION_FEE = settings.billing.consultationFee;
   const PROCEDURE_FEE = procedureFeeFor(settings.billing.procedureFee, activeVisit?.soap?.plan?.requiresReferral);
   const TAX_RATE = settings.billing.taxRate / 100;
-  const prescription = activeVisit?.soap?.plan?.prescription ?? [];
+  // Only what was handed over is charged: lines the pharmacist skipped are left off.
+  const prescription = chargeableLines(activeVisit?.soap?.plan?.prescription ?? []);
   const panelInUse = isPanelClaim ? selectedTPA : null;
 
   const billingInput = {
@@ -277,7 +278,7 @@ export default function BillingDesk({ queue, allVisits, cashierName, patientsMap
   const estimateFor = (visit: Visit) => calculateBill({
     consultationFee: CONSULTATION_FEE,
     procedureFee: procedureFeeFor(settings.billing.procedureFee, visit.soap?.plan?.requiresReferral),
-    prescription: visit.soap?.plan?.prescription ?? [],
+    prescription: chargeableLines(visit.soap?.plan?.prescription ?? []),
     customItems: [],
     discount: { type: 'fixed', value: 0 },
     taxRate: TAX_RATE,
