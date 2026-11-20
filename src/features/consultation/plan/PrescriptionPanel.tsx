@@ -17,6 +17,7 @@ import { Activity, X, Pill, Trash2, FileText } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 import { buttonProps, focusRing } from '../../../lib/a11y';
 import { PrescriptionItem, ICD10Code } from '../../../types';
+import { drugClassOf } from '../../../domain/drugSafetyEngine';
 
 interface PrescriptionPanelProps {
   showPediatricCalc: boolean;
@@ -209,14 +210,14 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
                   <div>
                     <strong className="text-ink font-bold block">{drug.name}</strong>
                     <span className="text-2xs text-subtle dark:text-slate-400 font-medium">
-                      Category: {drug.category} | Class: {drug.allergyGroup || 'General'}
+                      Category: {drug.category} | Class: {drug.allergyGroup || drugClassOf(drug.name) || 'General'}
                     </span>
                   </div>
                   <div className="text-right">
                     <span className="text-xs font-mono tabular-nums font-bold text-accent block">
-                      RM {(drug.pricePerUnit || 0.5).toFixed(2)}
+                      RM {Number(drug.pricePerUnit ?? (drug as { price?: number }).price ?? 0).toFixed(2)}
                     </span>
-                    <span className="text-2xs text-slate-400">Stock: {drug.currentStock || 100}</span>
+                    <span className={`text-2xs ${(drug.currentStock ?? 0) > 0 ? 'text-slate-400' : 'text-rose-700 font-semibold'}`}>{(drug.currentStock ?? 0) > 0 ? `Stock: ${drug.currentStock}` : 'Out of stock'}</span>
                   </div>
                 </div>
               ))}
@@ -269,7 +270,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
           <span>Active Prescription Items ({rxList.length})</span>
           {rxList.length > 0 && (
             <span className="text-subtle dark:text-slate-400 font-mono tabular-nums text-2xs font-normal">
-              Subtotal: RM {(rxList.reduce((acc, r) => acc + ((r.pricePerUnit || 0.5) * (r.quantity || 1)), 0)).toFixed(2)}
+              Subtotal: RM {(rxList.reduce((acc, r) => acc + ((r.pricePerUnit ?? 0) * (r.quantity || 1)), 0)).toFixed(2)}
             </span>
           )}
         </h4>
@@ -322,7 +323,7 @@ export default function PrescriptionPanel({ showPediatricCalc, patientAge, patie
                       />
                     </td>
                     <td className="p-2 text-right font-mono tabular-nums text-subtle dark:text-slate-400">
-                      RM {((item.pricePerUnit || 0.5) * (item.quantity || 1)).toFixed(2)}
+                      RM {((item.pricePerUnit ?? 0) * (item.quantity || 1)).toFixed(2)}
                     </td>
                     <td className="p-2 text-center">
                       <button
